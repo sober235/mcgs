@@ -60,3 +60,45 @@ python scripts/score_espirit_csm.py \
     --ksp   /path/to/T1_trainer.mat \
     --csm   /path/to/csm_espirit_T1.mat
 ```
+
+---
+
+# Autoresearch tuning (ar_mcgs) — winner
+
+A Karpathy-style autoresearch sweep (`autoresearch/cycle.py`, `autoresearch/program.md`)
+was run on the corrected transverse mask. The scorer is artifact-centric:
+`comp = psnr + 25*ssim - 60*nmse - 25*hfen - 40*max(0,1-sharp) - 200*grain`,
+where `hfen` (3D-Laplacian high-freq error) measures aliasing/speckle residual
+and `sharp` (gradient-energy ratio vs GT) measures detail fidelity.
+
+**Lever findings (batch 1+2, 1500-iter cycles, harness self-CSM caliber):**
+
+| lever delta | combined | note |
+|-------------|----------|------|
+| baseline (kspace_high=1.0) | 29.08 | sharp 0.73/0.78 (too blurry) |
+| shared_warmup 500→700 | 29.08 | no effect (saturated) |
+| lambda_dtv 0→0.02 | 28.46 | slightly negative |
+| lambda_geo 0.03→0.3 | 7.84 | over-smooths, sharp collapses |
+| **kspace_high 1.0→1.5** | 32.36 | sharp 0.82/0.87 |
+| **kspace_high 1.0→2.0** | **33.56** | sharp 0.88/0.92 — WINNER lever |
+| kspace_high 2.0 + max_radius 12 | 33.53 | no gain (kept mr20, simpler) |
+| kspace_high 1.5 + curriculum | 25.52 | negative |
+
+**Winner = `kspace_high_weight = 2.0`** (everything else at the corrected
+baseline: lambda_geo 0.03, warmup 500, lambda_dtv 0, max_radius 20). The primary
+lever is the high-frequency k-space weight — it directly recovers detail
+(sharp 0.73→0.88) without inflating aliasing (hfen essentially flat).
+
+**Winner re-run at 4000 iters on the ESPIRiT CSM (apples-to-apples with the baselines):**
+
+| contrast | winner (hi=2.0) | corrected baseline (hi=1.0) | incoh baseline (AF 11.33) |
+|----------|-----------------|-----------------------------|---------------------------|
+| T1 (plain)       | **37.51 dB / SSIM 0.878** | 37.44 / 0.881 | 38.51 / 0.910 |
+| FLAIR (contrast) | **38.22 dB / SSIM 0.903** | 37.82 / 0.904 | 37.76 / 0.901 |
+
+Winner improves PSNR on both contrasts (T1 +0.07 dB, FLAIR +0.40 dB) with SSIM
+held; FLAIR now clears the incoherent-mask baseline by ~0.5 dB. Detail fidelity
+(sharpness) is visibly higher; see `figures/MC_GS_winner_{T1,FLAIR}.png`.
+
+Winner config: `configs/ce_joint_espirit_winner_hi20.yaml`.
+Full sweep table: `results/MC_GS_sweep_summary.csv`.

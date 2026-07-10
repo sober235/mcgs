@@ -1,0 +1,70 @@
+data:
+  contrast:
+    acceleration_factor: 12
+    csm_path: /data1/data1_congcong/data/3D/T2_csm_ksp_n4_mat/Train_3dBrain_huangyuwei_20230705-160927-1451_161015_FLAIR_trainer.mat
+    data_path: /data1/data1_congcong/data/3D/T2_csm_ksp_n4_mat/Train_3dBrain_huangyuwei_20230705-160927-1451_161015_FLAIR_trainer.mat
+    mask_path: /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse.mat
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes:
+    - 0
+    - 1
+    presampled: false
+    readout_axis: 2
+    skip_readout_check: true
+  plain:
+    acceleration_factor: 12
+    csm_path: /data1/data1_congcong/data/3D/T2_csm_ksp_n4_mat/Train_3dBrain_huangyuwei_20230705-160927-1451_161015_T1_trainer.mat
+    data_path: /data1/data1_congcong/data/3D/T2_csm_ksp_n4_mat/Train_3dBrain_huangyuwei_20230705-160927-1451_161015_T1_trainer.mat
+    mask_path: /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse.mat
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes:
+    - 0
+    - 1
+    presampled: false
+    readout_axis: 2
+    skip_readout_check: true
+gaussian:
+  density_lr: 0.015
+  init_scale: 0.008
+  initial_num_points: 200000
+  position_lr: 0.0003
+  rotation_lr: 0.0003
+  scale_lr: 0.002
+  warm_start_checkpoint: /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/results_dualwarm_v2_t1_flairTV5/checkpoints/latest.pth
+hardware:
+  device: cuda:0
+loss:
+  kspace_center_fraction: 0.05
+  kspace_center_weight: 0.3
+  kspace_freq_adaptive: true
+  kspace_high_weight: 1.0
+  kspace_mid_weight: 1.0
+  lambda_diff: 0.01
+  lambda_enh: 0
+  loss_type: l2
+  tv_weight: 0.03
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+output:
+  exp_name: r8_vdpois_af12_transverse
+  output_dir: results_jsweep/r8_vdpois_af12
+training:
+  eval_every: 1000
+  log_every: 50
+  lr_scheduler:
+    gamma: 0.9995
+    type: exponential
+  max_grad_norm: 1.0
+  max_iterations: 4000
+  save_every: 1000
+  seed: 42
+  shared_warmup_iters: 500
+voxelizer:
+  max_radius: 20
+  tile_size: 8
