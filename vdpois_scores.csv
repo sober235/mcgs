@@ -1,0 +1,7 @@
+run,mask_geometry,readout_axis,AF,contrast,PSNR_dB,SSIM
+vdpois_transverse(CORRECT),Poisson on transverse plane,2,11.83,T1,37.44,0.881
+vdpois_transverse(CORRECT),Poisson on transverse plane,2,11.83,FLAIR,37.82,0.9041
+vdpois_coronal(WRONG axis),Poisson on coronal plane,0,11.83,T1,37.63,0.8705
+vdpois_coronal(WRONG axis),Poisson on coronal plane,0,11.83,FLAIR,36.84,0.88
+incoh_baseline,incoh 3D,0,11.33,T1,38.51,0.91
+incoh_baseline,incoh 3D,0,11.33,FLAIR,37.76,0.901

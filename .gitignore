@@ -1,0 +1,11 @@
+# large binary data — regenerate from scripts, do not track
+*.mat
+*.npy
+*.npz
+*.pth
+*.h5
+results*/
+__pycache__/
+*.pyc
+.claude/
+.DS_Store
