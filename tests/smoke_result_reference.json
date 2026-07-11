@@ -3,21 +3,21 @@
   "results": {
     "plain": {
       "name": "T1",
-      "psnr": 37.738,
-      "ssim": 0.8755,
+      "psnr": 37.73835,
+      "ssim": 0.87555,
       "ref_psnr": 37.738,
       "ref_ssim": 0.8755,
-      "d_psnr": 0.0,
-      "d_ssim": 0.0,
+      "d_psnr": 0.00035,
+      "d_ssim": 5e-05,
       "pass_": true
     },
     "contrast": {
       "name": "FLAIR",
-      "psnr": 38.143,
+      "psnr": 38.14307,
       "ssim": 0.894,
       "ref_psnr": 38.143,
       "ref_ssim": 0.894,
-      "d_psnr": 0.0,
+      "d_psnr": 7e-05,
       "d_ssim": -0.0,
       "pass_": true
     }

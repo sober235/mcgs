@@ -133,11 +133,13 @@ def main():
         passed = abs(dp) <= args.psnr_tol and abs(dsim) <= args.ssim_tol
         ok &= passed
         name = tr.name_plain if which == "plain" else tr.name_contrast
-        results[which] = dict(name=name, psnr=round(psnr, 3), ssim=round(ssim, 4),
+        # Store enough precision that the residual (nondeterministic run) is visible;
+        # do NOT round the deltas to 0. The run is not bit-reproducible.
+        results[which] = dict(name=name, psnr=round(psnr, 5), ssim=round(ssim, 5),
                               ref_psnr=ref["psnr"], ref_ssim=ref["ssim"],
-                              d_psnr=round(dp, 3), d_ssim=round(dsim, 4), pass_=passed)
-        print(f"[smoke] {name:5s} PSNR={psnr:.3f} (ref {ref['psnr']}, d={dp:+.3f})  "
-              f"SSIM={ssim:.4f} (ref {ref['ssim']}, d={dsim:+.4f})  {'PASS' if passed else 'FAIL'}")
+                              d_psnr=round(dp, 5), d_ssim=round(dsim, 5), pass_=passed)
+        print(f"[smoke] {name:5s} PSNR={psnr:.5f} (ref {ref['psnr']}, d={dp:+.5f})  "
+              f"SSIM={ssim:.5f} (ref {ref['ssim']}, d={dsim:+.5f})  {'PASS' if passed else 'FAIL'}")
 
     verdict = "SMOKE_PASS" if ok else "SMOKE_FAIL"
     print(f"[smoke] {verdict}")

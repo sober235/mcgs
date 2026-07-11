@@ -10,7 +10,7 @@ single-contrast reconstruction would alias.
 Nothing in the code is specific to any contrast pair. A pair is defined entirely by a
 YAML config (`data.plain` / `data.contrast`, each with an optional display `name`). The
 shipped baseline targets a **T1 (plain) + FLAIR (contrast)** brain pair and reproduces
-the validated *winner-v2* result **exactly** (see [Validation](#validation)).
+the validated *winner-v2* result to within **< 0.001 dB PSNR** (see [Validation](#validation)).
 
 ```
 Paired_ARC_GS_general_framework/
@@ -138,16 +138,19 @@ are shared — always target an idle card). Outputs land in `results_winner_v2/`
 ## Validation
 
 `tests/smoke_test.py` reloads the winner-v2 checkpoint through the generalized code and
-re-scores it against the ESPIRiT-CSM ground truth. It reproduces the validated numbers
-**exactly** (`tests/smoke_result_reference.json`):
+re-scores it against the ESPIRiT-CSM ground truth. It reproduces the validated numbers to
+**within < 0.001 dB PSNR** (`tests/smoke_result_reference.json`) — the residual is run
+nondeterminism, far inside the 0.25 dB / 0.01 SSIM pass tolerance:
 
-| channel        | name  | PSNR (dB) | SSIM   | reference | Δ |
-|----------------|-------|-----------|--------|-----------|---|
-| plain          | T1    | 37.738    | 0.8755 | 37.738 / 0.8755 | 0.000 / 0.0000 |
-| contrast       | FLAIR | 38.143    | 0.8940 | 38.143 / 0.894  | 0.000 / 0.0000 |
+| channel        | name  | PSNR (dB) | SSIM    | reference        | Δ PSNR / Δ SSIM   |
+|----------------|-------|-----------|---------|------------------|-------------------|
+| plain          | T1    | 37.73835  | 0.87555 | 37.738 / 0.8755  | +0.00035 / +0.00005 |
+| contrast       | FLAIR | 38.14307  | 0.89400 | 38.143 / 0.894   | +0.00007 / −0.00000 |
 
 Scoring uses the reference **alpha-fit** convention (global intensity-scale fit before
-PSNR/SSIM), matching `arc/score_winner_espirit_final.py`.
+PSNR/SSIM), matching `arc/score_winner_espirit_final.py`. The run is not bit-reproducible
+(`deterministic: false`), so exact-equality is not expected or asserted; the deltas above
+confirm the generalized code is numerically equivalent to the validated original.
 
 ```bash
 # on a CUDA host (GSTMI env), pinned to an idle GPU:
