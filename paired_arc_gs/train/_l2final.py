@@ -38,12 +38,14 @@ def run(tag, data, change_enable, bypass):
             "change_enable":change_enable,"bypass":bypass,"wall_s":round(time.time()-t0,1)}
 
 RUNS=[
-  ("ce_audit",  CEP, True,  False),   # decisive: does audit accept genuine pre/post change?
-  ("ce_bypass", CEP, True,  True),
-  ("ce_nochange", CEP, False, False), # capacity control
-  ("tf_nochange", TF, False, False),  # FLAIR 3-way control: disabled
+  # lighter 24-coil T1/FLAIR 3-way control FIRST (completes fast, settles the capacity question)
+  ("tf_nochange", TF, False, False),  # FLAIR 3-way control: change disabled
   ("tf_audit",  TF, True,  False),    #                      audit (reject)
   ("tf_bypass", TF, True,  True),     #                      bypass (accept)
+  # decisive scientific test: does audit accept GENUINE CE pre/post enhancement change?
+  ("ce_audit",  CEP, True,  False),
+  ("ce_bypass", CEP, True,  True),
+  ("ce_nochange", CEP, False, False), # capacity control
 ]
 results={}
 if os.path.exists(f"{OUT}/l2final.json"):

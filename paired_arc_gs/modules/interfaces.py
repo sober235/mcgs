@@ -96,3 +96,4 @@ class NoOpChange(ChangeBranchBase):
     def forward(self, contrast_index, voxelizer, volume_shape):
         return None
     def num_primitives(self, contrast_index): return 0
+    def count(self, contrast_index): return 0
