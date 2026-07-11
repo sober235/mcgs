@@ -74,7 +74,10 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "deformation": {
             "enable": False,
             "rigid": True,
-            "nonrigid_control_points": [6, 6, 6],
+            "nonrigid": True,
+            "control_points": [6, 6, 6],    # coarse grid ⇒ low-freq u (§8)
+            "u_max": 0.05,                  # amplitude cap on |u| (norm units) — §8 caveat
+            "reference_index": 0,           # plain contrast pinned as reference frame
             "lambda_jacobian": 1.0,         # §8 det(J)-1 penalty weight
         },
 

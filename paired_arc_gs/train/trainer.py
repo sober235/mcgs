@@ -111,10 +111,34 @@ class PairedARCTrainer:
         print(f"[PairedARC] model init from ACS structure: {self.model.parameters_summary()}")
 
     def _build_modules(self):
-        # later layers replace these NoOps with real Phase/Deformation modules
-        self.phase = NoOpPhase().to(self.device)
-        self.deform = NoOpDeformation().to(self.device)
-        ccfg = self.cfg["model"].get("change", {})
+        mcfg = self.cfg["model"]
+        # §9 phase field
+        pcfg = mcfg.get("phase", {})
+        if pcfg.get("enable", False):
+            from paired_arc_gs.modules.phase_field import PhaseField
+            self.phase = PhaseField(n_contrasts=2, volume_shape=self.volume_shape,
+                                    device=self.device,
+                                    control_points=pcfg.get("control_points", [8, 8, 8]),
+                                    init_std=float(pcfg.get("init_std", 1e-2))).to(self.device)
+            print(f"[PairedARC] phase field ENABLED (control {tuple(self.phase.control_points)})")
+        else:
+            self.phase = NoOpPhase().to(self.device)
+        # §8 cross-scan deformation
+        fcfg = mcfg.get("deformation", {})
+        if fcfg.get("enable", False):
+            from paired_arc_gs.modules.deformation import Deformation
+            self.deform = Deformation(n_contrasts=2, volume_shape=self.volume_shape,
+                                      device=self.device,
+                                      rigid=fcfg.get("rigid", True),
+                                      nonrigid=fcfg.get("nonrigid", True),
+                                      control_points=fcfg.get("control_points", [6, 6, 6]),
+                                      u_max=float(fcfg.get("u_max", 0.05)),
+                                      reference_index=int(fcfg.get("reference_index", 0))).to(self.device)
+            print(f"[PairedARC] deformation ENABLED (rigid={self.deform.use_rigid} "
+                  f"nonrigid={self.deform.use_nonrigid} u_max={self.deform.u_max})")
+        else:
+            self.deform = NoOpDeformation().to(self.device)
+        ccfg = mcfg.get("change", {})
         if ccfg.get("enable", False):
             from paired_arc_gs.modules.change_branch import ChangeBranch
             self.change = ChangeBranch(n_contrasts=2, volume_shape=self.volume_shape,
@@ -219,7 +243,29 @@ class PairedARCTrainer:
         if "geo" in active_terms:
             terms["geo"] = L.geometry_reg(self.model.get_scale_values(), lcfg)
         if "phase" in active_terms and self.phase.enabled:
-            pass  # phase reg added when phase module is real (Layer 3)
+            # §9 wrap-aware phase reg on e^{jφ_m}, summed over contrasts
+            pr = torch.zeros((), device=self.device)
+            for ci in range(2):
+                ph = self.phase(ci, self.volume_shape)
+                if ph is not None:
+                    pr = pr + L.phase_reg(ph)
+            terms["phase"] = pr
+        if "def" in active_terms and self.deform.enabled:
+            # §8 deformation reg ‖∇u‖² (+ λ_J‖detJ-1‖²) on the non-reference contrasts
+            dr = torch.zeros((), device=self.device)
+            lam_J = float(self.cfg["model"].get("deformation", {}).get("lambda_jacobian", 1.0))
+            for ci in range(2):
+                u = self.deform.displacement_field(ci)
+                if u is not None:
+                    dr = dr + L.deformation_reg(u, None, lam_J)
+            terms["def"] = dr
+        if "change_sparse" in active_terms and self.change.enabled:
+            # §12.2 change sparsity Σ p‖α‖ over both contrasts
+            cs = torch.zeros((), device=self.device)
+            for ci in range(2):
+                if self.change.count(ci) > 0:
+                    cs = cs + self.change.get_density(ci).abs().sum()
+            terms["change_sparse"] = cs
         weights = {k: lcfg.get(k) for k in ("lambda_geo", "lambda_change", "lambda_route",
                                             "lambda_phase", "lambda_def")}
         return L.total_loss(terms, active_terms, weights)
@@ -291,23 +337,33 @@ class PairedARCTrainer:
             if cand.shape[0] == 0:
                 print(f"[birth] {name}: no candidates proposed"); continue
             n_before = self.change.count(ci)
-            e_aud_before = Rt.audit_error(self.render(ci), csm, ksp, maud, fft3c).item()
+            with torch.no_grad():
+                e_aud_before = Rt.audit_error(self.render(ci), csm, ksp, maud, fft3c).item()
+                # anatomy is FROZEN during birth-fit — render it ONCE, detached, so the
+                # birth-fit autograd graph spans only the change Gaussians (memory-critical
+                # on 42-coil CE data where a per-iter full render OOMs).
+                x_anat_det = self._render_anatomy_only(ci).detach()
+                m = mfit if mfit.ndim == 4 else mfit.unsqueeze(0)
+                y_fit = (m * ksp)
+                denom = m.sum().clamp_min(1.0)
             self.change.add_gaussians(ci, cand.to(self.device))
-            # briefly fit ONLY this contrast's change density against the FIT set
+            # briefly fit ONLY this contrast's change density/geometry against the FIT set
             new_params = [self.change.density[ci], self.change.positions[ci], self.change.scales[ci]]
             for p in new_params:
                 p.requires_grad_(True)
             opt = torch.optim.Adam([{"params": new_params, "lr": birth_lr}])
+            lam_chg = float(self.cfg["loss"].get("lambda_change", 1e-3))
             for _ in range(fit_iters):
                 opt.zero_grad(set_to_none=True)
-                x_plus = self.render(ci)
-                res = fft3c(csm * x_plus.unsqueeze(0))
-                m = mfit if mfit.ndim == res.ndim else mfit.unsqueeze(0)
-                dc = (m * (res - ksp)).abs().pow(2).sum() / m.sum().clamp_min(1.0)
-                spars = self.change.get_density(ci).abs().sum() * float(self.cfg["loss"].get("lambda_change", 1e-3))
+                chg = self.change(ci, self.voxelizer, self.volume_shape)
+                x_plus = x_anat_det + chg if chg is not None else x_anat_det
+                res = m * fft3c(csm * x_plus.unsqueeze(0))
+                dc = (res - y_fit).abs().pow(2).sum() / denom
+                spars = self.change.get_density(ci).abs().sum() * lam_chg
                 (dc + spars).backward()
                 opt.step()
-            e_aud_after = Rt.audit_error(self.render(ci), csm, ksp, maud, fft3c).item()
+            with torch.no_grad():
+                e_aud_after = Rt.audit_error(self.render(ci), csm, ksp, maud, fft3c).item()
             dE = e_aud_before - e_aud_after
             # §10.3 acceptance; audit.bypass=True accepts unconditionally (the w/o-audit
             # ablation arm — the naive private branch §10 warns fits aliasing)
