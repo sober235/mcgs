@@ -50,13 +50,14 @@ birth_fit_iters = 160):
 |---|---|
 | no change (branch disabled) | 0.8660 |
 | **audit** (branch gated) | 0.8673 |
-| bypass (accept-all) | 0.8679 |
+| bypass (accept-all) | 0.8672 |
 
-The three arms are **equal within 0.002**. On a healthy pair with no genuine contrast-specific
-change the branch is inert; refusing it (audit), forcing it (bypass) or disabling it all give
-the same held-out error. The audit therefore **costs nothing by abstaining** — there is no
-false-accept damage to avoid *and* no benefit foregone. On CE the same holds: `ce_audit` and
-`ce_bypass` held-out NRMSE agree within 0.002 (pre 0.282/0.283, post 0.267/0.265).
+(single frozen launch, `results_arc_layer2/l2_zero_regret_snapshot.json`.) The three arms are
+**equal within 0.0013**. On a healthy pair with no genuine contrast-specific change the branch
+is inert; refusing it (audit), forcing it (bypass) or disabling it all give the same held-out
+error. The audit therefore **costs nothing by abstaining** — there is no false-accept damage to
+avoid *and* no benefit foregone. On CE the same holds qualitatively: across launches where both
+completed, `ce_audit` and `ce_bypass` held-out NRMSE agree within ~0.002.
 
 ## Real-data birth gains are at the noise floor (reported honestly)
 
