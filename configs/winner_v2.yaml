@@ -1,0 +1,88 @@
+# ============================================================================
+# winner_v2.yaml — SHIPPED BASELINE for Paired_ARC_GS
+# ----------------------------------------------------------------------------
+# Reproduces the validated MC-GS winner-v2 result on the T1(plain)+FLAIR(contrast)
+# brain pair under the ESPIRiT-CSM reconstruction convention:
+#     plain    (T1) :  PSNR 37.74 dB   SSIM 0.876
+#     contrast (FLAIR): PSNR 38.14 dB   SSIM 0.894
+# Levers: TV=0.06 (primary anti-grain), kspace_high_weight=2.2 (sharpness).
+# See docs/method.md and arc/program.md for the autoresearch that found these.
+#
+# The `data.*.name` keys are the ONLY thing that make a pair "T1/FLAIR" — the
+# code is contrast-agnostic. To reconstruct a different dual-contrast pair,
+# copy configs/pair_template.yaml instead and fill in your own paths/names.
+#
+# NOTE: data/CSM/mask/warm-start are large (GB) and are NOT bundled in the repo.
+# The paths below point at the canonical amax locations. On another machine,
+# regenerate them (scripts/estimate_csm.py, scripts/make_mask.py) or copy them
+# over, then edit these paths. See README "Bring your own dual-contrast pair".
+# ============================================================================
+data:
+  plain:
+    name: T1                       # <-- display/log label for the high-SNR guide channel
+    acceleration_factor: 12
+    data_path: /data1/data1_congcong/data/3D/T2_csm_ksp_n4_mat/Train_3dBrain_huangyuwei_20230705-160927-1451_161015_T1_trainer.mat
+    csm_path:  /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/csm_espirit/csm_espirit_T1.mat
+    mask_path: /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse.mat
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [0, 1]             # transverse PE plane (house convention)
+    readout_axis: 2                # S-I fully sampled readout
+    presampled: false
+    skip_readout_check: true
+  contrast:
+    name: FLAIR                    # <-- display/log label for the guided channel
+    acceleration_factor: 12
+    data_path: /data1/data1_congcong/data/3D/T2_csm_ksp_n4_mat/Train_3dBrain_huangyuwei_20230705-160927-1451_161015_FLAIR_trainer.mat
+    csm_path:  /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/csm_espirit/csm_espirit_FLAIR.mat
+    mask_path: /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse.mat
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [0, 1]
+    readout_axis: 2
+    presampled: false
+    skip_readout_check: true
+gaussian:
+  density_lr: 0.015
+  init_scale: 0.008
+  initial_num_points: 200000
+  position_lr: 0.0003
+  rotation_lr: 0.0003
+  scale_lr: 0.002
+  # warm-start checkpoint (dual-warm 576902 Gaussians). Large; bring-your-own.
+  warm_start_checkpoint: /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/results_dualwarm_v2_t1_flairTV5/checkpoints/latest.pth
+hardware:
+  device: cuda:0
+loss:
+  loss_type: l2
+  tv_weight: 0.06                  # PRIMARY anti-grain lever (sweet spot 0.05-0.06)
+  kspace_freq_adaptive: true
+  kspace_center_fraction: 0.05
+  kspace_center_weight: 0.3
+  kspace_mid_weight: 1.0
+  kspace_high_weight: 2.2          # sharpness lever (opposes TV; 2.0-2.2)
+  lambda_diff: 0.01                # ignored by v2 trainer (posterior replaces it)
+  lambda_enh: 0                    # ignored by v2 trainer
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+output:
+  exp_name: paired_winner_v2
+  output_dir: results_winner_v2
+training:
+  max_iterations: 4000
+  shared_warmup_iters: 500
+  eval_every: 1000
+  log_every: 50
+  save_every: 1000
+  seed: 42
+  max_grad_norm: 1.0
+  lr_scheduler:
+    type: exponential
+    gamma: 0.9995
+voxelizer:
+  max_radius: 20
+  tile_size: 8

@@ -1,0 +1,27 @@
+{
+  "verdict": "SMOKE_PASS",
+  "results": {
+    "plain": {
+      "name": "T1",
+      "psnr": 37.738,
+      "ssim": 0.8755,
+      "ref_psnr": 37.738,
+      "ref_ssim": 0.8755,
+      "d_psnr": 0.0,
+      "d_ssim": 0.0,
+      "pass_": true
+    },
+    "contrast": {
+      "name": "FLAIR",
+      "psnr": 38.143,
+      "ssim": 0.894,
+      "ref_psnr": 38.143,
+      "ref_ssim": 0.894,
+      "d_psnr": 0.0,
+      "d_ssim": -0.0,
+      "pass_": true
+    }
+  },
+  "psnr_tol": 0.25,
+  "ssim_tol": 0.01
+}

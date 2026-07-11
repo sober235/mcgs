@@ -1,0 +1,113 @@
+# ============================================================================
+# pair_template.yaml — TEMPLATE for a NEW dual-contrast pair
+# ----------------------------------------------------------------------------
+# Paired_ARC_GS jointly reconstructs TWO co-registered contrasts with ONE shared
+# 3D-Gaussian geometry and per-primitive DUAL density. The high-SNR "plain"
+# channel guides the "contrast" channel through (a) shared geometry and (b) each
+# channel's own k-space data-consistency term. Nothing in the code is specific to
+# T1/FLAIR — a "pair" is fully defined by this file.
+#
+# HOW TO USE (see README "Bring your own dual-contrast pair"):
+#   1. Prepare each contrast as a MATLAB .mat with multi-coil k-space (and, if you
+#      have it, a sensitivity map). dataset.py auto-detects the coil axis and
+#      accepts keys ksp/kspace/k / map/csm/sensitivity_maps/maps/S.
+#   2. Estimate CSM for each contrast (scripts/estimate_csm.py, ESPIRiT via BART)
+#      OR set csm_path to the same .mat to use a bundled `map`.
+#   3. Make an undersampling mask (scripts/make_mask.py, house-convention vdPoisson)
+#      or point mask_path at your own; a 2D (PE1,PE2) mask is auto-broadcast to 3D.
+#   4. Fill in the two blocks below, set names, then:
+#         python scripts/train_paired.py --config configs/<your_pair>.yaml --gpu N
+#
+# The two contrasts MUST be spatially co-registered (shared geometry assumes it).
+# Put the HIGHER-SNR / more-complete contrast as `plain` — it anchors the geometry.
+# ============================================================================
+data:
+  plain:                           # the high-SNR GUIDE channel (e.g. T1, pre-contrast, PD)
+    name: PLAIN                    # display/log label — appears in ARC score logs
+    data_path: /abs/path/to/plain_kspace.mat     # multi-coil k-space .mat
+    csm_path:  /abs/path/to/plain_csm.mat         # ESPIRiT CSM .mat (or = data_path for bundled map)
+    mask_path: /abs/path/to/mask.mat              # undersampling mask (2D PE-plane or full 3D)
+    acceleration_factor: 12        # nominal AF (bookkeeping; the mask defines the real AF)
+    mask_type: external            # 'external' = load mask_path; else generated (see dataset.py)
+    normalize_kspace: true
+    normalization_percentile: 99.9
+    # --- geometry / sampling axis convention (house convention) ---
+    phase_axes: [0, 1]             # the two PHASE-ENCODE axes (undersampled plane)
+    readout_axis: 2                # the fully-sampled READOUT axis
+    presampled: false              # false = apply mask to full k-space here
+    skip_readout_check: true       # skip the readout full-sampling assertion (external masks)
+  contrast:                        # the GUIDED channel (e.g. FLAIR, post-contrast, T2)
+    name: CONTRAST
+    data_path: /abs/path/to/contrast_kspace.mat
+    csm_path:  /abs/path/to/contrast_csm.mat
+    mask_path: /abs/path/to/mask.mat              # usually the SAME mask as plain
+    acceleration_factor: 12
+    mask_type: external
+    normalize_kspace: true
+    normalization_percentile: 99.9
+    phase_axes: [0, 1]
+    readout_axis: 2
+    presampled: false
+    skip_readout_check: true
+
+gaussian:
+  initial_num_points: 200000       # ignored when warm_start_checkpoint is set
+  init_scale: 0.008                # ~1 voxel at 256^3; log-stored internally
+  position_lr: 0.0003
+  density_lr: 0.015
+  scale_lr: 0.002
+  rotation_lr: 0.0003
+  # Optional warm start. Strongly recommended: a dual-warm checkpoint gives the
+  # shared cloud a sane geometry before joint k-space supervision. Omit to train
+  # from a fresh 200k-point cloud (slower to converge, needs more iters).
+  # warm_start_checkpoint: /abs/path/to/latest.pth
+  # --- optional contrast-private residual (absorbs contrast-only structure:
+  #     lesions, enhancement, residual misalignment). 0 = disabled. ---
+  # num_private_points: 0
+
+hardware:
+  device: cuda:0                   # the training entry pins the GPU via --gpu
+
+loss:
+  loss_type: l2
+  # PRIMARY anti-grain lever. Grain in flat tissue falls monotonically with TV,
+  # but edge sharpness also drops. Empirical sweet spot: 0.05-0.06 (see program.md).
+  tv_weight: 0.06
+  # Frequency-weighted data consistency (radial k-space weighting).
+  kspace_freq_adaptive: true
+  kspace_center_fraction: 0.05     # inner radius fraction (low-freq DC region)
+  kspace_center_weight: 0.3        # de-emphasize the (over-sampled) centre
+  kspace_mid_weight: 1.0
+  kspace_high_weight: 2.2          # SHARPNESS lever. Opposes TV (uniformly amplifies
+                                   # high-freq incl. flat-region grain). Range 2.0-2.2.
+  # --- optional cross-contrast coupling (plain-guided directional TV on contrast).
+  #     0 = off (default). Injects plain edge geometry into the contrast null-space. ---
+  # lambda_dtv: 0.0
+  # dtv_eta_scale: 1.0
+
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+
+output:
+  exp_name: my_pair
+  output_dir: results_my_pair
+
+training:
+  max_iterations: 4000
+  shared_warmup_iters: 500         # geometry-tying warmup; HARD guard: < 0.5*max_iterations
+  eval_every: 1000
+  log_every: 50
+  save_every: 1000
+  seed: 42
+  deterministic: false             # true = bit-reproducible (cuDNN locked, slower)
+  max_grad_norm: 1.0
+  lr_scheduler:
+    type: exponential
+    gamma: 0.9995
+
+voxelizer:
+  type: tile_cuda                  # JIT-compiled CUDA tile voxelizer (needs nvcc + GPU)
+  max_radius: 20                   # per-Gaussian render radius cap (voxels)
+  tile_size: 8

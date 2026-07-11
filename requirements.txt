@@ -1,0 +1,8 @@
+# Paired_ARC_GS core runtime (validated on GSTMI: torch 2.7.1+cu118)
+# The tile voxelizer JIT-compiles a CUDA extension on first use -> needs nvcc + a CUDA GPU.
+torch>=2.0
+numpy
+scipy
+scikit-image
+tqdm
+pyyaml
