@@ -111,10 +111,19 @@ class PairedARCTrainer:
         print(f"[PairedARC] model init from ACS structure: {self.model.parameters_summary()}")
 
     def _build_modules(self):
-        # later layers replace these NoOps with real Phase/Deformation/Change modules
+        # later layers replace these NoOps with real Phase/Deformation modules
         self.phase = NoOpPhase().to(self.device)
         self.deform = NoOpDeformation().to(self.device)
-        self.change = NoOpChange().to(self.device)
+        ccfg = self.cfg["model"].get("change", {})
+        if ccfg.get("enable", False):
+            from paired_arc_gs.modules.change_branch import ChangeBranch
+            self.change = ChangeBranch(n_contrasts=2, volume_shape=self.volume_shape,
+                                       device=self.device,
+                                       max_per_contrast=int(ccfg.get("max_per_contrast", 20000)),
+                                       init_scale_vox=float(ccfg.get("init_scale_vox", 1.5))).to(self.device)
+            print(f"[PairedARC] change branch ENABLED (max {ccfg.get('max_per_contrast', 20000)}/contrast)")
+        else:
+            self.change = NoOpChange().to(self.device)
 
     def _build_voxelizer(self):
         vcfg = self.cfg.get("voxelizer", {})
@@ -148,7 +157,9 @@ class PairedARCTrainer:
     def _audit_split(self):
         """§10 fit/audit split of the SAMPLED k-space. Layer 1: audit disabled -> fit=all."""
         acfg = self.cfg["training"].get("audit", {})
-        self.audit_enabled = bool(acfg.get("enable", False))
+        # audit split is REQUIRED by change routing (§10); auto-enable when change is on
+        change_on = bool(self.cfg["model"].get("change", {}).get("enable", False))
+        self.audit_enabled = bool(acfg.get("enable", False)) or change_on
         # Held-out TEST split (§18 eval): always reserve a fraction of ACQUIRED samples that
         # are NEVER fit and NEVER audited — used only for the GT-free held-out k-space NRMSE,
         # the primary metric for clinical data (e.g. CE) that has no fully-sampled reference.
@@ -227,6 +238,110 @@ class PairedARCTrainer:
                     lr = 0.0
                 self.optimizer.param_groups[i]["lr"] = lr
 
+    # ------------------------------------------------------------------ §10 stage actions
+    def _run_stage_actions(self, stage, history):
+        acts = set(stage.actions)
+        if "propose_change" in acts and "audit_accept" in acts and self.change.enabled:
+            self._change_birth(history)
+        if "prune" in acts and self.change.enabled:
+            self._change_prune(history)
+
+    @torch.no_grad()
+    def _render_anatomy_only(self, ci: int) -> torch.Tensor:
+        """x_m^A = V(T_m(G_A), D_m(z_A)) with the change branch OFF (for §10.2 evidence)."""
+        pos, scl, rot = self.deform(ci, self.model.positions,
+                                    self.model.get_scale_values(), self.model.rotations)
+        vol = self.voxelizer(positions=pos, scales=scl, rotations=rot,
+                             density=self.model.get_density(ci))
+        if isinstance(vol, tuple):
+            vol = torch.complex(vol[0], vol[1])
+        ph = self.phase(ci, self.volume_shape)
+        return vol * ph if ph is not None else vol
+
+    def _change_birth(self, history):
+        """§10.2 propose + §10.3 audit-accept change Gaussians, per contrast.
+
+        For each contrast: render anatomy-only x_A, backproject the fit-set residual to an
+        evidence map, propose candidate positions from the high-evidence tail, add them,
+        briefly fit ONLY the change-branch density against the FIT set, then compute the
+        audit gain ΔE on the disjoint AUDIT set. Accept the whole birth only if ΔE > τ_m;
+        otherwise roll it back (anti-aliasing guard). Candidates that survive stay in the
+        model and are refined jointly in later stages.
+        """
+        from paired_arc_gs.train import routing as Rt
+        ccfg = self.cfg["model"].get("change", {})
+        n_cand = int(ccfg.get("propose_per_contrast", 4000))
+        # §10.3 acceptance threshold τ_m: prefer training.audit.tau, else model.change.audit_tau
+        tau = float(self.cfg["training"].get("audit", {}).get(
+            "tau", ccfg.get("audit_tau", 0.0)))
+        fit_iters = int(ccfg.get("birth_fit_iters", 60))
+        birth_lr = float(self.cfg["training"].get("lr", {}).get("change", 1e-2))
+        report = {}
+        for ci, (name, csm, ksp, mfit, maud) in enumerate([
+            (self.name_p, self.csm_p, self.ksp_p, self.mask_fit_p, self.mask_audit_p),
+            (self.name_c, self.csm_c, self.ksp_c, self.mask_fit_c, self.mask_audit_c)]):
+            if maud is None:
+                print(f"[birth] {name}: audit disabled -> skip (change routing needs audit set)")
+                continue
+            x_A = self._render_anatomy_only(ci)
+            evid = Rt.fit_residual_evidence(x_A, csm, ksp, mfit, fft3c, ifft3c)
+            cand = Rt.propose_from_evidence(evid, n_cand,
+                                            frac_threshold=float(ccfg.get("evidence_quantile", 0.9)),
+                                            seed=self.cfg.get("seed", 42))
+            if cand.shape[0] == 0:
+                print(f"[birth] {name}: no candidates proposed"); continue
+            n_before = self.change.count(ci)
+            e_aud_before = Rt.audit_error(self.render(ci), csm, ksp, maud, fft3c).item()
+            self.change.add_gaussians(ci, cand.to(self.device))
+            # briefly fit ONLY this contrast's change density against the FIT set
+            new_params = [self.change.density[ci], self.change.positions[ci], self.change.scales[ci]]
+            for p in new_params:
+                p.requires_grad_(True)
+            opt = torch.optim.Adam([{"params": new_params, "lr": birth_lr}])
+            for _ in range(fit_iters):
+                opt.zero_grad(set_to_none=True)
+                x_plus = self.render(ci)
+                res = fft3c(csm * x_plus.unsqueeze(0))
+                m = mfit if mfit.ndim == res.ndim else mfit.unsqueeze(0)
+                dc = (m * (res - ksp)).abs().pow(2).sum() / m.sum().clamp_min(1.0)
+                spars = self.change.get_density(ci).abs().sum() * float(self.cfg["loss"].get("lambda_change", 1e-3))
+                (dc + spars).backward()
+                opt.step()
+            e_aud_after = Rt.audit_error(self.render(ci), csm, ksp, maud, fft3c).item()
+            dE = e_aud_before - e_aud_after
+            # §10.3 acceptance; audit.bypass=True accepts unconditionally (the w/o-audit
+            # ablation arm — the naive private branch §10 warns fits aliasing)
+            bypass = bool(self.cfg["training"].get("audit", {}).get("bypass", False))
+            accept = True if bypass else (dE > tau)
+            if not accept:
+                # roll back the whole birth (prune the newly-added block)
+                keep = torch.zeros(self.change.count(ci), dtype=torch.bool, device=self.device)
+                keep[:n_before] = True
+                self.change.prune(ci, keep)
+            report[name] = {"proposed": int(cand.shape[0]), "audit_gain": float(dE),
+                            "tau": tau, "accepted": bool(accept),
+                            "n_change_after": self.change.count(ci)}
+            print(f"[birth] {name}: proposed={cand.shape[0]} ΔE_audit={dE:.4g} τ={tau} "
+                  f"-> {'ACCEPT' if accept else 'REJECT'} (change count={self.change.count(ci)})")
+        # change params changed -> rebuild optimizer so new params get moment buffers
+        self._build_optimizer()
+        if history is not None:
+            history.append({"event": "change_birth", **{f"{k}_{kk}": vv for k, d in report.items() for kk, vv in d.items()}})
+        self._last_birth_report = report
+
+    def _change_prune(self, history):
+        """§13-S7 prune change Gaussians with negligible amplitude."""
+        thr = float(self.cfg["model"].get("change", {}).get("prune_amp", 1e-4))
+        for ci in range(2):
+            if self.change.count(ci) == 0:
+                continue
+            amp = self.change.get_density(ci).abs()
+            keep = amp > (thr * amp.max().clamp_min(1e-12))
+            n0 = self.change.count(ci)
+            self.change.prune(ci, keep)
+            print(f"[prune] contrast{ci}: {n0} -> {self.change.count(ci)} change Gaussians")
+        self._build_optimizer()
+
     def train(self) -> Dict[str, Any]:
         total = self.plan.total_iters
         log_every = self.cfg["output"].get("eval_every", 500)
@@ -237,7 +352,8 @@ class PairedARCTrainer:
                 break
             if stage.is_stage_start:
                 print(f"[PairedARC] --- {stage.stage_id} (iters {stage.stage_iters}) "
-                      f"opt={stage.opt_groups} loss={stage.loss_terms} ---")
+                      f"opt={stage.opt_groups} loss={stage.loss_terms} act={stage.actions} ---")
+                self._run_stage_actions(stage, history)
             self._apply_stage_freezing(stage)
             self.optimizer.zero_grad(set_to_none=True)
             loss, log = self.compute_losses(stage.loss_terms)

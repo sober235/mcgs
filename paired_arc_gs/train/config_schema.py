@@ -51,11 +51,16 @@ DEFAULT_CONFIG: Dict[str, Any] = {
             "shared_trunk": True,           # shared trunk, per-contrast output heads (§6.2)
         },
 
-        # §7 contrast-specific change branch (Layer 2 — OFF until built)
+        # §7 contrast-specific change branch (Layer 2)
         "change": {
             "enable": False,
             "max_per_contrast": 20000,      # §19.2.4: must be << num_points
-            "audit_tau": 0.0,               # §10.3 audit-gain acceptance threshold
+            "audit_tau": 0.0,               # §10.3 audit-gain acceptance threshold τ_m
+            "propose_per_contrast": 4000,   # §10.2 candidates proposed per birth
+            "evidence_quantile": 0.9,       # §10.2 high-evidence tail cutoff for proposal
+            "birth_fit_iters": 60,          # brief FIT-set refit of candidates before audit
+            "init_scale_vox": 1.5,          # initial isotropic change-Gaussian extent (voxels)
+            "prune_amp": 1.0e-4,            # §13-S7 relative-amplitude prune threshold
         },
 
         # §9 low-frequency phase field (Layer 3 — OFF until built)
