@@ -148,6 +148,17 @@ class PairedARCTrainer:
             print(f"[PairedARC] change branch ENABLED (max {ccfg.get('max_per_contrast', 20000)}/contrast)")
         else:
             self.change = NoOpChange().to(self.device)
+        # §11 Gaussian-Gabor hybrid
+        gcfg = mcfg.get("gabor", {})
+        if gcfg.get("enable", False):
+            from paired_arc_gs.modules.gabor_branch import GaborBranch
+            self.gabor = GaborBranch(n_contrasts=2, volume_shape=self.volume_shape,
+                                     device=self.device,
+                                     max_primitives=int(gcfg.get("max_primitives", 2000)),
+                                     init_scale_vox=float(gcfg.get("init_scale_vox", 1.0))).to(self.device)
+            print(f"[PairedARC] Gabor branch ENABLED (max {gcfg.get('max_primitives', 2000)})")
+        else:
+            self.gabor = None
 
     def _build_voxelizer(self):
         vcfg = self.cfg.get("voxelizer", {})
@@ -168,8 +179,11 @@ class PairedARCTrainer:
             self._group_index[gname] = []
             for g in glist:
                 self._group_index[gname].append(len(flat)); flat.append(g)
-        # module param groups (phase/deform/change) appended, indexed by their names
-        for mod, nm in ((self.phase, "phase"), (self.deform, "deformation"), (self.change, "change")):
+        # module param groups (phase/deform/change/gabor) appended, indexed by their names
+        mods = [(self.phase, "phase"), (self.deform, "deformation"), (self.change, "change")]
+        if getattr(self, "gabor", None) is not None:
+            mods.append((self.gabor, "gabor"))
+        for mod, nm in mods:
             pgs = mod.param_groups(lr_cfg.get(nm, 1e-3))
             if pgs:
                 self._group_index.setdefault(nm, [])
@@ -222,6 +236,11 @@ class PairedARCTrainer:
         vol = self.voxelizer(positions=pos, scales=scl, rotations=rot, density=dens)
         if isinstance(vol, tuple):
             vol = torch.complex(vol[0], vol[1])
+        # §11 Gabor high-frequency branch V_B (added to the shared anatomy render V_G)
+        if getattr(self, "gabor", None) is not None and self.gabor.enabled:
+            gb = self.gabor(contrast_index)
+            if gb is not None:
+                vol = vol + gb
         chg = self.change(contrast_index, self.voxelizer, self.volume_shape)
         if chg is not None:
             vol = vol + chg
@@ -289,8 +308,13 @@ class PairedARCTrainer:
         acts = set(stage.actions)
         if "propose_change" in acts and "audit_accept" in acts and self.change.enabled:
             self._change_birth(history)
+        if "propose_gabor" in acts and getattr(self, "gabor", None) is not None:
+            self._gabor_birth(history)
         if "prune" in acts and self.change.enabled:
             self._change_prune(history)
+        if "cg_project" in acts:
+            self._cg_finalize = True   # apply CG projection in eval/holdout (§13-S10)
+            print("[cg] Stage 10: CG data-consistency projection enabled for final eval")
 
     @torch.no_grad()
     def _render_anatomy_only(self, ci: int) -> torch.Tensor:
@@ -385,6 +409,38 @@ class PairedARCTrainer:
             history.append({"event": "change_birth", **{f"{k}_{kk}": vv for k, d in report.items() for kk, vv in d.items()}})
         self._last_birth_report = report
 
+    def _gabor_birth(self, history):
+        """§11 birth Gabor primitives from held-out HIGH-FREQUENCY k-space error, after the
+        shared Gaussians have stabilized. Candidates are placed where the current model fails
+        to explain high-frequency measurements; carrier ξ is seeded from the dominant local
+        residual k-space direction. Count is strictly limited (§11)."""
+        from paired_arc_gs.train import routing as Rt
+        gcfg = self.cfg["model"].get("gabor", {})
+        n_gab = int(gcfg.get("propose_per_birth", 200))
+        carrier0 = float(gcfg.get("init_carrier", 3.0))
+        report = {}
+        for ci, (name, csm, ksp, mfit) in enumerate([
+            (self.name_p, self.csm_p, self.ksp_p, self.mask_fit_p),
+            (self.name_c, self.csm_c, self.ksp_c, self.mask_fit_c)]):
+            with torch.no_grad():
+                x_cur = self.render(ci)
+                # high-freq residual: fit-set residual emphasizes where model misses detail
+                evid = Rt.fit_residual_evidence(x_cur, csm, ksp, mfit, fft3c, ifft3c)
+                cand = Rt.propose_from_evidence(evid, n_gab,
+                                                frac_threshold=float(gcfg.get("evidence_quantile", 0.95)),
+                                                seed=self.cfg.get("seed", 42))
+            if cand.shape[0] == 0:
+                print(f"[gabor] {name}: no high-freq candidates"); continue
+            # seed carrier along a fixed high-freq direction (refined by SGD in s6 refine)
+            xi = torch.zeros(cand.shape[0], 3, device=self.device); xi[:, 0] = carrier0
+            n0 = self.gabor.count()
+            self.gabor.add_primitives(cand.to(self.device), xi=xi)
+            report[name] = {"proposed": int(cand.shape[0]), "gabor_total": self.gabor.count()}
+            print(f"[gabor] {name}: +{cand.shape[0]} Gabor primitives (total {self.gabor.count()})")
+        self._build_optimizer()
+        if history is not None:
+            history.append({"event": "gabor_birth", **{f"{k}_{kk}": vv for k, d in report.items() for kk, vv in d.items()}})
+
     def _change_prune(self, history):
         """§13-S7 prune change Gaussians with negligible amplitude."""
         thr = float(self.cfg["model"].get("change", {}).get("prune_amp", 1e-4))
@@ -422,6 +478,20 @@ class PairedARCTrainer:
                       " ".join(f"{k}={v:.4g}" for k, v in log.items() if isinstance(v, float)))
         return {"history": history, "final_iter": total}
 
+    # ------------------------------------------------------------------ §13-S10 CG projection
+    @torch.no_grad()
+    def _render_for_eval(self, ci: int, csm, ksp, mask_seen) -> torch.Tensor:
+        """Model render, optionally §13-S10 CG data-consistency projected. The CG solve uses
+        ONLY the samples the model was allowed to see (mask_seen = fit ∪ audit, NEVER the
+        held-out test set), so it cannot leak the held-out metric."""
+        x = self.render(ci)
+        if getattr(self, "_cg_finalize", False):
+            from paired_arc_gs.train.cg_project import cg_data_consistency
+            cg = self.cfg["training"].get("cg", {})
+            x = cg_data_consistency(x, csm, ksp, mask_seen, fft3c, ifft3c,
+                                    eta=float(cg.get("eta", 1.0)), n_iters=int(cg.get("n_iters", 10)))
+        return x
+
     # ------------------------------------------------------------------ eval
     @torch.no_grad()
     def holdout_kspace_nrmse(self) -> Dict[str, Dict[str, float]]:
@@ -435,10 +505,12 @@ class PairedARCTrainer:
         no fully-sampled reference — and a valid consistency check on T1/FLAIR too.
         """
         out = {}
-        pairs = [(0, self.name_p, self.csm_p, self.ksp_p, self.mask_test_p),
-                 (1, self.name_c, self.csm_c, self.ksp_c, self.mask_test_c)]
-        for ci, name, csm, ksp, mtest in pairs:
-            x = self.render(ci)
+        pairs = [(0, self.name_p, self.csm_p, self.ksp_p, self.mask_test_p, self.mask_p),
+                 (1, self.name_c, self.csm_c, self.ksp_c, self.mask_test_c, self.mask_c)]
+        for ci, name, csm, ksp, mtest, mfull in pairs:
+            # CG (if enabled) may see everything EXCEPT the held-out test set
+            m_seen = (mfull - mtest).clamp(0, 1)
+            x = self._render_for_eval(ci, csm, ksp, m_seen)
             k_model = fft3c(csm * x.unsqueeze(0))
             m = mtest if mtest.ndim == k_model.ndim else mtest.unsqueeze(0)
             num = (m * (k_model - ksp)).abs().pow(2).sum().sqrt()

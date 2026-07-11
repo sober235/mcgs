@@ -84,7 +84,11 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         # §11 Gaussian-Gabor hybrid (Layer 4 — OFF until built)
         "gabor": {
             "enable": False,
-            "max_primitives": 5000,
+            "max_primitives": 5000,         # §11 STRICT count limit
+            "propose_per_birth": 200,       # candidates per s6 birth (from high-freq residual)
+            "evidence_quantile": 0.95,      # high-freq residual tail cutoff
+            "init_carrier": 3.0,            # initial carrier freq (cycles/norm-unit), refined by SGD
+            "init_scale_vox": 1.0,          # Gabor envelope extent (voxels)
         },
     },
 
