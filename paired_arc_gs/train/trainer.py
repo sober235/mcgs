@@ -149,21 +149,33 @@ class PairedARCTrainer:
         """§10 fit/audit split of the SAMPLED k-space. Layer 1: audit disabled -> fit=all."""
         acfg = self.cfg["training"].get("audit", {})
         self.audit_enabled = bool(acfg.get("enable", False))
-        if not self.audit_enabled:
-            self.mask_fit_p, self.mask_fit_c = self.mask_p, self.mask_c
-            self.mask_audit_p = self.mask_audit_c = None
-            return
-        frac = float(acfg.get("fit_fraction", 0.75)); seed = int(acfg.get("seed", 42))
-        g = torch.Generator(device="cpu").manual_seed(seed)
-        def split(mask):
+        # Held-out TEST split (§18 eval): always reserve a fraction of ACQUIRED samples that
+        # are NEVER fit and NEVER audited — used only for the GT-free held-out k-space NRMSE,
+        # the primary metric for clinical data (e.g. CE) that has no fully-sampled reference.
+        ecfg = self.cfg["training"].get("eval", {})
+        test_frac = float(ecfg.get("holdout_fraction", 0.10))
+        seed = int(acfg.get("seed", 42))
+        gg = torch.Generator(device="cpu").manual_seed(seed)
+
+        def three_way(mask):
             m = mask.detach().cpu()
             samp = (m > 0)
-            r = torch.rand(m.shape, generator=g)
-            fit = (samp & (r < frac)).float().to(self.device)
-            aud = (samp & (r >= frac)).float().to(self.device)
-            return fit, aud
-        self.mask_fit_p, self.mask_audit_p = split(self.mask_p)
-        self.mask_fit_c, self.mask_audit_c = split(self.mask_c)
+            r = torch.rand(m.shape, generator=gg)
+            test = (samp & (r < test_frac))                       # held-out (never fit/audit)
+            rest = (samp & (r >= test_frac))
+            if self.audit_enabled:
+                fit_frac = float(acfg.get("fit_fraction", 0.75))
+                # split `rest` into fit/audit by a second uniform on the same r rescaled
+                r2 = (r - test_frac) / max(1e-6, 1.0 - test_frac)
+                fit = (rest & (r2 < fit_frac)).float().to(self.device)
+                aud = (rest & (r2 >= fit_frac)).float().to(self.device)
+            else:
+                fit = rest.float().to(self.device)
+                aud = None
+            return fit, aud, test.float().to(self.device)
+
+        self.mask_fit_p, self.mask_audit_p, self.mask_test_p = three_way(self.mask_p)
+        self.mask_fit_c, self.mask_audit_c, self.mask_test_c = three_way(self.mask_c)
 
     # ------------------------------------------------------------------ rendering (§4)
     def render(self, contrast_index: int) -> torch.Tensor:
@@ -240,8 +252,37 @@ class PairedARCTrainer:
 
     # ------------------------------------------------------------------ eval
     @torch.no_grad()
-    def evaluate(self) -> Dict[str, Dict[str, float]]:
-        """Alpha-fit PSNR/SSIM vs GT for both contrasts (matches the MC-GS scoring口径)."""
+    def holdout_kspace_nrmse(self) -> Dict[str, Dict[str, float]]:
+        """GT-FREE metric (§18): held-out k-space NRMSE.
+
+            NRMSE_ho = || M_test (F(S x) - y) || / || M_test y ||    (per contrast)
+
+        M_test is the reserved held-out sampling set (never fit, never audited), so this
+        cannot be gamed by hard data-consistency replacement. A null model scores ~1.0; a
+        perfect model scores 0. This is the PRIMARY metric for clinical data (CE) that has
+        no fully-sampled reference — and a valid consistency check on T1/FLAIR too.
+        """
+        out = {}
+        pairs = [(0, self.name_p, self.csm_p, self.ksp_p, self.mask_test_p),
+                 (1, self.name_c, self.csm_c, self.ksp_c, self.mask_test_c)]
+        for ci, name, csm, ksp, mtest in pairs:
+            x = self.render(ci)
+            k_model = fft3c(csm * x.unsqueeze(0))
+            m = mtest if mtest.ndim == k_model.ndim else mtest.unsqueeze(0)
+            num = (m * (k_model - ksp)).abs().pow(2).sum().sqrt()
+            den = (m * ksp).abs().pow(2).sum().sqrt().clamp_min(1e-12)
+            out[["plain", "contrast"][ci]] = {"name": name, "holdout_nrmse": float(num / den)}
+        return out
+
+    @torch.no_grad()
+    def evaluate(self, ref_ok: bool = True) -> Dict[str, Dict[str, float]]:
+        """Alpha-fit PSNR/SSIM vs GT for both contrasts (matches the MC-GS scoring口径).
+
+        VALID only when GT is a fully-sampled reference (T1/FLAIR). For clinical data whose
+        'GT' is the zero-filled recon of the acquired data (CE), full-reference PSNR is
+        circular (rewards a null model) — use holdout_kspace_nrmse() instead. `ref_ok=False`
+        flags the returned scores as reference-invalid.
+        """
         from skimage.metrics import structural_similarity as sk_ssim
         import numpy as np
         out = {}
@@ -260,5 +301,6 @@ class PairedARCTrainer:
             r = rec * alpha; mx = float(g.max())
             psnr = 10.0 * np.log10(mx ** 2 / np.mean((r - g) ** 2))
             ssim = sk_ssim(g, r, data_range=mx)
-            out[["plain", "contrast"][ci]] = {"name": name, "psnr": float(psnr), "ssim": float(ssim)}
+            out[["plain", "contrast"][ci]] = {"name": name, "psnr": float(psnr),
+                                              "ssim": float(ssim), "ref_valid": bool(ref_ok)}
         return out
