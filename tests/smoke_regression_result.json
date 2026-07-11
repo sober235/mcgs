@@ -1,0 +1,10 @@
+{
+  "verdict": "SMOKE_PASS",
+  "method": "live re-run of paired_gs (MC-GS baseline) via tests/smoke_test.py --gpu 2",
+  "results": {
+    "plain":    {"name": "T1",    "psnr": 37.73835, "ssim": 0.87555, "ref_psnr": 37.738, "ref_ssim": 0.8755, "d_psnr": 0.00035, "d_ssim": 0.00005, "pass_": true},
+    "contrast": {"name": "FLAIR", "psnr": 38.14307, "ssim": 0.89400, "ref_psnr": 38.143, "ref_ssim": 0.894,  "d_psnr": 0.00007, "d_ssim": 0.0,     "pass_": true}
+  },
+  "psnr_tol": 0.6, "ssim_tol": 0.02,
+  "git_proof": "paired_gs/ byte-identical since commit 1bdad20 (git diff --stat 1bdad20 HEAD -- paired_gs/ EMPTY); result cannot regress by construction, confirmed live"
+}

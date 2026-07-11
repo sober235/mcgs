@@ -1,5 +1,17 @@
 # Method — Paired dual-contrast 3D Gaussian Splatting MRI reconstruction
 
+> **Scope of this document.** This is the derivation for the **MC-GS baseline** — shared
+> geometry + two independent density tables — which is retained unchanged as §17 ablation
+> row 2 (`paired_gs/`). The **Paired-ARC-GS** architecture that supersedes it (response
+> decoder §6, change branch §7, deformation §8, phase §9, audited routing §10, Gabor §11, the
+> §12 noise-normalized losses, and the §13 10-stage schedule) is specified in
+> [`../MS_GS/Paired_ARC_GS_general_framework.md`](../MS_GS/Paired_ARC_GS_general_framework.md)
+> and implemented in `paired_arc_gs/`; each layer's derivation-in-practice and validation is in
+> [`validation_layer1.md`](validation_layer1.md), [`validation_layer2.md`](validation_layer2.md),
+> [`validation_layer3.md`](validation_layer3.md), and [`validation_ablation17.md`](validation_ablation17.md).
+> The MC-GS material below still holds for the baseline row; §4 here (contrast-private residual)
+> is the baseline's precursor to the ARC change branch, not the audited §7 branch.
+
 **Multi-contrast joint reconstruction: shared geometry, dual density.** One set of 3D
 Gaussian geometry is constrained jointly by the k-space data-consistency terms of *two*
 co-registered contrasts. This document is the code-verified derivation (`paired_gs/`:
