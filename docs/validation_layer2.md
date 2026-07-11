@@ -19,7 +19,12 @@ guard the spec's §10 is built around.
 The k-space is split three ways (§10.1 + §18): **fit** (updates params) ∪ **audit** (judges
 births) ∪ **held-out test** (never touched, used only for the GT-free NRMSE metric).
 
-## Result 1 — mechanism (synthetic, controlled)
+Two results are robustly reproducible; a third (real-data per-contrast birth gains) is at the
+noise floor and is reported honestly as such rather than as a discrimination claim.
+
+![Layer-2 audit]({{artifact:art_dbdbd562-80a2-45eb-8d2b-a08b4d424446}})
+
+## Robust result 1 — mechanism (synthetic, controlled)
 
 A controlled scene with a *planted* localized change plus undersampling aliasing:
 
@@ -31,66 +36,62 @@ A controlled scene with a *planted* localized change plus undersampling aliasing
 | audit gain, **aliasing artifact** | ΔE = +0.157 |
 | separation | **8.3×** |
 
-The proposal localizes the unexplained signal exactly, and the audit gain for genuine change
-is 8.3× that of an aliasing-fit artifact — so a threshold τ between them accepts the real
-change and rejects the aliasing. (`paired_arc_gs/train/test_routing.py`, 5/5.)
+The proposal localizes the unexplained signal exactly, and the audit gain for genuine
+(strong, localized) change is 8.3× that of an aliasing-fit artifact — so a threshold τ between
+them accepts the real change and rejects the aliasing. This is the mechanism the audit is
+designed to provide, verified where ground truth is known. (`paired_arc_gs/train/test_routing.py`, 5/5.)
 
-## Result 2 — discrimination on real data
+## Robust result 2 — zero-regret gate on a healthy pair
 
-Birth audit gain ΔE at stage `s5_change_birth` (200k Gaussians, 400-iter response fit +
-160-iter candidate fit before the audit):
+FLAIR held-out k-space NRMSE, healthy T1/FLAIR pair, 3-way ablation (single process,
+birth_fit_iters = 160):
 
-| pair | contrast | ΔE at birth | decision | interpretation |
-|---|---|---|---|---|
-| **CE** (pre/post contrast) | pre  | **+0.012** | ACCEPT | genuine enhancement change |
-| **CE** | post | **+0.021** | ACCEPT | stronger — the enhanced scan |
-| T1/FLAIR (healthy) | T1 | +0.04 / −0.07 * | noise ≈ 0 | no real change to find |
-| T1/FLAIR (healthy) | FLAIR | **−0.078** | REJECT | correctly abstains (no lesion) |
+| arm | FLAIR held-out NRMSE |
+|---|---|
+| no change (branch disabled) | 0.8660 |
+| **audit** (branch gated) | 0.8673 |
+| bypass (accept-all) | 0.8679 |
 
-\* T1's birth gain hovers around zero and flips sign across launches (nondeterministic split)
-— consistent with there being no genuine contrast-specific change in a healthy pair.
+The three arms are **equal within 0.002**. On a healthy pair with no genuine contrast-specific
+change the branch is inert; refusing it (audit), forcing it (bypass) or disabling it all give
+the same held-out error. The audit therefore **costs nothing by abstaining** — there is no
+false-accept damage to avoid *and* no benefit foregone. On CE the same holds: `ce_audit` and
+`ce_bypass` held-out NRMSE agree within 0.002 (pre 0.282/0.283, post 0.267/0.265).
 
-**The audit discriminates**: on the CE pre/post pair (which has *real* localized contrast
-enhancement, §7.2) it accepts change with a clearly positive gain — and *post* (the enhanced
-scan) has the larger gain, as physiology predicts. On the healthy T1/FLAIR pair it abstains.
+## Real-data birth gains are at the noise floor (reported honestly)
 
-![Layer-2 audit]({{artifact:art_dbdbd562-80a2-45eb-8d2b-a08b4d424446}})
+Unlike the controlled synthetic case, the birth audit gain ΔE on the **real** pairs is small
+and **straddles zero across nondeterministic launches** — it is not a reproducible
+per-contrast discrimination:
 
-## Result 3 — zero-regret gate (ablation: no-change / audit / bypass)
+| contrast | ΔE range across launches |
+|---|---|
+| CE pre | [−0.037, +0.012] |
+| CE post | [−0.005, +0.021] |
+| T1 | [−0.071, +0.041] |
+| FLAIR (healthy) | [−0.105, +0.008] (trends negative → reject) |
 
-Held-out k-space NRMSE (lower = better; birth_fit_iters = 160):
+At this scale (200k Gaussians, AF≈12/5.3×) the audit is **conservative** on real data: it does
+not confidently fire, and healthy FLAIR trends toward reject. We do **not** claim the audit
+demonstrably accepts genuine CE enhancement on this single pair — the gains are within
+run-to-run noise. The mechanism is proven in the controlled setting (result 1); the real-data
+behavior is a zero-regret, conservative gate (result 2).
 
-| pair | contrast | no change | **audit** | bypass (accept-all) |
-|---|---|---|---|---|
-| T1/FLAIR | FLAIR | 0.8660 | **0.8673** | 0.8672 |
-| T1/FLAIR | T1 | 0.5869 | 0.5874 | 0.5872 |
-| CE | pre | — | **0.2821** | 0.2829 |
-| CE | post | — | **0.2665** | 0.2650 |
+## Finding — `birth_fit_iters` matters
 
-On the healthy pair the three arms are **equal within 0.001** — the change branch is inert
-when there is no genuine change, so the audit costs nothing by abstaining (no false-accept
-damage). On CE, audit ≈ bypass because the change is real and both accept it. The audit is a
-**zero-regret gate**: it never hurts, and it protects against aliasing (Result 1) when the
-undersampling would otherwise tempt a free private branch.
-
-## Finding — `birth_fit_iters` is load-bearing
-
-The audit judges a candidate *after* a brief fit. If that fit is too short the candidate is
-underfit and cannot yet reduce audit error, producing a **false reject**:
-
-- `birth_fit_iters = 80`: CE audit **rejects** pre/post (ΔE < 0) — false negative.
-- `birth_fit_iters = 160`: CE audit **accepts** pre/post (ΔE > 0) — correct.
-
-So the candidate must be given a fair fit before the audit decides. 160 iters is adequate on
-these pairs; this is a genuine hyperparameter, documented in `config_schema` (`model.change
-.birth_fit_iters`).
+The audit judges a candidate *after* a brief fit; too short and the candidate is underfit,
+pushing ΔE more negative (a bias toward reject). At 80 iters CE birth gains are more negative
+than at 160. So the candidate must be given a fair fit before the audit decides
+(`config_schema` → `model.change.birth_fit_iters`). Even at 160, real-data gains remain at the
+noise floor (above) — this hyperparameter removes an underfit *bias* but does not manufacture a
+signal that isn't there.
 
 ## Caveats
 
-- Runs are **not bit-reproducible** (`deterministic: false` in the voxelizer; the fit/audit/
-  test split is reseeded per process), so the exact ΔE and NRMSE wobble at the third decimal
-  across launches. The qualitative result (CE accepts, healthy abstains, zero regret) is
-  stable and reproduced across launches.
+- Runs are **not bit-reproducible** (`deterministic: false` in the voxelizer; the
+  fit/audit/test split is reseeded per process), so ΔE and NRMSE wobble across launches — hence
+  the noise-floor framing for the real-data gains. The two robust results above are stable
+  across launches.
 - CE has no fully-sampled ground truth, so all CE numbers use the GT-free held-out k-space
   NRMSE (§18); full-reference PSNR/SSIM is only valid on T1/FLAIR.
 - These are Layer-2 numbers (response + change, no phase/deformation/Gabor/CG yet); absolute
