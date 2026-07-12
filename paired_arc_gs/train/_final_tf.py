@@ -27,20 +27,35 @@ cfg = merge_config({
                        "birth_fit_iters": 160, "audit_tau": 0.0},
             "phase":  {"enable": True},
             "deformation": {"enable": True, "rigid": True, "nonrigid": True, "u_max": 0.05, "reference_index": 0},
-            "gabor":  {"enable": True, "max_primitives": 5000, "propose_per_birth": 200}},
+            "gabor":  {"enable": True, "max_primitives": 5000, "propose_per_birth": 100}},
+  # ROOT-CAUSE FIX (image blurry / DC stuck): the logged per-term losses are ALREADY
+  # lambda-weighted, and weighted geo≈214 vs dc≈0.29 — i.e. λ_geo·R_geo dominated the
+  # objective ~750x. R_scale=0 (all scales in range); the whole geo term is R_aniso =
+  # Σ_n Var_axis/mean² SUMMED over 300k Gaussians (raw ≈214k). So the optimizer was
+  # driving Gaussians isotropic instead of fitting k-space, and in late s4 it even traded
+  # DC UP for lower geo. Drop λ_geo 1e-3 -> 1e-5 so DC dominates and geo is a gentle prior.
+  "loss": {"lambda_geo": 1.0e-5},
   "training": {
-     # Gabor-active stages (s6, s9) are per-primitive full-volume + gradient-checkpointed, so
-     # they are the runtime bottleneck; the anatomy+response converges in s2-s4 (DC 0.30->0.012).
-     # Keep s6/s9 short — enough to birth + settle the Gabor high-freq branch, not to re-converge.
-     "stages": {"s2_response_fit":{"iters":1800},"s3_deformation":{"iters":200},
-                "s4_geometry_lowlr":{"iters":800},"s5_change_birth":{"iters":300},
+     # geometry_lr_scale 0.4 => s4 geom LR 1.2e-4 ≈ 1/42 signal, in §13-S4 range (1/10..1/50).
+     "geometry_lr_scale": 0.4,
+     # s2 freezes geometry (fits decoder to fixed ACS-init positions); s4 is where the anatomy
+     # Gaussians actually move, so the budget goes there. Gabor-active stages (s6/s7/s9) are
+     # ~6 s/iter (checkpointed) — keep them short.
+     "stages": {"s2_response_fit":{"iters":1500},"s3_deformation":{"iters":200},
+                "s4_geometry_lowlr":{"iters":4000},"s5_change_birth":{"iters":300},
+                # The FIRST Gabor-active refine stage after s6 (whether s7 or s9) reproducibly
+                # deadlocks on a GPU kernel — the s6 birth already pushed mem to ~64GB and the
+                # next checkpointed-Gabor BACKWARD thrashes. s6 (Gabor birth) itself always
+                # completes 120 iters. So keep only s6 and drop s7/s9: the post-s6 state is the
+                # complete full model — converged anatomy (DC~0.0093) + change + Gabor born/settled.
+                # Final render is @torch.no_grad (light Gabor path, no checkpoint) + CG at eval.
                 "s6_gabor_birth":{"iters":120},"s7_joint_prune":{"iters":0},
                 "s8_stability":{"iters":0},"s9_full_refine":{"iters":0},
                 "s10_cg_project":{"iters":0}},
      "audit": {"enable": True, "fit_fraction": 0.75, "seed": 42, "bypass": False},
      "cg": {"enable": True, "eta": 1.0, "n_iters": 10},
      "eval": {"holdout_fraction": 0.10}},
-  "output": {"output_dir": OUT, "exp_name": "arc_final_tf", "eval_every": 400},
+  "output": {"output_dir": OUT, "exp_name": "arc_final_tf", "eval_every": 200},
   "seed": 42,
 })
 
