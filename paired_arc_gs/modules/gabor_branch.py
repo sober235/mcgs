@@ -25,6 +25,7 @@ from __future__ import annotations
 from typing import List, Dict, Any, Optional
 import torch
 import torch.nn as nn
+import torch.utils.checkpoint
 
 from .interfaces import PairedModule
 
@@ -109,16 +110,37 @@ class GaborBranch(PairedModule):
         inv_s2 = torch.exp(-2.0 * self.log_scales)              # 1/scale^2 (L,3)
         alpha = torch.complex(self.alpha[ci][:, 0], self.alpha[ci][:, 1])  # (L,)
         D, H, W, _ = coords.shape
+
+        def _chunk_sum(lo: int, hi: int) -> torch.Tensor:
+            """Sum the V_B contribution of primitives [lo, hi). Same math as the exact
+            per-primitive loop; isolated so it can be gradient-checkpointed (§11 render is
+            per-primitive full-volume, so retaining every primitive's graph is O(L·DHW) —
+            checkpointing bounds it to O(chunk·DHW))."""
+            acc = torch.zeros(D, H, W, dtype=torch.complex64, device=coords.device)
+            for l in range(lo, hi):
+                d = coords - self.positions[l]                  # (D,H,W,3) centered
+                dl = torch.einsum("ij,dhwj->dhwi", R[l], d)     # rotate into primitive frame
+                quad = (dl * dl * inv_s2[l]).sum(-1)            # Mahalanobis (D,H,W)
+                env = torch.exp(-0.5 * quad)                    # Gaussian envelope
+                phase = 2 * torch.pi * (d * self.xi[l]).sum(-1) # carrier ξᵀ(r-μ)
+                carrier = torch.exp(1j * phase.to(torch.float32))
+                acc = acc + alpha[l] * env.to(torch.complex64) * carrier
+            return acc
+
+        L = self.count()
+        # loop over primitives in chunks (count is strictly limited per §11); checkpoint each
+        # chunk during training so peak memory is O(chunk_size · DHW), not O(L · DHW)
+        chunk = int(getattr(self, "render_chunk", 16))
         out = torch.zeros(D, H, W, dtype=torch.complex64, device=coords.device)
-        # loop over primitives (count is strictly limited per §11) — memory-safe, exact
-        for l in range(self.count()):
-            d = coords - self.positions[l]                      # (D,H,W,3) centered
-            dl = torch.einsum("ij,dhwj->dhwi", R[l], d)         # rotate into primitive frame
-            quad = (dl * dl * inv_s2[l]).sum(-1)                # Mahalanobis (D,H,W)
-            env = torch.exp(-0.5 * quad)                        # Gaussian envelope
-            phase = 2 * torch.pi * (d * self.xi[l]).sum(-1)     # carrier ξᵀ(r-μ)
-            carrier = torch.exp(1j * phase.to(torch.float32))
-            out = out + alpha[l] * env.to(torch.complex64) * carrier
+        use_ckpt = torch.is_grad_enabled() and any(
+            p.requires_grad for p in ([self.positions, self.log_scales, self.rotations, self.xi]
+                                      + list(self.alpha)) if p.numel() > 0)
+        for lo in range(0, L, chunk):
+            hi = min(lo + chunk, L)
+            if use_ckpt:
+                out = out + torch.utils.checkpoint.checkpoint(_chunk_sum, lo, hi, use_reentrant=False)
+            else:
+                out = out + _chunk_sum(lo, hi)
         return out
 
     def param_groups(self, lr: float) -> List[Dict[str, Any]]:
