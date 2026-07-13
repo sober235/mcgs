@@ -1,0 +1,25 @@
+{
+  "train_s": 5075.821669340134,
+  "num_points": 576902,
+  "change_counts": {
+    "T1": 4000,
+    "FLAIR": 4000
+  },
+  "T1": {
+    "psnr": 36.95325988850945,
+    "ssim": 0.8911300195342816,
+    "holdout_nrmse": 0.23358061909675598
+  },
+  "FLAIR": {
+    "psnr": 37.46186326587492,
+    "ssim": 0.9157169548184793,
+    "holdout_nrmse": 0.27978864312171936
+  },
+  "ref": {
+    "T1_psnr": 37.738,
+    "T1_ssim": 0.8755,
+    "FLAIR_psnr": 38.143,
+    "FLAIR_ssim": 0.894,
+    "note": "MC-GS baseline winner-v2 (\u00a717 row2) for context; NOT a target \u2014 ARC is a different, staged model"
+  }
+}
