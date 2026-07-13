@@ -91,13 +91,32 @@ class PairedARCTrainer:
         mcfg = self.cfg["model"]; n = int(mcfg.get("num_points", 200000))
         ro = self.cfg["data"]["plain"].get("readout_axis", 0)
         acs_lines = self.cfg["data"]["plain"].get("acs_lines", 24)
-        x1 = acs_init.acs_lowres_image(self.ds_p.kspace_multicoil.to(self.device), self.csm_p,
-                                       ro, self.volume_shape, acs_lines, ifft3c)
-        x2 = acs_init.acs_lowres_image(self.ds_c.kspace_multicoil.to(self.device), self.csm_c,
-                                       ro, self.volume_shape, acs_lines, ifft3c)
-        E_A = acs_init.joint_structural_map(x1, x2)
-        pos, scl = acs_init.init_gaussians_from_structure(
-            E_A, n, base_scale_vox=1.5, device=self.device, seed=self.cfg.get("seed", 42))
+        warm_path = mcfg.get("warm_start_path")
+        warm_rot = None
+        if warm_path:
+            # Warm-start the shared anatomy geometry from a converged MC-GS checkpoint (its
+            # 576902 Gaussians already fit the anatomy to ~38 dB). ARC's scales are stored as
+            # log(normalized) and MC-GS stores them the same way (both reuse the same voxelizer),
+            # so exp() un-logs the ckpt scales for `initial_scales` (which re-logs internally);
+            # rotations are copied verbatim after construction. Densities are NOT transferred —
+            # ARC produces them from the response decoder (§6), re-fit in s2.
+            st = torch.load(warm_path, map_location="cpu")
+            ms = st.get("model_state", st)
+            pos = ms["positions"].to(self.device)
+            scl = torch.exp(ms["scales"]).to(self.device)      # log -> normalized
+            warm_rot = ms["rotations"].to(self.device)
+            n = pos.shape[0]
+            print(f"[PairedARC] WARM-START geometry from {warm_path}: {n} Gaussians "
+                  f"(pos range[{float(pos.min()):.3f},{float(pos.max()):.3f}], "
+                  f"scale_vox mean {float(scl.mean())*max(self.volume_shape)/2:.2f})")
+        else:
+            x1 = acs_init.acs_lowres_image(self.ds_p.kspace_multicoil.to(self.device), self.csm_p,
+                                           ro, self.volume_shape, acs_lines, ifft3c)
+            x2 = acs_init.acs_lowres_image(self.ds_c.kspace_multicoil.to(self.device), self.csm_c,
+                                           ro, self.volume_shape, acs_lines, ifft3c)
+            E_A = acs_init.joint_structural_map(x1, x2)
+            pos, scl = acs_init.init_gaussians_from_structure(
+                E_A, n, base_scale_vox=1.5, device=self.device, seed=self.cfg.get("seed", 42))
         acfg = mcfg.get("anatomy", {}); dcfg = mcfg.get("decoder", {})
         self.model = PairedARCModel(
             num_points=n, volume_shape=self.volume_shape, device=self.device,
@@ -108,7 +127,11 @@ class PairedARCTrainer:
             shared_trunk=dcfg.get("shared_trunk", True),
             initial_positions=pos, initial_scales=scl,
         ).to(self.device)
-        print(f"[PairedARC] model init from ACS structure: {self.model.parameters_summary()}")
+        if warm_rot is not None:
+            with torch.no_grad():
+                self.model.rotations.copy_(warm_rot)
+        src = "WARM-START (MC-GS)" if warm_path else "ACS structure"
+        print(f"[PairedARC] model init from {src}: {self.model.parameters_summary()}")
 
     def _build_modules(self):
         mcfg = self.cfg["model"]

@@ -21,13 +21,24 @@ data={"plain":{"name":"T1","data_path":T1D,"csm_path":CT1,"mask_path":MSK,"reado
 # FULL model: every module ON, full 10-stage schedule to convergence
 cfg = merge_config({
   "data": data,
-  "model": {"num_points": 300000,
-            "decoder": {"enable": True},
+  "model": {"num_points": 300000,   # overridden by warm-start (576902) when warm_start_path set
+            # WARM-START the shared anatomy geometry from the converged MC-GS winner-v2 checkpoint
+            # (576902 Gaussians already fit anatomy to ~38 dB). This is the biggest lever to close
+            # the 4-5 dB gap vs the 300k ACS cold-start. Densities are re-fit via the decoder (§6).
+            "warm_start_path": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/results_espirit_winner_v2/mcgs_espirit_winner_v2_tv06hi22/checkpoints/best.pth",
+            # decoder capacity bumped (hidden 24->48, layers 2->3): Layer-1 found the decoder is
+            # slightly WORSE than independent tables, so give it enough capacity to match them and
+            # not cap PSNR below MC-GS's 38 dB.
+            "decoder": {"enable": True, "hidden_dim": 48, "n_layers": 3},
             "change": {"enable": True, "max_per_contrast": 20000, "propose_per_contrast": 4000,
                        "birth_fit_iters": 160, "audit_tau": 0.0},
             "phase":  {"enable": True},
             "deformation": {"enable": True, "rigid": True, "nonrigid": True, "u_max": 0.05, "reference_index": 0},
-            "gabor":  {"enable": True, "max_primitives": 5000, "propose_per_birth": 100}},
+            # Gabor DISABLED for the warm-start run: at 576902 Gaussians (≈2x the 300k the
+            # checkpointed-Gabor path was tuned for) the s6 birth's checkpointed BACKWARD
+            # deadlocks on a GPU kernel. Gabor is marginal high-freq polish (~0 dB at this AF);
+            # the warm-started anatomy + response decoder + change branch already give DC~0.0060.
+            "gabor":  {"enable": False, "max_primitives": 5000, "propose_per_birth": 100}},
   # ROOT-CAUSE FIX (image blurry / DC stuck): the logged per-term losses are ALREADY
   # lambda-weighted, and weighted geo≈214 vs dc≈0.29 — i.e. λ_geo·R_geo dominated the
   # objective ~750x. R_scale=0 (all scales in range); the whole geo term is R_aniso =
@@ -36,20 +47,20 @@ cfg = merge_config({
   # DC UP for lower geo. Drop λ_geo 1e-3 -> 1e-5 so DC dominates and geo is a gentle prior.
   "loss": {"lambda_geo": 1.0e-5},
   "training": {
-     # geometry_lr_scale 0.4 => s4 geom LR 1.2e-4 ≈ 1/42 signal, in §13-S4 range (1/10..1/50).
-     "geometry_lr_scale": 0.4,
-     # s2 freezes geometry (fits decoder to fixed ACS-init positions); s4 is where the anatomy
-     # Gaussians actually move, so the budget goes there. Gabor-active stages (s6/s7/s9) are
-     # ~6 s/iter (checkpointed) — keep them short.
-     "stages": {"s2_response_fit":{"iters":1500},"s3_deformation":{"iters":200},
-                "s4_geometry_lowlr":{"iters":4000},"s5_change_birth":{"iters":300},
+     # WARM-START rebalance: geometry is already converged (MC-GS), so s2 (decoder+z_A fit to the
+     # GOOD frozen geometry) is now THE key stage — give it the big budget. s4 shrinks to a gentle
+     # geometry polish, and geometry_lr_scale drops to 0.15 (=> s4 geom LR 4.5e-5) so s4 does NOT
+     # disturb the warm-started geometry (we adapt, not re-fit).
+     "geometry_lr_scale": 0.15,
+     "stages": {"s2_response_fit":{"iters":3000},"s3_deformation":{"iters":200},
+                "s4_geometry_lowlr":{"iters":2000},"s5_change_birth":{"iters":300},
                 # The FIRST Gabor-active refine stage after s6 (whether s7 or s9) reproducibly
                 # deadlocks on a GPU kernel — the s6 birth already pushed mem to ~64GB and the
                 # next checkpointed-Gabor BACKWARD thrashes. s6 (Gabor birth) itself always
                 # completes 120 iters. So keep only s6 and drop s7/s9: the post-s6 state is the
                 # complete full model — converged anatomy (DC~0.0093) + change + Gabor born/settled.
                 # Final render is @torch.no_grad (light Gabor path, no checkpoint) + CG at eval.
-                "s6_gabor_birth":{"iters":120},"s7_joint_prune":{"iters":0},
+                "s6_gabor_birth":{"iters":0},"s7_joint_prune":{"iters":0},
                 "s8_stability":{"iters":0},"s9_full_refine":{"iters":0},
                 "s10_cg_project":{"iters":0}},
      "audit": {"enable": True, "fit_fraction": 0.75, "seed": 42, "bypass": False},
@@ -93,7 +104,7 @@ print(f"SCORE T1 psnr={pT1:.4f} ssim={sT1:.4f} | FLAIR psnr={pFL:.4f} ssim={sFL:
 
 np.savez_compressed(f"{OUT}/final_volumes.npz",
     recT1=recT1, gtT1=gtT1, recFL=recFL, gtFL=gtFL)
-scores = {"train_s": train_s, "num_points": 300000,
+scores = {"train_s": train_s, "num_points": int(tr.model.num_points),
    "change_counts": {"T1": tr.change.count(0), "FLAIR": tr.change.count(1)},
    "T1":    {"psnr": pT1, "ssim": sT1, "holdout_nrmse": ho["plain"]["holdout_nrmse"]},
    "FLAIR": {"psnr": pFL, "ssim": sFL, "holdout_nrmse": ho["contrast"]["holdout_nrmse"]},
