@@ -125,6 +125,20 @@ ok.append(("P3 LLR grad finite", torch.isfinite(xg.grad).all().item() and torch.
 xc_ = torch.randn(8, 8, 8, dtype=torch.complex64, device=dev)
 yc_ = torch.randn(8, 8, 8, dtype=torch.complex64, device=dev)
 ok.append(("P3 LLR accepts complex", torch.isfinite(cross_contrast_llr(xc_, yc_, block=4, stride=4)).item()))
+# near-zero / all-zero blocks: eps must keep gradients finite (brief: sqrt-at-zero stability)
+z1 = torch.zeros(8, 8, 8, device=dev, requires_grad=True)
+z2 = torch.zeros(8, 8, 8, device=dev, requires_grad=True)
+cross_contrast_llr(z1, z2, block=4, stride=4).backward()
+ok.append(("P3 LLR grad finite on all-zero blocks", torch.isfinite(z1.grad).all().item() and torch.isfinite(z2.grad).all().item()))
+# identical contrasts force an exact-zero eigenvalue -> gradient must stay finite
+ai = torch.rand(8, 8, 8, device=dev, requires_grad=True)
+cross_contrast_llr(ai, ai, block=4, stride=4).backward()
+ok.append(("P3 LLR grad finite on identical contrasts", torch.isfinite(ai.grad).all().item()))
+# complex inputs are the production path (Task 5) and need gradients
+xc2 = torch.randn(8, 8, 8, dtype=torch.complex64, device=dev, requires_grad=True)
+yc2 = torch.randn(8, 8, 8, dtype=torch.complex64, device=dev, requires_grad=True)
+cross_contrast_llr(xc2, yc2, block=4, stride=4).backward()
+ok.append(("P3 LLR complex-input grad finite", torch.isfinite(xc2.grad).all().item() and torch.isfinite(yc2.grad).all().item()))
 
 print("="*60)
 npass = sum(1 for _, v in ok if v)
