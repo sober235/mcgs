@@ -39,6 +39,13 @@ ap.add_argument("--gabor", action="store_true")                     # default OF
 ap.add_argument("--no_warm", action="store_true")                   # ablate the MC-GS warm-start
 ap.add_argument("--smoke", action="store_true")                     # tiny stage iters to validate the pipeline
 ap.add_argument("--save_volumes", action="store_true")              # dump recon+GT npz (both contrasts) for figures
+ap.add_argument("--lambda_llr", type=float, default=0.0)             # P3 cross-contrast LLR weight
+ap.add_argument("--llr_block", type=int, default=8)
+ap.add_argument("--llr_stride", type=int, default=4)
+ap.add_argument("--lambda_freqextrap", type=float, default=0.0)      # P1 extrapolation weight
+ap.add_argument("--p1_rho", type=float, default=0.3)                 # P1 held-out fraction
+ap.add_argument("--p1_K", type=int, default=50)                      # P1 Λ redraw period
+ap.add_argument("--p1_r_acs", type=float, default=12.0)              # P1 ACS radius (always in Θ)
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -65,7 +72,7 @@ T1D = "/data1/data1_congcong/data/3D/T2_csm_ksp_n4_mat/Train_3dBrain_huangyuwei_
 FLD = "/data1/data1_congcong/data/3D/T2_csm_ksp_n4_mat/Train_3dBrain_huangyuwei_20230705-160927-1451_161015_FLAIR_trainer.mat"
 CT1 = "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/csm_espirit/csm_espirit_T1.mat"
 CFL = "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/csm_espirit/csm_espirit_FLAIR.mat"
-MSK = "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse.mat"
+MSK = "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse_ALIGNED.mat"
 WARM = "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/results_espirit_winner_v2/mcgs_espirit_winner_v2_tv06hi22/checkpoints/best.pth"
 
 # ------- artifact-centric metrics (copied verbatim from arc/cycle.py; identical composite) -------
@@ -135,7 +142,9 @@ def build_cfg():
         "data": data,
         "model": model,
         "loss": {"lambda_geo": args.lambda_geo, "lambda_change": args.lambda_change,
-                 "lambda_route": args.lambda_route},
+                 "lambda_route": args.lambda_route,
+                 "lambda_llr": args.lambda_llr, "llr_block": args.llr_block, "llr_stride": args.llr_stride,
+                 "lambda_freqextrap": args.lambda_freqextrap},
         "training": {
             "geometry_lr_scale": args.geometry_lr_scale,
             "stages": {"s2_response_fit": {"iters": s2}, "s3_deformation": {"iters": s3},
@@ -144,6 +153,9 @@ def build_cfg():
                        "s7_joint_prune": {"iters": 0}, "s8_stability": {"iters": 0},
                        "s9_full_refine": {"iters": 0}, "s10_cg_project": {"iters": 0}},
             "audit": {"enable": True, "fit_fraction": 0.75, "seed": 42, "bypass": False},
+            "p1": {"rho": args.p1_rho, "K": args.p1_K, "r_acs": args.p1_r_acs,
+                   "warmup_start": (0 if args.smoke else 500),
+                   "warmup_ramp": (5 if args.smoke else 500)},
             "cg": {"enable": True, "eta": 1.0, "n_iters": 10},
             "eval": {"holdout_fraction": 0.10}},
         "output": {"output_dir": str(RES / args.exp), "exp_name": args.exp, "eval_every": 1000},
@@ -165,9 +177,10 @@ def score_head(tr, ci, gt, csm, ksp, mask, dev):
     x_zf = (ifft3c(m * ksp) * csm.conj()).sum(0)
     mz = evaluate_reconstruction(x_zf, gt, compute_extended=False); zf_hf = hfen(x_zf.abs(), gt.abs())
     psnr, ssim, nmse = float(met["psnr"]), float(met["ssim"]), float(met["nmse"])
+    psnr_uni = psnr_unified(x_dc.abs(), gt.abs())
     comp = psnr + 25.0 * ssim - 60.0 * nmse - 25.0 * hf - 40.0 * max(0.0, 1.0 - sr) - 200.0 * gr
     beat = (ssim >= float(mz["ssim"])) and (nmse <= float(mz["nmse"])) and (hf <= zf_hf)
-    return dict(psnr=psnr, ssim=ssim, nmse=nmse, hfen=hf, sharp=sr, grain=gr, comp=comp, beat=beat)
+    return dict(psnr=psnr, ssim=ssim, nmse=nmse, hfen=hf, sharp=sr, grain=gr, comp=comp, beat=beat, psnr_uni=psnr_uni)
 
 
 def main():
@@ -202,6 +215,14 @@ def main():
     log(f"SCORE combined={combined:.3f} both_beat_zf={both_beat} change={chg} N={npts} vram_gb={vram:.1f} "
         f"elapsed_s={time.time()-t0:.0f}")
 
+    try:
+        ho = tr.holdout_kspace_nrmse()                       # fixed 10% test set, disjoint from Θ and Λ
+        ho_t1, ho_fl = ho["plain"]["holdout_nrmse"], ho["contrast"]["holdout_nrmse"]
+    except Exception:
+        ho_t1 = ho_fl = float("nan")
+    log(f"UNIFIED psnr_uni T1={sp['psnr_uni']:.3f} FLAIR={sc['psnr_uni']:.3f} | "
+        f"holdout_kspace_nrmse T1={ho_t1:.4f} FLAIR={ho_fl:.4f}")
+
     row = dict(exp=args.exp, budget=args.budget, tot_iters=tot_iters, lambda_geo=args.lambda_geo,
                lambda_change=args.lambda_change, lambda_route=args.lambda_route,
                geometry_lr_scale=args.geometry_lr_scale, decoder=f"{args.decoder_hidden}/{args.decoder_layers}",
@@ -212,12 +233,12 @@ def main():
     head = ("exp\tbudget\tlambda_geo\tlambda_change\taudit_tau\tgeom_lr_scale\tdecoder\tgabor\twarm\t"
             "T1_psnr\tT1_ssim\tT1_nmse\tT1_hfen\tT1_sharp\tT1_grain\t"
             "FLAIR_psnr\tFLAIR_ssim\tFLAIR_nmse\tFLAIR_hfen\tFLAIR_sharp\tFLAIR_grain\t"
-            "combined\tboth_beat\tnpts\tvram_gb\n")
+            "combined\tboth_beat\tnpts\tvram_gb\tT1_psnr_uni\tFLAIR_psnr_uni\n")
     line = (f"{args.exp}\t{args.budget}\t{args.lambda_geo}\t{args.lambda_change}\t{args.audit_tau}\t"
             f"{args.geometry_lr_scale}\t{args.decoder_hidden}/{args.decoder_layers}\t{bool(args.gabor)}\t{not args.no_warm}\t"
             f"{sp['psnr']:.3f}\t{sp['ssim']:.4f}\t{sp['nmse']:.4f}\t{sp['hfen']:.4f}\t{sp['sharp']:.3f}\t{sp['grain']:.4f}\t"
             f"{sc['psnr']:.3f}\t{sc['ssim']:.4f}\t{sc['nmse']:.4f}\t{sc['hfen']:.4f}\t{sc['sharp']:.3f}\t{sc['grain']:.4f}\t"
-            f"{combined:.3f}\t{both_beat}\t{npts}\t{vram:.1f}\n")
+            f"{combined:.3f}\t{both_beat}\t{npts}\t{vram:.1f}\t{sp['psnr_uni']:.3f}\t{sc['psnr_uni']:.3f}\n")
     if not tsv.exists():
         tsv.write_text(head)
     with open(tsv, "a") as f:
