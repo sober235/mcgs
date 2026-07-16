@@ -93,6 +93,39 @@ loss, log = total_loss(terms, active=("dc", "geo"), weights={"lambda_geo": 0.1})
 expect = 1.0*2.0 + 0.1*10.0   # route excluded (not active)
 ok.append(("aggregator active-only + weights", abs(float(loss) - expect) < 1e-5 and "route" not in log))
 
+# ---- P3 cross-contrast LLR: matches explicit per-block svdvals sum; rank-1 on identical ----
+from paired_arc_gs.losses.arc_losses import cross_contrast_llr
+
+def _ref_llr(a, b, blk, st):
+    D, H, W = a.shape; tot = a.new_zeros(())
+    for i in range(0, D - blk + 1, st):
+        for j in range(0, H - blk + 1, st):
+            for k in range(0, W - blk + 1, st):
+                A = a[i:i+blk, j:j+blk, k:k+blk].reshape(-1)
+                B = b[i:i+blk, j:j+blk, k:k+blk].reshape(-1)
+                M = torch.stack([A, B], dim=1)            # (blk^3, 2)
+                tot = tot + torch.linalg.svdvals(M).sum()
+    return tot
+
+ap = torch.rand(8, 8, 8, device=dev)                     # small vol, blk4/st4 -> 8 blocks
+bp = torch.rand(8, 8, 8, device=dev)
+fast = cross_contrast_llr(ap, bp, block=4, stride=4)
+ref = _ref_llr(ap, bp, 4, 4)
+ok.append(("P3 LLR matches per-block svd sum", abs(float(fast) - float(ref)) / float(ref) < 2e-3))
+# identical contrasts -> every block rank-1 -> nuclear == Frobenius (== sqrt(2)*||A||)
+same = cross_contrast_llr(ap, ap, block=4, stride=4)
+fro = _ref_llr(ap, ap, 4, 4)
+ok.append(("P3 LLR rank-1 on identical", abs(float(same) - float(fro)) / float(fro) < 2e-3))
+# gradient flows and is finite
+xg = torch.rand(8, 8, 8, device=dev, requires_grad=True)
+yg = torch.rand(8, 8, 8, device=dev, requires_grad=True)
+cross_contrast_llr(xg, yg, block=4, stride=4).backward()
+ok.append(("P3 LLR grad finite", torch.isfinite(xg.grad).all().item() and torch.isfinite(yg.grad).all().item()))
+# accepts complex input (uses magnitude)
+xc_ = torch.randn(8, 8, 8, dtype=torch.complex64, device=dev)
+yc_ = torch.randn(8, 8, 8, dtype=torch.complex64, device=dev)
+ok.append(("P3 LLR accepts complex", torch.isfinite(cross_contrast_llr(xc_, yc_, block=4, stride=4)).item()))
+
 print("="*60)
 npass = sum(1 for _, v in ok if v)
 for name, v in ok:

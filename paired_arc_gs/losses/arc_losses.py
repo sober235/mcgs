@@ -138,6 +138,37 @@ def route_exclusivity(a_shared: torch.Tensor, a_change: torch.Tensor) -> torch.T
 
 
 # --------------------------------------------------------------------------------------
+# P3  Cross-contrast local low-rank (nuclear-norm) prior  (self-contained, design §5)
+# --------------------------------------------------------------------------------------
+def cross_contrast_llr(x_p: torch.Tensor, x_c: torch.Tensor,
+                       block: int = 8, stride: int = 4, eps: float = 1e-8) -> torch.Tensor:
+    """L_LLR = Σ_b ||M_b||_*  where M_b ∈ R^{block^3 × 2} stacks the two contrasts'
+    magnitudes over sliding block b (design §5).
+
+    For an N×2 matrix the nuclear norm is σ₁+σ₂ = √λ₊ + √λ₋, the sqrt-eigenvalues of the
+    2×2 Gram G_b = M_bᵀM_b = [[p, q],[q, r]] with p=Σa², r=Σb², q=Σab (a=|x_p|, b=|x_c| on
+    the block). λ± = (p+r)/2 ± √(((p−r)/2)² + q²). The three block sums are STRIDED BOX
+    FILTERS (avg_pool3d × block³), so the whole penalty is fully vectorized — no per-block
+    loop — and differentiable. Magnitudes are used to avoid phase coupling."""
+    import torch.nn.functional as F
+    a = x_p.abs() if x_p.is_complex() else x_p
+    b = x_c.abs() if x_c.is_complex() else x_c
+    n = float(block ** 3)
+
+    def boxsum(v: torch.Tensor) -> torch.Tensor:
+        return F.avg_pool3d(v[None, None], kernel_size=block, stride=stride)[0, 0] * n
+
+    p = boxsum(a * a)
+    r = boxsum(b * b)
+    q = boxsum(a * b)
+    half = 0.5 * (p + r)
+    disc = torch.sqrt(torch.clamp((0.5 * (p - r)) ** 2 + q * q, min=0.0) + eps)
+    lam_hi = torch.clamp(half + disc, min=0.0)
+    lam_lo = torch.clamp(half - disc, min=0.0)
+    return (torch.sqrt(lam_hi + eps) + torch.sqrt(lam_lo + eps)).sum()
+
+
+# --------------------------------------------------------------------------------------
 # §9 / §8  phase and deformation regularizers (used when those layers are on)
 # --------------------------------------------------------------------------------------
 def phase_reg(phase_complex: torch.Tensor, weight_map: Optional[torch.Tensor] = None) -> torch.Tensor:
