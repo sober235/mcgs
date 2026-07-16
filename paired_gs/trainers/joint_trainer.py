@@ -472,6 +472,47 @@ class JointTrainer:
     # back-compat alias (external callers of the old name still work)
     _dtv_loss_flair = _dtv_loss_directional
 
+    def _edge_align_loss(self, vol_p: torch.Tensor, vol_c: torch.Tensor,
+                         p: float, kappa: float) -> torch.Tensor:
+        """Symmetric common-edge cross-gradient prior (M=2 case of the locked
+        RPairCommonEdgeAlign formula in losses/pair_prior.py). Penalizes MISaligned
+        gradient DIRECTIONS between the two contrasts, gated to voxels where BOTH have
+        edges: ell = 1 - <g_p,g_c>^2 / (||g_p||^2 ||g_c||^2). Unlike the plain->contrast
+        directional TV (_dtv_loss_directional), this couples BOTH contrasts symmetrically
+        (differentiable through each), so shared anatomical boundaries reinforce in T1 AND
+        FLAIR. Edge-gate weight is detached (stopgrad) per the locked formula."""
+        def grad3(x):
+            gd = (torch.roll(x, -1, 0) - torch.roll(x, 1, 0)) * 0.5
+            gh = (torch.roll(x, -1, 1) - torch.roll(x, 1, 1)) * 0.5
+            gw = (torch.roll(x, -1, 2) - torch.roll(x, 1, 2)) * 0.5
+            return torch.stack([gd, gh, gw], dim=0)
+        gp, gc = grad3(vol_p.abs()), grad3(vol_c.abs())
+        gpm, gcm = gp.norm(dim=0), gc.norm(dim=0)
+        # subsampled quantile threshold (full 14.4M-vox per-iter quantile is slow; a
+        # ~0.9M stride sample gives an essentially identical tau)
+        tau_p = torch.quantile(gpm.flatten()[::16], p)
+        tau_c = torch.quantile(gcm.flatten()[::16], p)
+        a_p = torch.sigmoid(kappa * (gpm - tau_p))
+        a_c = torch.sigmoid(kappa * (gcm - tau_c))
+        w = (a_p * a_c).detach()
+        dot = (gp * gc).sum(dim=0)
+        ell = 1.0 - dot.pow(2) / ((gp * gp).sum(dim=0) * (gc * gc).sum(dim=0) + 1e-8)
+        return (w * ell).sum() / (w.sum() + 1e-8)
+
+    def _joint_vtv_loss(self, vol_p: torch.Tensor, vol_c: torch.Tensor) -> torch.Tensor:
+        """Vectorial (joint) TV: mean of sqrt(|grad_p|^2 + |grad_c|^2) over the 3 axes.
+        Couples edge LOCATIONS symmetrically — one shared boundary costs less than two
+        independent ones, so both contrasts place edges at the same voxels. Magnitude-based
+        (bounded gradient; STABLE, unlike the normalized directional _edge_align_loss)."""
+        mp, mc = vol_p.abs(), vol_c.abs()
+        eps = 1e-6
+        gpx, gcx = mp[1:] - mp[:-1], mc[1:] - mc[:-1]
+        gpy, gcy = mp[:, 1:] - mp[:, :-1], mc[:, 1:] - mc[:, :-1]
+        gpz, gcz = mp[:, :, 1:] - mp[:, :, :-1], mc[:, :, 1:] - mc[:, :, :-1]
+        return (torch.sqrt(gpx**2 + gcx**2 + eps).mean()
+                + torch.sqrt(gpy**2 + gcy**2 + eps).mean()
+                + torch.sqrt(gpz**2 + gcz**2 + eps).mean())
+
     def _build_freq_weight(self, high_override: float | None = None) -> torch.Tensor | None:
         """Optional frequency-adaptive weighting (mirrors V2 detail config).
 
@@ -687,6 +728,12 @@ class JointTrainer:
         lambda_dtv = float(loss_cfg.get("lambda_dtv", 0.0))
         dtv_eta_scale = float(loss_cfg.get("dtv_eta_scale", 1.0))
         dtv_w_floor = float(loss_cfg.get("dtv_w_floor", 0.1))
+        # R_edge: symmetric common-edge cross-gradient prior (this work). Default 0 => no-op.
+        lambda_edge = float(loss_cfg.get("lambda_edge", 0.0))
+        edge_p = float(loss_cfg.get("edge_p", 0.75))
+        edge_kappa = float(loss_cfg.get("edge_kappa", 10.0))
+        # R_vtv: vectorial (joint) TV — symmetric edge-LOCATION coupling (this work). Default 0.
+        lambda_vtv = float(loss_cfg.get("lambda_vtv", 0.0))
         loss_type = loss_cfg.get("loss_type", "l2")
         del loss_type   # placeholder if l1 added later
 
@@ -739,6 +786,21 @@ class JointTrainer:
             else:
                 l_dtv = torch.tensor(0.0, device=self.device)
 
+            # R_edge: symmetric common-edge cross-gradient prior — couples BOTH contrasts'
+            # edge directions (helps T1 and FLAIR, vs dtv's one-way plain->contrast relax).
+            if lambda_edge > 0:
+                l_edge = self._edge_align_loss(vol_p, vol_c, edge_p, edge_kappa)
+                loss = loss + lambda_edge * l_edge
+            else:
+                l_edge = torch.tensor(0.0, device=self.device)
+
+            # R_vtv: vectorial (joint) TV — symmetric edge-location coupling (stable).
+            if lambda_vtv > 0:
+                l_vtv = self._joint_vtv_loss(vol_p, vol_c)
+                loss = loss + lambda_vtv * l_vtv
+            else:
+                l_vtv = torch.tensor(0.0, device=self.device)
+
             # R_sp: keep the contrast-private residual amplitude sparse (localized).
             if lambda_private_sp > 0 and self.model.has_private:
                 loss = loss + lambda_private_sp * self.model.get_private_density().abs().mean()
@@ -760,6 +822,8 @@ class JointTrainer:
                 "loss/dc_c":  float(l_dc_c.detach().item()),
                 "loss/R_geo": float((lambda_geo * l_geo).detach().item()),
                 "loss/R_dtv": float((lambda_dtv * l_dtv).detach().item()),
+                "loss/R_edge": float((lambda_edge * l_edge).detach().item()),
+                "loss/R_vtv": float((lambda_vtv * l_vtv).detach().item()),
             }
             total_loss_value = sum(components.values()) + 1e-12
             ratios = {k: v / total_loss_value for k, v in components.items()}
@@ -816,6 +880,7 @@ class JointTrainer:
                 msg = (f"[iter {it:5d}/{max_iter}] loss={loss.item():.4e} "
                        f"dc_p={l_dc_p.item():.4e} dc_c={l_dc_c.item():.4e} "
                        f"R_geo={l_geo.item():.4e} R_dtv={l_dtv.item():.4e} "
+                       f"R_edge={l_edge.item():.4e} R_vtv={l_vtv.item():.4e} "
                        f"balance_violation={balance_violation}")
                 print(msg)
                 log_f.write(msg + "\n"); log_f.flush()

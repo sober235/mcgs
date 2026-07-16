@@ -30,13 +30,23 @@ ap.add_argument("--lambda_geo", type=float, default=0.03)        # loss.tv_weigh
 ap.add_argument("--warmup", type=int, default=500)               # training.shared_warmup_iters; PRIMARY (guard <0.5*iters)
 ap.add_argument("--lambda_dtv", type=float, default=0.0)         # loss.lambda_dtv cross-contrast coupling; PRIMARY
 ap.add_argument("--dtv_eta_scale", type=float, default=1.0)
+ap.add_argument("--lambda_edge", type=float, default=0.0)        # loss.lambda_edge symmetric common-edge cross-grad prior (helps BOTH contrasts)
+ap.add_argument("--edge_p", type=float, default=0.75)            # loss.edge_p edge-gate quantile
+ap.add_argument("--edge_kappa", type=float, default=10.0)        # loss.edge_kappa edge-gate sigmoid sharpness
+ap.add_argument("--lambda_vtv", type=float, default=0.0)         # loss.lambda_vtv vectorial (joint) TV; symmetric edge-location coupling (stable)
 ap.add_argument("--max_radius", type=int, default=20)            # voxelizer.max_radius; geometry expressivity
 ap.add_argument("--kspace_high", type=float, default=1.0)        # loss.kspace_high_weight (contrast/shared); SECONDARY
 ap.add_argument("--kspace_high_plain", type=float, default=-1)   # decoupled plain-channel high-band weight (-1=share)
+ap.add_argument("--kspace_center", type=float, default=-1)       # loss.kspace_center_weight; PSNR lever (low-freq emphasis; -1=leave)
+ap.add_argument("--kspace_mid", type=float, default=-1)          # loss.kspace_mid_weight (-1=leave)
 ap.add_argument("--densify_until", type=int, default=-1)         # adaptive_control.densify_until_iter (-1=leave)
 ap.add_argument("--max_points", type=int, default=-1)            # gaussian.max_num_points (-1=leave)
+ap.add_argument("--split_quantile", type=float, default=-1)      # adaptive_control.split_quantile (grad thr=quantile; grows warm-start)
+ap.add_argument("--scale_threshold", type=float, default=-1)     # adaptive_control.scale_threshold (lower=let small gaussians split)
+ap.add_argument("--use_cloning", action="store_true")            # adaptive_control.use_cloning (clone small high-grad gaussians)
 ap.add_argument("--base_cfg", default="configs/winner_v2.yaml")  # mask/framework base (resolved against framework ROOT)
 ap.add_argument("--curriculum", action="store_true")            # loss.kspace_freq_curriculum (progressive high-freq)
+ap.add_argument("--save_volumes", action="store_true")          # dump recon+GT npz (both contrasts) for figures
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -125,9 +135,17 @@ def build_cfg():
     cfg["loss"]["tv_weight"] = args.lambda_geo
     cfg["loss"]["lambda_dtv"] = args.lambda_dtv
     cfg["loss"]["dtv_eta_scale"] = args.dtv_eta_scale
+    cfg["loss"]["lambda_edge"] = args.lambda_edge
+    cfg["loss"]["edge_p"] = args.edge_p
+    cfg["loss"]["edge_kappa"] = args.edge_kappa
+    cfg["loss"]["lambda_vtv"] = args.lambda_vtv
     cfg["loss"]["kspace_high_weight"] = args.kspace_high
     if args.kspace_high_plain > 0:
         cfg["loss"]["kspace_high_weight_plain"] = args.kspace_high_plain
+    if args.kspace_center > 0:
+        cfg["loss"]["kspace_center_weight"] = args.kspace_center
+    if args.kspace_mid > 0:
+        cfg["loss"]["kspace_mid_weight"] = args.kspace_mid
     cfg["voxelizer"]["max_radius"] = args.max_radius
     if args.curriculum:
         cfg["loss"]["kspace_freq_curriculum"] = True
@@ -138,6 +156,14 @@ def build_cfg():
         cfg["adaptive_control"]["densify_until_iter"] = args.densify_until
     if args.max_points > 0:
         cfg["gaussian"]["max_num_points"] = args.max_points
+    if args.split_quantile > 0:
+        cfg["adaptive_control"]["split_quantile"] = args.split_quantile
+    if args.scale_threshold > 0:
+        cfg["adaptive_control"]["scale_threshold"] = args.scale_threshold
+    if args.use_cloning:
+        cfg["adaptive_control"]["use_cloning"] = True
+    if args.split_quantile > 0 or args.max_points > 0 or args.use_cloning or args.densify_until > 0:
+        cfg["adaptive_control"]["enable"] = True   # MASTER switch (joint_trainer:556); off by default -> no densify
     cfg.setdefault("output", {})
     cfg["output"]["output_dir"] = str(RES / args.exp)
     cfg["output"]["exp_name"] = args.exp
@@ -218,6 +244,23 @@ def main():
         tsv.write_text(head)
     with open(tsv, "a") as f:
         f.write(line)
+
+    if args.save_volumes:
+        @torch.no_grad()
+        def _vol(which):
+            if which == "plain": csm, y, mask, ds = tr.csm_p, tr.kspace_p, tr.mask_p, tr.ds_p
+            else:                 csm, y, mask, ds = tr.csm_c, tr.kspace_c, tr.mask_c, tr.ds_c
+            gt = ds.get_data()["ground_truth"].to(dev)
+            m = (mask if mask.ndim == 3 else mask[0]).to(dev).float().unsqueeze(0)
+            x = tr._render(which); k_model = fft3c(csm * x.unsqueeze(0))
+            x_dc = (ifft3c(m * y + (1.0 - m) * k_model) * csm.conj()).sum(0)
+            x_zf = (ifft3c(m * y) * csm.conj()).sum(0)                # zero-filled (aliased "before")
+            f = lambda t: t.abs().cpu().numpy().astype("float32")
+            return f(x_dc), f(gt), f(x_zf)
+        rT, gT, zT = _vol("plain"); rF, gF, zF = _vol("contrast")
+        np.savez_compressed(RES / f"{args.exp}_volumes.npz",
+                            recT1=rT, gtT1=gT, zfT1=zT, recFL=rF, gtFL=gF, zfFL=zF)
+        log(f"  saved volumes -> {RES}/{args.exp}_volumes.npz")
     log(f"[arc {args.exp}] DONE -> {tsv}")
 
 
