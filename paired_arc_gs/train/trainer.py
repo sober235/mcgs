@@ -29,6 +29,7 @@ from paired_arc_gs.model.paired_arc_model import PairedARCModel
 from paired_arc_gs.modules.interfaces import NoOpPhase, NoOpDeformation, NoOpChange
 from paired_arc_gs.train.stages import StagePlan
 from paired_arc_gs.train import acs_init
+from paired_arc_gs.train.kspace_split import frequency_holdout_split
 from paired_arc_gs.losses import arc_losses as L
 
 
@@ -70,6 +71,7 @@ class PairedARCTrainer:
         self._build_voxelizer()
         self._build_optimizer()
         self._audit_split()
+        self._build_prior_masks()
 
     # ------------------------------------------------------------------ data tensors
     def _pull_tensors(self):
@@ -249,6 +251,33 @@ class PairedARCTrainer:
         self.mask_fit_p, self.mask_audit_p, self.mask_test_p = three_way(self.mask_p)
         self.mask_fit_c, self.mask_audit_c, self.mask_test_c = three_way(self.mask_c)
 
+    def _build_prior_masks(self):
+        """P1 Θ/Λ split of the FIT set (design §4). When P1 is off, Θ == fit and Λ is None,
+        so DC is byte-identical to baseline. The fit pool (self.mask_fit_*) is preserved so
+        Λ can be redrawn every K iters from the SAME pool."""
+        pcfg = self.cfg["training"].get("p1", {})
+        self.p1_enabled = float(self.cfg["loss"].get("lambda_freqextrap", 0.0)) > 0.0
+        self.p1_rho = float(pcfg.get("rho", 0.3))
+        self.p1_K = int(pcfg.get("K", 50))
+        self.p1_r_acs = float(pcfg.get("r_acs", 12.0))
+        self.p1_warmup_start = int(pcfg.get("warmup_start", 500))
+        self.p1_warmup_ramp = int(pcfg.get("warmup_ramp", 500))
+        self.p1_lambda_scale = 1.0
+        self._p1_phase_axes = tuple(self.cfg["data"]["plain"].get("phase_axes", [1, 2]))
+        self._p1_gen = torch.Generator(device="cpu").manual_seed(int(self.cfg.get("seed", 42)))
+        if not self.p1_enabled:
+            self.mask_theta_p, self.mask_lambda_p = self.mask_fit_p, None
+            self.mask_theta_c, self.mask_lambda_c = self.mask_fit_c, None
+            return
+        self._redraw_lambda()
+
+    def _redraw_lambda(self):
+        """Draw a fresh Λ (mid/high-freq holdout) for each contrast from the fit pool."""
+        self.mask_theta_p, self.mask_lambda_p = frequency_holdout_split(
+            self.mask_fit_p, self._p1_phase_axes, self.p1_r_acs, self.p1_rho, self._p1_gen)
+        self.mask_theta_c, self.mask_lambda_c = frequency_holdout_split(
+            self.mask_fit_c, self._p1_phase_axes, self.p1_r_acs, self.p1_rho, self._p1_gen)
+
     # ------------------------------------------------------------------ rendering (§4)
     def render(self, contrast_index: int) -> torch.Tensor:
         """x_m = e^{jφ_m} [ V(T_m(G_A), D_m(z_A)) + change_m ]  (§4). Layer 1: φ, T, change
@@ -279,9 +308,15 @@ class PairedARCTrainer:
         x_c = self.render(1)
         terms: Dict[str, torch.Tensor] = {}
         # §12.1 noise-normalized DC (both contrasts, summed) on the FIT set
-        dc_p = L.data_consistency(x_p, self.csm_p, self.ksp_p, self.mask_fit_p, fft3c, self.Linv_p)
-        dc_c = L.data_consistency(x_c, self.csm_c, self.ksp_c, self.mask_fit_c, fft3c, self.Linv_c)
+        dc_p = L.data_consistency(x_p, self.csm_p, self.ksp_p, self.mask_theta_p, fft3c, self.Linv_p)
+        dc_c = L.data_consistency(x_c, self.csm_c, self.ksp_c, self.mask_theta_c, fft3c, self.Linv_c)
         terms["dc"] = dc_p + dc_c
+        if ("freqextrap" in active_terms and self.mask_lambda_p is not None
+                and float(lcfg.get("lambda_freqextrap", 0.0)) > 0.0):
+            # P1 self-supervised extrapolation: SAME DC formula on the held-out Λ set (design §4)
+            fe_p = L.data_consistency(x_p, self.csm_p, self.ksp_p, self.mask_lambda_p, fft3c, self.Linv_p)
+            fe_c = L.data_consistency(x_c, self.csm_c, self.ksp_c, self.mask_lambda_c, fft3c, self.Linv_c)
+            terms["freqextrap"] = fe_p + fe_c
         if "geo" in active_terms:
             terms["geo"] = L.geometry_reg(self.model.get_scale_values(), lcfg)
         if "phase" in active_terms and self.phase.enabled:
@@ -316,6 +351,8 @@ class PairedARCTrainer:
         weights = {k: lcfg.get(k) for k in ("lambda_geo", "lambda_change", "lambda_route",
                                             "lambda_phase", "lambda_def",
                                             "lambda_llr", "lambda_freqextrap")}
+        if weights.get("lambda_freqextrap"):
+            weights["lambda_freqextrap"] = float(weights["lambda_freqextrap"]) * getattr(self, "p1_lambda_scale", 1.0)
         return L.total_loss(terms, active_terms, weights)
 
     # ------------------------------------------------------------------ scheduler-driven loop
@@ -491,6 +528,11 @@ class PairedARCTrainer:
             stage = self.plan.at(it)
             if stage is None:
                 break
+            if getattr(self, "p1_enabled", False):
+                self.p1_lambda_scale = min(1.0, max(0.0,
+                    (it - self.p1_warmup_start) / max(1, self.p1_warmup_ramp)))
+                if it > 0 and it % self.p1_K == 0:
+                    self._redraw_lambda()
             if stage.is_stage_start:
                 print(f"[PairedARC] --- {stage.stage_id} (iters {stage.stage_iters}) "
                       f"opt={stage.opt_groups} loss={stage.loss_terms} act={stage.actions} ---")
