@@ -220,6 +220,8 @@ def total_loss(terms: Dict[str, torch.Tensor], active: Tuple[str, ...],
         "route": weights.get("lambda_route", 1e-2),
         "phase": weights.get("lambda_phase", 1e-3),
         "def": weights.get("lambda_def", 1e-2),
+        "llr": weights.get("lambda_llr", 0.0),
+        "freqextrap": weights.get("lambda_freqextrap", 0.0),
     }
     device = next((t.device for t in terms.values() if torch.is_tensor(t)), torch.device("cpu"))
     loss = torch.zeros((), device=device)

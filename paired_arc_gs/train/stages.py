@@ -64,14 +64,14 @@ STAGE_OPT_GROUPS: Dict[str, Tuple[str, ...]] = {
 # Loss terms active per stage (names match the loss module's term keys). L_DC is always on.
 STAGE_LOSS_TERMS: Dict[str, Tuple[str, ...]] = {
     "s1_acs_init":      (),
-    "s2_response_fit":  ("dc", "geo", "phase"),
+    "s2_response_fit":  ("dc", "geo", "phase", "llr", "freqextrap"),
     "s3_deformation":   ("dc", "def"),
-    "s4_geometry_lowlr":("dc", "geo", "def", "phase"),
-    "s5_change_birth":  ("dc", "geo", "change_sparse", "route", "def", "phase"),
+    "s4_geometry_lowlr":("dc", "geo", "def", "phase", "llr", "freqextrap"),
+    "s5_change_birth":  ("dc", "geo", "change_sparse", "route", "def", "phase", "llr", "freqextrap"),
     "s6_gabor_birth":   ("dc", "geo", "change_sparse", "route", "phase"),
-    "s7_joint_prune":   ("dc", "geo", "change_sparse", "route", "def", "phase"),
+    "s7_joint_prune":   ("dc", "geo", "change_sparse", "route", "def", "phase", "llr", "freqextrap"),
     "s8_stability":     ("dc", "change_sparse", "route"),
-    "s9_full_refine":   ("dc", "geo", "change_sparse", "route", "phase"),
+    "s9_full_refine":   ("dc", "geo", "change_sparse", "route", "phase", "llr", "freqextrap"),
     "s10_cg_project":   (),
 }
 

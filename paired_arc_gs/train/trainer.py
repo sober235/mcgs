@@ -308,8 +308,14 @@ class PairedARCTrainer:
                 if self.change.count(ci) > 0:
                     cs = cs + self.change.get_density(ci).abs().sum()
             terms["change_sparse"] = cs
+        if "llr" in active_terms and float(lcfg.get("lambda_llr", 0.0)) > 0.0:
+            # P3 cross-contrast local low-rank on the two rendered magnitudes (design §5)
+            terms["llr"] = L.cross_contrast_llr(
+                x_p, x_c,
+                block=int(lcfg.get("llr_block", 8)), stride=int(lcfg.get("llr_stride", 4)))
         weights = {k: lcfg.get(k) for k in ("lambda_geo", "lambda_change", "lambda_route",
-                                            "lambda_phase", "lambda_def")}
+                                            "lambda_phase", "lambda_def",
+                                            "lambda_llr", "lambda_freqextrap")}
         return L.total_loss(terms, active_terms, weights)
 
     # ------------------------------------------------------------------ scheduler-driven loop
