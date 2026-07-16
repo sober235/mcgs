@@ -23,7 +23,11 @@ def frequency_holdout_split(mask: torch.Tensor, phase_axes: Tuple[int, int],
     r = torch.sqrt(coord0 ** 2 + coord1 ** 2).expand(mask.shape)          # (D,H,W) on CPU
     sampled_cpu = (mask.detach().cpu() > 0)
     highfreq = sampled_cpu & (r >= float(r_acs))
-    u = torch.rand(mask.shape, generator=generator)                      # CPU draw (reproducible)
+    # one random value PER PHASE-PLANE LOCATION, broadcast along the (fully sampled)
+    # readout axis, so an ENTIRE readout line is held out together — Λ mirrors the real
+    # missing-data structure (a phase location is fully sampled or fully absent).
+    plane_shape = [1, 1, 1]; plane_shape[ax0] = n0; plane_shape[ax1] = n1
+    u = torch.rand(plane_shape, generator=generator).expand(mask.shape)     # CPU draw (reproducible)
     lam_cpu = highfreq & (u < float(rho))
     mask_lambda = lam_cpu.to(dtype=dt, device=dev)
     mask_theta = (sampled_cpu & (~lam_cpu)).to(dtype=dt, device=dev)

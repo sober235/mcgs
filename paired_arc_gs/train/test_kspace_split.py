@@ -29,6 +29,8 @@ ok.append(("lambda is high-freq only", float(((lam > 0) & (r3 < 8.0)).sum()) == 
 hf = sampled * (r3 >= 8.0)
 frac = float(lam.sum()) / max(1.0, float(hf.sum()))
 ok.append(("held-out fraction ~= rho", 0.2 < frac < 0.4))
+# per-line holdout: within a phase location Λ is all-or-nothing along the readout axis (axis 2)
+ok.append(("Λ holds out whole readout lines", bool((lam.amax(dim=2) == lam.amin(dim=2)).all())))
 gen2 = torch.Generator(device="cpu").manual_seed(123)
 _, lam2 = frequency_holdout_split(mask, (0, 1), 8.0, 0.3, gen2)
 ok.append(("reproducible with same seed", torch.equal(lam, lam2)))
