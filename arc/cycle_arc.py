@@ -98,6 +98,15 @@ def grain(rec, gt):
     thr = torch.quantile(gg[brain], 0.30); flat = brain & (gg <= thr)
     return float(hp[flat].std())
 
+def psnr_unified(rec, gt, p=99.9):
+    """Unified-gauge PSNR: data_range = P_p percentile of GT magnitude (robust to the
+    single-voxel peak that inflates @max-PSNR). rec, gt: real magnitude tensors, same
+    normalized scale. NMSE (gauge-free) remains the cross-contrast arbiter."""
+    r = rec.detach().cpu().numpy().astype("float64")
+    g = gt.detach().cpu().numpy().astype("float64")
+    dr = float(np.percentile(g, p))
+    mse = float(np.mean((r - g) ** 2))
+    return float("inf") if mse == 0 else float(10.0 * np.log10(dr ** 2 / mse))
 
 def build_cfg():
     """_final_tf.py baseline cfg, with single-knob overrides from args."""
