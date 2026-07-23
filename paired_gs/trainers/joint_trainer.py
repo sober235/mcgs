@@ -67,6 +67,7 @@ def _load_dataset(data_cfg: Dict[str, Any]) -> MRIDataset:
         normalize_kspace=data_cfg.get("normalize_kspace", True),
         normalization_percentile=data_cfg.get("normalization_percentile", 99.9),
         skip_readout_check=data_cfg.get("skip_readout_check", True),
+        center_kspace_dc=data_cfg.get("center_kspace_dc", False),
         presampled=data_cfg.get("presampled", True),
     )
 

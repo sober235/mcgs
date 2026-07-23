@@ -141,3 +141,186 @@ af08 (12.65%) can't reach ⇒ no free lunch on the acquisition side ⇒ locks in
 `tf_adaptive_mask_multicoil.png` (adaptive-sampling null result, faithful multicoil gauge),
 `final_recon_reg_aligned_T1_FLAIR.png` (winner, 3 views × [ZF|GT|Recon|err]). Analysis scripts live in the
 session scratchpad (not committed).
+
+---
+
+## 4. Is 2-map (soft-SENSE) CSM or recalibration a lever? — NO (verified 2026-07-17/21)
+
+> After the self-contained-prior dead-ends, checked whether the **CSM itself** is the bottleneck:
+> (a) 1-map→2-map ESPIRiT, (b) whether the shipped 1-map CSM is well-calibrated, (c) an actual 2-map
+> reconstruction. All ruled out. Measured on real files (raw multicoil `ksp` + shipped `csm_espirit_*.mat`,
+> DC-centered before `ecalib`). Scripts: `scratchpad/csm2map_{prep,diag}.py`, `csm_existing_check.py`,
+> `csm2map_reconCG.py`.
+
+**4a. 2-map soft-SENSE recovers essentially nothing here.** BART `ecalib -m2` on the DC-centered raw ksp;
+coil-image energy captured by map0 alone vs span(map0,map1), brain:
+| | default `-c0.8` (cropped) | `-c0` (uncropped, true 2nd subspace) |
+|---|---|---|
+| T1 | 96.12% → 96.12% (**+0.00 pt**) | 96.55% → 97.06% (**+0.51 pt**) |
+| FLAIR | 98.64% → 98.64% (**+0.00 pt**) | 98.72% → 98.91% (**+0.18 pt**) |
+
+The 2nd ESPIRiT map is **noise-dominated** (λ2≈0.24, only 0.1–0.6% of voxels λ2>0.5; visually speckle + faint
+edge ring, NOT wrapped anatomy) → the default crop correctly zeros it. **Opposite of cheng_data** (limited
+FOV/wrap → `-m1` underfits ~11%, `-m2` recovers it, see auto-memory [[cheng-data-csm-bart-espirit]]).
+huangyuwei is **full-FOV, no wrap → 1-map suffices**.
+
+**4b. Shipped 1-map CSM is already well-calibrated.** Existing `csm_espirit_*.mat` captures **T1 94.8% /
+FLAIR 98.4%** of brain coil energy ≈ a fresh centered calibration (96.1% / 98.6%). The raw ksp DC is offset
+**+22 px on axis1** (the same offset the mask-registration fix addressed), but BART `ecalib` auto-detects the
+calibration region by energy → the offset **did not hurt the CSM**. Recalibration gain ≤1.3 pt (T1) / ~0
+(FLAIR) → **not worth a full rerun**. (Aside: raw-vs-centered frame gives identical capture — a k-space roll
+is an image-domain phase ramp the projection magnitude cancels.)
+
+**4c. Actually running a 2-map reconstruction confirms it (the decisive test).** AF≈12 CG-SENSE
+(readout-decoupled, GPU-batched), 1-map vs 2-map soft-SENSE (primary image x1), Tikhonov-λ sweep:
+| λ | 1-map PSNR / SSIM | 2-map PSNR / SSIM |
+|---|---|---|
+| 0.001 (under-reg, noisy) | 24.26 / 0.44 | 25.02 / 0.60 |
+| **0.01 (best op. pt)** | **26.82 / 0.76** | 24.91 / 0.83 |
+| 0.05 | 24.34 / 0.87 | 22.83 / 0.87 |
+| 0.2 | 20.40 / 0.87 | 19.82 / 0.86 |
+
+2-map only "wins" at λ=0.001 — a **noise-regime artifact** (its 2× unknowns act as implicit smoothing over
+the under-regularized 1-map noise; note 1-map SSIM there is only 0.44). At the best operating point (λ=0.01,
+overall-best recon) and every heavier setting, **1-map ≥ 2-map**; 2-map only trades PSNR for a little SSIM.
+**⚠️ Lesson: a single-λ 2-map recon comparison MISLEADS — you must sweep regularization.** Since GS is a
+**strong-prior (≈ well-regularized) recon**, this is exactly the regime where 2-map ≤ 1-map ⇒ **2-map would
+not help GS either.**
+
+**Conclusion:** the **CSM side (2-map + recalibration) is NOT a lever** — consistent with §3: the AF≈12
+bottleneck is prior-limited *unsampled high-freq*, whose only lever is a learned/generative prior. **Do not
+re-try 2-map or CSM recalibration.** Figures (`results_arc/`): `csm_1map_vs_2map_T1_FLAIR.png`
+(maps / 2nd-map / λ2), `recon_1map_vs_2map_T1_frontier.png` (λ-sweep), `recon_1map_vs_2map_T1_lam0.01.png`
+(best-op-pt recon).
+
+---
+
+## 5. Spatial operations / inter-contrast registration — OUT OF SCOPE (user decision, 2026-07-21)
+
+> **User decision (stated twice): do NOT bring T1↔FLAIR spatial registration / any spatial-alignment
+> operation into the project.** Recorded so it is not silently re-enabled.
+
+**The ARC frontier HAS a registration module; the MC-GS winner does NOT.** Paired-ARC-GS ships the §8
+`deformation` module (`paired_arc_gs/modules/deformation.py`): `T_m(r) = R_m·r + t_m + u_m(r)` (rigid +
+low-freq nonrigid) applied to the shared-anatomy Gaussian centers, with `reference_index=0` pinning
+T1(plain) to identity and FLAIR deforming relative to it = **inter-contrast registration**. The
+`arc/cycle_arc.py` harness sets `deformation:{enable:True, rigid:True, nonrigid:True, u_max:0.05}` and runs
+`s3_deformation` for 200 iters — so the **P1/P3 prior experiments ran WITH the registration machinery on**.
+
+**But the estimated deformation was ≈ identity** → the results are not confounded. The deformation
+regularizer `R_def = ‖∇u‖² + λ_J‖det J − 1‖²` stayed at **1e-7–1e-8** throughout every run → nonrigid
+`∇u ≈ 0`. Reason: T1/FLAIR here are **co-acquired (same subject/session/geometry) → already voxel-aligned**,
+so the optimizer correctly finds ~nothing to warp (deforming FLAIR only raises the DC loss; `u_max=0.05`
+also caps it). Caveat: `R_def` does not penalize a pure rigid translation `t_m` (∇u=0), so the logs alone
+can't rule out a tiny rigid shift — but on co-aligned data `t_m` should also be ≈0.
+
+**Standing rule going forward:** the **MC-GS winner (`JointTrainer`) has NO deformation module** — the
+shipped main line is clean zero-registration. Any future **ARC** run must set
+**`model.deformation.enable=False`**; do NOT pursue T1↔FLAIR registration / spatial alignment.
+
+---
+
+## 6. Algorithm–code alignment audit of the 1-map winner — code is FAITHFUL, T1 artifact = physics (2026-07-21)
+
+> User re-opened T1's severe artifacts as a suspected **code-vs-algorithm mismatch**. Audited the winner
+> code (`paired_gs/trainers/joint_trainer.py`, `data/dataset.py`, `data/transforms.py`) line-by-line
+> against the spec AND independently re-measured on real files. **Verdict: no T1-specific bug; the code
+> implements the algorithm faithfully and is contrast-symmetric. T1's artifact is the §3 spectrum–sampling
+> mismatch, now independently reconfirmed.** Fig `results_arc/diag_T1_artifact_rootcause.png` (3-panel).
+
+**What was verified correct & contrast-symmetric:**
+- Forward = true multicoil SENSE `pred_ksp = fft3c(vol·csm)` (`joint_trainer.py:428`), DC loss vs measured
+  multicoil `kspace_undersampled_complex`, freq-weighted, masked (`_kspace_loss`). Not a combined-channel
+  shortcut.
+- hard-DC export (`:927-931`): `ksp_dc = pred·(1-m) + y_meas` → sampled points EXACT → 100% of residual is
+  unsampled k. GT = `Σ conj(csm)·ifft3c(ksp)` (conj-SENSE). Per-contrast P99.9 normalization, self-consistent.
+- `fft3c/ifft3c = fftshift∘fftn∘ifftshift` → DC at array geometric center.
+
+**Independent re-measurement (raw multicoil ksp + ALIGNED mask):**
+- **Mask is OPTIMALLY aligned to T1's DC**: T1 3D DC = `(128,132,126)`, offset `(0,+22,-2)` from center;
+  per-contrast roll sweep → T1 peak retained-energy is **exactly at shipped roll 0** (re-align gain
+  **+0.00 pt**). Kills the "shared mask only aligned FLAIR, not T1" hypothesis. (FLAIR best roll (-4,-1) = +0.21pt, negligible.)
+- **Retained energy** (aligned mask): **T1 73.79% / FLAIR 89.28%** (reconfirms §3's 73.8/89.8).
+- **Radial spectrum**: 90% energy T1@59px vs FLAIR@21px (95%: 87 vs 45) → T1 intrinsically higher-freq.
+- **Recon works, residual all high-freq**: error-energy ↓**82%** vs zero-filled for BOTH (T1 NMSE
+  0.1106→0.0202, FLAIR 0.0484→0.0085); recon-error radial profile shifts to high-k.
+
+**Only code-algorithm inconsistency found — quantified NEGLIGIBLE:** the +22px(axis1) DC offset is
+compensated by rolling the *mask* but NOT the frequency-adaptive loss weight — `_build_freq_weight`
+(`joint_trainer.py:526-537`) centers its center/mid/high bands on the array center, not the true DC. But
+only **7.3% of sampled pts** are mis-weighted and **97.1% of high-band pts still get the 2.2 boost** (a
+0.2-normalized-radius shift only moves the r>0.5 shell). Same offset also forces the model to represent an
+image-domain phase ramp (magnitude/TV unaffected). Both effects are **contrast-symmetric → do NOT explain
+T1>FLAIR**. The clean fix (center data k-space DC once, up front) is principled but expected small &
+symmetric — it does NOT touch the 73.79% physics limit (retained energy is invariant to a global k roll).
+**Real lever for T1 stays: learned/generative high-freq prior, or lower AF (§3, §8b).**
+
+**RETRAIN VERDICT (2026-07-23) — the DC-centering cleanup was IMPLEMENTED + tested; it does NOT help.**
+Config-gated `center_kspace_dc` added (default-off, reversible): `dataset.py` rolls ksp so DC→array
+center + rolls the external mask by the same shift; `_load_dataset` plumbs the flag;
+`configs/winner_v2_centered.yaml`. Dry-run verified (DC→center, |GT| invariant 3e-7, retained energy
+73.79% unchanged, phase ramp 0.71→0.20 rad/vox). Retrained `centered_4k` (GPU5, 4000 iters, same
+warm-start/seed/hyperparams as `reg_aligned_4k` — ONLY diff is centering):
+| | T1 comp | T1 SSIM | T1 PSNR@max | T1 NMSE | FLAIR comp | FLAIR SSIM |
+|---|---|---|---|---|---|---|
+| reg_aligned_4k (base) | 30.85 | 0.8936 | 38.51 | 0.0201 | 35.10 | 0.9017 |
+| centered_4k | **29.77** | **0.8632** | 38.59 | 0.0198 | **34.36** | **0.8809** |
+| Δ | **−1.08** | **−0.030** | +0.08 | −0.0004 | **−0.74** | **−0.021** |
+Centering makes the recon **smoother**: pixel-error metrics (PSNR@max/NMSE/HFEN/mean|err| −4%) marginally
+better, but **structural/composite (comp −1.08/−0.74, SSIM −0.03, sharp −0.036) REGRESS**. Error maps
+visually unchanged (`results_arc/cmp_centered_vs_baseline_T1_FLAIR.png`). Two confounds, same conclusion:
+(a) `kspace_center_weight=0.3` was tuned UNDER the miscentered freq-weight → centering makes 0.3 de-emphasize
+the TRUE low-freq structure → SSIM drop; (b) warm-start fit to ramped data biases vs centered. But retained
+energy is roll-invariant (73.79% both) so the physics ceiling is untouched → no re-tune/re-warm can win big.
+**Conclusion: algorithm-code alignment audit CLOSED — code is faithful, the one cleanup (DC-centering)
+empirically does not reduce T1 artifacts (slightly regresses). T1 artifact = AF=12 spectrum–sampling physics.
+Do NOT re-pursue DC-centering; keep `center_kspace_dc` default-off. Real lever = learned prior / lower AF.**
+
+**N4 bias-field "normalization" of error maps is a METHODOLOGICAL ARTIFACT, not a new recon bug (2026-07-23).**
+> User asked to N4-correct recon+GT then recompute |err|; the result showed error DOUBLING with a bright
+> boundary ring. Debugged with systematic-debugging: first hypothesis (independently-thresholded N4 masks
+> disagree at the blurred-vs-sharp boundary → ring) was REFUTED by a minimal test (forcing recon's N4 fit to
+> use GT's mask did not shrink the ring; T1 ring NMSE 0.0353→0.0375, slightly worse). Real mechanism, verified
+> with matched 4-voxel ring/interior masks on both contrasts:
+> 1. **Pre-existing** (= the already-established AF=12 physics artifact): boundary ring already has
+>    3.2–3.9× higher NMSE than interior in the ORIGINAL (non-N4) error map — undersampling blur/Gibbs
+>    concentrates at the sharpest edge in the volume (skull/scalp-air).
+> 2. **N4-specific**: N4 fits recon and GT INDEPENDENTLY (two separate smooth B-spline bias fields). The
+>    B-spline fit is least-constrained at the edge of its domain, so it responds differently to recon's
+>    blurred boundary vs GT's sharp boundary → the two fitted fields diverge 2.7–4.0× more at the ring than
+>    in the interior (mean|bias_recon/bias_gt − 1|: ring≈0.11–0.12, interior≈0.03–0.05). Dividing by two
+>    DIFFERENT fields injects a genuinely new error term absent from the original comparison.
+> Both effects compound multiplicatively on the same boundary ring → after N4 the ring dominates a [0,0.1]
+> error-map colorbar even though nothing about the underlying reconstruction changed.
+> **Takeaway: do NOT independently N4-correct recon and GT for error-map comparison — it is not a fair
+> normalization for this undersampled-recon use case.** If bias-field-invariant comparison is ever needed,
+> either (a) skip N4 entirely (as in all other figures this session), or (b) fit N4 ONCE (e.g. on GT) and
+> apply the SAME field to both, or (c) restrict any N4-based metric to a deeply-eroded interior mask
+> (≥10–15 voxels from the boundary) where independent fits actually agree (~3% mismatch, tolerable).
+> Figures: `results_arc/n4_error_centered_butterfly.png` (the inflated-ring effect),
+> `results_arc/n4_mask_mismatch_diag.png` (mask XOR + bias-ratio map — mask-mismatch panel is a red herring,
+> bias-ratio-divergence panel is the real signal).
+>
+> **Fair version confirmed (option b executed):** fit N4 ONCE on GT only, apply the SAME field to recon (no
+> independent recon fit) → ring NMSE inflation drops from ×1.84–1.87 (independent-fit) to **×1.15–1.20**
+> (T1 0.0192→0.0231, FLAIR 0.0104→0.0120), interior barely moves (×1.07–1.08, the expected residual from
+> dividing by any non-constant field). Visually, shared-field `|err|` ≈ orig `|err|` (no bright ring) —
+> `results_arc/n4_shared_field_fair_deshade.png`. **Confirms: no hidden shading defect: after fair de-shading
+> the error is still diffuse high-freq cortical/ventricular-boundary grain, unchanged from the non-N4 story.**
+
+**Why the ventricle ("butterfly" CSF) region shows high error (2026-07-23) — same edge/Gibbs mechanism, not new.**
+> Brain-wide (gradient-independent of any mask bug): binning all brain voxels by `|grad(GT)|` gives a clean
+> MONOTONIC error increase, T1 quintile-1→5 mean|err|/peak 0.0117→0.0189, FLAIR 0.0107→0.0201 — confirms
+> error scales with local edge sharpness everywhere, not just at the skull.
+> Ventricle-specific: the lateral ventricles are a THIN structure (~2–4 voxels wide in cross-section at the
+> butterfly slice) → there is no voxel far from the CSF-tissue wall, so "core" and "wall" are nearly the same
+> population: core≈wall error (T1 ratio 0.99×, FLAIR 1.16×), both ~12–41% above generic (thick) WM/GM
+> interior. `|grad(GT)|` edge map shows the ventricle wall as bright as the skull rim — same mechanism,
+> different location. Fig: `results_arc/ventricle_error_diag.png`.
+> ⚠️ **Methodology gotcha hit during this analysis (fixed): an initial 3D connected-component ventricle
+> segmentation (fill-holes + label) merged the ventricles with peripheral sulcal CSF into one blob spanning
+> nearly the WHOLE brain (z 0–197) — this gave a WRONG "core low-error, wall high-error" result (NMSE-based,
+> also confounded by near-zero-GT denominator blowup). Fixed by per-slice local-percentile segmentation,
+> visually verified against the raw image (contour must visibly trace the clover/butterfly shape) before
+> trusting any statistic — do not trust an anatomical mask's stats without plotting its contour on the image
+> first, especially for thin/small structures where 3D connectivity can silently merge unrelated regions.

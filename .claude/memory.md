@@ -172,3 +172,33 @@ lower AF (project note: AF12→AF6 ≈ MC-GS +1.3/+1.5 dB) or a learned/generati
 - **Usage** (`dataset.py`): forward `M·F3c(S·x)`; GT `Σ_c conj(S_c)·ifft3c(y_full_c)` (:313–315).
   Helper: `scripts/estimate_csm.py --recipe`/`--verify`. NOTE: ecalib `-r 24` ≠ mask `calib 24` (different roles).
   Full detail → project `memory.md`.
+
+## 12. Is 2-map CSM / recalibration a lever? — NO (verified 2026-07-17/21)
+- **2-map soft-SENSE ≈ 0 gain.** `ecalib -m2` on DC-centered ksp; coil-energy captured map0 vs span(map0,map1),
+  brain: default `-c0.8` T1/FLAIR **+0.00 pt** (2nd map cropped); uncropped `-c0` **T1 +0.51 / FLAIR +0.18 pt**.
+  2nd map is noise + faint edge ring (λ2≈0.24, 0.1–0.6% voxels λ2>0.5), not wrapped anatomy. **Opposite of
+  cheng_data** (limited FOV → `-m2` recovers ~11%); huangyuwei full-FOV → 1-map suffices.
+- **Shipped 1-map CSM already well-calibrated:** captures T1 **94.8%** / FLAIR **98.4%** ≈ fresh (96.1/98.6).
+  Raw ksp DC offset **+22 px (axis1)** but `ecalib` auto-detects the calib region → no harm. Recalibration
+  ≤1.3 pt (T1) / ~0 (FLAIR) → not worth a rerun.
+- **Actual 2-map recon confirms (decisive):** AF≈12 CG-SENSE (readout-decoupled), 1-map vs 2-map primary,
+  Tikhonov-λ sweep. 2-map only "wins" at under-reg λ=0.001 (noise-regime **implicit-smoothing artifact**,
+  1-map SSIM there 0.44); at best λ=0.01 **1-map 26.82 dB > 2-map 24.91 dB**, heavier reg 1-map ≥ 2-map,
+  overall-best recon = **1-map**. ⚠️ single-λ 2-map compare misleads → **sweep reg**. GS = strong prior
+  (≈ good reg) ⇒ 2-map won't help GS.
+- **Conclusion: CSM side (2-map + recalibration) is NOT a lever** (consistent with §8 + project `memory.md`
+  §3: bottleneck = prior-limited unsampled high-freq → learned prior). Figs `results_arc/{csm_1map_vs_2map_T1_FLAIR,
+  recon_1map_vs_2map_T1_frontier,recon_1map_vs_2map_T1_lam0.01}.png`. Do NOT re-try 2-map/recalibration.
+
+## 13. Spatial operations / registration — OUT OF SCOPE (user decision, 2026-07-21)
+- **User: do NOT bring T1↔FLAIR spatial registration into the project** (stated twice). Recorded so it isn't
+  silently re-enabled.
+- **ARC frontier HAS an inter-contrast registration module; MC-GS winner does NOT.** ARC §8 `deformation`
+  (`paired_arc_gs/modules/deformation.py`): `T_m(r)=R_m·r+t_m+u_m(r)` (rigid+nonrigid) on the shared Gaussian
+  centers, `reference_index=0` pins T1, FLAIR deforms relative = registration. `arc/cycle_arc.py` had it
+  `enable:True` + ran `s3_deformation` 200 iters → the **P1/P3 experiments ran with it ON**.
+- **But estimated deform ≈ identity** (log `def` reg 1e-7–1e-8 → nonrigid ∇u≈0; T1/FLAIR co-acquired, already
+  aligned; `u_max=0.05` caps it) → **P1/P3 negative results NOT confounded**. Caveat: `def` reg can't see a
+  rigid translation `t_m`, but co-aligned data → `t_m≈0` too.
+- **Rule:** MC-GS winner (`JointTrainer`) has NO deformation → main line = clean zero-registration. **Future
+  ARC runs MUST set `model.deformation.enable=False`**; do not pursue T1-FLAIR registration / spatial alignment.
