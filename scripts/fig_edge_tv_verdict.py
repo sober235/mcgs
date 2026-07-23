@@ -15,14 +15,17 @@ def mean(tag, key): return (float(by[tag]["T1"][key]) + float(by[tag]["FLAIR"][k
 # noise floor = |baseline_4k - p0_noise_4k| on each metric: TWO isotropic-TV runs at the SAME 4000-iter
 # budget (only seed-nondeterminism differs). Must match edgeTV_best's budget — a 1500-iter p0 would fold the
 # 1500->4000 convergence gap into the "floor" and inflate the PASS bar. (p0_noise@1500 is selection-only.)
-floor = {k: abs(mean("baseline_4k", k) - mean("p0_noise_4k", k)) for k in ["nmse_edge", "ssim", "nmse_whole"]}
+floor = {k: abs(mean("baseline_4k", k) - mean("p0_noise_4k", k)) for k in ["nmse_edge", "hfen_edge", "ssim", "nmse_whole"]}
 d_edge = mean("baseline_4k", "nmse_edge") - mean("edgeTV_best", "nmse_edge")   # + = improvement
+d_hfen = mean("baseline_4k", "hfen_edge") - mean("edgeTV_best", "hfen_edge")   # + = improvement
 d_ssim = mean("edgeTV_best", "ssim") - mean("baseline_4k", "ssim")            # + = improvement
 d_nmse = mean("edgeTV_best", "nmse_whole") - mean("baseline_4k", "nmse_whole")  # + = worse
-PASS = (d_edge > floor["nmse_edge"]) and (d_ssim >= -floor["ssim"]) and (d_nmse <= floor["nmse_whole"])
-verdict = "PASS" if PASS else ("RESHAPE/FAIL" if d_edge > floor["nmse_edge"] else "NO-GAIN/FAIL")
+# spec strict bar: edge improves on NMSE **or** HFEN, AND SSIM not-down, AND whole-NMSE not-up
+edge_improved = (d_edge > floor["nmse_edge"]) or (d_hfen > floor["hfen_edge"])
+PASS = edge_improved and (d_ssim >= -floor["ssim"]) and (d_nmse <= floor["nmse_whole"])
+verdict = "PASS" if PASS else ("RESHAPE/FAIL" if edge_improved else "NO-GAIN/FAIL")
 print(f"noise floor: {floor}")
-print(f"edge_gain={d_edge:+.4f} (floor {floor['nmse_edge']:.4f}) | dSSIM={d_ssim:+.4f} | dNMSE_whole={d_nmse:+.4f}")
+print(f"edge_gain nmse={d_edge:+.4f} hfen={d_hfen:+.4f} (floor {floor['nmse_edge']:.4f}/{floor['hfen_edge']:.4f}) | dSSIM={d_ssim:+.4f} | dNMSE_whole={d_nmse:+.4f}")
 print(f"VERDICT: {verdict}")
 
 B = np.load(f"{R}/reg_aligned_4k_volumes.npz"); E = np.load(f"{R}/edgeTV_best_volumes.npz")

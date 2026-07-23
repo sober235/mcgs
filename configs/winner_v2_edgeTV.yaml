@@ -1,5 +1,5 @@
 # ============================================================================
-# winner_v2.yaml — SHIPPED BASELINE for Paired_ARC_GS
+# winner_v2_edgeTV.yaml — EXPERIMENTAL edge-TV variant (NOT the shipped baseline; edge_tv negative result)
 # ----------------------------------------------------------------------------
 # Reproduces the validated MC-GS winner-v2 result on the T1(plain)+FLAIR(contrast)
 # brain pair under the ESPIRiT-CSM reconstruction convention:
