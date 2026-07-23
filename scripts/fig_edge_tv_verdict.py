@@ -12,8 +12,10 @@ by = collections.defaultdict(dict)
 for r in rows: by[r["tag"]][r["contrast"]] = r
 
 def mean(tag, key): return (float(by[tag]["T1"][key]) + float(by[tag]["FLAIR"][key])) / 2
-# noise floor = |baseline_4k - p0_noise| on each metric (two isotropic-TV runs, only seed-nondeterminism differs)
-floor = {k: abs(mean("baseline_4k", k) - mean("p0_noise", k)) for k in ["nmse_edge", "ssim", "nmse_whole"]}
+# noise floor = |baseline_4k - p0_noise_4k| on each metric: TWO isotropic-TV runs at the SAME 4000-iter
+# budget (only seed-nondeterminism differs). Must match edgeTV_best's budget — a 1500-iter p0 would fold the
+# 1500->4000 convergence gap into the "floor" and inflate the PASS bar. (p0_noise@1500 is selection-only.)
+floor = {k: abs(mean("baseline_4k", k) - mean("p0_noise_4k", k)) for k in ["nmse_edge", "ssim", "nmse_whole"]}
 d_edge = mean("baseline_4k", "nmse_edge") - mean("edgeTV_best", "nmse_edge")   # + = improvement
 d_ssim = mean("edgeTV_best", "ssim") - mean("baseline_4k", "ssim")            # + = improvement
 d_nmse = mean("edgeTV_best", "nmse_whole") - mean("baseline_4k", "nmse_whole")  # + = worse
