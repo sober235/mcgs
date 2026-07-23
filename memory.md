@@ -324,3 +324,45 @@ Do NOT re-pursue DC-centering; keep `center_kspace_dc` default-off. Real lever =
 > visually verified against the raw image (contour must visibly trace the clover/butterfly shape) before
 > trusting any statistic — do not trust an anatomical mask's stats without plotting its contour on the image
 > first, especially for thin/small structures where 3D connectivity can silently merge unrelated regions.
+
+---
+
+## 7. Edge-preserving TV for the CSF/sharp-edge error — RESHAPE, does NOT reduce edge error (2026-07-24)
+
+> Full brainstorm→spec→plan→subagent-driven build→sweep→verdict cycle for "reduce the ventricle/sharp-edge
+> error, self-contained, edge-directed" (Approach A). **Result: FAIL (NO-GAIN) at the pre-registered strict
+> bar** — edge-weighted TV is another reshape-only self-contained prior, joining P1/P3/dtv/vtv.
+> Spec `docs/superpowers/specs/2026-07-23-edge-preserving-tv-csf-design.md`; plan
+> `docs/superpowers/plans/2026-07-23-edge-preserving-tv-csf.md`; branch `edge-preserving-tv`.
+
+**Method.** Replace isotropic magnitude-TV with edge-weighted TV `w=clamp(1/(1+(|∇u|_sg/κ)²), w_floor, 1)`
+(detached Perona-Malik weight, per-axis, within-contrast). `paired_gs/losses/edge_tv.py`; config-gated
+`loss.edge_tv` (**default OFF** — shipped winner untouched); `configs/winner_v2_edgeTV.yaml`; metrics
+`scripts/score_edge.py` (edge-set = dilate(|∇GT|≥Q80,2vox); + ventricle mask; + gradient quintiles).
+
+**Strict bar (pre-registered):** edge-region NMSE (or HFEN) DOWN > noise-floor AND whole-brain SSIM not-down
+AND whole-brain NMSE not-up. "edge down but SSIM down" = RESHAPE=FAIL.
+
+**Sweep (9 cells κ_q∈{.6,.75,.85}×λ∈{.06,.10,.15} @1500 vs isotropic p0@1500):** 9/9 have Δnmse_edge>0
+(edge NMSE UP). λ≥0.10 = reshape (edge↑, SSIM↑); λ=0.06 = both-worse (edge↑, SSIM↓, whole-nmse↑, though
+hfen_edge↓). Best (least-bad, SSIM+) = κ_q0.85/λ0.10.
+
+**4000-iter verdict (κ_q0.85/λ0.10 vs baseline_4k; noise floor from a 2nd isotropic 4000 run = ~0.00000 on
+nmse_edge, so any change is real not noise):**
+| | T1 nmse_edge | FLAIR nmse_edge | T1 ssim | FLAIR ssim | hfen_edge | nmse_whole |
+|---|---|---|---|---|---|---|
+| baseline_4k | 0.0142 | 0.0058 | 0.8936 | 0.9017 | — | — |
+| edge-TV | **0.0150↑** | **0.0063↑** | 0.8980↑ | 0.9093↑ | both↑ | both↑ |
+→ **VERDICT NO-GAIN/FAIL**: edge-NMSE, HFEN, whole-NMSE all UP; only SSIM up. Pure reshape. Fig
+`results_arc/edgeTV_verdict.png`.
+
+**Mechanism (spec §6 ringing risk, materialized):** sparing edges → recon sharpens the CSF/tissue step →
+but at AF=12 the true high-freq is UNMEASURED, so "sharper" = overshoot = MORE Gibbs ringing → higher edge
+error. Smoothing the flat interior lifts SSIM. No w_floor/κ setting escapes the tradeoff — because no
+self-contained prior has the missing high-freq information.
+
+**Conclusion / standing rule:** the edge/ventricle error is NOT reducible by any hand-crafted self-contained
+regularizer (edge-weighted TV joins the disproven P1/P3/dtv/vtv/DC-centering/N4 list). The strict
+"edge-NMSE down without cost" bar is unmet. **Only levers remain: a learned/generative high-freq prior, or
+lower AF.** Do NOT re-try edge-weighted TV (or Approach B geometry-anisotropy without new information — same
+ceiling). `edge_tv` stays default-off; branch kept as the documented negative result.
