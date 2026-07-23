@@ -37,6 +37,9 @@ ap.add_argument("--lambda_vtv", type=float, default=0.0)         # loss.lambda_v
 ap.add_argument("--max_radius", type=int, default=20)            # voxelizer.max_radius; geometry expressivity
 ap.add_argument("--kspace_high", type=float, default=1.0)        # loss.kspace_high_weight (contrast/shared); SECONDARY
 ap.add_argument("--kspace_high_plain", type=float, default=-1)   # decoupled plain-channel high-band weight (-1=share)
+ap.add_argument("--edge_tv", action="store_true")               # enable edge-weighted TV (replaces iso-TV)
+ap.add_argument("--edge_tv_kappa_q", type=float, default=0.75)  # in-brain gradient quantile -> kappa
+ap.add_argument("--edge_tv_wfloor", type=float, default=0.1)    # residual edge smoothing floor
 ap.add_argument("--kspace_center", type=float, default=-1)       # loss.kspace_center_weight; PSNR lever (low-freq emphasis; -1=leave)
 ap.add_argument("--kspace_mid", type=float, default=-1)          # loss.kspace_mid_weight (-1=leave)
 ap.add_argument("--densify_until", type=int, default=-1)         # adaptive_control.densify_until_iter (-1=leave)
@@ -140,6 +143,10 @@ def build_cfg():
     cfg["loss"]["edge_kappa"] = args.edge_kappa
     cfg["loss"]["lambda_vtv"] = args.lambda_vtv
     cfg["loss"]["kspace_high_weight"] = args.kspace_high
+    if args.edge_tv:
+        cfg["loss"]["edge_tv"] = True
+        cfg["loss"]["edge_tv_kappa_q"] = args.edge_tv_kappa_q
+        cfg["loss"]["edge_tv_wfloor"] = args.edge_tv_wfloor
     if args.kspace_high_plain > 0:
         cfg["loss"]["kspace_high_weight_plain"] = args.kspace_high_plain
     if args.kspace_center > 0:
