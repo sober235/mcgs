@@ -4,6 +4,46 @@
 > the 28-experiment autoresearch conclusion so it is not re-derived or re-tuned.
 > Last verified: 2026-07-15 (all training idle; winner reproduced).
 
+## 0. OUR METHOD (user decision 2026-07-24) = **MC-GS edge-TV** ; iso-winner set aside
+
+**User chose MC-GS edge-TV as the working method** on the SSIM / perceptual criterion (edge-TV has the
+highest SSIM = smoothest/cleanest look: T1 0.898, FLAIR 0.909, both > iso-winner by >noise-floor; the
+tradeoff is a touch lower PSNR/NMSE/edge-NMSE). "Do not consider the iso-TV winner for now."
+- **edge-TV method** = MC-GS + **edge-weighted TV** (`w=clamp(1/(1+(|∇u|_sg/κ)²),w_floor,1)`, detached
+  Perona-Malik, per-axis, within-contrast) instead of isotropic TV. Best cell **κ_q0.85 / λ_geo0.10 /
+  w_floor0.1**, 4000 iters. `edge_tv` config-gated (`configs/winner_v2_edgeTV.yaml`, branch
+  `edge-preserving-tv`, PR #1). Run `edgeTV_best` → `results_arc/edgeTV_best_volumes.npz`.
+  Reproduce: `... arc/cycle.py --exp edgeTV_best --iters 4000 --kspace_high 2.2 --warmup 500 --max_radius 20
+  --edge_tv --edge_tv_kappa_q 0.85 --edge_tv_wfloor 0.1 --lambda_geo 0.10 --base_cfg configs/winner_v2_edgeTV.yaml --save_volumes`
+- **Metrics (same-gauge, brain, @max):** T1 PSNR 33.90 / **SSIM 0.898** / NMSE 0.0137 / edge-NMSE 0.0150;
+  FLAIR 33.31 / **SSIM 0.909** / NMSE 0.0059 / edge-NMSE 0.0063. (⚠️ §7 called edge-TV a "FAIL" only against
+  the strict *edge-NMSE-down* bar; on the SSIM axis it is the preferred variant — the user's chosen criterion.)
+- **Baselines it beats (same AF=12 data/mask/CSM, same gauge, robust to N4-deshading):** conventional
+  **CS-SENSE (TV)** — T1 32.80/0.871/0.0176, FLAIR 33.11/0.886/0.0062 (grainier, all metrics worse); every
+  MC-GS variant ≫ CS-SENSE. Figs `results_arc/three_way_cssense_mcgs_edgeTV.png` (+ `_N4` version).
+- **PSNR/NMSE-optimal ALTERNATIVE (set aside per user) = iso-TV winner `reg_aligned_4k`** — details below.
+
+**iso-TV winner `reg_aligned_4k`** (PSNR/NMSE-optimal; ALIGNED AF=12 mask, 4000 iters):
+- **Algorithm:** MC-GS (`JointTrainer`+`JointGaussianModel3D`): ONE shared 3D-Gaussian geometry (μ,Σ=R(q)diag(s²)Rᵀ)
+  + per-primitive **dual complex density** α_plain→T1 / α_contrast→FLAIR. Forward `A_m=M_m·F3c·S_m`; scoring =
+  hard-DC `k_dc=m·y+(1−m)·F3c(S·x)` then conj-SENSE combine `x=Σ_c ifft3c(k_dc)·conj(S_c)`. Warm-start 576902
+  Gaussians, **densification OFF**.
+- **Key params:** `lambda_geo(TV)=0.06`, `kspace_freq_adaptive` (center_frac 0.05 / center_w 0.3 / mid 1.0 /
+  **high 2.2**), loss l2, **4000 iters**, warmup 500, seed 42, max_radius 20, init_scale 0.008,
+  lr {pos 3e-4, scale 2e-3, rot 3e-4, density 1.5e-2}, lr_sched exp γ0.9995.
+- **Data:** AF=12 **ALIGNED** vd-Poisson mask (net 11.83, 8.45% PE, readout fully sampled), ESPIRiT **1-map** CSM
+  (`ecalib -t0.001 -c0.0 -r24 -m1`, SoS≡1), norm P99.9. Config `configs/winner_v2_aligned.yaml`.
+- **Result @4000 (@max gauge):** T1 PSNR **38.512** / SSIM **0.8936** / NMSE **0.0201**; FLAIR PSNR **38.291** /
+  SSIM **0.9017** / NMSE **0.00842**. Volumes `results_arc/reg_aligned_4k_volumes.npz`; fig
+  `results_arc/FINAL_recon_winner_reg_aligned_4k.png`.
+- **Reproduce:** `CUDA_DEVICE_ORDER=PCI_BUS_ID PYTHONNOUSERSITE=1 PYTHONPATH= /home/congcongliu/anaconda3/envs/GSTMI/bin/python arc/cycle.py --exp reg_aligned_4k --gpu N --iters 4000 --lambda_geo 0.06 --kspace_high 2.2 --warmup 500 --max_radius 20 --base_cfg configs/winner_v2_aligned.yaml --save_volumes`
+- **Everything tested this session that does NOT beat it (do not re-try):** DC-centering (project memory §6),
+  N4 error-map de-shading (§6), **edge-preserving TV / edge_tv (§7 — reshape, WORSE on edge-NMSE)**, 2-map CSM
+  (§4/§12), **frozen MAISI VAE as a prior (§8 — INADMISSIBLE: the ORACLE VAE(GT) is 49%/89% worse than MC-GS
+  in the null space, the only region hard-DC lets a prior touch; best oracle blend ≤0.38 dB, achievable
+  ≤0.19 dB)**. Remaining residual = AF=12 unsampled high-freq (physics). Levers left: a **measurement-supervised
+  learned** recon (MAISI only as data-engine, never at inference), or lower AF.
+
 ## 1. Winner method = MC-GS "winner-v2"
 
 **Algorithm.** Multi-Contrast Gaussian Splatting joint reconstruction of a dual-contrast

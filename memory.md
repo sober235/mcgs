@@ -5,6 +5,14 @@
 > Every fact below was verified against the real files on 2026-07-15 (not recited).
 > Winner method / hyperparameters live in `.claude/memory.md`. Source configs: `configs/winner_v2.yaml`.
 
+> **OUR METHOD (user decision 2026-07-24) = MC-GS edge-TV** (chosen on SSIM/perceptual criterion; iso-TV
+> winner set aside). edge-weighted TV, κ_q0.85/λ0.10, 4000 iters (`edgeTV_best`). SSIM T1 0.898 / FLAIR 0.909
+> (highest; PSNR/NMSE a touch lower than iso-winner — a perceptual↔fidelity tradeoff, robust to N4). Beats
+> conventional CS-SENSE(TV) on all metrics. Full params in `.claude/memory.md §0`. PSNR/NMSE-optimal
+> alternative (set aside) = iso-TV `reg_aligned_4k` (T1 38.51/FLAIR 38.29 @max pipeline gauge).
+> Residual (both variants) = AF=12 unsampled high-freq (physics); levers to add real detail = learned/
+> generative prior or lower AF (all self-contained tricks — edge-TV/iso-TV/DC/N4/2-map/densification — exhausted).
+
 ---
 
 ## 1. Undersampling mask — vd-Poisson (separable, prospectively-Cartesian-realizable)
@@ -366,3 +374,60 @@ regularizer (edge-weighted TV joins the disproven P1/P3/dtv/vtv/DC-centering/N4 
 "edge-NMSE down without cost" bar is unmet. **Only levers remain: a learned/generative high-freq prior, or
 lower AF.** Do NOT re-try edge-weighted TV (or Approach B geometry-anisotropy without new information — same
 ceiling). `edge_tv` stays default-off; branch kept as the documented negative result.
+
+---
+
+## 8. Frozen MAISI VAE as a prior — INADMISSIBLE, closed by a null-space gate (2026-07-25)
+
+> §7 left exactly one lever: a learned/generative prior. The obvious candidate is the MAISI (NV-Generate-CTMR)
+> 3D-brain VAE already on this machine. **Verdict: dead — not "no gain", but *provably inadmissible*: the
+> ORACLE prior is worse than MC-GS in the only region a prior can act.** Scripts (scratchpad, session
+> 6d63c3af): `nullspace_gate.py` / `_gate2.py` / `_gate3.py` / `_gate_fig.py`; JSONs alongside.
+> Figure `results_arc/maisi_nullspace_gate.png`. Earlier global-gauge test (session ee920735):
+> `results_arc/maisi_vae_ceiling_test.png`.
+
+**Step 1 — global gauge (07-25, prior session).** MAISI VAE round-trip vs our recon, brain gauge:
+VAE(GT) T1 29.93 dB / SSIM 0.841, FLAIR 27.15 / 0.816 vs **MC-GS edge-TV T1 33.90 / 0.910, FLAIR 33.31 /
+0.927**. I.e. the VAE round-trip is a *floor*, not a ceiling — a `L_maisi = ‖m − VAE(m)‖` term would pull
+the reconstruction 4–6 dB DOWNHILL. But this gauge is **unfair to the prior**: it charges VAE for corrupting
+the sampled 8.45% of k that hard-DC overwrites anyway.
+
+**Step 2 — the fair gauge (null space).** Scoring is hard-DC (`k_dc = m·y + (1−m)·k_model`, `arc/cycle.py:191`),
+so a prior can ONLY change the unsampled 91.5%. Define `e_null = ‖(1−m)(F(x) − F(|GT|))‖ / ‖(1−m)F(|GT|)‖`
+and `MAG-DC(x) = |ifft3c(m·F(|GT|) + (1−m)·F(x))|` (grants every candidate the true sampled magnitude-k, so
+only its null-space guess is scored; sanity: MAG-DC(|GT|) = 148 dB, exact).
+
+| candidate (magnitude volume) | T1 e_null | T1 PSNRb/SSIMb | FLAIR e_null | FLAIR PSNRb/SSIMb |
+|---|---|---|---|---|
+| zero-filled (measurement only) | 0.4303 | 27.73 / 0.8032 | 0.2884 | 27.25 / 0.8136 |
+| **MC-GS edge-TV (ours)** | **0.1958** | **34.77 / 0.9269** | **0.1278** | **34.27 / 0.9433** |
+| MC-GS iso-winner | 0.1946 | 34.89 / 0.9268 | 0.1258 | 34.46 / 0.9442 |
+| **VAE(GT) = ORACLE prior** | 0.2907 | 30.94 / 0.8729 | 0.2380 | 28.45 / 0.8617 |
+| VAE(recon) = achievable | 0.2738 | 31.46 / 0.8780 | 0.2217 | 29.03 / 0.8665 |
+
+→ The oracle prior (it has *seen* GT) is **49% (T1) / 89% (FLAIR) worse than MC-GS in the null space**. It is
+better than nothing (beats zero-fill), so the VAE does carry real anatomy — just far less than MC-GS already
+extracts from 8.45% of k. Radial profile (figure, col 1): MC-GS is below the prior at **every** k-radius, and
+above k≈0.65 the prior is worse even than zero-fill.
+
+**Step 3 — complementarity (could it help *in combination*?).** corr(r_mcgs, r_vae) = 0.40 (T1) / 0.36 (FLAIR),
+so the errors are not identical. Optimal real blend `(1−a)·k_mcgs + a·k_vae` on the null space:
+| | a* | Δ e_null | Δ PSNR_brain | Δ SSIM_brain |
+|---|---|---|---|---|
+| oracle VAE(GT), a* fitted on GT | 0.202 / 0.108 | −4.2% / −1.8% | **+0.38 / +0.15 dB** | +0.0038 / +0.0014 |
+| achievable VAE(recon), a* still fitted on GT | 0.164 / 0.076 | −1.9% / −0.6% | **+0.19 / +0.06 dB** | +0.0004 / −0.0003 |
+
+**≤0.38 dB with a doubly-oracle setup** (GT inside the VAE *and* GT to fit the weight); the honest version is
+≤0.19 dB — smaller than the edge-TV↔iso-TV gap we already treat as a wash. Not a lever.
+
+**Conclusion / standing rule.** **Frozen-MAISI-as-prior is closed for this data** — every inference-time
+latent variant (L_maisi pull, DDNM/DPS null-space filling, latent-diffusion posterior sampling) is bounded by
+the round-trip of `encode(GT)`, and that bound loses to MC-GS in the null space. Do NOT implement any of them,
+and do NOT re-test with a different λ/schedule — the gate is λ-free. Independently reproduces the
+`/data0/congcong/code/3D` finding (PRIOR-01 VAE round-trip 30.17 dB < no-prior 30.72; held-out audit_gain
+0.965 < 1) on much stronger reconstructions, so it is not an artifact of a weak baseline.
+*Caveat, the one door left ajar:* this bounds the **frozen** VAE. A VAE **fine-tuned on this contrast/subject**
+is not bounded by it — but the 3D project already tried the cheap version (decoder adapter, GT-supervised:
+VAE-oracle composite 0.847→0.917, still < 1.0 = still below no-prior), so the expected value is low.
+**MAISI's remaining legitimate role = data-engine** (synthesise training data for a measurement-supervised
+recon net; the VAE never touches inference), which needs multi-subject data and is a multi-day build.
