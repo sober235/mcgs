@@ -304,7 +304,7 @@ git commit -m "feat(crisp): coil-domain E_coil/E_unobs and brain-gauge image met
 
 **Interfaces:**
 - Consumes: `crisp.metrics.coil_domain.fft3c/ifft3c`
-- Produces: `cg_sense(y, csm, mask, lam=0.0, iters=30, x0=None, device="cpu") -> torch.Tensor`(复数体积)
+- Produces: `cg_sense(y, csm, mask, lam=0.0, iters=30, x0=None, device=None) -> torch.Tensor`(复数体积;`device=None` 表示不搬运,沿用调用方所在设备)
 
 - [ ] **Step 1: 写失败测试**
 
