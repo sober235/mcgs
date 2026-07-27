@@ -1,9 +1,12 @@
 import itertools
 
+import numpy as np
 import pytest
 import torch
 
-from crisp.metrics.coil_domain import fft3c, e_coil_full
+from crisp.metrics.coil_domain import fft3c, ifft3c, e_coil_full
+from crisp.metrics.image_domain import brain_gauge
+from crisp.masks.vdpoisson import vd_poisson_2d
 from crisp.recon.cs_sense import fista_tv, fista_joint_tv
 
 
@@ -74,8 +77,14 @@ def test_tv_grad_matches_finite_difference():
     用实值正数体积规避复数 Wirtinger 导数的因子歧义(此时 mag=x, x/mag=1,
     _tv_grad 输出退化为对光滑 TV 泛函的普通实梯度)。这是判定散度符号的最直接证据:
     若 `div[1:] += u[:-1]; div[:-1] -= u[:-1]` 的符号反了,这里会直接不匹配。
+
+    eps 用 _tv_grad 的实际默认值(fix round 2: Huber 平滑半径 1e-3,不再是数值下限
+    1e-8)——参考 tv() 里的平滑常数必须和 _tv_grad 内部用的 eps 一致,否则两者根本
+    不是同一个平滑泛函的梯度,有限差分自然对不上。
     """
-    from crisp.recon.cs_sense import _tv_grad, _EPS
+    from crisp.recon.cs_sense import _tv_grad
+
+    EPS = 1e-3  # 必须与下面 _tv_grad(x) 调用所用的默认 eps 一致
 
     # float64/complex128: 用 float32 时中心差分的舍入噪声(~1e-3 量级)和真实符号误差
     # 混在一起不好区分,双精度下把噪声压到 ~1e-7,任何符号错误都会显著超出该量级。
@@ -89,9 +98,9 @@ def test_tv_grad_matches_finite_difference():
         gx[:-1] = mag[1:] - mag[:-1]
         gy[:, :-1] = mag[:, 1:] - mag[:, :-1]
         gz[:, :, :-1] = mag[:, :, 1:] - mag[:, :, :-1]
-        return torch.sqrt(gx ** 2 + gy ** 2 + gz ** 2 + _EPS ** 2).sum()
+        return torch.sqrt(gx ** 2 + gy ** 2 + gz ** 2 + EPS ** 2).sum()
 
-    analytic = _tv_grad(x).real
+    analytic = _tv_grad(x, eps=EPS).real
     h = 1e-5
     numeric = torch.zeros_like(analytic)
     for i, j, k in itertools.product(range(4), range(4), range(4)):
@@ -156,3 +165,70 @@ def test_sub_unit_csm_is_accepted_and_still_converges():
 
     xh = fista_tv(yu_small, csm_small, mask, lam=1e-3, iters=100)  # 不应抛异常
     assert e_coil_full(xh, csm_small, y_small) < e_coil_full(zf, csm_small, y_small)
+
+
+def _brain_phantom(n=64, seed=7):
+    """真实尺度合成脑体模:>=64^3、>=8 线圈、非单一常数块的分片结构。
+
+    fix round 2(见模块顶部说明及 task-6-report.md):Task 6 原来的 8^3 单常数块玩具
+    体模测不出"次梯度伪装成光滑梯度"这个 bug——真实 12 线圈 256x220x256 数据上每个
+    重建都劣于零填充,而 8^3 玩具体模的 4 条测试全过。这里用一个有真实分片结构(外部
+    "脑"椭球 + 3 个不同强度的内部团块 + 细条纹)的 64^3 体模、8 个平滑衰减的线圈灵敏度
+    图(而不是逐体素独立随机噪声,更接近真实阵列线圈),作为能复现该失效模式的最小
+    足尺度回归。
+    """
+    zz, yy, xx = torch.meshgrid(
+        torch.linspace(-1, 1, n), torch.linspace(-1, 1, n), torch.linspace(-1, 1, n), indexing="ij")
+    x = torch.zeros(n, n, n)
+    brain = (zz ** 2 / 0.85 ** 2 + yy ** 2 / 0.95 ** 2 + xx ** 2 / 0.8 ** 2) < 1.0
+    x[brain] = 1.0
+    blob1 = ((zz - 0.15) ** 2 + (yy + 0.1) ** 2 + (xx - 0.05) ** 2) < 0.30 ** 2
+    x[blob1 & brain] = 0.65
+    blob2 = ((zz + 0.25) ** 2 + (yy - 0.2) ** 2 + (xx + 0.15) ** 2) < 0.18 ** 2
+    x[blob2 & brain] = 1.35
+    blob3 = ((zz - 0.35) ** 2 + (yy + 0.35) ** 2 + xx ** 2) < 0.10 ** 2
+    x[blob3 & brain] = 0.3
+    stripe = (torch.abs(torch.sin(8 * xx)) < 0.05) & brain
+    x[stripe] = 1.1
+    x = x.to(torch.complex64)
+
+    n_coils = 8
+    g = torch.Generator().manual_seed(seed)
+    csm = torch.zeros(n_coils, n, n, n, dtype=torch.complex64)
+    for k in range(n_coils):
+        ang = 2 * torch.pi * k / n_coils
+        cy, cx = 1.3 * torch.cos(torch.tensor(ang)), 1.3 * torch.sin(torch.tensor(ang))
+        d2 = (yy - cy) ** 2 + (xx - cx) ** 2 + 0.3 * zz ** 2
+        mag = torch.exp(-d2 / (2 * 0.9 ** 2))
+        phase = torch.rand((), generator=g) * 2 * torch.pi
+        csm[k] = mag * torch.exp(1j * phase)
+    csm = csm / (csm.abs().pow(2).sum(0, keepdim=True).sqrt() + 1e-6)
+    return x, csm
+
+
+def _af12_mask(n, seed=0, acs=8):
+    """相位编码平面 vd-Poisson 掩膜(AF~12)沿读出轴(第 3 维)复制为全采样。"""
+    m2d = vd_poisson_2d((n, n), af=12.0, acs=acs, seed=seed)
+    return torch.from_numpy(np.repeat(m2d[:, :, None], n, axis=2).astype(np.float32))
+
+
+def test_real_scale_af12_beats_zero_fill():
+    """更正要求的验收判据(task-6-brief.md「Task 6 更正」item 3):8^3 玩具体模测不出
+    次梯度伪装成光滑梯度这个 bug,这里换成 >=64^3、>=8 线圈、AF~12、真实会用的 lam、
+    300 次迭代的回归——fista_tv 必须打败零填充,否则不能被称为基线。
+    lam=6.3e-3 取自本项目 G2 体素域实验实际使用的 lam 网格
+    (crisp/experiments/g2_voxel.py 的 --lams 默认值)中间一档。
+    """
+    n = 64
+    x, csm = _brain_phantom(n)
+    mask = _af12_mask(n)
+    y = fft3c(csm * x.unsqueeze(0))
+    yu = y * mask.unsqueeze(0)
+    zf = (ifft3c(yu) * csm.conj()).sum(0)
+    gt_mag = x.abs().numpy()
+
+    xh = fista_tv(yu, csm, mask, lam=6.3e-3, iters=300)
+
+    psnr_zf = brain_gauge(zf.abs().numpy(), gt_mag)["psnr_brain"]
+    psnr_rec = brain_gauge(xh.abs().numpy(), gt_mag)["psnr_brain"]
+    assert psnr_rec > psnr_zf, f"recon psnr {psnr_rec:.2f} did not beat zero-fill {psnr_zf:.2f}"
