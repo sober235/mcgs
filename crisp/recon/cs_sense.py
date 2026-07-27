@@ -3,8 +3,8 @@
 Huber 型平滑 TV:TV_smooth(x) = sum_voxel sqrt(|grad|x||^2 + eps^2)。`eps` 是一个真正的
 光滑化参数(不是数值下限),默认 1e-3,假定输入图像已按 P99.9 归一化到量级 1(参见
 `crisp/io.py` 的 `normalize_p999`)。在该假设下 TV_smooth 处处可微,Lipschitz 常数约
-`lam/eps`;FISTA 步长按 `step = 1/(1 + lam/eps)` 与之匹配(数据项算子范数 L<=1,依赖
-`sum_c|csm_c|^2<=1`,见 `_check_csm_scale`)。
+`lam/eps`;FISTA 步长按 `step = _STEP_MARGIN/(1 + lam/eps)` 与之匹配(`_STEP_MARGIN=0.5`,
+理由见下方常量旁的注释;数据项算子范数 L<=1,依赖 `sum_c|csm_c|^2<=1`,见 `_check_csm_scale`)。
 联合版的耦合仅通过 vectorial TV 的跨对比度梯度范数实现:
     TV_joint = sum_voxel sqrt( sum_m sum_axis |grad_axis |x_m| |^2 + eps^2 )
 
@@ -33,20 +33,27 @@ _STEP_MARGIN = 0.5
 # `1/(1+lam/eps)` 里的 `lam/eps` 只是 Huber-TV 项 Lipschitz 常数的近似(brief 原文措辞
 # 也是"约"),不是证明过的紧上界:真正的曲率上界是 `||D||^2 * lam/eps`(D 是离散梯度+
 # 散度算子,各向同性 3 轴迭加的 ||D||^2 理论上可到 ~12,而不是 1)。这在真实尺度
-# (64^3、8 线圈、AF12、300 迭代、lam 网格 1e-3..4e-2)上是可测的,不是假设:
-#   1) 把 FISTA 换成不带动量的纯梯度下降,同一个 step=1/(1+lam/eps),目标函数和脑内
-#      PSNR 在 50/150/300 次迭代上都严格单调(objective 5.54e6→1.69e6→8.55e5,
-#      psnr 21.64→22.61→23.22dB)——说明这个 step 对纯梯度下降是安全的。
-#   2) 换回 FISTA(带动量)后,同一个 step 在多个 lam 上目标函数和 PSNR 都变成非单调
-#      (例如 lam=6.3e-3 时 objective 4.64e5→6.27e5、psnr 23.40→21.97dB,150→300 次
-#      迭代之间回升),但从未跌破零填充——这正是 FISTA 动量本身没有逐步单调保证的
-#      经典性质(Beck & Teboulle 2009),不是原始 bug 的"未采样零空间无界随机游走"。
-# 加 0.5x 安全系数后,同一批 lam 在 iters=300 时相对零填充的最坏余量从 ~0.26dB
-# (margin=1.0, lam=4e-2)提升到 ~1.3dB(margin=0.5),波动幅度也从 ~1.9dB 降到
-# ~0.8dB 量级。没有做到逐迭代严格单调(那是动量的固有代价,消掉它需要重新设计成
-# 带目标函数回退的 monotone-FISTA,超出本轮修复范围),但幅度和方向都和原始 bug
-# 的性质不同——不是"未采样零空间的无界随机游走",而是"围绕一个稳定的正则化不动点
-# 有界波动"。见 task-6-report.md fix round 2 的完整验证数据。
+# (64^3、8 线圈、AF12、lam=6.3e-3)上是可测的,不是假设——fix round 3 用 production
+# fista_tv 重新核验过,以下每个数字都来自实际跑出来的 (objective, psnr) 序列,不是
+# 手推(完整表格见 task-6-report.md fix round 3,round 2 版本把这里的 GD 数字错标成了
+# margin=1.0,已订正):
+#   1) margin=1.0(字面公式 step=1/(1+lam/eps))下,50/150/300 次迭代:纯梯度下降
+#      (无动量)目标函数和脑内 PSNR 都严格单调(objective 2.66e6→8.50e5→5.42e5,
+#      psnr 22.24→23.20→23.63dB);换回 FISTA(带动量)、同一个 step,目标函数和
+#      PSNR 在 150→300 之间回升/回落(objective 5.05e5→4.64e5→6.27e5,
+#      psnr 23.83→23.40→21.97dB)——同一个 step 对 GD 安全、对 FISTA 不安全,问题
+#      出在动量本身没有逐步单调保证(Beck & Teboulle 2009),不是 step 本身过大。
+#   2) margin=0.5 下重复同一测试:GD 依然严格单调(objective 5.54e6→1.69e6→8.55e5,
+#      psnr 21.64→22.61→23.22dB);FISTA 在 300 次迭代处的读数从 margin=1.0 的
+#      21.97dB 回升到 23.10dB(objective 6.27e5→5.11e5),相对零填充的最坏 lam
+#      网格余量从 ~0.26dB 提升到 ~1.26dB。
+# **但 0.5x 只是缓解,没有消除问题**:fix round 3 把同一个 lam=6.3e-3 的迭代数扩到
+# 450/600/750(仍是 margin=0.5、shipped fista_tv)后,PSNR 从 150 次的峰值 23.89dB
+# 开始持续下降——300:23.10、450:21.74、600:21.62、750:21.19dB——目标函数同期从
+# 4.22e5 涨到 1.05e6。这是**漂移**,不是绕一个不动点的有界波动;round 2 报告里
+# "围绕稳定不动点有界波动、不是无界随机游走"的结论只看了 3 个 checkpoint,被这组
+# 更长的数据推翻。300 次迭代不在稳定平台上,调用方(尤其 Task 7)不能假定固定
+# 300 次迭代是安全的收敛点。完整表格和讨论见 task-6-report.md fix round 3。
 
 
 def _grads(mag):
