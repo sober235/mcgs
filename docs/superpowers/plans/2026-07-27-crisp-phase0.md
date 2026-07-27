@@ -805,7 +805,7 @@ def test_tv_fit_improves_over_zero_filled():
     assert e_coil_full(xh, csm, y) < e_coil_full(zf, csm, y)
 
 
-def test_joint_reduces_to_independent_at_zero_coupling():
+def test_joint_channels_agree_when_inputs_identical():
     x, csm, y = _toy()
     mask = torch.zeros(8, 8, 8); mask[::2] = 1.0
     yu = y * mask.unsqueeze(0)
@@ -814,6 +814,16 @@ def test_joint_reduces_to_independent_at_zero_coupling():
     # 两个通道数据相同 -> 联合解的两个通道彼此相同
     assert torch.allclose(joint[0], joint[1], atol=1e-5)
     assert joint[0].shape == solo.shape
+
+
+def test_joint_reduces_to_independent_at_zero_coupling():
+    """lam=0 时两者都退化为纯数据一致性梯度下降,应逐点相等。"""
+    x, csm, y = _toy()
+    mask = torch.zeros(8, 8, 8); mask[::2] = 1.0
+    yu = y * mask.unsqueeze(0)
+    solo = fista_tv(yu, csm, mask, lam=0.0, iters=40)
+    joint = fista_joint_tv([yu, yu], [csm, csm], [mask, mask], lam=0.0, iters=40)
+    assert torch.allclose(joint[0], solo, atol=1e-5)
 
 
 def test_larger_lambda_gives_smaller_tv():
@@ -924,7 +934,7 @@ def fista_joint_tv(ys, csms, masks, lam: float, iters: int = 200, device: str | 
 - [ ] **Step 4: 运行确认通过**
 
 Run: `PYTHONNOUSERSITE=1 PYTHONPATH=. /home/congcongliu/anaconda3/envs/GSTMI/bin/python -m pytest tests/crisp/test_cs_sense.py -v`
-Expected: 3 passed。若 `_tv_grad` 的散度实现使测试不收敛,先把 `test_larger_lambda_gives_smaller_tv` 作为判据修正散度符号,**不要放宽测试**。
+Expected: 4 passed。若 `_tv_grad` 的散度实现使测试不收敛,先把 `test_larger_lambda_gives_smaller_tv` 作为判据修正散度符号,**不要放宽测试**。
 
 - [ ] **Step 5: 提交**
 
@@ -1098,7 +1108,9 @@ CUDA_DEVICE_ORDER=PCI_BUS_ID PYTHONNOUSERSITE=1 PYTHONPATH= \
   --lambda_geo 0.06 --kspace_high 2.2 --warmup 5 --max_radius 20 \
   --base_cfg configs/winner_v2_aligned.yaml
 ```
-Expected: 20 次迭代跑完不报错。**注意 `configs/winner_v2_aligned.yaml` 含 `warm_start_checkpoint`;冷启动需临时复制一份 config 并删除该键。** 若冷启动分支崩溃,先修它——`joint_trainer.py:203-221` 是 `results_arc` 中零运行记录的路径。
+Expected: 20 次迭代跑完不报错。**注意 `configs/winner_v2_aligned.yaml` 含 `warm_start_checkpoint`;冷启动需临时复制一份 config 并删除该键。**
+
+**若冷启动分支崩溃:停止本任务并报告,不要动手修。** `joint_trainer.py:203-221` 属于 `paired_gs/`,而 Global Constraints 禁止修改它——改动会影响既有 MC-GS 结果的可复现性,是否破例由人类裁定。
 
 - [ ] **Step 2: 实现天花板实验**
 
