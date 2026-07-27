@@ -34,3 +34,17 @@ def test_undersampled_run_is_finite_and_shaped():
     xh = cg_sense(y * mask.unsqueeze(0), csm, mask, lam=1e-3, iters=20)
     assert xh.shape == x.shape
     assert torch.isfinite(xh.abs()).all()
+
+
+def test_sampled_data_is_fit_under_undersampling():
+    """遮罩若从 _normal_op 中掉落,CG 解将退化为零填充伴随解,已采样区残差会很大。"""
+    x, csm, y = _toy()
+    mask = torch.zeros(8, 8, 8)
+    mask[::2] = 1.0
+    yu = y * mask.unsqueeze(0)
+    xh = cg_sense(yu, csm, mask, lam=0.0, iters=200)
+    pred = fft3c(csm * xh.unsqueeze(0))
+    m = mask.unsqueeze(0)
+    sampled_err = (torch.linalg.vector_norm(m * (pred - y))
+                   / torch.linalg.vector_norm(m * y))
+    assert sampled_err < 1e-3
