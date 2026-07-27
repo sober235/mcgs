@@ -850,6 +850,9 @@ Expected: FAIL,`cannot import name 'fista_tv'`
 """CS-SENSE:FISTA + 各向同性 TV(独立)与 vectorial TV(联合多对比度)。
 
 TV 用固定步长的次梯度近端替代(smoothed TV,eps 平滑),便于两种变体共用同一步长规则。
+**step 默认 0.25 而非 1.0**:数据项 ifft3c∘mask∘fft3c 的算子范数恰为 1(mask 为 0/1 投影、
+SoS(csm)<=1 时),故 step=1.0 正好压在数据项的稳定性边界上,一旦再加 lam*grad(TV) 就没有余量、
+会振荡。0.25 在 lam<=5e-2 的范围内实测稳定;若 lam 远大于此需另行下调。
 联合版的耦合仅通过 vectorial TV 的跨对比度梯度范数实现:
     TV_joint = sum_voxel sqrt( sum_m sum_axis |grad_axis |x_m| |^2 + eps^2 )
 """
@@ -894,7 +897,7 @@ def _data_grad(x, y, csm, mask):
 
 
 def fista_tv(y, csm, mask, lam: float, iters: int = 200, device: str | None = None,
-             step: float = 1.0) -> torch.Tensor:
+             step: float = 0.25) -> torch.Tensor:
     if device is not None:
         y, csm, mask = y.to(device), csm.to(device), mask.to(device)
     x = (ifft3c(mask.unsqueeze(0) * y) * csm.conj()).sum(0)
@@ -909,7 +912,7 @@ def fista_tv(y, csm, mask, lam: float, iters: int = 200, device: str | None = No
 
 
 def fista_joint_tv(ys, csms, masks, lam: float, iters: int = 200, device: str | None = None,
-                   step: float = 1.0) -> list:
+                   step: float = 0.25) -> list:
     if device is not None:
         ys = [v.to(device) for v in ys]; csms = [v.to(device) for v in csms]
         masks = [v.to(device) for v in masks]
