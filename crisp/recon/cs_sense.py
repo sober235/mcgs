@@ -2,11 +2,18 @@
 
 Huber 型平滑 TV:TV_smooth(x) = sum_voxel sqrt(|grad|x||^2 + eps^2)。`eps` 是一个真正的
 光滑化参数(不是数值下限),默认 1e-3,假定输入图像已按 P99.9 归一化到量级 1(参见
-`crisp/io.py` 的 `normalize_p999`)。在该假设下 TV_smooth 处处可微,Lipschitz 常数约
-`lam/eps`;FISTA 步长按 `step = _STEP_MARGIN/(1 + lam/eps)` 与之匹配(`_STEP_MARGIN=0.5`,
-理由见下方常量旁的注释;数据项算子范数 L<=1,依赖 `sum_c|csm_c|^2<=1`,见 `_check_csm_scale`)。
+`crisp/io.py` 的 `normalize_p999`)。在该假设下 TV_smooth 处处可微,Hessian 上界为
+`_GRAD_OP_SQ * lam/eps`;FISTA 步长取教科书的 `1/L`,即
+`step = 1/(1 + _GRAD_OP_SQ*lam/eps)`(推导与实测见下方常量旁的注释;数据项算子范数
+L<=1,依赖 `sum_c|csm_c|^2<=1`,见 `_check_csm_scale`)。
 联合版的耦合仅通过 vectorial TV 的跨对比度梯度范数实现:
     TV_joint = sum_voxel sqrt( sum_m sum_axis |grad_axis |x_m| |^2 + eps^2 )
+
+本模块最小化的目标函数是(注意 1/(2N) 这个系数,N = 体素数):
+    J(x) = (1/(2N))*||M(F S x - y)||^2 + lam * TV_smooth(x)
+`_data_grad` 用的是 `ifft3c` = F^{-1} = (1/N)F^H(torch 默认 norm="backward"),所以它是
+上式的梯度,**不是** `(1/2)||M(F S x - y)||^2` 的梯度。任何监控/早停逻辑都必须用这个
+带 1/(2N) 的 J,否则监控的根本不是本迭代在最小化的函数(fix round 3 就踩了这个坑)。
 
 fix round 2(2026-07-27,更正见 docs/superpowers/plans/2026-07-27-crisp-phase0.md
 「Task 6 更正」):此前 `eps` 硬编码为数值下限 `1e-8`,使 `u = g/sqrt(g^2+eps^2) ≈ sign(g)`——
@@ -20,6 +27,27 @@ TV 项名义上"光滑",实际是非光滑项的次梯度,包在 FISTA 壳里没
 并同步步长公式,独立版和联合版的改动逐字对称;换成 prox-TV 需要为 vectorial TV 重新推导
 一个联合近端算子(该算子没有闭式解,duality-based Chambolle 迭代通常只对单通道各向同性 TV
 有标准形式),破坏"两者改动完全对称"这条约束,且是本任务范围外的更大改动。
+
+fix round 4(2026-07-27):步长规则里漏了离散梯度算子范数 ||D||^2(见 `_GRAD_OP_SQ`),
+已补上。**同时推翻 fix round 3 的"求解器仍在发散"结论**:round 2/3 监控的"目标函数"是
+`0.5*||M(FSx-y)||^2 + lam*TV`,少了上面那个 1/(2N),等于把数据项相对 TV 项放大了
+N=262144 倍——它跟踪的基本上只是数据残差,而 CS 迭代里数据残差本来就可以在 TV 下降的
+同时上升,那不是发散。用正确的 J 逐迭代(不是每 50 步取样)复测:旧步长(1/L 的 5.25 倍)
+在 600 次迭代里 0 次上升,新步长同样 0 次上升——从来没有发散过。round 3 观察到的
+PSNR 见顶回落是**半收敛(semi-convergence)**,重建质量其实来自早停,改步长不会、也不该
+消除这个现象。
+
+⚠️ 真正的缺陷不在求解器,而在目标函数本身(fix round 4 实测,详见 task-6-report.md §6):
+TV 只惩罚 |x|,**相位完全不受约束**。x 有 2N 个实自由度,AF12/8 线圈只提供约 0.73N 个
+实测量,所以把 |x| 压成常数(去掉 N 个自由度)之后,剩下的 N 个相位自由度仍然够拟合数据。
+优化器正是这么做的:64^3 体模上 lam>=1e-3 收敛解的 TV = 262.2,而"幅度全平"的下界是
+N*eps = 262.1——幅度图被压成常数(且均值 1.30,比 GT 的 0.99 还大,不是被缩小),结构
+全被塞进相位,数据项却拟合到 0.167(零填充是 75.4)。目标值上
+J(退化解)=1.82 << J(真值)=85.8,**真值比退化解差 47 倍**:模型本身就偏好这个解,任何
+步长/迭代数/停机准则都改不了这个排序。修法是把 TV 改成惩罚复图像(如逐体素
+sqrt(|grad Re|^2+|grad Im|^2+eps^2),CS-MRI 标准做法),外加把数据项(逐体素均值)和
+TV 项(逐体素求和)的权重统一成与 N 无关——两者都超出本轮范围,未实施。
+在此之前,fista_tv/fista_joint_tv 的任何结果都只是早停产物,引用时必须如实标注。
 """
 from __future__ import annotations
 
@@ -29,31 +57,26 @@ from crisp.metrics.coil_domain import fft3c, ifft3c
 
 _EPS = 1e-8  # 数值下限,只用于避免 x=0 处 x/|x| 出现 0/0;与下面的 Huber 平滑参数 eps 无关
 
-_STEP_MARGIN = 0.5
-# `1/(1+lam/eps)` 里的 `lam/eps` 只是 Huber-TV 项 Lipschitz 常数的近似(brief 原文措辞
-# 也是"约"),不是证明过的紧上界:真正的曲率上界是 `||D||^2 * lam/eps`(D 是离散梯度+
-# 散度算子,各向同性 3 轴迭加的 ||D||^2 理论上可到 ~12,而不是 1)。这在真实尺度
-# (64^3、8 线圈、AF12、lam=6.3e-3)上是可测的,不是假设——fix round 3 用 production
-# fista_tv 重新核验过,以下每个数字都来自实际跑出来的 (objective, psnr) 序列,不是
-# 手推(完整表格见 task-6-report.md fix round 3,round 2 版本把这里的 GD 数字错标成了
-# margin=1.0,已订正):
-#   1) margin=1.0(字面公式 step=1/(1+lam/eps))下,50/150/300 次迭代:纯梯度下降
-#      (无动量)目标函数和脑内 PSNR 都严格单调(objective 2.66e6→8.50e5→5.42e5,
-#      psnr 22.24→23.20→23.63dB);换回 FISTA(带动量)、同一个 step,目标函数和
-#      PSNR 在 150→300 之间回升/回落(objective 5.05e5→4.64e5→6.27e5,
-#      psnr 23.83→23.40→21.97dB)——同一个 step 对 GD 安全、对 FISTA 不安全,问题
-#      出在动量本身没有逐步单调保证(Beck & Teboulle 2009),不是 step 本身过大。
-#   2) margin=0.5 下重复同一测试:GD 依然严格单调(objective 5.54e6→1.69e6→8.55e5,
-#      psnr 21.64→22.61→23.22dB);FISTA 在 300 次迭代处的读数从 margin=1.0 的
-#      21.97dB 回升到 23.10dB(objective 6.27e5→5.11e5),相对零填充的最坏 lam
-#      网格余量从 ~0.26dB 提升到 ~1.26dB。
-# **但 0.5x 只是缓解,没有消除问题**:fix round 3 把同一个 lam=6.3e-3 的迭代数扩到
-# 450/600/750(仍是 margin=0.5、shipped fista_tv)后,PSNR 从 150 次的峰值 23.89dB
-# 开始持续下降——300:23.10、450:21.74、600:21.62、750:21.19dB——目标函数同期从
-# 4.22e5 涨到 1.05e6。这是**漂移**,不是绕一个不动点的有界波动;round 2 报告里
-# "围绕稳定不动点有界波动、不是无界随机游走"的结论只看了 3 个 checkpoint,被这组
-# 更长的数据推翻。300 次迭代不在稳定平台上,调用方(尤其 Task 7)不能假定固定
-# 300 次迭代是安全的收敛点。完整表格和讨论见 task-6-report.md fix round 3。
+_GRAD_OP_SQ = 12.0
+# Huber-TV 项 Hessian 上界里的离散梯度算子范数平方 ||D||^2,D = `_grads` 的三轴前向差分。
+# 推导:逐体素 phi(g)=sqrt(|g|^2+eps^2)(g 是该体素的 3 分量差分向量)的 Hessian 为
+# (1/s)(I - g g^T/s^2),s=sqrt(|g|^2+eps^2),最大特征值 1/s <= 1/eps;整个 TV 项的
+# Hessian = D^T blkdiag(Hess phi) D,故 ||Hess|| <= ||D||^2 / eps。单轴前向差分(末位补 0)
+# 是 D_1 = S - I(S 为截断平移,||S||<=1),所以 ||D_1||<=2、||D_1||^2<=4;三轴堆叠
+# ||D||^2 <= 3*4 = 12。加上数据项的 L<=1,得 L_total <= 1 + 12*lam/eps。
+# fix round 4 幂迭代实测(float64,详见 task-6-report.md fix round 4):
+#   ||D||^2 = 11.967(n=64),11.965(n=32) —— 上界 12 基本达到,不是保守估计;
+#   Huber-TV 幅度域 Hessian 的 lambda_max:在真实工作点 m=|零填充解|(64^3 体模)处
+#     11767,在最坏点 m=const 处 11918,上界 12/eps=12000 —— 达到 98%,**紧**;
+#   联合 vectorial TV(M=2)同一上界,实测 11943:因为堆叠算子 D_total=blkdiag(D,..,D)
+#     的范数就等于 ||D||,所以两个入口共用同一条 step 规则,arm-to-arm 严格可比;
+#   数据项 Hessian S^H U^H M U S(U=F/sqrt(N) 酉)实测范数 0.9992 <= 1。
+# 因此步长取教科书的 1/L,不再乘任何经验安全系数(round 2/3 的 `_STEP_MARGIN=0.5` 是在
+# 漏掉 ||D||^2 的情况下用来"兜底"的经验因子,补上 12 之后它既无理论依据、又白白让收敛
+# 慢一倍,已删除)。注意 lam=6.3e-3/eps=1e-3 时旧规则给出的 step 是 1/L 的 5.25 倍——
+# 但实测它并没有发散(见模块顶部 fix round 4 说明),只是没有任何收敛保证:上界在起点
+# 就已经被打满,旧步长能活下来靠的是轨迹很快进入 |grad m| >> eps 的低曲率区,是运气不是
+# 保证。换一份更平坦的图像(|grad m| <~ eps 占比更大)就会真的踩到 12/eps 这个上界。
 
 
 def _grads(mag):
@@ -71,7 +94,7 @@ def _tv_grad(x, coupled_norm=None, eps: float = 1e-3):
     u_j = g_j/sqrt(g_j^2+eps^2),d/dm_j = u_{j-1} - u_j,故散度按
     `div[1:] += u[:-1]; div[:-1] -= u[:-1]` 累加。最后经由 d|x|/dx = x/|x| 传回复数域。
 
-    `eps` 是 Huber 平滑半径(不是数值下限):越大越光滑、Lipschitz 常数 ~1/eps 越小;
+    `eps` 是 Huber 平滑半径(不是数值下限):越大越光滑、Hessian 上界 ||D||^2/eps 越小;
     越小越接近真 TV(非光滑,收敛性丢失,参见模块顶部 fix round 2 说明)。`coupled_norm`
     不为 None 时(联合版)按调用方已经用同一个 eps 算好的共享范数,本函数不再重算。
     """
@@ -114,13 +137,16 @@ def _check_csm_scale(csm):
 
 def fista_tv(y, csm, mask, lam: float, iters: int = 200, device: str | None = None,
              eps: float = 1e-3, step: float | None = None) -> torch.Tensor:
-    """FISTA CS-SENSE:最小化 (1/2)||P_mask F S x - y||^2 + lam * TV_smooth(x)。
+    """FISTA CS-SENSE:最小化 (1/(2N))||P_mask F S x - y||^2 + lam * TV_smooth(x),N=体素数。
+
+    1/(2N) 不是笔误:`_data_grad` 走的是 `ifft3c`=F^{-1}=(1/N)F^H,梯度对应的就是这个
+    带 1/(2N) 的数据项(等价于把 F 换成酉的 F/sqrt(N) 后的标准最小二乘)。见模块顶部。
 
     `mask` 须为严格 0/1 的欠采样投影。`eps`(默认 1e-3)是 TV 的 Huber 平滑半径,假定
     `y`/`csm` 已按 P99.9 归一化到量级 1(见模块顶部说明)。`step` 缺省时按 Lipschitz
-    匹配公式 `_STEP_MARGIN/(1+lam/eps)` 自动计算(数据项 L<=1 + TV 项 Huber Lipschitz
-    常数 ~lam/eps,`_STEP_MARGIN=0.5` 是从真实尺度测量中得到的安全系数,理由见模块
-    顶部 `_STEP_MARGIN` 旁的注释);显式传入 `step` 会覆盖该公式。该公式依赖
+    匹配公式 `1/(1 + _GRAD_OP_SQ*lam/eps)` 自动计算(数据项 L<=1 + TV 项 Huber Hessian
+    上界 `||D||^2*lam/eps`,`_GRAD_OP_SQ=||D||^2=12` 的推导与实测见模块顶部该常量旁的
+    注释);显式传入 `step` 会覆盖该公式。该公式依赖
     `sum_c|csm_c|^2` 逐点 <=1(见模块顶部注释);违反这条假设(例如线圈图用了别的缩放
     约定,或像 Task 4 实测的真实线圈图那样某些体素灵敏度和显著偏离 1)会被
     `_check_csm_scale` 检测到并抛出 `ValueError`——本函数不会替调用者静默重新缩放数据,
@@ -130,7 +156,7 @@ def fista_tv(y, csm, mask, lam: float, iters: int = 200, device: str | None = No
         y, csm, mask = y.to(device), csm.to(device), mask.to(device)
     _check_csm_scale(csm)
     if step is None:
-        step = _STEP_MARGIN / (1.0 + lam / eps)
+        step = 1.0 / (1.0 + _GRAD_OP_SQ * lam / eps)
     x = (ifft3c(mask.unsqueeze(0) * y) * csm.conj()).sum(0)
     z, t = x.clone(), 1.0
     for _ in range(iters):
@@ -158,7 +184,7 @@ def fista_joint_tv(ys, csms, masks, lam: float, iters: int = 200, device: str | 
     for c in csms:
         _check_csm_scale(c)
     if step is None:
-        step = _STEP_MARGIN / (1.0 + lam / eps)
+        step = 1.0 / (1.0 + _GRAD_OP_SQ * lam / eps)
     xs = [(ifft3c(m.unsqueeze(0) * y) * c.conj()).sum(0) for y, c, m in zip(ys, csms, masks)]
     zs, t = [v.clone() for v in xs], 1.0
     for _ in range(iters):

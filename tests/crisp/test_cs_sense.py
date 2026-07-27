@@ -63,12 +63,23 @@ def test_joint_reduces_to_independent_at_zero_coupling():
 
 
 def test_larger_lambda_gives_smaller_tv():
+    """“λ 越大 -> TV 越小”是**极小点**的性质,所以两个 λ 都必须跑到收敛才能比。
+
+    fix round 4:迭代数从 brief 的 80 提到 1000。步长现在是 `1/(1+12*λ/eps)`(补上了
+    离散梯度算子范数 ||D||^2=12,见 cs_sense.py),因此 λ=1e-2 的步长(0.00826)比
+    λ=1e-4 的(0.4545)小 55 倍——在固定 80 次迭代下,两次运行处在完全不同的收敛阶段,
+    比较结果反映的是“各自走了多远”,不是极小点的 TV 大小(实测 80 次迭代:
+    TV(1e-2)=102.3 > TV(1e-4)=96.1,顺序相反)。跑到收敛后顺序恢复且稳定:
+    iters=200 起顺序就正确,iters>=1000 时三个 λ(1e-4/1e-3/1e-2)的 TV 分别稳定在
+    96.019/95.764/92.42(一直到 16000 次迭代都不再变化)。这是把测试对齐到它自己
+    声称的性质,不是放宽判据——判据本身(严格小于)一个字没动。
+    """
     x, csm, y = _toy()
     mask = torch.zeros(8, 8, 8); mask[::2] = 1.0
     yu = y * mask.unsqueeze(0)
     tv = lambda v: (v.abs().diff(dim=0).abs().sum() + v.abs().diff(dim=1).abs().sum()
                     + v.abs().diff(dim=2).abs().sum())
-    assert tv(fista_tv(yu, csm, mask, lam=1e-2, iters=80)) < tv(fista_tv(yu, csm, mask, lam=1e-4, iters=80))
+    assert tv(fista_tv(yu, csm, mask, lam=1e-2, iters=1000)) < tv(fista_tv(yu, csm, mask, lam=1e-4, iters=1000))
 
 
 def test_tv_grad_matches_finite_difference():
@@ -210,6 +221,104 @@ def _af12_mask(n, seed=0, acs=8):
     """相位编码平面 vd-Poisson 掩膜(AF~12)沿读出轴(第 3 维)复制为全采样。"""
     m2d = vd_poisson_2d((n, n), af=12.0, acs=acs, seed=seed)
     return torch.from_numpy(np.repeat(m2d[:, :, None], n, axis=2).astype(np.float32))
+
+
+def _fista_objective(x, y, csm, mask, lam, eps=1e-3):
+    """fista_tv 真正在最小化的目标函数,**独立于 cs_sense.py 重写一遍**:
+
+        J(x) = (1/(2N)) * ||M(F S x - y)||^2 + lam * sum_voxel sqrt(|grad|x||^2 + eps^2)
+
+    1/(2N)(N = 体素数)不是笔误,也不是可有可无的常数:`_data_grad` 用 `ifft3c` 作伴随,
+    而 torch 默认 norm="backward" 下 ifft3c = F^{-1} = (1/N)F^H,所以它是上式的梯度,
+    不是 `(1/2)||M(F S x - y)||^2` 的梯度。fix round 2/3 监控的正是后者——相当于把数据项
+    相对 TV 项放大 N=262144 倍,跟踪的基本上只是数据残差,于是把“数据残差随 TV 下降而
+    上升”(CS 迭代的正常行为)误判成了发散。差一个 N 倍常数会让这条测试变成在检查一个
+    本迭代根本没在最小化的函数,所以这里刻意重推一遍而不是从 cs_sense 里 import。
+    """
+    N = x.numel()
+    resid = mask.unsqueeze(0) * (fft3c(csm * x.unsqueeze(0)) - y)
+    data = float((resid.abs() ** 2).sum()) / (2.0 * N)
+    mag = x.abs().clamp_min(1e-8)
+    gx = torch.zeros_like(mag); gy = torch.zeros_like(mag); gz = torch.zeros_like(mag)
+    gx[:-1] = mag[1:] - mag[:-1]
+    gy[:, :-1] = mag[:, 1:] - mag[:, :-1]
+    gz[:, :, :-1] = mag[:, :, 1:] - mag[:, :, :-1]
+    tv = float(torch.sqrt(gx ** 2 + gy ** 2 + gz ** 2 + eps ** 2).sum())
+    return data + lam * tv
+
+
+def test_objective_is_monotone_non_increasing():
+    """收敛性的验收判据:目标函数逐迭代非增。三轮修复缺的一直是这条证据。
+
+    `fista_tv` 是确定性的、每次都从同一个零填充初值重启,所以 `iters=k` 返回的就是
+    第 k 次迭代的迭代点 x_k;逐个 k 调用即可拿到真正**逐迭代**(不是每 50 步抽样)的
+    序列——fix round 3 正是因为只看 3 个稀疏 checkpoint 才把半收敛误读成发散。
+
+    用 32^3 体模而不是 8^3 玩具:8^3 单常数块连着放过了前三轮的 bug(见 _brain_phantom
+    的说明)。λ 取本项目 G2 网格的中位数,步长走 cs_sense 的默认规则(step=None),
+    所以这条测试锁的是**出厂步长**,而不是某个测试里临时选的步长。
+
+    诚实说明这条测试的**分辨力有限**(fix round 4 实测,同一体模,把步长按倍数放大后
+    记录目标函数首次上升的迭代):x1/x5.25/x20 在 300 次迭代内都不上升,x40 到第 203 次
+    才上升,x80 在第 5 次、x120 在第 3 次上升。也就是说本条测试只能抓到 >~40 倍于出厂
+    步长的回归(brief 原稿的 `step=1.0` 是 76 倍,会被抓到;round 1 的 `step=0.25` 是
+    19 倍,抓不到)。步长常数本身由 test_grad_operator_norm_pins_step_rule_constant
+    直接钉住,那条才是高分辨力的守卫。K 取 30 是成本折中:fista_tv 每次都重跑,总代价
+    是 O(K^2)。
+    """
+    n, K, lam = 32, 30, 6.3e-3
+    x, csm = _brain_phantom(n)
+    mask = _af12_mask(n)
+    yu = fft3c(csm * x.unsqueeze(0)) * mask.unsqueeze(0)
+
+    js = [_fista_objective(fista_tv(yu, csm, mask, lam=lam, iters=k), yu, csm, mask, lam)
+          for k in range(1, K + 1)]
+    bad = [(k + 1, js[k - 1], js[k]) for k in range(1, K) if js[k] > js[k - 1]]
+    assert not bad, (
+        f"lam={lam:g}: 目标函数在 {len(bad)} 处上升(前 3 处 {bad[:3]})——"
+        "步长超出 Lipschitz 界时会这样,见 cs_sense.py 的 _GRAD_OP_SQ")
+
+
+def test_grad_operator_norm_pins_step_rule_constant():
+    """`_GRAD_OP_SQ` 必须真的等于 `_grads` 这个离散梯度算子的 ||D||^2,不能是随手填的数。
+
+    步长规则 `1/(1 + _GRAD_OP_SQ*lam/eps)` 的合法性来自 Hessian 上界 ||D||^2/eps(推导见
+    cs_sense.py 该常量旁的注释)。round 1-3 的 bug 正是这个因子被当成 1:上界算小了 12 倍,
+    步长就越界了。这里用幂迭代直接测 ||D^T D|| 并两边夹:
+      - 上界:实测 ||D||^2 不得超过 _GRAD_OP_SQ,否则步长规则不再是安全步长;
+      - 下界:也不得远小于 _GRAD_OP_SQ,否则常量被无谓放大,白白拖慢收敛。
+    D^T 按 _tv_grad 里 `div[1:] += u[:-1]; div[:-1] -= u[:-1]` 的同一套边界约定实现。
+    """
+    from crisp.recon.cs_sense import _GRAD_OP_SQ, _grads
+
+    def _div(ux, uy, uz):
+        d = torch.zeros_like(ux)
+        d[1:] += ux[:-1];        d[:-1] -= ux[:-1]
+        d[:, 1:] += uy[:, :-1];  d[:, :-1] -= uy[:, :-1]
+        d[:, :, 1:] += uz[:, :, :-1]; d[:, :, :-1] -= uz[:, :, :-1]
+        return d
+
+    n = 16
+    g = torch.Generator().manual_seed(0)
+    v = torch.randn(n, n, n, generator=g, dtype=torch.float64)
+    v = v / v.norm()
+    s = 0.0
+    for _ in range(400):                      # 幂迭代收敛到 ||D^T D|| = ||D||^2
+        w = _div(*_grads(v))
+        s = float(w.norm())
+        v = w / s
+
+    # 伴随自检:<D m, u> == <m, D^T u>,保证上面测的确实是 _grads 的伴随
+    m = torch.randn(n, n, n, generator=g, dtype=torch.float64)
+    us = [torch.randn(n, n, n, generator=g, dtype=torch.float64) for _ in range(3)]
+    gx, gy, gz = _grads(m)
+    lhs = float((gx * us[0] + gy * us[1] + gz * us[2]).sum())
+    rhs = float((m * _div(*us)).sum())
+    assert abs(lhs - rhs) <= 1e-8 * abs(lhs), f"_div 不是 _grads 的伴随:{lhs} vs {rhs}"
+
+    assert s <= _GRAD_OP_SQ, f"实测 ||D||^2={s:.4f} 超过 _GRAD_OP_SQ={_GRAD_OP_SQ},步长规则不再安全"
+    assert s >= 0.95 * _GRAD_OP_SQ, (
+        f"实测 ||D||^2={s:.4f} 远小于 _GRAD_OP_SQ={_GRAD_OP_SQ},常量被无谓放大、白白拖慢收敛")
 
 
 def test_real_scale_af12_beats_zero_fill():
