@@ -711,7 +711,9 @@ def vd_poisson_2d(shape, af: float, acs: int, seed: int,
     acs_mask[d // 2 - h:d // 2 + h, w // 2 - h:w // 2 + h] = True
     target = shape[0] * shape[1] / af
     budget = target - acs_mask.sum()
-    lo, hi = 0.0, 1.0 / max(base.max(), 1e-12)
+    # hi 不能取 1/base.max():Σclip(base*mid,0,1) 的上确界远高于它(线性区 Σbase 本身
+    # 就可能低于预算),用它作上界会让二分卡在预算之下,任何 suppress 系数都救不回来。
+    lo, hi = 0.0, 1e6
     for _ in range(60):                                   # 二分 scale 命中预算
         mid = 0.5 * (lo + hi)
         p = np.clip(base * mid, 0, 1)
