@@ -1,0 +1,11 @@
+{
+  "series": [
+    "/data1/data1_congcong/data/3D/CE_Data/t1_3D_gre_fsp_sag_iso_ACS_16887049370010/ksp1.h5",
+    "/data1/data1_congcong/data/3D/CE_Data/t1_3D_gre_fsp_sag_iso_ACS_16887049370060/ksp2.h5"
+  ],
+  "lam": 0.001,
+  "iters": 40,
+  "tail_to_median_ratio": 19.99198731436472,
+  "positive_fraction": 0.5462149502471869,
+  "verdict": "REPEAT"
+}
