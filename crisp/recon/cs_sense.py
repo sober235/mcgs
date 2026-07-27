@@ -49,10 +49,40 @@ def _data_grad(x, y, csm, mask):
     return (ifft3c(resid) * csm.conj()).sum(0)
 
 
+_CSM_SOS_TOL = 1.01  # 逐点 sum_c|csm_c|^2 允许超过 1 的容差(浮点/归一化误差余量)
+
+
+def _check_csm_scale(csm):
+    """守卫,不是修正:确认 step 默认值的稳定性论证(见模块顶部注释)真的成立。
+
+    数据项梯度算子范数 <=1 依赖 sum_c|csm_c|^2 逐点 <=1。这里只查上界——sum-of-squares
+    小于 1 只会让算子范数更小,不会破坏稳定性,不要在这里加下界检查(那会把这条守卫
+    悄悄变成两边都查,而下界本来就是安全的)。一次 O(1) reduction,发生在迭代循环之外,
+    不影响每步开销。
+    """
+    peak = float((csm.abs() ** 2).sum(0).max())
+    if peak > _CSM_SOS_TOL:
+        raise ValueError(
+            f"csm 的逐点 sum_c|csm_c|^2 峰值为 {peak:.4f},超过 {_CSM_SOS_TOL}。"
+            "step 的默认值是按 sum_c|csm_c|^2<=1 校准的稳定步长(见模块顶部注释);超出该假设会"
+            "让数据项算子范数 >1,默认 step 不再安全,失效方式是静默振荡/缓慢发散,不是报错。"
+            "请重新归一化线圈灵敏度图(除以 sqrt(sum_c|csm_c|^2)),或显式传入更小的 step。"
+        )
+
+
 def fista_tv(y, csm, mask, lam: float, iters: int = 200, device: str | None = None,
              step: float = 0.25) -> torch.Tensor:
+    """FISTA CS-SENSE:最小化 (1/2)||P_mask F S x - y||^2 + lam * TV_smooth(x)。
+
+    `mask` 须为严格 0/1 的欠采样投影。`step` 默认值 0.25 的稳定性论证依赖
+    `sum_c|csm_c|^2` 逐点 <=1(见模块顶部注释);违反这条假设(例如线圈图用了别的缩放
+    约定,或像 Task 4 实测的真实线圈图那样某些体素灵敏度和显著偏离 1)会被
+    `_check_csm_scale` 检测到并抛出 `ValueError`——本函数不会替调用者静默重新缩放数据,
+    需要调用方自己重新归一化线圈图,或显式传入更小的 `step`。
+    """
     if device is not None:
         y, csm, mask = y.to(device), csm.to(device), mask.to(device)
+    _check_csm_scale(csm)
     x = (ifft3c(mask.unsqueeze(0) * y) * csm.conj()).sum(0)
     z, t = x.clone(), 1.0
     for _ in range(iters):
@@ -66,9 +96,17 @@ def fista_tv(y, csm, mask, lam: float, iters: int = 200, device: str | None = No
 
 def fista_joint_tv(ys, csms, masks, lam: float, iters: int = 200, device: str | None = None,
                    step: float = 0.25) -> list[torch.Tensor]:
+    """联合多对比度 FISTA CS-SENSE,通过 vectorial TV 的共享梯度范数耦合各通道。
+
+    每个通道各自的 `mask` 须为严格 0/1 投影。`step` 默认值 0.25 的稳定性论证同
+    `fista_tv`,依赖每个通道的 `sum_c|csm_c|^2` 逐点 <=1(见模块顶部注释);任一通道违反
+    该假设都会被 `_check_csm_scale` 检测到并抛出 `ValueError`,不会静默重新缩放数据。
+    """
     if device is not None:
         ys = [v.to(device) for v in ys]; csms = [v.to(device) for v in csms]
         masks = [v.to(device) for v in masks]
+    for c in csms:
+        _check_csm_scale(c)
     xs = [(ifft3c(m.unsqueeze(0) * y) * c.conj()).sum(0) for y, c, m in zip(ys, csms, masks)]
     zs, t = [v.clone() for v in xs], 1.0
     for _ in range(iters):

@@ -1,5 +1,6 @@
 import itertools
 
+import pytest
 import torch
 
 from crisp.metrics.coil_domain import fft3c, e_coil_full
@@ -122,3 +123,36 @@ def test_joint_coupling_changes_result_vs_independent():
     diff0 = (joint[0] - indep0).abs().max()
     diff1 = (joint[1] - indep1).abs().max()
     assert diff0 > 1e-4 or diff1 > 1e-4
+
+
+def test_step_guard_rejects_oversized_csm():
+    """sum_c|csm|^2 逐点 = 4(远超 <=1 假设)时,两个入口都必须在迭代前拒绝,而不是
+    静默振荡/发散。这不是假设性的:Task 4 在真实线圈图上就测到过和 ~1 严重偏离的
+    sum-of-squares(那边偏低,这里构造偏高的情形来触发同一条守卫的上界分支)。
+    """
+    x, csm, y = _toy()
+    mask = torch.zeros(8, 8, 8); mask[::2] = 1.0
+    csm_big = csm * 2.0                      # sum_c|csm_big|^2 = 4 * sum_c|csm|^2 = 4 逐点
+    y_big = fft3c(csm_big * x.unsqueeze(0))
+    yu_big = y_big * mask.unsqueeze(0)
+
+    with pytest.raises(ValueError):
+        fista_tv(yu_big, csm_big, mask, lam=1e-3, iters=5)
+    with pytest.raises(ValueError):
+        fista_joint_tv([yu_big, yu_big], [csm_big, csm_big], [mask, mask], lam=1e-3, iters=5)
+
+
+def test_sub_unit_csm_is_accepted_and_still_converges():
+    """守卫只查上界:sum_c|csm|^2 逐点 = 0.25(明显小于 1)必须被接受,且仍应收敛——
+    防止以后有人把这条守卫"顺手"改成两边都查(下界本来就是安全的,不该被拒绝)。
+    """
+    from crisp.metrics.coil_domain import ifft3c
+    x, csm, y = _toy()
+    csm_small = csm * 0.5                    # sum_c|csm_small|^2 = 0.25 逐点
+    y_small = fft3c(csm_small * x.unsqueeze(0))
+    mask = torch.zeros(8, 8, 8); mask[::2] = 1.0
+    yu_small = y_small * mask.unsqueeze(0)
+    zf = (ifft3c(yu_small) * csm_small.conj()).sum(0)
+
+    xh = fista_tv(yu_small, csm_small, mask, lam=1e-3, iters=100)  # 不应抛异常
+    assert e_coil_full(xh, csm_small, y_small) < e_coil_full(zf, csm_small, y_small)
