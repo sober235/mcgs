@@ -323,6 +323,13 @@ def test_objective_is_monotone_non_increasing():
     19 倍,抓不到)。步长常数本身由 test_grad_operator_norm_pins_step_rule_constant
     直接钉住,那条才是高分辨力的守卫。K 取 30 是成本折中:fista_tv 每次都重跑,总代价
     是 O(K^2)。
+
+    ⚠️ **不要把 K 提上去**(fix round 6)。J 现在是 O(1e-3) 量级(两项都是均值),迭代到
+    平台后每步的真实下降量会掉到 float32 的分辨率以下,监控值就开始出现 ~1e-7 相对量级的
+    抖动。本体模/lam 下,float32 监控的**第一次上升出现在第 812 步**;K=30 时离它还很远,
+    所以这里可以用"零次上升"这种严格判据。要跑更长就必须换成 complex128,或把判据改成
+    "上升幅度不超过若干个 float32 eps"——直接抬 K 会得到一条随机翻红的测试。
+    (float64 交叉验证:32^3、800 步、complex128 下 0/800 次上升。)
     """
     n, K, lam = 32, 30, 6.3e-3
     x, csm = _brain_phantom(n)
@@ -386,6 +393,89 @@ def test_solution_does_not_degenerate_to_flat_magnitude():
     assert 0.85 * gt_mean < rec_mean < 1.15 * gt_mean, (
         f"脑内平均 |x| = {rec_mean:.4f},GT 是 {gt_mean:.4f}(比值 {rec_mean/gt_mean:.3f})"
         "——幅度统计已经漂移,round 4 退化解的签名是这个比值漂到 1.31")
+
+
+def test_quality_does_not_degrade_with_iterations():
+    """更正之二的**核心**验收判据,现在有出厂测试钉住了(fix round 6)。
+
+    此前这条判据只活在报告里的一次性 ablation:出厂回归测试
+    `test_real_scale_af12_beats_zero_fill` 跑 300 步,而 300 步恰恰是 2500 步内 PSNR 的
+    **全局最大点**(暂态过冲);把 `_tv_grad` 换回 round 4 的幅度 TV,它仍能拿到 24.884 dB
+    对 20.406 的零填充而**通过**。也就是说旗舰测试对本轮修掉的那个缺陷是瞎的。
+
+    这里改成看**平台**:跑到 2000 步,要求
+      1. 每个晚期 checkpoint 都高于零填充 —— 收敛解本身必须有用,不是靠早停;
+      2. 晚期 checkpoint 之间的**极差** < 1 dB —— 质量不随迭代漂移。
+
+    ⚠️ 判据必须用**多点极差**,不能用两点之差。本轮第一版按"|psnr(2000)-psnr(600)|<1dB"
+    写,结果**变异测试直接放行**:幅度 TV 的轨迹不是单调下滑而是**来回摆**,32^3 实测
+    600/800/1000/1200/1500/1800/2000/2500 步依次是
+    19.23 / 17.96 / 18.96 / 20.24 / 21.81 / 20.47 / 19.85 / 17.87 dB
+    ——恰好 600 与 2000 只差 0.62 dB,两点判据看不见中间 3.94 dB 的摆动。改成极差后
+    立刻分开。这条教训本身就是"两点采样看不出轨迹形状"的又一次复现(round 3 同款)。
+
+    实测(n=24、acs=4、lam=6.3e-3、零填充 15.930,checkpoint 800/1400/2000):
+        复数 TV(出厂)  24.683 / 24.706 / 24.678   极差 0.028 dB,最小余量 +8.748 dB
+        幅度 TV(变异)  17.479 / 21.890 / 18.587   极差 3.232 dB
+    判据阈值 1.0 dB,两侧各有两个数量级的余量。注意变异版的最小余量仍是 +0.93 dB
+    (仍在零填充之上),所以**有牙齿的是极差那一条**,不是"打败零填充"那一条。
+
+    体模取 n=24(acs=4,实测采样率 0.0781 ~ 1/12.8)而不是 32^3:本判据检的是轨迹形状,
+    与体积大小无关,而 4200 次迭代在 32^3 上要 ~45 s、在 24^3 上只要 ~18 s。分辨力没有
+    损失(极差 0.028 vs 3.232 dB)。
+    """
+    n, lam = 24, 6.3e-3
+    x, csm = _brain_phantom(n)
+    mask = _af12_mask(n, acs=4)
+    yu = fft3c(csm * x.unsqueeze(0)) * mask.unsqueeze(0)
+    gt_mag = x.abs().numpy()
+    zf = (ifft3c(yu) * csm.conj()).sum(0)
+    psnr_zf = brain_gauge(zf.abs().numpy(), gt_mag)["psnr_brain"]
+
+    cps = (800, 1400, 2000)
+    ps = [brain_gauge(fista_tv(yu, csm, mask, lam=lam, iters=k).abs().numpy(), gt_mag)["psnr_brain"]
+          for k in cps]
+
+    assert min(ps) > psnr_zf, (
+        f"晚期 checkpoint {dict(zip(cps, [round(p, 3) for p in ps]))} 中有低于零填充 "
+        f"{psnr_zf:.3f} dB 的——重建质量只在早停时成立就不算基线")
+    assert max(ps) - min(ps) < 1.0, (
+        f"晚期 PSNR 极差 {max(ps)-min(ps):.3f} dB 超过 1 dB "
+        f"({dict(zip(cps, [round(p, 3) for p in ps]))})——质量随迭代漂移,"
+        "这正是模型退化的签名(见 cs_sense.py fix round 5/6)")
+
+
+def test_joint_is_independent_at_lam_over_sqrt_m():
+    """钉住 vectorial TV 的 1/sqrt(M) 效应,防止它被悄悄改掉或被误读成"耦合收益"。
+
+    联合版的归一化项 sqrt(sum_m sum_a |g|^2 + eps^2) 在各通道内容相近时约为单通道的
+    sqrt(M) 倍,所以每个通道实际受到的正则强度只有独立版的 1/sqrt(M):
+        joint(M=2) @ lam  ~  independent @ lam/sqrt(2)
+    用两个**完全相同**的通道(跨对比度信息为零)最干净地暴露这一点。
+
+    这条测试的意义不只是回归保护:它是"两个 arm 不能在同一 lam 下直接比"这句话的
+    可执行证据(详见 fista_joint_tv 的 docstring)。
+    """
+    n, lam, iters = 24, 6.3e-3, 300
+    x, csm = _brain_phantom(n)
+    mask = _af12_mask(n, acs=4)
+    yu = fft3c(csm * x.unsqueeze(0)) * mask.unsqueeze(0)
+
+    joint = fista_joint_tv([yu, yu], [csm, csm], [mask, mask], lam=lam, iters=iters)
+    indep_scaled = fista_tv(yu, csm, mask, lam=lam / (2 ** 0.5), iters=iters)
+    indep_same = fista_tv(yu, csm, mask, lam=lam, iters=iters)
+
+    tv_j = _complex_tv(joint[0])
+    tv_s = _complex_tv(indep_scaled)
+    tv_i = _complex_tv(indep_same)
+
+    # joint@lam 必须比 independent@lam 更接近 independent@lam/sqrt(2)
+    assert abs(tv_j - tv_s) < abs(tv_j - tv_i), (
+        f"joint@lam 的 TV={tv_j:.2f} 离 independent@lam/√2 的 {tv_s:.2f} 反而比离 "
+        f"independent@lam 的 {tv_i:.2f} 更远——1/sqrt(M) 关系不成立了")
+    assert abs(tv_j - tv_s) / tv_s < 0.01, (
+        f"joint@lam 的 TV={tv_j:.2f} 与 independent@lam/√2 的 {tv_s:.2f} 相差 "
+        f"{abs(tv_j-tv_s)/tv_s:.3%},超过 1%")
 
 
 def test_grad_operator_norm_pins_step_rule_constant():
