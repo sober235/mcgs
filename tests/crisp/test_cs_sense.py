@@ -5,7 +5,7 @@ import pytest
 import torch
 
 from crisp.metrics.coil_domain import fft3c, ifft3c, e_coil_full
-from crisp.metrics.image_domain import brain_gauge
+from crisp.metrics.image_domain import brain_gauge, brain_mask
 from crisp.masks.vdpoisson import vd_poisson_2d
 from crisp.recon.cs_sense import fista_tv, fista_joint_tv
 
@@ -65,14 +65,21 @@ def test_joint_reduces_to_independent_at_zero_coupling():
 def test_larger_lambda_gives_smaller_tv():
     """“λ 越大 -> TV 越小”是**极小点**的性质,所以两个 λ 都必须跑到收敛才能比。
 
-    fix round 4:迭代数从 brief 的 80 提到 1000。步长现在是 `1/(1+12*λ/eps)`(补上了
-    离散梯度算子范数 ||D||^2=12,见 cs_sense.py),因此 λ=1e-2 的步长(0.00826)比
-    λ=1e-4 的(0.4545)小 55 倍——在固定 80 次迭代下,两次运行处在完全不同的收敛阶段,
-    比较结果反映的是“各自走了多远”,不是极小点的 TV 大小(实测 80 次迭代:
-    TV(1e-2)=102.3 > TV(1e-4)=96.1,顺序相反)。跑到收敛后顺序恢复且稳定:
-    iters=200 起顺序就正确,iters>=1000 时三个 λ(1e-4/1e-3/1e-2)的 TV 分别稳定在
-    96.019/95.764/92.42(一直到 16000 次迭代都不再变化)。这是把测试对齐到它自己
-    声称的性质,不是放宽判据——判据本身(严格小于)一个字没动。
+    fix round 4:迭代数从 brief 的 80 提到 1000。步长与 λ 有关(见 cs_sense.py 的
+    `_term_weights`/`_GRAD_OP_SQ`),λ 越大步长越小,固定小迭代数下两次运行处在完全不同的
+    收敛阶段,比较到的是"各自走了多远",不是极小点的 TV 大小。
+
+    fix round 5 重新标定(复数 TV + 新权重后步长完全变了:λ=1e-4/1e-3/1e-2 的步长分别是
+    160.0/36.6/4.2)。实测 TV(在 |x| 上、各向异性,即本测试自己的 `tv()` 口径):
+
+        iters:      50      100      200      400     1000     2000     4000
+        λ=1e-4  96.4210  96.0366  96.0164  96.0164  96.0164  96.0164  96.0164
+        λ=1e-3  99.4805  96.2961  95.9704  95.9721  95.9724  95.9724  95.9724
+        λ=1e-2 114.8351 100.2430  95.3130  94.9599  94.9938  94.9948  94.9943
+        顺序对?     NO       NO      YES      YES      YES      YES      YES
+
+    iters=200 起顺序就正确,>=400 后三个值都不再变化,故保留 iters=1000。
+    判据本身(严格小于)一个字没动。
     """
     x, csm, y = _toy()
     mask = torch.zeros(8, 8, 8); mask[::2] = 1.0
@@ -82,23 +89,64 @@ def test_larger_lambda_gives_smaller_tv():
     assert tv(fista_tv(yu, csm, mask, lam=1e-2, iters=1000)) < tv(fista_tv(yu, csm, mask, lam=1e-4, iters=1000))
 
 
-def test_tv_grad_matches_finite_difference():
-    """直接用有限差分核验 _tv_grad 的散度符号与幅度,独立于 FISTA 收敛动态。
+def test_tv_grad_matches_finite_difference_complex():
+    """有限差分核验**复数** TV 的梯度,独立于 FISTA 收敛动态。
 
-    用实值正数体积规避复数 Wirtinger 导数的因子歧义(此时 mag=x, x/mag=1,
-    _tv_grad 输出退化为对光滑 TV 泛函的普通实梯度)。这是判定散度符号的最直接证据:
-    若 `div[1:] += u[:-1]; div[:-1] -= u[:-1]` 的符号反了,这里会直接不匹配。
+    fix round 5:TV 现在作用在复数 x 上(TV_c = sum_j sqrt(sum_a |d_a x|^2 + eps^2),
+    差分保留复数),`_tv_grad` 直接返回散度 div,不再有 `* (x/|x|)` 的链式因子。
+    因此这条测试也必须在**复数**方向上验证,否则(像 round 5 之前那样只取实值正数体积)
+    只测到了实轴上的限制,恰好是相位不受惩罚的那个退化子空间——正是它藏了 4 轮 bug。
 
-    eps 用 _tv_grad 的实际默认值(fix round 2: Huber 平滑半径 1e-3,不再是数值下限
-    1e-8)——参考 tv() 里的平滑常数必须和 _tv_grad 内部用的 eps 一致,否则两者根本
-    不是同一个平滑泛函的梯度,有限差分自然对不上。
+    判据用方向导数:对实值泛函 TV_c,梯度 g 满足 d/dt TV_c(x + t*h) = Re<g, h>。
+    随机取 8 个复数方向 h,逐个比对解析值与中心差分,同时单独比对纯虚方向(相位方向)
+    ——若相位真的不受惩罚(round 4 的退化模型),纯虚方向的导数会恒为 0,这里会直接暴露。
+    """
+    from crisp.recon.cs_sense import _tv_grad, _grads, _tv_norm
+
+    EPS = 1e-3  # 必须与下面 _tv_grad(x) 调用所用的 eps 一致
+
+    # complex128:float32 下中心差分的舍入噪声(~1e-3)会和真实符号误差混在一起。
+    g = torch.Generator().manual_seed(0)
+    x = (torch.randn(5, 5, 5, generator=g, dtype=torch.float64)
+         + 1j * torch.randn(5, 5, 5, generator=g, dtype=torch.float64))
+
+    def tv_c(v):
+        gx, gy, gz = _grads(v)
+        return _tv_norm(gx, gy, gz, EPS).sum()
+
+    analytic = _tv_grad(x, eps=EPS)
+    h = 1e-6
+    for k in range(8):
+        d = (torch.randn(5, 5, 5, generator=g, dtype=torch.float64)
+             + 1j * torch.randn(5, 5, 5, generator=g, dtype=torch.float64))
+        d = d / d.norm()
+        numeric = float((tv_c(x + h * d) - tv_c(x - h * d)) / (2 * h))
+        predicted = float((analytic.conj() * d).real.sum())
+        assert abs(numeric - predicted) <= 1e-6 * max(abs(numeric), 1.0), (
+            f"方向 {k}: 数值 {numeric:.10f} vs 解析 {predicted:.10f}")
+
+    # 纯虚(相位)方向必须有非零梯度分量——这正是 round 5 修掉的退化
+    d_imag = 1j * torch.randn(5, 5, 5, generator=g, dtype=torch.float64)
+    d_imag = d_imag / d_imag.norm()
+    numeric = float((tv_c(x + h * d_imag) - tv_c(x - h * d_imag)) / (2 * h))
+    predicted = float((analytic.conj() * d_imag).real.sum())
+    assert abs(numeric - predicted) <= 1e-6 * max(abs(numeric), 1.0)
+    assert abs(numeric) > 1e-3, (
+        f"纯虚方向的方向导数是 {numeric:.3e},≈0 说明相位不受 TV 惩罚——"
+        "那就退回到了 round 4 的退化模型(见 cs_sense.py fix round 5 说明)")
+
+
+def test_tv_grad_sign_on_real_volume():
+    """实值正数体积上的散度符号核验(round 1-4 的原判据,保留)。
+
+    复数 TV 限制在实轴上就等于原来的幅度 TV,所以这条老判据仍然适用:若
+    `div[1:] += u[:-1]; div[:-1] -= u[:-1]` 的符号反了,这里会直接不匹配。
+    保留它是因为它把**符号**这一件事单独钉死,与上面那条复数测试互为独立证据。
     """
     from crisp.recon.cs_sense import _tv_grad
 
-    EPS = 1e-3  # 必须与下面 _tv_grad(x) 调用所用的默认 eps 一致
+    EPS = 1e-3
 
-    # float64/complex128: 用 float32 时中心差分的舍入噪声(~1e-3 量级)和真实符号误差
-    # 混在一起不好区分,双精度下把噪声压到 ~1e-7,任何符号错误都会显著超出该量级。
     g = torch.Generator().manual_seed(0)
     x_real = 0.5 + torch.rand(4, 4, 4, generator=g, dtype=torch.float64)
     x = x_real.to(torch.complex128)
@@ -223,28 +271,38 @@ def _af12_mask(n, seed=0, acs=8):
     return torch.from_numpy(np.repeat(m2d[:, :, None], n, axis=2).astype(np.float32))
 
 
+def _complex_tv(x, eps=1e-3):
+    """TV_c(x) = sum_voxel sqrt(sum_a |d_a x|^2 + eps^2),差分保留复数。
+
+    刻意在测试里独立重写(不从 cs_sense import),这样"退化守卫"和"目标函数单调"两条
+    测试用的是独立推导的参考实现,而不是被测代码自己的说法。
+    """
+    gx = torch.zeros_like(x); gy = torch.zeros_like(x); gz = torch.zeros_like(x)
+    gx[:-1] = x[1:] - x[:-1]
+    gy[:, :-1] = x[:, 1:] - x[:, :-1]
+    gz[:, :, :-1] = x[:, :, 1:] - x[:, :, :-1]
+    return float(torch.sqrt(gx.abs() ** 2 + gy.abs() ** 2 + gz.abs() ** 2 + eps ** 2).sum())
+
+
 def _fista_objective(x, y, csm, mask, lam, eps=1e-3):
     """fista_tv 真正在最小化的目标函数,**独立于 cs_sense.py 重写一遍**:
 
-        J(x) = (1/(2N)) * ||M(F S x - y)||^2 + lam * sum_voxel sqrt(|grad|x||^2 + eps^2)
+        J(x) = 1/(2*n_samp) * ||M(U S x - y/sqrt(N))||^2 + (lam/N) * TV_c(x)
 
-    1/(2N)(N = 体素数)不是笔误,也不是可有可无的常数:`_data_grad` 用 `ifft3c` 作伴随,
-    而 torch 默认 norm="backward" 下 ifft3c = F^{-1} = (1/N)F^H,所以它是上式的梯度,
-    不是 `(1/2)||M(F S x - y)||^2` 的梯度。fix round 2/3 监控的正是后者——相当于把数据项
-    相对 TV 项放大 N=262144 倍,跟踪的基本上只是数据残差,于是把“数据残差随 TV 下降而
-    上升”(CS 迭代的正常行为)误判成了发散。差一个 N 倍常数会让这条测试变成在检查一个
-    本迭代根本没在最小化的函数,所以这里刻意重推一遍而不是从 cs_sense 里 import。
+    等价地(避免显式构造酉 FFT):第一项 = (1/n_samp) * (1/(2N)) * ||M(F S x - y)||^2,
+    因为 ||M(U S x - y/sqrt(N))||^2 = (1/N)||M(F S x - y)||^2。
+
+    这两个归一化常数都不是可有可无的:`_data_grad` 用 `ifft3c` 作伴随,而 torch 默认
+    norm="backward" 下 ifft3c = F^{-1} = (1/N)F^H,所以它自带一个 1/N。fix round 2/3
+    监控的是 `0.5*||M(FSx-y)||^2 + lam*TV`,少了这些常数,跟踪的基本上只是数据残差,
+    于是把"数据残差随 TV 下降而上升"(CS 迭代的正常行为)误判成了发散。差一个常数就会
+    让这条测试变成在检查一个本迭代根本没在最小化的函数,所以这里刻意重推一遍。
     """
     N = x.numel()
+    n_samp = float(mask.sum())
     resid = mask.unsqueeze(0) * (fft3c(csm * x.unsqueeze(0)) - y)
-    data = float((resid.abs() ** 2).sum()) / (2.0 * N)
-    mag = x.abs().clamp_min(1e-8)
-    gx = torch.zeros_like(mag); gy = torch.zeros_like(mag); gz = torch.zeros_like(mag)
-    gx[:-1] = mag[1:] - mag[:-1]
-    gy[:, :-1] = mag[:, 1:] - mag[:, :-1]
-    gz[:, :, :-1] = mag[:, :, 1:] - mag[:, :, :-1]
-    tv = float(torch.sqrt(gx ** 2 + gy ** 2 + gz ** 2 + eps ** 2).sum())
-    return data + lam * tv
+    data = float((resid.abs() ** 2).sum()) / (2.0 * N * n_samp)
+    return data + (lam / N) * _complex_tv(x, eps)
 
 
 def test_objective_is_monotone_non_increasing():
@@ -277,6 +335,57 @@ def test_objective_is_monotone_non_increasing():
     assert not bad, (
         f"lam={lam:g}: 目标函数在 {len(bad)} 处上升(前 3 处 {bad[:3]})——"
         "步长超出 Lipschitz 界时会这样,见 cs_sense.py 的 _GRAD_OP_SQ")
+
+
+def test_solution_does_not_degenerate_to_flat_magnitude():
+    """退化守卫:收敛解的幅度统计不得塌陷。这是本该从第一轮就存在的测试。
+
+    round 1-4 的模型把 TV 只加在 |x| 上,相位完全自由;AF=12 下相位自由度足以独自拟合
+    已采样数据,于是极小点把幅度抹平、把结构塞进相位。实测那时:TV_c 收敛到 262.2,而
+    "幅度全平"的下界正是 N*eps = 262.1(即 TV/TV_gt = 0.019),脑内平均 |x| 漂到 GT 的
+    1.31 倍,脑内 PSNR 12.59 dB(零填充 20.41)。三轮验收全过,没有一条测试看幅度统计。
+
+    判据必须**两侧都卡**,因为"相位自由"这个同一个病根有两种表现,取决于正则强度:
+      - 旧权重(round 4,等效正则强 ~55 倍)下,幅度被抹平,TV_c 塌到全平下界
+        N*eps(TV/TV_gt = 0.019);
+      - 新权重下把 `_tv_grad` 换回幅度 TV(下面的变异测试实测),幅度并不塌,反而是**相位
+        噪声爆炸**:TV_c 冲到 GT 的 2.6 倍(300 步)、6.4 倍(600 步)、20.5 倍(1500 步),
+        PSNR 掉到 19-22 dB。
+    所以只卡下界会漏掉后者(round 5 第一版就是这样,被变异测试当场抓到)。这里卡
+    0.5 < TV_c(recon)/TV_c(GT) < 1.5;复数 TV 实测稳定在 0.933(300/600/1500 步分别
+    0.936/0.933/0.933),两边都有充裕余量。
+
+    第二条(脑内平均 |x| 在 GT 的 ±15% 内)专门钉 round 4 那个"幅值抹平 + 均值漂到
+    1.31 倍"的签名。**诚实说明:这一条单独并不能抓住上面那个新权重下的变异**
+    (变异实测均值比 0.959-1.077,仍在 ±15% 内)——有牙齿的是 TV 的双侧界。
+
+    跑到 600 次迭代(远在平台上,见 fix round 5 报告的 2000+ 迭代轨迹)而不是早停,
+    因为退化恰恰是**收敛之后**才显现的——早停会把它藏起来。
+    """
+    n, lam, iters = 32, 6.3e-3, 600
+    x, csm = _brain_phantom(n)
+    mask = _af12_mask(n)
+    yu = fft3c(csm * x.unsqueeze(0)) * mask.unsqueeze(0)
+    gt_mag = x.abs().numpy()
+    bm = brain_mask(gt_mag)
+    gt_mean = float(gt_mag[bm].mean())
+
+    xh = fista_tv(yu, csm, mask, lam=lam, iters=iters)
+
+    flat_floor = n ** 3 * 1e-3                      # 幅度/相位全平时 TV_c 的下界 N*eps
+    tv_gt, tv_rec = _complex_tv(x), _complex_tv(xh)
+    ratio = tv_rec / tv_gt
+    rec_mean = float(xh.abs().numpy()[bm].mean())
+
+    assert ratio > 0.5, (
+        f"TV_c(recon)/TV_c(GT) = {ratio:.3f} 掉到 0.5 以下(全平下界 N*eps={flat_floor:.1f},"
+        f"即 {flat_floor/tv_gt:.4f} 倍)——解正在向全平塌陷,相位又变自由了")
+    assert ratio < 1.5, (
+        f"TV_c(recon)/TV_c(GT) = {ratio:.3f} 超过 1.5——相位噪声爆炸,"
+        "这是 TV 退回只惩罚 |x| 时在当前权重下的签名(见本测试 docstring)")
+    assert 0.85 * gt_mean < rec_mean < 1.15 * gt_mean, (
+        f"脑内平均 |x| = {rec_mean:.4f},GT 是 {gt_mean:.4f}(比值 {rec_mean/gt_mean:.3f})"
+        "——幅度统计已经漂移,round 4 退化解的签名是这个比值漂到 1.31")
 
 
 def test_grad_operator_norm_pins_step_rule_constant():
@@ -325,8 +434,12 @@ def test_real_scale_af12_beats_zero_fill():
     """更正要求的验收判据(task-6-brief.md「Task 6 更正」item 3):8^3 玩具体模测不出
     次梯度伪装成光滑梯度这个 bug,这里换成 >=64^3、>=8 线圈、AF~12、真实会用的 lam、
     300 次迭代的回归——fista_tv 必须打败零填充,否则不能被称为基线。
-    lam=6.3e-3 取自本项目 G2 体素域实验实际使用的 lam 网格
-    (crisp/experiments/g2_voxel.py 的 --lams 默认值)中间一档。
+    ⚠️ fix round 5:lam 的含义已经变了(数据项按 n_samp 归一、TV 按 N 归一,见
+    cs_sense.py),`crisp/experiments/g2_voxel.py` 那个旧 lam 网格**不再适用**,必须重调。
+    这里继续用 6.3e-3 只是因为它恰好落在新口径下的可用区间内(实测可用区间约
+    [6.3e-3, 3],64^3/AF12 上 2000 次迭代分别高出零填充 +14.2 到 +1.5 dB),不再声称它
+    来自任何已调好的网格。该 lam 下 300 次迭代实测 35.63 dB(零填充 20.41),平台值
+    34.65 dB —— 判据只断言"优于零填充",余量极大。
     """
     n = 64
     x, csm = _brain_phantom(n)
