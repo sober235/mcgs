@@ -1,0 +1,570 @@
+{
+  "cells": {
+    "same": {
+      "independent": {
+        "0.0283": {
+          "T1": {
+            "e_unobs": 0.6772961020469666,
+            "psnr_brain": 28.912763093859578,
+            "ssim_brain": 0.9042553835005086,
+            "nmse_brain": 0.01867210674170065,
+            "peak_used": 1.228678870201112,
+            "seconds": 427.2992854118347
+          },
+          "FLAIR": {
+            "e_unobs": 0.6844211220741272,
+            "psnr_brain": 29.085659491566155,
+            "ssim_brain": 0.9315494881632054,
+            "nmse_brain": 0.006825029963369308,
+            "peak_used": 1.0651686025857918,
+            "seconds": 427.2992854118347
+          }
+        }
+      },
+      "joint": {
+        "0.04": {
+          "T1": {
+            "e_unobs": 0.6805509328842163,
+            "psnr_brain": 28.700343428719236,
+            "ssim_brain": 0.8991749503023059,
+            "nmse_brain": 0.01960808983259499,
+            "peak_used": 1.228678870201112,
+            "seconds": 448.5053791999817
+          },
+          "FLAIR": {
+            "e_unobs": 0.6812769770622253,
+            "psnr_brain": 29.12125725183571,
+            "ssim_brain": 0.9305012458412533,
+            "nmse_brain": 0.006769315974534419,
+            "peak_used": 1.0651686025857918,
+            "seconds": 448.5053791999817
+          }
+        }
+      }
+    },
+    "complementary": {
+      "independent": {
+        "0.04": {
+          "T1": {
+            "e_unobs": 0.6790415048599243,
+            "psnr_brain": 28.66239879456983,
+            "ssim_brain": 0.902593552837341,
+            "nmse_brain": 0.01978015777266603,
+            "peak_used": 1.228678870201112,
+            "seconds": 427.39634823799133
+          },
+          "FLAIR": {
+            "e_unobs": 0.6117762327194214,
+            "psnr_brain": 29.314475735048852,
+            "ssim_brain": 0.933274788056011,
+            "nmse_brain": 0.006474749011753981,
+            "peak_used": 1.0651686025857918,
+            "seconds": 427.39634823799133
+          }
+        }
+      },
+      "joint": {
+        "0.0566": {
+          "T1": {
+            "e_unobs": 0.6828346252441406,
+            "psnr_brain": 28.437559863383655,
+            "ssim_brain": 0.8976465375800146,
+            "nmse_brain": 0.020831169103865253,
+            "peak_used": 1.228678870201112,
+            "seconds": 447.7674181461334
+          },
+          "FLAIR": {
+            "e_unobs": 0.6092822551727295,
+            "psnr_brain": 29.343173565513688,
+            "ssim_brain": 0.9322029511416685,
+            "nmse_brain": 0.006432105438268123,
+            "peak_used": 1.0651686025857918,
+            "seconds": 447.7674181461334
+          }
+        }
+      }
+    }
+  },
+  "zero_fill": {
+    "same": {
+      "T1": {
+        "e_unobs": 0.8539477586746216,
+        "psnr_brain": 22.81756694937952,
+        "ssim_brain": 0.7702070389872504,
+        "nmse_brain": 0.0759823875233077,
+        "peak_used": 1.228678870201112
+      },
+      "FLAIR": {
+        "e_unobs": 0.8518485426902771,
+        "psnr_brain": 23.151528350731198,
+        "ssim_brain": 0.7893046594420323,
+        "nmse_brain": 0.026761945161819387,
+        "peak_used": 1.0651686025857918
+      }
+    },
+    "complementary": {
+      "T1": {
+        "e_unobs": 0.8539477586746216,
+        "psnr_brain": 22.81756694937952,
+        "ssim_brain": 0.7702070389872504,
+        "nmse_brain": 0.0759823875233077,
+        "peak_used": 1.228678870201112
+      },
+      "FLAIR": {
+        "e_unobs": 0.8526049852371216,
+        "psnr_brain": 21.410279532693938,
+        "ssim_brain": 0.7133688023790766,
+        "nmse_brain": 0.03996157146408209,
+        "peak_used": 1.0651686025857918
+      }
+    }
+  },
+  "meta": {
+    "independent": {
+      "same": {
+        "af": 12.0,
+        "acs": 16,
+        "seed": 0,
+        "iters": 3000,
+        "cond": "same",
+        "arm": "independent",
+        "vol_shape": [
+          256,
+          220,
+          256
+        ],
+        "masks": {
+          "dc_shift": [
+            0,
+            22
+          ],
+          "complementary_overlap": 0.07659763972389223,
+          "fraction_m_same": 0.0842862215909091,
+          "fraction_m1": 0.0842862215909091,
+          "fraction_m2": 0.08375355113636364,
+          "fraction_rel_diff_m2_vs_m1": 0.006319780914261654,
+          "m_same_identical_to_m1": true,
+          "condition_masks": {
+            "same": [
+              "m_same",
+              "m_same"
+            ],
+            "complementary": [
+              "m1",
+              "m2"
+            ]
+          }
+        },
+        "p999_scale": {
+          "T1": 111.13955936431944,
+          "FLAIR": 82.44615644073497
+        },
+        "slice_axis": 2,
+        "slice_idx": 128
+      },
+      "complementary": {
+        "af": 12.0,
+        "acs": 16,
+        "seed": 0,
+        "iters": 3000,
+        "cond": "complementary",
+        "arm": "independent",
+        "vol_shape": [
+          256,
+          220,
+          256
+        ],
+        "masks": {
+          "dc_shift": [
+            0,
+            22
+          ],
+          "complementary_overlap": 0.07659763972389223,
+          "fraction_m_same": 0.0842862215909091,
+          "fraction_m1": 0.0842862215909091,
+          "fraction_m2": 0.08375355113636364,
+          "fraction_rel_diff_m2_vs_m1": 0.006319780914261654,
+          "m_same_identical_to_m1": true,
+          "condition_masks": {
+            "same": [
+              "m_same",
+              "m_same"
+            ],
+            "complementary": [
+              "m1",
+              "m2"
+            ]
+          }
+        },
+        "p999_scale": {
+          "T1": 111.13955936431944,
+          "FLAIR": 82.44615644073497
+        },
+        "slice_axis": 2,
+        "slice_idx": 128
+      }
+    },
+    "joint": {
+      "same": {
+        "af": 12.0,
+        "acs": 16,
+        "seed": 0,
+        "iters": 3000,
+        "cond": "same",
+        "arm": "joint",
+        "vol_shape": [
+          256,
+          220,
+          256
+        ],
+        "masks": {
+          "dc_shift": [
+            0,
+            22
+          ],
+          "complementary_overlap": 0.07659763972389223,
+          "fraction_m_same": 0.0842862215909091,
+          "fraction_m1": 0.0842862215909091,
+          "fraction_m2": 0.08375355113636364,
+          "fraction_rel_diff_m2_vs_m1": 0.006319780914261654,
+          "m_same_identical_to_m1": true,
+          "condition_masks": {
+            "same": [
+              "m_same",
+              "m_same"
+            ],
+            "complementary": [
+              "m1",
+              "m2"
+            ]
+          }
+        },
+        "p999_scale": {
+          "T1": 111.13955936431944,
+          "FLAIR": 82.44615644073497
+        },
+        "slice_axis": 2,
+        "slice_idx": 128
+      },
+      "complementary": {
+        "af": 12.0,
+        "acs": 16,
+        "seed": 0,
+        "iters": 3000,
+        "cond": "complementary",
+        "arm": "joint",
+        "vol_shape": [
+          256,
+          220,
+          256
+        ],
+        "masks": {
+          "dc_shift": [
+            0,
+            22
+          ],
+          "complementary_overlap": 0.07659763972389223,
+          "fraction_m_same": 0.0842862215909091,
+          "fraction_m1": 0.0842862215909091,
+          "fraction_m2": 0.08375355113636364,
+          "fraction_rel_diff_m2_vs_m1": 0.006319780914261654,
+          "m_same_identical_to_m1": true,
+          "condition_masks": {
+            "same": [
+              "m_same",
+              "m_same"
+            ],
+            "complementary": [
+              "m1",
+              "m2"
+            ]
+          }
+        },
+        "p999_scale": {
+          "T1": 111.13955936431944,
+          "FLAIR": 82.44615644073497
+        },
+        "slice_axis": 2,
+        "slice_idx": 128
+      }
+    }
+  },
+  "analysis": {
+    "sign_convention": "joint_minus_independent: E_unobs delta<0 = joint better (lower error); PSNR delta>0 = joint better (higher PSNR). Each arm evaluated at its OWN best lambda.",
+    "selection_rule": "best lambda per (condition, arm) = argmin of E_unobs averaged over T1 and FLAIR",
+    "conditions": {
+      "same": {
+        "best_per_arm": {
+          "independent": {
+            "lam": 0.0283,
+            "interior_optimum": false,
+            "mean_e_unobs": 0.6808586120605469,
+            "per_contrast": {
+              "T1": {
+                "e_unobs": 0.6772961020469666,
+                "psnr_brain": 28.912763093859578,
+                "ssim_brain": 0.9042553835005086,
+                "nmse_brain": 0.01867210674170065,
+                "peak_used": 1.228678870201112,
+                "seconds": 427.2992854118347
+              },
+              "FLAIR": {
+                "e_unobs": 0.6844211220741272,
+                "psnr_brain": 29.085659491566155,
+                "ssim_brain": 0.9315494881632054,
+                "nmse_brain": 0.006825029963369308,
+                "peak_used": 1.0651686025857918,
+                "seconds": 427.2992854118347
+              }
+            },
+            "per_contrast_best_lam": {
+              "T1": 0.0283,
+              "FLAIR": 0.0283
+            }
+          },
+          "joint": {
+            "lam": 0.04,
+            "interior_optimum": false,
+            "mean_e_unobs": 0.6809139549732208,
+            "per_contrast": {
+              "T1": {
+                "e_unobs": 0.6805509328842163,
+                "psnr_brain": 28.700343428719236,
+                "ssim_brain": 0.8991749503023059,
+                "nmse_brain": 0.01960808983259499,
+                "peak_used": 1.228678870201112,
+                "seconds": 448.5053791999817
+              },
+              "FLAIR": {
+                "e_unobs": 0.6812769770622253,
+                "psnr_brain": 29.12125725183571,
+                "ssim_brain": 0.9305012458412533,
+                "nmse_brain": 0.006769315974534419,
+                "peak_used": 1.0651686025857918,
+                "seconds": 448.5053791999817
+              }
+            },
+            "per_contrast_best_lam": {
+              "T1": 0.04,
+              "FLAIR": 0.04
+            }
+          }
+        },
+        "curves": {
+          "independent": {
+            "lams": [
+              0.0283
+            ],
+            "mean_e_unobs": [
+              0.6808586120605469
+            ],
+            "mean_psnr": [
+              28.999211292712864
+            ]
+          },
+          "joint": {
+            "lams": [
+              0.04
+            ],
+            "mean_e_unobs": [
+              0.6809139549732208
+            ],
+            "mean_psnr": [
+              28.910800340277476
+            ]
+          }
+        },
+        "zero_fill": {
+          "T1": {
+            "e_unobs": 0.8539477586746216,
+            "psnr_brain": 22.81756694937952,
+            "ssim_brain": 0.7702070389872504,
+            "nmse_brain": 0.0759823875233077,
+            "peak_used": 1.228678870201112
+          },
+          "FLAIR": {
+            "e_unobs": 0.8518485426902771,
+            "psnr_brain": 23.151528350731198,
+            "ssim_brain": 0.7893046594420323,
+            "nmse_brain": 0.026761945161819387,
+            "peak_used": 1.0651686025857918
+          }
+        },
+        "best_vs_best": {
+          "lam_independent": 0.0283,
+          "lam_joint": 0.04,
+          "lam_ratio_joint_over_independent": 1.4134275618374559,
+          "delta_mean_e_unobs": 5.5342912673950195e-05,
+          "delta_relative_e_unobs": 8.128400183771003e-05,
+          "per_contrast": {
+            "T1": {
+              "delta_e_unobs": 0.003254830837249756,
+              "delta_psnr_db": -0.2124196651403416,
+              "delta_ssim": -0.005080433198202727,
+              "delta_nmse": 0.000935983090894342
+            },
+            "FLAIR": {
+              "delta_e_unobs": -0.0031441450119018555,
+              "delta_psnr_db": 0.035597760269556744,
+              "delta_ssim": -0.0010482423219521086,
+              "delta_nmse": -5.571398883488874e-05
+            }
+          },
+          "delta_mean_psnr_db": -0.08841095243539243
+        },
+        "cross_check_joint_lam_vs_independent_lam_over_sqrt2": {
+          "0.04": {
+            "independent_lam": 0.0283,
+            "delta_mean_e_unobs": 5.5342912673950195e-05,
+            "delta_mean_psnr_db": -0.08841095243538888
+          }
+        }
+      },
+      "complementary": {
+        "best_per_arm": {
+          "independent": {
+            "lam": 0.04,
+            "interior_optimum": false,
+            "mean_e_unobs": 0.6454088687896729,
+            "per_contrast": {
+              "T1": {
+                "e_unobs": 0.6790415048599243,
+                "psnr_brain": 28.66239879456983,
+                "ssim_brain": 0.902593552837341,
+                "nmse_brain": 0.01978015777266603,
+                "peak_used": 1.228678870201112,
+                "seconds": 427.39634823799133
+              },
+              "FLAIR": {
+                "e_unobs": 0.6117762327194214,
+                "psnr_brain": 29.314475735048852,
+                "ssim_brain": 0.933274788056011,
+                "nmse_brain": 0.006474749011753981,
+                "peak_used": 1.0651686025857918,
+                "seconds": 427.39634823799133
+              }
+            },
+            "per_contrast_best_lam": {
+              "T1": 0.04,
+              "FLAIR": 0.04
+            }
+          },
+          "joint": {
+            "lam": 0.0566,
+            "interior_optimum": false,
+            "mean_e_unobs": 0.6460584402084351,
+            "per_contrast": {
+              "T1": {
+                "e_unobs": 0.6828346252441406,
+                "psnr_brain": 28.437559863383655,
+                "ssim_brain": 0.8976465375800146,
+                "nmse_brain": 0.020831169103865253,
+                "peak_used": 1.228678870201112,
+                "seconds": 447.7674181461334
+              },
+              "FLAIR": {
+                "e_unobs": 0.6092822551727295,
+                "psnr_brain": 29.343173565513688,
+                "ssim_brain": 0.9322029511416685,
+                "nmse_brain": 0.006432105438268123,
+                "peak_used": 1.0651686025857918,
+                "seconds": 447.7674181461334
+              }
+            },
+            "per_contrast_best_lam": {
+              "T1": 0.0566,
+              "FLAIR": 0.0566
+            }
+          }
+        },
+        "curves": {
+          "independent": {
+            "lams": [
+              0.04
+            ],
+            "mean_e_unobs": [
+              0.6454088687896729
+            ],
+            "mean_psnr": [
+              28.988437264809342
+            ]
+          },
+          "joint": {
+            "lams": [
+              0.0566
+            ],
+            "mean_e_unobs": [
+              0.6460584402084351
+            ],
+            "mean_psnr": [
+              28.89036671444867
+            ]
+          }
+        },
+        "zero_fill": {
+          "T1": {
+            "e_unobs": 0.8539477586746216,
+            "psnr_brain": 22.81756694937952,
+            "ssim_brain": 0.7702070389872504,
+            "nmse_brain": 0.0759823875233077,
+            "peak_used": 1.228678870201112
+          },
+          "FLAIR": {
+            "e_unobs": 0.8526049852371216,
+            "psnr_brain": 21.410279532693938,
+            "ssim_brain": 0.7133688023790766,
+            "nmse_brain": 0.03996157146408209,
+            "peak_used": 1.0651686025857918
+          }
+        },
+        "best_vs_best": {
+          "lam_independent": 0.04,
+          "lam_joint": 0.0566,
+          "lam_ratio_joint_over_independent": 1.4149999999999998,
+          "delta_mean_e_unobs": 0.000649571418762207,
+          "delta_relative_e_unobs": 0.001006449477492214,
+          "per_contrast": {
+            "T1": {
+              "delta_e_unobs": 0.0037931203842163086,
+              "delta_psnr_db": -0.22483893118617715,
+              "delta_ssim": -0.004947015257326437,
+              "delta_nmse": 0.0010510113311992218
+            },
+            "FLAIR": {
+              "delta_e_unobs": -0.0024939775466918945,
+              "delta_psnr_db": 0.02869783046483576,
+              "delta_ssim": -0.0010718369143425388,
+              "delta_nmse": -4.2643573485857955e-05
+            }
+          },
+          "delta_mean_psnr_db": -0.0980705503606707
+        },
+        "cross_check_joint_lam_vs_independent_lam_over_sqrt2": {
+          "0.0566": {
+            "independent_lam": 0.04,
+            "delta_mean_e_unobs": 0.000649571418762207,
+            "delta_mean_psnr_db": -0.0980705503606707
+          }
+        }
+      }
+    },
+    "sanity_gate": {
+      "rule": "every cell is checked against zero-fill on both endpoints; a brain-PSNR failure aborts the sweep, an E_unobs failure is flagged and the sweep continues (see gate() docstring for why)",
+      "all_cells_beat_zero_fill_psnr": true,
+      "all_cells_beat_zero_fill_e_unobs": true,
+      "worst_psnr_margin_db": 5.619992914004136,
+      "worst_psnr_cell": "complementary|joint|lam=0.0566|T1",
+      "worst_e_unobs_margin": 0.1674274206161499,
+      "worst_e_unobs_cell": "same|independent|lam=0.0283|FLAIR",
+      "cells_not_beating_zero_fill_on_e_unobs": []
+    },
+    "registered_prediction": {
+      "statement": "same-mask: joint gain over independent ~ 0 (held-out k-space locations coincide, nothing to borrow); complementary: real gain. The verdict rests on the complementary arm.",
+      "same_delta_mean_e_unobs": 5.5342912673950195e-05,
+      "same_delta_mean_psnr_db": -0.08841095243539243,
+      "complementary_delta_mean_e_unobs": 0.000649571418762207,
+      "complementary_delta_mean_psnr_db": -0.0980705503606707,
+      "complementary_minus_same_psnr_db": -0.009659597925278263
+    }
+  }
+}
