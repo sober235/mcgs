@@ -7,5 +7,6 @@
   "iters": 40,
   "tail_to_median_ratio": 19.99198731436472,
   "positive_fraction": 0.5462149502471869,
-  "verdict": "REPEAT"
+  "verdict": "REPEAT",
+  "verdict_status": "INCONCLUSIVE (human ruling, parked — do not cite). Criterion (b), positive_fraction < 0.15, measures the fraction of positively-signed voxels in the difference image, not the concentration of positive difference energy; genuine focal contrast enhancement leaves the difference image with roughly 50% positive voxels, which is exactly what this run measured (positive_fraction=0.546), so criterion (b) has no discriminative power between an enhanced pair and a repeat scan. The difference image is additionally confounded by inter-scan motion — the two series are 7 min 01 s apart, and a saturated ring artifact runs along the whole scalp contour, not just plausible enhancing structures. The bundled coil sensitivity map (CSM) also has near-zero sensitivity over roughly 1/3 to 1/2 of the brain, further undermining the difference image's reliability there. The 'verdict' field above (REPEAT) is not admissible evidence either way and must not be cited, pending external DICOM SeriesDescription / ContrastBolusAgent confirmation. The criterion itself is deliberately left unchanged (not retro-fitted after seeing this data) and nothing was re-run to produce this status."
 }

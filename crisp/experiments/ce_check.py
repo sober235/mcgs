@@ -1,4 +1,26 @@
-"""CE pair 验证(spec §4.7 / §8 item 1)。
+"""
+================================================================================
+INCONCLUSIVE — DO NOT CITE (human ruling, parked; verbatim status recorded in
+results_crisp/ce_check.json's "verdict_status" field, prose copy in
+results_crisp/README.md). Criterion (b) below (positive_fraction < 0.15)
+measures the fraction of positively-signed voxels in the difference image,
+not the concentration of positive difference energy: genuine focal contrast
+enhancement leaves the difference image with roughly 50% positive voxels,
+which is exactly what the one run on record measured (positive_fraction =
+0.546) — criterion (b) has no discriminative power between an enhanced pair
+and a repeat scan. The difference image is further confounded by inter-scan
+motion (the two series are 7 min 01 s apart; a saturated ring artifact runs
+along the whole scalp contour, not just plausible enhancing structures), and
+by the bundled CSM's near-zero sensitivity over roughly 1/3-1/2 of the brain.
+The criterion below is intentionally left exactly as originally registered —
+retro-fitting it after seeing this data would be a worse error than shipping
+an inconclusive result — so the "verdict" the script computes (REPEAT) is not
+admissible evidence either way, pending external DICOM SeriesDescription /
+ContrastBolusAgent confirmation. Nothing here was re-run to produce this
+status.
+================================================================================
+
+CE pair 验证(spec §4.7 / §8 item 1)。
 
 两个序列同 StudyInstanceUID、同协议、相隔 7 min 01 s,协议元数据无法区分平扫/增强,
 只能靠图像:若为平扫-增强对,差值图应在血管/硬膜/垂体等强化结构上出现结构化正差,
