@@ -1,0 +1,13 @@
+{
+  "exp": "g0_full",
+  "gpu": 5,
+  "iters": 4000,
+  "warmup": 500,
+  "base_cfg": "configs/g0_fullsample.yaml",
+  "npts": 200000,
+  "vram_gb": 14.901924352,
+  "elapsed_s": 1669.41641831398,
+  "render_npz": "/data0/congcong/code/GS/Paired_ARC_GS_general_framework/results_crisp/g0_full_render.npz",
+  "render_dtype": "complex64",
+  "route_note": "raw JointTrainer._render() output, no hard-DC, no magnitude cast"
+}
