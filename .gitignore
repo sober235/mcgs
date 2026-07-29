@@ -19,3 +19,4 @@ assets/*.mat
 !results_crisp/
 results_crisp/*
 !results_crisp/*.json
+!results_crisp/README.md
