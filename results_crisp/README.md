@@ -6,7 +6,7 @@ Anyone citing a number from this directory should read the entry for that number
 
 ## G2 — voxel-domain joint-TV gate (`g2_voxel_huangyuwei.json`, commit `10c04be`)
 
-**Result:** joint − independent = **−0.089 dB** (same-mask) and **−0.098 dB** (complementary),
+**Result:** joint − independent = **−0.088 dB** (same-mask) and **−0.098 dB** (complementary),
 i.e. no gain in either condition. The pre-registered prediction (same-mask gain ≈ 0,
 complementary shows a real gain) is **refuted** — the verdict was declared to rest on the
 complementary arm, and that arm shows no gain either.
