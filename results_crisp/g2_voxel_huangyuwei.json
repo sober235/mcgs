@@ -1402,5 +1402,16 @@
       "complementary_delta_mean_psnr_db": -0.09814641205204566,
       "complementary_minus_same_psnr_db": -0.009695913718649862
     }
-  }
+  },
+  "verdict": "REGISTERED PREDICTION REFUTED",
+  "caveats": [
+    "n=1 subject / 1 seed / 1 acceleration factor; this is a single-instance gate check, not the pre-registered 5-subject protocol.",
+    "The bound is on vectorial-TV coupling as the sharing mechanism (a shared gradient-magnitude normaliser -- edges tend to occur at the same voxels across contrasts, no intensity relationship, no learned prior), not on 'shared information' generally. A null result here does not license a null result for shared-information methods in general.",
+    "Both arms sit at E_unobs 0.645-0.68 (analysis.conditions.*.best_per_arm.*.mean_e_unobs), far from any ceiling: two-thirds of the unobserved k-space energy is still wrong at the best operating point for either arm. This experiment excludes a large joint-TV effect much more strongly than it excludes a small one.",
+    "Lambda does not transfer from the 64^3 phantom: the optimum found here is roughly 2.5 decades away from where the phantom-derived grid assumed it would be; at the phantom's optimum, this reconstruction on real data loses to zero-fill.",
+    "The secondary endpoint (brain PSNR) above is reported at the E_unobs-optimal lambda, not the PSNR-optimal lambda. At each arm's own PSNR optimum the gap is -0.025 dB instead of -0.098 dB for the complementary condition (same sign, smaller magnitude -- qualitative conclusion unchanged, the two numbers are not interchangeable).",
+    "See results_crisp/README.md for the full caveat text and the cross-experiment CSM warning below."
+  ],
+  "csm_source": "crisp.io.load_trainer_mat's embedded `map` field (trainer .mat, per-contrast), NOT the ESPIRiT csm_espirit_{T1,FLAIR}.mat file used by G0.",
+  "cross_experiment_csm_warning": "G0 (results_crisp/g0_ceiling_huangyuwei_{T1,FLAIR}.json) deliberately uses a DIFFERENT csm (ESPIRiT, not this file's trainer-.mat `map` field) -- 111% relative Frobenius difference between the two (see crisp/experiments/g0_ceiling.py's module docstring). This file's E_unobs (~0.65 at optimum) and G0's E_coil_full (~0.28) are therefore computed under different forward operators A=FS and are not on a common scale; do not compute a 'gap to the ceiling' by comparing them."
 }

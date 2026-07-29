@@ -55,6 +55,22 @@ initialized from 0.1x the zero-filled image at each position. No
 `adaptive_control.enable` is set in this config, so densification stays off —
 point count is fixed at 200000 for the whole run (well under the 1e6 gate).
 
+---- regulariser deviation from the plan (never amended) ----
+This run trained with the shipped winner config's regularisers, inherited
+unchanged from `winner_v2_aligned.yaml` into `configs/g0_fullsample.yaml`:
+`tv_weight 0.06`, `kspace_freq_adaptive true`, `kspace_center_weight 0.3`,
+`kspace_high_weight 2.2`. That is NOT what the written plan's Task 8 Step 4
+specified (`--lambda_geo 0.0 --kspace_high 1.0`, i.e. TV off and no
+frequency-adaptive k-space weighting). This deviation was never amended
+against the plan. Its direction is conservative for the purpose of this
+gate: the winner config's regularisers were tuned for undersampled
+reconstruction, not this full-sampling representation-capacity probe, so if
+anything they handicap the Gaussian arm here relative to an unregularised
+fit — and a handicapped arm still cleared the pass line. Read the G0
+ratios (1.29x T1, 1.39x FLAIR against the <=2x line; see
+`results_crisp/g0_ceiling_huangyuwei_{T1,FLAIR}.json`) as a LOWER BOUND on
+the representation's capability, not as its ceiling.
+
 Usage (foreground; one contrast pair trained jointly, ~4000 iters):
     CUDA_DEVICE_ORDER=PCI_BUS_ID PYTHONNOUSERSITE=1 PYTHONPATH= \\
       /home/congcongliu/anaconda3/envs/GSTMI/bin/python \\
