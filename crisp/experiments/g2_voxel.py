@@ -238,14 +238,19 @@ def run(a):
             del xs
             torch.cuda.empty_cache()
             rec["cells"][_lk(lam)] = cell
-            path.write_text(json.dumps(rec, indent=2))
-            np.savez_compressed(spath, **store)
             print(f"[{a.cond}/{arm}] lam={lam:g} ({dt:.0f}s) " + "  ".join(
                 f"{c}: E={cell[c]['e_unobs']:.4f} PSNR={cell[c]['psnr_brain']:.2f} "
                 f"(zf {zf[c]['psnr_brain']:.2f}) SSIM={cell[c]['ssim_brain']:.4f}" for c in CONTRASTS),
                 flush=True)
+            # gate() must run BEFORE the shard is written: it mutates cell[c] in place
+            # (adds beats_zero_fill_e_unobs/beats_zero_fill_psnr/*_margin), and `cell` is
+            # the same object nested under rec["cells"][_lk(lam)]. Writing first and
+            # gating after (the historical order) serialized rec before those keys
+            # existed, so every on-disk shard silently lacked the gate annotations.
             for c in CONTRASTS:
                 gate(cell[c], zf[c], a.cond, lam, c, arm)
+            path.write_text(json.dumps(rec, indent=2))
+            np.savez_compressed(spath, **store)
 
 
 # ----------------------------------------------------------------------------- finalize
@@ -256,6 +261,9 @@ def _mean_over_contrasts(cells, lam, key):
 
 
 def finalize(a):
+    # The intended lambda grid for this invocation, as actually passed on the CLI (the
+    # same `--lams` that `run()` uses) -- see the check below for why this is needed.
+    expected_lam_keys = sorted((_lk(l) for l in a.lams), key=float)
     merged = {"cells": {}, "zero_fill": {}, "meta": {}}
     for cond in CONDS:
         merged["cells"][cond] = {}
@@ -271,6 +279,26 @@ def finalize(a):
                     k: v for k, v in r["meta"].items() if k != "lam"}
                 merged["zero_fill"][cond] = r["zero_fill"]
             if cells:
+                # Fail loudly rather than silently computing best-lambda/interior_optimum
+                # over whatever shards happen to be on disk: a missing endpoint shard
+                # would otherwise silently turn a boundary optimum into a (wrong)
+                # interior one. Only enforced for genuine multi-point sweeps
+                # (len > 1) -- a single-lambda convergence-check finalize (e.g. the
+                # --label _iters3000 runs, one lambda per (cond, arm)) has no
+                # boundary/interior distinction to protect and legitimately recovers
+                # just one point per combo, which a single shared --lams list across
+                # all four (cond, arm) combos cannot represent exactly.
+                recovered_keys = sorted(cells.keys(), key=float)
+                if len(recovered_keys) > 1 and recovered_keys != expected_lam_keys:
+                    missing = sorted(set(expected_lam_keys) - set(recovered_keys), key=float)
+                    extra = sorted(set(recovered_keys) - set(expected_lam_keys), key=float)
+                    print(f"FATAL: lambda grid mismatch for cond={cond} arm={arm} iters={a.iters}: "
+                          f"missing={missing} extra={extra} (intended --lams {expected_lam_keys}, "
+                          f"recovered {recovered_keys}). A missing endpoint silently turns a "
+                          "boundary optimum into an interior one -- refusing to finalize. "
+                          "Re-run the missing cell(s), or pass --lams matching what was "
+                          "actually run for this (cond, arm).", flush=True)
+                    sys.exit(3)
                 merged["cells"][cond][arm] = cells
         if not merged["cells"][cond]:
             del merged["cells"][cond]
