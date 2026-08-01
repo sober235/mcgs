@@ -1,14 +1,52 @@
 # Project Memory — MC-GS winner-v2 (AF=12 dual-contrast T1+FLAIR 3D recon)
 
-> Source of truth: `configs/winner_v2.yaml`. This file freezes the WINNER method +
-> the 28-experiment autoresearch conclusion so it is not re-derived or re-tuned.
-> Last verified: 2026-07-15 (all training idle; winner reproduced).
+> Source of truth: `configs/winner_v2.yaml` + the `--tv_eps` flag recorded in §0. This file freezes
+> the WINNER method and the autoresearch conclusions so they are not re-derived or re-tuned.
+> Last verified: 2026-08-01 (working point moved to edge-TV + Charbonnier ε=0.04; §14, §15).
 
-## 0. OUR METHOD (user decision 2026-07-24) = **MC-GS edge-TV** ; iso-winner set aside
+## 0. OUR METHOD (user decision 2026-07-31) = **MC-GS edge-TV + Charbonnier ε=0.04**
 
-**User chose MC-GS edge-TV as the working method** on the SSIM / perceptual criterion (edge-TV has the
-highest SSIM = smoothest/cleanest look: T1 0.898, FLAIR 0.909, both > iso-winner by >noise-floor; the
-tradeoff is a touch lower PSNR/NMSE/edge-NMSE). "Do not consider the iso-TV winner for now."
+> Supersedes the 2026-07-24 pick (same method, ε=0). Everything below about edge-TV still holds;
+> the only change is the SHAPE of the TV penalty. See §14 for why, and for the metrics that decided it.
+
+**Frozen config:** edge-TV `κ_q 0.85 / λ_geo 0.10 / w_floor 0.1` **+ `--tv_eps 0.04`**, 4000 iters,
+exact-bbox voxelizer (§15). Run `tvs4k_e040` → `results_arc/tvs4k_e040_volumes.npz`.
+Reproduce: `... arc/cycle.py --exp tvs4k_e040 --gpu N --iters 4000 --kspace_high 2.2 --warmup 500
+--max_radius 20 --edge_tv --edge_tv_kappa_q 0.85 --edge_tv_wfloor 0.1 --lambda_geo 0.10 --tv_eps 0.04
+--base_cfg configs/winner_v2_edgeTV.yaml --save_volumes`
+**Result (whole@max):** T1 PSNR **38.379** / SSIM **0.9103** / NMSE 0.02075; FLAIR PSNR **38.221** /
+SSIM **0.9137** / NMSE 0.00856. Against the ε=0 pick: staircase index 8.58 → **2.04** (GT = 1.00),
+T1 −0.092 dB, **FLAIR +0.035 dB**, **SSIM +0.011 on both contrasts**, and the reconstruction stays
+*cleaner than the ground truth* (grain 0.944 of GT) — i.e. the sheet artefact is removed without
+handing the noise back. Final figures `results_arc/{FINAL_recon_edgeTV_eps040,
+FINAL_staircase_before_after}.png`.
+
+**Full eps series at 4000 iters** (staircase S / axis-bias A / grain N, all relative to GT = 1.00;
+figure `results_arc/FINAL_eps_series_4k.png`, raw numbers in the session scratchpad's
+`eps_series_4k.json`). eps is a MONOTONE knob on S — it does not saturate — but three things turn
+over past 0.04, which is what fixes the working point:
+
+| eps | S | A | N | T1 PSNR | FLAIR PSNR | T1 SSIM | FLAIR SSIM | sharp |
+|---|---|---|---|---|---|---|---|---|
+| 0 | 8.580 | 1.241 | 0.799 | 38.471 | 38.186 | 0.8994 | 0.9102 | 0.768 |
+| 0.015 | 4.126 | 1.198 | 0.851 | 38.441 | 38.195 | 0.9104 | 0.9137 | 0.781 |
+| 0.025 | 2.902 | 1.181 | 0.892 | 38.419 | 38.211 | 0.9104 | **0.9138** | 0.796 |
+| **0.04** | 2.037 | 1.166 | 0.944 | 38.379 | **38.221** | 0.9103 | 0.9137 | 0.819 |
+| 0.06 | **1.516** | **1.153** | **1.000** | 38.323 | 38.209 | 0.9099 | 0.9126 | 0.846 |
+
+**eps=0.06 reaches N = 1.000 exactly** — grain equal to the ground truth, i.e. the edge of the
+territory the user rejected in the low-lambda arm — and FLAIR PSNR (peaks at 0.04), T1 SSIM and
+FLAIR SSIM all turn down there. 0.04 keeps a 5.6% cleanliness margin under GT while still cutting
+the staircase 4.2x, so it is the balanced point; **0.06 is a legitimate alternative if a lower
+staircase is wanted and grain at exactly GT level is acceptable — it is further along the same
+trade, not worse.** Do not push eps past 0.06 (at 1500 iters eps=0.08 already gives N 1.060).
+
+**Why edge-TV at all (user decision 2026-07-24, still the governing criterion):** chosen on the
+SSIM / whole-slice perceptual criterion, not on PSNR. Confirmed again on 2026-07-31: shown four
+working points spanning the texture range (iso-TV λ0.03/0.04/0.06 vs edge-TV λ0.10), the user
+preferred edge-TV's look and rejected the low-λ arm as "worse", even though low λ matches the
+ground-truth texture statistics. **Judge by the whole slice, not by texture-matching metrics, and
+do not re-propose lowering λ on texture-matching grounds.** "Do not consider the iso-TV winner for now."
 - **edge-TV method** = MC-GS + **edge-weighted TV** (`w=clamp(1/(1+(|∇u|_sg/κ)²),w_floor,1)`, detached
   Perona-Malik, per-axis, within-contrast) instead of isotropic TV. Best cell **κ_q0.85 / λ_geo0.10 /
   w_floor0.1**, 4000 iters. `edge_tv` config-gated (`configs/winner_v2_edgeTV.yaml`, branch
@@ -242,3 +280,71 @@ lower AF (project note: AF12→AF6 ≈ MC-GS +1.3/+1.5 dB) or a learned/generati
   rigid translation `t_m`, but co-aligned data → `t_m≈0` too.
 - **Rule:** MC-GS winner (`JointTrainer`) has NO deformation → main line = clean zero-registration. **Future
   ARC runs MUST set `model.deformation.enable=False`**; do not pursue T1-FLAIR registration / spatial alignment.
+
+## 14. TV penalty SHAPE — the sheet/staircase artefact and the `--tv_eps` fix (2026-07-31)
+
+**Symptom (user, on the final figure):** "sheet-like distortions and pixel discontinuities".
+**Verified in the volume, not in the figure:** exact 6x nearest upscale with no resampling anywhere,
+`results_arc/zoom6x_GT_vs_edgeTV.png` — flat plateaus separated by abrupt steps, jagged staircase edges
+along the ventricle boundary, against uniform fine grain in the GT.
+
+**Root cause = the shape of the penalty, not its strength.** `JointTrainer._tv_loss` and
+`losses/edge_tv.py` were both **anisotropic L1** (`|gx|+|gy|+|gz|`). L1's sub-gradient has magnitude 1
+however small the gradient is, so flattening a whole region to exactly zero gradient always pays →
+piecewise-constant plateaus (the "sheets") with steps between them (the "pixel discontinuities"). The
+per-axis form additionally charges a diagonal gradient **sqrt(3)x** more than an axis-aligned one of
+equal magnitude (measured 1.732 in `tests/test_tv_charbonnier.py`), which is why the sheets come out
+axis-aligned. This is why tuning lambda could never fix it: lambda only slides along one trade-off
+(staircase <-> grain), and both ends were rejected.
+
+**Metrics that decided it** (white matter only, each normalised so GT = 1.00; the eroded WM mask is
+`gt in [P55,P90] of brain` then a sigma=2 opening):
+- `S` **staircase / sheet index** = P(|grad| < 0.25 * median|grad_GT|) — the plateau mass
+- `A` **axis bias** = mean|grad_diagonal| / mean|grad_axis|
+- `N` **grain** = rms of the (x - gaussian_filter(x, 4)) high-pass — this is the user's "clean" axis
+Validated before use: they rank the existing runs exactly as the eye does (GT 1.00 / iso-TV lambda0.03
+1.87 / 0.04 2.74 / 0.06 4.64 / edge-TV lambda0.10 **8.58**). ⚠️ Two other candidates were tried and
+**dropped as degenerate/redundant** — an "isolated jump" fraction (0.000 for every volume including GT)
+and a mid-range gradient deficit (merely tracks the distribution shift). Do not re-invent them.
+
+**Fix (opt-in, defaults bit-identical):** `losses/edge_tv.py` gained `charbonnier(g, eps) =
+sqrt(g^2+eps^2) - eps` and `tv_magnitude(vol, eps, vector)`; `edge_preserving_tv` takes the same two
+arguments; CLI `--tv_eps` / `--tv_vector` in `arc/cycle.py` (config keys `loss.tv_eps`,
+`loss.tv_vector`). With eps > 0 the slope near zero is g/sqrt(g^2+eps^2) instead of sign(g), so
+sub-eps gradients stop being worth removing while |g| >> eps still costs |g| and edges survive.
+The vector form is normalised by **3/2** so lambda transfers between the two forms (sum_a E|g_a| =
+3*sigma*sqrt(2/pi) vs E||g||_2 = 2*sigma*sqrt(2/pi)) — without it the arms would be compared at
+different effective strengths, the same trap that once manufactured a fake multi-contrast gain (§ the
+CRISP vectorial-TV note). Tests: `tests/test_tv_charbonnier.py`, 6 cases incl. bit-identical defaults.
+
+**eps is a genuinely NEW lever, not another way to slide along the old curve.** In a 1500-iter sweep the
+eps arm lands **below the frontier reachable by lambda and kappa_q together** (their full 3x3 grid at the
+same 1500 iters is in `results_arc/etv_kq{0.60,0.75,0.85}_l{0.06,0.10,0.15}`): at matched grain N≈0.87
+lambda can only reach S≈6.1 while eps=0.015 reaches 3.33; at N≈0.96, S 3.4 vs 1.85. Figure
+`results_arc/tv_shape_sweep.png`. The 1500-iter ranking held at 4000. **The vector norm is NOT the
+lever** — it raised S to 6.635 (||g||_2 is equally non-differentiable at 0 and flattens the whole
+gradient vector at once) and only moved A from 1.211 to 1.192. Chosen working point and the full eps
+series are in §0.
+
+## 15. Voxelizer — the tiled render must not depend on `tile_size` (fixed 2026-07-30)
+
+`TileVoxelizer`'s bounding box used an isotropic `3*max(scales*half_shape)` **clamped to `max_radius`**,
+while the CUDA kernel applies only `mahal <= 9` and no radius test of its own. Any gaussian whose 3-sigma
+support exceeded its bbox was therefore truncated at the edge of whichever **tiles** the bbox happened to
+touch — so the rendered volume depended on `tile_size`, which is a pure compute-partitioning parameter.
+Two independent ways it fired, on the shipped 576 902-gaussian checkpoint:
+- **max_radius clamp**: 26 772 gaussians (4.64%) clamped, 3-sigma reaching a median 25.2 and up to 206 voxels
+- **anisotropic under-coverage**: the isotropic bound falls short on the long axes when the largest scale
+  sits on a short one; `half_shape = (128,110,128)` → shortfall up to 128/110 = 1.1636
+Together **59 458 gaussians (10.31%)** had support outside their bbox; rel-L2 0.33% in brain, up to 7.3%
+of the GT peak locally.
+
+**Fix:** `_bbox_radius_vox()` = the exact per-axis half-extent `3*sqrt(diag(R diag(s^2) R^T))*half_shape`,
+never clamped; `build_tile_pairs` accepts a per-axis `(N,3)` radius. `max_radius` is still accepted for
+config compatibility but no longer truncates. **Cost is negative**: tile-gaussian pairs 18 836 184 →
+9 673 491 (51%), training 1.21 → 1.39 it/s. Verified: `tests/test_tile_voxelizer_invariance.py` (fails
+before the fix by 6.65% of peak, passes after; also checks against an untiled brute-force reference), and
+at full scale the render is now **bit-identical** across tile_size 4/8/16 on both contrasts.
+**PSNR-neutral** (|delta| <= 0.007 dB on both edge-TV and iso-TV), so all earlier numbers stand.
+Not touched: `paired_gs/gaussian/voxelizer.py`, the non-tiled Voxelizer, has its own radius logic and was
+never audited — the main line does not use it.
