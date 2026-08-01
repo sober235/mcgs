@@ -46,7 +46,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from data.dataset import MRIDataset
 from data.transforms import fft3c, ifft3c
-from losses.edge_tv import edge_preserving_tv, resolve_edge_kappa
+from losses.edge_tv import edge_preserving_tv, resolve_edge_kappa, tv_magnitude
 from gaussian.joint_gaussian_model import JointGaussianModel3D
 from gaussian.tile_voxelizer import TileVoxelizer
 from gaussian.voxelizer import Voxelizer
@@ -434,11 +434,7 @@ class JointTrainer:
         return (diff.real.pow(2) + diff.imag.pow(2)).sum() / max(mask.sum().item(), 1.0)
 
     def _tv_loss(self, vol: torch.Tensor) -> torch.Tensor:
-        m = vol.abs()
-        gx = m[1:] - m[:-1]
-        gy = m[:, 1:] - m[:, :-1]
-        gz = m[:, :, 1:] - m[:, :, :-1]
-        return gx.abs().mean() + gy.abs().mean() + gz.abs().mean()
+        return tv_magnitude(vol, self._tv_eps, self._tv_vector)
 
     def _dtv_loss_directional(self, vol_c: torch.Tensor, vol_p: torch.Tensor,
                               eta_scale: float, w_floor: float) -> torch.Tensor:
@@ -750,6 +746,13 @@ class JointTrainer:
         _loss_cfg = self.config.get("loss", {})
         self._edge_tv = bool(_loss_cfg.get("edge_tv", False))
         self._edge_tv_wfloor = float(_loss_cfg.get("edge_tv_wfloor", 0.1))
+        # TV penalty SHAPE (as opposed to its strength lambda_geo). Both default to the
+        # historical anisotropic-L1 behaviour, so leaving them alone reproduces every
+        # previous run exactly. See losses/edge_tv.py for what they do and why.
+        self._tv_eps = float(_loss_cfg.get("tv_eps", 0.0))
+        self._tv_vector = bool(_loss_cfg.get("tv_vector", False))
+        if self._tv_eps > 0 or self._tv_vector:
+            print(f"[tv_shape] eps={self._tv_eps} vector={self._tv_vector}")
         if self._edge_tv:
             _kq = float(_loss_cfg.get("edge_tv_kappa_q", 0.75))
             with torch.no_grad():
@@ -787,8 +790,10 @@ class JointTrainer:
             # casts this term as a geometry regularizer in the ELBO).
             if lambda_geo > 0:
                 if self._edge_tv:
-                    l_geo = (edge_preserving_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor)
-                             + edge_preserving_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor))
+                    l_geo = (edge_preserving_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor,
+                                                self._tv_eps, self._tv_vector)
+                             + edge_preserving_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor,
+                                                  self._tv_eps, self._tv_vector))
                 else:
                     l_geo = self._tv_loss(vol_p) + self._tv_loss(vol_c)
                 loss = loss + lambda_geo * l_geo
