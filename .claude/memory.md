@@ -297,6 +297,16 @@ equal magnitude (measured 1.732 in `tests/test_tv_charbonnier.py`), which is why
 axis-aligned. This is why tuning lambda could never fix it: lambda only slides along one trade-off
 (staircase <-> grain), and both ends were rejected.
 
+> ⚠️ **CORRECTION (2026-08-01, root-cause follow-up).** The `S` index below is **mostly measuring
+> global smoothing, not staircasing** — it uses an absolute threshold, so an image whose whole
+> gradient distribution is shifted down scores high automatically. Re-measured with a self-normalised
+> threshold, the shape-only excess is **+14%**, not the +758% that "S = 8.58" suggests, and there is
+> **no atom of exactly-zero gradients** (P(|g|<t)/t rises only 1.9x over 4.5 decades; a true atom
+> would rise 10x per decade). A sum of smooth Gaussians cannot realise exactly-constant plateaus, so
+> "L1 pins gradients to zero" is right in direction and wrong in mechanism. The S numbers below are
+> still valid as a *ranking* — they order the runs the way the eye does — but must not be read as
+> "N times more plateau voxels". **The better index is `selectivity` (see the end of this section).**
+
 **Metrics that decided it** (white matter only, each normalised so GT = 1.00; the eroded WM mask is
 `gt in [P55,P90] of brain` then a sigma=2 opening):
 - `S` **staircase / sheet index** = P(|grad| < 0.25 * median|grad_GT|) — the plateau mass
@@ -348,3 +358,45 @@ at full scale the render is now **bit-identical** across tile_size 4/8/16 on bot
 **PSNR-neutral** (|delta| <= 0.007 dB on both edge-TV and iso-TV), so all earlier numbers stand.
 Not touched: `paired_gs/gaussian/voxelizer.py`, the non-tiled Voxelizer, has its own radius logic and was
 never audited — the main line does not use it.
+
+### 14b. Root cause, verified rather than argued (2026-08-01)
+
+The account in §14 was a mechanism *story* fitted to the eps sweep. This closes it with controls.
+
+**The measurement that separates the candidates.** For each reconstruction take the q-quantile of
+the in-white-matter per-axis gradient magnitude and divide by the ground truth's q-quantile at the
+same q. The SHAPE of that curve identifies the mechanism with no further modelling:
+flat and below 1 = every gradient attenuated alike = a low-pass (blur); rising and below 1 = small
+gradients cut harder than large ones = selective suppression, i.e. flat tissue interiors with the
+boundaries kept, which is exactly the sheet look; above 1 = under-regularised roughness.
+Define **`selectivity` = ratio at q=0.999 divided by ratio at q=0.10**.
+
+| run | q0.10 | q0.50 | q0.90 | q0.999 | selectivity | T1 PSNR |
+|---|---|---|---|---|---|---|
+| ground truth | 1.000 | 1.000 | 1.000 | 1.000 | 1.00 | — |
+| **zero-fill** (pure low-pass control) | 0.503 | 0.502 | 0.478 | 0.490 | **0.97** | — |
+| **lambda=0** (no TV at all) | 1.666 | 1.736 | 1.916 | 1.997 | 1.20 | 36.315 |
+| lambda0.10 eps=0 | 0.394 | 0.455 | 0.565 | 0.825 | **2.09** | 38.471 |
+| lambda0.10 eps=0.015 | 0.576 | 0.599 | 0.653 | 0.838 | 1.46 | 38.441 |
+| lambda0.10 eps=0.04 | 0.759 | 0.770 | 0.803 | 0.898 | 1.18 | 38.379 |
+| lambda0.10 eps=0.06 | 0.842 | 0.862 | 0.894 | 0.953 | 1.13 | 38.323 |
+| lambda0.10 eps=0.15 | 1.086 | 1.112 | 1.161 | 1.153 | 1.06 | 37.978 |
+
+**Both readings are anchored by a control, not asserted.** Zero-fill is literally a k-space
+truncation and comes out flat at 0.97 — so a rising curve cannot be blur. **lambda=0 flips the whole
+curve above 1** (0.39-0.83 becomes 1.67-2.00): with no TV there is no selective suppression at all,
+the image is simply rougher than the GT everywhere. **That refutes the Gaussian representation and
+the sampling mask as sources of the artefact** — it is the regulariser.
+
+**The mechanism is two layers, and only the second is a defect.** (1) By design the edge weight
+`w = clamp(1/(1+(|grad|/kappa)^2), w_floor, 1)` penalises flat regions up to `1/w_floor = 10x` more
+than edges. (2) L1's marginal cost stays at 1 however small the gradient is, so layer (1) presses
+all the way down and never eases off. Charbonnier removes only (2) — the marginal cost becomes
+`g/sqrt(g^2+eps^2)`, which fades as g shrinks — and the selectivity falls monotonically
+2.09 -> 1.46 -> 1.18 -> 1.13 -> 1.06 across the eps series, with the whole curve lifting toward 1.
+
+**eps=0.15 is past the useful window** (selectivity 1.06 but T1 PSNR 37.978, under 38, and the
+ratios cross above 1). Confirms 0.04-0.06 as the operating range independently of the earlier
+S/N argument. Figure `results_arc/RC_selective_suppression.png`; controls are runs `rc_lam000`
+and `rc_eps015x` (1500 iters); scripts in session c6621154's scratchpad
+(`rc_zero_mass.py`, `rc_figure.py`).
