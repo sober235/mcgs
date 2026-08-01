@@ -585,7 +585,27 @@ def _quaternion_to_rotation_matrix(q: torch.Tensor) -> torch.Tensor:
     return torch.stack([r0, r1, r2], dim=-2)
 
 
+def _bbox_radius_vox(rotation_matrix, scales, half_shape):
+    """Per-axis half-extent, in voxels, of the region the kernel actually integrates.
+
+    The kernel contributes wherever mahal <= 9, with mahal measured in normalised coordinates
+    (d = (voxel - centre) / half_shape). That ellipsoid's bounding box has half-extent
+    3*sqrt(diag(Sigma)) per normalised axis, for Sigma = R diag(scales^2) R^T, hence
+    3*sqrt(diag(Sigma))*half_shape in voxels.
+
+    This bound must never be shrunk. build_tile_pairs assigns a gaussian to the tiles its bbox
+    touches and the kernel applies no radius test of its own, so a bbox smaller than the
+    support truncates the gaussian at whichever tile edge it happens to reach — which makes the
+    render depend on tile_size. The earlier isotropic form 3*max(scales*half_shape) broke that
+    twice: it was clamped to max_radius, and being isotropic it under-covered the long axes
+    whenever the largest scale sat on a short one.
+    """
+    sigma_diag = (rotation_matrix ** 2 * (scales ** 2).unsqueeze(1)).sum(-1)
+    return 3.0 * sigma_diag.sqrt() * half_shape
+
+
 def build_tile_pairs(center_vox, radius_vox, volume_shape, tile_size):
+    """radius_vox is (N,3) per-axis, or (N,) if the caller means an isotropic radius."""
     d_size, h_size, w_size = volume_shape
     device = center_vox.device
     n_points = center_vox.shape[0]
@@ -595,7 +615,7 @@ def build_tile_pairs(center_vox, radius_vox, volume_shape, tile_size):
     n_tw = math.ceil(w_size / tile_size)
     num_tiles = n_td * n_th * n_tw
 
-    r3 = radius_vox.unsqueeze(1).expand(-1, 3)
+    r3 = radius_vox if radius_vox.dim() == 2 else radius_vox.unsqueeze(1).expand(-1, 3)
     bbox_min_vox = (center_vox - r3).floor().int()
     bbox_max_vox = (center_vox + r3).ceil().int()
     bbox_min_vox[:, 0].clamp_(0, d_size - 1)
@@ -890,7 +910,9 @@ class TileVoxelizer(nn.Module):
                 raise RuntimeError("tile_cuda was requested in strict mode, but the CUDA extension is unavailable.")
             self.backend = "tile"
         print(
-            f"[TileVoxelizer] volume={volume_shape}, tile_size={tile_size}, max_radius={max_radius}, backend={self.backend}"
+            f"[TileVoxelizer] volume={volume_shape}, tile_size={tile_size}, "
+            f"max_radius={max_radius} (accepted for config compatibility; the bbox is the exact "
+            f"mahal<=9 extent and is never clamped), backend={self.backend}"
         )
 
     def forward(self, positions: torch.Tensor, scales: torch.Tensor, rotations: torch.Tensor, density: torch.Tensor, chunk_size: int = 4096):
@@ -899,11 +921,8 @@ class TileVoxelizer(nn.Module):
         shape_tensor = torch.tensor([d_size, h_size, w_size], device=positions.device, dtype=torch.float32)
         half_shape = shape_tensor * 0.5
         center_vox = (positions + 1.0) * 0.5 * shape_tensor - 0.5
-        scale_vox = scales * half_shape
-        radius_vox = scale_vox.max(dim=-1)[0] * 3.0
-        if self.max_radius is not None and self.max_radius > 0:
-            radius_vox = torch.clamp(radius_vox, max=float(self.max_radius))
         rotation_matrix = _quaternion_to_rotation_matrix(rotations)
+        radius_vox = _bbox_radius_vox(rotation_matrix, scales, half_shape)
         s_inv = torch.reciprocal(scales + 1e-8)
         transform = rotation_matrix * s_inv.unsqueeze(1)
         cov_inv = transform @ transform.transpose(1, 2)
@@ -1011,11 +1030,8 @@ class TileVoxelizer(nn.Module):
         )
         half_shape = shape_tensor * 0.5
         center_vox = (positions + 1.0) * 0.5 * shape_tensor - 0.5
-        scale_vox = scales * half_shape
-        radius_vox = scale_vox.max(dim=-1)[0] * 3.0
-        if self.max_radius is not None and self.max_radius > 0:
-            radius_vox = torch.clamp(radius_vox, max=float(self.max_radius))
         rotation_matrix = _quaternion_to_rotation_matrix(rotations)
+        radius_vox = _bbox_radius_vox(rotation_matrix, scales, half_shape)
         s_inv = torch.reciprocal(scales + 1e-8)
         transform = rotation_matrix * s_inv.unsqueeze(1)
         cov_inv = transform @ transform.transpose(1, 2)
