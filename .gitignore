@@ -21,3 +21,8 @@ results_crisp/*
 !results_crisp/*.json
 !results_crisp/README.md
 !results_crisp/FOLLOWUPS.md
+
+# ARC inspection panels: ignore bulky outputs but VERSION the LOOK_* review figures
+!results_arc/
+results_arc/*
+!results_arc/LOOK_*.png
