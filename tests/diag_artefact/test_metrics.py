@@ -77,53 +77,208 @@ def test_calibration_stake_on_synthetic_figure():
     print("PASS test_calibration_stake_on_synthetic_figure")
 
 
+def _mri_like_panel(rng, shape=(80, 100), bg=0.0):
+    """A bright rectangular block on a dark background, with the SAME darkness fraction at
+    every column (unlike a circular blob, whose chord height -- and so its column-wise darkness
+    fraction -- varies with x and would fragment the dark-block run right at its own center).
+    Mimics the black-background MRI panels extract_panel's dark-block detector is built to find.
+    """
+    arr = np.full(shape, bg, dtype=np.float32)
+    r0, r1 = int(shape[0] * 0.30), int(shape[0] * 0.70)
+    c0, c1 = int(shape[1] * 0.10), int(shape[1] * 0.90)
+    arr[r0:r1, c0:c1] = 0.5 + rng.random((r1 - r0, c1 - c0)).astype(np.float32) * 0.4
+    return np.clip(arr, 0.0, 1.0)
+
+
+def test_extract_panel_recovers_synthetic_blocks():
+    """extract_panel is where two of the T1-artefact-diagnosis's original defects lived (margin
+    trimming that swallowed panel titles, and equal-width splitting that straddled the gutters
+    between panels) -- yet it had zero coverage from an actual rendered PNG; every prior test
+    hand-built in-memory arrays and called the matchers directly, skipping PNG parsing, the <0.5
+    darkness threshold and the contiguous-run block detection entirely. This renders a real
+    4-panel figure -- with per-panel titles AND a suptitle, so the title-trimming trap is
+    genuinely present -- and checks extract_panel recovers each block's own content, and raises
+    (rather than silently returning a wrong crop) when the panel count doesn't match.
+    """
+    import tempfile
+    import os
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    n = 4
+    panels = [_mri_like_panel(np.random.default_rng(100 + i)) for i in range(n)]
+    titles = ["ground truth", "zero-fill", "reconstruction", "error |rec-gt|"]
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        png_path = os.path.join(tmpdir, "synthetic_fig.png")
+        fig, axes = plt.subplots(1, n, figsize=(4 * n, 4))
+        for ax, arr, title in zip(axes, panels, titles):
+            ax.imshow(arr, cmap="gray", vmin=0.0, vmax=1.0, interpolation="nearest", aspect="auto")
+            ax.set_title(title)
+            ax.axis("off")
+        fig.suptitle("SYNTHETIC T1 AXIAL z=160  (title-trimming trap fixture)")
+        fig.savefig(png_path, dpi=100)
+        plt.close(fig)
+
+        candidates = {f"panel_{j}": panels[j] for j in range(n)}
+        for i in range(n):
+            extracted = extract_panel(png_path, n_panels=n, panel_index=i)
+            ranked = match_panel(extracted, candidates)
+            assert ranked[0][0] == f"panel_{i}", f"panel {i}: expected best match panel_{i}, got {ranked}"
+            assert ranked[0][1] > 0.9, f"panel {i}: recovered content correlates too weakly: {ranked}"
+            if len(ranked) > 1:
+                # the panels share a common dark background, so absolute correlations are all
+                # high (~0.96-0.99); what must hold is that the TRUE source is clearly ahead.
+                assert ranked[1][1] < ranked[0][1] - 0.01, (
+                    f"panel {i}: not clearly distinguishable from the next-best match: {ranked}"
+                )
+            print(f"  panel {i} ({titles[i]}): recovered r={ranked[0][1]:.4f} vs true source")
+
+        # A wrong expected panel count must raise, not silently return a mis-cropped block.
+        try:
+            extract_panel(png_path, n_panels=5, panel_index=2)
+            raise AssertionError("extract_panel should have raised for a wrong panel count")
+        except ValueError as e:
+            assert "5" in str(e) or "block" in str(e).lower(), f"unexpected error message: {e}"
+            print(f"  extract_panel correctly raises on wrong panel count: {e}")
+
+    print("PASS test_extract_panel_recovers_synthetic_blocks")
+
+
 def test_error_panel_ranking():
-    """Test that error-panel ranking separates candidates based on reconstruction quality."""
+    """Error-panel ranking must discriminate between a good and a poor reconstruction, and the
+    ranker must be using the VOLUME-WIDE GT peak for normalisation, not the per-slice peak that
+    fix round 3 retired as an autoscaling / convention violation.
+
+    The GT volume's peak is deliberately placed on slice 50 -- far from the slice-160 content
+    everything else lives on -- and made materially larger than slice 160's own peak, so the two
+    normalisations diverge and this test can actually tell them apart. (In the original fixture
+    only slice 160 was populated, so the volume-wide and per-slice peaks were numerically
+    identical and this test could not have caught fix round 3's bug even by design.)
+    """
     rng = np.random.default_rng(123)
 
-    # Create a GT volume (ground truth)
     gt_vol = np.zeros((256, 220, 256), dtype=np.float32)
-    gt_slice = (rng.random((256, 220)) * 0.5 + 0.2).astype(np.float32)  # brain-like contrast
+    gt_slice = (rng.random((256, 220)) * 0.5 + 0.2).astype(np.float32)  # brain-like contrast, peak ~0.7
     gt_vol[:, :, 160] = gt_slice
+    far_peak = float(gt_slice.max()) * 6.0
+    gt_vol[:, :, 50] = far_peak  # volume-wide peak lives on a slice nobody is looking at
+    gt_volume_max = float(np.abs(gt_vol).max())
+    assert gt_volume_max > 3 * float(gt_slice.max()), \
+        "fixture sanity: volume peak must dominate the slice-160 peak"
 
-    # Create two candidates with DIFFERENT error profiles
     # Candidate 1: good reconstruction (small error)
     rec1_vol = np.zeros((256, 220, 256), dtype=np.float32)
-    rec1_slice = gt_slice + rng.normal(0, 0.01, gt_slice.shape).astype(np.float32)  # small noise
+    rec1_slice = gt_slice + rng.normal(0, 0.01, gt_slice.shape).astype(np.float32)
     rec1_vol[:, :, 160] = rec1_slice
 
     # Candidate 2: poor reconstruction (large error)
     rec2_vol = np.zeros((256, 220, 256), dtype=np.float32)
-    rec2_slice = gt_slice + rng.normal(0, 0.05, gt_slice.shape).astype(np.float32)  # large noise
+    rec2_slice = gt_slice + rng.normal(0, 0.05, gt_slice.shape).astype(np.float32)
     rec2_vol[:, :, 160] = rec2_slice
 
-    # Render error map of candidate 1 (good)
-    error1_rgb = _render_error_panel(rec1_slice, gt_slice)
-    print(f"  Error map 1 shape: {error1_rgb.shape}, range: [{error1_rgb.min():.3f}, {error1_rgb.max():.3f}]")
+    # The reference "real panel": rendered the way the convention requires -- normalised to the
+    # volume-wide GT peak, not the slice peak.
+    reference_panel = _render_error_panel(rec1_slice, gt_slice, gt_volume_max=gt_volume_max)
+    print(f"  Error map shape: {reference_panel.shape}, "
+          f"range: [{reference_panel.min():.3f}, {reference_panel.max():.3f}]")
 
-    # Test 1: error-panel ranking should rank good reconstruction first
     candidates = {
         "good": {"rec": rec1_vol, "gt": gt_vol},
-        "poor": {"rec": rec2_vol, "gt": gt_vol}
+        "poor": {"rec": rec2_vol, "gt": gt_vol},
     }
-    ranked = match_error_panel(error1_rgb, candidates, slice_index=160)
+    ranked = match_error_panel(reference_panel, candidates, slice_index=160)
     assert ranked[0][0] == "good", f"Expected good first, got {ranked[0][0]}"
-    assert ranked[0][1] > 0.95, f"Good reconstruction correlation too low: {ranked[0][1]:.4f}"
     assert ranked[1][1] < ranked[0][1], f"Poor should rank lower than good: {ranked[1][1]:.4f} vs {ranked[0][1]:.4f}"
     gap = ranked[0][1] - ranked[1][1]
     assert gap > 0.01, f"Gap between good and poor too small: {gap:.4f} (need >0.01)"
     print(f"  Error-panel ranking: good r={ranked[0][1]:.4f}, poor r={ranked[1][1]:.4f}, gap={gap:.4f}")
 
-    # Test 2: self-correlation should be near 1.0
-    r_self = check_error_calibration("good", candidates["good"], slice_index=160)
-    assert r_self > 0.99, f"Self-correlation too low: {r_self:.4f} (expected >0.99)"
-    print(f"  Error-panel self-correlation: r={r_self:.4f}")
+    # The ranker must be using the VOLUME-WIDE peak: match_error_panel's internal rendering of
+    # "good" was built (inside match_error_panel) with the same gt_volume_max as reference_panel
+    # was built with here, so the match should be near-exact.
+    r_correct = ranked[0][1]
+    assert r_correct > 0.999, f"volume-wide-normalised self-match should be near-exact: r={r_correct:.6f}"
+
+    # What the OLD (per-slice, autoscaling) normalisation would have produced for "good",
+    # rendered against the SAME reference panel. match_error_panel no longer takes this code
+    # path; this exists purely so the r_correct > 0.999 assertion above is demonstrably
+    # meaningful -- reverting match_error_panel to per-slice normalisation collapses its
+    # reading to roughly this value, well under the 0.999 bound.
+    wrong_panel = _render_error_panel(rec1_slice, gt_slice, gt_volume_max=None)  # fallback = per-slice peak
+    wv = wrong_panel.ravel() - wrong_panel.mean()
+    rv = reference_panel.ravel() - reference_panel.mean()
+    r_wrong = float(wv @ rv / (np.linalg.norm(wv) * np.linalg.norm(rv) + 1e-12))
+    # Empirically (jet is close to monotonic over the low error range both normalisations land
+    # in) the two renderings only diverge by ~0.07-0.09 in Pearson r, not dramatically -- but
+    # the divergence is real and reproducible, so a 0.03 margin is a safe, non-tautological bar.
+    assert r_wrong < r_correct - 0.03, (
+        f"per-slice and volume-wide normalisation should render visibly differently: "
+        f"r_correct={r_correct:.4f}, r_wrong={r_wrong:.4f}"
+    )
+    print(f"  normalisation check: r_correct(volume-wide)={r_correct:.6f}, "
+          f"r_wrong(per-slice, would-be-bug)={r_wrong:.6f}")
 
     print("PASS test_error_panel_ranking")
+
+
+def test_error_panel_calibration_stake_has_a_working_negative_control():
+    """check_error_calibration must be a stake that CAN fail.
+
+    The retired version called _render_error_panel twice with identical arguments and
+    correlated the two results -- a pure, deterministic function compared to itself is r=1.0
+    by construction, incapable of detecting anything, and it never touched the real PNG panel.
+
+    The replacement renders a POSITIVE reading (the claimed slice) and a NEGATIVE reading (a
+    control that should NOT match -- here, the same candidate rendered from a clearly different
+    slice) against the same real panel. This test proves the stake actually discriminates: it
+    must pass when the claim is correct, and -- with the claimed/control roles swapped -- it
+    must correctly report failure. A tautological stake could not do the second half.
+    """
+    rng = np.random.default_rng(7)
+
+    gt_vol = np.zeros((256, 220, 256), dtype=np.float32)
+    rec_vol = np.zeros((256, 220, 256), dtype=np.float32)
+    true_slice, other_slice = 160, 60
+
+    gt_true = (rng.random((256, 220)) * 0.5 + 0.2).astype(np.float32)
+    gt_other = (rng.random((256, 220)) * 0.5 + 0.2).astype(np.float32)
+    gt_vol[:, :, true_slice] = gt_true
+    gt_vol[:, :, other_slice] = gt_other
+    rec_vol[:, :, true_slice] = gt_true + rng.normal(0, 0.01, gt_true.shape).astype(np.float32)
+    rec_vol[:, :, other_slice] = gt_other + rng.normal(0, 0.01, gt_other.shape).astype(np.float32)
+
+    gt_volume_max = float(np.abs(gt_vol).max())
+    # The "real panel" is rendered from the true slice, exactly as LOOK_T1_axial.png's panel 3
+    # was rendered from whichever volume/slice actually produced it.
+    panel = _render_error_panel(
+        rec_vol[:, :, true_slice], gt_vol[:, :, true_slice], gt_volume_max=gt_volume_max
+    )
+    cand_data = {"rec": rec_vol, "gt": gt_vol}
+
+    # Correctly claimed slice must beat the wrong-slice control.
+    result = check_error_calibration(panel, cand_data, slice_index=true_slice, negative_slice_index=other_slice)
+    assert result["passed"], f"stake should pass when the claimed slice is the real source: {result}"
+    assert result["positive"] > result["negative"], result
+    print(f"  correct claim: positive={result['positive']:.4f}, negative={result['negative']:.4f}, "
+          f"margin={result['margin']:.4f}")
+
+    # Swap the roles: claim the WRONG slice, use the true source as the "negative" control.
+    # The stake must now correctly report failure -- proving it is not a tautology.
+    swapped = check_error_calibration(panel, cand_data, slice_index=other_slice, negative_slice_index=true_slice)
+    assert not swapped["passed"], f"stake should FAIL when the claimed slice is wrong: {swapped}"
+    assert swapped["positive"] < swapped["negative"], swapped
+    print(f"  wrong claim:   positive={swapped['positive']:.4f}, negative={swapped['negative']:.4f}, "
+          f"margin={swapped['margin']:.4f}")
+
+    print("PASS test_error_panel_calibration_stake_has_a_working_negative_control")
 
 
 if __name__ == "__main__":
     test_match_panel_ranks_the_true_source_first()
     test_calibration_stake_on_synthetic_figure()
+    test_extract_panel_recovers_synthetic_blocks()
     test_error_panel_ranking()
+    test_error_panel_calibration_stake_has_a_working_negative_control()
     print("ALL PASS")

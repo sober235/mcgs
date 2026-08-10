@@ -172,6 +172,25 @@ def _render_error_panel(rec_slice: np.ndarray, gt_slice: np.ndarray, gt_volume_m
     return error_rgb.astype(np.float32)
 
 
+def _error_panel_r(panel_rgb: np.ndarray, rec_vol: np.ndarray, gt_vol: np.ndarray, slice_index: int) -> float:
+    """Render (rec_vol, gt_vol) at slice_index through the error-map pipeline (jet, [0,0.1],
+    normalised to the volume-wide GT peak per the project's never-autoscale convention) and
+    correlate the result against panel_rgb.
+    """
+    gt_volume_max = float(np.abs(gt_vol).max())
+    rec_slice = rec_vol[:, :, int(slice_index)]
+    gt_slice = gt_vol[:, :, int(slice_index)]
+    error_rgb = _render_error_panel(rec_slice, gt_slice, gt_volume_max=gt_volume_max)
+
+    p = panel_rgb / (panel_rgb.max() + 1e-12)
+    if error_rgb.shape != p.shape:
+        error_rgb = _resize_to(error_rgb, p.shape)
+
+    e_flat = error_rgb.ravel() - error_rgb.mean()
+    p_flat = p.ravel() - p.mean()
+    return float(e_flat @ p_flat / (np.linalg.norm(e_flat) * np.linalg.norm(p_flat) + 1e-12))
+
+
 def match_error_panel(panel_rgb: np.ndarray, candidates: dict, slice_index: int | None = None) -> list:
     """Rank candidate volumes by |Pearson r| of error-map panels in RGB space.
 
@@ -181,67 +200,42 @@ def match_error_panel(panel_rgb: np.ndarray, candidates: dict, slice_index: int 
 
     Candidates dict should map labels to dicts with "rec" and "gt" keys.
     """
+    if slice_index is None:
+        raise ValueError("slice_index is required for error-panel matching")
+
     ranked = []
     for label, cand_data in candidates.items():
-        if isinstance(cand_data, dict) and "rec" in cand_data and "gt" in cand_data:
-            rec_vol = np.asarray(cand_data["rec"], dtype=np.float64)
-            gt_vol = np.asarray(cand_data["gt"], dtype=np.float64)
-        else:
+        if not (isinstance(cand_data, dict) and "rec" in cand_data and "gt" in cand_data):
             raise ValueError(f"Candidate {label} must be a dict with 'rec' and 'gt' keys")
-
-        if slice_index is None:
-            raise ValueError("slice_index is required for error-panel matching")
-
-        rec_slice = rec_vol[:, :, int(slice_index)]
-        gt_slice = gt_vol[:, :, int(slice_index)]
-
-        # Compute the VOLUME-level GT peak (convention-compliant normalization)
-        gt_volume_max = float(np.abs(gt_vol).max())
-
-        # Render error map through jet with volume-level normalization
-        error_rgb = _render_error_panel(rec_slice, gt_slice, gt_volume_max=gt_volume_max)
-
-        # Resize if needed
-        p = panel_rgb / (panel_rgb.max() + 1e-12)
-        if error_rgb.shape != p.shape:
-            error_rgb = _resize_to(error_rgb, p.shape)
-
-        # Compute Pearson correlation in 3D RGB space
-        e_flat = error_rgb.ravel() - error_rgb.mean()
-        p_flat = p.ravel() - p.mean()
-        r = float(e_flat @ p_flat / (np.linalg.norm(e_flat) * np.linalg.norm(p_flat) + 1e-12))
+        rec_vol = np.asarray(cand_data["rec"], dtype=np.float64)
+        gt_vol = np.asarray(cand_data["gt"], dtype=np.float64)
+        r = _error_panel_r(panel_rgb, rec_vol, gt_vol, slice_index)
         ranked.append((label, abs(r)))
 
     return sorted(ranked, key=lambda t: -t[1])
 
 
-def check_error_calibration(cand_label: str, cand_data: dict, slice_index: int | None = None) -> float:
-    """Verify that a candidate's error map renders and self-correlates near 1.0.
+def check_error_calibration(panel_rgb: np.ndarray, cand_data: dict, slice_index: int, negative_slice_index: int) -> dict:
+    """Error-panel calibration stake that CAN fail.
 
-    This is the error-panel calibration stake: rendering a volume's own error map against
-    itself should yield r ≈ 1.0, confirming the rendering pipeline works.
-    Uses volume-level GT normalization (convention-compliant).
+    Correlates the REAL error panel extracted from the figure against the best-matching
+    candidate's error map rendered two ways:
+      - positive: rendered at the claimed true slice (`slice_index`)
+      - negative: rendered at a clearly different, wrong slice (`negative_slice_index`) —
+        a control that should NOT match the figure
+    There is no absolute pass threshold: the negative control IS the reference. The
+    rendering pipeline is trusted only if the positive reading beats the negative one.
+    Both readings are returned so the margin is auditable.
     """
-    if slice_index is None:
-        raise ValueError("slice_index is required for error calibration")
-
     rec_vol = np.asarray(cand_data["rec"], dtype=np.float64)
     gt_vol = np.asarray(cand_data["gt"], dtype=np.float64)
 
-    rec_slice = rec_vol[:, :, int(slice_index)]
-    gt_slice = gt_vol[:, :, int(slice_index)]
+    r_pos = abs(_error_panel_r(panel_rgb, rec_vol, gt_vol, slice_index))
+    r_neg = abs(_error_panel_r(panel_rgb, rec_vol, gt_vol, negative_slice_index))
 
-    # Compute volume-level GT peak
-    gt_volume_max = float(np.abs(gt_vol).max())
-
-    # Render error map (twice, to verify bit-stability)
-    error_rgb = _render_error_panel(rec_slice, gt_slice, gt_volume_max=gt_volume_max)
-
-    # Self-correlate: render the same thing again and compare
-    error_rgb2 = _render_error_panel(rec_slice, gt_slice, gt_volume_max=gt_volume_max)
-
-    e_flat = error_rgb.ravel() - error_rgb.mean()
-    e2_flat = error_rgb2.ravel() - error_rgb2.mean()
-    r_self = float(e_flat @ e2_flat / (np.linalg.norm(e_flat) * np.linalg.norm(e2_flat) + 1e-12))
-
-    return abs(r_self)
+    return {
+        "positive": r_pos,
+        "negative": r_neg,
+        "margin": r_pos - r_neg,
+        "passed": bool(r_pos > r_neg),
+    }
