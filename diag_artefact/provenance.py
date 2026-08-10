@@ -9,21 +9,26 @@ from __future__ import annotations
 import numpy as np
 
 
-def extract_panel(png_path, n_panels: int = 4, panel_index: int = 2) -> np.ndarray:
+def extract_panel(png_path, n_panels: int = 4, panel_index: int = 2, keep_rgb: bool = False) -> np.ndarray:
     """Locate and crop the i-th of n dark-background image panels from the figure.
 
     Uses darkness (pixel value < 0.5) to detect the actual image blocks rather than
     assuming equal widths; this correctly handles MRI figures with inter-panel gutters.
-    Returns the panel as a float array in [0,1].
+    Returns the panel as a float array in [0,1], or RGB if keep_rgb=True.
     """
     import matplotlib.image as mpimg
 
     img = mpimg.imread(str(png_path))
+    img_rgb = None
     if img.ndim == 3:
-        img = img[..., :3].mean(axis=2)
-    img = img.astype(np.float64)
-    if img.max() > 1.0:
-        img /= 255.0
+        img_rgb = img[..., :3].astype(np.float64)
+        if img_rgb.max() > 1.0:
+            img_rgb /= 255.0
+        img = img_rgb.mean(axis=2)
+    else:
+        img = img.astype(np.float64)
+        if img.max() > 1.0:
+            img /= 255.0
 
     # Detect dark image blocks (MRI = black background)
     dark = img < 0.5
@@ -58,14 +63,27 @@ def extract_panel(png_path, n_panels: int = 4, panel_index: int = 2) -> np.ndarr
     c0, c1 = col_runs[panel_index]
     r0, r1 = dark_rows[0], dark_rows[-1]
 
-    return img[r0:r1+1, c0:c1+1]
+    if keep_rgb and img_rgb is not None:
+        return img_rgb[r0:r1+1, c0:c1+1].astype(np.float32)
+    else:
+        return img[r0:r1+1, c0:c1+1].astype(np.float32)
 
 
 def _resize_to(a: np.ndarray, shape) -> np.ndarray:
     from scipy import ndimage
 
-    zoom = (shape[0] / a.shape[0], shape[1] / a.shape[1])
-    return ndimage.zoom(a, zoom, order=1)
+    if a.ndim == 2:
+        zoom = (shape[0] / a.shape[0], shape[1] / a.shape[1])
+        return ndimage.zoom(a, zoom, order=1)
+    elif a.ndim == 3:
+        # For RGB or other 3-channel arrays, resize separately per channel
+        zoom = (shape[0] / a.shape[0], shape[1] / a.shape[1])
+        out = np.zeros((shape[0], shape[1], a.shape[2]), dtype=a.dtype)
+        for c in range(a.shape[2]):
+            out[:, :, c] = ndimage.zoom(a[:, :, c], zoom, order=1)
+        return out
+    else:
+        raise ValueError(f"_resize_to expects 2D or 3D array, got {a.ndim}D")
 
 
 def match_panel(panel_gray: np.ndarray, candidates: dict, slice_index: int | None = None) -> list:
@@ -113,3 +131,96 @@ def check_calibration(panel_gray: np.ndarray, candidates: dict, slice_index: int
         )
 
     return best_r, ranked_all[1][1]
+
+
+def _render_error_panel(rec_slice: np.ndarray, gt_slice: np.ndarray) -> np.ndarray:
+    """Render an error map (|rec - gt| normalized to [0, 1]) through jet colormap.
+
+    Uses the project's fixed error-map convention: vmin=0, vmax=0.1 (normalized to GT peak).
+    Returns RGB (3-channel) array after rot90 to match rendered orientation.
+    """
+    import matplotlib as mpl
+
+    # Compute normalized error
+    gt_max = np.abs(gt_slice).max()
+    if gt_max < 1e-12:
+        error = np.zeros_like(gt_slice)
+    else:
+        error = np.abs(rec_slice - gt_slice) / gt_max
+
+    # Clip to [0, 0.1] convention (never autoscale)
+    error_clipped = np.clip(error, 0, 0.1) / 0.1  # normalize to [0, 1] for colormap
+
+    # Apply jet colormap
+    cmap = mpl.colormaps["jet"]
+    error_rgb = cmap(error_clipped)[:, :, :3]  # extract RGB, drop alpha
+
+    # Apply rot90 to match the rendering orientation used in fig_recon_view.py
+    error_rgb = np.rot90(error_rgb)
+
+    return error_rgb.astype(np.float32)
+
+
+def match_error_panel(panel_rgb: np.ndarray, candidates: dict, slice_index: int | None = None) -> list:
+    """Rank candidate volumes by |Pearson r| of error-map panels in RGB space.
+
+    Each candidate's error is rendered through jet [0, 0.1] and compared to the panel.
+    Candidates dict should map labels to dicts with "rec" and "gt" keys.
+    """
+    ranked = []
+    for label, cand_data in candidates.items():
+        if isinstance(cand_data, dict) and "rec" in cand_data and "gt" in cand_data:
+            rec_vol = np.asarray(cand_data["rec"], dtype=np.float64)
+            gt_vol = np.asarray(cand_data["gt"], dtype=np.float64)
+        else:
+            raise ValueError(f"Candidate {label} must be a dict with 'rec' and 'gt' keys")
+
+        if slice_index is None:
+            raise ValueError("slice_index is required for error-panel matching")
+
+        rec_slice = rec_vol[:, :, int(slice_index)]
+        gt_slice = gt_vol[:, :, int(slice_index)]
+
+        # Render error map through jet
+        error_rgb = _render_error_panel(rec_slice, gt_slice)
+
+        # Resize if needed
+        p = panel_rgb / (panel_rgb.max() + 1e-12)
+        if error_rgb.shape != p.shape:
+            error_rgb = _resize_to(error_rgb, p.shape)
+
+        # Compute Pearson correlation in 3D RGB space
+        e_flat = error_rgb.ravel() - error_rgb.mean()
+        p_flat = p.ravel() - p.mean()
+        r = float(e_flat @ p_flat / (np.linalg.norm(e_flat) * np.linalg.norm(p_flat) + 1e-12))
+        ranked.append((label, abs(r)))
+
+    return sorted(ranked, key=lambda t: -t[1])
+
+
+def check_error_calibration(cand_label: str, cand_data: dict, slice_index: int | None = None) -> float:
+    """Verify that a candidate's error map renders and self-correlates near 1.0.
+
+    This is the error-panel calibration stake: rendering a volume's own error map against
+    itself should yield r ≈ 1.0, confirming the rendering pipeline works.
+    """
+    if slice_index is None:
+        raise ValueError("slice_index is required for error calibration")
+
+    rec_vol = np.asarray(cand_data["rec"], dtype=np.float64)
+    gt_vol = np.asarray(cand_data["gt"], dtype=np.float64)
+
+    rec_slice = rec_vol[:, :, int(slice_index)]
+    gt_slice = gt_vol[:, :, int(slice_index)]
+
+    # Render error map
+    error_rgb = _render_error_panel(rec_slice, gt_slice)
+
+    # Self-correlate: render the same thing again and compare
+    error_rgb2 = _render_error_panel(rec_slice, gt_slice)
+
+    e_flat = error_rgb.ravel() - error_rgb.mean()
+    e2_flat = error_rgb2.ravel() - error_rgb2.mean()
+    r_self = float(e_flat @ e2_flat / (np.linalg.norm(e_flat) * np.linalg.norm(e2_flat) + 1e-12))
+
+    return abs(r_self)
