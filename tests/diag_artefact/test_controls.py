@@ -70,6 +70,19 @@ def test_assert_control_mask_rejects_a_mismatched_sampling_rate():
     print("PASS test_assert_control_mask_rejects_a_mismatched_sampling_rate")
 
 
+def test_assert_control_mask_accepts_a_valid_mask_and_returns_the_expected_dict():
+    # Happy-path coverage: a gate that spuriously ALWAYS raises would pass every test above
+    # (they only exercise the two rejection paths) without this one.
+    m = np.zeros((10, 10, 10), np.float32)
+    m[5, 5, :] = 1.0                      # sampled at DC, broadcast along readout axis 2
+    m[0, 0, :] = 1.0                      # a couple more sampled positions elsewhere
+    m[1, 1, :] = 1.0
+    net_af = float(m.size / m.sum())      # exact, by construction -> abs_delta_af must be 0.0
+    rep = assert_control_mask(m, dc_index=(5, 5), shipped_net_af=net_af)
+    assert rep == {"net_af": net_af, "abs_delta_af": 0.0, "mask_at_dc": 1.0}
+    print("PASS test_assert_control_mask_accepts_a_valid_mask_and_returns_the_expected_dict")
+
+
 def test_assert_differs_from_shipped_rejects_an_identical_pattern():
     rng = np.random.default_rng(0)
     m2 = (rng.random((14, 16)) > 0.9).astype(np.float32)

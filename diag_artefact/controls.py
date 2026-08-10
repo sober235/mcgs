@@ -74,7 +74,15 @@ def assert_differs_from_shipped(mask3d: np.ndarray, shipped3d: np.ndarray,
                                  min_diff_frac: float = 0.05) -> dict:
     """Extra gate (not in the written spec): control B must be a genuinely different mask
     instance, not — by an RNG or path bug — the same arrangement as the shipped mask under a new
-    name. Raises AssertionError; returns the recorded reading on success."""
+    name. Raises AssertionError; returns the recorded reading on success.
+
+    `min_diff_frac=0.05` (5%): two independent draws at this project's ~8.45% sampling density
+    are expected to disagree at roughly `2*p*(1-p) ~= 15.5%` of positions (Bernoulli(p) vs an
+    independent Bernoulli(p), a little lower in practice since both share an identical forced-ACS
+    region); a near-identical/duplicated mask — the failure this gate exists to catch — reads
+    near 0%. 5% sits safely below the expected genuine-difference value and safely above the
+    failure case it is meant to catch.
+    """
     diff_frac = diff_fraction(mask3d, shipped3d)
     assert diff_frac > min_diff_frac, (
         f"mask differs from the shipped mask in only {diff_frac:.4f} of positions "
