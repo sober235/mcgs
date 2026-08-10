@@ -53,3 +53,50 @@ def air_energy_curve(rec: np.ndarray, gt: np.ndarray, brain: np.ndarray,
                      "ratio_rec": float(e_rec / (e_gt + 1e-30)),
                      "n_voxels": n})
     return rows
+
+
+def ncc(a: np.ndarray, b: np.ndarray, mask: np.ndarray) -> float:
+    """Normalised cross-correlation of two fields inside `mask`."""
+    x = a[mask].astype(np.float64)
+    y = b[mask].astype(np.float64)
+    x = x - x.mean()
+    y = y - y.mean()
+    return float(x @ y / (np.linalg.norm(x) * np.linalg.norm(y) + 1e-30))
+
+
+def autocorr_profile(err: np.ndarray, mask: np.ndarray, max_lag: int = 8) -> np.ndarray:
+    """Autocorrelation vs lag along axis 0 of the PE plane, computed inside `mask` only.
+
+    Index 0 is 1.0 by construction. A near-delta profile means the residual carries no long-range
+    structure, i.e. it is incoherent rather than a coherent aliasing pattern.
+    """
+    e = np.where(mask, err.astype(np.float64), 0.0)
+    e = e - (e[mask].mean() if mask.any() else 0.0) * mask
+    denom = float((e[mask] ** 2).sum()) + 1e-30
+    out = np.ones(max_lag + 1, dtype=np.float64)
+    for lag in range(1, max_lag + 1):
+        both = mask[lag:] & mask[:-lag]
+        if not both.any():
+            out[lag] = np.nan
+            continue
+        out[lag] = float((e[lag:][both] * e[:-lag][both]).sum() / denom)
+    return out
+
+
+def surrogate_band(err: np.ndarray, mask: np.ndarray, n: int = 64, seed: int = 0,
+                   max_lag: int = 8, lo_pct: float = 2.5, hi_pct: float = 97.5):
+    """The delta reference: permute the residual WITHIN `mask` n times and take the profile band.
+
+    Permutation destroys every spatial relation while preserving the histogram exactly, so the
+    resulting band is what "no structure" looks like for this specific residual — no threshold
+    is invented. Default n=64 ensures the 97.5th percentile estimate is robust (per-lag exceedance ~1.5%).
+    """
+    rng = np.random.default_rng(seed)
+    vals = err[mask].astype(np.float64)
+    profiles = np.empty((n, max_lag + 1), dtype=np.float64)
+    scratch = np.zeros_like(err, dtype=np.float64)
+    for i in range(n):
+        scratch[mask] = rng.permutation(vals)
+        profiles[i] = autocorr_profile(scratch, mask, max_lag=max_lag)
+    return (np.nanpercentile(profiles, lo_pct, axis=0),
+            np.nanpercentile(profiles, hi_pct, axis=0))

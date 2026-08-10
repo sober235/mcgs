@@ -13,7 +13,7 @@ from diag_artefact.provenance import (
     match_panel, extract_panel, check_calibration,
     match_error_panel, check_error_calibration, _render_error_panel
 )
-from diag_artefact.metrics import air_energy_curve, psf_spread
+from diag_artefact.metrics import air_energy_curve, psf_spread, autocorr_profile, ncc, surrogate_band
 
 
 def test_match_panel_ranks_the_true_source_first():
@@ -312,6 +312,37 @@ def test_air_energy_ratio_is_one_when_the_recon_leaves_air_alone():
     print("PASS test_air_energy_ratio_is_one_when_the_recon_leaves_air_alone")
 
 
+def test_ncc_is_one_for_identical_fields_and_zero_for_independent_ones():
+    rng = np.random.default_rng(2)
+    a = rng.normal(0, 1, (24, 24, 24))
+    b = rng.normal(0, 1, (24, 24, 24))
+    m = np.ones((24, 24, 24), bool)
+    assert abs(ncc(a, a, m) - 1.0) < 1e-9
+    assert abs(ncc(a, b, m)) < 0.1
+    print("PASS test_ncc_is_one_for_identical_fields_and_zero_for_independent_ones")
+
+
+def test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not():
+    # n=64 is required for statistical power: the band estimates a 97.5th percentile, and
+    # under exchangeability P(original exceeds the band at one lag) ≈ 1/(n+1) ≈ 1.5% at n=64.
+    # The test checks 8 lags, so per-lag exceedance rate compounds to ~12% if uncorrelated; lags
+    # ARE correlated, but this still requires n >> 24 to avoid flakiness. n=64 gives margin.
+    rng = np.random.default_rng(3)
+    m = np.ones((32, 32, 32), bool)
+    white = rng.normal(0, 1, (32, 32, 32))
+    lo, hi = surrogate_band(white, m, n=64, seed=0)
+    p = autocorr_profile(white, m)
+    inside = np.all((p[1:] >= lo[1:]) & (p[1:] <= hi[1:]))
+    assert inside, f"white noise must sit inside its own surrogate band:\n{p}\n{lo}\n{hi}"
+
+    from scipy import ndimage as ndi
+    smooth = ndi.gaussian_filter(rng.normal(0, 1, (32, 32, 32)), 2.0)
+    lo2, hi2 = surrogate_band(smooth, m, n=64, seed=0)
+    p2 = autocorr_profile(smooth, m)
+    assert p2[1] > hi2[1], f"smooth noise must escape the band at lag 1: {p2[1]:.3f} vs {hi2[1]:.3f}"
+    print("PASS test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not")
+
+
 if __name__ == "__main__":
     test_match_panel_ranks_the_true_source_first()
     test_calibration_stake_on_synthetic_figure()
@@ -320,4 +351,6 @@ if __name__ == "__main__":
     test_error_panel_calibration_stake_has_a_working_negative_control()
     test_psf_separates_uniform_undersampling_from_blue_noise()
     test_air_energy_ratio_is_one_when_the_recon_leaves_air_alone()
+    test_ncc_is_one_for_identical_fields_and_zero_for_independent_ones()
+    test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not()
     print("ALL PASS")
