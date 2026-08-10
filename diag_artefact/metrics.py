@@ -8,7 +8,6 @@ was no atom of exactly-zero gradients at all. Ranking correctly is not measuring
 from __future__ import annotations
 
 import numpy as np
-from scipy import ndimage
 
 from .volumes import air_mask
 

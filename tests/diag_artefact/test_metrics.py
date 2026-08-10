@@ -294,14 +294,21 @@ def test_air_energy_ratio_is_one_when_the_recon_leaves_air_alone():
     gt[12:20, 12:20, 12:20] = 1.0
     brain = gt > 0.5
     same = gt.copy()
-    curve = air_energy_curve(same, gt, brain, thresholds=(0.05, 0.10))
+    curve = air_energy_curve(same, gt, brain, thresholds=(0.02, 0.05, 0.10))
     for row in curve:
         assert abs(row["ratio_rec"] - 1.0) < 1e-5, f"identical volumes must give 1.0, got {row}"
+
+    # Verify the curve actually varies with threshold: at t=0.02 we get different voxels than t>=0.05
+    n_voxels = [row["n_voxels"] for row in curve]
+    assert len(set(n_voxels)) > 1, f"threshold sweep must select different voxels, got {n_voxels}"
+
     leaky = gt.copy()
     leaky[~brain] *= 3.0
-    curve2 = air_energy_curve(leaky, gt, brain, thresholds=(0.05, 0.10))
+    curve2 = air_energy_curve(leaky, gt, brain, thresholds=(0.02, 0.05, 0.10))
     for row in curve2:
-        assert row["ratio_rec"] > 2.0, f"3x leakage must show up, got {row}"
+        # 3x amplitude scaling means 3^2 = 9x energy scaling; this pins energy semantics
+        # (an unsquared amplitude-only implementation would give ratio=3.0, which must FAIL)
+        assert 8.9 < row["ratio_rec"] < 9.1, f"3x amplitude must give ~9.0 energy ratio, got {row['ratio_rec']:.6f}"
     print("PASS test_air_energy_ratio_is_one_when_the_recon_leaves_air_alone")
 
 
