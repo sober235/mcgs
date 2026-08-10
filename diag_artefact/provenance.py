@@ -133,20 +133,31 @@ def check_calibration(panel_gray: np.ndarray, candidates: dict, slice_index: int
     return best_r, ranked_all[1][1]
 
 
-def _render_error_panel(rec_slice: np.ndarray, gt_slice: np.ndarray) -> np.ndarray:
+def _render_error_panel(rec_slice: np.ndarray, gt_slice: np.ndarray, gt_volume_max: float | None = None) -> np.ndarray:
     """Render an error map (|rec - gt| normalized to [0, 1]) through jet colormap.
 
     Uses the project's fixed error-map convention: vmin=0, vmax=0.1 (normalized to GT peak).
-    Returns RGB (3-channel) array after rot90 to match rendered orientation.
+    Normalises by gt_volume_max (the peak of the FULL 3D GT volume), not the slice peak,
+    to comply with the convention that error maps must NEVER be autoscaled.
+
+    Args:
+        rec_slice: 2D reconstruction slice
+        gt_slice: 2D ground-truth slice
+        gt_volume_max: Peak of the full 3D GT volume. If None, uses slice peak (legacy/unsafe).
+
+    Returns:
+        RGB (3-channel) array after rot90 to match rendered orientation.
     """
     import matplotlib as mpl
 
-    # Compute normalized error
-    gt_max = np.abs(gt_slice).max()
-    if gt_max < 1e-12:
+    # Use volume-level normalization (convention-compliant) not slice-level (which is autoscaling)
+    if gt_volume_max is None or gt_volume_max < 1e-12:
+        gt_volume_max = np.abs(gt_slice).max()  # fallback, but this is autoscaling
+
+    if gt_volume_max < 1e-12:
         error = np.zeros_like(gt_slice)
     else:
-        error = np.abs(rec_slice - gt_slice) / gt_max
+        error = np.abs(rec_slice - gt_slice) / gt_volume_max
 
     # Clip to [0, 0.1] convention (never autoscale)
     error_clipped = np.clip(error, 0, 0.1) / 0.1  # normalize to [0, 1] for colormap
@@ -165,6 +176,9 @@ def match_error_panel(panel_rgb: np.ndarray, candidates: dict, slice_index: int 
     """Rank candidate volumes by |Pearson r| of error-map panels in RGB space.
 
     Each candidate's error is rendered through jet [0, 0.1] and compared to the panel.
+    Normalises by the VOLUME peak of each GT (per-candidate), not per-slice, to comply
+    with the convention that error maps must never be autoscaled.
+
     Candidates dict should map labels to dicts with "rec" and "gt" keys.
     """
     ranked = []
@@ -181,8 +195,11 @@ def match_error_panel(panel_rgb: np.ndarray, candidates: dict, slice_index: int 
         rec_slice = rec_vol[:, :, int(slice_index)]
         gt_slice = gt_vol[:, :, int(slice_index)]
 
-        # Render error map through jet
-        error_rgb = _render_error_panel(rec_slice, gt_slice)
+        # Compute the VOLUME-level GT peak (convention-compliant normalization)
+        gt_volume_max = float(np.abs(gt_vol).max())
+
+        # Render error map through jet with volume-level normalization
+        error_rgb = _render_error_panel(rec_slice, gt_slice, gt_volume_max=gt_volume_max)
 
         # Resize if needed
         p = panel_rgb / (panel_rgb.max() + 1e-12)
@@ -203,6 +220,7 @@ def check_error_calibration(cand_label: str, cand_data: dict, slice_index: int |
 
     This is the error-panel calibration stake: rendering a volume's own error map against
     itself should yield r ≈ 1.0, confirming the rendering pipeline works.
+    Uses volume-level GT normalization (convention-compliant).
     """
     if slice_index is None:
         raise ValueError("slice_index is required for error calibration")
@@ -213,11 +231,14 @@ def check_error_calibration(cand_label: str, cand_data: dict, slice_index: int |
     rec_slice = rec_vol[:, :, int(slice_index)]
     gt_slice = gt_vol[:, :, int(slice_index)]
 
-    # Render error map
-    error_rgb = _render_error_panel(rec_slice, gt_slice)
+    # Compute volume-level GT peak
+    gt_volume_max = float(np.abs(gt_vol).max())
+
+    # Render error map (twice, to verify bit-stability)
+    error_rgb = _render_error_panel(rec_slice, gt_slice, gt_volume_max=gt_volume_max)
 
     # Self-correlate: render the same thing again and compare
-    error_rgb2 = _render_error_panel(rec_slice, gt_slice)
+    error_rgb2 = _render_error_panel(rec_slice, gt_slice, gt_volume_max=gt_volume_max)
 
     e_flat = error_rgb.ravel() - error_rgb.mean()
     e2_flat = error_rgb2.ravel() - error_rgb2.mean()
