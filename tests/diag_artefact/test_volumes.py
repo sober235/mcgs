@@ -4,7 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import numpy as np
-from diag_artefact.volumes import brain_mask, wm_mask, air_mask
+from diag_artefact.volumes import brain_mask, wm_mask, air_mask, load_volumes
 
 
 def _phantom(shape=(64, 60, 64), seed=0):
@@ -59,8 +59,85 @@ def test_air_mask_is_disjoint_from_brain_and_keeps_its_distance():
     print("PASS test_air_mask_is_disjoint_from_brain_and_keeps_its_distance")
 
 
+def test_load_volumes_maps_contrasts_correctly():
+    """load_volumes must map contrast names to the correct npz keys without mixing T1/FLAIR."""
+    import tempfile
+    import os
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        npz_path = os.path.join(tmpdir, "test.npz")
+
+        # Create distinguishable test arrays
+        rec_t1 = np.ones((256, 220, 256), dtype=np.float32) * 1.0
+        gt_t1 = np.ones((256, 220, 256), dtype=np.float32) * 2.0
+        zf_t1 = np.ones((256, 220, 256), dtype=np.float32) * 3.0
+        rec_fl = np.ones((256, 220, 256), dtype=np.float32) * 4.0
+        gt_fl = np.ones((256, 220, 256), dtype=np.float32) * 5.0
+        zf_fl = np.ones((256, 220, 256), dtype=np.float32) * 6.0
+
+        # Save to npz
+        np.savez(npz_path, recT1=rec_t1, gtT1=gt_t1, zfT1=zf_t1,
+                 recFL=rec_fl, gtFL=gt_fl, zfFL=zf_fl)
+
+        # Test T1 contrast
+        vols_t1 = load_volumes(npz_path, contrast="T1")
+        assert np.allclose(vols_t1["rec"], 1.0), "T1 rec should be 1.0"
+        assert np.allclose(vols_t1["gt"], 2.0), "T1 gt should be 2.0"
+        assert np.allclose(vols_t1["zf"], 3.0), "T1 zf should be 3.0"
+
+        # Test FLAIR contrast
+        vols_fl = load_volumes(npz_path, contrast="FLAIR")
+        assert np.allclose(vols_fl["rec"], 4.0), "FLAIR rec should be 4.0"
+        assert np.allclose(vols_fl["gt"], 5.0), "FLAIR gt should be 5.0"
+        assert np.allclose(vols_fl["zf"], 6.0), "FLAIR zf should be 6.0"
+
+        print("PASS test_load_volumes_maps_contrasts_correctly")
+
+
+def test_load_volumes_rejects_unknown_contrast():
+    """load_volumes must raise ValueError for unknown contrast."""
+    import tempfile
+    import os
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        npz_path = os.path.join(tmpdir, "test.npz")
+        np.savez(npz_path, recT1=np.zeros((256, 220, 256), dtype=np.float32))
+
+        try:
+            load_volumes(npz_path, contrast="T2")
+            assert False, "Should have raised ValueError"
+        except ValueError as e:
+            assert "T2" in str(e), f"Error message should mention T2: {e}"
+
+        print("PASS test_load_volumes_rejects_unknown_contrast")
+
+
+def test_load_volumes_rejects_missing_keys():
+    """load_volumes must raise KeyError when required keys are missing."""
+    import tempfile
+    import os
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        npz_path = os.path.join(tmpdir, "test.npz")
+        # Create npz with only FLAIR keys, not T1
+        np.savez(npz_path, recFL=np.zeros((256, 220, 256), dtype=np.float32),
+                 gtFL=np.zeros((256, 220, 256), dtype=np.float32),
+                 zfFL=np.zeros((256, 220, 256), dtype=np.float32))
+
+        try:
+            load_volumes(npz_path, contrast="T1")
+            assert False, "Should have raised KeyError"
+        except KeyError as e:
+            assert "recT1" in str(e) or "missing" in str(e).lower(), f"Error should mention missing T1 keys: {e}"
+
+        print("PASS test_load_volumes_rejects_missing_keys")
+
+
 if __name__ == "__main__":
     test_brain_mask_captures_the_ball_and_excludes_the_field()
     test_wm_mask_selects_the_plateau_not_the_shell_or_core()
     test_air_mask_is_disjoint_from_brain_and_keeps_its_distance()
+    test_load_volumes_maps_contrasts_correctly()
+    test_load_volumes_rejects_unknown_contrast()
+    test_load_volumes_rejects_missing_keys()
     print("ALL PASS")
