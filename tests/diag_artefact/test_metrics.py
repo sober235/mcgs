@@ -13,6 +13,7 @@ from diag_artefact.provenance import (
     match_panel, extract_panel, check_calibration,
     match_error_panel, check_error_calibration, _render_error_panel
 )
+from diag_artefact.metrics import air_energy_curve, psf_spread
 
 
 def test_match_panel_ranks_the_true_source_first():
@@ -275,10 +276,41 @@ def test_error_panel_calibration_stake_has_a_working_negative_control():
     print("PASS test_error_panel_calibration_stake_has_a_working_negative_control")
 
 
+def test_psf_separates_uniform_undersampling_from_blue_noise():
+    n = 128
+    uniform = np.zeros((n, n), np.float32)
+    uniform[::4, :] = 1.0                        # every 4th PE line -> discrete replicas
+    rng = np.random.default_rng(0)
+    blue = (rng.random((n, n)) < 0.25).astype(np.float32)   # same sampling rate, no structure
+    u, b = psf_spread(uniform), psf_spread(blue)
+    assert u["peak_sidelobe"] > 0.5, f"uniform must show a discrete replica, got {u['peak_sidelobe']:.3f}"
+    assert b["peak_sidelobe"] < 0.1, f"random must be diffuse, got {b['peak_sidelobe']:.3f}"
+    print("PASS test_psf_separates_uniform_undersampling_from_blue_noise")
+
+
+def test_air_energy_ratio_is_one_when_the_recon_leaves_air_alone():
+    rng = np.random.default_rng(1)
+    gt = np.abs(rng.normal(0, 0.01, (32, 32, 32))).astype(np.float32)
+    gt[12:20, 12:20, 12:20] = 1.0
+    brain = gt > 0.5
+    same = gt.copy()
+    curve = air_energy_curve(same, gt, brain, thresholds=(0.05, 0.10))
+    for row in curve:
+        assert abs(row["ratio_rec"] - 1.0) < 1e-5, f"identical volumes must give 1.0, got {row}"
+    leaky = gt.copy()
+    leaky[~brain] *= 3.0
+    curve2 = air_energy_curve(leaky, gt, brain, thresholds=(0.05, 0.10))
+    for row in curve2:
+        assert row["ratio_rec"] > 2.0, f"3x leakage must show up, got {row}"
+    print("PASS test_air_energy_ratio_is_one_when_the_recon_leaves_air_alone")
+
+
 if __name__ == "__main__":
     test_match_panel_ranks_the_true_source_first()
     test_calibration_stake_on_synthetic_figure()
     test_extract_panel_recovers_synthetic_blocks()
     test_error_panel_ranking()
     test_error_panel_calibration_stake_has_a_working_negative_control()
+    test_psf_separates_uniform_undersampling_from_blue_noise()
+    test_air_energy_ratio_is_one_when_the_recon_leaves_air_alone()
     print("ALL PASS")
