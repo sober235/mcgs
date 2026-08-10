@@ -8,15 +8,21 @@ from diag_artefact.volumes import brain_mask, wm_mask, air_mask
 
 
 def _phantom(shape=(64, 60, 64), seed=0):
-    """A bright ball (=brain) with a brighter shell and a dim core, on a noisy dark field."""
+    """A bright plateau (=white matter) inside a dim rim and around a dim core, on a noisy dark field.
+
+    The rim is DIMMER than the plateau on purpose. wm_mask selects [P55, P90] of the in-brain
+    distribution (project memory 14b), so the plateau standing in for white matter has to occupy
+    that band; a rim brighter than the plateau would take P90 instead. This is also the real T1
+    ordering: bright WM interior, dark CSF/skull rim.
+    """
     rng = np.random.default_rng(seed)
     zz, yy, xx = np.ogrid[:shape[0], :shape[1], :shape[2]]
     c = [s // 2 for s in shape]
     r = np.sqrt((zz - c[0]) ** 2 + (yy - c[1]) ** 2 + (xx - c[2]) ** 2)
     vol = np.zeros(shape, np.float32)
-    vol[r < 22] = 0.6           # "white matter" plateau
-    vol[r < 10] = 0.25          # dim core
-    vol[(r >= 22) & (r < 25)] = 1.0   # bright shell
+    vol[r < 25] = 0.20          # dim rim (CSF / skull-like)
+    vol[r < 22] = 0.60          # "white matter" plateau
+    vol[r < 10] = 0.35          # dim core (ventricle-like)
     vol += rng.normal(0, 0.01, shape).astype(np.float32)
     return np.abs(vol)
 
@@ -27,7 +33,8 @@ def test_brain_mask_captures_the_ball_and_excludes_the_field():
     assert b[32, 30, 32], "centre of the ball must be inside the brain mask"
     assert not b[0, 0, 0], "the corner of the field must be outside"
     frac = b.mean()
-    assert 0.02 < frac < 0.25, f"brain fraction implausible: {frac:.3f}"
+    # Analytic fraction for r<25 ball in 64x60x64 box: (4/3)*pi*25^3 / (64*60*64) = 0.2663
+    assert 0.02 < frac < 0.30, f"brain fraction implausible: {frac:.3f}"
     print("PASS test_brain_mask_captures_the_ball_and_excludes_the_field")
 
 
