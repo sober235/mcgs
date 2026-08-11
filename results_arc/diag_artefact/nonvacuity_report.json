@@ -1,0 +1,73 @@
+{
+  "contrasts": [
+    "T1",
+    "FLAIR"
+  ],
+  "runs": {
+    "ctrlA_af2_lam010": {
+      "npz": "results_arc/ctrlA_af2_lam010_volumes.npz",
+      "contrasts": {
+        "T1": {
+          "status": "PASS",
+          "max_abs_diff": 0.20220650732517242,
+          "gt_peak": 1.8865548372268677,
+          "rel_max_abs_diff": 0.10718294710288143
+        },
+        "FLAIR": {
+          "status": "PASS",
+          "max_abs_diff": 0.14102930575609207,
+          "gt_peak": 1.568184494972229,
+          "rel_max_abs_diff": 0.08993157769908289
+        }
+      }
+    },
+    "ctrlA_af2_lam060": {
+      "npz": "results_arc/ctrlA_af2_lam060_volumes.npz",
+      "contrasts": {
+        "T1": {
+          "status": "PASS",
+          "max_abs_diff": 0.23386353254318237,
+          "gt_peak": 1.8865548372268677,
+          "rel_max_abs_diff": 0.12396328372142575
+        },
+        "FLAIR": {
+          "status": "PASS",
+          "max_abs_diff": 0.23849989473819733,
+          "gt_peak": 1.568184494972229,
+          "rel_max_abs_diff": 0.15208662979569948
+        }
+      }
+    },
+    "ctrlB_seed1": {
+      "npz": "results_arc/ctrlB_seed1_volumes.npz",
+      "contrasts": {
+        "T1": {
+          "status": "PASS",
+          "max_abs_diff": 0.3095461130142212,
+          "gt_peak": 1.8865548372268677,
+          "rel_max_abs_diff": 0.16408010353371813
+        },
+        "FLAIR": {
+          "status": "PASS",
+          "max_abs_diff": 0.3010830730199814,
+          "gt_peak": 1.568184494972229,
+          "rel_max_abs_diff": 0.19199467536204232
+        }
+      }
+    },
+    "ctrlA_lam010": {
+      "npz": "results_arc/ctrlA_lam010_volumes.npz",
+      "contrasts": {
+        "T1": {
+          "status": "FAIL",
+          "error": "scored recon is numerically identical to GT: max|rec-gt|=8.345e-07 (4.423e-07 of the GT peak 1.8866), at or below the non-vacuity floor 1.0e-04. This is the ctrlA all-ones failure mode: hard-DC with (1-m)=0 discards the model's output entirely, so the run measured nothing."
+        },
+        "FLAIR": {
+          "status": "FAIL",
+          "error": "scored recon is numerically identical to GT: max|rec-gt|=4.768e-07 (3.041e-07 of the GT peak 1.5682), at or below the non-vacuity floor 1.0e-04. This is the ctrlA all-ones failure mode: hard-DC with (1-m)=0 discards the model's output entirely, so the run measured nothing."
+        }
+      }
+    }
+  },
+  "any_fail": true
+}

@@ -14,9 +14,9 @@
 #
 # Two arms are mandatory (see task brief): AF=2 multiplies the measurement count ~6x vs AF=12,
 # diluting TV's effective strength, so a single lambda would make "less patchiness with more
-# data" a foregone conclusion. This arm keeps lambda_geo at the working point's value (0.10);
-# the sibling ctrlA_af2_lam060.yaml scales it by the same ~6x (0.10 -> 0.60). The verdict only
-# counts if both arms agree in direction.
+# data" a foregone conclusion. This arm scales lambda_geo by that same ~6x (0.10 -> 0.60,
+# loss.tv_weight below); the sibling ctrlA_af2_lam010.yaml keeps lambda_geo at the working
+# point's unscaled value (0.10). The verdict only counts if both arms agree in direction.
 #
 # Modeled on configs/ctrlB_seed1_aligned.yaml (external-mask pattern), NOT on the all-ones
 # ctrlA_fullsample_edgetv_lam*.yaml configs.
