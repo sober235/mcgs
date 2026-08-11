@@ -1,0 +1,31 @@
+{
+  "net_af": 2.0745542949756888,
+  "abs_delta_af": 0.07455429497568877,
+  "mask_at_dc": 1.0,
+  "target_af": 2.0,
+  "tol": 0.15,
+  "roll": [
+    2,
+    24,
+    0
+  ],
+  "dc": [
+    128,
+    132,
+    126
+  ],
+  "ax": 1.224744871391589,
+  "ay": 1.632993161855452,
+  "attempts": [
+    {
+      "attempt": 1,
+      "nnz": 27148,
+      "net_af": 2.0745542949756888,
+      "abs_delta_af": 0.07455429497568877,
+      "accepted": true
+    }
+  ],
+  "n_attempts": 1,
+  "out": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/ctrlA_af2_indep_seed1_ALIGNED.mat",
+  "status": "OK"
+}

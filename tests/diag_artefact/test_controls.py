@@ -22,9 +22,12 @@ import numpy as np
 import pytest
 from diag_artefact.controls import (
     align_like_shipped,
+    assert_control_is_not_vacuous,
     assert_control_mask,
     assert_differs_from_shipped,
+    assert_target_af_mask,
     derive_roll,
+    scored_recon_max_abs_diff,
 )
 
 
@@ -104,6 +107,69 @@ def test_assert_differs_from_shipped_accepts_a_genuinely_different_seed():
     print("PASS test_assert_differs_from_shipped_accepts_a_genuinely_different_seed")
 
 
+def test_assert_target_af_mask_rejects_a_mask_that_misses_dc():
+    # Control A's AF=2 mask has no shipped instance to rate-match, so it uses its own gate
+    # (`assert_target_af_mask`) with a caller-supplied target/tol instead of the AF=12-specific
+    # `AF_ABS_TOL` module constant. Same DC requirement as `assert_control_mask`.
+    m = np.zeros((16, 14, 16), np.float32)
+    m[4, 4, :] = 1.0                      # sampled, but not at DC
+    with pytest.raises(AssertionError, match="DC"):
+        assert_target_af_mask(m, dc_index=(8, 7), target_af=2.0, tol=0.15)
+    print("PASS test_assert_target_af_mask_rejects_a_mask_that_misses_dc")
+
+
+def test_assert_target_af_mask_rejects_outside_the_documented_tolerance():
+    m = np.zeros((16, 14, 16), np.float32)
+    m[8, 7, :] = 1.0                      # hits DC, but net AF is nowhere near 2.0
+    with pytest.raises(AssertionError, match="target"):
+        assert_target_af_mask(m, dc_index=(8, 7), target_af=2.0, tol=0.15)
+    print("PASS test_assert_target_af_mask_rejects_outside_the_documented_tolerance")
+
+
+def test_assert_target_af_mask_accepts_within_the_documented_tolerance():
+    # half the plane sampled -> net_AF exactly 2.0, well within any sane tolerance
+    m = np.zeros((10, 10, 10), np.float32)
+    m[5, 5, :] = 1.0                      # sampled at DC
+    m[0:4, 0, :] = 1.0                    # 4 more sampled rows -> 5/10 rows sampled overall
+    net_af = float(m.size / m.sum())
+    rep = assert_target_af_mask(m, dc_index=(5, 5), target_af=net_af, tol=0.05)
+    assert rep == {"net_af": net_af, "abs_delta_af": 0.0, "mask_at_dc": 1.0,
+                    "target_af": net_af, "tol": 0.05}
+    print("PASS test_assert_target_af_mask_accepts_within_the_documented_tolerance")
+
+
+def test_scored_recon_max_abs_diff_is_the_max_over_all_voxels():
+    gt = np.zeros((4, 4, 4), np.float32)
+    rec = gt.copy()
+    rec[1, 2, 3] = 0.5
+    rec[0, 0, 0] = 0.1
+    assert scored_recon_max_abs_diff(rec, gt) == pytest.approx(0.5)
+    print("PASS test_scored_recon_max_abs_diff_is_the_max_over_all_voxels")
+
+
+def test_assert_control_is_not_vacuous_rejects_the_ctrlA_all_ones_failure_mode():
+    # Reproduces the exact failure this gate exists to catch: with an all-ones mask, hard-DC
+    # (k_dc = m*y + (1-m)*k_model) sets (1-m)=0 everywhere, so the scored reconstruction is the
+    # measured data back out again -- identical to GT to float32 precision. Measured on the real
+    # ctrlA_lam010_volumes.npz: max|rec-gt|=8.34e-07 at a GT peak of 1.887 (rel 4.4e-07).
+    rng = np.random.default_rng(0)
+    gt = (rng.random((32, 32, 32)).astype(np.float32)) * 1.887
+    noise = (rng.random((32, 32, 32)).astype(np.float32) - 0.5) * 2 * 8.34e-07
+    rec = gt + noise
+    with pytest.raises(AssertionError, match="identical"):
+        assert_control_is_not_vacuous(rec, gt)
+    print("PASS test_assert_control_is_not_vacuous_rejects_the_ctrlA_all_ones_failure_mode")
+
+
+def test_assert_control_is_not_vacuous_accepts_a_materially_different_recon():
+    rng = np.random.default_rng(0)
+    gt = rng.random((32, 32, 32)).astype(np.float32) * 1.887
+    rec = gt + rng.normal(scale=0.02, size=gt.shape).astype(np.float32)
+    rep = assert_control_is_not_vacuous(rec, gt)
+    assert rep["max_abs_diff"] > 1e-4 * rep["gt_peak"]
+    print("PASS test_assert_control_is_not_vacuous_accepts_a_materially_different_recon")
+
+
 if __name__ == "__main__":
     test_derive_roll_recovers_a_known_shift()
     test_align_like_shipped_stacks_and_rolls()
@@ -111,4 +177,10 @@ if __name__ == "__main__":
     test_assert_control_mask_rejects_a_mismatched_sampling_rate()
     test_assert_differs_from_shipped_rejects_an_identical_pattern()
     test_assert_differs_from_shipped_accepts_a_genuinely_different_seed()
+    test_assert_target_af_mask_rejects_a_mask_that_misses_dc()
+    test_assert_target_af_mask_rejects_outside_the_documented_tolerance()
+    test_assert_target_af_mask_accepts_within_the_documented_tolerance()
+    test_scored_recon_max_abs_diff_is_the_max_over_all_voxels()
+    test_assert_control_is_not_vacuous_rejects_the_ctrlA_all_ones_failure_mode()
+    test_assert_control_is_not_vacuous_accepts_a_materially_different_recon()
     print("ALL PASS")
