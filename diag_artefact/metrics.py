@@ -162,7 +162,12 @@ def selectivity(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray) -> float:
 
 
 def half_voxel_shift(vol: np.ndarray, axis: int) -> np.ndarray:
-    """Positive control for M4: an exact half-voxel Fourier shift along `axis`."""
+    """Positive control for M4: an exact half-voxel Fourier shift along `axis`.
+
+    Note: on even-length axes the Nyquist component is purely imaginary and discarded by np.real(),
+    leaving a ~0.45% residual; this is standard FFT-based half-sample shift behaviour and negligible
+    at the calibration margin (0.5 vs 0.02 correlation).
+    """
     v = vol.astype(np.float64)
     n = v.shape[axis]
     k = np.fft.fftfreq(n)

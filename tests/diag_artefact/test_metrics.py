@@ -381,9 +381,34 @@ def test_a_half_voxel_shift_shows_up_as_gradient_correlation_and_noise_does_not(
     gt = np.abs(ndi.gaussian_filter(rng.normal(0, 1, (48, 48, 48)), 2.0)) + 0.5
     m = np.ones_like(gt, bool)
 
-    shifted = half_voxel_shift(gt, axis=0)
-    c_shift = gradient_correlation(shifted - gt, gt, m)
-    assert abs(c_shift["axis0"]) > 0.5, f"a half-voxel shift must be detected: {c_shift}"
+    # Test 1: shift along axis 0, should show high correlation on axis0 and low on axis1/axis2
+    shifted_ax0 = half_voxel_shift(gt, axis=0)
+    c_shift_ax0 = gradient_correlation(shifted_ax0 - gt, gt, m)
+    assert abs(c_shift_ax0["axis0"]) > 0.5, (
+        f"shift along axis0: axis0 correlation must be > 0.5, got {c_shift_ax0['axis0']:.4f}. "
+        f"Full: {c_shift_ax0}"
+    )
+    assert abs(c_shift_ax0["axis1"]) < 0.1, (
+        f"shift along axis0: axis1 correlation must be < 0.1, got {c_shift_ax0['axis1']:.4f}. "
+        f"Full: {c_shift_ax0}"
+    )
+    assert abs(c_shift_ax0["axis2"]) < 0.1, (
+        f"shift along axis0: axis2 correlation must be < 0.1, got {c_shift_ax0['axis2']:.4f}. "
+        f"Full: {c_shift_ax0}"
+    )
+
+    # Test 2: shift along axis 1, should show high correlation on axis1 and low on axis0/axis2
+    # This catches implementations that ignore the axis parameter
+    shifted_ax1 = half_voxel_shift(gt, axis=1)
+    c_shift_ax1 = gradient_correlation(shifted_ax1 - gt, gt, m)
+    assert abs(c_shift_ax1["axis1"]) > 0.5, (
+        f"shift along axis1: axis1 correlation must be > 0.5, got {c_shift_ax1['axis1']:.4f}. "
+        f"Full: {c_shift_ax1}"
+    )
+    assert abs(c_shift_ax1["axis0"]) < 0.1, (
+        f"shift along axis1: axis0 correlation must be < 0.1, got {c_shift_ax1['axis0']:.4f}. "
+        f"Full: {c_shift_ax1}"
+    )
 
     noise = rng.normal(0, gt.std() * 0.05, gt.shape)
     c_noise = gradient_correlation(noise, gt, m)
