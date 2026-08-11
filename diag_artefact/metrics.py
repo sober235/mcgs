@@ -159,3 +159,27 @@ def selectivity(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray) -> float:
     """ratio@q0.999 / ratio@q0.10 — §14b's index, the one that survived its own calibration."""
     c = gradient_ratio_curve(rec, gt, wm, quantiles=(0.10, 0.999))
     return float(c[0.999] / (c[0.10] + 1e-30))
+
+
+def half_voxel_shift(vol: np.ndarray, axis: int) -> np.ndarray:
+    """Positive control for M4: an exact half-voxel Fourier shift along `axis`."""
+    v = vol.astype(np.float64)
+    n = v.shape[axis]
+    k = np.fft.fftfreq(n)
+    phase = np.exp(-2j * np.pi * k * 0.5)
+    shape = [1, 1, 1]
+    shape[axis] = n
+    return np.real(np.fft.ifft(np.fft.fft(v, axis=axis) * phase.reshape(shape), axis=axis))
+
+
+def gradient_correlation(err: np.ndarray, gt: np.ndarray, mask: np.ndarray) -> dict:
+    """M4 — correlation of the residual with the GT gradient, per axis.
+
+    A sub-voxel displacement makes err ~= delta * d(gt)/dx, i.e. sign-paired across a structure;
+    that is exactly a non-zero correlation here. Independent noise gives zero.
+    """
+    out = {}
+    for a in range(3):
+        g = np.gradient(gt.astype(np.float64), axis=a)
+        out[f"axis{a}"] = ncc(err, g, mask)
+    return out

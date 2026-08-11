@@ -372,7 +372,23 @@ def test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not()
     print("PASS test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not")
 
 
-from diag_artefact.metrics import selectivity
+from diag_artefact.metrics import gradient_correlation, half_voxel_shift, selectivity
+
+
+def test_a_half_voxel_shift_shows_up_as_gradient_correlation_and_noise_does_not():
+    from scipy import ndimage as ndi
+    rng = np.random.default_rng(5)
+    gt = np.abs(ndi.gaussian_filter(rng.normal(0, 1, (48, 48, 48)), 2.0)) + 0.5
+    m = np.ones_like(gt, bool)
+
+    shifted = half_voxel_shift(gt, axis=0)
+    c_shift = gradient_correlation(shifted - gt, gt, m)
+    assert abs(c_shift["axis0"]) > 0.5, f"a half-voxel shift must be detected: {c_shift}"
+
+    noise = rng.normal(0, gt.std() * 0.05, gt.shape)
+    c_noise = gradient_correlation(noise, gt, m)
+    assert abs(c_noise["axis0"]) < 0.1, f"independent noise must not look like a shift: {c_noise}"
+    print("PASS test_a_half_voxel_shift_shows_up_as_gradient_correlation_and_noise_does_not")
 
 
 def test_a_pure_lowpass_is_flat_and_selective_suppression_rises():
@@ -406,4 +422,5 @@ if __name__ == "__main__":
     test_ncc_is_one_for_identical_fields_and_zero_for_independent_ones()
     test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not()
     test_a_pure_lowpass_is_flat_and_selective_suppression_rises()
+    test_a_half_voxel_shift_shows_up_as_gradient_correlation_and_noise_does_not()
     print("ALL PASS")
