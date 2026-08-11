@@ -65,6 +65,17 @@ def test_wm_mask_selects_the_plateau_not_the_shell_or_core():
     med = float(np.median(vol[w]))
     assert 0.45 < med < 0.75, f"WM median should sit on the 0.6 plateau, got {med:.3f}"
     assert w.mean() < b.mean(), "WM must be a strict subset of brain"
+
+    # fix round 1 (2026-08-11): wm_mask's blur-threshold step can leak a voxel through purely from
+    # its neighbours' density even when the voxel's OWN intensity sits outside the [P55,P90] band
+    # (or outside brain) -- the published recipe guards against this by intersecting the eroded
+    # result back with the band mask. Assert that subset property directly so a regression (e.g.
+    # dropping that intersection again) is caught here instead of only showing up as a drift in the
+    # real-data calibration numbers.
+    vals = vol[b]
+    lo, hi = np.percentile(vals, 55), np.percentile(vals, 90)
+    band = b & (vol > lo) & (vol < hi)
+    assert not (w & ~band).any(), "WM mask must contain no voxel outside the [P55,P90] band"
     print("PASS test_wm_mask_selects_the_plateau_not_the_shell_or_core")
 
 
