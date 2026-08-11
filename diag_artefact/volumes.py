@@ -24,22 +24,36 @@ def load_volumes(npz_path, contrast: str = "T1") -> dict:
     return {"rec": d[rec_k], "gt": d[gt_k], "zf": d[zf_k]}
 
 
-def brain_mask(gt: np.ndarray, rel: float = 0.15) -> np.ndarray:
-    thr = rel * float(np.percentile(gt, 99.9))
-    m = gt > thr
-    m = ndimage.binary_fill_holes(m)
-    lab, n = ndimage.label(m)
-    if n == 0:
-        return m
-    sizes = ndimage.sum(m, lab, index=np.arange(1, n + 1))
-    return lab == (int(np.argmax(sizes)) + 1)
+def brain_mask(gt: np.ndarray, rel: float = 0.05) -> np.ndarray:
+    """PUBLISHED DEFINITION (`.claude/memory.md` §14b; producer script `rc_figure.py`, the script
+    that actually generated the `selectivity` numbers memory §14b quotes — recovered and verified
+    2026-08-11 after an earlier prose-only port of this function failed to reproduce them). Simple
+    threshold against the volume's own peak, nothing else.
+
+    Do NOT "improve" this with a percentile-of-99.9 threshold, `binary_fill_holes`, or a
+    largest-connected-component step — an earlier, more careful-looking version of this function
+    did exactly that and it silently diverged from the calibration this project depends on.
+    """
+    return gt > rel * float(gt.max())
 
 
 def wm_mask(gt: np.ndarray, brain: np.ndarray) -> np.ndarray:
+    """PUBLISHED DEFINITION (`.claude/memory.md` §14b; producer script `rc_figure.py`). STRICT
+    (not >=/<=) [P55, P90] band of the in-brain intensity distribution, then a STRONG
+    Gaussian-smoothed erosion (`gaussian_filter(mask, sigma=2) > 0.95`) that keeps only deep WM
+    interior, discarding near-boundary voxels.
+
+    That strength matters: near-boundary voxels carry disproportionately large gradients, and
+    `selectivity`'s high quantile (q=0.999) is dominated by whichever handful of voxels are most
+    extreme, so a milder erosion changes the measurement's answer, not just its noise. Do NOT
+    "improve" this into `ndimage.grey_opening(size=(2,2,2))` (a much weaker, differently-shaped
+    regularization) — that was tried and it reproduced the LOW gradient quantiles but not the high
+    ones, which is exactly where `selectivity` is read.
+    """
     vals = gt[brain]
     lo, hi = np.percentile(vals, 55), np.percentile(vals, 90)
-    m = brain & (gt >= lo) & (gt <= hi)
-    return ndimage.grey_opening(m.astype(np.float32), size=(2, 2, 2)) > 0.5
+    m = brain & (gt > lo) & (gt < hi)
+    return ndimage.gaussian_filter(m.astype(np.float32), 2.0) > 0.95
 
 
 def air_mask(gt: np.ndarray, brain: np.ndarray, dilate: int = 8) -> np.ndarray:

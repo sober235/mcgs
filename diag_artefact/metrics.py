@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from .volumes import air_mask
+from .volumes import air_mask, brain_mask
 
 
 def psf_spread(mask2d: np.ndarray, mainlobe_radius: int = 2) -> dict:
@@ -102,3 +102,60 @@ def surrogate_band(err: np.ndarray, mask: np.ndarray, n: int = 64, seed: int = 0
         profiles[i] = autocorr_profile(scratch, mask, max_lag=max_lag)
     return (np.nanpercentile(profiles, lo_pct, axis=0),
             np.nanpercentile(profiles, hi_pct, axis=0))
+
+
+def gradient_ratio_curve(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray,
+                         quantiles=(0.05, 0.10, 0.20, 0.30, 0.50, 0.70, 0.80,
+                                    0.90, 0.95, 0.99, 0.999)) -> dict:
+    """§14b's measurement: the q-quantile of in-WM per-axis gradient magnitude, over the GT's.
+
+    The SHAPE of this curve names the mechanism with no further modelling — flat and below 1 is a
+    low-pass (blur); rising and below 1 is selective suppression (flat interiors, edges kept);
+    above 1 is under-regularised roughness.
+
+    PORTED FROM THE PUBLISHED MEASUREMENT (`rc_figure.py`, the script that actually printed the
+    numbers `.claude/memory.md` §14b quotes — recovered and verified 2026-08-11 after a first,
+    prose-only port of this formula failed to reproduce them). Two things that reading missed, and
+    which are restored here rather than re-derived:
+
+    - amplitude projection: each candidate is least-squares rescaled onto GT inside the brain
+      BEFORE differencing (`v *= (v[brain]*gt[brain]).sum() / (v[brain]**2).sum()`). An
+      unregularised reconstruction (e.g. lambda=0, no TV at all) can drift in overall amplitude;
+      without correcting for that, every gradient quantile is displaced by the scale factor
+      instead of reflecting the SHAPE of the gradient distribution, which is the thing
+      `selectivity` is actually meant to read. This is a no-op on the ground truth itself (its own
+      least-squares scale onto itself is exactly 1).
+    - both-endpoints-in-WM: a finite difference counts only if BOTH voxels forming it are inside
+      `wm`, not just the lower-index one — a single-endpoint rule lets boundary-adjacent, high-
+      gradient voxels leak into the high quantiles that `selectivity` reads.
+
+    `brain` for the projection is `brain_mask(gt)` (the same published definition `wm`'s brain
+    argument is normally built from) — recomputed here rather than threaded through as a parameter,
+    so callers keep supplying only the one thing they already have (`wm`). Volumes are taken as
+    `np.abs(...).astype(np.float64)`, matching the producer script (real MRI magnitude volumes are
+    already non-negative, so the `abs` is a no-op in practice, but it is part of the faithful port).
+    """
+    rec = np.abs(rec).astype(np.float64)
+    gt = np.abs(gt).astype(np.float64)
+    brain = brain_mask(gt)
+
+    def per_axis(v):
+        denom = float((v[brain] ** 2).sum())
+        scale = float((v[brain] * gt[brain]).sum() / denom) if denom > 0 else 1.0
+        v = v * scale
+        out = []
+        for a in range(3):
+            s0, s1 = [slice(None)] * 3, [slice(None)] * 3
+            s0[a], s1[a] = slice(None, -1), slice(1, None)
+            m = wm[tuple(s0)] & wm[tuple(s1)]
+            out.append(np.abs(v[tuple(s1)] - v[tuple(s0)])[m])
+        return np.concatenate(out)
+
+    gr, gg = per_axis(rec), per_axis(gt)
+    return {float(q): float(np.quantile(gr, q) / (np.quantile(gg, q) + 1e-30)) for q in quantiles}
+
+
+def selectivity(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray) -> float:
+    """ratio@q0.999 / ratio@q0.10 — §14b's index, the one that survived its own calibration."""
+    c = gradient_ratio_curve(rec, gt, wm, quantiles=(0.10, 0.999))
+    return float(c[0.999] / (c[0.10] + 1e-30))

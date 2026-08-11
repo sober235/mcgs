@@ -372,6 +372,29 @@ def test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not()
     print("PASS test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not")
 
 
+from diag_artefact.metrics import selectivity
+
+
+def test_a_pure_lowpass_is_flat_and_selective_suppression_rises():
+    from scipy import ndimage as ndi
+    rng = np.random.default_rng(4)
+    gt = ndi.gaussian_filter(rng.normal(0, 1, (48, 48, 48)), 1.0)
+    gt = np.abs(gt) + 0.5
+    wm = np.ones_like(gt, bool)
+
+    lowpass = ndi.gaussian_filter(gt, 1.2)           # attenuates every gradient alike
+    s_low = selectivity(lowpass, gt, wm)
+    assert abs(s_low - 1.0) < 0.25, f"a pure low-pass must be ~flat, got {s_low:.3f}"
+
+    # selective suppression: flatten SMALL gradients hard, leave large ones alone
+    g = np.abs(np.gradient(gt, axis=0))
+    soft = ndi.gaussian_filter(gt, 2.0)
+    sel = np.where(g < np.quantile(g, 0.7), soft, gt)
+    s_sel = selectivity(sel, gt, wm)
+    assert s_sel > s_low + 0.1, f"selective suppression must exceed the low-pass: {s_sel:.3f} vs {s_low:.3f}"
+    print("PASS test_a_pure_lowpass_is_flat_and_selective_suppression_rises")
+
+
 if __name__ == "__main__":
     test_match_panel_ranks_the_true_source_first()
     test_calibration_stake_on_synthetic_figure()
@@ -382,4 +405,5 @@ if __name__ == "__main__":
     test_air_energy_ratio_is_one_when_the_recon_leaves_air_alone()
     test_ncc_is_one_for_identical_fields_and_zero_for_independent_ones()
     test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not()
+    test_a_pure_lowpass_is_flat_and_selective_suppression_rises()
     print("ALL PASS")

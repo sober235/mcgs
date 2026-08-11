@@ -4,6 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import numpy as np
+from scipy import ndimage
 from diag_artefact.volumes import brain_mask, wm_mask, air_mask, load_volumes
 
 
@@ -14,6 +15,20 @@ def _phantom(shape=(64, 60, 64), seed=0):
     distribution (project memory 14b), so the plateau standing in for white matter has to occupy
     that band; a rim brighter than the plateau would take P90 instead. This is also the real T1
     ordering: bright WM interior, dark CSF/skull rim.
+
+    UPDATED (2026-08-11, alongside the switch to the published brain_mask/wm_mask): the published
+    wm_mask erodes with `gaussian_filter(mask, sigma=2) > 0.95`, a STRONG erosion that only
+    survives where the [P55,P90]-band voxels form a big, spatially SOLID region. The original
+    fixture gave the plateau i.i.d. per-voxel noise (std 0.01); since real anatomy is spatially
+    correlated but i.i.d. noise is not, the P55-P90 band picked out a scattered, salt-and-pepper
+    subset of the plateau instead of a solid shell, and the strong erosion ate all of it (WM mask
+    came back empty) -- not because the property under test became false, but because the fixture
+    stopped resembling the thing the mask is designed for. Fix: give the plateau (and only the
+    plateau/rim/core -- the background field stays exactly flat, so the brain-mask corner-exclusion
+    test below is undisturbed) a smoothed, spatially-correlated texture (sigma=6, amplitude 0.10)
+    instead of i.i.d. noise, so the P55-P90 band forms large contiguous patches that the strong
+    erosion can have deep interior in -- while keeping the original property intact: WM should
+    still be selected from the plateau's own value range, not the rim's or the core's.
     """
     rng = np.random.default_rng(seed)
     zz, yy, xx = np.ogrid[:shape[0], :shape[1], :shape[2]]
@@ -23,7 +38,11 @@ def _phantom(shape=(64, 60, 64), seed=0):
     vol[r < 25] = 0.20          # dim rim (CSF / skull-like)
     vol[r < 22] = 0.60          # "white matter" plateau
     vol[r < 10] = 0.35          # dim core (ventricle-like)
-    vol += rng.normal(0, 0.01, shape).astype(np.float32)
+    ball = r < 25
+    texture = ndimage.gaussian_filter(rng.normal(0, 1, shape), 6.0)
+    texture = texture / texture.std() * 0.10
+    vol += np.where(ball, texture, 0.0).astype(np.float32)   # spatially-correlated, ball-only
+    vol += rng.normal(0, 0.01, shape).astype(np.float32)     # small i.i.d. floor, as before
     return np.abs(vol)
 
 
