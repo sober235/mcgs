@@ -436,6 +436,30 @@ def test_a_pure_lowpass_is_flat_and_selective_suppression_rises():
     print("PASS test_a_pure_lowpass_is_flat_and_selective_suppression_rises")
 
 
+from diag_artefact.report import adjudicate
+
+
+def test_adjudicate_returns_insufficient_when_the_air_curve_crosses_one():
+    readings = {
+        "P4": {"air_curve": [{"threshold": 0.02, "ratio_rec": 0.8},
+                             {"threshold": 0.10, "ratio_rec": 3.4}],
+               "psf_peak_sidelobe": 0.03},
+    }
+    v = adjudicate(readings)
+    assert v["P4"] == "insufficient", f"a crossing curve must not be forced to a verdict: {v}"
+    print("PASS test_adjudicate_returns_insufficient_when_the_air_curve_crosses_one")
+
+
+def test_adjudicate_calls_p4_false_on_a_flat_ratio_and_a_diffuse_psf():
+    readings = {
+        "P4": {"air_curve": [{"threshold": 0.02, "ratio_rec": 1.01},
+                             {"threshold": 0.10, "ratio_rec": 0.99}],
+               "psf_peak_sidelobe": 0.03},
+    }
+    assert adjudicate(readings)["P4"] == "false"
+    print("PASS test_adjudicate_calls_p4_false_on_a_flat_ratio_and_a_diffuse_psf")
+
+
 if __name__ == "__main__":
     test_match_panel_ranks_the_true_source_first()
     test_calibration_stake_on_synthetic_figure()
@@ -448,4 +472,6 @@ if __name__ == "__main__":
     test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not()
     test_a_pure_lowpass_is_flat_and_selective_suppression_rises()
     test_a_half_voxel_shift_shows_up_as_gradient_correlation_and_noise_does_not()
+    test_adjudicate_returns_insufficient_when_the_air_curve_crosses_one()
+    test_adjudicate_calls_p4_false_on_a_flat_ratio_and_a_diffuse_psf()
     print("ALL PASS")

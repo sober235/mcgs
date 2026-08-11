@@ -1,0 +1,164 @@
+{
+  "readings": {
+    "npz_path": "results_arc/tvs4k_e040_volumes.npz",
+    "contrast": "T1",
+    "P1": {
+      "verdict": "insufficient",
+      "reason": "stake failed: zf's own residual (pure aliasing, no prior) does not read 'inside band' under this exact rule, so 'inside band' cannot be trusted as this mask's aliasing signature",
+      "autocorr_profile": [
+        1.0,
+        0.22829594336887646,
+        0.002881707146564897,
+        -0.023589807537359987,
+        -0.0164812454152259,
+        -0.02704064646135403,
+        -0.0228259059152767,
+        -0.021116573536810134,
+        -0.007541238849961304
+      ],
+      "surrogate_band_lo": [
+        1.0,
+        -0.003923634067748977,
+        -0.005880971179461037,
+        -0.004234896410194045,
+        -0.0033394128237798993,
+        -0.003319871347369513,
+        -0.003508373138436745,
+        -0.0033397386543000326,
+        -0.0034548447563475166
+      ],
+      "surrogate_band_hi": [
+        1.0,
+        0.005504805020910514,
+        0.003247328636898228,
+        0.003701335738383012,
+        0.003973641380138063,
+        0.0035336195187827203,
+        0.004603754282448818,
+        0.004053218230181717,
+        0.0029046897090231174
+      ],
+      "inside_band_all_lags": false,
+      "ncc_rec_zf": 0.4520808890422989,
+      "ncc_self_permutation_null_hi97_5": 0.005234511027839739,
+      "ncc_high_relative_to_null": true,
+      "stake_zf_inside_band_all_lags": false,
+      "stake_zf_autocorr_profile": [
+        1.0,
+        0.41275247256750697,
+        0.20247880260488338,
+        0.10040280159979999,
+        0.05867777173362793,
+        0.03292362732341354,
+        0.019914403364969,
+        0.007484818544108981,
+        0.0064855141859365565
+      ],
+      "limitation_all_lags_false_positive_rate_on_white_noise": 0.55
+    },
+    "P2": {
+      "verdict": "false",
+      "reason": "error pattern correlates with the shipped mask's beyond chance -> indifferent to the mask instance",
+      "ncc_ctrlB_vs_shipped": 0.39172122286220995,
+      "permutation_null_hi97_5": 0.000876012863594242,
+      "low": false,
+      "ctrlB_npz": "results_arc/ctrlB_seed1_volumes.npz"
+    },
+    "P3": {
+      "verdict": "true",
+      "reason": "at least one axis's gradient correlation clearly exceeds its own permutation-null (independent-noise) level",
+      "axes": {
+        "axis0": {
+          "real_corr": 0.005557787558972827,
+          "permutation_null_hi97_5": 0.006663177329234783,
+          "significant": false,
+          "half_voxel_shift_calibration": -0.7324589286001086,
+          "real_over_shift_ratio": 0.007587848740672724
+        },
+        "axis1": {
+          "real_corr": 0.004500634398036938,
+          "permutation_null_hi97_5": 0.005572405081742016,
+          "significant": false,
+          "half_voxel_shift_calibration": -0.8547748396685948,
+          "real_over_shift_ratio": 0.005265286469805173
+        },
+        "axis2": {
+          "real_corr": -0.01196706158173729,
+          "permutation_null_hi97_5": 0.006670512633010994,
+          "significant": true,
+          "half_voxel_shift_calibration": -0.7358865245567875,
+          "real_over_shift_ratio": 0.016262101808352664
+        }
+      }
+    },
+    "P4": {
+      "air_curve": [
+        {
+          "threshold": 0.02,
+          "ratio_rec": 0.8880042284089162,
+          "n_voxels": 6930729
+        },
+        {
+          "threshold": 0.05,
+          "ratio_rec": 0.49129340793517723,
+          "n_voxels": 9161252
+        },
+        {
+          "threshold": 0.1,
+          "ratio_rec": 0.4826922178771002,
+          "n_voxels": 9184441
+        },
+        {
+          "threshold": 0.15,
+          "ratio_rec": 0.4826922178771002,
+          "n_voxels": 9184441
+        }
+      ],
+      "psf_peak_sidelobe": 0.15324250435116182,
+      "psf_sidelobe_rms": 0.01313697344899706,
+      "stake_air_curve_zf": [
+        {
+          "threshold": 0.02,
+          "ratio_rec": 3.0368244350785805,
+          "n_voxels": 6930729
+        },
+        {
+          "threshold": 0.05,
+          "ratio_rec": 1.6500255540663,
+          "n_voxels": 9161252
+        },
+        {
+          "threshold": 0.1,
+          "ratio_rec": 1.6123938940177844,
+          "n_voxels": 9184441
+        },
+        {
+          "threshold": 0.15,
+          "ratio_rec": 1.6123938940177844,
+          "n_voxels": 9184441
+        }
+      ],
+      "stake_psf_uniform_mask_peak_sidelobe": 0.9999999999960001,
+      "mask_path": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse_ALIGNED.mat"
+    },
+    "patchiness": {
+      "shipped_selectivity": 1.182975733567028,
+      "stake_zf_selectivity": 0.9727674903577397,
+      "stake_rc_lam000_selectivity": 1.198805591753591,
+      "ctrlA_lam010_npz": "results_arc/ctrlA_af2_lam010_volumes.npz",
+      "ctrlA_lam060_npz": "results_arc/ctrlA_af2_lam060_volumes.npz",
+      "selectivity_ctrlA_lam010": 1.0154749370620688,
+      "selectivity_ctrlA_lam060": 0.9008329110245651,
+      "delta_lam010_vs_shipped": -0.16750079650495908,
+      "delta_lam060_vs_shipped": -0.2821428225424628,
+      "agree": true,
+      "attribution": "less patchiness at AF=2 (mask-dependent)"
+    }
+  },
+  "verdicts": {
+    "P4": "insufficient",
+    "P1": "insufficient",
+    "P2": "false",
+    "P3": "true"
+  }
+}

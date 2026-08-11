@@ -42,14 +42,14 @@
     "error_panel": {
       "description": "Error |rec-gt| / max(gt_volume) through jet [0,0.1]; fixed range, never autoscaled",
       "calibration_stake": {
-        "description": "Positive/negative control stake (replaces the fix-round-2 self-comparison tautology, which called _render_error_panel twice with identical arguments and so was r=1.0 by construction). positive = best candidate's error map rendered at the claimed true slice vs the REAL extracted panel 3; negative = same candidate's error map rendered at a clearly different slice (control), vs the same real panel. Passes iff positive beats negative -- no absolute threshold; the negative control IS the reference.",
-        "best_candidate": "results_arc/tvs4k_e040_volumes.npz",
-        "claimed_slice_index": 160,
-        "negative_slice_index": 60,
         "positive": 0.9680184918841175,
         "negative": 0.8537879469084704,
         "margin": 0.11423054497564711,
-        "passed": true
+        "passed": true,
+        "description": "Positive/negative control stake (replaces the fix-round-2 self-comparison tautology, which called _render_error_panel twice with identical arguments and so was r=1.0 by construction). positive = best candidate's error map rendered at the claimed true slice vs the REAL extracted panel 3; negative = same candidate's error map rendered at a clearly different slice (control), vs the same real panel. Passes iff positive beats negative -- no absolute threshold; the negative control IS the reference.",
+        "best_candidate": "results_arc/tvs4k_e040_volumes.npz",
+        "claimed_slice_index": 160,
+        "negative_slice_index": 60
       },
       "ranked_top5": [
         [
