@@ -1,0 +1,24 @@
+{
+  "net_af": 11.797235023041475,
+  "abs_delta_af": 0.03476497695852565,
+  "mask_at_dc": 1.0,
+  "diff_frac_vs_shipped": 0.12915482954545454,
+  "roll": [
+    2,
+    24,
+    0
+  ],
+  "roll_vs_memory_2_24_neg6": false,
+  "dc": [
+    128,
+    132,
+    126
+  ],
+  "matrix_center": [
+    128,
+    110,
+    128
+  ],
+  "seed2d_net_af": 11.797235023041475,
+  "out": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/ctrlB_indep_af12_seed1_ALIGNED.mat"
+}

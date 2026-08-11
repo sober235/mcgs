@@ -1,0 +1,85 @@
+{
+  "readings": {
+    "greyscale": {
+      "description": "Greyscale panels; 8-bit + render resampling limit r to ~0.99, equal to mutual brain correlation",
+      "calibration_gt": {
+        "panel_index": 0,
+        "r_top": 0.9893007743403152,
+        "r_2nd": 0.9893007743403152
+      },
+      "calibration_zf": {
+        "panel_index": 1,
+        "r_top": 0.9986096088610913,
+        "r_2nd": 0.9986096087234757
+      },
+      "ranked_top5": [
+        [
+          "results_arc/tvs4k_e040_volumes.npz",
+          0.9917475942230675
+        ],
+        [
+          "results_arc/tvs4k_e060_volumes.npz",
+          0.9914398404128321
+        ],
+        [
+          "results_arc/tvs4k_e025_volumes.npz",
+          0.9913672712767548
+        ],
+        [
+          "results_arc/tvs4k_e015_volumes.npz",
+          0.9910819463494154
+        ],
+        [
+          "results_arc/tvs_e040_volumes.npz",
+          0.9910190213342196
+        ]
+      ],
+      "top_correlation": 0.9917475942230675,
+      "top_2nd_correlation": 0.9914398404128321,
+      "gap": 0.0003077538102354005,
+      "unique_match": false
+    },
+    "error_panel": {
+      "description": "Error |rec-gt| / max(gt_volume) through jet [0,0.1]; fixed range, never autoscaled",
+      "calibration_stake": {
+        "description": "Positive/negative control stake (replaces the fix-round-2 self-comparison tautology, which called _render_error_panel twice with identical arguments and so was r=1.0 by construction). positive = best candidate's error map rendered at the claimed true slice vs the REAL extracted panel 3; negative = same candidate's error map rendered at a clearly different slice (control), vs the same real panel. Passes iff positive beats negative -- no absolute threshold; the negative control IS the reference.",
+        "best_candidate": "results_arc/tvs4k_e040_volumes.npz",
+        "claimed_slice_index": 160,
+        "negative_slice_index": 60,
+        "positive": 0.9680184918841175,
+        "negative": 0.8537879469084704,
+        "margin": 0.11423054497564711,
+        "passed": true
+      },
+      "ranked_top5": [
+        [
+          "results_arc/tvs4k_e040_volumes.npz",
+          0.9680184918841175
+        ],
+        [
+          "results_arc/tvs4k_e025_volumes.npz",
+          0.9576950488719048
+        ],
+        [
+          "results_arc/tvs4k_e060_volumes.npz",
+          0.9567658337322247
+        ],
+        [
+          "results_arc/tvs4k_e015_volumes.npz",
+          0.9518313155646838
+        ],
+        [
+          "results_arc/tvs_e040_volumes.npz",
+          0.9478904758074257
+        ]
+      ],
+      "top_correlation": 0.9680184918841175,
+      "top_2nd_correlation": 0.9576950488719048,
+      "gap": 0.010323443012212663,
+      "unique_match": false
+    }
+  },
+  "unique_match": false,
+  "resolved": null,
+  "note_uniqueness_ceiling": "The uniqueness rule's `top > 0.99` clause sits above this pipeline's own measured extraction ceiling: the greyscale GT self-calibration reads r_top=0.9893 (< 0.99) even when the reconstruction shown IS the true source, because 8-bit PNG quantisation + bilinear resampling cap the achievable correlation. This is a documented limitation of the reading (rules registered pre-data are not adjusted post-hoc); it does not change the criterion or the unique_match/resolved verdict."
+}
