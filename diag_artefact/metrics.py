@@ -88,8 +88,10 @@ def surrogate_band(err: np.ndarray, mask: np.ndarray, n: int = 64, seed: int = 0
     """The delta reference: permute the residual WITHIN `mask` n times and take the profile band.
 
     Permutation destroys every spatial relation while preserving the histogram exactly, so the
-    resulting band is what "no structure" looks like for this specific residual — no threshold
-    is invented. Default n=64 ensures the 97.5th percentile estimate is robust (per-lag exceedance ~1.5%).
+    resulting band is what "no structure" looks like for this specific residual — no threshold is
+    invented. Default n=64 removes the estimation-noise component (band converges to true percentiles),
+    but not the exchangeability component: the original profile's per-lag inside-probability still
+    converges to 95%, not 100%, so single-realization tests must measure pooled rates, not all-lags-pass.
     """
     rng = np.random.default_rng(seed)
     vals = err[mask].astype(np.float64)

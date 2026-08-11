@@ -323,23 +323,52 @@ def test_ncc_is_one_for_identical_fields_and_zero_for_independent_ones():
 
 
 def test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not():
-    # n=64 is required for statistical power: the band estimates a 97.5th percentile, and
-    # under exchangeability P(original exceeds the band at one lag) ≈ 1/(n+1) ≈ 1.5% at n=64.
-    # The test checks 8 lags, so per-lag exceedance rate compounds to ~12% if uncorrelated; lags
-    # ARE correlated, but this still requires n >> 24 to avoid flakiness. n=64 gives margin.
-    rng = np.random.default_rng(3)
-    m = np.ones((32, 32, 32), bool)
-    white = rng.normal(0, 1, (32, 32, 32))
-    lo, hi = surrogate_band(white, m, n=64, seed=0)
-    p = autocorr_profile(white, m)
-    inside = np.all((p[1:] >= lo[1:]) & (p[1:] <= hi[1:]))
-    assert inside, f"white noise must sit inside its own surrogate band:\n{p}\n{lo}\n{hi}"
+    # n=64 removes the estimation-noise component of the band, but NOT the exchangeability component:
+    # under exchangeability, P(original inside band at one lag) converges to 95%, not 100%.
+    # Demanding all 8 lags simultaneously gives a ceiling of ~0.95^8 ≈ 66% (lower with estimation
+    # noise), so we measure the POOLED inside-rate across many seeds instead of demanding every lag
+    # to pass. This tests the actual discriminative property: structureless residuals sit inside at
+    # close to the nominal rate, while structured ones escape.
 
     from scipy import ndimage as ndi
-    smooth = ndi.gaussian_filter(rng.normal(0, 1, (32, 32, 32)), 2.0)
-    lo2, hi2 = surrogate_band(smooth, m, n=64, seed=0)
-    p2 = autocorr_profile(smooth, m)
-    assert p2[1] > hi2[1], f"smooth noise must escape the band at lag 1: {p2[1]:.3f} vs {hi2[1]:.3f}"
+    m = np.ones((32, 32, 32), bool)
+
+    # White-noise half: measure pooled inside-rate across 20 seeds and 8 lags (160 checks total).
+    # Expect ~95% inside rate; allow tolerance for estimation noise at finite n.
+    inside_count = 0
+    total_checks = 0
+    for seed_outer in range(20):
+        rng = np.random.default_rng(3 + seed_outer)
+        white = rng.normal(0, 1, (32, 32, 32))
+        lo, hi = surrogate_band(white, m, n=64, seed=0)
+        p = autocorr_profile(white, m)
+        for lag in range(1, len(p)):  # lags 1-8
+            if p[lag] >= lo[lag] and p[lag] <= hi[lag]:
+                inside_count += 1
+            total_checks += 1
+
+    pooled_rate = float(inside_count) / total_checks
+    assert pooled_rate >= 0.90, (
+        f"white noise pooled inside-rate must be >= 0.90 (nominal 0.95); "
+        f"observed {inside_count}/{total_checks} = {pooled_rate:.4f}"
+    )
+
+    # Smooth-noise half: assert smooth noise escapes the band at lag 1 for at least 19/20 seeds.
+    # Smoothing induces autocorrelation structure, so the profile should exceed the band.
+    escape_count = 0
+    for seed_outer in range(20):
+        rng = np.random.default_rng(3 + seed_outer)
+        smooth = ndi.gaussian_filter(rng.normal(0, 1, (32, 32, 32)), 2.0)
+        lo_smooth, hi_smooth = surrogate_band(smooth, m, n=64, seed=0)
+        p_smooth = autocorr_profile(smooth, m)
+        if p_smooth[1] > hi_smooth[1]:  # lag 1 escapes
+            escape_count += 1
+
+    assert escape_count >= 19, (
+        f"smooth noise must escape the band at lag 1 for at least 19/20 seeds; "
+        f"observed {escape_count}/20"
+    )
+
     print("PASS test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not")
 
 
