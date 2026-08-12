@@ -138,7 +138,16 @@ def test_p1_insufficient_when_the_zf_stake_itself_fails():
     print("PASS test_p1_insufficient_when_the_zf_stake_itself_fails")
 
 
-def test_p3_true_for_an_injected_half_voxel_displacement():
+def test_p3_stake_fails_for_an_injected_half_voxel_displacement_but_shift_null_still_sees_it():
+    """Fix round 1 (C1): a genuine displacement residual is smooth/structured, so it is NOT
+    spatially exchangeable -- `_permutation_null_ncc`'s assumption fails its own stake here too,
+    exactly as it does on the real data this task diagnoses. The overall verdict is therefore
+    `insufficient` (spec section 3: a metric that fails its stake is discarded, not patched with a
+    second, un-pre-registered rule). What still proves the METRIC would detect a real displacement
+    is the per-axis circular-shift null (valid regardless of exchangeability): axis0 -- the shifted
+    axis -- clears it with empirical p=0.000, while the other two axes and the permutation-invalid
+    verdict do not manufacture a false "true".
+    """
     from diag_artefact.metrics import half_voxel_shift
     gt = _phantom_gt()
     b = brain_mask(gt)
@@ -148,23 +157,35 @@ def test_p3_true_for_an_injected_half_voxel_displacement():
     err_rec = shifted - gt.astype(np.float64)  # exactly what a real sub-voxel shift looks like
 
     r = _p3(err_rec, gt, wm)
-    assert r["verdict"] == "true", r
-    assert r["axes"]["axis0"]["significant"] is True, r["axes"]
-    print("PASS test_p3_true_for_an_injected_half_voxel_displacement")
+    assert r["permutation_null_valid"] is False, r
+    assert r["verdict"] == "insufficient", r
+    assert r["axes"]["axis0"]["significant_under_shift_null"] is True, r["axes"]
+    assert r["axes"]["axis0"]["shift_null_empirical_p"] < 0.05, r["axes"]["axis0"]
+    # the unshifted axes must NOT falsely show the same signal
+    assert r["axes"]["axis1"]["significant_under_shift_null"] is False, r["axes"]["axis1"]
+    assert r["axes"]["axis2"]["significant_under_shift_null"] is False, r["axes"]["axis2"]
+    print("PASS test_p3_stake_fails_for_an_injected_half_voxel_displacement_but_shift_null_still_sees_it")
 
 
-def test_p3_false_for_independent_noise():
+def test_p3_false_for_independent_noise_when_the_exchangeability_stake_passes():
+    """Seed choice is not incidental (same reasoning as the P1 seed-8 test above): whether a given
+    i.i.d.-noise realisation satisfies P1's own all-lags exchangeability check is itself a near
+    coin flip (see `_p1_all_lags_false_positive_rate`). Seed 0 is one where it passes, which is
+    what this test needs to isolate: the `false` branch reachable when the stake is valid, not the
+    stake's own pass rate.
+    """
     gt = _phantom_gt()
     b = brain_mask(gt)
     wm = wm_mask(gt, b)
-    rng = np.random.default_rng(10)
+    rng = np.random.default_rng(0)
     err_rec = np.zeros_like(gt, dtype=np.float64)
     err_rec[wm] = rng.normal(0, 0.05, int(wm.sum()))
 
     r = _p3(err_rec, gt, wm)
+    assert r["permutation_null_valid"] is True, r
     assert r["verdict"] == "false", r
-    assert all(not ax["significant"] for ax in r["axes"].values()), r["axes"]
-    print("PASS test_p3_false_for_independent_noise")
+    assert all(not ax["significant_under_permutation_null"] for ax in r["axes"].values()), r["axes"]
+    print("PASS test_p3_false_for_independent_noise_when_the_exchangeability_stake_passes")
 
 
 def _write_t1_npz(path, rec, gt, zf):
@@ -178,15 +199,18 @@ def test_p2_true_when_ctrlb_error_pattern_is_independent_of_shipped(tmp_path):
     b = brain_mask(gt)
     rng = np.random.default_rng(12)
     rec_shipped = gt + np.where(b, rng.normal(0, 0.05, gt.shape), 0.0).astype(np.float32)
+    zf_shipped = gt + np.where(b, rng.normal(0, 0.08, gt.shape), 0.0).astype(np.float32)
 
     # control B: a genuinely DIFFERENT (independent) error pattern on the same anatomy
     rec_ctrlB = gt + np.where(b, rng.normal(0, 0.05, gt.shape), 0.0).astype(np.float32)
     ctrlB_path = tmp_path / "ctrlB_volumes.npz"
     _write_t1_npz(ctrlB_path, rec_ctrlB, gt, gt)
 
-    r = _p2(rec_shipped, gt, b, "T1", str(ctrlB_path))
+    r = _p2(rec_shipped, gt, zf_shipped, b, "T1", str(ctrlB_path))
     assert r["low"] is True, r
     assert r["verdict"] == "true", r
+    assert "anatomy_control" in r and "ncc_highpass_ctrlB_vs_shipped" in r["anatomy_control"], r
+    assert "ncc_zf_vs_shipped" in r, r
     print("PASS test_p2_true_when_ctrlb_error_pattern_is_independent_of_shipped")
 
 
@@ -195,12 +219,13 @@ def test_p2_false_when_ctrlb_error_pattern_matches_shipped(tmp_path):
     b = brain_mask(gt)
     rng = np.random.default_rng(13)
     rec_shipped = gt + np.where(b, rng.normal(0, 0.05, gt.shape), 0.0).astype(np.float32)
+    zf_shipped = gt + np.where(b, rng.normal(0, 0.08, gt.shape), 0.0).astype(np.float32)
 
     # control B: the SAME error pattern (as if the mask instance made no difference)
     ctrlB_path = tmp_path / "ctrlB_volumes.npz"
     _write_t1_npz(ctrlB_path, rec_shipped, gt, gt)
 
-    r = _p2(rec_shipped, gt, b, "T1", str(ctrlB_path))
+    r = _p2(rec_shipped, gt, zf_shipped, b, "T1", str(ctrlB_path))
     assert r["low"] is False, r
     assert r["verdict"] == "false", r
     print("PASS test_p2_false_when_ctrlb_error_pattern_matches_shipped")
@@ -209,7 +234,7 @@ def test_p2_false_when_ctrlb_error_pattern_matches_shipped(tmp_path):
 def test_p2_insufficient_when_ctrlb_is_not_available():
     gt = _phantom_gt()
     b = brain_mask(gt)
-    r = _p2(gt, gt, b, "T1", None)
+    r = _p2(gt, gt, gt, b, "T1", None)
     assert r["verdict"] == "insufficient", r
     print("PASS test_p2_insufficient_when_ctrlb_is_not_available")
 
@@ -233,8 +258,8 @@ def test_patchiness_attribution_agrees_when_both_lambda_arms_move_the_same_direc
     rec_lam010 = _selective(gt, 0.3, 2)   # much less selective suppression -> lower selectivity
     rec_lam060 = _selective(gt, 0.5, 3)   # still less than shipped -> agrees in direction
 
-    p010 = tmp_path / "ctrlA_lam010_volumes.npz"
-    p060 = tmp_path / "ctrlA_lam060_volumes.npz"
+    p010 = tmp_path / "ctrlA_af2_lam010_volumes.npz"
+    p060 = tmp_path / "ctrlA_af2_lam060_volumes.npz"
     _write_t1_npz(p010, rec_lam010, gt, gt)
     _write_t1_npz(p060, rec_lam060, gt, gt)
 
@@ -262,8 +287,8 @@ def test_patchiness_attribution_undecided_when_lambda_arms_disagree(tmp_path):
     rec_lam010 = _selective(gt, 0.3, 2)   # less selective than shipped
     rec_lam060 = _selective(gt, 4.0, 3)   # MORE selective than shipped -- disagreement
 
-    p010 = tmp_path / "ctrlA_lam010_volumes.npz"
-    p060 = tmp_path / "ctrlA_lam060_volumes.npz"
+    p010 = tmp_path / "ctrlA_af2_lam010_volumes.npz"
+    p060 = tmp_path / "ctrlA_af2_lam060_volumes.npz"
     _write_t1_npz(p010, rec_lam010, gt, gt)
     _write_t1_npz(p060, rec_lam060, gt, gt)
 
@@ -281,6 +306,62 @@ def test_patchiness_undecided_when_controls_are_missing():
     out = _patchiness(gt, gt, wm, "T1", None, None, rc_lam000_path="", zf=gt)
     assert out["attribution"] == "control A undecided", out
     print("PASS test_patchiness_undecided_when_controls_are_missing")
+
+
+def test_patchiness_gauge_correction_can_flip_raw_agreement_into_disagreement(tmp_path):
+    """Fix round 1 (C2.3, the metric-gauge trap): reproduces, on synthetic data with EMPIRICALLY
+    verified parameters, exactly the pattern found on the real diagnosis -- both arms read a LOWER
+    raw selectivity than shipped (the old code called this "agree"), but arm060's own zf-anchor is
+    much lower than shipped's zf-anchor (a different acquisition, memory.md section 3's gauge
+    trap), so once each arm is normalised by its OWN zf-anchor, arm060's normalised selectivity is
+    HIGHER than shipped's while arm010's is still lower -- the arms disagree once correctly gauged,
+    and `agree` must be False (raw_agree stays True, proving the flip is real, not a coincidence
+    of some other code path).
+    """
+    from scipy import ndimage as ndi
+
+    gt = _phantom_gt()
+    b = brain_mask(gt)
+    wm = wm_mask(gt, b)
+
+    def _selective(gt, strength, seed):
+        rr = np.random.default_rng(seed)
+        g = np.abs(np.gradient(gt, axis=0))
+        soft = ndi.gaussian_filter(gt, strength)
+        out = np.where(g < np.quantile(g, 0.7), soft, gt)
+        return (out + rr.normal(0, 0.001, gt.shape)).astype(np.float32)
+
+    def _zf(gt, blur, sigma, seed):
+        rr = np.random.default_rng(seed)
+        base = ndi.gaussian_filter(gt, blur) if blur > 0 else gt
+        return (base + rr.normal(0, sigma, gt.shape)).astype(np.float32)
+
+    rec_shipped = _selective(gt, 2.0, 1)
+    zf_shipped = _zf(gt, 0.0, 0.05, 100)          # shipped's own zf-anchor -- reads ~0.98
+    rec010 = _selective(gt, 0.5, 2)               # raw selectivity clearly below shipped
+    zf010 = _zf(gt, 0.0, 0.05, 101)               # same acquisition family as shipped -- ~0.92
+    rec060 = _selective(gt, 0.7, 3)               # raw selectivity SLIGHTLY below shipped too
+    zf060 = _zf(gt, 1.0, 0.02, 102)               # a genuinely different acquisition -- ~0.91,
+    #                                                enough lower than shipped's to flip the sign
+    #                                                once rec060/zf060 is compared against rec_shipped/zf_shipped
+
+    p010 = tmp_path / "ctrlA_af2_lam010_volumes.npz"
+    p060 = tmp_path / "ctrlA_af2_lam060_volumes.npz"
+    _write_t1_npz(p010, rec010, gt, zf010)
+    _write_t1_npz(p060, rec060, gt, zf060)
+
+    out = _patchiness(rec_shipped, gt, wm, "T1", str(p010), str(p060),
+                      rc_lam000_path="", zf=zf_shipped)
+
+    assert out["raw_selectivity_delta_lam010_vs_shipped"] < 0, out
+    assert out["raw_selectivity_delta_lam060_vs_shipped"] < 0, out
+    assert out["raw_agree_UNCORRECTED_do_not_use_for_attribution"] is True, out  # the trap: LOOKS like agreement
+
+    assert out["gauge_normalized_delta_lam010_vs_shipped"] < 0, out
+    assert out["gauge_normalized_delta_lam060_vs_shipped"] > 0, out             # flips sign once gauge-corrected
+    assert out["agree"] is False, out
+    assert out["attribution"] == "control A undecided", out
+    print("PASS test_patchiness_gauge_correction_can_flip_raw_agreement_into_disagreement")
 
 
 def test_run_all_wires_everything_and_adjudicate_consumes_it_without_error(tmp_path):
@@ -327,9 +408,11 @@ def test_resolve_checkpoint_uses_the_resolved_candidate_when_m0_did_resolve(tmp_
 
 def test_controls_from_manifest_never_cites_the_vacuous_or_not_run_entries(tmp_path):
     """The manifest's own `ctrlA_lam010` key is the ALL-ONES completed_vacuous run -- task-9-
-    brief.md point 3 is explicit that it must not be cited for anything. `_controls_from_manifest`
-    must map its OWN `controls["ctrlA_lam010"]` slot to the genuine AF=2 run instead, and must
-    leave a not_run entry out entirely rather than pointing at a nonexistent file.
+    brief.md point 3 is explicit that it must not be cited for anything. Fix round 1 (I2) renamed
+    the RETURNED dict's key from `ctrlA_lam010` to `ctrlA_af2_lam010` specifically so it can never
+    be misread as citing the manifest's vacuous entry just because the two used to share a name;
+    `_controls_from_manifest` must map `controls["ctrlA_af2_lam010"]` to the genuine AF=2 run, and
+    must leave a not_run entry out entirely rather than pointing at a nonexistent file.
     """
     manifest = {
         "runs": {
@@ -350,9 +433,10 @@ def test_controls_from_manifest_never_cites_the_vacuous_or_not_run_entries(tmp_p
 
     controls = _controls_from_manifest(str(p))
     assert controls["ctrlB"] == "results_arc/ctrlB_seed1_volumes.npz", controls
-    assert controls["ctrlA_lam010"] == "results_arc/ctrlA_af2_lam010_volumes.npz", controls
-    assert controls["ctrlA_lam060"] == "results_arc/ctrlA_af2_lam060_volumes.npz", controls
-    assert "ctrlA_lam010_volumes.npz" != controls["ctrlA_lam010"]  # the vacuous npz, by name, must not appear
+    assert controls["ctrlA_af2_lam010"] == "results_arc/ctrlA_af2_lam010_volumes.npz", controls
+    assert controls["ctrlA_af2_lam060"] == "results_arc/ctrlA_af2_lam060_volumes.npz", controls
+    assert "ctrlA_lam010" not in controls  # the OLD, ambiguous key must not exist at all
+    assert "results_arc/ctrlA_lam010_volumes.npz" not in controls.values()  # the vacuous npz must not appear
     print("PASS test_controls_from_manifest_never_cites_the_vacuous_or_not_run_entries")
 
 
@@ -372,8 +456,8 @@ if __name__ == "__main__":
     test_p1_true_when_residual_is_incoherent_and_shares_zfs_family()
     test_p1_false_when_residual_has_structure_unrelated_to_zf()
     test_p1_insufficient_when_the_zf_stake_itself_fails()
-    test_p3_true_for_an_injected_half_voxel_displacement()
-    test_p3_false_for_independent_noise()
+    test_p3_stake_fails_for_an_injected_half_voxel_displacement_but_shift_null_still_sees_it()
+    test_p3_false_for_independent_noise_when_the_exchangeability_stake_passes()
     with tempfile.TemporaryDirectory() as td:
         test_p2_true_when_ctrlb_error_pattern_is_independent_of_shipped(Path(td))
     with tempfile.TemporaryDirectory() as td:
@@ -384,6 +468,8 @@ if __name__ == "__main__":
     with tempfile.TemporaryDirectory() as td:
         test_patchiness_attribution_undecided_when_lambda_arms_disagree(Path(td))
     test_patchiness_undecided_when_controls_are_missing()
+    with tempfile.TemporaryDirectory() as td:
+        test_patchiness_gauge_correction_can_flip_raw_agreement_into_disagreement(Path(td))
     with tempfile.TemporaryDirectory() as td:
         test_run_all_wires_everything_and_adjudicate_consumes_it_without_error(Path(td))
     with tempfile.TemporaryDirectory() as td:

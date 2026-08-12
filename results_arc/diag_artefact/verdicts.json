@@ -62,30 +62,48 @@
       "ncc_ctrlB_vs_shipped": 0.39172122286220995,
       "permutation_null_hi97_5": 0.000876012863594242,
       "low": false,
-      "ctrlB_npz": "results_arc/ctrlB_seed1_volumes.npz"
+      "ctrlB_npz": "results_arc/ctrlB_seed1_volumes.npz",
+      "anatomy_control": {
+        "sigma": 4.0,
+        "ncc_lowpass_ctrlB_vs_shipped": 0.9882252570472004,
+        "ncc_highpass_ctrlB_vs_shipped": 0.31935464610133313,
+        "note": "low-pass ncc is inflated by both error maps sharing the same brain-shaped envelope; the high-pass component is the more discriminating reading"
+      },
+      "ncc_zf_vs_shipped": 0.30158864035852845,
+      "zf_vs_ctrlB_note": "a DIFFERENT mask instance's error (ctrlB) resembles the shipped error MORE than the shipped mask's own pure-aliasing zf error does when ncc_ctrlB_vs_shipped > ncc_zf_vs_shipped -- a stronger version of the same conclusion"
     },
     "P3": {
-      "verdict": "true",
-      "reason": "at least one axis's gradient correlation clearly exceeds its own permutation-null (independent-noise) level",
+      "verdict": "insufficient",
+      "reason": "stake failed: err_rec is not spatially exchangeable (escapes its own surrogate band -- the same all-lags check P1 applies), so the permutation null's exchangeability assumption is invalid and understates the true null spread; the circular-shift null is valid and is reported per-axis, but per spec section 3 the reading is discarded rather than used to construct a different verdict",
+      "permutation_null_valid": false,
       "axes": {
         "axis0": {
           "real_corr": 0.005557787558972827,
           "permutation_null_hi97_5": 0.006663177329234783,
-          "significant": false,
+          "significant_under_permutation_null": false,
+          "shift_null_hi97_5": 0.01531518407434241,
+          "shift_null_empirical_p": 0.375,
+          "significant_under_shift_null": false,
           "half_voxel_shift_calibration": -0.7324589286001086,
           "real_over_shift_ratio": 0.007587848740672724
         },
         "axis1": {
           "real_corr": 0.004500634398036938,
           "permutation_null_hi97_5": 0.005572405081742016,
-          "significant": false,
+          "significant_under_permutation_null": false,
+          "shift_null_hi97_5": 0.009798274065228164,
+          "shift_null_empirical_p": 0.22916666666666666,
+          "significant_under_shift_null": false,
           "half_voxel_shift_calibration": -0.8547748396685948,
           "real_over_shift_ratio": 0.005265286469805173
         },
         "axis2": {
           "real_corr": -0.01196706158173729,
           "permutation_null_hi97_5": 0.006670512633010994,
-          "significant": true,
+          "significant_under_permutation_null": true,
+          "shift_null_hi97_5": 0.013767129378931377,
+          "shift_null_empirical_p": 0.0625,
+          "significant_under_shift_null": false,
           "half_voxel_shift_calibration": -0.7358865245567875,
           "real_over_shift_ratio": 0.016262101808352664
         }
@@ -139,26 +157,77 @@
         }
       ],
       "stake_psf_uniform_mask_peak_sidelobe": 0.9999999999960001,
-      "mask_path": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse_ALIGNED.mat"
+      "stake_psf_uniform_mask_sidelobe_rms": 0.007299270072963504,
+      "psf_radius_sweep": {
+        "2": 0.15324250435116182,
+        "3": 0.09763521772989113,
+        "4": 0.06424423228736073,
+        "5": 0.046218873261128134,
+        "6": 0.04118571633558263
+      },
+      "mask_path": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse_ALIGNED.mat",
+      "reason": "air-energy ratio_rec = ['0.888', '0.491', '0.483', '0.483'] across thresholds [0.02, 0.05, 0.1, 0.15] -- never >>1 (rules out P4 directionally: the opposite of leakage, since the recon has LESS air energy than GT everywhere) but not flat at 1 either; psf_peak_sidelobe=0.1532 at the pre-registered mainlobe_radius=2 sits just above the adjudicate() diffuse bar (<0.1) -- see psf_radius_sweep (r>3 -> 0.0976, already below 0.1) and the diffuse-vs-discrete pair (shipped 0.1532 / sidelobe_rms 0.0131 vs the uniform-mask positive control 1.0000 / 0.0073), which reads unambiguously diffuse without any absolute constant. adjudicate()'s mechanical rule, applied exactly as pre-registered, returns insufficient."
     },
     "patchiness": {
       "shipped_selectivity": 1.182975733567028,
       "stake_zf_selectivity": 0.9727674903577397,
+      "shipped_gradient_ratio_curve": {
+        "0.1": 0.7592168181347357,
+        "0.5": 0.7701631310437855,
+        "0.9": 0.8032330996479686,
+        "0.999": 0.8981350723693639
+      },
       "stake_rc_lam000_selectivity": 1.198805591753591,
-      "ctrlA_lam010_npz": "results_arc/ctrlA_af2_lam010_volumes.npz",
-      "ctrlA_lam060_npz": "results_arc/ctrlA_af2_lam060_volumes.npz",
-      "selectivity_ctrlA_lam010": 1.0154749370620688,
-      "selectivity_ctrlA_lam060": 0.9008329110245651,
-      "delta_lam010_vs_shipped": -0.16750079650495908,
-      "delta_lam060_vs_shipped": -0.2821428225424628,
-      "agree": true,
-      "attribution": "less patchiness at AF=2 (mask-dependent)"
+      "stake_rc_lam000_gradient_ratio_curve": {
+        "0.1": 1.6658829005075346,
+        "0.5": 1.7358788075248386,
+        "0.9": 1.9162031926487941,
+        "0.999": 1.9970697363351233
+      },
+      "stake_rc_lam000_vs_shipped_selectivity_delta": 0.015829858186563017,
+      "stake_rc_lam000_scalar_note": "near-zero delta: the scalar selectivity does NOT discriminate shipped from the no-TV control here -- discarded as a discriminator; read the curve LEVEL/SHAPE instead (rc_lam000 sits above 1 at every quantile per section 14b, shipped below)",
+      "ctrlA_af2_lam010_npz": "results_arc/ctrlA_af2_lam010_volumes.npz",
+      "ctrlA_af2_lam060_npz": "results_arc/ctrlA_af2_lam060_volumes.npz",
+      "selectivity_ctrlA_af2_lam010": 1.0154749370620688,
+      "selectivity_ctrlA_af2_lam060": 0.9008329110245651,
+      "gradient_ratio_curve_ctrlA_af2_lam010": {
+        "0.1": 0.7884799708496676,
+        "0.5": 0.7935676720975902,
+        "0.9": 0.7812428265085355,
+        "0.999": 0.800681648773268
+      },
+      "gradient_ratio_curve_ctrlA_af2_lam060": {
+        "0.1": 0.7630557173203979,
+        "0.5": 0.7678665825229717,
+        "0.9": 0.7374687803960399,
+        "0.999": 0.6873857031076717
+      },
+      "zf_selectivity_ctrlA_af2_lam010": 0.8182343345656377,
+      "zf_selectivity_ctrlA_af2_lam060": 0.8182343345656377,
+      "zf_selectivity_ctrlB": 0.9944553392013414,
+      "gauge_normalized_selectivity_shipped": 1.2160929978570554,
+      "gauge_normalized_selectivity_ctrlA_af2_lam010": 1.2410563748845092,
+      "gauge_normalized_selectivity_ctrlA_af2_lam060": 1.100947336196513,
+      "gauge_normalized_delta_lam010_vs_shipped": 0.02496337702745377,
+      "gauge_normalized_delta_lam060_vs_shipped": -0.11514566166054241,
+      "agree": false,
+      "raw_selectivity_delta_lam010_vs_shipped": -0.16750079650495908,
+      "raw_selectivity_delta_lam060_vs_shipped": -0.2821428225424628,
+      "raw_agree_UNCORRECTED_do_not_use_for_attribution": true,
+      "attribution": "control A undecided",
+      "reason": "gauge-normalised selectivity (each arm divided by its own zf anchor) disagrees in direction between the two lambda arms, even though the raw (un-gauge-corrected) selectivity agreed -- the raw agreement was the metric-gauge trap (memory.md section 3), not a real signal"
+    },
+    "provenance": {
+      "m0_unique_match": false,
+      "m0_resolved": null,
+      "checkpoint_used": "results_arc/tvs4k_e040_volumes.npz",
+      "checkpoint_source": "spec section 7 FALLBACK: M0 did not resolve uniquely (unique_match=false, resolved=null); binds to tvs4k_e040 per the standing rule. The figure's own provenance is unrecoverable."
     }
   },
   "verdicts": {
     "P4": "insufficient",
     "P1": "insufficient",
     "P2": "false",
-    "P3": "true"
+    "P3": "insufficient"
   }
 }

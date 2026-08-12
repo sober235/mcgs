@@ -58,6 +58,17 @@ def _permutation_null_ncc(field: np.ndarray, ref: np.ndarray, mask: np.ndarray,
     like for a field with the SAME histogram as `field` but no spatial relation to anything. This is
     the "no genuine relationship" reference used to decide whether an observed ncc(field, ref) is
     "high" or "low" without inventing a constant.
+
+    Two call patterns exist and are NOT the same thing (fix round 1 review, I5 — noted here so the
+    docstring and every call site agree): P1 and P2 call this SELF-referentially
+    (`field is ref`, e.g. `_permutation_null_ncc(err_rec, err_rec, wm)`) to ask "how correlated can
+    a within-mask reshuffle of X be with X itself" — the reference for judging a SEPARATE, already-
+    computed statistic (`ncc(err_rec, err_zf)`) against. P3 calls it with a genuinely different
+    `ref` (the GT gradient) to null-test `ncc(err_rec, grad(gt))` directly. Both are valid uses of
+    the same primitive; only the self-referential form needs an exchangeability caveat, because a
+    within-mask reshuffle assumes the field has no spatial structure of its own to destroy — see
+    `_residual_is_exchangeable` and `_circular_shift_null_ncc` below, added after fix round 1 found
+    P3's residual is NOT exchangeable on real data, which silently understates this null's spread.
     """
     rng = np.random.default_rng(seed)
     vals = field[mask].astype(np.float64)
@@ -67,6 +78,40 @@ def _permutation_null_ncc(field: np.ndarray, ref: np.ndarray, mask: np.ndarray,
         scratch[mask] = rng.permutation(vals)
         out[i] = ncc(scratch, ref, mask)
     return out
+
+
+N_SHIFT_NULL = 48
+
+
+def _circular_shift_null_ncc(field: np.ndarray, ref: np.ndarray, mask: np.ndarray,
+                             n: int = N_SHIFT_NULL, seed: int = SURROGATE_SEED) -> np.ndarray:
+    """`n` values of ncc(circular_shift_i(field), ref, mask) — a null valid even when `field` is
+    NOT spatially exchangeable (fix round 1, C1). Each draw cyclically rolls the WHOLE field by a
+    random offset on every axis, so it preserves `field`'s own autocorrelation structure exactly
+    (it is the same values, only relocated) while destroying its alignment with `ref`'s anatomy —
+    unlike `_permutation_null_ncc`'s within-mask reshuffle, which assumes iid and so UNDERSTATES
+    the null spread whenever `field` has real short-range structure of its own.
+    """
+    rng = np.random.default_rng(seed)
+    shape = field.shape
+    out = np.empty(n, dtype=np.float64)
+    for i in range(n):
+        shift = tuple(int(rng.integers(1, s)) for s in shape)
+        shifted = np.roll(field, shift=shift, axis=tuple(range(field.ndim)))
+        out[i] = ncc(shifted, ref, mask)
+    return out
+
+
+def _residual_is_exchangeable(err: np.ndarray, mask: np.ndarray, max_lag: int = MAX_LAG) -> bool:
+    """Is `_permutation_null_ncc`'s exchangeability assumption valid for `err` inside `mask`?
+
+    Exactly the same all-lags-inside-the-surrogate-band test P1 applies to `rec-gt` itself and to
+    `zf-gt` as P1's own stake (`diag_artefact.metrics.autocorr_profile`/`surrogate_band`) — reused
+    here as the validity gate for the null P3 depends on, rather than invented fresh.
+    """
+    profile = autocorr_profile(err, mask, max_lag=max_lag)
+    lo, hi = surrogate_band(err, mask, n=N_SURROGATE, seed=SURROGATE_SEED, max_lag=max_lag)
+    return bool(all(lo[lag] <= profile[lag] <= hi[lag] for lag in range(1, max_lag + 1)))
 
 
 def _p1_all_lags_false_positive_rate(shape=(32, 32, 32), n_realizations: int = 20,
@@ -150,19 +195,42 @@ def _p1(err_rec: np.ndarray, err_zf: np.ndarray, wm: np.ndarray) -> dict:
 # P2 — outer-rim / skull-scalp band = aliasing (mask dependence, control B)
 # ---------------------------------------------------------------------------
 
-def _p2(rec: np.ndarray, gt: np.ndarray, brain: np.ndarray, contrast: str,
+P2_ANATOMY_SIGMA = 4.0
+
+
+def _p2(rec: np.ndarray, gt: np.ndarray, zf: np.ndarray, brain: np.ndarray, contrast: str,
        ctrlB_path: str | None) -> dict:
+    """Fix round 1 (I4): records three additional readings so P2's "false" is not left resting on
+    the raw `ncc` alone. (1) An anatomy control — both error maps peak near the same tissue
+    boundaries regardless of which mask produced them, so raw ncc is inflated by a shared,
+    trivial low-frequency envelope; splitting into a low-pass (sigma=4) and a high-pass component
+    shows how much of the correlation survives once that shared shape is removed. (2) The SAME
+    comparison against `zf`'s own error (pure aliasing, no prior, same shipped mask) — if a
+    DIFFERENT mask instance's error resembles the shipped error MORE than the shipped mask's own
+    zero-fill error does, that is direct evidence the error pattern is not primarily an artefact
+    of which mask was used.
+    """
+    from scipy import ndimage
+
     if not ctrlB_path or not os.path.exists(ctrlB_path):
         return {"verdict": "insufficient", "reason": "control B volumes not available"}
 
     vB = load_volumes(ctrlB_path, contrast)
     e_shipped = np.abs(rec.astype(np.float64) - gt.astype(np.float64))
     e_ctrlB = np.abs(vB["rec"].astype(np.float64) - vB["gt"].astype(np.float64))
+    e_zf = np.abs(zf.astype(np.float64) - gt.astype(np.float64))
 
     r = ncc(e_ctrlB, e_shipped, brain)
     null = _permutation_null_ncc(e_shipped, e_shipped, brain)
     null_hi = float(np.percentile(np.abs(null), 97.5))
     low = bool(abs(r) <= null_hi)
+
+    lp_shipped = ndimage.gaussian_filter(e_shipped, P2_ANATOMY_SIGMA)
+    lp_ctrlB = ndimage.gaussian_filter(e_ctrlB, P2_ANATOMY_SIGMA)
+    r_lowpass = ncc(lp_shipped, lp_ctrlB, brain)
+    r_highpass = ncc(e_shipped - lp_shipped, e_ctrlB - lp_ctrlB, brain)
+
+    r_zf_vs_shipped = ncc(e_zf, e_shipped, brain)
 
     verdict = "true" if low else "false"
     reason = ("error pattern indistinguishable from a permutation-null of itself -> moved with "
@@ -176,6 +244,18 @@ def _p2(rec: np.ndarray, gt: np.ndarray, brain: np.ndarray, contrast: str,
         "permutation_null_hi97_5": null_hi,
         "low": low,
         "ctrlB_npz": ctrlB_path,
+        "anatomy_control": {
+            "sigma": P2_ANATOMY_SIGMA,
+            "ncc_lowpass_ctrlB_vs_shipped": r_lowpass,
+            "ncc_highpass_ctrlB_vs_shipped": r_highpass,
+            "note": ("low-pass ncc is inflated by both error maps sharing the same brain-shaped "
+                    "envelope; the high-pass component is the more discriminating reading"),
+        },
+        "ncc_zf_vs_shipped": r_zf_vs_shipped,
+        "zf_vs_ctrlB_note": ("a DIFFERENT mask instance's error (ctrlB) resembles the shipped "
+                             "error MORE than the shipped mask's own pure-aliasing zf error does "
+                             "when ncc_ctrlB_vs_shipped > ncc_zf_vs_shipped -- a stronger version "
+                             "of the same conclusion" ),
     }
 
 
@@ -184,32 +264,69 @@ def _p2(rec: np.ndarray, gt: np.ndarray, brain: np.ndarray, contrast: str,
 # ---------------------------------------------------------------------------
 
 def _p3(err_rec: np.ndarray, gt: np.ndarray, mask: np.ndarray) -> dict:
+    """Fix round 1 (C1): `_permutation_null_ncc`'s within-mask reshuffle assumes `err_rec` is
+    spatially exchangeable. That assumption is a STAKE, and it is tested directly here with
+    `_residual_is_exchangeable` — exactly P1's own all-lags check, applied to the same `err_rec`
+    and the same `mask` P3 uses. When it fails (as it does on real data: P1 independently records
+    `autocorr_profile[1] = 0.228` for this exact residual, far outside a surrogate band of
+    ±0.003-0.006), the permutation null is not trusted, and per spec §3 ("a metric that fails its
+    stake is discarded on the spot") the verdict is `insufficient` — mirroring P1's own stake
+    discipline exactly, not a new rule invented for P3. The circular-shift null (valid regardless
+    of exchangeability — see `_circular_shift_null_ncc`) is always computed and reported alongside
+    for transparency, but is NOT used to construct a substitute "true"/"false" call: doing so would
+    just be a second, un-pre-registered rule rescuing a verdict the first one lost, which is exactly
+    what the calibration discipline forbids. The half-voxel-shift positive control still shows the
+    metric WOULD see a real displacement (see `tests/diag_artefact/test_report.py`), which is what
+    licenses trusting an "insufficient" here as an honest gap rather than a broken measurement.
+    """
+    perm_valid = _residual_is_exchangeable(err_rec, mask)
+
     per_axis = {}
-    any_significant = False
+    any_significant_perm = False
     for a in range(3):
         g = np.gradient(gt.astype(np.float64), axis=a)
         real_corr = ncc(err_rec, g, mask)
+
         null = _permutation_null_ncc(err_rec, g, mask)
         null_hi = float(np.percentile(np.abs(null), 97.5))
+        significant_perm = bool(abs(real_corr) > null_hi)
+        any_significant_perm = any_significant_perm or significant_perm
+
+        shift_null = _circular_shift_null_ncc(err_rec, g, mask)
+        shift_null_hi = float(np.percentile(np.abs(shift_null), 97.5))
+        shift_empirical_p = float((np.abs(shift_null) >= abs(real_corr)).mean())
+        significant_shift = bool(abs(real_corr) > shift_null_hi)
 
         shifted = half_voxel_shift(gt, axis=a) - gt
         shift_corr = gradient_correlation(shifted, gt, mask)[f"axis{a}"]
 
-        significant = bool(abs(real_corr) > null_hi)
-        any_significant = any_significant or significant
         per_axis[f"axis{a}"] = {
             "real_corr": real_corr,
             "permutation_null_hi97_5": null_hi,
-            "significant": significant,
+            "significant_under_permutation_null": significant_perm,
+            "shift_null_hi97_5": shift_null_hi,
+            "shift_null_empirical_p": shift_empirical_p,
+            "significant_under_shift_null": significant_shift,
             "half_voxel_shift_calibration": shift_corr,
             "real_over_shift_ratio": float(abs(real_corr) / (abs(shift_corr) + 1e-30)),
         }
 
-    verdict = "true" if any_significant else "false"
-    reason = ("at least one axis's gradient correlation clearly exceeds its own "
-              "permutation-null (independent-noise) level" if any_significant else
-              "every axis's gradient correlation sits inside its own permutation-null band")
-    return {"verdict": verdict, "reason": reason, "axes": per_axis}
+    if not perm_valid:
+        verdict = "insufficient"
+        reason = ("stake failed: err_rec is not spatially exchangeable (escapes its own "
+                  "surrogate band -- the same all-lags check P1 applies), so the permutation "
+                  "null's exchangeability assumption is invalid and understates the true null "
+                  "spread; the circular-shift null is valid and is reported per-axis, but per "
+                  "spec section 3 the reading is discarded rather than used to construct a "
+                  "different verdict")
+    elif any_significant_perm:
+        verdict = "true"
+        reason = "at least one axis's gradient correlation clearly exceeds its own permutation-null (independent-noise) level, and the permutation null's exchangeability stake passed"
+    else:
+        verdict = "false"
+        reason = "every axis's gradient correlation sits inside its own permutation-null band, and the permutation null's exchangeability stake passed"
+
+    return {"verdict": verdict, "reason": reason, "permutation_null_valid": perm_valid, "axes": per_axis}
 
 
 # ---------------------------------------------------------------------------
@@ -222,17 +339,43 @@ def _load_mask2d(mask_path: str) -> np.ndarray:
     return (m3[:, :, 0] != 0).astype(np.float64)
 
 
+PSF_RADIUS_SWEEP = (2, 3, 4, 5, 6)  # documentation only (I1) -- adjudicate()'s own mainlobe_radius default (2) is untouched
+
+
 def _p4(rec: np.ndarray, gt: np.ndarray, zf: np.ndarray, brain: np.ndarray,
        mask_path: str) -> dict:
     curve = air_energy_curve(rec, gt, brain)
     curve_zf = air_energy_curve(zf, gt, brain)  # stake: zf must read "full scale" if the metric is sensitive
 
     mask2d = _load_mask2d(mask_path)
-    psf = psf_spread(mask2d)
+    psf = psf_spread(mask2d)  # mainlobe_radius=2 (default, unchanged) -- this is the reading adjudicate() reads
 
     uniform2d = np.zeros_like(mask2d)
     uniform2d[::4, :] = 1.0
     psf_uniform = psf_spread(uniform2d)  # stake: positive control, must show a discrete replica
+
+    # Fix round 1 (I1): document, do not act on, the fact that the r>2 reading sits one voxel
+    # inside a wide ACS mainlobe skirt (24-px calib region). `mainlobe_radius` is NOT changed --
+    # retuning it until adjudicate()'s pre-registered `< 0.1` bar flips is exactly what this plan
+    # exists to prevent. The sweep is reported so a reader can see the radius the verdict is
+    # blocked on, alongside the diffuse-vs-discrete comparison that needs no absolute constant.
+    psf_radius_sweep = {r: psf_spread(mask2d, mainlobe_radius=r)["peak_sidelobe"]
+                        for r in PSF_RADIUS_SWEEP}
+
+    ratios = [row["ratio_rec"] for row in curve if np.isfinite(row["ratio_rec"])]
+    reason = (
+        f"air-energy ratio_rec = {['%.3f' % r for r in ratios]} across thresholds "
+        f"{[row['threshold'] for row in curve]} -- never >>1 (rules out P4 directionally: the "
+        f"opposite of leakage, since the recon has LESS air energy than GT everywhere) but not "
+        f"flat at 1 either; psf_peak_sidelobe={psf['peak_sidelobe']:.4f} at the pre-registered "
+        f"mainlobe_radius=2 sits just above the adjudicate() diffuse bar (<0.1) -- see "
+        f"psf_radius_sweep (r>3 -> {psf_radius_sweep.get(3):.4f}, already below 0.1) and the "
+        f"diffuse-vs-discrete pair (shipped {psf['peak_sidelobe']:.4f} / "
+        f"sidelobe_rms {psf['sidelobe_rms']:.4f} vs the uniform-mask positive control "
+        f"{psf_uniform['peak_sidelobe']:.4f} / {psf_uniform['sidelobe_rms']:.4f}), which reads "
+        f"unambiguously diffuse without any absolute constant. adjudicate()'s mechanical rule, "
+        f"applied exactly as pre-registered, returns insufficient."
+    )
 
     return {
         "air_curve": curve,
@@ -240,7 +383,10 @@ def _p4(rec: np.ndarray, gt: np.ndarray, zf: np.ndarray, brain: np.ndarray,
         "psf_sidelobe_rms": psf["sidelobe_rms"],
         "stake_air_curve_zf": curve_zf,
         "stake_psf_uniform_mask_peak_sidelobe": psf_uniform["peak_sidelobe"],
+        "stake_psf_uniform_mask_sidelobe_rms": psf_uniform["sidelobe_rms"],
+        "psf_radius_sweep": psf_radius_sweep,
         "mask_path": mask_path,
+        "reason": reason,
     }
 
 
@@ -248,48 +394,123 @@ def _p4(rec: np.ndarray, gt: np.ndarray, zf: np.ndarray, brain: np.ndarray,
 # patchiness attribution — control A, two lambda arms
 # ---------------------------------------------------------------------------
 
-def _patchiness(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray, contrast: str,
-               ctrlA_lam010_path: str | None, ctrlA_lam060_path: str | None,
-               rc_lam000_path: str, zf: np.ndarray) -> dict:
-    shipped_sel = selectivity(rec, gt, wm)
-    out = {"shipped_selectivity": shipped_sel}
+PATCHINESS_CURVE_Q = (0.10, 0.50, 0.90, 0.999)
 
-    # calibration stakes (§0/§14b established readings): zf ~ 0.97 flat; rc_lam000 (no TV) ~ 1.20.
-    out["stake_zf_selectivity"] = selectivity(zf, gt, wm)
+
+def _patchiness(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray, contrast: str,
+               ctrlA_af2_lam010_path: str | None, ctrlA_af2_lam060_path: str | None,
+               rc_lam000_path: str, zf: np.ndarray, ctrlB_path: str | None = None) -> dict:
+    """Fix round 1 (C2) rewrote this from a bare scalar-selectivity comparison to one that
+    enforces the two stakes it already computed:
+
+    1. `rc_lam000`'s stake reads 1.1988 against the shipped run's 1.1830 -- essentially the SAME
+       scalar for "no TV, no patchiness by construction" and "the run under test". Per spec section
+       3 that is a stake FAILURE for `selectivity` as a discriminator here: it is reported but not
+       used to gate anything, and the full `gradient_ratio_curve` (whose LEVEL and SHAPE is what
+       section 14b actually reads) is reported for every arm instead of trusting the scalar alone.
+    2. Each arm's `zf`-anchor moves between acquisitions (AF=2's own zf reads far from the shipped
+       AF=12 zf, while a second AF=12 draw, ctrlB, reads close to it) -- project memory section 3's
+       metric-gauge trap. Every selectivity is gauge-normalised by ITS OWN zf-anchor before the two
+       lambda arms are compared, and the brief's existing agree/disagree rule is applied to THAT
+       normalised reading, not the raw one (also reported, for transparency, clearly labelled).
+    """
+    from .metrics import gradient_ratio_curve
+
+    shipped_sel = selectivity(rec, gt, wm)
+    shipped_zf_sel = selectivity(zf, gt, wm)
+    out = {
+        "shipped_selectivity": shipped_sel,
+        "stake_zf_selectivity": shipped_zf_sel,
+        "shipped_gradient_ratio_curve": gradient_ratio_curve(rec, gt, wm, quantiles=PATCHINESS_CURVE_Q),
+    }
+
     if rc_lam000_path and os.path.exists(rc_lam000_path):
         v0 = load_volumes(rc_lam000_path, contrast)
         wm0 = wm_mask(v0["gt"], brain_mask(v0["gt"]))
-        out["stake_rc_lam000_selectivity"] = selectivity(v0["rec"], v0["gt"], wm0)
+        rc_sel = selectivity(v0["rec"], v0["gt"], wm0)
+        out["stake_rc_lam000_selectivity"] = rc_sel
+        out["stake_rc_lam000_gradient_ratio_curve"] = gradient_ratio_curve(
+            v0["rec"], v0["gt"], wm0, quantiles=PATCHINESS_CURVE_Q)
+        out["stake_rc_lam000_vs_shipped_selectivity_delta"] = rc_sel - shipped_sel
+        out["stake_rc_lam000_scalar_note"] = (
+            "near-zero delta: the scalar selectivity does NOT discriminate shipped from the "
+            "no-TV control here -- discarded as a discriminator; read the curve LEVEL/SHAPE "
+            "instead (rc_lam000 sits above 1 at every quantile per section 14b, shipped below)")
     else:
         out["stake_rc_lam000_selectivity"] = None
 
-    have_both = (ctrlA_lam010_path and ctrlA_lam060_path and
-                os.path.exists(ctrlA_lam010_path) and os.path.exists(ctrlA_lam060_path))
+    have_both = (ctrlA_af2_lam010_path and ctrlA_af2_lam060_path and
+                os.path.exists(ctrlA_af2_lam010_path) and os.path.exists(ctrlA_af2_lam060_path))
     if not have_both:
         out["attribution"] = "control A undecided"
         out["reason"] = "control A (AF=2, both lambda arms) volumes not available"
         return out
 
-    v010 = load_volumes(ctrlA_lam010_path, contrast)
-    v060 = load_volumes(ctrlA_lam060_path, contrast)
+    v010 = load_volumes(ctrlA_af2_lam010_path, contrast)
+    v060 = load_volumes(ctrlA_af2_lam060_path, contrast)
     wm010 = wm_mask(v010["gt"], brain_mask(v010["gt"]))
     wm060 = wm_mask(v060["gt"], brain_mask(v060["gt"]))
+
     sel010 = selectivity(v010["rec"], v010["gt"], wm010)
     sel060 = selectivity(v060["rec"], v060["gt"], wm060)
-    d010 = sel010 - shipped_sel
-    d060 = sel060 - shipped_sel
-    agree = bool(d010 != 0 and d060 != 0 and np.sign(d010) == np.sign(d060))
+    curve010 = gradient_ratio_curve(v010["rec"], v010["gt"], wm010, quantiles=PATCHINESS_CURVE_Q)
+    curve060 = gradient_ratio_curve(v060["rec"], v060["gt"], wm060, quantiles=PATCHINESS_CURVE_Q)
+
+    # each arm's OWN zf-anchor (fix round 1, C2.3) -- not the shipped run's.
+    zf010_sel = selectivity(v010["zf"], v010["gt"], wm010)
+    zf060_sel = selectivity(v060["zf"], v060["gt"], wm060)
+
+    # corroborating evidence the AF=2 zf-shift is acquisition-specific, not noise: a second AF=12
+    # draw's own zf-anchor should stay close to the shipped AF=12 zf-anchor.
+    ctrlB_zf_sel = None
+    if ctrlB_path and os.path.exists(ctrlB_path):
+        vB = load_volumes(ctrlB_path, contrast)
+        wmB = wm_mask(vB["gt"], brain_mask(vB["gt"]))
+        ctrlB_zf_sel = selectivity(vB["zf"], vB["gt"], wmB)
+
+    norm_shipped = shipped_sel / shipped_zf_sel
+    norm010 = sel010 / zf010_sel
+    norm060 = sel060 / zf060_sel
+    d010_norm = norm010 - norm_shipped
+    d060_norm = norm060 - norm_shipped
+    agree = bool(d010_norm != 0 and d060_norm != 0 and np.sign(d010_norm) == np.sign(d060_norm))
+
+    # raw (un-gauge-corrected) comparison kept ONLY for transparency -- NOT what `agree` is based
+    # on; the metric-gauge trap this fix closes is exactly that the raw comparison looks like
+    # agreement (both arms read lower than shipped) while the gauge-corrected one does not.
+    d010_raw = sel010 - shipped_sel
+    d060_raw = sel060 - shipped_sel
+    raw_agree = bool(d010_raw != 0 and d060_raw != 0 and np.sign(d010_raw) == np.sign(d060_raw))
 
     out.update({
-        "ctrlA_lam010_npz": ctrlA_lam010_path, "ctrlA_lam060_npz": ctrlA_lam060_path,
-        "selectivity_ctrlA_lam010": sel010, "selectivity_ctrlA_lam060": sel060,
-        "delta_lam010_vs_shipped": d010, "delta_lam060_vs_shipped": d060, "agree": agree,
+        "ctrlA_af2_lam010_npz": ctrlA_af2_lam010_path,
+        "ctrlA_af2_lam060_npz": ctrlA_af2_lam060_path,
+        "selectivity_ctrlA_af2_lam010": sel010,
+        "selectivity_ctrlA_af2_lam060": sel060,
+        "gradient_ratio_curve_ctrlA_af2_lam010": curve010,
+        "gradient_ratio_curve_ctrlA_af2_lam060": curve060,
+        "zf_selectivity_ctrlA_af2_lam010": zf010_sel,
+        "zf_selectivity_ctrlA_af2_lam060": zf060_sel,
+        "zf_selectivity_ctrlB": ctrlB_zf_sel,
+        "gauge_normalized_selectivity_shipped": norm_shipped,
+        "gauge_normalized_selectivity_ctrlA_af2_lam010": norm010,
+        "gauge_normalized_selectivity_ctrlA_af2_lam060": norm060,
+        "gauge_normalized_delta_lam010_vs_shipped": d010_norm,
+        "gauge_normalized_delta_lam060_vs_shipped": d060_norm,
+        "agree": agree,
+        "raw_selectivity_delta_lam010_vs_shipped": d010_raw,
+        "raw_selectivity_delta_lam060_vs_shipped": d060_raw,
+        "raw_agree_UNCORRECTED_do_not_use_for_attribution": raw_agree,
     })
     if agree:
-        out["attribution"] = ("less patchiness at AF=2 (mask-dependent)" if d010 < 0 else
-                              "patchiness persists or worsens at AF=2 (regulariser-intrinsic)")
+        out["attribution"] = ("less patchiness at AF=2" if d010_norm < 0 else
+                              "patchiness persists or worsens at AF=2")
     else:
         out["attribution"] = "control A undecided"
+        out["reason"] = ("gauge-normalised selectivity (each arm divided by its own zf anchor) "
+                         "disagrees in direction between the two lambda arms, even though the "
+                         "raw (un-gauge-corrected) selectivity agreed -- the raw agreement was "
+                         "the metric-gauge trap (memory.md section 3), not a real signal")
     return out
 
 
@@ -301,11 +522,15 @@ def run_all(npz_path: str, contrast: str, controls: dict) -> dict:
     """Wire M1-M5 and the controls into the `readings` dict `adjudicate` consumes.
 
     `controls` maps logical names to *_volumes.npz paths (or overrides), all optional:
-      "ctrlB"            -- control B (different mask seed), for P2
-      "ctrlA_lam010"     -- control A, AF=2, lambda_geo=0.10, for the patchiness attribution
-      "ctrlA_lam060"     -- control A, AF=2, lambda_geo=0.60, for the patchiness attribution
+      "ctrlB"            -- control B (different mask seed), for P2 and the patchiness zf-gauge check
+      "ctrlA_af2_lam010" -- control A, AF=2, lambda_geo=0.10, for the patchiness attribution
+      "ctrlA_af2_lam060" -- control A, AF=2, lambda_geo=0.60, for the patchiness attribution
       "rc_lam000"        -- no-TV run, the M5 "no patchiness" calibration stake
       "mask_path"        -- shipped mask .mat, for M1's PSF (default: the ALIGNED AF=12 mask)
+    Fix round 1: keys renamed from "ctrlA_lam010"/"ctrlA_lam060" to "ctrlA_af2_lam010"/
+    "ctrlA_af2_lam060" -- the old names collided, in spelling only, with the manifest's OWN
+    `ctrlA_lam010` key, which is the unrelated all-ones completed_vacuous run that must never be
+    cited (I2).
     A control missing from `controls` (or whose file does not exist) degrades its proposition to
     "insufficient" / "control A undecided" rather than raising.
     """
@@ -323,12 +548,13 @@ def run_all(npz_path: str, contrast: str, controls: dict) -> dict:
         "npz_path": npz_path,
         "contrast": contrast,
         "P1": _p1(err_rec, err_zf, wm),
-        "P2": _p2(rec, gt, brain, contrast, controls.get("ctrlB")),
+        "P2": _p2(rec, gt, zf, brain, contrast, controls.get("ctrlB")),
         "P3": _p3(err_rec, gt, wm),
         "P4": _p4(rec, gt, zf, brain, controls.get("mask_path", DEFAULT_MASK_PATH)),
         "patchiness": _patchiness(rec, gt, wm, contrast,
-                                  controls.get("ctrlA_lam010"), controls.get("ctrlA_lam060"),
-                                  controls.get("rc_lam000", DEFAULT_RC_LAM000), zf),
+                                  controls.get("ctrlA_af2_lam010"), controls.get("ctrlA_af2_lam060"),
+                                  controls.get("rc_lam000", DEFAULT_RC_LAM000), zf,
+                                  ctrlB_path=controls.get("ctrlB")),
     }
     return readings
 
@@ -412,11 +638,15 @@ def _resolve_checkpoint(m0_json_path: str = DEFAULT_M0_JSON) -> str:
 
 def _controls_from_manifest(manifest_path: str = DEFAULT_MANIFEST_JSON) -> dict:
     """Build the `controls` dict `run_all` expects, citing only runs the manifest itself marks
-    `completed_genuine`. `ctrlA_lam010` in the manifest is the ALL-ONES, completed_vacuous run
+    `completed_genuine`. `ctrlA_lam010` in the MANIFEST is the ALL-ONES, completed_vacuous run
     (task-9-brief.md point 3: must not be cited for anything) -- Control A here is instead the
     AF=2 pair `ctrlA_af2_lam010` / `ctrlA_af2_lam060`. `ctrlA_lam120` is not_run and so is simply
     absent. A run whose status is anything other than "completed_genuine" is skipped rather than
     cited, whatever its name suggests.
+
+    Fix round 1 (I2): the RETURNED dict's own keys are also `ctrlA_af2_lam010`/`ctrlA_af2_lam060`
+    (not `ctrlA_lam010`/`ctrlA_lam060`) so nothing downstream can be misread as citing the
+    manifest's vacuous entry just because a key happened to share its name.
     """
     with open(manifest_path) as fh:
         manifest = json.load(fh)
@@ -430,8 +660,8 @@ def _controls_from_manifest(manifest_path: str = DEFAULT_MANIFEST_JSON) -> dict:
 
     return {
         "ctrlB": _npz_if_genuine("ctrlB_seed1"),
-        "ctrlA_lam010": _npz_if_genuine("ctrlA_af2_lam010"),
-        "ctrlA_lam060": _npz_if_genuine("ctrlA_af2_lam060"),
+        "ctrlA_af2_lam010": _npz_if_genuine("ctrlA_af2_lam010"),
+        "ctrlA_af2_lam060": _npz_if_genuine("ctrlA_af2_lam060"),
         "rc_lam000": DEFAULT_RC_LAM000,
         "mask_path": DEFAULT_MASK_PATH,
     }
@@ -456,6 +686,20 @@ def main(argv=None) -> int:
     print(f"controls: {controls}")
 
     readings = run_all(npz_path, args.contrast, controls)
+
+    # Fix round 1 (I2): record WHY this checkpoint, in the durable JSON, not only in prose.
+    with open(args.m0_json) as fh:
+        m0 = json.load(fh)
+    readings["provenance"] = {
+        "m0_unique_match": m0.get("unique_match"),
+        "m0_resolved": m0.get("resolved"),
+        "checkpoint_used": npz_path,
+        "checkpoint_source": ("M0 resolved uniquely" if m0.get("resolved") else
+                              "spec section 7 FALLBACK: M0 did not resolve uniquely "
+                              "(unique_match=false, resolved=null); binds to tvs4k_e040 per the "
+                              "standing rule. The figure's own provenance is unrecoverable."),
+    }
+
     verdicts = adjudicate(readings)
     json_path = write_report(readings, verdicts, out_dir=args.out_dir)
 

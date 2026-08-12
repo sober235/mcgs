@@ -38,6 +38,34 @@ def test_candidates_excludes_control_runs(tmp_path):
     print("PASS test_candidates_excludes_control_runs")
 
 
+def test_candidates_excludes_anything_postdating_the_cutoff_regardless_of_name(tmp_path):
+    """Fix round 1 (M3): a concurrently-running, unrelated session added dozens of `af10_*`/
+    `ar10_*`/`af12_ar_*` volumes to results_arc/ after LOOK_T1_axial.png was drawn -- none of them
+    named ctrlA_*/ctrlB_*, so the OLD prefix-only filter would have silently started treating them
+    as M0 candidates. `cutoff_mtime` must exclude them by DATE, independent of name.
+    """
+    import os
+    import time
+
+    old = tmp_path / "old_experiment_volumes.npz"
+    old.write_bytes(b"")
+    cutoff = old.stat().st_mtime + 0.05
+    time.sleep(0.1)
+    new = tmp_path / "new_unrelated_experiment_volumes.npz"  # does NOT match ctrlA_/ctrlB_
+    new.write_bytes(b"")
+    assert new.stat().st_mtime > cutoff, "fixture sanity: new must postdate the cutoff"
+
+    got = run_m0_provenance._candidates(str(tmp_path / "*_volumes.npz"), cutoff_mtime=cutoff)
+    got_names = {Path(p).name for p in got}
+    assert got_names == {"old_experiment_volumes.npz"}, got_names
+
+    # with no cutoff (the old default behaviour), the postdating file WOULD be included --
+    # proving the cutoff is doing real work, not merely restating the prefix filter.
+    got_no_cutoff = run_m0_provenance._candidates(str(tmp_path / "*_volumes.npz"))
+    assert "new_unrelated_experiment_volumes.npz" in {Path(p).name for p in got_no_cutoff}
+    print("PASS test_candidates_excludes_anything_postdating_the_cutoff_regardless_of_name")
+
+
 def _mri_like(rng, shape=(48, 48)):
     """Bright block. test_metrics.py's `_mri_like_panel` uses a narrow row-span (30-70%) and a wide
     column-span (10-90%) so that, unrotated, every column inside the block has the same darkness
@@ -103,6 +131,16 @@ def test_run_m0_ranks_the_true_source_first_and_never_considers_control_runs(tmp
     gt_peak = float(np.abs(gt_vol).max())
     err_rgb = _render_error_panel(true_rec2d, gt2d, gt_volume_max=gt_peak)
 
+    # Candidates must exist BEFORE the figure (fix round 1, M3: run_m0 now excludes anything
+    # postdating the PNG's own mtime by default) -- write them first, matching real chronology.
+    np.savez(tmp_path / "true_volumes.npz", recT1=true_rec_vol, gtT1=gt_vol, zfT1=zf_vol,
+             recFL=true_rec_vol, gtFL=gt_vol, zfFL=zf_vol)
+    np.savez(tmp_path / "decoy_volumes.npz", recT1=decoy_rec_vol, gtT1=gt_vol, zfT1=zf_vol,
+             recFL=decoy_rec_vol, gtFL=gt_vol, zfFL=zf_vol)
+    # An exact-match "control" -- must be excluded from candidacy no matter how well it would score.
+    np.savez(tmp_path / "ctrlA_lam010_volumes.npz", recT1=gt_vol, gtT1=gt_vol, zfT1=gt_vol,
+             recFL=gt_vol, gtFL=gt_vol, zfFL=gt_vol)
+
     fig, axes = plt.subplots(1, 4, figsize=(16, 4))
     axes[0].imshow(np.rot90(gt2d), cmap="gray", vmin=0.0, vmax=1.0, interpolation="nearest", aspect="auto")
     axes[0].set_title("ground truth")
@@ -117,14 +155,6 @@ def test_run_m0_ranks_the_true_source_first_and_never_considers_control_runs(tmp
     png_path = tmp_path / "LOOK_T1_axial.png"
     fig.savefig(png_path, dpi=100)
     plt.close(fig)
-
-    np.savez(tmp_path / "true_volumes.npz", recT1=true_rec_vol, gtT1=gt_vol, zfT1=zf_vol,
-             recFL=true_rec_vol, gtFL=gt_vol, zfFL=zf_vol)
-    np.savez(tmp_path / "decoy_volumes.npz", recT1=decoy_rec_vol, gtT1=gt_vol, zfT1=zf_vol,
-             recFL=decoy_rec_vol, gtFL=gt_vol, zfFL=zf_vol)
-    # An exact-match "control" -- must be excluded from candidacy no matter how well it would score.
-    np.savez(tmp_path / "ctrlA_lam010_volumes.npz", recT1=gt_vol, gtT1=gt_vol, zfT1=gt_vol,
-             recFL=gt_vol, gtFL=gt_vol, zfFL=gt_vol)
 
     report = run_m0_provenance.run_m0(
         png_path=str(png_path), glob_pat=str(tmp_path / "*_volumes.npz"),
@@ -149,6 +179,9 @@ if __name__ == "__main__":
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         test_candidates_excludes_control_runs(tmp)
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        test_candidates_excludes_anything_postdating_the_cutoff_regardless_of_name(tmp)
     test_rank_and_gate_applies_the_pre_registered_uniqueness_rule()
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)

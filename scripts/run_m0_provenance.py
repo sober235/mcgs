@@ -76,12 +76,25 @@ ERROR_PANEL_CALIBRATION_DESCRIPTION = (
 )
 
 
-def _candidates(glob_pat: str = DEFAULT_GLOB) -> list:
-    """Every *_volumes.npz matching `glob_pat`, EXCLUDING this diagnosis's own control runs
-    (ctrlA_*/ctrlB_*) -- they were run 2026-08-10+, strictly after the figure, and so are not
-    eligible sources under any circumstance (task-9-brief.md point 3: controls must never be cited).
+def _candidates(glob_pat: str = DEFAULT_GLOB, cutoff_mtime: float | None = None) -> list:
+    """Every *_volumes.npz matching `glob_pat`, EXCLUDING (a) anything with an mtime AFTER
+    `cutoff_mtime` and (b) this diagnosis's own control runs (`ctrlA_*`/`ctrlB_*`) by name.
+
+    Fix round 1 (M3): name-prefix filtering ALONE is fragile — it only protects against files
+    that happen to be named `ctrlA_*`/`ctrlB_*`. A concurrently-running, unrelated session has
+    since added several dozen `af10_*`/`ar10_*`/`af12_ar_*` volumes to `results_arc/` (none of
+    them controls, none of them prefixed `ctrlA_`/`ctrlB_`, all created 2026-08-11+) — every one
+    of them postdates `LOOK_T1_axial.png` (2026-08-03) by more than a week and so is categorically
+    ineligible regardless of name, and a prefix-only filter would have silently started
+    considering them the next time this script runs. `cutoff_mtime` (default: the target PNG's own
+    mtime, set by the caller) is the robust, name-independent gate: a file that did not exist yet
+    cannot have produced the figure. Name-prefix exclusion is KEPT as a second, explicit, auditable
+    gate (task-9-brief.md point 3: this diagnosis's own controls must never be cited, stated
+    directly rather than relying solely on their timestamps happening to be late).
     """
     paths = sorted(globmod.glob(glob_pat))
+    if cutoff_mtime is not None:
+        paths = [p for p in paths if Path(p).stat().st_mtime <= cutoff_mtime]
     return [p for p in paths
             if not (Path(p).name.startswith("ctrlA_") or Path(p).name.startswith("ctrlB_"))]
 
@@ -111,8 +124,10 @@ def _rank_and_gate(top_corr: float, gap: float) -> bool:
 
 def run_m0(png_path: str = DEFAULT_PNG, glob_pat: str = DEFAULT_GLOB,
           slice_index: int = SLICE_INDEX, negative_slice_index: int = NEGATIVE_SLICE_INDEX,
-          n_panels: int = N_PANELS) -> dict:
-    paths = _candidates(glob_pat)
+          n_panels: int = N_PANELS, cutoff_mtime: float | None = None) -> dict:
+    if cutoff_mtime is None:
+        cutoff_mtime = Path(png_path).stat().st_mtime  # fix round 1, M3: default = the figure's own mtime
+    paths = _candidates(glob_pat, cutoff_mtime=cutoff_mtime)
     if len(paths) < 2:
         raise ValueError(f"need >=2 candidates, found {len(paths)} for glob {glob_pat!r}")
 
@@ -178,12 +193,17 @@ def run_m0(png_path: str = DEFAULT_PNG, glob_pat: str = DEFAULT_GLOB,
         "unique_match": unique_match,
         "resolved": resolved,
         "note_uniqueness_ceiling": (
-            f"The uniqueness rule's `top > 0.99` clause sits above this pipeline's own measured "
+            f"Fix round 1 (M2): two DIFFERENT things block `resolved`, not one uniform ceiling "
+            f"issue as an earlier version of this note implied. The greyscale reading's "
+            f"top_correlation={top_grey:.4f} actually CLEARS the top>0.99 bar; it fails only on "
+            f"gap={gap_grey:.4f} (<0.01 -- the top-5 candidates are near-identical tv_eps "
+            f"neighbours). The error_panel reading's top_correlation={top_err:.4f} is the one "
+            f"that misses the top>0.99 bar, and it sits below this pipeline's own measured "
             f"extraction ceiling: the greyscale GT self-calibration reads r_top={r_gt_top:.4f} "
             f"(< 0.99) even when the reconstruction shown IS the true source, because 8-bit PNG "
-            f"quantisation + bilinear resampling cap the achievable correlation. This is a "
-            f"documented limitation of the reading (rules registered pre-data are not adjusted "
-            f"post-hoc); it does not change the criterion or the unique_match/resolved verdict."
+            f"quantisation + bilinear resampling cap the achievable correlation. Both are "
+            f"documented limitations of the reading (rules registered pre-data are not adjusted "
+            f"post-hoc); neither changes the criterion or the unique_match/resolved verdict."
         ),
     }
 
@@ -195,9 +215,12 @@ def main(argv=None) -> int:
     ap.add_argument("--json-out", default=DEFAULT_JSON_OUT)
     ap.add_argument("--slice-index", type=int, default=SLICE_INDEX)
     ap.add_argument("--negative-slice-index", type=int, default=NEGATIVE_SLICE_INDEX)
+    ap.add_argument("--cutoff-mtime", type=float, default=None,
+                    help="override the candidate-eligibility cutoff (default: the PNG's own mtime)")
     args = ap.parse_args(argv)
 
-    report = run_m0(args.png, args.glob, args.slice_index, args.negative_slice_index)
+    report = run_m0(args.png, args.glob, args.slice_index, args.negative_slice_index,
+                    cutoff_mtime=args.cutoff_mtime)
 
     out_path = Path(args.json_out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
