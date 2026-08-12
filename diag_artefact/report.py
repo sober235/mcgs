@@ -668,6 +668,93 @@ def _p4(rec: np.ndarray, gt: np.ndarray, zf: np.ndarray, brain: np.ndarray,
 
 PATCHINESS_CURVE_Q = (0.10, 0.50, 0.90, 0.999)
 
+# spec section 3's calibration-stakes table quotes this number directly: "rc_lam000 (no TV) ->
+# patchiness metrics must read 'no patchiness' on it (section 14b measured: selectivity 1.20,
+# whole ratio curve above 1)". It is used below ONLY as a comparison anchor (which of two measured
+# distances is smaller) for an additional, informational check -- it does not gate
+# `stake_discriminates`/`agree`/`attribution`, all of which stay exactly as before.
+M5_REFERENCE_SELECTIVITY = 1.20
+
+
+def _m5_reference_check(rc_selectivity: float, shipped_selectivity: float) -> dict:
+    """Spec section 3's REGISTERED M5 stake is 'rc_lam000 must read NO patchiness', anchored to
+    section 14b's own measurement (selectivity ~1.20, curve above 1 at every quantile) -- a
+    property of rc_lam000's OWN reading. `stake_rc_lam000_selectivity_discriminates` (rc_sel <
+    shipped_sel) approximates that with a DIRECTION PROXY relative to the run under test, which is
+    a different, weaker question (it can pass even when rc_lam000 itself reads nothing like
+    section 14b's reference). This checks the literal one, as a comparison between two measured
+    distances -- no new absolute threshold is introduced.
+    """
+    rc_dist = abs(rc_selectivity - M5_REFERENCE_SELECTIVITY)
+    shipped_dist = abs(shipped_selectivity - M5_REFERENCE_SELECTIVITY)
+    return {
+        "reference": M5_REFERENCE_SELECTIVITY,
+        "rc_lam000_distance_from_reference": rc_dist,
+        "shipped_distance_from_reference": shipped_dist,
+        "rc_lam000_closer_to_reference_than_shipped": bool(rc_dist < shipped_dist),
+    }
+
+
+def _gauge_normalization_provenance_note(contrast: str, raw_agree: bool, agree: bool,
+                                         d010_raw: float, d060_raw: float,
+                                         d010_norm: float, d060_norm: float) -> str:
+    """Fix (DEFECT 1a, honesty-fix-report): the note this replaces claimed the gauge normalisation
+    "is conservative (it removes an attribution rather than creating one)" -- true of the T1 run,
+    false of the FLAIR run (there it creates one: raw arms disagree, normalised arms agree). The
+    direction is DATA-DEPENDENT, not conservative by construction, so it is computed per-run from
+    the actual raw_agree/agree readings rather than asserted as a blanket claim -- a record that
+    stated a fixed direction could silently go stale on a rerun; this cannot.
+    """
+    if raw_agree and not agree:
+        effect = "REMOVED an attribution the raw comparison had asserted"
+    elif (not raw_agree) and agree:
+        effect = "CREATED an attribution the raw comparison did not support"
+    elif raw_agree and agree:
+        effect = "left the attribution direction unchanged (raw and gauge-normalised both agree)"
+    else:
+        effect = "left both readings without an attribution (raw and gauge-normalised both disagree)"
+    return (
+        "POST-HOC: dividing each arm's selectivity by its OWN zf anchor was introduced at fix "
+        "round 1 (2026-08-11), after the raw comparison had already been computed. It is "
+        "defensible (memory.md section 3's metric-gauge trap: each arm is a different "
+        "acquisition, so their anchors are not interchangeable), but its DIRECTION OF EFFECT IS "
+        "DATA-DEPENDENT, NOT conservative by construction -- it can CREATE an attribution the raw "
+        f"arms did not support just as readily as it can remove one. On this run (contrast="
+        f"{contrast}) it {effect}: raw deltas {d010_raw:+.4f}/{d060_raw:+.4f} -> "
+        f"raw_agree={raw_agree}; gauge-normalised deltas {d010_norm:+.4f}/{d060_norm:+.4f} -> "
+        f"agree={agree}. It was NOT pre-registered and is recorded as such here rather than only "
+        "in a session log."
+    )
+
+
+def _attribution_not_for_citation_reasons(raw_agree: bool, d010_raw: float, d060_raw: float,
+                                          d010_norm: float, d060_norm: float,
+                                          reference_check: dict | None,
+                                          rc_sel: float | None, shipped_sel: float | None) -> list:
+    """Fix (DEFECT 1b, honesty-fix-report): why an attribution the `elif agree:` branch asserts may
+    not be safe to cite, named explicitly in the JSON rather than left implicit in `agree=True`.
+    Two independent reasons, both checked; either alone is enough to flag it.
+    """
+    reasons = []
+    if not raw_agree:
+        reasons.append(
+            "created by the post-hoc gauge normalisation: the raw (un-gauge-corrected) arm deltas "
+            f"disagree in sign ({d010_raw:+.4f} / {d060_raw:+.4f} -> raw_agree=False) while the "
+            f"gauge-normalised ones agree ({d010_norm:+.4f} / {d060_norm:+.4f} -> agree=True) -- "
+            "the normalisation is what produced this attribution, not what removed one.")
+    if reference_check is not None and not reference_check["rc_lam000_closer_to_reference_than_shipped"]:
+        reasons.append(
+            "the M5 stake it passes (`stake_rc_lam000_selectivity_discriminates`, i.e. "
+            "rc_sel < shipped_sel) is only a DIRECTION PROXY, not spec section 3's registered "
+            f"stake -- 'rc_lam000 must read NO patchiness', anchored to section 14b's reference "
+            f"selectivity of {M5_REFERENCE_SELECTIVITY:.2f} with the curve above 1 at every "
+            f"quantile. Here rc_lam000's own selectivity ({rc_sel:.4f}) sits FURTHER from "
+            f"{M5_REFERENCE_SELECTIVITY:.2f} than the shipped run's ({shipped_sel:.4f}) does, so "
+            "under the spec's own wording the stake arguably fails here. (Its curve LEVEL does "
+            "match section 14b's 'above 1 everywhere' signature -- that is the honest part of the "
+            "evidence.)")
+    return reasons
+
 
 def _patchiness(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray, contrast: str,
                ctrlA_af2_lam010_path: str | None, ctrlA_af2_lam060_path: str | None,
@@ -701,12 +788,15 @@ def _patchiness(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray, contrast: str,
     # -- no constant is introduced by checking it (final review I1). It fails here, which is what
     # disqualifies the scalar as a discriminator.
     stake_discriminates = None
+    reference_check = None
     if rc_lam000_path and os.path.exists(rc_lam000_path):
         v0 = load_volumes(rc_lam000_path, contrast)
         wm0 = wm_mask(v0["gt"], brain_mask(v0["gt"]))
         rc_sel = selectivity(v0["rec"], v0["gt"], wm0)
         stake_discriminates = bool(rc_sel < shipped_sel)
+        reference_check = _m5_reference_check(rc_sel, shipped_sel)
         out["stake_rc_lam000_selectivity"] = rc_sel
+        out["stake_rc_lam000_m5_reference_check"] = reference_check
         out["stake_rc_lam000_gradient_ratio_curve"] = gradient_ratio_curve(
             v0["rec"], v0["gt"], wm0, quantiles=PATCHINESS_CURVE_Q)
         out["stake_rc_lam000_vs_shipped_selectivity_delta"] = rc_sel - shipped_sel
@@ -722,6 +812,7 @@ def _patchiness(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray, contrast: str,
     else:
         out["stake_rc_lam000_selectivity"] = None
         out["stake_rc_lam000_selectivity_discriminates"] = None
+        out["stake_rc_lam000_m5_reference_check"] = None
 
     have_both = (ctrlA_af2_lam010_path and ctrlA_af2_lam060_path and
                 os.path.exists(ctrlA_af2_lam010_path) and os.path.exists(ctrlA_af2_lam060_path))
@@ -802,14 +893,8 @@ def _patchiness(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray, contrast: str,
         "raw_selectivity_delta_lam010_vs_shipped": d010_raw,
         "raw_selectivity_delta_lam060_vs_shipped": d060_raw,
         "raw_agree_UNCORRECTED_do_not_use_for_attribution": raw_agree,
-        "gauge_normalization_provenance": (
-            "POST-HOC: dividing each arm's selectivity by its OWN zf anchor was introduced at fix "
-            "round 1 (2026-08-11), after the raw comparison had already been computed, and it is "
-            "what flipped `agree` from True to False and the attribution from a direction to "
-            "'undecided'. It is defensible (memory.md section 3's metric-gauge trap: each arm is a "
-            "different acquisition, so their anchors are not interchangeable) and conservative (it "
-            "removes an attribution rather than creating one), but it was NOT pre-registered and "
-            "is recorded as such here rather than only in a session log."),
+        "gauge_normalization_provenance": _gauge_normalization_provenance_note(
+            contrast, raw_agree, agree, d010_raw, d060_raw, d010_norm, d060_norm),
     })
 
     # Final review (I1): the attribution must not be computed from an index whose own calibration
@@ -834,6 +919,14 @@ def _patchiness(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray, contrast: str,
     elif agree:
         out["attribution"] = ("less patchiness at AF=2" if d010_norm < 0 else
                               "patchiness persists or worsens at AF=2")
+        # Fix (DEFECT 1b, honesty-fix-report): an attribution asserted here is not automatically
+        # safe to cite -- name, in the JSON itself, whichever of the two known failure modes apply.
+        _not_for_citation_reasons = _attribution_not_for_citation_reasons(
+            raw_agree, d010_raw, d060_raw, d010_norm, d060_norm, reference_check,
+            rc_sel if reference_check is not None else None,
+            shipped_sel)
+        out["attribution_not_for_citation"] = bool(_not_for_citation_reasons)
+        out["attribution_not_for_citation_reasons"] = _not_for_citation_reasons
     else:
         out["attribution"] = "control A undecided"
         out["reason"] = ("gauge-normalised selectivity (each arm divided by its own zf anchor) "
@@ -917,6 +1010,96 @@ def adjudicate(readings: dict) -> dict:
     return v
 
 
+def _p1_literal_support(r: dict) -> tuple:
+    """DEFECT 2 (honesty-fix-report): is P1's `spec_literal_verdict` supported, i.e. NOT resting on
+    a clause its own calibration stake invalidated? `spec_literal` is 'true' iff
+    `inside_band_all_lags AND ncc_high` (spec section 2). Here it reads 'false' whenever
+    `inside_band_all_lags` is False -- but `stake_zf_inside_band_all_lags` is the SAME rule applied
+    to zf's own pure-aliasing residual (P1's own section-3 calibration stake), and when IT also
+    reads False, the clause fails identically on a known-aliasing reference and per section 3 ("a
+    metric that fails its stake is discarded on the spot") cannot be trusted as diagnostic either
+    way. `ncc_high` is not itself gated by that stake and is named as the countervailing evidence
+    when it points the other way.
+    """
+    inside = r.get("inside_band_all_lags")
+    stake = r.get("stake_zf_inside_band_all_lags")
+    if inside is False and stake is False:
+        ncc = r.get("ncc_rec_zf")
+        null_hi = r.get("ncc_self_permutation_null_hi97_5")
+        countervailing = ""
+        if r.get("ncc_high_relative_to_null") and ncc is not None and null_hi is not None:
+            countervailing = (f" The other conjunct points the opposite way: "
+                              f"ncc_rec_zf={ncc:.4f} against a null ceiling of {null_hi:.5f} says "
+                              "the residual IS same-family with zf's aliasing -- evidence FOR P1.")
+        return (False,
+                "the literal 'false' is driven by inside_band_all_lags=False, but this "
+                "proposition's own calibration stake (stake_zf_inside_band_all_lags) reads False "
+                "identically on zf's pure-aliasing residual, so that clause cannot be trusted as "
+                "diagnostic here (spec section 3)." + countervailing)
+    return (True, f"inside_band_all_lags={inside}, stake_zf_inside_band_all_lags={stake} -- not "
+                  "both False, so the literal reading is not resting on an invalidated clause.")
+
+
+def _p2_literal_support(r: dict) -> tuple:
+    """P2's `spec_literal_verdict` is 'true' iff `low` (the rim error pattern sits inside its own
+    null). That null is chosen by validity -- the circular-shift null when `residual_is_exchangeable`
+    is False, the permutation null otherwise (`_p2`'s `gating_null`) -- rather than asserted
+    unconditionally, so the clause it rests on is not an invalidated one; the exchangeability CHECK
+    is exactly what keeps it valid. Only flagged unsupported if the code somehow gated on the
+    permutation null despite exchangeability having failed (it does not, on real data), which would
+    mean the literal reading rests on the SAME invalidated null P2's own docstring (C1) describes.
+    """
+    exch = r.get("residual_is_exchangeable")
+    gating = r.get("gating_null")
+    if exch is False and gating not in (None, "circular_shift"):
+        return (False,
+                f"residual_is_exchangeable=False (the permutation null's assumption fails) but "
+                f"gating_null={gating!r}, not the valid circular-shift fallback -- the literal "
+                "reading would be resting on an invalidated null.")
+    return (True,
+            f"the literal reading rests on `low`, gated by the {gating!r} null; "
+            f"residual_is_exchangeable={exch} correctly routes to a valid null (circular-shift "
+            "when the permutation null's exchangeability assumption fails), so the clause is not "
+            "invalidated.")
+
+
+def _p3_literal_support(r: dict) -> tuple:
+    """P3's `spec_literal_verdict` compares `real_corr` against the half-voxel-shift positive
+    control directly (`real_over_shift_ratio`, in `spec_literal_basis`); `_p3`'s own
+    `spec_literal_note` states this rule 'needs no null at all'. `permutation_null_valid` (P3's
+    section-3 calibration stake) only demotes the IMPLEMENTED rule's verdict to 'insufficient' when
+    it fails -- it plays no role in `spec_literal_basis`, so there is no invalidated clause for the
+    literal reading to rest on.
+    """
+    valid = r.get("permutation_null_valid")
+    has_basis = bool(r.get("spec_literal_basis"))
+    return (True,
+            "the literal reading (`real_over_shift_ratio` vs the half-voxel-shift positive "
+            f"control) does not depend on the permutation null at all -- permutation_null_valid="
+            f"{valid} only demotes the IMPLEMENTED verdict, and spec_literal_basis is computed "
+            f"independently of it (present={has_basis}).")
+
+
+def _p4_literal_support(r: dict) -> tuple:
+    """P4's `spec_literal_verdict` is computed straight from the air-energy ratios
+    (`all(ratio > 2.0 ...)`, spec_literal_basis is the air_curve itself); its calibration
+    `stake_gate` (the zf-sensitivity stake AND the PSF positive-control stake) is what would
+    invalidate those ratios if either failed. On the real volumes both pass.
+    """
+    passed = r.get("stake_gate", {}).get("passed")
+    if passed is False:
+        return (False,
+                "stake_gate.passed=False -- the air-energy ratios the literal reading rests on "
+                "failed their own calibration stake and cannot be trusted.")
+    return (True,
+            f"stake_gate.passed={passed} -- the air-energy ratios the literal reading rests on are "
+            "validated (both the zf-sensitivity and PSF positive-control stakes).")
+
+
+_LITERAL_SUPPORT_CHECKS = {"P1": _p1_literal_support, "P2": _p2_literal_support,
+                          "P3": _p3_literal_support, "P4": _p4_literal_support}
+
+
 def spec_literal_verdicts(readings: dict) -> dict:
     """What spec section 2's rules, applied literally as written, yield from the same numbers.
 
@@ -927,10 +1110,25 @@ def spec_literal_verdicts(readings: dict) -> dict:
     case that matters -- its implemented rule lost the answer to a null that was never
     pre-registered and then failed validity, while the registered rule (compare against the
     half-pixel-shift positive control) answers cleanly from the data.
+
+    DEFECT 2 (honesty-fix-report): a bare `{"P1": "false", ...}` block is readable as four
+    standalone verdicts, but P1's 'false' is derived from `inside_band_all_lags`, exactly the
+    clause P1's own calibration stake invalidates (see `_p1_literal_support`). Each entry now
+    carries `supported` (computed via `_LITERAL_SUPPORT_CHECKS`, not asserted) and a `reason`
+    alongside `value`, so this block cannot be read as a standalone verdict without also seeing
+    whether it is entitled to be. `value` and every underlying `spec_literal_verdict` are
+    unchanged -- only this aggregate's SHAPE changes, adding information, never altering an
+    existing reading.
     """
-    return {key: readings[key].get("spec_literal_verdict", "insufficient")
-            for key in ("P1", "P2", "P3", "P4")
-            if isinstance(readings.get(key), dict)}
+    out = {}
+    for key in ("P1", "P2", "P3", "P4"):
+        r = readings.get(key)
+        if not isinstance(r, dict):
+            continue
+        value = r.get("spec_literal_verdict", "insufficient")
+        supported, reason = _LITERAL_SUPPORT_CHECKS[key](r)
+        out[key] = {"value": value, "supported": supported, "reason": reason}
+    return out
 
 
 def write_report(readings: dict, verdicts: dict, out_dir: str = "results_arc/diag_artefact",
@@ -976,10 +1174,16 @@ def _figure_verdict_lines(readings: dict, verdicts: dict) -> list:
     for key in ("P1", "P2", "P3", "P4"):
         if key not in verdicts:
             continue
-        lit = literal.get(key)
+        entry = literal.get(key)
+        lit = entry.get("value") if entry else None
         tag = verdicts[key].upper()
         if lit and lit != verdicts[key]:
-            tag += f"  (spec-literal rule: {lit.upper()})"
+            tag += f"  (spec-literal rule: {lit.upper()}"
+            # DEFECT 2 (honesty-fix-report): a reader of the figure alone must also see when the
+            # spec-literal reading rests on a clause its own stake invalidated -- not just the JSON.
+            if entry and entry.get("supported") is False:
+                tag += ", NOT SUPPORTED -- see verdicts JSON"
+            tag += ")"
         lines.append(f"{titles[key]}:  {tag}\n     {facts.get(key, '')}")
     return lines
 

@@ -353,6 +353,64 @@ def test_patchiness_gauge_correction_can_flip_raw_agreement_into_disagreement(tm
     print("PASS test_patchiness_gauge_correction_can_flip_raw_agreement_into_disagreement")
 
 
+def test_gauge_normalization_provenance_note_matches_the_observed_direction():
+    """DEFECT 1a (honesty-fix-report): the note this replaces claimed the gauge normalisation
+    "is conservative (it removes an attribution rather than creating one)" -- true of the real T1
+    diagnosis run, but FALSE of the real FLAIR run (there the raw arms disagree and the
+    gauge-normalised ones agree: the normalisation CREATED that attribution). The note must never
+    assert a fixed direction; it must report, per-run, whichever of REMOVED/CREATED the actual
+    raw_agree/agree readings show.
+    """
+    from diag_artefact.report import (_attribution_not_for_citation_reasons,
+                                      _gauge_normalization_provenance_note, _m5_reference_check)
+
+    OLD_FALSE_CLAIM = "conservative (it removes an attribution rather than creating one)"
+
+    removed = _gauge_normalization_provenance_note(  # T1-like
+        "T1", raw_agree=True, agree=False,
+        d010_raw=-0.07, d060_raw=-0.02, d010_norm=-0.05, d060_norm=0.03)
+    created = _gauge_normalization_provenance_note(  # FLAIR-like -- the real numbers from
+        "FLAIR", raw_agree=False, agree=True,        # verdicts_FLAIR.json's patchiness block
+        d010_raw=0.0718, d060_raw=-0.0698, d010_norm=0.3101, d060_norm=0.1309)
+
+    for note in (removed, created):
+        assert OLD_FALSE_CLAIM not in note, note
+        assert "DATA-DEPENDENT" in note and "NOT conservative by construction" in note, note
+
+    assert "REMOVED an attribution" in removed and "CREATED an attribution" not in removed, removed
+    assert "CREATED an attribution" in created and "REMOVED an attribution" not in created, created
+
+    # DEFECT 1b: the FLAIR attribution itself must be marked NOT-FOR-CITATION with both reasons.
+    # Reason 1 -- created by the normalisation (raw_agree=False here).
+    reason1_only = _attribution_not_for_citation_reasons(
+        raw_agree=False, d010_raw=0.0718, d060_raw=-0.0698, d010_norm=0.3101, d060_norm=0.1309,
+        reference_check=None, rc_sel=None, shipped_sel=0.9439)
+    assert len(reason1_only) == 1, reason1_only
+    assert "created by the post-hoc gauge normalisation" in reason1_only[0], reason1_only
+
+    # Reason 2 -- the M5 stake is only a direction proxy; FLAIR's rc_lam000 (0.7082) sits further
+    # from the section-14b reference (1.20) than shipped's (0.9439) does.
+    ref = _m5_reference_check(rc_selectivity=0.7082, shipped_selectivity=0.9439)
+    assert ref["rc_lam000_closer_to_reference_than_shipped"] is False, ref
+    reason2_only = _attribution_not_for_citation_reasons(
+        raw_agree=True, d010_raw=0.01, d060_raw=0.01, d010_norm=0.01, d060_norm=0.01,
+        reference_check=ref, rc_sel=0.7082, shipped_sel=0.9439)
+    assert len(reason2_only) == 1, reason2_only
+    assert "DIRECTION PROXY" in reason2_only[0] and "0.7082" in reason2_only[0], reason2_only
+
+    both_reasons = _attribution_not_for_citation_reasons(
+        raw_agree=False, d010_raw=0.0718, d060_raw=-0.0698, d010_norm=0.3101, d060_norm=0.1309,
+        reference_check=ref, rc_sel=0.7082, shipped_sel=0.9439)
+    assert len(both_reasons) == 2, both_reasons
+
+    # sanity: T1's own rc_lam000 (1.1988) sits closer to 1.20 than shipped's (1.1830) -- the M5
+    # stake's stricter reading does NOT additionally implicate T1 (which never reaches this branch
+    # anyway, since T1's direction-proxy stake already fails and routes to "control A undecided").
+    ref_t1 = _m5_reference_check(rc_selectivity=1.1988, shipped_selectivity=1.1830)
+    assert ref_t1["rc_lam000_closer_to_reference_than_shipped"] is True, ref_t1
+    print("PASS test_gauge_normalization_provenance_note_matches_the_observed_direction")
+
+
 def _selective_recon(gt, strength, seed):
     """A reconstruction that flattens small gradients and keeps large ones -- the selective
     suppression memory section 14b names, i.e. the patchiness these metrics are meant to see."""
@@ -637,14 +695,70 @@ def test_main_runs_end_to_end_and_writes_both_artefacts(tmp_path, monkeypatch):
 
 
 def test_spec_literal_verdicts_are_reported_for_every_proposition():
+    """DEFECT 2 (honesty-fix-report) changed this block's SHAPE from a bare string per proposition
+    to {"value", "supported", "reason"} -- so an aggregate reading can no longer be mistaken for a
+    standalone verdict without also carrying whether it is entitled to be one. `value` itself is
+    unchanged (still degrades to "insufficient" when never recorded).
+    """
     readings = {"P1": {"spec_literal_verdict": "false"}, "P2": {"spec_literal_verdict": "false"},
                 "P3": {"spec_literal_verdict": "false"}, "P4": {"spec_literal_verdict": "false"},
                 "patchiness": {}}
     got = spec_literal_verdicts(readings)
-    assert got == {"P1": "false", "P2": "false", "P3": "false", "P4": "false"}, got
+    assert set(got) == {"P1", "P2", "P3", "P4"}, got
+    for key in ("P1", "P2", "P3", "P4"):
+        assert got[key]["value"] == "false", got
+        assert isinstance(got[key]["supported"], bool), got
+        assert isinstance(got[key]["reason"], str) and got[key]["reason"], got
     # a proposition that never recorded one degrades to "insufficient", never to a guess
-    assert spec_literal_verdicts({"P1": {}})["P1"] == "insufficient"
+    assert spec_literal_verdicts({"P1": {}})["P1"]["value"] == "insufficient"
     print("PASS test_spec_literal_verdicts_are_reported_for_every_proposition")
+
+
+def test_p1_spec_literal_marked_unsupported_when_it_rests_on_the_invalidated_clause():
+    """DEFECT 2 fix, the case that matters: P1's spec-literal 'false' is driven by
+    inside_band_all_lags reading False -- but when the SAME rule applied to zf's own pure-aliasing
+    residual (P1's own section-3 calibration stake) ALSO reads False, that clause cannot be trusted
+    (a metric failing its stake is discarded, not read literally). `spec_literal_verdicts` must
+    flag this reading `supported: False` and name the countervailing `ncc_rec_zf` evidence -- while
+    leaving both `spec_literal_verdict` and `verdict` themselves byte-identical to what `_p1`
+    already computed (the constraint: no verdict may change).
+    """
+    from scipy import ndimage
+
+    gt = _phantom_gt()
+    b = brain_mask(gt)
+    wm = wm_mask(gt, b)
+    rng = np.random.default_rng(3)
+
+    # both err_rec and its zf reference carry real coherent structure independent of each other,
+    # so BOTH escape "inside band": inside_band_all_lags=False on rec, AND the stake (the same rule
+    # applied to zf) also reads False.
+    err_zf = np.where(wm, ndimage.gaussian_filter(rng.normal(0, 1, gt.shape), 3.0), 0.0)
+    err_rec = np.where(wm, ndimage.gaussian_filter(rng.normal(0, 1, gt.shape), 3.0), 0.0)
+
+    r = _p1(err_rec, err_zf, wm)
+    assert r["inside_band_all_lags"] is False, r
+    assert r["stake_zf_inside_band_all_lags"] is False, r
+
+    lit = spec_literal_verdicts({"P1": r})["P1"]
+    assert lit["value"] == r["spec_literal_verdict"], lit          # value unchanged
+    assert r["verdict"] == "insufficient", r                       # implemented verdict unchanged
+    assert lit["supported"] is False, lit
+    assert "inside_band_all_lags" in lit["reason"], lit
+    if r["ncc_high_relative_to_null"]:
+        assert f"{r['ncc_rec_zf']:.4f}" in lit["reason"], lit      # countervailing evidence named
+
+    # the sibling propositions, on their own real (non-degenerate) fixtures elsewhere in this
+    # file, come out supported -- spot-check P2/P3/P4 do not spuriously flag on a normal reading.
+    for key, r_ok in (("P2", {"low": False, "gating_null": "circular_shift",
+                              "residual_is_exchangeable": False, "spec_literal_verdict": "false"}),
+                      ("P3", {"permutation_null_valid": False,
+                              "spec_literal_basis": {"max_real_over_shift_ratio": 0.01},
+                              "spec_literal_verdict": "false"}),
+                      ("P4", {"stake_gate": {"passed": True}, "spec_literal_verdict": "false"})):
+        entry = spec_literal_verdicts({key: r_ok})[key]
+        assert entry["supported"] is True, (key, entry)
+    print("PASS test_p1_spec_literal_marked_unsupported_when_it_rests_on_the_invalidated_clause")
 
 
 if __name__ == "__main__":
@@ -668,6 +782,7 @@ if __name__ == "__main__":
     test_patchiness_undecided_when_controls_are_missing()
     with tempfile.TemporaryDirectory() as td:
         test_patchiness_gauge_correction_can_flip_raw_agreement_into_disagreement(Path(td))
+    test_gauge_normalization_provenance_note_matches_the_observed_direction()
     with tempfile.TemporaryDirectory() as td:
         test_run_all_wires_everything_and_adjudicate_consumes_it_without_error(Path(td))
     with tempfile.TemporaryDirectory() as td:
@@ -685,5 +800,6 @@ if __name__ == "__main__":
     with tempfile.TemporaryDirectory() as td:
         test_adjudication_figure_stamps_the_verdicts_on_the_panel(Path(td))
     test_spec_literal_verdicts_are_reported_for_every_proposition()
+    test_p1_spec_literal_marked_unsupported_when_it_rests_on_the_invalidated_clause()
     print("ALL PASS  (test_main_runs_end_to_end_and_writes_both_artefacts needs pytest's "
           "monkeypatch fixture -- run it with pytest)")

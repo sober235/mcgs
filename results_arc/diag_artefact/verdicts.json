@@ -1,6 +1,6 @@
 {
   "generated_by": "diag_artefact/report.py (python -m diag_artefact.report)",
-  "commit": "4c4f5952e59d727ddcf52c32311b426594600c7f",
+  "commit": "f19215187bc4fa8c9fa8aee84436a54e3074b737",
   "readings": {
     "npz_path": "results_arc/tvs4k_e040_volumes.npz",
     "contrast": "T1",
@@ -310,6 +310,12 @@
         "0.999": 0.8981350723693639
       },
       "stake_rc_lam000_selectivity": 1.198805591753591,
+      "stake_rc_lam000_m5_reference_check": {
+        "reference": 1.2,
+        "rc_lam000_distance_from_reference": 0.00119440824640904,
+        "shipped_distance_from_reference": 0.017024266432972057,
+        "rc_lam000_closer_to_reference_than_shipped": true
+      },
       "stake_rc_lam000_gradient_ratio_curve": {
         "0.1": 1.6658829005075346,
         "0.5": 1.7358788075248386,
@@ -351,7 +357,7 @@
       "raw_selectivity_delta_lam010_vs_shipped": -0.16750079650495908,
       "raw_selectivity_delta_lam060_vs_shipped": -0.2821428225424628,
       "raw_agree_UNCORRECTED_do_not_use_for_attribution": true,
-      "gauge_normalization_provenance": "POST-HOC: dividing each arm's selectivity by its OWN zf anchor was introduced at fix round 1 (2026-08-11), after the raw comparison had already been computed, and it is what flipped `agree` from True to False and the attribution from a direction to 'undecided'. It is defensible (memory.md section 3's metric-gauge trap: each arm is a different acquisition, so their anchors are not interchangeable) and conservative (it removes an attribution rather than creating one), but it was NOT pre-registered and is recorded as such here rather than only in a session log.",
+      "gauge_normalization_provenance": "POST-HOC: dividing each arm's selectivity by its OWN zf anchor was introduced at fix round 1 (2026-08-11), after the raw comparison had already been computed. It is defensible (memory.md section 3's metric-gauge trap: each arm is a different acquisition, so their anchors are not interchangeable), but its DIRECTION OF EFFECT IS DATA-DEPENDENT, NOT conservative by construction -- it can CREATE an attribution the raw arms did not support just as readily as it can remove one. On this run (contrast=T1) it REMOVED an attribution the raw comparison had asserted: raw deltas -0.1675/-0.2821 -> raw_agree=True; gauge-normalised deltas +0.0250/-0.1151 -> agree=False. It was NOT pre-registered and is recorded as such here rather than only in a session log.",
       "attribution": "control A undecided",
       "reason": "M5's calibration stake failed: the no-TV control rc_lam000 reads selectivity 1.1988 against the shipped run's 1.1830 -- the run that has no TV at all, and therefore no TV-induced patchiness by construction, scores HIGHER than the run under test. Per spec section 3 the scalar is discarded on the spot and may not support a verdict, so no attribution is asserted from it in either direction. For the record, the arms would not have agreed anyway (gauge-normalised deltas +0.0250 / -0.1151), and the larger of them sits at 3.75x the run-to-run noise floor 0.0307 measured from a second AF=12 draw. Read the per-arm gradient_ratio_curve levels instead: section 14b's own classification is that a curve above 1 at every quantile is under-regularised roughness and a curve below 1 that rises with the quantile is selective suppression."
     },
@@ -369,9 +375,25 @@
     "P3": "insufficient"
   },
   "spec_literal_verdicts": {
-    "P1": "false",
-    "P2": "false",
-    "P3": "false",
-    "P4": "false"
+    "P1": {
+      "value": "false",
+      "supported": false,
+      "reason": "the literal 'false' is driven by inside_band_all_lags=False, but this proposition's own calibration stake (stake_zf_inside_band_all_lags) reads False identically on zf's pure-aliasing residual, so that clause cannot be trusted as diagnostic here (spec section 3). The other conjunct points the opposite way: ncc_rec_zf=0.4521 against a null ceiling of 0.00523 says the residual IS same-family with zf's aliasing -- evidence FOR P1."
+    },
+    "P2": {
+      "value": "false",
+      "supported": true,
+      "reason": "the literal reading rests on `low`, gated by the 'circular_shift' null; residual_is_exchangeable=False correctly routes to a valid null (circular-shift when the permutation null's exchangeability assumption fails), so the clause is not invalidated."
+    },
+    "P3": {
+      "value": "false",
+      "supported": true,
+      "reason": "the literal reading (`real_over_shift_ratio` vs the half-voxel-shift positive control) does not depend on the permutation null at all -- permutation_null_valid=False only demotes the IMPLEMENTED verdict, and spec_literal_basis is computed independently of it (present=True)."
+    },
+    "P4": {
+      "value": "false",
+      "supported": true,
+      "reason": "stake_gate.passed=True -- the air-energy ratios the literal reading rests on are validated (both the zf-sensitivity and PSF positive-control stakes)."
+    }
   }
 }
