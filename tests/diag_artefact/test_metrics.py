@@ -63,7 +63,10 @@ def test_calibration_stake_on_synthetic_figure():
         check_calibration(panel, low_corr_candidates, slice_index=160)
         raise AssertionError("check_calibration should have raised ValueError for low correlation")
     except ValueError as e:
-        assert "below threshold" in str(e), f"Expected threshold error, got: {e}"
+        # message reworded in the final review: this bar is an EXTRACTION SANITY FLOOR (no
+        # candidate resembles the panel at all => cropping/rotation is broken), not a calibration
+        # stake in spec section 3's sense. See check_calibration's docstring.
+        assert "sanity floor not met" in str(e), f"Expected the extraction-floor error, got: {e}"
         print(f"  check_calibration correctly rejects low correlation: {e}")
 
     # Test 3: check_calibration should pass when top correlation > 0.95

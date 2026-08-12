@@ -4,46 +4,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import numpy as np
-from scipy import ndimage
 from diag_artefact.volumes import brain_mask, wm_mask, air_mask, load_volumes
-
-
-def _phantom(shape=(64, 60, 64), seed=0):
-    """A bright plateau (=white matter) inside a dim rim and around a dim core, on a noisy dark field.
-
-    The rim is DIMMER than the plateau on purpose. wm_mask selects [P55, P90] of the in-brain
-    distribution (project memory 14b), so the plateau standing in for white matter has to occupy
-    that band; a rim brighter than the plateau would take P90 instead. This is also the real T1
-    ordering: bright WM interior, dark CSF/skull rim.
-
-    UPDATED (2026-08-11, alongside the switch to the published brain_mask/wm_mask): the published
-    wm_mask erodes with `gaussian_filter(mask, sigma=2) > 0.95`, a STRONG erosion that only
-    survives where the [P55,P90]-band voxels form a big, spatially SOLID region. The original
-    fixture gave the plateau i.i.d. per-voxel noise (std 0.01); since real anatomy is spatially
-    correlated but i.i.d. noise is not, the P55-P90 band picked out a scattered, salt-and-pepper
-    subset of the plateau instead of a solid shell, and the strong erosion ate all of it (WM mask
-    came back empty) -- not because the property under test became false, but because the fixture
-    stopped resembling the thing the mask is designed for. Fix: give the plateau (and only the
-    plateau/rim/core -- the background field stays exactly flat, so the brain-mask corner-exclusion
-    test below is undisturbed) a smoothed, spatially-correlated texture (sigma=6, amplitude 0.10)
-    instead of i.i.d. noise, so the P55-P90 band forms large contiguous patches that the strong
-    erosion can have deep interior in -- while keeping the original property intact: WM should
-    still be selected from the plateau's own value range, not the rim's or the core's.
-    """
-    rng = np.random.default_rng(seed)
-    zz, yy, xx = np.ogrid[:shape[0], :shape[1], :shape[2]]
-    c = [s // 2 for s in shape]
-    r = np.sqrt((zz - c[0]) ** 2 + (yy - c[1]) ** 2 + (xx - c[2]) ** 2)
-    vol = np.zeros(shape, np.float32)
-    vol[r < 25] = 0.20          # dim rim (CSF / skull-like)
-    vol[r < 22] = 0.60          # "white matter" plateau
-    vol[r < 10] = 0.35          # dim core (ventricle-like)
-    ball = r < 25
-    texture = ndimage.gaussian_filter(rng.normal(0, 1, shape), 6.0)
-    texture = texture / texture.std() * 0.10
-    vol += np.where(ball, texture, 0.0).astype(np.float32)   # spatially-correlated, ball-only
-    vol += rng.normal(0, 0.01, shape).astype(np.float32)     # small i.i.d. floor, as before
-    return np.abs(vol)
+from tests.diag_artefact.conftest import make_phantom as _phantom
 
 
 def test_brain_mask_captures_the_ball_and_excludes_the_field():
@@ -163,6 +125,34 @@ def test_load_volumes_rejects_missing_keys():
         print("PASS test_load_volumes_rejects_missing_keys")
 
 
+def test_load_volumes_rejects_mismatched_shapes_and_returns_float32():
+    """Final review (minors): `load_volumes` validated neither dtype nor shape, so an npz whose
+    three volumes disagree would have surfaced as a broadcasting error inside a statistic rather
+    than as "this npz is not what you think it is"."""
+    import tempfile
+    import os
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        good = os.path.join(tmpdir, "good.npz")
+        np.savez(good, recT1=np.zeros((8, 8, 8), dtype=np.float64),
+                 gtT1=np.zeros((8, 8, 8), dtype=np.float64),
+                 zfT1=np.zeros((8, 8, 8), dtype=np.float64))
+        vols = load_volumes(good, "T1")
+        assert all(v.dtype == np.float32 for v in vols.values()), \
+            {k: v.dtype for k, v in vols.items()}
+
+        bad = os.path.join(tmpdir, "bad.npz")
+        np.savez(bad, recT1=np.zeros((8, 8, 8), dtype=np.float32),
+                 gtT1=np.zeros((8, 8, 7), dtype=np.float32),
+                 zfT1=np.zeros((8, 8, 8), dtype=np.float32))
+        try:
+            load_volumes(bad, "T1")
+            assert False, "mismatched volume shapes must raise"
+        except ValueError as e:
+            assert "common 3-D" in str(e), e
+    print("PASS test_load_volumes_rejects_mismatched_shapes_and_returns_float32")
+
+
 if __name__ == "__main__":
     test_brain_mask_captures_the_ball_and_excludes_the_field()
     test_wm_mask_selects_the_plateau_not_the_shell_or_core()
@@ -170,4 +160,5 @@ if __name__ == "__main__":
     test_load_volumes_maps_contrasts_correctly()
     test_load_volumes_rejects_unknown_contrast()
     test_load_volumes_rejects_missing_keys()
+    test_load_volumes_rejects_mismatched_shapes_and_returns_float32()
     print("ALL PASS")

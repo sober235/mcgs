@@ -1,10 +1,19 @@
 {
-  "description": "Manifest of the control runs for the T1-artefact diagnosis plan (Task 4). status values: completed_genuine (scored a real reconstruction, safe to cite), completed_vacuous (ran but the scoring path discarded the model output; do NOT cite), not_run (deliberately skipped, reason given).",
+  "generated_by": "scripts/build_run_manifest.py",
+  "commit": "4c4f5952e59d727ddcf52c32311b426594600c7f",
+  "description": "Manifest of the control runs for the T1-artefact diagnosis plan (Task 4). status values: completed_genuine (scored a real reconstruction, safe to cite), completed_vacuous (ran but the scoring path discarded the model output; do NOT cite), not_run (deliberately skipped, reason given). Every status here is DERIVED by scripts/build_run_manifest.py from the non-vacuity gate against the volumes on disk -- none is hand-typed.",
   "tv_eps_used": 0.04,
   "tv_eps_source": "results_arc/diag_artefact/m0_provenance.json: unique_match=false, resolved=null. Per the task-4 brief's standing rule (binds every conclusion to tvs4k_e040 when M0 is non-unique), defaulted to 0.04 (tvs4k_e040's eps).",
+  "status_derivation": "not_run = the npz is absent; completed_genuine = diag_artefact.controls.assert_control_is_not_vacuous passes on every contrast; completed_vacuous = it fails on any contrast. Run scripts/build_run_manifest.py to re-derive.",
+  "contrasts": [
+    "T1",
+    "FLAIR"
+  ],
   "runs": {
     "ctrlA_lam010": {
       "npz": "results_arc/ctrlA_lam010_volumes.npz",
+      "log": "results_arc/ctrlA_lam010.log",
+      "config": "configs/ctrlA_fullsample_edgetv_lam010.yaml",
       "exists": true,
       "keys": [
         "recT1",
@@ -15,17 +24,28 @@
         "zfFL"
       ],
       "status": "completed_vacuous",
-      "reason": "mask = all-ones (attempted full-sample control). Scoring applies hard data-consistency k_dc = m*y + (1-m)*k_model (arc/cycle.py); with m all-ones, (1-m)=0, so the trained model's output is multiplied by zero and never reaches the scored volume. rec is identical to zf and to gt to float32 precision (measured below), i.e. the run measured nothing about the reconstruction or the regularizer. MUST NOT be cited as evidence for or against any patchiness/artefact hypothesis.",
+      "nonvacuity_gate": {
+        "T1": "FAIL",
+        "FLAIR": "FAIL"
+      },
       "final_metrics_from_log": {
         "T1": {
           "psnr": 156.405,
           "ssim": 1.0,
-          "nmse": 0.0
+          "nmse": 0.0,
+          "hfen": 0.0,
+          "sharp": 1.0,
+          "grain": 0.0106,
+          "comp": 179.277
         },
         "FLAIR": {
           "psnr": 153.372,
           "ssim": 1.0,
-          "nmse": 0.0
+          "nmse": 0.0,
+          "hfen": 0.0,
+          "sharp": 1.0,
+          "grain": 0.0128,
+          "comp": 175.811
         }
       },
       "measured_from_volumes": {
@@ -42,18 +62,23 @@
           "rec_identical_to_zf": true
         }
       },
-      "log": "results_arc/ctrlA_lam010.log"
+      "reason": "mask = all-ones (attempted full-sample control). Scoring applies hard data-consistency k_dc = m*y + (1-m)*k_model (arc/cycle.py); with m all-ones, (1-m)=0, so the trained model's output is multiplied by zero and never reaches the scored volume. rec is identical to zf and to gt to float32 precision (measured below), i.e. the run measured nothing about the reconstruction or the regularizer. MUST NOT be cited as evidence for or against any patchiness/artefact hypothesis."
     },
     "ctrlA_lam120": {
       "npz": "results_arc/ctrlA_lam120_volumes.npz",
+      "log": "results_arc/ctrlA_lam120.log (never created; run never launched)",
+      "config": "configs/ctrlA_fullsample_edgetv_lam120.yaml",
       "exists": false,
       "keys": null,
       "status": "not_run",
-      "reason": "Deliberately skipped. ctrlA_lam010 (lambda_geo=0.10, all-ones mask) was found completed_vacuous (see that entry): under hard-DC scoring, an all-ones mask makes (1-m)=0 for every lambda, so a second arm at lambda_geo=1.20 under the same all-ones mask would be equally vacuous by the same construction -- it would reproduce another exact copy of the ground truth at the cost of ~35 min of GPU time. Superseded by the AF=2 repair (ctrlA_af2_lam010 / ctrlA_af2_lam060 below).",
-      "log": "results_arc/ctrlA_lam120.log (never created; run never launched)"
+      "reason": "Deliberately skipped. ctrlA_lam010 (lambda_geo=0.10, all-ones mask) was found completed_vacuous (see that entry): under hard-DC scoring, an all-ones mask makes (1-m)=0 for every lambda, so a second arm at lambda_geo=1.20 under the same all-ones mask would be equally vacuous by the same construction -- it would reproduce another exact copy of the ground truth at the cost of ~35 min of GPU time. Superseded by the AF=2 repair (ctrlA_af2_lam010 / ctrlA_af2_lam060 below)."
     },
     "ctrlB_seed1": {
       "npz": "results_arc/ctrlB_seed1_volumes.npz",
+      "log": "results_arc/ctrlB_seed1.log",
+      "config": "configs/ctrlB_seed1_aligned.yaml",
+      "mask": "ctrlB_indep_af12_seed1_ALIGNED.mat (independent AF=12 draw, seed1, DC-aligned; see ctrlB_mask_report.json)",
+      "mask_report": "results_arc/diag_artefact/ctrlB_mask_report.json",
       "exists": true,
       "keys": [
         "recT1",
@@ -64,8 +89,10 @@
         "zfFL"
       ],
       "status": "completed_genuine",
-      "config": "configs/ctrlB_seed1_aligned.yaml",
-      "mask": "ctrlB_indep_af12_seed1_ALIGNED.mat (independent AF=12 draw, seed1, DC-aligned; see ctrlB_mask_report.json)",
+      "nonvacuity_gate": {
+        "T1": "PASS",
+        "FLAIR": "PASS"
+      },
       "final_metrics_from_log": {
         "T1": {
           "psnr": 38.362,
@@ -94,17 +121,19 @@
           "rec_identical_to_zf": false
         },
         "FLAIR": {
-          "max_rec_gt": 0.3010830879211426,
-          "max_rec_gt_rel_gt_peak": 0.19199468486421584,
+          "max_rec_gt": 0.3010830730199814,
+          "max_rec_gt_rel_gt_peak": 0.19199467536204232,
           "max_zf_gt": 0.98952716588974,
           "rec_identical_to_zf": false
         }
-      },
-      "log": "results_arc/ctrlB_seed1.log",
-      "mask_report": "results_arc/diag_artefact/ctrlB_mask_report.json"
+      }
     },
     "ctrlA_af2_lam010": {
       "npz": "results_arc/ctrlA_af2_lam010_volumes.npz",
+      "log": "results_arc/ctrlA_af2_lam010.log",
+      "config": "configs/ctrlA_af2_lam010.yaml",
+      "mask_report": "results_arc/diag_artefact/ctrlA_af2_mask_report.json",
+      "note": "Repair of control A after ctrlA_lam010 (all-ones mask) was found vacuous; replaces the full-sample design with a genuine mild-acceleration AF=2 mask (commit 1dfd1ed), which is non-vacuous under hard-DC scoring since (1-m) != 0 over a real fraction of k-space. lambda_geo=0.10 arm.",
       "exists": true,
       "keys": [
         "recT1",
@@ -115,8 +144,10 @@
         "zfFL"
       ],
       "status": "completed_genuine",
-      "config": "configs/ctrlA_af2_lam010.yaml",
-      "note": "Repair of control A after ctrlA_lam010 (all-ones mask) was found vacuous; replaces the full-sample design with a genuine mild-acceleration AF=2 mask (commit 1dfd1ed), which is non-vacuous under hard-DC scoring since (1-m) != 0 over a real fraction of k-space. lambda_geo=0.10 arm.",
+      "nonvacuity_gate": {
+        "T1": "PASS",
+        "FLAIR": "PASS"
+      },
       "final_metrics_from_log": {
         "T1": {
           "psnr": 43.321,
@@ -145,17 +176,19 @@
           "rec_identical_to_zf": false
         },
         "FLAIR": {
-          "max_rec_gt": 0.14102929830551147,
-          "max_rec_gt_rel_gt_peak": 0.08993157294799613,
+          "max_rec_gt": 0.14102930575609207,
+          "max_rec_gt_rel_gt_peak": 0.08993157769908289,
           "max_zf_gt": 0.5401694774627686,
           "rec_identical_to_zf": false
         }
-      },
-      "log": "results_arc/ctrlA_af2_lam010.log",
-      "mask_report": "results_arc/diag_artefact/ctrlA_af2_mask_report.json"
+      }
     },
     "ctrlA_af2_lam060": {
       "npz": "results_arc/ctrlA_af2_lam060_volumes.npz",
+      "log": "results_arc/ctrlA_af2_lam060.log",
+      "config": "configs/ctrlA_af2_lam060.yaml",
+      "mask_report": "results_arc/diag_artefact/ctrlA_af2_mask_report.json",
+      "note": "Repair of control A after ctrlA_lam010 (all-ones mask) was found vacuous; replaces the full-sample design with a genuine mild-acceleration AF=2 mask (commit 1dfd1ed), which is non-vacuous under hard-DC scoring since (1-m) != 0 over a real fraction of k-space. lambda_geo=0.60 arm (measurement-count-scaled second lambda for the AF=2 mask).",
       "exists": true,
       "keys": [
         "recT1",
@@ -166,8 +199,10 @@
         "zfFL"
       ],
       "status": "completed_genuine",
-      "config": "configs/ctrlA_af2_lam060.yaml",
-      "note": "Repair of control A after ctrlA_lam010 (all-ones mask) was found vacuous; replaces the full-sample design with a genuine mild-acceleration AF=2 mask (commit 1dfd1ed), which is non-vacuous under hard-DC scoring since (1-m) != 0 over a real fraction of k-space. lambda_geo=0.60 arm (measurement-count-scaled second lambda for the AF=2 mask).",
+      "nonvacuity_gate": {
+        "T1": "PASS",
+        "FLAIR": "PASS"
+      },
       "final_metrics_from_log": {
         "T1": {
           "psnr": 38.731,
@@ -201,9 +236,7 @@
           "max_zf_gt": 0.5401694774627686,
           "rec_identical_to_zf": false
         }
-      },
-      "log": "results_arc/ctrlA_af2_lam060.log",
-      "mask_report": "results_arc/diag_artefact/ctrlA_af2_mask_report.json"
+      }
     }
   }
 }

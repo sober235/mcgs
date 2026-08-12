@@ -1,9 +1,12 @@
 {
+  "generated_by": "scripts/build_ctrl_mask.py --verify-existing",
+  "commit": "4c4f5952e59d727ddcf52c32311b426594600c7f",
   "net_af": 2.0745542949756888,
   "abs_delta_af": 0.07455429497568877,
   "mask_at_dc": 1.0,
   "target_af": 2.0,
   "tol": 0.15,
+  "mode": "verify_existing",
   "roll": [
     2,
     24,
@@ -27,5 +30,6 @@
   ],
   "n_attempts": 1,
   "out": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/ctrlA_af2_indep_seed1_ALIGNED.mat",
-  "status": "OK"
+  "status": "OK_VERIFIED",
+  "provenance_note": "The MASK at `out` was drawn by this script's draw path on 2026-08-11; this REPORT was re-derived in --verify-existing mode, which re-measures every gate reading from the shipped mask file rather than trusting the earlier run's log. `attempts` is carried forward from the previous report so re-deriving this file never narrows the record."
 }

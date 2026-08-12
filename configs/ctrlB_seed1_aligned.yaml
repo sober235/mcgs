@@ -1,5 +1,15 @@
 # ============================================================================
-# winner_v2_edgeTV.yaml — EXPERIMENTAL edge-TV variant (NOT the shipped baseline; edge_tv negative result)
+# ctrlB_seed1_aligned.yaml — CONTROL B for the T1-artefact diagnosis (spec section 5)
+# ----------------------------------------------------------------------------
+# Same AF=12 vd-Poisson recipe as the shipped mask with the RNG DRAW CHANGED ONLY, rolled onto the
+# data's k-space DC exactly like the shipped mask (mask_path below ->
+# ctrlB_indep_af12_seed1_ALIGNED.mat; gates in results_arc/diag_artefact/ctrlB_mask_report.json,
+# built/verified by scripts/build_ctrlB_mask.py). It is the mask-instance arm P2 is decided on:
+# if the error pattern moves with the mask instance it is aliasing, if it does not it is not.
+# Everything else -- data, CSM, warm start, lambda, iterations -- matches the shipped run.
+#
+# Body below copied verbatim from winner_v2_edgeTV.yaml (EXPERIMENTAL edge-TV variant, NOT the
+# shipped baseline); only data.*.mask_path differs.
 # ----------------------------------------------------------------------------
 # Reproduces the validated MC-GS winner-v2 result on the T1(plain)+FLAIR(contrast)
 # brain pair under the ESPIRiT-CSM reconstruction convention:

@@ -35,6 +35,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from diag_artefact.controls import assert_control_is_not_vacuous
+from diag_artefact.jsonio import write_json
 from diag_artefact.volumes import load_volumes
 
 DEFAULT_CONTRASTS = ("T1", "FLAIR")
@@ -81,10 +82,35 @@ def main(argv=None) -> int:
                 print(f"{exp} {contrast}: PASS max_abs_diff={rep['max_abs_diff']:.3e} "
                       f"rel_max_abs_diff={rep['rel_max_abs_diff']:.3e}")
 
+    # MERGE, don't regenerate (final review, minors): this script is the committed record of which
+    # control runs are vacuous, and it is normally invoked on whichever npz files just finished. A
+    # wholesale rewrite means a partial invocation silently NARROWS the committed record -- the
+    # runs it did not name simply vanish from the file, with nothing to indicate they were ever
+    # checked. Existing entries for runs named in THIS invocation are replaced (that is a re-check
+    # and the new reading wins); entries for runs not named are carried through untouched.
     out_path = Path(args.json_out)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(
-        {"contrasts": list(contrasts), "runs": report, "any_fail": any_fail}, indent=2))
+    merged, carried = dict(report), []
+    if out_path.exists():
+        try:
+            previous = json.loads(out_path.read_text())
+        except json.JSONDecodeError as exc:
+            raise SystemExit(f"{out_path} exists but is not valid JSON ({exc}); refusing to "
+                             f"overwrite a record that cannot be merged") from exc
+        for name, entry in (previous.get("runs") or {}).items():
+            if name not in merged:
+                merged[name] = entry
+                carried.append(name)
+    any_fail_merged = any(c.get("status") == "FAIL"
+                          for run in merged.values()
+                          for c in (run.get("contrasts") or {}).values())
+    if carried:
+        print(f"carried forward from the existing report (not re-checked): {sorted(carried)}")
+
+    write_json(out_path, {"contrasts": list(contrasts), "runs": merged,
+                          "checked_this_invocation": sorted(report),
+                          "carried_forward_unchecked": sorted(carried),
+                          "any_fail": any_fail_merged},
+               generated_by="scripts/check_nonvacuity.py")
     print(f"wrote {out_path}")
     print("RESULT:", "FAIL (at least one run is vacuous)" if any_fail else "PASS (all runs non-vacuous)")
     return 1 if any_fail else 0

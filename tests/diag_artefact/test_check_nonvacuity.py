@@ -101,9 +101,28 @@ def test_main_keeps_checking_every_file_after_an_earlier_one_fails(tmp_path):
     print("PASS test_main_keeps_checking_every_file_after_an_earlier_one_fails")
 
 
-if __name__ == "__main__":
-    import tempfile
-    with tempfile.TemporaryDirectory() as td:
-        tmp = Path(td)
-        test_main_exits_nonzero_on_a_vacuous_volumes_file(tmp)
-    print("ALL PASS")
+def test_a_partial_invocation_merges_instead_of_narrowing_the_committed_record(tmp_path):
+    """Final review (minors): this script writes the committed record of which control runs are
+    vacuous, and it is normally invoked on whichever npz files just finished. Regenerating the
+    file wholesale meant a partial invocation silently DROPPED every run it did not name -- the
+    record would narrow with nothing to show it had. Entries for unnamed runs must be carried
+    through, entries for named runs must be replaced by the fresh reading, and the header must say
+    which is which.
+    """
+    json_out = tmp_path / "report.json"
+    first = tmp_path / "ctrlB_seed1_volumes.npz"
+    _write_volumes(first, vacuous=False, seed=1)
+    check_nonvacuity.main([str(first), "--json-out", str(json_out)])
+
+    second = tmp_path / "ctrlA_lam010_volumes.npz"
+    _write_volumes(second, vacuous=True, seed=2)
+    rc = check_nonvacuity.main([str(second), "--json-out", str(json_out)])
+    report = json.loads(json_out.read_text())
+
+    assert rc != 0
+    assert set(report["runs"]) == {"ctrlB_seed1", "ctrlA_lam010"}, report["runs"].keys()
+    assert report["checked_this_invocation"] == ["ctrlA_lam010"], report
+    assert report["carried_forward_unchecked"] == ["ctrlB_seed1"], report
+    assert report["any_fail"] is True
+    assert report["generated_by"] == "scripts/check_nonvacuity.py", report["generated_by"]
+    print("PASS test_a_partial_invocation_merges_instead_of_narrowing_the_committed_record")

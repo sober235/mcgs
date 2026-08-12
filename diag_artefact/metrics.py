@@ -31,15 +31,32 @@ def psf_spread(mask2d: np.ndarray, mainlobe_radius: int = 2) -> dict:
 
 
 def air_energy_curve(rec: np.ndarray, gt: np.ndarray, brain: np.ndarray,
-                     thresholds=(0.02, 0.05, 0.10, 0.15), dilate: int = 8) -> list:
+                     thresholds=(0.005, 0.01, 0.02, 0.04), dilate: int = 8) -> list:
     """M3 — E_air(rec)/E_air(gt) reported as a CURVE over how air is thresholded, never a point.
 
     Air is the one region with no suppression on this pipeline: ecalib -c 0.0 leaves SoS==1 over
     the whole FOV, and the GT is built by the same conjugate-SENSE combine, so the GT's air already
     carries full-amplitude noise. A ratio near 1 therefore means "the grain is in the GT too".
+
+    TWO FIXES from the final whole-branch review (I3), both about making the sweep spec §7 asks for
+    ("report the ratio as a curve over thresholds, never a single point") actually sweep something:
+
+    - `peak` is the volume's own maximum, matching `volumes.brain_mask` (the published definition,
+      `gt > 0.05 * gt.max()`), `provenance._render_error_panel` and `report.adjudication_figure`.
+      It used to be `percentile(gt, 99.9)`, a second, quieter convention living in this one line.
+    - the default thresholds sit BELOW the brain mask's own 0.05 cut. Above it the air mask is
+      already fully included, so the old (0.02, 0.05, 0.10, 0.15) evaluated three of its four
+      points on voxel sets within 0.25% of each other — a sweep in name only. On the shipped T1
+      volume the defaults here span 2.6M to 9.2M voxels and a ratio range of 2.95 to 0.48.
+
+    Note the ratio's own selection bias, which is exactly why the curve is reported rather than a
+    point: air is selected by thresholding the GT, so a tighter threshold keeps only voxels where
+    the GT happens to be small, shrinking the denominator without constraining the numerator. The
+    ratio therefore RISES as the threshold tightens for any candidate, including the pure-aliasing
+    zero-fill reference — which is why P4 is read against that reference rather than against 1.
     """
     base_air = air_mask(gt, brain, dilate=dilate)
-    peak = float(np.percentile(gt, 99.9))
+    peak = float(gt.max())
     rows = []
     for t in thresholds:
         a = base_air & (gt < t * peak)

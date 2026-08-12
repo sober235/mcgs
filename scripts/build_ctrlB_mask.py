@@ -56,11 +56,13 @@ import scipy.io as sio
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from diag_artefact.controls import (
+    AF_ABS_TOL,
     align_like_shipped,
     assert_control_mask,
     assert_differs_from_shipped,
     derive_roll,
 )
+from diag_artefact.jsonio import write_json
 
 MATLAB = "/usr/local/bin/matlab"
 ESPIRIT_UTILS = "/data0/congcong/code/ESPIRiT/utils"
@@ -72,7 +74,8 @@ DATA_PATH = ("/data1/data1_congcong/data/3D/T2_csm_ksp_n4_mat/"
 DEFAULT_OUT = f"{MDIR}/ctrlB_indep_af12_seed1_ALIGNED.mat"
 DEFAULT_JSON = "results_arc/diag_artefact/ctrlB_mask_report.json"
 SHIPPED_NET_AF = 11.832
-AF_ABS_TOL = 0.05          # spec sec5, absolute; keep in sync with diag_artefact.controls.AF_ABS_TOL
+# AF_ABS_TOL is imported from diag_artefact.controls (spec sec5, absolute) rather than re-declared
+# here -- a second copy of a spec constant is a second thing that can drift out of sync with it.
 MAX_ATTEMPTS_DEFAULT = 20  # generous: observed pass rate ~2/8-3/14 draws during exploration
 
 
@@ -119,6 +122,67 @@ def find_data_dc() -> tuple:
     return np.unravel_index(int(np.argmax(energy)), energy.shape)
 
 
+def verify_existing(out_path: Path, json_path: Path) -> dict:
+    """Re-derive the report for a mask that ALREADY EXISTS at `out_path`, running the same gates
+    this script's draw path runs, and write it through this driver.
+
+    Why this mode exists (final whole-branch review, C2b). The committed
+    `ctrlB_mask_report.json` did not match what `main()` writes: it carried
+    `matrix_center` / `roll_vs_memory_2_24_neg6` / `seed2d_net_af` and no `attempts` /
+    `n_attempts` / `status`, because the mask was drawn by an ad hoc session heredoc and this
+    driver was written two commits later without reconciling the record. Regenerating through the
+    draw path is not an option and never will be: `vdPoisMex`'s entropy is process-level (module
+    docstring), so a redraw produces a DIFFERENT mask, and every downstream artefact -- the ctrlB
+    reconstruction, P2's verdict -- binds to the mask on disk. Verifying the shipped mask against
+    the shipped gates is the reproducible operation that is actually available, and it is a
+    stronger record than an annotation: the gate readings are re-measured from the artefact rather
+    than copied from a log.
+    """
+    if not out_path.exists():
+        raise FileNotFoundError(f"--verify-existing needs a mask at {out_path}")
+
+    m3 = sio.loadmat(str(out_path))["mask"].astype(np.float32)
+    unal = sio.loadmat(UNALIGNED_MASK)["mask"].astype(np.float32)
+    alig = sio.loadmat(ALIGNED_MASK)["mask"].astype(np.float32)
+    roll = derive_roll(unal, alig)
+    dc = find_data_dc()
+
+    prior_attempts, prior_n = [], 0
+    if json_path.exists():
+        prior = json.loads(json_path.read_text())
+        prior_attempts = prior.get("attempts") or []
+        prior_n = prior.get("n_attempts") or len(prior_attempts)
+
+    gate_report = assert_control_mask(m3, dc_index=(dc[0], dc[1]), shipped_net_af=SHIPPED_NET_AF)
+    diff_report = assert_differs_from_shipped(m3, alig)
+
+    report = {
+        **gate_report, **diff_report,
+        "mode": "verify_existing",
+        "roll": [int(x) for x in roll],
+        "dc": [int(x) for x in dc],
+        "matrix_center": [s // 2 for s in (256, 220, 256)],
+        "attempts": prior_attempts,
+        "n_attempts": prior_n,
+        "out": str(out_path),
+        "status": "OK_VERIFIED",
+        "provenance_note": (
+            "The MASK at `out` was drawn by an ad hoc session heredoc on 2026-08-10, before this "
+            "driver existed; it cannot be redrawn (vdPoisMex's entropy is process-level, so a "
+            "rerun yields a different instance, and the ctrlB reconstruction and P2's verdict bind "
+            "to this file). This REPORT is produced by the committed driver in --verify-existing "
+            "mode: every number above is re-measured from the shipped mask through the same "
+            "diag_artefact.controls gates the draw path uses. `attempts` is carried forward from any "
+            "previous report so re-deriving this file never narrows the record; it is empty here "
+            "because the ad hoc draw left no attempt log."),
+    }
+    write_json(json_path, report, generated_by="scripts/build_ctrlB_mask.py --verify-existing")
+    print(f"verified {out_path}")
+    print(f"wrote {json_path}")
+    print(json.dumps(report, indent=2))
+    return report
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", default=DEFAULT_OUT, help="3-D mask .mat output path")
@@ -127,10 +191,16 @@ def main() -> None:
     ap.add_argument("--max-attempts", type=int, default=MAX_ATTEMPTS_DEFAULT)
     ap.add_argument("--seed", type=int, default=1,
                      help="passed to MATLAB rng(); has NO observed effect on the draw (see module docstring)")
+    ap.add_argument("--verify-existing", action="store_true",
+                     help="do not draw: run the same gates against the mask already at --out and "
+                          "write the report from THAT. See the note in `verify_existing` below.")
     args = ap.parse_args()
 
     out_path = Path(args.out)
     json_path = Path(args.json_out)
+    if args.verify_existing:
+        verify_existing(out_path, json_path)
+        return
     if not args.overwrite:
         existing = [p for p in (out_path, json_path) if p.exists()]
         if existing:
@@ -171,8 +241,8 @@ def main() -> None:
                 break
 
     if accepted_2d is None:
-        json_path.parent.mkdir(parents=True, exist_ok=True)
-        json_path.write_text(json.dumps({"attempts": attempts, "status": "FAILED_NO_DRAW_WITHIN_TOLERANCE"}, indent=2))
+        write_json(json_path, {"attempts": attempts, "status": "FAILED_NO_DRAW_WITHIN_TOLERANCE"},
+                   generated_by="scripts/build_ctrlB_mask.py")
         raise RuntimeError(
             f"No draw landed within |net_AF-{SHIPPED_NET_AF}|<{AF_ABS_TOL} in {args.max_attempts} "
             f"attempts. Full attempt log written to {json_path}. Refusing to fall through with a "
@@ -192,15 +262,16 @@ def main() -> None:
 
     report = {
         **gate_report, **diff_report,
+        "mode": "draw",
         "roll": [int(x) for x in roll],
         "dc": [int(x) for x in dc],
+        "matrix_center": [s // 2 for s in (256, 220, 256)],
         "attempts": attempts,
         "n_attempts": len(attempts),
         "out": str(out_path),
         "status": "OK",
     }
-    json_path.parent.mkdir(parents=True, exist_ok=True)
-    json_path.write_text(json.dumps(report, indent=2))
+    write_json(json_path, report, generated_by="scripts/build_ctrlB_mask.py")
     print(f"wrote {out_path}")
     print(f"wrote {json_path}")
     print(json.dumps(report, indent=2))

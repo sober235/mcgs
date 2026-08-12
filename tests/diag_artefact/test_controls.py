@@ -14,6 +14,7 @@ supposed to differ from the shipped mask ONLY in RNG seed, so `assert_differs_fr
 the degenerate case where the "new" mask is (by bug) the same arrangement as the shipped one — a
 control that would measure nothing while appearing to run fine.
 """
+import os
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -170,17 +171,32 @@ def test_assert_control_is_not_vacuous_accepts_a_materially_different_recon():
     print("PASS test_assert_control_is_not_vacuous_accepts_a_materially_different_recon")
 
 
-if __name__ == "__main__":
-    test_derive_roll_recovers_a_known_shift()
-    test_align_like_shipped_stacks_and_rolls()
-    test_assert_control_mask_rejects_a_mask_that_misses_dc()
-    test_assert_control_mask_rejects_a_mismatched_sampling_rate()
-    test_assert_differs_from_shipped_rejects_an_identical_pattern()
-    test_assert_differs_from_shipped_accepts_a_genuinely_different_seed()
-    test_assert_target_af_mask_rejects_a_mask_that_misses_dc()
-    test_assert_target_af_mask_rejects_outside_the_documented_tolerance()
-    test_assert_target_af_mask_accepts_within_the_documented_tolerance()
-    test_scored_recon_max_abs_diff_is_the_max_over_all_voxels()
-    test_assert_control_is_not_vacuous_rejects_the_ctrlA_all_ones_failure_mode()
-    test_assert_control_is_not_vacuous_accepts_a_materially_different_recon()
-    print("ALL PASS")
+SHIPPED_MASK_DIR = "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask"
+SHIPPED_UNALIGNED = f"{SHIPPED_MASK_DIR}/mask3d_vdpois_af12_transverse.mat"
+SHIPPED_ALIGNED = f"{SHIPPED_MASK_DIR}/mask3d_vdpois_af12_transverse_ALIGNED.mat"
+
+
+@pytest.mark.skipif(not (os.path.exists(SHIPPED_UNALIGNED) and os.path.exists(SHIPPED_ALIGNED)),
+                    reason="shipped AF=12 masks are bring-your-own (not in the repo)")
+def test_derive_roll_pins_the_real_shipped_unaligned_to_aligned_pair():
+    """`derive_roll` was only ever tested against a synthetic roll it constructed itself (final
+    review I7). The whole point of the function is that control masks reproduce the SHIPPED
+    alignment exactly rather than re-arguing memory section 8's (2, 24, -6) from prose, so pin it
+    against the real pair it is used on.
+
+    The answer is (2, 24, 0), not (2, 24, -6): both shipped masks are exactly uniform along axis 2
+    (the fully-sampled readout axis), so ANY axis-2 shift is a provable no-op and the recovered
+    roll is the canonical representative of that equivalence class. The assertion below proves it
+    both ways -- the derived roll reproduces the aligned mask exactly, and so does the memory
+    value.
+    """
+    from scipy import io as sio
+
+    unal = sio.loadmat(SHIPPED_UNALIGNED)["mask"].astype(np.float32)
+    alig = sio.loadmat(SHIPPED_ALIGNED)["mask"].astype(np.float32)
+    roll = derive_roll(unal, alig)
+    assert roll == (2, 24, 0), roll
+    assert np.array_equal(np.roll(unal, shift=roll, axis=(0, 1, 2)), alig)
+    assert np.array_equal(np.roll(unal, shift=(2, 24, -6), axis=(0, 1, 2)), alig), \
+        "memory section 8's (2, 24, -6) must be equivalent -- axis 2 is uniform"
+    print("PASS test_derive_roll_pins_the_real_shipped_unaligned_to_aligned_pair")

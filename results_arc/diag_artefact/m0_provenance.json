@@ -1,4 +1,6 @@
 {
+  "generated_by": "scripts/run_m0_provenance.py",
+  "commit": "4c4f5952e59d727ddcf52c32311b426594600c7f",
   "readings": {
     "greyscale": {
       "description": "Greyscale panels; 8-bit + render resampling limit r to ~0.99, equal to mutual brain correlation",
@@ -9,13 +11,13 @@
       },
       "calibration_zf": {
         "panel_index": 1,
-        "r_top": 0.9986096088610913,
-        "r_2nd": 0.9986096087234757
+        "r_top": 0.9986112458894759,
+        "r_2nd": 0.9986112457518602
       },
       "ranked_top5": [
         [
           "results_arc/tvs4k_e040_volumes.npz",
-          0.9917475942230675
+          0.9917475942230678
         ],
         [
           "results_arc/tvs4k_e060_volumes.npz",
@@ -23,20 +25,20 @@
         ],
         [
           "results_arc/tvs4k_e025_volumes.npz",
-          0.9913672712767548
+          0.9913672712767546
         ],
         [
           "results_arc/tvs4k_e015_volumes.npz",
-          0.9910819463494154
+          0.9910819463494147
         ],
         [
           "results_arc/tvs_e040_volumes.npz",
-          0.9910190213342196
+          0.9910190213342192
         ]
       ],
-      "top_correlation": 0.9917475942230675,
+      "top_correlation": 0.9917475942230678,
       "top_2nd_correlation": 0.9914398404128321,
-      "gap": 0.0003077538102354005,
+      "gap": 0.00030775381023573356,
       "unique_match": false
     },
     "error_panel": {

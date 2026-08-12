@@ -48,6 +48,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import numpy as np
 
+from diag_artefact.jsonio import write_json
 from diag_artefact.provenance import (
     check_calibration,
     check_error_calibration,
@@ -223,8 +224,7 @@ def main(argv=None) -> int:
                     cutoff_mtime=args.cutoff_mtime)
 
     out_path = Path(args.json_out)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(report, indent=2, default=float))
+    write_json(out_path, report, generated_by="scripts/run_m0_provenance.py")
     print(f"wrote {out_path}")
     print("greyscale: top=%.4f gap=%.4f unique=%s" % (
         report["readings"]["greyscale"]["top_correlation"],

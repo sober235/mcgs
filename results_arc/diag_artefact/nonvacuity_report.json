@@ -1,4 +1,6 @@
 {
+  "generated_by": "scripts/check_nonvacuity.py",
+  "commit": "4c4f5952e59d727ddcf52c32311b426594600c7f",
   "contrasts": [
     "T1",
     "FLAIR"
@@ -69,5 +71,12 @@
       }
     }
   },
+  "checked_this_invocation": [
+    "ctrlA_af2_lam010",
+    "ctrlA_af2_lam060",
+    "ctrlA_lam010",
+    "ctrlB_seed1"
+  ],
+  "carried_forward_unchecked": [],
   "any_fail": true
 }

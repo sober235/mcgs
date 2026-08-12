@@ -14,14 +14,29 @@ CONTRAST_KEYS = {"T1": ("recT1", "gtT1", "zfT1"), "FLAIR": ("recFL", "gtFL", "zf
 
 
 def load_volumes(npz_path, contrast: str = "T1") -> dict:
+    """The three magnitude volumes for one contrast, as float32 arrays of one common 3-D shape.
+
+    The `with` block matters: an `NpzFile` holds an open file handle, and this function is called
+    once per control run inside a single report (five or more 350 MB archives), so leaking them
+    leaks descriptors for the whole run. dtype and shape are checked here rather than left to blow
+    up somewhere downstream: every metric in this package differences these arrays against each
+    other, so a shape or dtype surprise would surface as a broadcasting error inside a statistic
+    rather than as "this npz is not what you think it is".
+    """
     if contrast not in CONTRAST_KEYS:
         raise ValueError(f"contrast must be one of {sorted(CONTRAST_KEYS)}, got {contrast!r}")
     rec_k, gt_k, zf_k = CONTRAST_KEYS[contrast]
-    d = np.load(npz_path)
-    missing = [k for k in (rec_k, gt_k, zf_k) if k not in d.files]
-    if missing:
-        raise KeyError(f"{npz_path} is missing {missing}; has {d.files}")
-    return {"rec": d[rec_k], "gt": d[gt_k], "zf": d[zf_k]}
+    with np.load(npz_path) as d:
+        missing = [k for k in (rec_k, gt_k, zf_k) if k not in d.files]
+        if missing:
+            raise KeyError(f"{npz_path} is missing {missing}; has {d.files}")
+        out = {name: np.asarray(d[key], dtype=np.float32)
+               for name, key in (("rec", rec_k), ("gt", gt_k), ("zf", zf_k))}
+    shapes = {name: v.shape for name, v in out.items()}
+    if out["gt"].ndim != 3 or len(set(shapes.values())) != 1:
+        raise ValueError(f"{npz_path} [{contrast}]: expected three volumes of one common 3-D "
+                         f"shape, got {shapes}")
+    return out
 
 
 def brain_mask(gt: np.ndarray, rel: float = 0.05) -> np.ndarray:

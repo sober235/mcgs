@@ -1,14 +1,16 @@
 {
+  "generated_by": "scripts/build_ctrlB_mask.py --verify-existing",
+  "commit": "4c4f5952e59d727ddcf52c32311b426594600c7f",
   "net_af": 11.797235023041475,
   "abs_delta_af": 0.03476497695852565,
   "mask_at_dc": 1.0,
   "diff_frac_vs_shipped": 0.12915482954545454,
+  "mode": "verify_existing",
   "roll": [
     2,
     24,
     0
   ],
-  "roll_vs_memory_2_24_neg6": false,
   "dc": [
     128,
     132,
@@ -19,6 +21,9 @@
     110,
     128
   ],
-  "seed2d_net_af": 11.797235023041475,
-  "out": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/ctrlB_indep_af12_seed1_ALIGNED.mat"
+  "attempts": [],
+  "n_attempts": 0,
+  "out": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/ctrlB_indep_af12_seed1_ALIGNED.mat",
+  "status": "OK_VERIFIED",
+  "provenance_note": "The MASK at `out` was drawn by an ad hoc session heredoc on 2026-08-10, before this driver existed; it cannot be redrawn (vdPoisMex's entropy is process-level, so a rerun yields a different instance, and the ctrlB reconstruction and P2's verdict bind to this file). This REPORT is produced by the committed driver in --verify-existing mode: every number above is re-measured from the shipped mask through the same diag_artefact.controls gates the draw path uses. `attempts` is carried forward from any previous report so re-deriving this file never narrows the record; it is empty here because the ad hoc draw left no attempt log."
 }

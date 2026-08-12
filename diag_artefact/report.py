@@ -26,6 +26,7 @@ import sys
 import numpy as np
 from scipy import io as sio
 
+from .jsonio import write_json
 from .metrics import (
     air_energy_curve,
     autocorr_profile,
@@ -36,7 +37,7 @@ from .metrics import (
     selectivity,
     surrogate_band,
 )
-from .volumes import air_mask, brain_mask, wm_mask, load_volumes
+from .volumes import brain_mask, wm_mask, load_volumes
 
 MAX_LAG = 8
 N_SURROGATE = 64
@@ -80,25 +81,96 @@ def _permutation_null_ncc(field: np.ndarray, ref: np.ndarray, mask: np.ndarray,
     return out
 
 
-N_SHIFT_NULL = 48
+N_SHIFT_NULL = 200
+
+
+def _circular_shift_draws(field: np.ndarray, ref: np.ndarray, mask: np.ndarray, n: int, seed: int,
+                          within_mask: bool):
+    """`n` draws of ncc(circular_shift(field), ref, support), and the support size of each draw.
+
+    `within_mask=True` zeroes `field` outside `mask` before rolling and scores each draw on
+    `mask & roll(mask)`, so only genuine within-mask values are used; `within_mask=False` rolls the
+    whole field and scores on `mask`, so values from outside the mask slide into it. Draws whose
+    support comes out empty contribute a 0 to `supports` and no value.
+    """
+    rng = np.random.default_rng(seed)
+    axes = tuple(range(field.ndim))
+    source = np.where(mask, field.astype(np.float64), 0.0) if within_mask else field.astype(np.float64)
+    values, supports = [], []
+    for _ in range(n):
+        shift = tuple(int(rng.integers(1, s)) for s in field.shape)
+        support = (mask & np.roll(mask, shift=shift, axis=axes)) if within_mask else mask
+        k = int(support.sum())
+        supports.append(k)
+        if k == 0:
+            continue
+        values.append(ncc(np.roll(source, shift=shift, axis=axes), ref, support))
+    return np.asarray(values, dtype=np.float64), np.asarray(supports, dtype=np.int64)
 
 
 def _circular_shift_null_ncc(field: np.ndarray, ref: np.ndarray, mask: np.ndarray,
-                             n: int = N_SHIFT_NULL, seed: int = SURROGATE_SEED) -> np.ndarray:
-    """`n` values of ncc(circular_shift_i(field), ref, mask) — a null valid even when `field` is
-    NOT spatially exchangeable (fix round 1, C1). Each draw cyclically rolls the WHOLE field by a
-    random offset on every axis, so it preserves `field`'s own autocorrelation structure exactly
-    (it is the same values, only relocated) while destroying its alignment with `ref`'s anatomy —
-    unlike `_permutation_null_ncc`'s within-mask reshuffle, which assumes iid and so UNDERSTATES
-    the null spread whenever `field` has real short-range structure of its own.
+                             observed: float | None = None, n: int = N_SHIFT_NULL,
+                             seed: int = SURROGATE_SEED) -> dict:
+    """A null for ncc(field, ref) that stays valid when `field` is NOT spatially exchangeable
+    (fix round 1, C1) — the case `_permutation_null_ncc`'s within-mask reshuffle cannot handle,
+    because reshuffling destroys structure the field really has and so UNDERSTATES the spread.
+    A circular shift relocates the same values instead, preserving `field`'s own autocorrelation
+    exactly while destroying its alignment with `ref`'s anatomy.
+
+    TWO VARIANTS, BOTH REPORTED, THE WIDER ONE GATES. The final review asked for the within-mask
+    variant (rolling the whole field slides out-of-mask values into the mask, so the null is partly
+    a statement about a population the real reading never touches). Measuring it revealed the
+    opposite failure on a sparse mask: WM is 1.05% of the volume and spatially concentrated, so the
+    MEDIAN overlap of the WM mask with a randomly-rolled copy of itself is exactly ZERO voxels, and
+    the few draws that do overlap score |ncc| up to 0.35 off a handful of voxels. So each variant
+    has a distinct defect — the whole-field one uses the wrong values, the within-mask one uses the
+    right values on a support that can be a tiny fraction of the real reading's — and neither is
+    uniformly better:
+
+        rim mask   (2.46M voxels, 17% of the volume): within-mask 0.085, whole-field 0.067
+        WM mask    (151k voxels, 1.05%):              within-mask 0.121, whole-field 0.016
+
+    Rather than pick per call site (which would be choosing the null after seeing which way it
+    pointed), both are computed and the WIDER 97.5th percentile gates. That is conservative by
+    construction — it can only make a reading harder to call significant, never easier — which is
+    the right direction of error for a diagnosis whose spec prefers "insufficient" over a verdict
+    resting on an uncalibrated number. Every number from both variants, including the support
+    statistics that expose the sparse-mask degeneracy, is recorded.
+
+    `n` is 200, not the 48 of fix round 1: a 97.5th percentile estimated from 48 draws is itself
+    noisy at roughly the level of the gap it adjudicates.
     """
-    rng = np.random.default_rng(seed)
-    shape = field.shape
-    out = np.empty(n, dtype=np.float64)
-    for i in range(n):
-        shift = tuple(int(rng.integers(1, s)) for s in shape)
-        shifted = np.roll(field, shift=shift, axis=tuple(range(field.ndim)))
-        out[i] = ncc(shifted, ref, mask)
+    n_mask = int(mask.sum())
+    out = {"n_draws": int(n), "mask_n_voxels": n_mask}
+    hi = {}
+    for name, within in (("within_mask", True), ("whole_field", False)):
+        values, supports = _circular_shift_draws(field, ref, mask, n=n, seed=seed,
+                                                 within_mask=within)
+        entry = {
+            "n_valid_draws": int(values.size),
+            "median_support_fraction": float(np.median(supports) / n_mask) if n_mask else 0.0,
+        }
+        if values.size:
+            entry["hi97_5"] = float(np.percentile(np.abs(values), 97.5))
+            entry["max_abs"] = float(np.abs(values).max())
+            if observed is not None:
+                entry["empirical_p"] = float((np.abs(values) >= abs(observed)).mean())
+            hi[name] = entry["hi97_5"]
+        else:
+            entry["hi97_5"] = None
+            entry["note"] = ("every draw left an empty support -- this variant cannot be "
+                             "estimated on a mask this sparse")
+        out[name] = entry
+
+    if not hi:
+        raise ValueError("neither circular-shift variant produced a usable draw")
+    gating = max(hi, key=lambda k: hi[k])
+    out["gating_variant"] = gating
+    out["hi97_5"] = hi[gating]
+    out["empirical_p"] = out[gating].get("empirical_p")
+    out["note"] = ("both variants are reported; the WIDER 97.5th percentile gates (conservative by "
+                   "construction). See _circular_shift_null_ncc's docstring for why neither "
+                   "variant is uniformly correct.")
     return out
 
 
@@ -175,9 +247,32 @@ def _p1(err_rec: np.ndarray, err_zf: np.ndarray, wm: np.ndarray) -> dict:
         verdict = "insufficient"
         reason = "the two sub-conditions disagree (mixed signal)"
 
+    # Final review (I2): what does spec section 2's rule, applied LITERALLY as written, yield from
+    # these numbers? It is a biconditional ("true iff A AND B") with no "insufficient" branch, so
+    # it always answers. It is recorded ALONGSIDE `verdict`, never instead of it: the implemented
+    # rule's extra "insufficient" branches encode spec section 3's discard discipline, which the
+    # section 2 wording does not carry on its own.
+    spec_literal = "true" if (inside_all_lags and ncc_high) else "false"
+    spec_literal_note = (
+        "spec section 2 P1: 'true iff rec-gt autocorrelation inside WM falls INSIDE the "
+        "white-noise surrogate band AND its structure is same-family as zf-gt'. Measured: "
+        f"inside_band_all_lags={inside_all_lags} (lag-1 autocorrelation {profile[1]:.4f} against a "
+        f"surrogate band of [{lo[1]:.4f}, {hi[1]:.4f}]), same-family={ncc_high} "
+        f"(ncc_rec_zf={r_rec_zf:.4f}). "
+        + ("The implemented rule returns 'insufficient' instead because the calibration stake "
+           "failed: zf's OWN residual -- pure aliasing, no prior -- does not read 'inside band' "
+           "under this same rule either, so the first clause is not diagnostic and per spec "
+           "section 3 it is discarded rather than used. Read this literal reading as 'the "
+           "autocorrelation is not delta-like', NOT as 'the speckle is not aliasing'."
+           if not zf_inside_all_lags else
+           "The implemented rule agrees with the literal reading here.")
+    )
+
     return {
         "verdict": verdict,
         "reason": reason,
+        "spec_literal_verdict": spec_literal,
+        "spec_literal_note": spec_literal_note,
         "autocorr_profile": profile.tolist(),
         "surrogate_band_lo": lo.tolist(),
         "surrogate_band_hi": hi.tolist(),
@@ -196,19 +291,47 @@ def _p1(err_rec: np.ndarray, err_zf: np.ndarray, wm: np.ndarray) -> dict:
 # ---------------------------------------------------------------------------
 
 P2_ANATOMY_SIGMA = 4.0
+P2_RIM_EROSION = 6
+
+
+def _rim_mask(brain: np.ndarray, iterations: int = P2_RIM_EROSION) -> np.ndarray:
+    """Spec section 2 P2's own region: the OUTER-RIM / skull-scalp band, i.e. the head mask minus
+    its interior. `iterations` is the shell thickness in voxels."""
+    from scipy import ndimage
+
+    return brain & ~ndimage.binary_erosion(brain, iterations=int(iterations))
 
 
 def _p2(rec: np.ndarray, gt: np.ndarray, zf: np.ndarray, brain: np.ndarray, contrast: str,
        ctrlB_path: str | None) -> dict:
-    """Fix round 1 (I4): records three additional readings so P2's "false" is not left resting on
-    the raw `ncc` alone. (1) An anatomy control — both error maps peak near the same tissue
-    boundaries regardless of which mask produced them, so raw ncc is inflated by a shared,
-    trivial low-frequency envelope; splitting into a low-pass (sigma=4) and a high-pass component
-    shows how much of the correlation survives once that shared shape is removed. (2) The SAME
-    comparison against `zf`'s own error (pure aliasing, no prior, same shipped mask) — if a
-    DIFFERENT mask instance's error resembles the shipped error MORE than the shipped mask's own
-    zero-fill error does, that is direct evidence the error pattern is not primarily an artefact
-    of which mask was used.
+    """P2's rule is spec section 2's: the band's error pattern must MOVE when the mask instance
+    changes; if it does not move, it is not aliasing. Three things the final whole-branch review
+    changed, none of them the rule:
+
+    C1 -- THE NULL. This function used to gate on `_permutation_null_ncc(e_shipped, e_shipped, ...)`
+    without checking the exchangeability that null assumes, while `_p3` refuses to use the same
+    primitive until `_residual_is_exchangeable` passes. On the real volumes it does NOT pass
+    (|rec-gt| autocorrelation at lags 1-4 is 0.189/0.139/0.118/0.103 against a permutation band of
+    ~0.0002-0.0009), so P2's gate understated the null width by about two orders of magnitude and
+    "high vs low" degenerated into "ncc != 0". The exchangeability check now runs here too, and
+    when it fails the gate switches to the circular-shift null, which is valid regardless. BOTH
+    nulls and the exchangeability reading are recorded, exactly as `_p3` records them. The verdict
+    is unchanged by this (ncc 0.398 against a shift-null 97.5th percentile of ~0.085) -- that is
+    the point: the conclusion survived a valid null, the gate did not.
+
+    I4 -- THE SCOPE. The reading is now taken on the rim band spec section 2 names, not on the
+    whole head. The whole-head reading is kept alongside (it answers a slightly different, broader
+    question) but the verdict binds to the registered region.
+
+    I1 -- THE STAKES. The anatomy control and the zf reference used to be reported and never
+    consulted. Both now gate, and either failing yields "insufficient" rather than a verdict:
+      * anatomy control: both error maps share a brain-shaped envelope, so a raw ncc could be high
+        purely from that. The high-pass (sigma=4 residual) component must ALSO clear its own null,
+        or the raw correlation is explained by shared anatomy and says nothing about the mask.
+      * zf reference: `zf-gt` is this mask's pure aliasing with no prior. For "the pattern is
+        indifferent to which mask instance drew it" to mean anything, a DIFFERENT mask instance's
+        error must resemble the shipped error at least as much as the shipped mask's own aliasing
+        reference does. Both are comparisons between measured quantities; no constant is invented.
     """
     from scipy import ndimage
 
@@ -220,42 +343,109 @@ def _p2(rec: np.ndarray, gt: np.ndarray, zf: np.ndarray, brain: np.ndarray, cont
     e_ctrlB = np.abs(vB["rec"].astype(np.float64) - vB["gt"].astype(np.float64))
     e_zf = np.abs(zf.astype(np.float64) - gt.astype(np.float64))
 
-    r = ncc(e_ctrlB, e_shipped, brain)
-    null = _permutation_null_ncc(e_shipped, e_shipped, brain)
-    null_hi = float(np.percentile(np.abs(null), 97.5))
+    rim = _rim_mask(brain)
+    r = ncc(e_ctrlB, e_shipped, rim)
+
+    # --- the two nulls, and the exchangeability reading that decides which one gates (C1)
+    perm_null = _permutation_null_ncc(e_shipped, e_shipped, rim)
+    perm_hi = float(np.percentile(np.abs(perm_null), 97.5))
+    exchangeable = _residual_is_exchangeable(e_shipped, rim)
+    shift_null = _circular_shift_null_ncc(e_shipped, e_ctrlB, rim, observed=r)
+    shift_hi = shift_null["hi97_5"]
+
+    gating_null = "permutation" if exchangeable else "circular_shift"
+    null_hi = perm_hi if exchangeable else shift_hi
     low = bool(abs(r) <= null_hi)
 
+    # --- stake 1: anatomy control, with its OWN null (I1)
     lp_shipped = ndimage.gaussian_filter(e_shipped, P2_ANATOMY_SIGMA)
     lp_ctrlB = ndimage.gaussian_filter(e_ctrlB, P2_ANATOMY_SIGMA)
-    r_lowpass = ncc(lp_shipped, lp_ctrlB, brain)
-    r_highpass = ncc(e_shipped - lp_shipped, e_ctrlB - lp_ctrlB, brain)
+    hp_shipped, hp_ctrlB = e_shipped - lp_shipped, e_ctrlB - lp_ctrlB
+    r_lowpass = ncc(lp_shipped, lp_ctrlB, rim)
+    r_highpass = ncc(hp_shipped, hp_ctrlB, rim)
+    hp_null = _circular_shift_null_ncc(hp_shipped, hp_ctrlB, rim, observed=r_highpass)
+    hp_null_hi = hp_null["hi97_5"]
+    highpass_clears_null = bool(abs(r_highpass) > hp_null_hi)
 
-    r_zf_vs_shipped = ncc(e_zf, e_shipped, brain)
+    # --- stake 2: the zf pure-aliasing reference (I1)
+    r_zf_vs_shipped = ncc(e_zf, e_shipped, rim)
+    exceeds_zf_reference = bool(abs(r) > abs(r_zf_vs_shipped))
 
-    verdict = "true" if low else "false"
-    reason = ("error pattern indistinguishable from a permutation-null of itself -> moved with "
-              "the mask instance" if low else
-              "error pattern correlates with the shipped mask's beyond chance -> indifferent "
-              "to the mask instance")
+    # the same three readings on the whole head, for continuity with the pre-I4 record
+    whole_brain = {
+        "ncc_ctrlB_vs_shipped": ncc(e_ctrlB, e_shipped, brain),
+        "ncc_highpass_ctrlB_vs_shipped": ncc(hp_shipped, hp_ctrlB, brain),
+        "ncc_zf_vs_shipped": ncc(e_zf, e_shipped, brain),
+        "note": ("whole-head (brain_mask) scope, the pre-I4 reading -- reported for continuity; "
+                 "the verdict binds to the rim scope spec section 2 registers"),
+    }
+
+    # The two stakes qualify a HIGH correlation ("the pattern is indifferent to the mask"), which
+    # is the only reading they can invalidate: if the raw ncc already sits inside its own null
+    # there is no correlation for a shared envelope to have manufactured, and nothing to compare
+    # against the zf reference. So they gate the "false" branch only.
+    stakes_passed = bool(highpass_clears_null and exceeds_zf_reference)
+    if low:
+        verdict = "true"
+        reason = ("rim error pattern is indistinguishable from its own null -> it moved with the "
+                  "mask instance")
+    elif stakes_passed:
+        verdict = "false"
+        reason = (f"rim error pattern correlates with the shipped mask's beyond chance "
+                  f"(ncc={r:.4f} vs the {gating_null} null's 97.5th percentile {null_hi:.4f}) -> "
+                  f"indifferent to the mask instance")
+    else:
+        verdict = "insufficient"
+        failed = ([] if highpass_clears_null else ["anatomy control: the correlation does not "
+                                                  "survive removing the shared low-frequency "
+                                                  "envelope"]) + \
+                 ([] if exceeds_zf_reference else ["zf reference: a different mask instance's "
+                                                   "error resembles the shipped error LESS than "
+                                                   "the shipped mask's own aliasing does"])
+        reason = "stake failed -- " + "; ".join(failed)
+
     return {
         "verdict": verdict,
         "reason": reason,
+        "spec_literal_verdict": "true" if low else "false",
+        "spec_literal_note": (
+            "spec section 2 P2: 'true iff the band's error pattern MOVES when the mask instance "
+            "changes'. The implemented rule is that rule, so the two agree whenever the stakes "
+            "pass; the literal reading here ignores only the stake gate."),
+        "scope": f"outer rim: brain_mask minus binary_erosion(brain_mask, {P2_RIM_EROSION})",
+        "scope_n_voxels": int(rim.sum()),
         "ncc_ctrlB_vs_shipped": r,
-        "permutation_null_hi97_5": null_hi,
+        "permutation_null_hi97_5": perm_hi,
+        "residual_is_exchangeable": bool(exchangeable),
+        "shift_null_hi97_5": shift_hi,
+        "shift_null_empirical_p": shift_null["empirical_p"],
+        "shift_null_detail": shift_null,
+        "gating_null": gating_null,
+        "gating_null_hi97_5": null_hi,
+        "null_choice_note": (
+            "the permutation null assumes the residual is spatially exchangeable; that assumption "
+            "is tested here (residual_is_exchangeable) and, when it fails, the circular-shift null "
+            "-- valid regardless -- is what the verdict is gated on. Both are recorded."),
         "low": low,
         "ctrlB_npz": ctrlB_path,
         "anatomy_control": {
             "sigma": P2_ANATOMY_SIGMA,
             "ncc_lowpass_ctrlB_vs_shipped": r_lowpass,
             "ncc_highpass_ctrlB_vs_shipped": r_highpass,
+            "highpass_shift_null_hi97_5": hp_null_hi,
+            "stake_highpass_clears_null": highpass_clears_null,
             "note": ("low-pass ncc is inflated by both error maps sharing the same brain-shaped "
-                    "envelope; the high-pass component is the more discriminating reading"),
+                    "envelope; the high-pass component is the discriminating reading, and it must "
+                    "clear its own shift null for the verdict to stand"),
         },
         "ncc_zf_vs_shipped": r_zf_vs_shipped,
+        "stake_exceeds_zf_reference": exceeds_zf_reference,
         "zf_vs_ctrlB_note": ("a DIFFERENT mask instance's error (ctrlB) resembles the shipped "
                              "error MORE than the shipped mask's own pure-aliasing zf error does "
                              "when ncc_ctrlB_vs_shipped > ncc_zf_vs_shipped -- a stronger version "
-                             "of the same conclusion" ),
+                             "of the same conclusion, and a stake the verdict is gated on"),
+        "stakes_passed": stakes_passed,
+        "whole_brain_scope": whole_brain,
     }
 
 
@@ -292,9 +482,9 @@ def _p3(err_rec: np.ndarray, gt: np.ndarray, mask: np.ndarray) -> dict:
         significant_perm = bool(abs(real_corr) > null_hi)
         any_significant_perm = any_significant_perm or significant_perm
 
-        shift_null = _circular_shift_null_ncc(err_rec, g, mask)
-        shift_null_hi = float(np.percentile(np.abs(shift_null), 97.5))
-        shift_empirical_p = float((np.abs(shift_null) >= abs(real_corr)).mean())
+        shift_null = _circular_shift_null_ncc(err_rec, g, mask, observed=real_corr)
+        shift_null_hi = shift_null["hi97_5"]
+        shift_empirical_p = shift_null["empirical_p"]
         significant_shift = bool(abs(real_corr) > shift_null_hi)
 
         shifted = half_voxel_shift(gt, axis=a) - gt
@@ -306,6 +496,7 @@ def _p3(err_rec: np.ndarray, gt: np.ndarray, mask: np.ndarray) -> dict:
             "significant_under_permutation_null": significant_perm,
             "shift_null_hi97_5": shift_null_hi,
             "shift_null_empirical_p": shift_empirical_p,
+            "shift_null_detail": shift_null,
             "significant_under_shift_null": significant_shift,
             "half_voxel_shift_calibration": shift_corr,
             "real_over_shift_ratio": float(abs(real_corr) / (abs(shift_corr) + 1e-30)),
@@ -326,7 +517,41 @@ def _p3(err_rec: np.ndarray, gt: np.ndarray, mask: np.ndarray) -> dict:
         verdict = "false"
         reason = "every axis's gradient correlation sits inside its own permutation-null band, and the permutation null's exchangeability stake passed"
 
-    return {"verdict": verdict, "reason": reason, "permutation_null_valid": perm_valid, "axes": per_axis}
+    # Final review (I2), the highest-value line in this file for the person who asked the question:
+    # spec section 2 fixes P3's stake as "non-zero on at least one axis BEYOND WHAT THE HALF-PIXEL-
+    # SHIFT POSITIVE CONTROL CALIBRATES AS DETECTABLE". The implementation substituted a permutation
+    # null (not pre-registered), then correctly discarded it when it failed validity -- which cost
+    # the answer. The registered rule does not depend on that null at all: it compares the real
+    # correlation against the calibration reading itself, and the calibration reading IS the
+    # referent, so no threshold is invented by applying it. Both readings agree here.
+    ratios = {a: per_axis[a]["real_over_shift_ratio"] for a in per_axis}
+    max_ratio = max(ratios.values())
+    at_or_above_calibration = bool(max_ratio >= 1.0)
+    any_significant_shift = any(per_axis[a]["significant_under_shift_null"] for a in per_axis)
+    spec_literal = "true" if at_or_above_calibration else "false"
+
+    return {
+        "verdict": verdict,
+        "reason": reason,
+        "spec_literal_verdict": spec_literal,
+        "spec_literal_note": (
+            "spec section 2 P3: 'true iff corr(rec-gt, d(gt)/dx) is non-zero on at least one axis "
+            "beyond what the half-pixel-shift positive control calibrates as detectable'. "
+            f"Measured: the largest |real_corr| / |half_voxel_shift_calibration| over the three "
+            f"axes is {max_ratio:.4f} -- any coherent displacement present is at most "
+            f"{100 * max_ratio:.1f}% of a detectable half-voxel shift, and no axis clears the "
+            f"circular-shift null either (any_significant_under_shift_null="
+            f"{any_significant_shift}). The implemented rule returned '{verdict}'; the "
+            f"pre-registered rule needs no null at all and answers '{spec_literal}'."),
+        "spec_literal_basis": {
+            "real_over_shift_ratio_per_axis": ratios,
+            "max_real_over_shift_ratio": max_ratio,
+            "any_axis_at_or_above_calibration": at_or_above_calibration,
+            "any_axis_significant_under_shift_null": bool(any_significant_shift),
+        },
+        "permutation_null_valid": perm_valid,
+        "axes": per_axis,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -363,19 +588,50 @@ def _p4(rec: np.ndarray, gt: np.ndarray, zf: np.ndarray, brain: np.ndarray,
                         for r in PSF_RADIUS_SWEEP}
 
     ratios = [row["ratio_rec"] for row in curve if np.isfinite(row["ratio_rec"])]
+    zf_ratios = [row["ratio_rec"] for row in curve_zf if np.isfinite(row["ratio_rec"])]
+
+    # --- the two stakes, now GATING (final review I1). Both are comparisons between measured
+    # quantities -- no constant is introduced, and neither can turn "insufficient" into a verdict:
+    # `adjudicate` consults `stake_gate.passed` only to DISCARD, per spec section 3.
+    air_metric_is_sensitive = bool(len(zf_ratios) == len(ratios) and len(ratios) > 0 and
+                                   all(z > r for z, r in zip(zf_ratios, ratios)))
+    psf_control_is_discrete = bool(psf_uniform["peak_sidelobe"] > psf["peak_sidelobe"])
+    stake_gate = {
+        "air_curve_zf_reads_above_rec_at_every_threshold": air_metric_is_sensitive,
+        "psf_uniform_control_more_discrete_than_shipped": psf_control_is_discrete,
+        "passed": bool(air_metric_is_sensitive and psf_control_is_discrete),
+        "note": ("stake 1: zf is this mask's pure aliasing with no prior, so it must read higher "
+                 "air energy than the reconstruction at every threshold -- if it did not, the air "
+                 "ratio would be blind to the very thing P4 asks about. stake 2: the uniform-mask "
+                 "positive control must show a more discrete PSF than the shipped blue-noise "
+                 "mask, or 'diffuse' is not being measured. A failure of either sends P4 to "
+                 "insufficient in adjudicate(); neither can create a true/false."),
+    }
+
+    # --- I3: name the clause that actually blocks the verdict. `adjudicate` reaches insufficient
+    # from the AIR RATIOS alone; `diffuse` is only ever consulted inside the `false` branch, which
+    # the ratios have already closed, so the PSF reading cannot be what blocks P4.
+    worst_dev = max(abs(r - 1.0) for r in ratios) if ratios else float("nan")
     reason = (
         f"air-energy ratio_rec = {['%.3f' % r for r in ratios]} across thresholds "
-        f"{[row['threshold'] for row in curve]} -- never >>1 (rules out P4 directionally: the "
-        f"opposite of leakage, since the recon has LESS air energy than GT everywhere) but not "
-        f"flat at 1 either; psf_peak_sidelobe={psf['peak_sidelobe']:.4f} at the pre-registered "
-        f"mainlobe_radius=2 sits just above the adjudicate() diffuse bar (<0.1) -- see "
-        f"psf_radius_sweep (r>3 -> {psf_radius_sweep.get(3):.4f}, already below 0.1) and the "
-        f"diffuse-vs-discrete pair (shipped {psf['peak_sidelobe']:.4f} / "
-        f"sidelobe_rms {psf['sidelobe_rms']:.4f} vs the uniform-mask positive control "
-        f"{psf_uniform['peak_sidelobe']:.4f} / {psf_uniform['sidelobe_rms']:.4f}), which reads "
-        f"unambiguously diffuse without any absolute constant. adjudicate()'s mechanical rule, "
-        f"applied exactly as pre-registered, returns insufficient."
+        f"{[row['threshold'] for row in curve]} (n_voxels {[row['n_voxels'] for row in curve]}). "
+        f"adjudicate() is blocked by these ratios alone: the `true` branch needs every ratio > 2.0 "
+        f"and the maximum here is {max(ratios):.3f}; the `false` branch needs every "
+        f"|ratio - 1| < 0.2 and the worst is {worst_dev:.3f}. The PSF term NEVER ENTERS the branch "
+        f"taken -- `diffuse` is read only inside the `false` branch, which the ratios already "
+        f"closed, so a perfectly diffuse PSF would change nothing. SEPARATE CONTEXT (not the "
+        f"blocking clause): psf_peak_sidelobe={psf['peak_sidelobe']:.4f} at the pre-registered "
+        f"mainlobe_radius=2, {psf_radius_sweep.get(3):.4f} at r=3, against the uniform-mask "
+        f"positive control's {psf_uniform['peak_sidelobe']:.4f} (sidelobe_rms "
+        f"{psf['sidelobe_rms']:.4f} vs {psf_uniform['sidelobe_rms']:.4f}) -- diffuse without "
+        f"needing any absolute constant. DIRECTION of the air reading: the ratio rises as the air "
+        f"threshold tightens for BOTH the reconstruction and the zero-fill reference (a selection "
+        f"effect -- air is defined by thresholding the GT, which shrinks the denominator without "
+        f"constraining the numerator), and the reconstruction sits below the zero-fill reference "
+        f"at every threshold ({['%.3f' % z for z in zf_ratios]}), i.e. the opposite of leakage."
     )
+
+    spec_literal = "true" if all(r > 2.0 for r in ratios) else "false"
 
     return {
         "air_curve": curve,
@@ -384,9 +640,25 @@ def _p4(rec: np.ndarray, gt: np.ndarray, zf: np.ndarray, brain: np.ndarray,
         "stake_air_curve_zf": curve_zf,
         "stake_psf_uniform_mask_peak_sidelobe": psf_uniform["peak_sidelobe"],
         "stake_psf_uniform_mask_sidelobe_rms": psf_uniform["sidelobe_rms"],
+        "stake_gate": stake_gate,
         "psf_radius_sweep": psf_radius_sweep,
         "mask_path": mask_path,
         "reason": reason,
+        "spec_literal_verdict": spec_literal,
+        "spec_literal_note": (
+            "spec section 2 P4: 'true iff E_air(rec)/E_air(gt) >> 1 AND air-region error is "
+            "same-family as zf's', with '>> 1' operationalised by the pre-registered rule as "
+            f"every point on the curve above 2.0. Measured: the curve sweeps from "
+            f"{max(ratios):.3f} at the tightest air threshold to {min(ratios):.3f} over the whole "
+            "air mask, so it is not above 2 across the curve and the first conjunct fails -- which "
+            "settles the conjunction whatever the second reads. The rise at the tightest threshold "
+            "is a selection effect shared with the pure-aliasing reference, which sits ABOVE the "
+            f"reconstruction at every threshold ({['%.3f' % z for z in zf_ratios]}): there is no "
+            "threshold at which the reconstruction puts more energy into air than zero-fill does. "
+            "The implemented rule returns 'insufficient' rather than 'false' because the ratios "
+            "are also not flat at 1. Spec section 1's own decision box reads this as 'the "
+            "background grain is in the GT too -> section 8b stands'; nothing here overturns "
+            "section 8b."),
     }
 
 
@@ -424,20 +696,32 @@ def _patchiness(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray, contrast: str,
         "shipped_gradient_ratio_curve": gradient_ratio_curve(rec, gt, wm, quantiles=PATCHINESS_CURVE_Q),
     }
 
+    # The M5 stake, spec section 3: the no-TV control must read LESS patchiness than the run under
+    # test on whatever index is used to attribute patchiness. That is a DIRECTION, not a threshold
+    # -- no constant is introduced by checking it (final review I1). It fails here, which is what
+    # disqualifies the scalar as a discriminator.
+    stake_discriminates = None
     if rc_lam000_path and os.path.exists(rc_lam000_path):
         v0 = load_volumes(rc_lam000_path, contrast)
         wm0 = wm_mask(v0["gt"], brain_mask(v0["gt"]))
         rc_sel = selectivity(v0["rec"], v0["gt"], wm0)
+        stake_discriminates = bool(rc_sel < shipped_sel)
         out["stake_rc_lam000_selectivity"] = rc_sel
         out["stake_rc_lam000_gradient_ratio_curve"] = gradient_ratio_curve(
             v0["rec"], v0["gt"], wm0, quantiles=PATCHINESS_CURVE_Q)
         out["stake_rc_lam000_vs_shipped_selectivity_delta"] = rc_sel - shipped_sel
+        out["stake_rc_lam000_selectivity_discriminates"] = stake_discriminates
         out["stake_rc_lam000_scalar_note"] = (
             "near-zero delta: the scalar selectivity does NOT discriminate shipped from the "
             "no-TV control here -- discarded as a discriminator; read the curve LEVEL/SHAPE "
-            "instead (rc_lam000 sits above 1 at every quantile per section 14b, shipped below)")
+            "instead (rc_lam000 sits above 1 at every quantile per section 14b, shipped below). "
+            "Final review (I1): this is now GATED, not merely noted -- when the stake fails, no "
+            "attribution is asserted from the scalar, whichever way the two lambda arms happen to "
+            "point. The curve level/shape is reported for every arm so a reader can see what the "
+            "scalar could not.")
     else:
         out["stake_rc_lam000_selectivity"] = None
+        out["stake_rc_lam000_selectivity_discriminates"] = None
 
     have_both = (ctrlA_af2_lam010_path and ctrlA_af2_lam060_path and
                 os.path.exists(ctrlA_af2_lam010_path) and os.path.exists(ctrlA_af2_lam060_path))
@@ -462,11 +746,17 @@ def _patchiness(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray, contrast: str,
 
     # corroborating evidence the AF=2 zf-shift is acquisition-specific, not noise: a second AF=12
     # draw's own zf-anchor should stay close to the shipped AF=12 zf-anchor.
-    ctrlB_zf_sel = None
+    # Final review (I1): ctrlB is also a free RUN-TO-RUN NOISE FLOOR for this index -- it is the
+    # same acquisition, same lambda, same iterations, only a different mask draw, so whatever it
+    # differs from the shipped run by is what "no change in patchiness" looks like on this scale.
+    # Only its zf-anchor was being read; its own reconstruction's selectivity was not.
+    ctrlB_zf_sel = ctrlB_sel = ctrlB_norm = None
     if ctrlB_path and os.path.exists(ctrlB_path):
         vB = load_volumes(ctrlB_path, contrast)
         wmB = wm_mask(vB["gt"], brain_mask(vB["gt"]))
         ctrlB_zf_sel = selectivity(vB["zf"], vB["gt"], wmB)
+        ctrlB_sel = selectivity(vB["rec"], vB["gt"], wmB)
+        ctrlB_norm = ctrlB_sel / ctrlB_zf_sel
 
     norm_shipped = shipped_sel / shipped_zf_sel
     norm010 = sel010 / zf010_sel
@@ -482,6 +772,8 @@ def _patchiness(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray, contrast: str,
     d060_raw = sel060 - shipped_sel
     raw_agree = bool(d010_raw != 0 and d060_raw != 0 and np.sign(d010_raw) == np.sign(d060_raw))
 
+    noise_floor = None if ctrlB_norm is None else abs(ctrlB_norm - norm_shipped)
+
     out.update({
         "ctrlA_af2_lam010_npz": ctrlA_af2_lam010_path,
         "ctrlA_af2_lam060_npz": ctrlA_af2_lam060_path,
@@ -492,17 +784,54 @@ def _patchiness(rec: np.ndarray, gt: np.ndarray, wm: np.ndarray, contrast: str,
         "zf_selectivity_ctrlA_af2_lam010": zf010_sel,
         "zf_selectivity_ctrlA_af2_lam060": zf060_sel,
         "zf_selectivity_ctrlB": ctrlB_zf_sel,
+        "selectivity_ctrlB": ctrlB_sel,
         "gauge_normalized_selectivity_shipped": norm_shipped,
         "gauge_normalized_selectivity_ctrlA_af2_lam010": norm010,
         "gauge_normalized_selectivity_ctrlA_af2_lam060": norm060,
+        "gauge_normalized_selectivity_ctrlB": ctrlB_norm,
         "gauge_normalized_delta_lam010_vs_shipped": d010_norm,
         "gauge_normalized_delta_lam060_vs_shipped": d060_norm,
+        "run_to_run_noise_floor_ctrlB_vs_shipped": noise_floor,
+        "run_to_run_noise_floor_note": (
+            "|gauge-normalised selectivity(ctrlB) - gauge-normalised selectivity(shipped)|. ctrlB "
+            "is the SAME acquisition, lambda and iteration count as the shipped run with only a "
+            "different AF=12 mask draw, so this is what 'no change in patchiness' measures as on "
+            "this index. Compare it against the two arms' deltas before reading either as a "
+            "signal: a delta smaller than this floor is not distinguishable from a re-draw."),
         "agree": agree,
         "raw_selectivity_delta_lam010_vs_shipped": d010_raw,
         "raw_selectivity_delta_lam060_vs_shipped": d060_raw,
         "raw_agree_UNCORRECTED_do_not_use_for_attribution": raw_agree,
+        "gauge_normalization_provenance": (
+            "POST-HOC: dividing each arm's selectivity by its OWN zf anchor was introduced at fix "
+            "round 1 (2026-08-11), after the raw comparison had already been computed, and it is "
+            "what flipped `agree` from True to False and the attribution from a direction to "
+            "'undecided'. It is defensible (memory.md section 3's metric-gauge trap: each arm is a "
+            "different acquisition, so their anchors are not interchangeable) and conservative (it "
+            "removes an attribution rather than creating one), but it was NOT pre-registered and "
+            "is recorded as such here rather than only in a session log."),
     })
-    if agree:
+
+    # Final review (I1): the attribution must not be computed from an index whose own calibration
+    # stake failed. `agree` is still recorded (the sign rule itself is pre-registered and
+    # untouched), but it is no longer allowed to assert an attribution when the M5 stake is down.
+    if stake_discriminates is False:
+        out["attribution"] = "control A undecided"
+        out["reason"] = (
+            "M5's calibration stake failed: the no-TV control rc_lam000 reads selectivity "
+            f"{out['stake_rc_lam000_selectivity']:.4f} against the shipped run's {shipped_sel:.4f} "
+            "-- the run that has no TV at all, and therefore no TV-induced patchiness by "
+            "construction, scores HIGHER than the run under test. Per spec section 3 the scalar is "
+            "discarded on the spot and may not support a verdict, so no attribution is asserted "
+            "from it in either direction. For the record, the arms would not have agreed anyway "
+            f"(gauge-normalised deltas {d010_norm:+.4f} / {d060_norm:+.4f})"
+            + ("" if noise_floor is None else
+               f", and the larger of them sits at {max(abs(d010_norm), abs(d060_norm)) / noise_floor:.2f}x "
+               f"the run-to-run noise floor {noise_floor:.4f} measured from a second AF=12 draw")
+            + ". Read the per-arm gradient_ratio_curve levels instead: section 14b's own "
+            "classification is that a curve above 1 at every quantile is under-regularised "
+            "roughness and a curve below 1 that rises with the quantile is selective suppression.")
+    elif agree:
         out["attribution"] = ("less patchiness at AF=2" if d010_norm < 0 else
                               "patchiness persists or worsens at AF=2")
     else:
@@ -567,30 +896,102 @@ def adjudicate(readings: dict) -> dict:
     v = {}
     p4 = readings.get("P4")
     if p4:
-        ratios = [r["ratio_rec"] for r in p4["air_curve"] if np.isfinite(r["ratio_rec"])]
-        diffuse = p4["psf_peak_sidelobe"] < 0.1
-        if ratios and all(r > 2.0 for r in ratios):
-            v["P4"] = "true"
-        elif ratios and all(abs(r - 1.0) < 0.2 for r in ratios) and diffuse:
-            v["P4"] = "false"
-        else:
+        # Final review (I1): P4's own calibration stakes must be able to reach its verdict, or
+        # they are decoration. This guard is a spec section 3 DISCARD path and nothing else -- it
+        # can only send P4 to "insufficient", never to true or false, and the pre-registered rule
+        # below (2.0 / 0.2 / 0.1) is untouched and still the only thing that can produce a verdict.
+        if p4.get("stake_gate", {}).get("passed") is False:
             v["P4"] = "insufficient"
+        else:
+            ratios = [r["ratio_rec"] for r in p4["air_curve"] if np.isfinite(r["ratio_rec"])]
+            diffuse = p4["psf_peak_sidelobe"] < 0.1
+            if ratios and all(r > 2.0 for r in ratios):
+                v["P4"] = "true"
+            elif ratios and all(abs(r - 1.0) < 0.2 for r in ratios) and diffuse:
+                v["P4"] = "false"
+            else:
+                v["P4"] = "insufficient"
     for key in ("P1", "P2", "P3"):
         r = readings.get(key)
         v[key] = r.get("verdict", "insufficient") if isinstance(r, dict) else "insufficient"
     return v
 
 
-def write_report(readings: dict, verdicts: dict, out_dir: str = "results_arc/diag_artefact") -> str:
-    os.makedirs(out_dir, exist_ok=True)
-    path = os.path.join(out_dir, "verdicts.json")
-    with open(path, "w") as fh:
-        json.dump({"readings": readings, "verdicts": verdicts}, fh, indent=2, default=float)
-    return os.path.abspath(path)
+def spec_literal_verdicts(readings: dict) -> dict:
+    """What spec section 2's rules, applied literally as written, yield from the same numbers.
+
+    Recorded ALONGSIDE `adjudicate`'s verdicts, never instead of them (final review I2). The two
+    differ wherever the implemented rule has an "insufficient" branch the section 2 wording does
+    not: section 2 states each proposition as "true iff <condition>", a biconditional that always
+    answers, while the implementation adds spec section 3's discard discipline on top. P3 is the
+    case that matters -- its implemented rule lost the answer to a null that was never
+    pre-registered and then failed validity, while the registered rule (compare against the
+    half-pixel-shift positive control) answers cleanly from the data.
+    """
+    return {key: readings[key].get("spec_literal_verdict", "insufficient")
+            for key in ("P1", "P2", "P3", "P4")
+            if isinstance(readings.get(key), dict)}
 
 
-def adjudication_figure(vols: dict, regions: dict, out_path: str) -> str:
-    """GT | zf error | rec error, error panels in jet at the fixed [0, 0.1] convention."""
+def write_report(readings: dict, verdicts: dict, out_dir: str = "results_arc/diag_artefact",
+                 filename: str = "verdicts.json") -> str:
+    return write_json(os.path.join(out_dir, filename),
+                      {"readings": readings, "verdicts": verdicts,
+                       "spec_literal_verdicts": spec_literal_verdicts(readings)},
+                      generated_by="diag_artefact/report.py (python -m diag_artefact.report)")
+
+
+def _figure_verdict_lines(readings: dict, verdicts: dict) -> list:
+    """One line per proposition for the figure stamp: the verdict, the spec-literal reading when
+    it differs, and the single number the outcome turns on."""
+    literal = spec_literal_verdicts(readings)
+    titles = {
+        "P1": "P1 WM speckle = residual incoherent aliasing",
+        "P2": "P2 outer-rim band = aliasing (moves with the mask)",
+        "P3": "P3 ventricle/midline streaks = displaced structure",
+        "P4": "P4 background contains recon-introduced ghosts",
+    }
+    facts = {}
+    p1 = readings.get("P1", {})
+    if p1:
+        facts["P1"] = (f"stake down: zf's own residual also escapes the band "
+                       f"(autocorr lag1 {p1['stake_zf_autocorr_profile'][1]:.3f}); "
+                       f"ncc(rec-gt, zf-gt) = {p1['ncc_rec_zf']:.3f}")
+    p2 = readings.get("P2", {})
+    if p2 and "ncc_ctrlB_vs_shipped" in p2:
+        facts["P2"] = (f"rim ncc(ctrlB, shipped) = {p2['ncc_ctrlB_vs_shipped']:.3f} vs "
+                       f"{p2['gating_null']} null 97.5% = {p2['gating_null_hi97_5']:.3f}")
+    p3 = readings.get("P3", {})
+    if p3 and "spec_literal_basis" in p3:
+        facts["P3"] = (f"largest displacement = "
+                       f"{100 * p3['spec_literal_basis']['max_real_over_shift_ratio']:.1f}% of a "
+                       f"detectable half-voxel shift; permutation null invalid -> implemented rule "
+                       f"abstains")
+    p4 = readings.get("P4", {})
+    if p4 and "air_curve" in p4:
+        rr = [r["ratio_rec"] for r in p4["air_curve"] if np.isfinite(r["ratio_rec"])]
+        facts["P4"] = (f"air-energy ratio sweeps {max(rr):.2f} -> {min(rr):.2f} with the air "
+                       f"threshold (blocking clause); PSF term never enters")
+    lines = []
+    for key in ("P1", "P2", "P3", "P4"):
+        if key not in verdicts:
+            continue
+        lit = literal.get(key)
+        tag = verdicts[key].upper()
+        if lit and lit != verdicts[key]:
+            tag += f"  (spec-literal rule: {lit.upper()})"
+        lines.append(f"{titles[key]}:  {tag}\n     {facts.get(key, '')}")
+    return lines
+
+
+def adjudication_figure(vols: dict, regions: dict, out_path: str, verdicts: dict | None = None,
+                        readings: dict | None = None, contrast: str = "T1") -> str:
+    """GT | zf error | rec error, error panels in jet at the fixed [0, 0.1] convention.
+
+    Final review (I6): the four verdicts are STAMPED on the figure. The panel used to carry no
+    outcome at all, so a reader had to parse a 200-line JSON to learn what the picture was
+    evidence for -- and the figure was gitignored on top of that.
+    """
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -601,13 +1002,24 @@ def adjudication_figure(vols: dict, regions: dict, out_path: str) -> str:
     panels = [("ground truth", np.abs(gt[:, :, z]), "gray", 0, peak),
               ("|zf - GT|", np.abs(zf[:, :, z] - gt[:, :, z]) / peak, "jet", 0, 0.1),
               ("|recon - GT|", np.abs(rec[:, :, z] - gt[:, :, z]) / peak, "jet", 0, 0.1)]
-    fig, ax = plt.subplots(1, 3, figsize=(13, 4.6))
+
+    lines = _figure_verdict_lines(readings or {}, verdicts or {})
+    fig_h = 4.6 + (0.42 * len(lines) if lines else 0.0)
+    fig, ax = plt.subplots(1, 3, figsize=(13, fig_h))
     for a, (title, img, cmap, vmin, vmax) in zip(ax, panels):
         a.imshow(np.rot90(img), cmap=cmap, vmin=vmin, vmax=vmax)
         a.set_title(title, fontsize=11)
         a.set_xticks([]); a.set_yticks([])
-    fig.suptitle("T1 axial z=160 — adjudication panel (error maps jet [0, 0.1])", fontsize=12)
-    fig.tight_layout()
+    fig.suptitle(f"{contrast} axial z={z} — adjudication panel (error maps jet [0, 0.1])",
+                 fontsize=12)
+    if lines:
+        fig.tight_layout(rect=(0, len(lines) * 0.42 / fig_h, 1, 1))
+        y = len(lines) * 0.42 / fig_h
+        for i, line in enumerate(lines):
+            fig.text(0.02, y - (i + 1) * 0.42 / fig_h + 0.10 / fig_h, line, fontsize=8.5,
+                     family="monospace", va="bottom")
+    else:
+        fig.tight_layout()
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
@@ -676,8 +1088,16 @@ def main(argv=None) -> int:
     ap.add_argument("--m0-json", default=DEFAULT_M0_JSON)
     ap.add_argument("--manifest-json", default=DEFAULT_MANIFEST_JSON)
     ap.add_argument("--out-dir", default="results_arc/diag_artefact")
-    ap.add_argument("--figure-out", default="results_arc/diag_artefact/adjudication.png")
+    ap.add_argument("--figure-out", default=None,
+                    help="default: <out-dir>/adjudication.png for T1, adjudication_<contrast>.png "
+                         "otherwise")
+    ap.add_argument("--json-name", default=None,
+                    help="default: verdicts.json for T1, verdicts_<contrast>.json otherwise")
     args = ap.parse_args(argv)
+
+    suffix = "" if args.contrast == "T1" else f"_{args.contrast}"
+    json_name = args.json_name or f"verdicts{suffix}.json"
+    figure_out = args.figure_out or os.path.join(args.out_dir, f"adjudication{suffix}.png")
 
     npz_path = args.npz or _resolve_checkpoint(args.m0_json)
     controls = _controls_from_manifest(args.manifest_json)
@@ -701,14 +1121,17 @@ def main(argv=None) -> int:
     }
 
     verdicts = adjudicate(readings)
-    json_path = write_report(readings, verdicts, out_dir=args.out_dir)
+    literal = spec_literal_verdicts(readings)
+    json_path = write_report(readings, verdicts, out_dir=args.out_dir, filename=json_name)
 
     v = load_volumes(npz_path, args.contrast)
-    fig_path = adjudication_figure(v, {}, args.figure_out)
+    fig_path = adjudication_figure(v, {}, figure_out, verdicts=verdicts, readings=readings,
+                                   contrast=args.contrast)
 
     print(f"wrote {json_path}")
     print(f"wrote {fig_path}")
     print("verdicts:", verdicts)
+    print("spec-literal verdicts:", literal)
     return 0
 
 

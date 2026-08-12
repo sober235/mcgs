@@ -27,7 +27,9 @@ results_crisp/*
 results_arc/*
 !results_arc/LOOK_*.png
 
-# artefact-diagnosis records: ignore bulky outputs but VERSION the JSON readings
+# artefact-diagnosis records: ignore bulky outputs but VERSION the JSON readings, plus the one
+# figure that carries the verdicts (same treatment as the LOOK_* review panels above)
 !results_arc/diag_artefact/
 results_arc/diag_artefact/*
 !results_arc/diag_artefact/*.json
+!results_arc/diag_artefact/adjudication.png

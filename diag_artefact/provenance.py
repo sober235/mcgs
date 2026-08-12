@@ -102,8 +102,9 @@ def match_panel(panel_gray: np.ndarray, candidates: dict, slice_index: int | Non
             a = a[:, :, int(slice_index)]
             # Apply the rotation that the render pipeline uses (fig_recon_view.py)
             a = np.rot90(a)
-        a = a / (a.max() + 1e-12)
-        p = panel_gray / (panel_gray.max() + 1e-12)
+        # no max-normalisation: Pearson r is invariant to a positive rescale of either input, so
+        # dividing both by their maxima (as this did) was a no-op dressed as a normalisation step.
+        p = panel_gray
         if a.shape != p.shape:
             a = _resize_to(a, p.shape)
         av, pv = a.ravel() - a.mean(), p.ravel() - p.mean()
@@ -113,21 +114,32 @@ def match_panel(panel_gray: np.ndarray, candidates: dict, slice_index: int | Non
 
 
 def check_calibration(panel_gray: np.ndarray, candidates: dict, slice_index: int | None = None) -> tuple:
-    """Verify that panel 0 (gt) and panel 1 (zf) correlate with their known sources at r > 0.95.
+    """EXTRACTION SANITY FLOOR for one panel: rank `candidates` against `panel_gray` and require
+    the best of them to reach r > 0.95, returning `(best_r, second_r)` of that one ranking.
 
-    Returns (r_gt, r_zf) if both pass, raises ValueError if either fails.
-    This is a mandatory gate: if extraction is broken, the ranking is meaningless.
+    Corrected docstring (final whole-branch review): this function does NOT verify panel 0 against
+    gt and panel 1 against zf, and it does not return `(r_gt, r_zf)`. It is called once per panel,
+    with the candidate set the caller believes that panel was drawn from, and both returned values
+    come from the same ranking (best, runner-up).
+
+    It is also NOT a calibration stake in spec section 3's sense -- it does not read a control with
+    a known mechanism and it cannot fail in a way that would discredit the measurement. It is a
+    floor on the EXTRACTION pipeline: if panel cropping, rotation or resampling were broken, no
+    candidate would reach 0.95 against anything, and the ranking below it would be noise being
+    sorted. The stake that can actually fail is `check_error_calibration`'s positive/negative
+    slice control. Raises ValueError when the floor is not met.
     """
     ranked_all = match_panel(panel_gray, candidates, slice_index=slice_index)
     if len(ranked_all) < 2:
         raise ValueError("Need at least 2 candidates to verify calibration")
 
-    # The top match is the expected source
     best_label, best_r = ranked_all[0]
     if best_r < 0.95:
         raise ValueError(
-            f"Calibration failed: best candidate {best_label} correlates at only r={best_r:.4f}, "
-            f"below threshold 0.95. Extraction or rotation may be broken."
+            f"Extraction sanity floor not met: the best candidate {best_label} correlates at only "
+            f"r={best_r:.4f} (< 0.95). No candidate resembling the panel at all means panel "
+            f"cropping, rotation or resampling is broken, and the ranking below this would be "
+            f"noise being sorted."
         )
 
     return best_r, ranked_all[1][1]
