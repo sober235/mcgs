@@ -140,6 +140,15 @@ higher (1.887 vs FLAIR 1.568) ⇒ inflates T1 PSNR by ~1.6 dB ⇒ makes T1 (38.5
 **corrects `.claude/memory.md` §8**'s "T1 crosses 38 / surpasses FLAIR" reading — T1's 38.51 value is fine,
 but it does NOT actually beat FLAIR.
 
+> ⚠️ **THIS TRAP RECURRED IN A SECOND METRIC (2026-08-12).** `selectivity` (`.claude/memory.md` §14b/§14c)
+> has a moving zero-point too: its zero-fill anchor reads 0.9728 on the AF=12 volume but **0.8182** on AF=2
+> volumes, while a second AF=12 draw reads 0.9945 — so the shift tracks the ACQUISITION, not noise. Compared
+> raw, an AF=2 control looked like it agreed with itself; normalised to each arm's own anchor, the two arms
+> **disagreed in direction** and the control's verdict flipped to "undecided". **Treat every normalised index
+> as gauge-bearing: before comparing across acquisitions, sampling rates or contrasts, check whether the
+> quantity's own reference reads the same on both sides.** Two independent metrics have now been caught by
+> this; assume the next one is too.
+
 **Contrast-adaptive sampling = dead end (ruled out).** At fixed total budget (2×8.45%), reallocating
 samples between T1/FLAIR barely moves retained energy — doubling sampling lifts T1 only +1.4 pts;
 budget-fixed reallocation min 73.8→74.3 (+0.5). T1's missing energy is a far high-freq tail that even

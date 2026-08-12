@@ -210,6 +210,13 @@ wrap-around ghosts** → classical aliasing is essentially eliminated (backgroun
 line simply sits ~0.2 dB above the T1 data ceiling. Breaking it needs changing a PILLAR, not tuning:
 lower AF (project note: AF12→AF6 ≈ MC-GS +1.3/+1.5 dB) or a learned/generative prior.
 
+> ✅ **§8b's "not coherent ghosts" claim was RE-TESTED and NOT OVERTURNED (2026-08-12, §16).** A user
+> reported "a lot of aliasing artefacts" on `results_arc/LOOK_T1_axial.png`, which would have overturned
+> this. Four pre-registered propositions were adjudicated with calibrated metrics: the outer-rim band,
+> the ventricle streaks and background ghosts are all **false**; the white-matter speckle is **undecidable**
+> and its available evidence leans toward "it IS residual incoherent aliasing" — which is what §8b says.
+> The claim stands. Details, verdicts and their calibration stakes → §16.
+
 ## 9. Harness notes
 - `arc/cycle.py` (this repo, uncommitted edits): added CLI `--kspace_center/--kspace_mid/
   --split_quantile/--scale_threshold/--use_cloning/--save_volumes`; densify MASTER switch
@@ -308,7 +315,8 @@ axis-aligned. This is why tuning lambda could never fix it: lambda only slides a
 > "N times more plateau voxels". **The better index is `selectivity` (see the end of this section).**
 
 **Metrics that decided it** (white matter only, each normalised so GT = 1.00; the eroded WM mask is
-`gt in [P55,P90] of brain` then a sigma=2 opening):
+`gt in [P55,P90] of brain` then a sigma=2 opening — ⚠️ that prose does NOT determine the code, see the
+exact definition in §14c, and do not re-derive it from this sentence):
 - `S` **staircase / sheet index** = P(|grad| < 0.25 * median|grad_GT|) — the plateau mass
 - `A` **axis bias** = mean|grad_diagonal| / mean|grad_axis|
 - `N` **grain** = rms of the (x - gaussian_filter(x, 4)) high-pass — this is the user's "clean" axis
@@ -400,3 +408,134 @@ ratios cross above 1). Confirms 0.04-0.06 as the operating range independently o
 S/N argument. Figure `results_arc/RC_selective_suppression.png`; controls are runs `rc_lam000`
 and `rc_eps015x` (1500 iters); scripts in session c6621154's scratchpad
 (`rc_zero_mass.py`, `rc_figure.py`).
+
+### 14c. The EXACT selectivity definition — the prose above is not reproducible (recorded 2026-08-12)
+
+⚠️ **§14/§14b describe this measurement in prose that does NOT determine the code.** A later re-implementation
+that followed the prose reproduced the OPPOSITE of the published result — it read `rc_lam000` at **0.726 with
+a FALLING curve** where the published control is **1.20 with a RISING one**, i.e. it would have overturned
+§14b's attribution of the artefact to the regulariser on the strength of an implementation difference and no
+new evidence. The producing script was recovered from session c6621154's scratchpad (`rc_figure.py` — it is
+the one that prints `selectivity {t:.3f}`) and the definitions transcribed verbatim. **Use these, not the prose:**
+
+```python
+gt    = np.abs(gtT1).astype(np.float64)
+brain = gt > 0.05 * gt.max()                       # NOT 0.15*P99.9, no fill-holes, no largest-CC
+lo, hi = np.quantile(gt[brain], [0.55, 0.90])
+m     = brain & (gt > lo) & (gt < hi)              # STRICT inequalities
+wm    = m & (gaussian_filter(m.astype(np.float32), 2.0) > 0.95)   # the "sigma=2 opening": a STRONG
+                                                   # erosion keeping only deep interiors. The outer
+                                                   # `m &` is NOT redundant — sigma=2's central weight
+                                                   # is ~0.008, so a voxel outside the band can clear
+                                                   # 0.95 on its neighbours alone (measured: 439 of
+                                                   # 151512 WM voxels leak in without it).
+def per_axis(v):
+    v = v * ((v[brain] * gt[brain]).sum() / (v[brain] ** 2).sum())   # <-- LEAST-SQUARES AMPLITUDE
+    out = []                                                         #     PROJECTION onto GT. Absent
+    for ax in range(3):                                              #     from §14b's prose entirely,
+        s0, s1 = [slice(None)]*3, [slice(None)]*3                    #     and it is the DOMINANT term
+        s0[ax], s1[ax] = slice(None,-1), slice(1,None)               #     for rc_lam000, whose global
+        both = wm[tuple(s0)] & wm[tuple(s1)]                         #     scale differs. No-op on GT.
+        out.append(np.abs(v[tuple(s1)] - v[tuple(s0)])[both])        # BOTH endpoints must be in WM
+    return np.concatenate(out)
+Q   = [0.05,0.10,0.20,0.30,0.50,0.70,0.80,0.90,0.95,0.99,0.999]
+r   = np.quantile(per_axis(v), Q) / np.quantile(per_axis(gt), Q)
+selectivity = r[-1] / r[1]                          # ratio@q0.999 / ratio@q0.10
+```
+
+**Now reproduced in committed code** — `diag_artefact/volumes.py` (`brain_mask`/`wm_mask`) and
+`diag_artefact/metrics.py` (`gradient_ratio_curve`/`selectivity`) on branch `diag-t1-artefact`, verified to
+match the published table at EVERY quantile to three decimals:
+
+| run | q0.10 | q0.50 | q0.90 | q0.999 | selectivity |
+|---|---|---|---|---|---|
+| zero-fill | 0.503 | 0.502 | 0.478 | 0.490 | 0.973 (published 0.97, flat) |
+| rc_lam000 | 1.666 | 1.736 | 1.916 | 1.997 | 1.199 (published 1.20, above 1) |
+| tvs4k_e040 | 0.759 | 0.770 | 0.803 | 0.898 | 1.183 (published 1.18) |
+
+⚠️ **GAUGE WARNING, new and not in §14b.** `selectivity`'s zero-point MOVES between acquisitions: the
+zero-fill anchor reads 0.9728 on the AF=12 shipped volume but **0.8182** on AF=2 volumes (a second AF=12
+draw reads 0.9945, so it is acquisition-specific, not noise). **Never compare raw selectivity across
+different sampling rates** — normalise each arm by its own zero-fill anchor first. This is memory.md §3's
+metric-gauge trap in a new place, and it flipped a control's conclusion when missed.
+
+---
+
+## 16. The T1 artefact report, adjudicated — §8b stands (2026-08-12)
+
+> User, on `results_arc/LOOK_T1_axial.png`: "a lot of aliasing artefacts, plus the kind of patchy artefact
+> TV produces". Rather than answer from memory, four **pre-registered** propositions were adjudicated with
+> calibrated metrics. Spec `docs/superpowers/specs/2026-08-07-t1-artefact-diagnosis-design.md`; plan
+> `docs/superpowers/plans/2026-08-07-t1-artefact-diagnosis.md`; code `diag_artefact/` + `scripts/`
+> (branch `diag-t1-artefact`, 25 commits, 77 tests). Records: `results_arc/diag_artefact/verdicts.json`
+> (+ `_FLAIR`), `adjudication.png`, `run_manifest.json`, `nonvacuity_report.json`, `m0_provenance.json`.
+
+**Verdicts.** Each row carries the implemented verdict, the spec's literal reading, and the number that
+decided it. FLAIR replicates all four independently.
+
+| # | proposition | implemented | spec-literal | decided by |
+|---|---|---|---|---|
+| P1 | WM speckle = residual incoherent aliasing | insufficient | false (**NOT supported**) | its own stake fails: zf's pure aliasing ALSO escapes the band |
+| P2 | outer-rim / skull band = aliasing | **false** | false (supported) | ncc(err_ctrlB, err_shipped) = 0.398 vs valid null 0.094, p=0.000 |
+| P3 | ventricle streaks = displaced structure | insufficient | false (supported) | coherent displacement ≤ **1.6%** of a detectable half-voxel shift |
+| P4 | background contains recon-introduced ghosts | insufficient | false (supported) | air energy is **below** GT's at every threshold (0.888→0.483) |
+
+- **P2 is the one firm positive finding**, and its content is mechanistic: change the mask INSTANCE and the
+  error pattern barely moves (shipped 38.379 dB / ctrlB 38.362 dB), so the rim band does not follow the
+  sampling pattern and is not aliasing.
+- **P1's spec-literal "false" is marked `supported: false` in the JSON and must not be cited.** It derives
+  from the very clause its stake invalidated, and the other conjunct points the other way
+  (`ncc_rec_zf` 0.452 vs null 0.005 = the residual IS same-family with zf's aliasing).
+- **§8b is NOT overturned.** Nothing found coherent wrap-around ghosts; the evidence on the one open
+  proposition leans toward §8b's own reading.
+
+### 16a. TRAP — a fully-sampled control is VACUOUS under hard-DC. Never run one.
+
+Scoring is `k_dc = m*y + (1-m)*k_model`. With an **all-ones mask `(1-m) = 0`**, so the model's output is
+multiplied by zero and **the scored reconstruction IS the ground truth** — measured `max|rec-gt| = 8.3e-07`,
+with `zf` identical to `rec`. It scored T1 psnr **156.4**, ssim **1.0000**. The run trains normally, reports
+a beautiful number, and contains no information whatsoever.
+
+Left unnoticed, the artefact metric would have read "identical to GT" and that would have been misread as
+"the patchiness vanishes at full sampling ⇒ the mask caused it" — a fabricated causal conclusion, and the
+opposite of §14b's controlled attribution to the regulariser. The plan had guarded against control A
+self-confirming via TV *dilution* (a second lambda arm); that guard is useless here because **both arms are
+equally vacuous**.
+
+- **Fix if you need a data-rich control: use a MILD ACCELERATION (AF=2), not full sampling**, so hard-DC
+  leaves a real null space. Configs `configs/ctrlA_af2_lam{010,060}.yaml`; mask built by
+  `scripts/build_ctrl_mask.py`. λ must be dilution-scaled (AF 12→2 multiplies measurements ~6x, so
+  λ 0.10 → 0.60) and **both arms must agree in direction or the control is undecided**.
+- **Gate every control with `scripts/check_nonvacuity.py`** — it asserts the scored recon differs materially
+  from GT and **exits non-zero** otherwise. The retired all-ones run is recorded as a permanent FAIL in
+  `results_arc/diag_artefact/nonvacuity_report.json`. The two retired configs
+  `configs/ctrlA_fullsample_edgetv_lam{010,120}.yaml` carry a RETIRED/VACUOUS banner — do not run them.
+- Note the same algebra kills a naive self-supervised split on a static model: partitioning the loss into
+  Θ/Λ gives `L_Θ + L_Λ = L_Ω`, which only re-blocks DC and produces no extrapolating prior.
+
+### 16b. The AF=2 control did NOT establish that the patchiness is data-limited
+
+T1's attribution came out **"control A undecided"**, and this is the honest result, not a shortfall:
+- the raw scalar comparison is invalid across acquisitions (the gauge warning in §14c);
+- gauge-normalised, the two λ arms **disagree in direction** (+0.025 vs −0.115);
+- and the gauge-normalised spread between two nominally IDENTICAL AF=12 runs is **0.031** — larger than the
+  +0.025 that drove the "agreement", so the difference sits inside run-to-run variation.
+
+What *is* readable is the curve SHAPE (§14b's own taxonomy): shipped **rising** (selective suppression),
+AF=2 λ0.10 **flat** (low-pass), AF=2 λ0.60 **falling** (edge blur) — the artefact changes KIND with more
+data, it does not simply shrink. FLAIR's arms do yield an attribution ("persists or worsens at AF=2") but it
+is flagged `attribution_not_for_citation` because the post-hoc gauge normalisation created it and its M5
+stake is only a direction proxy. **Do not cite either as evidence that more encoding fixes the patchiness.**
+
+### 16c. Method note — twelve pre-registered bounds failed on contact with reality
+
+Every one was handled by DOCUMENTING rather than retuning, on a standing user ruling that pre-registered
+rules stay as written and their limitations get recorded. Recurring shapes, worth checking for by default:
+a bound never computed against the object it constrains (a volume-fraction assertion demanding <0.25 for a
+phantom that is 0.2663 by construction); a threshold above its own pipeline's measured ceiling (M0's
+`top>0.99` vs 0.9893); an assertion that cannot distinguish the two readings it exists to separate (an
+energy ratio from an amplitude ratio); a "curve" whose points all select the same voxels; a test flaky by
+construction 45% of the time; and **a null model whose validity assumption the same report elsewhere
+refutes** (a permutation null on a residual with lag-1 autocorrelation 0.19-0.23). The last one gated the
+branch's only definite verdict until the final review caught it — the conclusion survived a valid null, the
+gate did not.
