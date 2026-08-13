@@ -539,3 +539,108 @@ construction 45% of the time; and **a null model whose validity assumption the s
 refutes** (a permutation null on a residual with lag-1 autocorrelation 0.19-0.23). The last one gated the
 branch's only definite verdict until the final review caught it — the conclusion survived a valid null, the
 gate did not.
+
+---
+
+## 17. Is the shared *dictionary* enough? — the response-parameterisation ladder (2026-08-13)
+
+> Scope decision (user): restricted to the **Gaussian representation itself**. CAIPI (ky-kz lattice,
+> g-factor) is acquisition-side and J-LORAKS / SPIRiT (Hankel low-rank, coil self-consistency) is a
+> different reconstruction mechanism; neither touches the Gaussian parameterisation, so both were cut.
+> Spec `docs/superpowers/specs/2026-08-12-shared-structure-response-design.md`; driver
+> `scripts/run_fourarm_response.py`; records `results_arc/fourarm/*.json`; harness validation
+> `scripts/smoke_fourarm_harness.py`.
+
+**Why this and not capacity.** G0's representation-ceiling gate passes the 2x line on both contrasts;
+forced densification to 900k/1.1M is monotonically worse (§8b); §14b's `lambda=0` control removes the
+artefact from both the Gaussian representation and the sampling mask. Capacity is closed. What had never
+been tested is the STRUCTURE of the sharing: `JointGaussianModel3D` shares `mu`/`Sigma` while the two
+complex densities are fully independent tables — a shared dictionary with independent coefficients.
+
+### 17a. Vocabulary, fixed against the code (the prose was ambiguous)
+
+From `paired_arc_gs/modules/response_decoder.py`: `z_A (N, latent_dim)` and a per-contrast condition code
+`e_m` are concatenated, passed through `Linear(latent+cond -> hidden) -> Tanh -> ...`, and each contrast
+gets a `Linear(hidden -> 2)` head whose 2 outputs are **(real, imag) of one complex density**.
+- **`decoder-24/2` = hidden_dim 24 / n_layers 2.** NOT "outputs 2 contrasts".
+- **`K` = `model.anatomy.latent_dim`.**
+- Each Gaussian carries `K` free reals and the two contrasts together emit **4 reals**, so the shipped
+  `latent_dim = 12` is an EXPANSION, not a bottleneck. A genuine bottleneck needs **K < 4**.
+- ⚠️ `K` is NOT a rank on the contrast axis. Had it been, `K=2` would be full rank for two contrasts and
+  therefore identical to `independent` — two of four arms would have been the same thing and the
+  resulting "no difference" would have read as "the constraint does nothing".
+
+### 17b. Setup
+
+576902 Gaussians warm-started from `results_arc/tvs4k_e040/tvs4k_e040/checkpoints/best.pth`, **geometry
+frozen** (`training.lr.geometry = 0.0`), the **ALIGNED** mask, 2000 iters, 4 arms x 3 seeds.
+Primary metric = `PairedARCTrainer.holdout_kspace_nrmse`, per contrast, **never averaged across
+contrasts**. That metric reserves a sampling set that is never fit and never DC-projected, so unlike an
+in-sample score it **cannot be gamed by hard data consistency** — the property that makes §16a's
+vacuity trap impossible here.
+
+**A shipped guardrail was deliberately relaxed:** `config_schema.py:187` rejects `latent_dim` outside
+"recommended 8-16 (hard bounds 4-32, §6.2)", which forbids every genuine bottleneck. Relaxed to `K >= 2`
+for this experiment's configs only, on three grounds: the lower bound arrived with the scaffold commit
+`a01ecf1` and no ablation on `latent_dim` exists anywhere in the repo; where `docs/validation_layer1.md`
+invokes §6.2 the argument is an UPPER bound ("far too small to memorize either image"); and a lower bound
+of 4 removes precisely the only new information. The exemption is recorded per-run in
+`validate_config_exempted`.
+
+### 17c. Results — and the sharp line between what is established and what is not
+
+| arm | free reals/Gaussian | T1 held-out | seed spread | FLAIR held-out | seed spread |
+|---|---|---|---|---|---|
+| `independent` | 4 | **0.1618** | 0.0003 | **0.1499** | 0.0000 |
+| `K12` | 12 -> decoder | 0.1627 | 0.0001 | 0.1505 | 0.0005 |
+| `K3` | 3 -> decoder | 0.1741 | 0.0040 | 0.1606 | 0.0031 |
+| `K2` | 2 -> decoder | 0.1799 | 0.0037 | 0.1873 | 0.0085 |
+
+Geometry freeze read **exactly 0.0** on positions, scales and rotations in **all 12 runs**, so the arms
+differ only in the response parameterisation.
+
+**ESTABLISHED — a shared response decoder neither helps nor hurts.** `K12` vs `independent` is
++0.0008 (T1) / +0.0006 (FLAIR): reproducible across seeds but of the same order as the within-arm
+wobble, and matching in absolute size `docs/validation_layer1.md`'s independently obtained
+0.0002-0.0032. Two independent measurements now agree. Do not re-run this comparison expecting a
+different answer, and do not report it as a win for either side.
+
+**NOT ESTABLISHED — whether a genuine bottleneck (K<4) hurts.** `K3` and `K2` read 0.011-0.037 worse,
+comfortably outside the seed noise, and the tempting conclusion is "compressing the two contrasts
+through a shared bottleneck loses information". **That reading does not stand yet.** At 2000 iters the
+three constrained arms were still improving by 0.002-0.008 per the convergence gate — the SAME order as
+their deficit — while `independent` had converged (0.0004-0.0007). The ranking is therefore
+systematically biased toward the one arm that can no longer improve, and "the constraint is harmful" is
+not separable from "the constraint converges more slowly". Per the spec, the remedy is more iterations
+for EVERY arm; the user's decision was to report only the established result and stop, so **the
+bottleneck question is left OPEN, not answered.**
+
+### 17d. Method — the convergence gate was defective twice, in two different ways
+
+Recorded because both defects produced confident, wrong readings before being caught, and neither was
+caught by a reviewer — both were caught by looking at the raw trajectory.
+
+1. **Endpoint differencing is not robust.** Defined as "improvement over the final 20% of iterations"
+   and computed as a two-point difference, a single excursion reads as improvement: `K12` spikes to
+   0.2008 at iter 1600 and returns to 0.1627 by 2000, giving 0.038 and the appearance of an arm 50x
+   from convergence, while its trajectory is flat from ~iter 1000. Replaced with a median-of-halves.
+2. **Anchoring the gate to the seed spread inverts it.** "Improvement < that arm's own between-seed
+   spread" degenerates when the spread approaches zero: `independent`'s FLAIR spread is **0.0000**
+   (three seeds identical), so the gate demanded improvement below zero and failed the most stable arm,
+   while passing the noisiest one because its loose spread made the bar generous. **A stability-based
+   denominator punishes stability.** Replaced, on the user's decision, with an absolute threshold of
+   0.001 — chosen an order of magnitude below the smallest gap that carries a conclusion (K3's FLAIR
+   +0.0106) so that residual improvement cannot flip any comparison. This is the 13th invented bound in
+   this project; the preceding 12 all failed on contact with reality, so treat it as provisional.
+3. A related sizing point: with `--chunk 100` over 2000 iters the trajectory has 21 points, so a
+   "final 20%" window is 4 points and a median of 2 is not a median. The window was widened to 40%.
+
+### 17e. What this closes and what it leaves
+
+The shared-decoder rung is closed by two independent measurements. The bottleneck rung is **open** and
+would need all four arms re-run at a budget where the constrained arms converge (~6000 iters, about 3
+hours on 4 GPUs). Until then, no claim should be made in either direction about whether shared structure
+beyond a shared dictionary carries information. The remaining model-vNext items from the prompting audit
+(bounded per-scan rigid + low-frequency phase in the forward operator, local cross-fitted
+shared/private/absent routing, wiring `confidence/pi` and `lambda_route` into render and loss) were never
+started and are unaffected by this result.
