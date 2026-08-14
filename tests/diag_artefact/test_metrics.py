@@ -375,7 +375,12 @@ def test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not()
     print("PASS test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not")
 
 
-from diag_artefact.metrics import gradient_correlation, half_voxel_shift, selectivity
+from diag_artefact.metrics import (
+    gradient_correlation,
+    half_voxel_shift,
+    selectivity,
+    spatial_edge_error_autocorrelation,
+)
 
 
 def test_a_half_voxel_shift_shows_up_as_gradient_correlation_and_noise_does_not():
@@ -439,6 +444,183 @@ def test_a_pure_lowpass_is_flat_and_selective_suppression_rises():
     print("PASS test_a_pure_lowpass_is_flat_and_selective_suppression_rises")
 
 
+def _spatial_edge_fixture(seed=101, shape=(40, 40, 40)):
+    """An anisotropy-free textured volume with a fixed, interior WM test region."""
+    from scipy import ndimage as ndi
+
+    rng = np.random.default_rng(seed)
+    gt = ndi.gaussian_filter(rng.normal(size=shape), sigma=1.1)
+    gt = (gt - gt.min()) / (gt.max() - gt.min()) + 0.25
+    wm = np.zeros(shape, dtype=bool)
+    wm[4:-4, 4:-4, 4:-4] = True
+    return gt.astype(np.float32), wm, rng
+
+
+def test_spatial_edge_error_identity_and_amplitude_gauge_are_zero():
+    gt, wm, _ = _spatial_edge_fixture()
+    identical = spatial_edge_error_autocorrelation(gt, gt, wm=wm)
+    amplitude_only = spatial_edge_error_autocorrelation(2.0 * gt, gt, wm=wm)
+
+    for name, result in (("identity", identical), ("amplitude", amplitude_only)):
+        assert result["primary_q"] == 0.90
+        assert set(result["quantiles"]) == {"0.85", "0.9", "0.95"}
+        flat = result["flat_region"]
+        assert set(flat) == {
+            "quantile", "gt_edge_threshold", "n_voxels", "rms", "score",
+            "rho_by_axis_lag",
+        }
+        assert flat["quantile"] == 0.50
+        assert flat["n_voxels"] > 0
+        flat_rho = np.asarray(flat["rho_by_axis_lag"])
+        assert flat_rho.shape == (3, 4), f"{name}: flat-region three-axis profile missing"
+        assert np.isfinite(flat["gt_edge_threshold"])
+        assert abs(flat["rms"]) < 1e-12, f"{name} flat-region RMS must be zero"
+        assert abs(flat["score"]) < 1e-12, f"{name} flat-region score must be zero"
+        assert np.max(np.abs(flat_rho)) < 1e-12, f"{name} flat profile must be zero"
+        for row in result["quantiles"].values():
+            rho = np.asarray(row["rho_by_axis_lag"])
+            assert rho.shape == (3, 4), f"{name}: full three-axis lag1..4 profile missing"
+            assert abs(row["score"]) < 1e-12, f"{name} must be zero, got {row['score']}"
+            assert np.max(np.abs(rho)) < 1e-12, f"{name} profile must be zero, got {rho}"
+
+    assert abs(amplitude_only["scale"] - 0.5) < 1e-7
+    print("PASS test_spatial_edge_error_identity_and_amplitude_gauge_are_zero")
+
+
+def test_spatial_edge_error_block_is_more_coherent_than_matched_iid_noise():
+    gt, wm, rng = _spatial_edge_fixture(seed=102, shape=(48, 48, 48))
+
+    # Repeated 8-voxel slabs create spatially coherent false edges.  The iid control has exactly
+    # the same perturbation RMS; amplitude cannot explain the difference because the metric first
+    # projects both reconstructions onto GT inside the same WM support.
+    slab = ((np.indices(gt.shape)[0] // 8) % 2).astype(np.float32)
+    slab = (slab - slab.mean()) * 0.10
+    iid = rng.normal(size=gt.shape).astype(np.float32)
+    iid *= float(np.sqrt(np.mean(slab ** 2)) / np.sqrt(np.mean(iid ** 2)))
+    block_result = spatial_edge_error_autocorrelation(gt + slab, gt, wm=wm)
+    iid_result = spatial_edge_error_autocorrelation(gt + iid, gt, wm=wm)
+
+    block_q90 = block_result["primary_score"]
+    iid_q90 = iid_result["primary_score"]
+    assert block_q90 > iid_q90 + 0.02, (
+        f"coherent block edges must exceed matched iid: block={block_q90:.5f}, "
+        f"iid={iid_q90:.5f}"
+    )
+    print("PASS test_spatial_edge_error_block_is_more_coherent_than_matched_iid_noise")
+
+
+def test_spatial_edge_error_flat_region_catches_a_block_away_from_strong_gt_edges():
+    from scipy import ndimage as ndi
+
+    shape = (48, 48, 48)
+    rng = np.random.default_rng(104)
+    gt = np.ones(shape, dtype=np.float32)
+    texture = ndi.gaussian_filter(rng.normal(size=shape), sigma=1.1)
+    texture /= np.max(np.abs(texture))
+    gt[32:] += (0.08 * texture[32:]).astype(np.float32)
+    wm = np.zeros(shape, dtype=bool)
+    wm[4:-4, 4:-4, 4:-4] = True
+
+    block_mask = np.zeros(shape, dtype=bool)
+    block_mask[10:18, 14:22, 16:24] = True
+    block_rec = gt.copy()
+    block_rec[block_mask] = 0.0
+    block_delta = block_rec - gt
+    iid_delta = np.zeros(shape, dtype=np.float32)
+    iid_support = np.zeros(shape, dtype=bool)
+    iid_support[8:26, 8:-8, 8:-8] = True
+    iid_delta[iid_support] = rng.normal(size=int(iid_support.sum())).astype(np.float32)
+    iid_delta *= float(
+        np.sqrt(np.mean(block_delta[wm].astype(np.float64) ** 2))
+        / np.sqrt(np.mean(iid_delta[wm].astype(np.float64) ** 2))
+    )
+
+    # Pin the fixture to the production filter/Sobel convention: the injected block lies wholly
+    # below even q=.85, so the legacy strong-edge profiles cannot be its intended support.
+    gs = ndi.gaussian_filter(gt, sigma=0.5, mode="reflect")
+    dg = [ndi.sobel(gs, axis=axis, mode="reflect") for axis in range(3)]
+    gt_grad = np.sqrt(sum(component * component for component in dg))
+    strong_threshold = float(np.quantile(gt_grad[wm], 0.85))
+    assert strong_threshold > 0.0, "fixture must have a genuine upper GT-edge tail"
+    assert not np.any((block_delta != 0.0) & (gt_grad >= strong_threshold))
+
+    identity = spatial_edge_error_autocorrelation(gt, gt, wm=wm)
+    block = spatial_edge_error_autocorrelation(block_rec, gt, wm=wm)
+    iid = spatial_edge_error_autocorrelation(gt + iid_delta, gt, wm=wm)
+    expected_schema = {
+        "quantile", "gt_edge_threshold", "n_voxels", "rms", "score",
+        "rho_by_axis_lag",
+    }
+    flat_threshold = float(np.quantile(gt_grad[wm], 0.50))
+    expected_n = int((wm & (gt_grad <= flat_threshold)).sum())
+
+    for name, result in (("identity", identity), ("block", block), ("iid", iid)):
+        flat = result["flat_region"]
+        rho = np.asarray(flat["rho_by_axis_lag"])
+        assert set(flat) == expected_schema
+        assert flat["quantile"] == 0.50
+        assert flat["gt_edge_threshold"] == flat_threshold
+        assert flat["n_voxels"] == expected_n
+        assert rho.shape == (3, 4)
+        assert np.isfinite(rho).all(), f"{name}: flat-region profile must be finite"
+        assert np.isfinite([flat["rms"], flat["score"]]).all()
+
+    block_flat = block["flat_region"]
+    identity_flat = identity["flat_region"]
+    assert block["scale"] == 1.0, "zeroing a block must not perturb the WM amplitude gauge"
+    for row in block["quantiles"].values():
+        assert abs(row["score"]) < 1e-12, "legacy strong-edge SEAC must remain blind here"
+        assert np.max(np.abs(row["rho_by_axis_lag"])) < 1e-12
+    assert block_flat["rms"] > identity_flat["rms"] + 0.01, (
+        f"off-edge block must register in flat-region RMS: {block_flat}"
+    )
+    assert block_flat["score"] > iid["flat_region"]["score"] + 0.02, (
+        f"coherent off-edge block must exceed matched iid: block={block_flat['score']:.5f}, "
+        f"iid={iid['flat_region']['score']:.5f}"
+    )
+    print("PASS test_spatial_edge_error_flat_region_catches_a_block_away_from_strong_gt_edges")
+
+
+def test_spatial_edge_error_is_axis_permutation_invariant_and_blur_is_nonzero():
+    from scipy import ndimage as ndi
+
+    gt, wm, _ = _spatial_edge_fixture(seed=103)
+    rec = ndi.gaussian_filter(gt, sigma=1.0)
+    original = spatial_edge_error_autocorrelation(rec, gt, wm=wm)
+    permutation = (2, 0, 1)
+    permuted = spatial_edge_error_autocorrelation(
+        np.transpose(rec, permutation),
+        np.transpose(gt, permutation),
+        wm=np.transpose(wm, permutation),
+    )
+
+    assert original["primary_score"] > 0.0, "blur must produce a nonzero structured edge error"
+    for q in ("0.85", "0.9", "0.95"):
+        assert abs(original["quantiles"][q]["score"] - permuted["quantiles"][q]["score"]) < 1e-7
+        original_rho = np.asarray(original["quantiles"][q]["rho_by_axis_lag"])
+        permuted_rho = np.asarray(permuted["quantiles"][q]["rho_by_axis_lag"])
+        assert np.allclose(permuted_rho, original_rho[list(permutation)], atol=1e-7, rtol=0.0)
+
+    original_flat = original["flat_region"]
+    permuted_flat = permuted["flat_region"]
+    assert permuted_flat["quantile"] == original_flat["quantile"] == 0.50
+    assert permuted_flat["n_voxels"] == original_flat["n_voxels"]
+    assert abs(
+        permuted_flat["gt_edge_threshold"] - original_flat["gt_edge_threshold"]
+    ) < 1e-6
+    for field in ("rms", "score"):
+        assert abs(permuted_flat[field] - original_flat[field]) < 1e-7
+    original_flat_rho = np.asarray(original_flat["rho_by_axis_lag"])
+    permuted_flat_rho = np.asarray(permuted_flat["rho_by_axis_lag"])
+    assert np.allclose(
+        permuted_flat_rho,
+        original_flat_rho[list(permutation)],
+        atol=1e-7,
+        rtol=0.0,
+    )
+    print("PASS test_spatial_edge_error_is_axis_permutation_invariant_and_blur_is_nonzero")
+
+
 from diag_artefact.report import adjudicate
 
 
@@ -474,6 +656,10 @@ if __name__ == "__main__":
     test_ncc_is_one_for_identical_fields_and_zero_for_independent_ones()
     test_white_noise_falls_inside_its_surrogate_band_and_smooth_noise_does_not()
     test_a_pure_lowpass_is_flat_and_selective_suppression_rises()
+    test_spatial_edge_error_identity_and_amplitude_gauge_are_zero()
+    test_spatial_edge_error_block_is_more_coherent_than_matched_iid_noise()
+    test_spatial_edge_error_flat_region_catches_a_block_away_from_strong_gt_edges()
+    test_spatial_edge_error_is_axis_permutation_invariant_and_blur_is_nonzero()
     test_a_half_voxel_shift_shows_up_as_gradient_correlation_and_noise_does_not()
     test_adjudicate_returns_insufficient_when_the_air_curve_crosses_one()
     test_adjudicate_calls_p4_false_on_a_flat_ratio_and_a_diffuse_psf()

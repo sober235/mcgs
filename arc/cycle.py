@@ -12,6 +12,7 @@ Anti-aliasing lever order: shared-geometry / cross-contrast coupling is PRIMARY
 
 Metric contract (owned by the scorer below — DO NOT weaken):
   hfen = 3D-Laplacian high-freq error norm vs GT (covers axial+coronal+sagittal).
+  e_unobs = complex multicoil relative L2 error on truly unobserved k-space (oracle diagnostic).
   per-contrast composite c = psnr + 25*ssim - 60*nmse - 25*hfen - 40*max(0,1-sharp) - 200*grain
   combined score = mean(c_plain, c_contrast); both channels must beat their ZF anchor on ssim/nmse/hfen.
 
@@ -182,7 +183,7 @@ def build_cfg():
 
 
 def score_contrast(tr, which, dev):
-    """hard-DC synth + SENSE-combine vs GT on raw model output, + HFEN composite."""
+    """Score hard-DC image quality and raw-model unobserved multicoil k-space error."""
     if which == "plain":
         csm, y, mask, ds = tr.csm_p, tr.kspace_p, tr.mask_p, tr.ds_p
     else:
@@ -192,6 +193,15 @@ def score_contrast(tr, which, dev):
     with torch.no_grad():
         x = tr._render(which)
         k_model = fft3c(csm * x.unsqueeze(0))
+        # Direct anti-alias oracle.  Use the dataset's full, complex, normalized
+        # multicoil acquisition; the magnitude-only saved NPZ cannot reproduce
+        # this quantity because it discards candidate phase.
+        y_full = ds.kspace_multicoil.to(dev)
+        unobserved = (1.0 - m).unsqueeze(0)
+        unobserved_error = ((k_model - y_full) * unobserved).abs().square().sum()
+        unobserved_energy = (y_full * unobserved).abs().square().sum().clamp_min(1e-12)
+        nmse_unobs = float(unobserved_error / unobserved_energy)
+        e_unobs = float(torch.sqrt(unobserved_error / unobserved_energy))
         k_dc = m.unsqueeze(0) * y + (1.0 - m).unsqueeze(0) * k_model
         x_dc = (ifft3c(k_dc) * csm.conj()).sum(0)
         met = evaluate_reconstruction(x_dc, gt, compute_extended=False)
@@ -207,7 +217,8 @@ def score_contrast(tr, which, dev):
     # region speckle). grain and sharp pull opposite ways -> the optimum is edge-preserving denoise.
     comp = psnr + 25.0 * ssim - 60.0 * nmse - 25.0 * hf - 40.0 * max(0.0, 1.0 - sr) - 200.0 * gr
     beat = (ssim >= float(mz["ssim"])) and (nmse <= float(mz["nmse"])) and (hf <= zf_hf)
-    return dict(psnr=psnr, ssim=ssim, nmse=nmse, hfen=hf, sharp=sr, grain=gr, comp=comp, beat=beat,
+    return dict(psnr=psnr, ssim=ssim, nmse=nmse, hfen=hf, sharp=sr, grain=gr,
+                e_unobs=e_unobs, nmse_unobs=nmse_unobs, comp=comp, beat=beat,
                 zf=(float(mz["psnr"]), float(mz["ssim"]), float(mz["nmse"]), zf_hf))
 
 
@@ -234,8 +245,10 @@ def main():
     npts = tr.model.num_points
 
     log(f"{name_p:5s} psnr={sp['psnr']:.3f} ssim={sp['ssim']:.4f} nmse={sp['nmse']:.4f} hfen={sp['hfen']:.4f} "
+        f"e_unobs={sp['e_unobs']:.4f} "
         f"sharp={sp['sharp']:.3f} grain={sp['grain']:.4f} comp={sp['comp']:.3f} beat={sp['beat']}")
     log(f"{name_c:5s} psnr={sc['psnr']:.3f} ssim={sc['ssim']:.4f} nmse={sc['nmse']:.4f} hfen={sc['hfen']:.4f} "
+        f"e_unobs={sc['e_unobs']:.4f} "
         f"sharp={sc['sharp']:.3f} grain={sc['grain']:.4f} comp={sc['comp']:.3f} beat={sc['beat']}")
     log(f"SCORE combined={combined:.3f} both_beat_zf={both_beat} N={npts} vram_gb={vram:.1f} "
         f"elapsed_s={time.time()-t0:.0f}")
