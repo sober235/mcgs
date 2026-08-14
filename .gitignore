@@ -33,3 +33,6 @@ results_arc/*
 results_arc/diag_artefact/*
 !results_arc/diag_artefact/*.json
 !results_arc/diag_artefact/adjudication.png
+
+# storage audits: 12 GB of local scan output; the scripts that regenerate it are versioned instead
+audits/
