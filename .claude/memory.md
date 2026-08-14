@@ -644,3 +644,61 @@ beyond a shared dictionary carries information. The remaining model-vNext items 
 (bounded per-scan rigid + low-frequency phase in the forward operator, local cross-fitted
 shared/private/absent routing, wiring `confidence/pi` and `lambda_route` into render and loss) were never
 started and are unaffected by this result.
+
+---
+
+## 18. Artefact autoresearch on AF=10 and AF=12 — both lines end in BASELINE RETENTION (2026-08-13)
+
+> User goal: suppress residual aliasing AND the visible patch/fragment/staircase artefact, in both
+> contrasts, by tuning the frozen edge-TV working point. Two independent knob searches (AF=10, 4 rounds;
+> AF=12, 2 rounds) were run under pre-registered, modality-local gates. **Neither promoted a candidate.**
+> Logs `autoresearch.md` / `autoresearch_af12.md`; append-only decisions `autoresearch*.jsonl`; runners
+> `autoresearch*.sh`; gate records `results_arc/autoresearch_af{10,12}/*_repeat_gate.json`.
+
+**Two new instruments were built for this, and both are worth keeping.**
+- **`e_unobs`** (`arc/cycle.py::score_contrast`) = relative L2 of `(1-m)·(fft3c(csm·x) − y_full)`, i.e. the
+  **complex multicoil** error on truly unobserved k. It is an ORACLE diagnostic (it reads the full
+  acquisition) and is the only honest alias metric here, because hard-DC makes every in-sample score
+  blind to exactly the region a prior must fix. **The magnitude NPZ cannot reproduce it** — that path
+  discards candidate phase. For runs predating the scorer, replay the checkpoint with
+  `scripts/autoresearch_kspace_score.py` instead of retraining.
+- **`SEAC`** (`diag_artefact/metrics.py::spatial_edge_error_autocorrelation`) = spatial autocorrelation of
+  the Sobel-gradient-vector error after a least-squares amplitude projection onto GT, evaluated on a
+  **GT-fixed** support so a candidate cannot pick its own favourable voxels. Schema v2 added a
+  **flat-region** branch (GT gradient below the WM median) after the strong-edge branch was found blind to
+  reconstruction-only false edges sitting away from real edges — that audit superseded an already-issued
+  AF10 promotion verdict.
+
+**AF=10 (`af10_joint_edgetv_e040`, transferred AF12 params, 4000 iters): T1 38.944 / FLAIR 38.866**
+(+0.56 / +0.65 dB over AF=12 `tvs4k_e040`), aligned AF10 mask net 9.874. Four tuning rounds followed; the
+full-budget candidate (λ0.095 / eps0.03725) improved combined score, `e_unobs`, gradient error, strong-edge
+SEAC and flat RMS, and was still **rejected** on flat-region autocorrelation in both contrasts
+(T1W 0.150855 > 0.149478, FLAIR 0.113009 > 0.112720). Later w_floor and high-band micro-sweeps found no
+repeat-stable dual-modality cell.
+
+**AF=12 (2 rounds).** Round 1: eps↑ improves strong-edge SEAC but regresses HFEN/grain; `kspace_high=2.3`
+rejected. Round 2 (λ↑ to pay for eps↑ — `l0105_e050`, `l011_e050`, `l011_e060` vs baselines `tvs_e040` +
+`af12_ar_b1_repeat_e040`): **all three FAIL in both contrasts**. `e_unobs` regresses by **47–156× the
+two-baseline repeat delta**, monotonically in eps (0.05 → +0.0005…0.0008, 0.06 → +0.0010…0.0014), and λ
+does not offset it; flat-region RMS regresses +1.3…5.8%. T1W's strong-edge SEAC, sharpness and
+gradient-ratio curve improve — another **reshape**, joining §7's list.
+
+**CONCLUSION (user decision): retain the shipped working point** (λ_geo 0.10 / tv_eps 0.04 /
+kspace_high 2.2 / κ_q 0.85 / w_floor 0.10). `tv_eps` is a **pure trade** on this data — up improves
+fragmentation and worsens the unsampled-k extrapolation, down does the reverse — and λ cannot translate
+that curve; κ_q×λ was already gridded (§14) with 0.85 best. **Do not re-open the knob search expecting to
+beat both artefact axes at once.** ⚠️ This is a local optimum *inside the box under these gates*, NOT a
+claim of artefact absence; `w_floor` was never screened on AF12 (inert on AF10). Consistent with §17e: the
+remaining lever is a learned prior, not tuning.
+
+**Two gate defects, documented rather than retuned** (bounds 14 and 15 in this project's running tally):
+1. **The repeat floor is near-zero because training is near-deterministic.** The two 1500-iter baselines
+   differ by 1.4e-05 (`e_unobs`) and 5e-05 (`seac_q90`), so every repeat-anchored tolerance degenerates to
+   "no regression at all" rather than "within run-to-run noise" — §17d's stability-punishing denominator in
+   a milder form. It did not decide AF12 round 2 (margins were 47–156×), but it plausibly decided AF10's
+   final rejection, whose margins were ~1%.
+2. **`flat_region_rms` is not independent of `grain`.** They rank the three AF12 candidates identically in
+   both contrasts (the only ordering disagreement is between the two baselines, which differ at
+   repeat-noise level). `flat_region_rms` carries ZERO tolerance and `grain` carries 3%, so on this
+   parameter family the flat gate is a zero-tolerance restatement of the noise gate. **Never count both as
+   two failing axes**, and re-check independence before reusing the flat gate on a different family.
