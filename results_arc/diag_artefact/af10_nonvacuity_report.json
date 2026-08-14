@@ -1,0 +1,26 @@
+{
+  "contrasts": [
+    "T1",
+    "FLAIR"
+  ],
+  "runs": {
+    "af10_joint_edgetv_e040": {
+      "npz": "results_arc/af10_joint_edgetv_e040_volumes.npz",
+      "contrasts": {
+        "T1": {
+          "status": "PASS",
+          "max_abs_diff": 0.29204796254634857,
+          "gt_peak": 1.8865548372268677,
+          "rel_max_abs_diff": 0.15480491570318894
+        },
+        "FLAIR": {
+          "status": "PASS",
+          "max_abs_diff": 0.25586870312690735,
+          "gt_peak": 1.568184494972229,
+          "rel_max_abs_diff": 0.1631623727611454
+        }
+      }
+    }
+  },
+  "any_fail": false
+}

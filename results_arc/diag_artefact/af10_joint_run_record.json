@@ -1,0 +1,113 @@
+{
+  "status": "PASS",
+  "experiment": "af10_joint_edgetv_e040",
+  "completed_at": "2026-08-11T16:44:04+08:00",
+  "contract": "results_arc/diag_artefact/af10_joint_run_contract.json",
+  "mask_report": "results_arc/diag_artefact/af10_mask_report.json",
+  "nonvacuity_report": "results_arc/diag_artefact/af10_nonvacuity_report.json",
+  "mask": {
+    "path": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af10_transverse_ALIGNED.mat",
+    "nominal_af": 10.0,
+    "actual_net_af": 9.873772791023843,
+    "sample_fraction": 0.1012784093618393,
+    "shape": [256, 220, 256],
+    "dtype": "float32",
+    "binary": true,
+    "readout_axis": 2,
+    "readout_repeated": true,
+    "measured_kspace_dc": [128, 132, 126],
+    "mask_at_dc": 1.0,
+    "roll": [2, 24, 0],
+    "sha256": "67fa267ed60556a42671d66335d39ac3b53eba6063bdada96b35974a50a99059"
+  },
+  "run": {
+    "gpu": 0,
+    "iterations": 4000,
+    "seed": 42,
+    "num_gaussians": 576902,
+    "vram_gb": 16.131066368,
+    "training_elapsed_s": 2562.1,
+    "total_elapsed_s": 2620,
+    "config": "configs/af10_joint_edgetv.yaml",
+    "log": "results_arc/af10_joint_edgetv_e040.log",
+    "score": "results_arc/af10_joint_edgetv_e040_score.json",
+    "volumes": "results_arc/af10_joint_edgetv_e040_volumes.npz"
+  },
+  "metrics": {
+    "T1": {
+      "psnr": 38.94424378949747,
+      "ssim": 0.9123236337963198,
+      "nmse": 0.018221883103251457,
+      "hfen": 0.7313519716262817,
+      "sharp": 0.8212925791740417,
+      "grain": 0.010330422781407833,
+      "composite": 33.16084096823344,
+      "beats_zf": true
+    },
+    "FLAIR": {
+      "psnr": 38.86641548577812,
+      "ssim": 0.9162269680387746,
+      "nmse": 0.007378885522484779,
+      "hfen": 0.6308618783950806,
+      "sharp": 0.8608748912811279,
+      "grain": 0.012690995819866657,
+      "composite": 37.45460608279317,
+      "beats_zf": true
+    },
+    "combined": 35.3077235255133,
+    "both_beat_zf": true
+  },
+  "delta_vs_af12_tvs4k_e040": {
+    "T1": {
+      "psnr": 0.56474452201725,
+      "ssim": 0.002006342758562485,
+      "nmse": -0.0025304947048425674,
+      "hfen": -0.03899574279785156,
+      "sharp": 0.002545297145843506,
+      "grain": -0.00013972260057926178,
+      "composite": 1.8713827491677435
+    },
+    "FLAIR": {
+      "psnr": 0.6457313842172425,
+      "ssim": 0.0024883625517394536,
+      "nmse": -0.0011829165741801262,
+      "hfen": -0.042289137840270996,
+      "sharp": 0.0044939517974853516,
+      "grain": -0.00021758116781711578,
+      "composite": 2.059418193931151
+    },
+    "combined": 1.9654004715494509
+  },
+  "validation": {
+    "expected_volume_keys": ["recT1", "gtT1", "zfT1", "recFL", "gtFL", "zfFL"],
+    "all_volume_shapes": [256, 220, 256],
+    "all_volume_dtype": "float32",
+    "all_values_finite": true,
+    "gt_exactly_matches_af12": true,
+    "formal_log_error_scan": "PASS",
+    "results_tsv_rows": 1,
+    "nonvacuity": {
+      "T1_rel_max_abs_diff": 0.15480491570318894,
+      "FLAIR_rel_max_abs_diff": 0.1631623727611454,
+      "status": "PASS"
+    }
+  },
+  "sha256": {
+    "log": "dd04b398f2be95fcecdc64850efe03a9cfa62b2ac7781180f1e5b23d806c81aa",
+    "score": "caadc0dab59167389a399dbfedfd8eb661fee3d268d486052f6559e78d5e5910",
+    "volumes": "3bce9ef7a99186d282b4927602706eb162f465c33e2e43a5af2c249a28687e69"
+  },
+  "figure": {
+    "surface_class": "connector_milestone",
+    "source_data": "results_arc/af10_joint_edgetv_e040_volumes.npz",
+    "score_data": "results_arc/af10_joint_edgetv_e040_score.json",
+    "generator": "scripts/fig_af10_joint_result.py",
+    "final_png": "results_arc/AF10_joint_T1W_FLAIR_result.png",
+    "slice": "axial z=160",
+    "size_pixels": [2737, 1357],
+    "sha256": "64975e0f9687a800f36ad971932cf874b667322ebef4a72fe87554142d879694",
+    "main_claim": "At nominal AF=10, joint reconstruction restores T1W and FLAIR detail relative to zero filling while retaining a shared, explicit normalized-error scale.",
+    "self_review_fix": "Inspected the rendered draft; the final pass replaced an incompatible bare-hex mplstyle load with a warning-free rcParams mirror and slightly tightened the title while preserving the comparison layout."
+  },
+  "execution_note": "Attempt 1 failed before iter 1 because the filesystem sandbox denied CUDA access. Attempt 2 used approved GPU access and completed normally; the failed attempt is preserved separately and did not create score or volume outputs."
+}

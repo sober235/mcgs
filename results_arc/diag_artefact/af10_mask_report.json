@@ -1,0 +1,40 @@
+{
+  "net_af": 9.873772791023843,
+  "abs_delta_af": 0.12622720897615736,
+  "mask_at_dc": 1.0,
+  "target_af": 10.0,
+  "tol": 0.2,
+  "status": "OK",
+  "shape": [
+    256,
+    220,
+    256
+  ],
+  "dtype": "float32",
+  "sample_fraction": 0.1012784093618393,
+  "nnz_pe": 5704,
+  "readout_axis": 2,
+  "readout_repeated": true,
+  "binary": true,
+  "roll": [
+    2,
+    24,
+    0
+  ],
+  "dc": [
+    128,
+    132,
+    126
+  ],
+  "source_2d": "/data0/congcong/code/ESPIRiT/utils/mask_vdpois_220x256_af10.mat",
+  "source_2d_sha256": "f7710f2b4dc7d3069d58c5481d590d7f504d71ba69a4b328fe3e95a651f88f53",
+  "af12_sibling_exact": true,
+  "af12_source_2d": "/data0/congcong/code/ESPIRiT/utils/mask_vdpois_220x256_af12.mat",
+  "af12_source_2d_sha256": "4d672db87030b94efce7835428899de436c5674a3d4f9c17bfbda5598374c0e9",
+  "af12_unaligned_sha256": "a1b27f75a3aac02785340b28a8ddc01bcd60867321b89803b9f1c038edfa9887",
+  "af12_aligned_sha256": "f68c1faee11fbb325a08cb32954d5ad67556f57093076dd0461d41c537b3d32c",
+  "out": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af10_transverse_ALIGNED.mat",
+  "out_sha256": "67fa267ed60556a42671d66335d39ac3b53eba6063bdada96b35974a50a99059",
+  "recipe": "transpose 220x256 PE source; repeat on readout axis 2; roll derived from AF12 unaligned/aligned pair",
+  "vdpoismex": "vdPoisMex(220,256,220,256,2.5,4,24,0,1)"
+}

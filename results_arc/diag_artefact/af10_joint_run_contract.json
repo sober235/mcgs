@@ -1,0 +1,114 @@
+{
+  "status": "completed",
+  "launched_at": "2026-08-11T15:53:27+08:00",
+  "completed_at": "2026-08-11T16:44:04+08:00",
+  "git_head": "60c0a78e6e03563df9552ebfe9e018bb9f5340d6",
+  "launch_attempts": [
+    {
+      "attempt": 1,
+      "status": "failed_before_training",
+      "log": "results_arc/af10_joint_edgetv_e040_attempt1_sandbox_cuda_failure.log",
+      "reason": "Filesystem sandbox exposed nvidia-smi but denied CUDA device access: torch.cuda.is_available()=false and JointTrainer failed before iter 1 with RuntimeError: No CUDA GPUs are available.",
+      "outputs_created": []
+    },
+    {
+      "attempt": 2,
+      "status": "completed",
+      "log": "results_arc/af10_joint_edgetv_e040.log",
+      "execution_scope": "outside filesystem sandbox with approved GPU 0 access",
+      "first_iteration_observed": true,
+      "training_elapsed_s": 2562.1,
+      "total_elapsed_s": 2620,
+      "outputs_created": [
+        "results_arc/af10_joint_edgetv_e040_score.json",
+        "results_arc/af10_joint_edgetv_e040_volumes.npz"
+      ]
+    }
+  ],
+  "purpose": "Nominal-AF=10 T1W (plain) + FLAIR (contrast) joint reconstruction, controlled against the AF=12 edge-TV run tvs4k_e040.",
+  "comparison_rule": "Change only the declared acceleration and sampling mask; preserve data, CSM, warm start, seed, optimizer/model settings, edge-TV settings, and 4000-iteration budget.",
+  "baseline": {
+    "experiment": "tvs4k_e040",
+    "config_family": "configs/winner_v2_edgeTV.yaml",
+    "score": "results_arc/tvs4k_e040_score.json",
+    "volumes": "results_arc/tvs4k_e040_volumes.npz",
+    "nominal_af": 12,
+    "actual_net_af": 11.831932773109244
+  },
+  "mask": {
+    "source_2d": "/data0/congcong/code/ESPIRiT/utils/mask_vdpois_220x256_af10.mat",
+    "source_recipe": "vdPoisMex(220,256,220,256,2.5,4,24,0,1): accelx=AF/4; accely=4; ACS=24; ellipse=0; pp=1",
+    "af12_sibling_source_2d": "/data0/congcong/code/ESPIRiT/utils/mask_vdpois_220x256_af12.mat",
+    "af12_unaligned_reference": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse.mat",
+    "af12_aligned_reference": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse_ALIGNED.mat",
+    "output": "/data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af10_transverse_ALIGNED.mat",
+    "transform": "transpose 220x256 source to the 256x220 PE plane; repeat along readout axis 2; apply the integer roll derived from the AF=12 unaligned/aligned pair",
+    "target_nominal_af": 10.0,
+    "absolute_af_tolerance": 0.2,
+    "tolerance_basis": "Predeclared 2% absolute window. It covers the known ACS-induced nominal-vs-net offset in the shipped AF=12 sibling (|11.83193-12|=0.16807) without admitting another integer AF setting.",
+    "report": "results_arc/diag_artefact/af10_mask_report.json",
+    "actual_net_af": 9.873772791023843,
+    "sample_fraction": 0.1012784093618393,
+    "roll": [2, 24, 0],
+    "measured_kspace_dc": [128, 132, 126],
+    "mask_at_dc": 1.0,
+    "output_sha256": "67fa267ed60556a42671d66335d39ac3b53eba6063bdada96b35974a50a99059",
+    "required_gates": [
+      "AF=12 2-D sibling stacks exactly to the shipped AF=12 unaligned 3-D mask",
+      "shape == [256,220,256] and dtype == float32",
+      "binary values only",
+      "readout axis 2 is fully repeated",
+      "mask at measured k-space DC == 1",
+      "abs(actual_net_af - 10) < 0.2"
+    ]
+  },
+  "run": {
+    "experiment": "af10_joint_edgetv_e040",
+    "config": "configs/af10_joint_edgetv.yaml",
+    "gpu": 0,
+    "command": [
+      "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+      "-u",
+      "arc/cycle.py",
+      "--exp",
+      "af10_joint_edgetv_e040",
+      "--iters",
+      "4000",
+      "--lambda_geo",
+      "0.10",
+      "--warmup",
+      "500",
+      "--max_radius",
+      "20",
+      "--kspace_high",
+      "2.2",
+      "--edge_tv",
+      "--edge_tv_kappa_q",
+      "0.85",
+      "--edge_tv_wfloor",
+      "0.1",
+      "--tv_eps",
+      "0.04",
+      "--base_cfg",
+      "configs/af10_joint_edgetv.yaml",
+      "--save_volumes",
+      "--gpu",
+      "0"
+    ],
+    "environment": {
+      "PYTHONNOUSERSITE": "1",
+      "PYTHONPATH": "",
+      "CUDA_DEVICE_ORDER": "PCI_BUS_ID",
+      "python": "3.11.5",
+      "torch": "2.7.1+cu118",
+      "cuda": "11.8",
+      "cudnn": 90701
+    },
+    "expected_outputs": [
+      "results_arc/af10_joint_edgetv_e040.log",
+      "results_arc/af10_joint_edgetv_e040_score.json",
+      "results_arc/af10_joint_edgetv_e040_volumes.npz"
+    ],
+    "record": "results_arc/diag_artefact/af10_joint_run_record.json"
+  }
+}
