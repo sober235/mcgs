@@ -1,0 +1,92 @@
+[   0.3s] mask (256, 220, 256) sampled frac 0.08451704680919647 readout axis 2 2D PE mask (256, 220)
+[   0.3s] ================ T1 ================
+[  39.3s] ksp (256, 220, 256, 12) csm (256, 220, 256, 12) SoS median 1.0
+[  40.1s] data DC index (128, 132, 126) array centre (128, 110, 128) mask ACS-density peak (PE plane) (0, 5)
+[  40.1s]   PE ring rho[0.00,0.10) n=   433 mean|k|^2/pt=1.0141e+14 exact-zero frac=0.000 sampled frac=0.9607
+[  40.1s]   PE ring rho[0.50,0.60) n=  4860 mean|k|^2/pt=3.0128e+11 exact-zero frac=0.000 sampled frac=0.0883
+[  40.1s]   PE ring rho[0.90,1.00) n=  6849 mean|k|^2/pt=1.1855e+11 exact-zero frac=0.000 sampled frac=0.0384
+[  40.1s]   PE ring rho[1.00,1.10) n=  5470 mean|k|^2/pt=8.8054e+10 exact-zero frac=0.000 sampled frac=0.0344
+[  40.1s]   PE ring rho[1.10,1.20) n=  4223 mean|k|^2/pt=5.3250e+10 exact-zero frac=0.000 sampled frac=0.0315
+[  40.1s]   PE ring rho[1.20,1.28) n=  2189 mean|k|^2/pt=2.4419e+10 exact-zero frac=0.000 sampled frac=0.0347
+[  40.1s]   PE ring rho[1.28,1.35) n=  1178 mean|k|^2/pt=2.1030e+08 exact-zero frac=0.000 sampled frac=0.0255
+[  40.1s]   PE ring rho[1.35,1.50) n=  1301 mean|k|^2/pt=9.9980e-20 exact-zero frac=0.000 sampled frac=0.0254
+[  40.1s]   PE-plane fraction beyond rho>=1.28: 0.046
+[  40.2s]   outer-band samples n=233532; per-coil complex noise std mean 3.6985e+03 (min 3.159e+03 max 4.695e+03)
+[  40.2s]   coil noise correlation |corr| off-diag mean 0.166 max 0.512; cov eigen spread 9.9
+[  40.4s]   multicoil k energy retained by mask: 73.79%  (unsampled 26.21%)
+[  69.1s]   GT max 7.8374e+05 P99.9 4.1543e+05;  ZF PSNR whole@max = 31.112 dB (anchor ~31.11 T1 / ~30.70 FLAIR)
+[  69.1s]   head support fraction (|x|>5% P99.9): 0.270 => background known-zero voxels 0.730
+/home/congcongliu/anaconda3/envs/GSTMI/lib/python3.11/site-packages/numpy/core/fromnumeric.py:3504: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/home/congcongliu/anaconda3/envs/GSTMI/lib/python3.11/site-packages/numpy/core/_methods.py:129: RuntimeWarning: invalid value encountered in divide
+  ret = ret.dtype.type(ret / rcount)
+[  69.7s]   deep-background voxels 0: sigma_gt (complex) = nan vs outer-k-band sigma_k = 3.6985e+03 (ratio nan)
+[  69.7s]   NOISE CEILING (unsampled-k noise of GT unrecoverable): whole@max ≈ nan dB ; head-only@max ≈ nan dB
+[  69.7s]   head-mean |GT| / sigma_gt = nan (image SNR)
+[  70.9s]   low-res phase 24x24 PE (full RO): imag-residual energy in head 18.900%  neg-real frac 9.11%
+[  72.2s]   low-res phase 32x32 PE (full RO): imag-residual energy in head 15.502%  neg-real frac 7.87%
+[  73.0s]   low-res phase 48x48 PE (full RO): imag-residual energy in head 11.738%  neg-real frac 6.70%
+[  73.8s]   low-res phase 64x64 PE (full RO): imag-residual energy in head 9.599%  neg-real frac 5.77%
+[  74.5s]   low-res phase 32^3 (3-D window): imag-residual energy in head 18.640%
+[  74.5s]   mask frac 0.0845 -> mask ∪ mirror 0.1437  (effective AF 11.83 -> 6.96 if phase known);  inside shutter: 0.0874 -> 0.1494
+[  74.5s]   ARC file edgeTV_best_bboxfix_volumes.npz keys ['recT1', 'gtT1', 'zfT1', 'recFL', 'gtFL', 'zfFL'] -> ['recT1'] ['gtT1']
+[  76.0s]     ARC gt vs my GT: rel diff after scale 1.70e-07 (≈0 => conventions match)
+[  76.2s]     ARC recon PSNR whole@max 38.481 dB;  head-only@max 34.032 dB
+[  76.4s]     magnitude residual energy: head 9.464e+14 (75%)  background 3.101e+14
+[  77.1s]     |k| residual (magnitude images): inside mask∪mirror 3.091e+14 (24.6%)  outside 9.473e+14;  GT energy outside 1.274e+16 => recovered 92.6% of outside energy
+[  77.8s]     radial profile (3-D normalised radius about DC):
+[  77.9s]       r[0.00,0.05) n=     931  GT-energy   0.05%  resid/GT  0.060  sampled 1.000  GT-per-pt/noise-per-pt       nan
+[  77.9s]       r[0.05,0.10) n=    6566  GT-energy   0.42%  resid/GT  0.015  sampled 0.975  GT-per-pt/noise-per-pt       nan
+[  77.9s]       r[0.10,0.20) n=   52854  GT-energy  14.75%  resid/GT  0.004  sampled 0.599  GT-per-pt/noise-per-pt       nan
+[  78.0s]       r[0.20,0.30) n=  143478  GT-energy  74.71%  resid/GT  0.003  sampled 0.373  GT-per-pt/noise-per-pt       nan
+[  78.0s]       r[0.30,0.40) n=  279342  GT-energy   4.05%  resid/GT  0.022  sampled 0.265  GT-per-pt/noise-per-pt       nan
+[  78.1s]       r[0.40,0.50) n=  460298  GT-energy   1.82%  resid/GT  0.064  sampled 0.200  GT-per-pt/noise-per-pt       nan
+[  78.1s]       r[0.50,0.60) n=  686918  GT-energy   1.11%  resid/GT  0.119  sampled 0.157  GT-per-pt/noise-per-pt       nan
+[  78.2s]       r[0.60,0.80) n= 2234428  GT-energy   1.41%  resid/GT  0.240  sampled 0.114  GT-per-pt/noise-per-pt       nan
+[  78.3s]       r[0.80,1.00) n= 3462637  GT-energy   0.88%  resid/GT  0.473  sampled 0.084  GT-per-pt/noise-per-pt       nan
+[  78.5s]       r[1.00,1.30) n= 5115210  GT-energy   0.68%  resid/GT  0.732  sampled 0.048  GT-per-pt/noise-per-pt       nan
+[  78.6s]       r[1.30,2.00) n= 1975258  GT-energy   0.13%  resid/GT  1.061  sampled 0.031  GT-per-pt/noise-per-pt       nan
+[  78.6s] ================ FLAIR ================
+[ 116.2s] ksp (256, 220, 256, 12) csm (256, 220, 256, 12) SoS median 1.0
+[ 117.1s] data DC index (128, 132, 127) array centre (128, 110, 128) mask ACS-density peak (PE plane) (0, 5)
+[ 117.1s]   PE ring rho[0.00,0.10) n=   433 mean|k|^2/pt=1.2512e+14 exact-zero frac=0.000 sampled frac=0.9607
+[ 117.1s]   PE ring rho[0.50,0.60) n=  4860 mean|k|^2/pt=1.5920e+11 exact-zero frac=0.000 sampled frac=0.0883
+[ 117.1s]   PE ring rho[0.90,1.00) n=  6849 mean|k|^2/pt=9.4387e+08 exact-zero frac=0.011 sampled frac=0.0384
+[ 117.1s]   PE ring rho[1.00,1.10) n=  5470 mean|k|^2/pt=2.7219e+05 exact-zero frac=0.040 sampled frac=0.0344
+[ 117.1s]   PE ring rho[1.10,1.20) n=  4223 mean|k|^2/pt=3.0955e+04 exact-zero frac=0.029 sampled frac=0.0315
+[ 117.1s]   PE ring rho[1.20,1.28) n=  2189 mean|k|^2/pt=3.8964e-22 exact-zero frac=0.089 sampled frac=0.0347
+[ 117.1s]   PE ring rho[1.28,1.35) n=  1178 mean|k|^2/pt=7.2773e-23 exact-zero frac=0.058 sampled frac=0.0255
+[ 117.1s]   PE ring rho[1.35,1.50) n=  1301 mean|k|^2/pt=4.4020e-24 exact-zero frac=0.091 sampled frac=0.0254
+[ 117.1s]   PE-plane fraction beyond rho>=1.28: 0.046
+[ 117.1s]   outer-band samples n=222261; per-coil complex noise std mean 2.4196e+00 (min 1.513e+00 max 4.375e+00)
+[ 117.1s]   coil noise correlation |corr| off-diag mean 0.087 max 0.338; cov eigen spread 11.7
+[ 117.3s]   multicoil k energy retained by mask: 89.28%  (unsampled 10.72%)
+[ 142.4s]   GT max 4.9188e+05 P99.9 3.1366e+05;  ZF PSNR whole@max = 30.699 dB (anchor ~31.11 T1 / ~30.70 FLAIR)
+[ 142.4s]   head support fraction (|x|>5% P99.9): 0.253 => background known-zero voxels 0.747
+[ 143.0s]   deep-background voxels 0: sigma_gt (complex) = nan vs outer-k-band sigma_k = 2.4196e+00 (ratio nan)
+[ 143.0s]   NOISE CEILING (unsampled-k noise of GT unrecoverable): whole@max ≈ nan dB ; head-only@max ≈ nan dB
+[ 143.0s]   head-mean |GT| / sigma_gt = nan (image SNR)
+[ 144.0s]   low-res phase 24x24 PE (full RO): imag-residual energy in head 1.298%  neg-real frac 1.32%
+[ 144.7s]   low-res phase 32x32 PE (full RO): imag-residual energy in head 1.157%  neg-real frac 1.30%
+[ 145.5s]   low-res phase 48x48 PE (full RO): imag-residual energy in head 1.061%  neg-real frac 1.27%
+[ 146.2s]   low-res phase 64x64 PE (full RO): imag-residual energy in head 1.004%  neg-real frac 1.24%
+[ 147.0s]   low-res phase 32^3 (3-D window): imag-residual energy in head 1.201%
+[ 147.0s]   mask frac 0.0845 -> mask ∪ mirror 0.1437  (effective AF 11.83 -> 6.96 if phase known);  inside shutter: 0.0874 -> 0.1494
+[ 147.0s]   ARC file edgeTV_best_bboxfix_volumes.npz keys ['recT1', 'gtT1', 'zfT1', 'recFL', 'gtFL', 'zfFL'] -> ['recFL'] ['gtFL']
+[ 148.1s]     ARC gt vs my GT: rel diff after scale 1.29e-07 (≈0 => conventions match)
+[ 148.3s]     ARC recon PSNR whole@max 38.186 dB;  head-only@max 33.557 dB
+[ 148.4s]     magnitude residual energy: head 3.898e+14 (74%)  background 1.398e+14
+[ 149.5s]     |k| residual (magnitude images): inside mask∪mirror 1.360e+14 (25.7%)  outside 3.937e+14;  GT energy outside 1.122e+16 => recovered 96.5% of outside energy
+[ 150.8s]     radial profile (3-D normalised radius about DC):
+[ 150.8s]       r[0.00,0.05) n=     931  GT-energy   0.06%  resid/GT  0.036  sampled 1.000  GT-per-pt/noise-per-pt       nan
+[ 150.9s]       r[0.05,0.10) n=    6566  GT-energy   0.35%  resid/GT  0.005  sampled 0.975  GT-per-pt/noise-per-pt       nan
+[ 150.9s]       r[0.10,0.20) n=   52854  GT-energy  16.07%  resid/GT  0.001  sampled 0.599  GT-per-pt/noise-per-pt       nan
+[ 150.9s]       r[0.20,0.30) n=  143478  GT-energy  77.09%  resid/GT  0.001  sampled 0.373  GT-per-pt/noise-per-pt       nan
+[ 151.0s]       r[0.30,0.40) n=  279342  GT-energy   2.70%  resid/GT  0.016  sampled 0.265  GT-per-pt/noise-per-pt       nan
+[ 151.0s]       r[0.40,0.50) n=  460298  GT-energy   1.24%  resid/GT  0.052  sampled 0.200  GT-per-pt/noise-per-pt       nan
+[ 151.1s]       r[0.50,0.60) n=  686918  GT-energy   0.80%  resid/GT  0.093  sampled 0.157  GT-per-pt/noise-per-pt       nan
+[ 151.2s]       r[0.60,0.80) n= 2234428  GT-energy   0.94%  resid/GT  0.197  sampled 0.114  GT-per-pt/noise-per-pt       nan
+[ 151.3s]       r[0.80,1.00) n= 3463318  GT-energy   0.49%  resid/GT  0.385  sampled 0.085  GT-per-pt/noise-per-pt       nan
+[ 151.4s]       r[1.00,1.30) n= 5115781  GT-energy   0.25%  resid/GT  0.716  sampled 0.047  GT-per-pt/noise-per-pt       nan
+[ 151.5s]       r[1.30,2.00) n= 1974006  GT-energy   0.02%  resid/GT  1.634  sampled 0.031  GT-per-pt/noise-per-pt       nan
+[ 151.5s] DONE

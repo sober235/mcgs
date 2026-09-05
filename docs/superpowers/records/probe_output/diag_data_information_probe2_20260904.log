@@ -1,0 +1,93 @@
+[   0.1s] ================ T1 ================
+[  29.0s]   PE-plane mean |k|^2 per (coil,sample) by rho ring:
+[  29.0s]     rho[0.00,0.05) 1.096e+11
+[  29.0s]     rho[0.20,0.30) 7.035e+08
+[  29.0s]     rho[0.40,0.50) 1.544e+08
+[  29.0s]     rho[0.60,0.70) 7.589e+07
+[  29.0s]     rho[0.70,0.80) 6.210e+07
+[  29.0s]     rho[0.80,0.90) 4.865e+07
+[  29.0s]     rho[0.90,1.00) 3.859e+07
+[  29.0s]     rho[1.00,1.10) 2.866e+07
+[  29.0s]     rho[1.10,1.20) 1.733e+07
+[  29.0s]     rho[1.20,1.28) 7.949e+06
+[  29.0s]     rho[1.28,1.50) 3.253e+04
+[  29.0s]   readout-axis mean |k|^2 per (coil,sample) by |k_ro| band:
+[  29.0s]     kro[0.00,0.05) 5.045e+09
+[  29.0s]     kro[0.20,0.30) 1.737e+08
+[  29.0s]     kro[0.50,0.60) 5.637e+07
+[  29.0s]     kro[0.70,0.80) 4.284e+07
+[  29.0s]     kro[0.80,0.90) 3.895e+07
+[  29.0s]     kro[0.90,0.95) 3.700e+07
+[  29.0s]     kro[0.95,1.00) 3.527e+07
+[  47.4s]   corner blocks rms|gt|: [5072. 5264. 5142. 5716. 5049. 5272. 5155. 5826.]  (mean|gt|/P99.9: [1.08 1.12 1.1  1.22 1.08 1.12 1.1  1.24]%)
+[  47.4s]   sigma_gt (median block, complex) = 5.2095e+03; lag-1 autocorr of GT noise per axis [-0.023  0.18   0.016] (0 => white; >0.3 => low-pass filtered)
+[  47.4s]   per-coil image-domain noise std: mean 4.372e+03 min 3.855e+03 max 5.285e+03
+[  47.4s]   image SNR: head-mean|GT|/sigma_gt = 20.2;  P99.9/sigma_gt = 79.7
+[  47.8s]   unsampled multicoil energy 26.21% of total; white-noise floor there would be 4.54% => unsampled SIGNAL >= 21.67% of total (if noise white; less if vendor-filtered)
+[  47.8s]   NOISE CEILING (white-noise assumption): whole@max 44.56 dB ; head-only@max 46.94 dB
+[  48.7s]   low-res phase 24x24: imag-residual energy on voxels |x|>5% P99.9 = 18.90%  (n=3898663)
+[  48.8s]   low-res phase 24x24: imag-residual energy on voxels |x|>30% P99.9 = 17.57%  (n=1311960)
+[  49.5s]   low-res phase 48x48: imag-residual energy on voxels |x|>5% P99.9 = 11.74%  (n=3898663)
+[  49.5s]   low-res phase 48x48: imag-residual energy on voxels |x|>30% P99.9 = 9.89%  (n=1311960)
+[  50.0s]   ARC recon NMSE (magnitude, whole) 2.027%  head-only NMSE 1.543%
+[  50.0s]   residual split: head 75% | background 25% ;  GT background noise energy = 92% of background residual ; unavoidable in-head noise = 5.1% of head residual
+[  50.0s]   => PSNR if background residual were only GT noise: whole@max 38.57 dB (now 38.48)
+[  50.7s]   PE rho>=0.9: GT energy 0.658% | recon energy 0.382% | residual there 25.4% of total residual
+[  50.8s]   PE rho>=1.0: GT energy 0.364% | recon energy 0.216% | residual there 15.8% of total residual
+[  50.9s]   PE rho>=1.1: GT energy 0.183% | recon energy 0.116% | residual there 8.8% of total residual
+[  50.9s]   |k_ro|>=0.9: GT energy 0.163% | recon 0.103% | residual 5.6% of total residual
+[  51.2s]   magnitude-domain white-noise energy per k-point ≈ 7.926e+06
+[  51.3s]     r3[0.3,0.4) GT/pt 8.980e+09 ( 1132.9x noise)  recon/pt 8.661e+09  resid/pt 1.991e+08  resid share   4.4%
+[  51.3s]     r3[0.4,0.5) GT/pt 2.448e+09 (  308.9x noise)  recon/pt 2.157e+09  resid/pt 1.561e+08  resid share   5.7%
+[  51.3s]     r3[0.5,0.6) GT/pt 1.000e+09 (  126.2x noise)  recon/pt 8.310e+08  resid/pt 1.192e+08  resid share   6.5%
+[  51.4s]     r3[0.6,0.8) GT/pt 3.905e+08 (   49.3x noise)  recon/pt 2.978e+08  resid/pt 9.390e+07  resid share  16.7%
+[  51.5s]     r3[0.8,1.0) GT/pt 1.582e+08 (   20.0x noise)  recon/pt 1.054e+08  resid/pt 7.478e+07  resid share  20.6%
+[  51.6s]     r3[1.0,1.3) GT/pt 8.250e+07 (   10.4x noise)  recon/pt 4.865e+07  resid/pt 6.042e+07  resid share  24.6%
+[  51.6s]     r3[1.3,2.0) GT/pt 4.002e+07 (    5.0x noise)  recon/pt 2.330e+07  resid/pt 4.245e+07  resid share   6.7%
+[  51.6s] ================ FLAIR ================
+[  78.3s]   PE-plane mean |k|^2 per (coil,sample) by rho ring:
+[  78.3s]     rho[0.00,0.05) 1.512e+11
+[  78.3s]     rho[0.20,0.30) 2.423e+08
+[  78.3s]     rho[0.40,0.50) 7.738e+07
+[  78.3s]     rho[0.60,0.70) 3.437e+07
+[  78.3s]     rho[0.70,0.80) 2.200e+07
+[  78.3s]     rho[0.80,0.90) 8.367e+06
+[  78.3s]     rho[0.90,1.00) 3.072e+05
+[  78.3s]     rho[1.00,1.10) 8.860e+01
+[  78.3s]     rho[1.10,1.20) 1.008e+01
+[  78.3s]     rho[1.20,1.28) 1.268e-25
+[  78.3s]     rho[1.28,1.50) 1.201e-26
+[  78.3s]   readout-axis mean |k|^2 per (coil,sample) by |k_ro| band:
+[  78.3s]     kro[0.00,0.05) 6.158e+09
+[  78.3s]     kro[0.20,0.30) 6.447e+07
+[  78.3s]     kro[0.50,0.60) 2.600e+07
+[  78.3s]     kro[0.70,0.80) 2.081e+07
+[  78.3s]     kro[0.80,0.90) 2.016e+07
+[  78.3s]     kro[0.90,0.95) 1.994e+07
+[  78.3s]     kro[0.95,1.00) 1.926e+07
+[  92.9s]   corner blocks rms|gt|: [3694. 4030. 3750. 3970. 3820. 4060. 3668. 3957.]  (mean|gt|/P99.9: [1.04 1.14 1.06 1.12 1.08 1.15 1.04 1.12]%)
+[  92.9s]   sigma_gt (median block, complex) = 3.8889e+03; lag-1 autocorr of GT noise per axis [0.452 0.492 0.005] (0 => white; >0.3 => low-pass filtered)
+[  92.9s]   per-coil image-domain noise std: mean 2.875e+03 min 2.109e+03 max 4.460e+03
+[  92.9s]   image SNR: head-mean|GT|/sigma_gt = 26.7;  P99.9/sigma_gt = 80.7
+[  93.3s]   unsampled multicoil energy 10.72% of total; white-noise floor there would be 2.15% => unsampled SIGNAL >= 8.57% of total (if noise white; less if vendor-filtered)
+[  93.3s]   NOISE CEILING (white-noise assumption): whole@max 43.01 dB ; head-only@max 45.43 dB
+[  94.8s]   low-res phase 24x24: imag-residual energy on voxels |x|>5% P99.9 = 1.30%  (n=3654547)
+[  94.8s]   low-res phase 24x24: imag-residual energy on voxels |x|>30% P99.9 = 0.88%  (n=1713536)
+[  95.5s]   low-res phase 48x48: imag-residual energy on voxels |x|>5% P99.9 = 1.06%  (n=3654547)
+[  95.6s]   low-res phase 48x48: imag-residual energy on voxels |x|>30% P99.9 = 0.68%  (n=1713536)
+[  96.1s]   ARC recon NMSE (magnitude, whole) 0.863%  head-only NMSE 0.638%
+[  96.1s]   residual split: head 74% | background 26% ;  GT background noise energy = 116% of background residual ; unavoidable in-head noise = 6.5% of head residual
+[  96.1s]   => PSNR if background residual were only GT noise: whole@max 38.00 dB (now 38.19)
+[  96.7s]   PE rho>=0.9: GT energy 0.095% | recon energy 0.103% | residual there 13.9% of total residual
+[  96.8s]   PE rho>=1.0: GT energy 0.032% | recon energy 0.052% | residual there 7.4% of total residual
+[  96.9s]   PE rho>=1.1: GT energy 0.014% | recon energy 0.027% | residual there 3.9% of total residual
+[  97.0s]   |k_ro|>=0.9: GT energy 0.127% | recon 0.087% | residual 6.9% of total residual
+[  98.7s]   magnitude-domain white-noise energy per k-point ≈ 4.344e+06
+[  98.7s]     r3[0.3,0.4) GT/pt 5.932e+09 ( 1365.6x noise)  recon/pt 5.638e+09  resid/pt 9.299e+07  resid share   4.9%
+[  98.7s]     r3[0.4,0.5) GT/pt 1.658e+09 (  381.6x noise)  recon/pt 1.410e+09  resid/pt 8.636e+07  resid share   7.5%
+[  98.8s]     r3[0.5,0.6) GT/pt 7.138e+08 (  164.3x noise)  recon/pt 5.768e+08  resid/pt 6.625e+07  resid share   8.6%
+[  98.9s]     r3[0.6,0.8) GT/pt 2.569e+08 (   59.1x noise)  recon/pt 1.940e+08  resid/pt 5.059e+07  resid share  21.3%
+[  98.9s]     r3[0.8,1.0) GT/pt 8.678e+07 (   20.0x noise)  recon/pt 6.387e+07  resid/pt 3.345e+07  resid share  21.9%
+[  99.0s]     r3[1.0,1.3) GT/pt 2.950e+07 (    6.8x noise)  recon/pt 2.161e+07  resid/pt 2.113e+07  resid share  20.4%
+[  99.1s]     r3[1.3,2.0) GT/pt 5.546e+06 (    1.3x noise)  recon/pt 6.550e+06  resid/pt 9.060e+06  resid share   3.4%
+[  99.1s] DONE

@@ -11,7 +11,7 @@ ALIGNED vd-Poisson 掩膜）在 whole@max 口径已过 38 dB，但视觉上仍�
 ## 2. 审计方法
 
 `scripts/diag_data_information_probe1.py`、`scripts/diag_data_information_probe2.py`（CPU，numpy 直接读
-trainer `.mat` + ESPIRiT CSM + ALIGNED 掩膜；日志在 `logs/`）。自检：零填充锚 31.112 / 30.699 dB 逐位复现，
+trainer `.mat` + ESPIRiT CSM + ALIGNED 掩膜；日志在 `probe_output/`（目录不能叫 logs，会被 .gitignore 的 logs*/ 吞掉））。自检：零填充锚 31.112 / 30.699 dB 逐位复现，
 GT 与 `results_arc/*_volumes.npz` 中的 gt 相对差 1e-7。
 
 ## 3. 残差去向（`edgeTV_best_bboxfix`，AF 11.83，whole@max 38.48 / 38.19）
