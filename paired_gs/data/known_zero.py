@@ -41,17 +41,17 @@ def _profile(e_mean: np.ndarray, coord: np.ndarray, sampled: np.ndarray, width: 
     A ring with fewer than `min_points` sampled entries is merged into the previous (inner) ring."""
     if not sampled.any():
         return []
-    edges = np.arange(0.0, float(coord[sampled].max()) + width, width)
+    bin_idx = np.floor(coord / width).astype(int)
     out: list = []
-    for lo in edges:
-        sel = sampled & (coord >= lo) & (coord < lo + width)
+    for b in range(0, int(bin_idx[sampled].max()) + 1):
+        sel = sampled & (bin_idx == b)
         vals = e_mean[sel]
         if vals.size == 0:
             continue
         if vals.size < min_points and out:
             out[-1][1] = np.concatenate([out[-1][1], vals])
         else:
-            out.append([float(lo), vals])
+            out.append([float(b * width), vals])
     return [(lo, float(np.median(v)), int(v.size)) for lo, v in out]
 
 
@@ -134,3 +134,62 @@ def estimate_known_zero(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int, 
                          frac_sampled_in_z=float((Z & m).sum().item() / max(m.sum().item(), 1)),
                          pe_profile=pe_profile, ro_profile=ro_profile)
     return Z, info
+
+
+def estimate_noise_cov(kspace: torch.Tensor, mask: torch.Tensor, Z: torch.Tensor, info: KnownZeroInfo, *,
+                       min_samples: int = MIN_NOISE_SAMPLES):
+    """Coil noise covariance Σ (C×C) from the ACQUIRED samples inside Z (pure noise by construction).
+    Fallback (spec §4.2): the 0.1-wide sampled ring just inside the PE cliff, flagged `outer_ring`;
+    then `identity` (caller uses W = I)."""
+    m = mask > 0.5
+    Cn = kspace.shape[0]
+
+    def _take(sel):
+        v = kspace[:, sel]
+        return v if (v.shape[1] >= min_samples and float(v.abs().max()) > 0.0) else None
+
+    vals, source = _take(m & Z), "known_zero"
+    if vals is None:
+        rho = pe_radius_map(tuple(mask.shape), info.dc, info.ro_axis, kspace.device)
+        edge = info.rho_c if info.rho_c is not None else (info.pe_profile[-1][0] + RING_WIDTH if info.pe_profile else 1.0)
+        vals, source = _take(m & (rho >= edge - 0.1) & (rho < edge)), "outer_ring"
+    if vals is None:
+        return None, {"sigma_source": "identity", "n_noise_samples": 0}
+    vals = vals.to(torch.complex128)
+    Sigma = (vals @ vals.conj().T) / vals.shape[1]
+    d = torch.sqrt(torch.diagonal(Sigma).real)
+    corr = (Sigma / (d.view(-1, 1) * d.view(1, -1))).abs()
+    corr.fill_diagonal_(0.0)
+    ev = torch.linalg.eigvalsh(0.5 * (Sigma + Sigma.conj().T)).real
+    winfo = {"sigma_source": source, "n_noise_samples": int(vals.shape[1]),
+             "coil_corr_max_offdiag": float(corr.max()), "coil_corr_mean_offdiag": float(corr.sum() / (Cn * (Cn - 1))),
+             "eig_ratio": float(ev.max() / ev.clamp_min(1e-30).min())}
+    return Sigma.to(kspace.dtype), winfo
+
+
+def whitening_matrix(Sigma: torch.Tensor, eig_floor: float = 1e-6) -> torch.Tensor:
+    """W = Σ^{-1/2} · sqrt(mean diag Σ): whitens the coil dimension while keeping the mean variance,
+    so Σ = σ²I gives W = I exactly and lambda_geo keeps its meaning."""
+    S = 0.5 * (Sigma + Sigma.conj().T).to(torch.complex128)
+    evals, evecs = torch.linalg.eigh(S)
+    evals = evals.real.clamp_min(eig_floor * float(evals.real.max()))
+    W = evecs @ torch.diag((evals ** -0.5).to(evecs.dtype)) @ evecs.conj().T
+    scale = torch.sqrt(torch.diagonal(S).real.mean())
+    return (W * scale).to(Sigma.dtype)
+
+
+def build_fit_tensors(kspace: torch.Tensor, mask: torch.Tensor, csm: torch.Tensor, Z: torch.Tensor, W):
+    """Fit-side tensors (spec §4.1/§4.2):
+        mask_fit  = mask ∪ Z                 (loss and hard-DC)
+        kspace_dc = kspace with Z zeroed     (hard-DC, original coil basis)
+        kspace_fit = W · kspace_dc           (loss only; == kspace_dc when W is None)
+        csm_fit   = W · csm                  (loss only; == csm when W is None)
+    The DC-loss denominator is NOT produced here: the caller keeps |Omega| = mask.sum()."""
+    mask_fit = torch.maximum(mask, Z.to(mask.dtype))
+    kspace_dc = kspace * (~Z).unsqueeze(0).to(kspace.dtype)
+    if W is None:
+        return mask_fit, kspace_dc, kspace_dc, csm
+    Wk = W.to(kspace.dtype)
+    kspace_fit = torch.einsum("ij,jdhw->idhw", Wk, kspace_dc)
+    csm_fit = torch.einsum("ij,jdhw->idhw", W.to(csm.dtype), csm)
+    return mask_fit, kspace_dc, kspace_fit, csm_fit
