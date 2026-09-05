@@ -98,3 +98,19 @@ def test_cli_roundtrip_and_append(tmp_path):
     assert len(lines) == 1
     rec = json.loads(lines[0])
     assert rec["run"] == "cand" and rec["phase"] == "1" and rec["note"] == "toy" and "ts" in rec
+
+
+def test_make_gates_refuses_to_overwrite_a_pre_registered_file(tmp_path):
+    ref, rep, base = (tmp_path / n for n in ("ref.json", "rep.json", "base.json"))
+    ref.write_text(json.dumps(_head("ref", 34.6, 0.9, 0.5)))
+    rep.write_text(json.dumps(_head("rep", 34.6, 0.9, 0.5)))
+    base.write_text(json.dumps(_head("base", 33, 0.8, 0.6)))
+    bk = tmp_path / "bk.json"
+    bk.write_text(json.dumps({"modalities": {"plain": {"e_unobs": 0.64}, "contrast": {"e_unobs": 0.63}}}))
+    gates = tmp_path / "gates.json"
+    argv = ["--ref", str(ref), "--repeat", str(rep), "--baseline", str(base), "--baseline-kspace", str(bk), "--out", str(gates)]
+    make_gates.main(argv)
+    before = gates.read_text()
+    with pytest.raises(FileExistsError):
+        make_gates.main(argv)
+    assert gates.read_text() == before          # the pre-registered file is untouched
