@@ -1588,3 +1588,546 @@ Update the memory card `af12-to-af10-quality.md` (outside the repo) with the bas
 - **Spec coverage.** §2 gates → Tasks 1, 3, 4 (definitions, tolerance floors, e_unobs baseline, N ≤ 1, visual gate recorded in the ledger). §3 Phase 0 items 1–5 → Tasks 1–4 (item 1 = Task 7's scorer change; item 2 = Task 2; items 3–5 = Task 4). §4.1 Z (acquired-only estimate, cliff rule, constants, |Ω| denominator, hard-DC zero, e_unobs/ZF on the original mask, diagnostics vs the oracle profile) → Tasks 5, 7. §4.2 W (Σ from Z∩Ω, fallbacks, normalisation, fit-side only) → Tasks 6, 7. §4.3 files → as listed, with the documented deviation (no new yaml). §4.4 tests → Tasks 1, 2, 3, 5, 6 plus the two GPU checks in Task 7 (the smoke JSON regression in the spec is realised as the iter-1 loss anchor, because `tests/smoke_test.py` carries a 0.6 dB tolerance and cannot see a bit-level change). §4.5 runs and the base1 rule → Task 8. The 0.9–1.0 transition-band follow-up is NOT in this plan by design (spec §4.1: only if FLAIR misses by about one tolerance; it would be a separate, recorded step).
 - **Placeholders.** None: every code step is complete; the only "XX" is the date in a record file name, filled on the day.
 - **Type consistency.** `score_headonly` keys (`head_psnr, head_ssim, head_hfen, grain_ratio, head_frac, gmax`) are the ones `make_gates.py`, `eval_gates.py`, and the scorer JSON use. `estimate_known_zero` returns `(Z, KnownZeroInfo)` and `estimate_noise_cov(kspace, mask, Z, info, *, min_samples)` in both the module and the trainer. `build_fit_tensors` returns `(mask_fit, kspace_dc, kspace_fit, csm_fit)` in that order everywhere. Replay JSON is read at `["modalities"][key]["e_unobs"]` as the script writes it.
+
+---
+
+## Addendum 2026-09-06 — spec appendix A (the estimator rule was falsified on the real data)
+
+Task 7's integration run showed that the shipped ring/cliff estimator cannot see the vendor support on this
+data (see spec appendix A and `docs/superpowers/records/af12_to_af10/diagnostics/`). Tasks 9 and 10 below
+replace Tasks 5–6's estimator and re-run Task 7's integration check. **Execution order: 9 → 10 → 8.** Task 8's
+text is unchanged except that the two GPU cards are chosen from `nvidia-smi` idle cards at dispatch time.
+
+Facts the new code must reproduce (measured, oracle-labelled where the full k-space was used):
+
+| | T1 | FLAIR |
+|---|---|---|
+| zero lines (whole readout line, max\|y\| < 1e-10·max) | 20.0% of the PE plane | 39.2% |
+| geometry | rectangle: PE axis-1 index < 44 is zero (padding); nothing else | ellipse centred on DC (128,132), semi-axes (123, 88) px, ∪ the same padding; soft roll-off inside r∈[0.85,1.0] |
+| sampled-only shape fit | rect cut at 44, misclassified 0 / 4760 | ellipse (123.0, 88.0), misclassified 73 / 4760 (the roll-off/notch lines) |
+| values between 1e-12 and 1e-4 of max | none | 8.8% of sampled voxels (roll-off, all inside the ellipse) |
+| noise floor per (coil, sample) | 3.0e-4 (PE r ≥ 0.7) = readout ends 2.8–3.4e-4 | readout ends 4.6–4.8e-4 |
+
+### Task 9: Zero-line shape estimator and readout-end noise covariance (replaces the Task 5/6 estimator)
+
+**Files:**
+- Rewrite: `paired_gs/data/known_zero.py` (keep `whitening_matrix` and `build_fit_tensors` verbatim; replace everything else)
+- Rewrite: `tests/test_known_zero.py`
+
+**Interfaces (unchanged names, so Task 7's wiring keeps working):**
+- `estimate_known_zero(kspace (C,D,H,W) complex, mask (D,H,W), ro_axis: int) -> (Z: BoolTensor (D,H,W), KnownZeroInfo)`
+- `KnownZeroInfo` dataclass fields: `dc: tuple, ro_axis: int, zero_threshold: float, cuts: dict, ellipse: tuple|None, n_sampled_lines: int, n_zero_lines: int, n_zero_explained: int, n_nonzero_in_z: int, frac_z: float, frac_sampled_in_z: float` (all JSON-serialisable via `dataclasses.asdict`).
+- `estimate_noise_cov(kspace, mask, Z, info, *, min_samples=MIN_NOISE_SAMPLES, end_frac=READOUT_END_FRAC) -> (Sigma|None, winfo)`; `winfo` always has `sigma_source ∈ {"readout_ends","identity"}, n_noise_samples, coil_corr_max_offdiag, coil_corr_mean_offdiag, eig_ratio, noise_level`.
+- `whitening_matrix(Sigma, eig_floor=1e-6)`, `build_fit_tensors(kspace, mask, csm, Z, W)` — unchanged from commit c8adb79.
+- Constants: `ZERO_REL = 1e-10, COARSE_STEP_PX = 4.0, GRID_STEP_PX = 0.5, EXPAND_STEP = 0.005, EXPAND_MAX = 2.0, READOUT_END_FRAC = 0.125, MIN_NOISE_SAMPLES = 2000, CUT_SPAN_MIN = 0.5`.
+
+- [ ] **Step 1: Replace `tests/test_known_zero.py` with the following and run it (expect ImportError / AttributeError failures)**
+
+```python
+"""Known-zero region Z (spec 2026-09-05 §4.1 as amended by appendix A, 2026-09-06): whole PE lines that are
+numerically zero outside a hard shutter made of padding cuts and/or a DC-centred ellipse. Estimated from the
+ACQUIRED lines only. Plus the readout-end noise covariance (R2), whitening and the fit-side tensors.
+
+Run: PYTHONNOUSERSITE=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -m pytest tests/test_known_zero.py -v
+"""
+import dataclasses
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+import pytest
+import torch
+from scipy import ndimage
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "paired_gs"))
+from data.known_zero import (MIN_NOISE_SAMPLES, KnownZeroInfo, build_fit_tensors, estimate_known_zero,  # noqa: E402
+                             estimate_noise_cov, whitening_matrix)
+
+C, P0, P1, R = 4, 48, 40, 24
+
+
+def _synth(cut_lo1=None, ellipse=None, noise=2e-3, seed=0, ro_axis=2, dc_shift=(0, 4), hard=True):
+    """Textured-object multicoil k-space (C,P0,P1,R) with the DC shifted by `dc_shift` on the PE plane (the real
+    data has a +22 px offset), whole PE lines outside the vendor support made numerically zero: array columns
+    j < cut_lo1 (padding) and/or lines outside an axis-aligned ellipse (a, b) about the DC. hard=True zeroes
+    exactly; hard=False leaves a 1e-30 residue like the real data. vd-random mask (35%) + ACS about the DC,
+    broadcast along readout. Returns (kspace, mask, dc, keep) with the readout axis moved to `ro_axis`."""
+    rng = np.random.default_rng(seed)
+    zz, yy, xx = np.ogrid[:P0, :P1, :R]
+    blob = np.exp(-(((zz - P0 / 2) / (P0 / 4)) ** 2 + ((yy - P1 / 2) / (P1 / 4)) ** 2 + ((xx - R / 2) / (R / 4)) ** 2))
+    tex = ndimage.gaussian_filter(rng.normal(size=(P0, P1, R)), 0.7)
+    obj = blob * (1.0 + 0.8 * tex / tex.std())
+    ks = []
+    for _ in range(C):
+        cm = ndimage.gaussian_filter(rng.normal(size=(P0, P1, R)), 8.0)
+        cm = cm / np.abs(cm).max() + 0.5
+        ks.append(np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(cm * obj), norm="ortho")))
+    k = np.stack(ks).astype(np.complex64)
+    k = k + noise * (rng.normal(size=k.shape) + 1j * rng.normal(size=k.shape)).astype(np.complex64) / np.sqrt(2)
+    k = np.roll(k, dc_shift, axis=(1, 2))
+    dc = (P0 // 2 + dc_shift[0], P1 // 2 + dc_shift[1])
+    ii, jj = np.meshgrid(np.arange(P0) - dc[0], np.arange(P1) - dc[1], indexing="ij")
+    keep = np.ones((P0, P1), bool)
+    if cut_lo1 is not None:
+        keep[:, :cut_lo1] = False
+    if ellipse is not None:
+        a, b = ellipse
+        keep &= (ii / a) ** 2 + (jj / b) ** 2 < 1.0
+    fac = np.where(keep, 1.0, 0.0 if hard else 1e-30).astype(np.float32)
+    k = k * fac[None, :, :, None]
+    m2 = rng.random((P0, P1)) < 0.35
+    m2[dc[0] - 4:dc[0] + 4, dc[1] - 4:dc[1] + 4] = True
+    mask = np.repeat(m2[:, :, None], R, axis=2).astype(np.float32)
+    k = k * mask[None]
+    kt, mt = torch.from_numpy(k), torch.from_numpy(mask)
+    return torch.movedim(kt, 3, ro_axis + 1).contiguous(), torch.movedim(mt, 2, ro_axis).contiguous(), dc, keep
+
+
+def test_padding_cut_is_found_and_broadcast_along_readout():
+    k, m, dc, keep = _synth(cut_lo1=12)
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    assert isinstance(info, KnownZeroInfo) and info.ellipse is None
+    lo = info.cuts["axis1_lo"]
+    assert lo is not None and 12 <= lo <= 15                      # first SAMPLED nonzero column is >= 12
+    assert info.cuts["axis0_lo"] is None and info.cuts["axis0_hi"] is None and info.cuts["axis1_hi"] is None
+    zn = Z.numpy()
+    assert zn.dtype == bool and zn.shape == tuple(m.shape)
+    assert zn[:, :12, :].all() and not zn[:, lo:, :].any()
+    assert (zn == zn[:, :, :1]).all()                              # broadcast along readout
+    assert info.n_nonzero_in_z == 0 and info.n_zero_explained == info.n_zero_lines
+    assert info.frac_z == pytest.approx(lo / P1, abs=1e-9)
+
+
+def test_ellipse_is_found_within_one_pixel():
+    k, m, dc, keep = _synth(ellipse=(18.0, 14.0))
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    assert info.ellipse is not None
+    a, b, s = info.ellipse
+    assert abs(a - 18.0) <= 1.0 and abs(b - 14.0) <= 1.0 and 1.0 <= s <= 1.1
+    assert info.dc[:2] == dc
+    assert all(v is None for v in info.cuts.values())              # an ellipse tip is not a padding cut
+    ii, jj = np.meshgrid(np.arange(P0) - dc[0], np.arange(P1) - dc[1], indexing="ij")
+    r = np.sqrt((ii / 18.0) ** 2 + (jj / 14.0) ** 2)
+    zn = Z.numpy()[:, :, 0]
+    assert zn[r >= 1.12].all() and not zn[r <= 0.98].any()
+    assert info.n_nonzero_in_z == 0 and info.n_zero_explained >= 0.9 * info.n_zero_lines
+
+
+def test_ellipse_plus_padding_cut_with_residue():
+    k, m, dc, keep = _synth(cut_lo1=8, ellipse=(20.0, 22.0), hard=False)     # 1e-30 residue like the real data
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    assert info.cuts["axis1_lo"] is not None and info.ellipse is not None
+    zn = Z.numpy()[:, :, 0]
+    assert zn[:, :8].all()
+    sampled = m.numpy()[:, :, 0] > 0.5
+    assert not zn[keep & sampled].any()                            # never a sampled nonzero line
+    assert info.n_nonzero_in_z == 0 and info.frac_z > 0.3
+
+
+def test_no_shutter_gives_empty_Z():
+    k, m, dc, keep = _synth()
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    assert not bool(Z.any()) and info.ellipse is None and all(v is None for v in info.cuts.values())
+    assert info.n_zero_lines == 0 and info.frac_z == 0.0
+
+
+def test_uses_only_sampled_points():
+    k, m, dc, keep = _synth(ellipse=(18.0, 14.0), seed=3)
+    _, a = estimate_known_zero(k, m, ro_axis=2)
+    junk = torch.randn_like(k) * (1 - m).unsqueeze(0) * 10.0
+    _, b = estimate_known_zero(k + junk, m, ro_axis=2)
+    assert a.ellipse == b.ellipse and a.cuts == b.cuts and a.frac_z == b.frac_z
+
+
+def test_readout_axis_position_does_not_matter():
+    k2, m2, dc, _ = _synth(cut_lo1=10, ellipse=(20.0, 22.0), seed=5, ro_axis=2)
+    k0, m0, _, _ = _synth(cut_lo1=10, ellipse=(20.0, 22.0), seed=5, ro_axis=0)
+    Z2, i2 = estimate_known_zero(k2, m2, ro_axis=2)
+    Z0, i0 = estimate_known_zero(k0, m0, ro_axis=0)
+    assert i2.cuts == i0.cuts and i2.ellipse == i0.ellipse and i2.frac_z == i0.frac_z
+    assert torch.equal(torch.movedim(Z0, 0, 2), Z2)
+
+
+def test_info_is_json_serializable():
+    k, m, dc, keep = _synth(cut_lo1=8, ellipse=(20.0, 22.0))
+    _, info = estimate_known_zero(k, m, ro_axis=2)
+    json.dumps(dataclasses.asdict(info))
+
+
+def _corr_noise(sigma_true, n, seed=0):
+    rng = np.random.default_rng(seed)
+    L = np.linalg.cholesky(sigma_true)
+    w = (rng.normal(size=(sigma_true.shape[0], n)) + 1j * rng.normal(size=(sigma_true.shape[0], n))) / np.sqrt(2)
+    return L @ w
+
+
+def test_noise_cov_from_readout_ends_recovers_sigma():
+    rng = np.random.default_rng(0)
+    A = rng.normal(size=(C, C)) + 1j * rng.normal(size=(C, C))
+    S_true = (A @ A.conj().T + np.eye(C)) * 1e-4
+    noise = _corr_noise(S_true, P0 * P1 * R).reshape(C, P0, P1, R).astype(np.complex64)
+    mask = (rng.random((P0, P1)) < 0.6)[:, :, None].repeat(R, axis=2).astype(np.float32)
+    k = torch.from_numpy(noise) * torch.from_numpy(mask)
+    Z, info = estimate_known_zero(k, torch.from_numpy(mask), ro_axis=2)
+    S, winfo = estimate_noise_cov(k, torch.from_numpy(mask), Z, info)
+    assert winfo["sigma_source"] == "readout_ends" and winfo["n_noise_samples"] > MIN_NOISE_SAMPLES
+    assert winfo["n_noise_samples"] == int(mask[:, :, 0].sum()) * 2 * 3      # 1/8 of R=24 is 3 indices per end
+    rel = np.linalg.norm(S.numpy().astype(np.complex128) - S_true) / np.linalg.norm(S_true)
+    assert rel < 0.1
+    assert winfo["noise_level"] == pytest.approx(float(np.real(np.trace(S_true)) / C), rel=0.1)
+
+
+def test_noise_cov_identity_fallback_has_uniform_keys():
+    k, m, dc, keep = _synth(cut_lo1=8)
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    S, winfo = estimate_noise_cov(k, m, Z, info, min_samples=10 ** 9)
+    assert S is None and winfo["sigma_source"] == "identity"
+    assert set(winfo) == {"sigma_source", "n_noise_samples", "coil_corr_max_offdiag", "coil_corr_mean_offdiag", "eig_ratio", "noise_level"}
+
+
+def test_whitening_of_diagonal_equal_variance_is_identity():
+    S = torch.eye(C, dtype=torch.complex64) * 0.3
+    assert torch.equal(whitening_matrix(S), torch.eye(C, dtype=torch.complex64))
+
+
+def test_whitening_decorrelates_and_keeps_mean_variance():
+    rng = np.random.default_rng(0)
+    A = rng.normal(size=(C, C)) + 1j * rng.normal(size=(C, C))
+    S_true = A @ A.conj().T + np.eye(C)
+    W = whitening_matrix(torch.from_numpy(S_true.astype(np.complex64))).numpy().astype(np.complex128)
+    out = W @ S_true @ W.conj().T
+    c = np.real(np.trace(S_true)) / C
+    assert np.allclose(out, c * np.eye(C), atol=1e-4 * c)
+
+
+def test_build_fit_tensors_defaults_and_hard_dc_zero_on_Z():
+    k, m, dc, keep = _synth(cut_lo1=8, ellipse=(20.0, 22.0), seed=2)
+    csm = torch.randn(C, *m.shape, dtype=torch.complex64)
+    Z, _ = estimate_known_zero(k, m, ro_axis=2)
+    mask_fit, k_dc, k_fit, csm_fit = build_fit_tensors(k, m, csm, Z, None)
+    assert k_fit is k_dc and csm_fit is csm
+    assert torch.equal(mask_fit, torch.maximum(m, Z.float()))
+    assert float(k_dc[:, Z].abs().max()) == 0.0
+    pred = torch.randn_like(k)
+    hard_dc = pred * (1 - mask_fit).unsqueeze(0) + k_dc
+    assert float(hard_dc[:, Z].abs().max()) == 0.0
+    assert torch.equal(hard_dc[:, (m > 0.5) & ~Z], k[:, (m > 0.5) & ~Z])
+    assert float(mask_fit.sum()) > float(m.sum())
+
+
+def test_build_fit_tensors_with_identity_W_is_exact():
+    k, m, dc, keep = _synth(seed=2)
+    csm = torch.randn(C, *m.shape, dtype=torch.complex64)
+    Z = torch.zeros_like(m, dtype=torch.bool)
+    W = torch.eye(C, dtype=torch.complex64)
+    mask_fit, k_dc, k_fit, csm_fit = build_fit_tensors(k, m, csm, Z, W)
+    assert torch.equal(mask_fit, m) and torch.equal(k_dc, k)
+    assert torch.allclose(k_fit, k) and torch.allclose(csm_fit, csm)
+```
+
+Run: `PYTHONNOUSERSITE=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -m pytest tests/test_known_zero.py -v`
+Expected: import error on the new names / attribute errors — the old estimator has none of `zero_threshold`, `cuts`, `ellipse`.
+
+- [ ] **Step 2: Rewrite `paired_gs/data/known_zero.py`** (keep `whitening_matrix` and `build_fit_tensors` exactly as committed in c8adb79; everything above them becomes:)
+
+```python
+"""Known-zero k-space region Z and coil-noise prewhitening W — the Phase 1 physics levers
+(docs/superpowers/specs/2026-09-05-af12-to-af10-quality-design.md §4, as amended by appendix A, 2026-09-06).
+
+On this data the vendor's k-space support is a HARD shutter in the phase-encoding (PE) plane: whole readout
+lines are numerically zero (|y| ~ 1e-20 of the data scale; nothing between 1e-12 and 1e-4) outside an
+axis-aligned region built from rectangular padding cuts and/or an ellipse centred on the DC. Z is estimated
+from the ACQUIRED lines only; ZERO_REL, the grid steps and EXPAND_STEP are numerical resolutions, not knobs.
+
+    Z_PE = padding cuts (a side is cut only where the nonzero lines end on a straight, wide edge and every
+           sampled line beyond it is zero)
+         ∪ exterior of the fitted DC-centred ellipse (expanded until no sampled nonzero line lies outside)
+    Z_PE never contains a sampled nonzero line.      Z = Z_PE broadcast along the readout axis.
+
+Σ (prewhitening, R2) comes from the readout-end samples of the sampled nonzero lines, where the per-sample
+energy sits on the noise floor for both contrasts.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Optional
+
+import numpy as np
+import torch
+
+ZERO_REL = 1e-10            # a sampled line is numerically zero if max|y| over coils & readout < ZERO_REL * global max
+COARSE_STEP_PX = 4.0        # ellipse semi-axis grid, coarse stage
+GRID_STEP_PX = 0.5          # ellipse semi-axis grid, fine stage (±COARSE_STEP_PX around the coarse optimum)
+EXPAND_STEP = 0.005         # safety expansion resolution of the ellipse
+EXPAND_MAX = 2.0            # give the ellipse up beyond this expansion
+CUT_SPAN_MIN = 0.5          # a padding edge must carry nonzero lines over >= this fraction of the other axis' extent
+READOUT_END_FRAC = 0.125    # Σ source: outer 1/8 of the readout indices at both ends
+MIN_NOISE_SAMPLES = 2000
+
+
+@dataclass
+class KnownZeroInfo:
+    dc: tuple                    # (i, j, k) array index of the sampled-energy peak (PE axes + readout)
+    ro_axis: int
+    zero_threshold: float        # absolute max|y| below which a sampled line is numerically zero
+    cuts: dict                   # axis{0,1}_{lo,hi}: index bound of the zero padding (lo: indices < bound are zero;
+                                 # hi: indices > bound are zero), or None
+    ellipse: Optional[tuple]     # (a_px, b_px, expand) about dc on the PE axes, or None
+    n_sampled_lines: int
+    n_zero_lines: int
+    n_zero_explained: int        # sampled zero lines inside Z
+    n_nonzero_in_z: int          # sampled nonzero lines inside Z — 0 by construction
+    frac_z: float                # fraction of the PE plane in Z
+    frac_sampled_in_z: float     # |Z ∩ Ω| / |Ω| over lines
+
+
+def _pe_lines(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int):
+    """Per-PE-line max|y| and energy over the SAMPLED readout entries only; (P0,P1) each, plus sampled (P0,P1)."""
+    m_r = torch.movedim(mask > 0.5, ro_axis, -1)
+    a_r = torch.movedim(kspace.abs().amax(0), ro_axis, -1) * m_r
+    e_r = torch.movedim((kspace.real.square() + kspace.imag.square()).sum(0), ro_axis, -1) * m_r
+    return a_r.amax(-1), e_r.sum(-1), m_r.any(-1)
+
+
+def _rect_cuts(nonzero: np.ndarray, zero: np.ndarray, span_min: float = CUT_SPAN_MIN) -> dict:
+    """Per-side padding cuts. A side is cut only if (1) at least one sampled zero line lies beyond the bounding
+    box of the sampled nonzero lines on that side (every sampled line there is zero by construction) and (2) the
+    edge row/column of the bounding box carries nonzero lines over >= span_min of the other axis' nonzero extent
+    (a straight padding edge, not the tip of an ellipse)."""
+    cuts = {}
+    for ax in (0, 1):
+        other = 1 - ax
+        nz_idx = np.nonzero(nonzero.any(axis=other))[0]
+        z_idx = np.nonzero(zero.any(axis=other))[0]
+        if nz_idx.size == 0:
+            cuts[f"axis{ax}_lo"] = cuts[f"axis{ax}_hi"] = None
+            continue
+        lo, hi = int(nz_idx.min()), int(nz_idx.max())
+        ext_o = np.nonzero(nonzero.any(axis=ax))[0]
+        extent = int(ext_o.max() - ext_o.min() + 1)
+
+        def wide(idx):
+            line = np.nonzero(np.take(nonzero, idx, axis=ax))[0]
+            return line.size > 0 and (line.max() - line.min() + 1) >= span_min * extent
+
+        cuts[f"axis{ax}_lo"] = lo if (np.any(z_idx < lo) and wide(lo)) else None
+        cuts[f"axis{ax}_hi"] = hi if (np.any(z_idx > hi) and wide(hi)) else None
+    return cuts
+
+
+def _rect_zero(shape, cuts: dict) -> np.ndarray:
+    z = np.zeros(shape, bool)
+    if cuts["axis0_lo"] is not None:
+        z[:cuts["axis0_lo"], :] = True
+    if cuts["axis0_hi"] is not None:
+        z[cuts["axis0_hi"] + 1:, :] = True
+    if cuts["axis1_lo"] is not None:
+        z[:, :cuts["axis1_lo"]] = True
+    if cuts["axis1_hi"] is not None:
+        z[:, cuts["axis1_hi"] + 1:] = True
+    return z
+
+
+def _fit_ellipse(di: np.ndarray, dj: np.ndarray, is_nonzero: np.ndarray, is_target: np.ndarray,
+                 half0: float, half1: float):
+    """Axis-aligned ellipse about the DC on the SAMPLED lines: (a, b, expand) or None.
+    di/dj: PE offsets of the sampled lines; is_nonzero: sampled nonzero lines (must end up outside Z);
+    is_target: sampled zero lines the padding cuts do not explain. Misclassification = nonzero outside the
+    ellipse + target inside it; 'no ellipse' competes with misclassification = |target|. The winner is then
+    expanded until no sampled nonzero line lies outside it, and dropped if it then explains no target line."""
+    n_target = int(is_target.sum())
+    if n_target == 0:
+        return None
+    di2, dj2 = di.astype(np.float64) ** 2, dj.astype(np.float64) ** 2
+
+    def mis(a, b):
+        outside = di2 / (a * a) + dj2 / (b * b) >= 1.0
+        return int((outside & is_nonzero).sum() + (~outside & is_target).sum())
+
+    best = (n_target, None)
+    for a in np.arange(COARSE_STEP_PX, 1.5 * half0 + COARSE_STEP_PX, COARSE_STEP_PX):
+        for b in np.arange(COARSE_STEP_PX, 1.5 * half1 + COARSE_STEP_PX, COARSE_STEP_PX):
+            m_ = mis(a, b)
+            if m_ < best[0]:
+                best = (m_, (float(a), float(b)))
+    if best[1] is None:
+        return None
+    a0, b0 = best[1]
+    for a in np.arange(a0 - COARSE_STEP_PX, a0 + COARSE_STEP_PX + 1e-9, GRID_STEP_PX):
+        for b in np.arange(b0 - COARSE_STEP_PX, b0 + COARSE_STEP_PX + 1e-9, GRID_STEP_PX):
+            if a <= 0 or b <= 0:
+                continue
+            m_ = mis(a, b)
+            if m_ < best[0]:
+                best = (m_, (float(a), float(b)))
+    a, b = best[1]
+    expand = 1.0
+    while expand <= EXPAND_MAX:
+        outside = di2 / (a * expand) ** 2 + dj2 / (b * expand) ** 2 >= 1.0
+        if not bool((outside & is_nonzero).any()):
+            break
+        expand += EXPAND_STEP
+    else:
+        return None
+    if int((outside & is_target).sum()) == 0:
+        return None
+    return (a, b, float(round(expand, 6)))
+
+
+def estimate_known_zero(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int):
+    """Z from the acquired lines only (appendix A, R1). kspace (C,D,H,W) complex, already masked; mask (D,H,W)."""
+    assert kspace.ndim == 4 and mask.ndim == 3 and tuple(kspace.shape[1:]) == tuple(mask.shape)
+    dev = kspace.device
+    amax, energy, sampled = _pe_lines(kspace, mask, ro_axis)
+    P0, P1 = sampled.shape
+    thr = ZERO_REL * float(amax.max())
+    sampled_np = sampled.cpu().numpy()
+    zero = (sampled & (amax < thr)).cpu().numpy()
+    nonzero = sampled_np & ~zero
+    flat = int(torch.argmax(energy))
+    dc0, dc1 = flat // P1, flat % P1
+    m_r = torch.movedim(mask > 0.5, ro_axis, -1)
+    e_ro = (torch.movedim((kspace.real.square() + kspace.imag.square()).sum(0), ro_axis, -1) * m_r).sum((0, 1))
+    dc2 = int(torch.argmax(e_ro))
+    cuts = _rect_cuts(nonzero, zero)
+    z_pe = _rect_zero((P0, P1), cuts)
+    si, sj = np.nonzero(sampled_np)
+    ell = _fit_ellipse(si - dc0, sj - dc1, nonzero[si, sj], (zero & ~z_pe)[si, sj], P0 / 2, P1 / 2)
+    if ell is not None:
+        a, b, s = ell
+        ii, jj = np.meshgrid(np.arange(P0) - dc0, np.arange(P1) - dc1, indexing="ij")
+        z_pe |= (ii / (a * s)) ** 2 + (jj / (b * s)) ** 2 >= 1.0
+    z_pe &= ~nonzero                                                  # never override a measured nonzero line
+    Rn = int(mask.shape[ro_axis])
+    Z = torch.movedim(torch.from_numpy(z_pe).to(dev).unsqueeze(-1).expand(P0, P1, Rn), -1, ro_axis).contiguous()
+    dc = [0, 0, 0]
+    pe = [a_ for a_ in range(3) if a_ != ro_axis]
+    dc[pe[0]], dc[pe[1]], dc[ro_axis] = int(dc0), int(dc1), dc2
+    info = KnownZeroInfo(dc=tuple(dc), ro_axis=int(ro_axis), zero_threshold=float(thr), cuts=cuts, ellipse=ell,
+                         n_sampled_lines=int(sampled_np.sum()), n_zero_lines=int(zero.sum()),
+                         n_zero_explained=int((zero & z_pe).sum()), n_nonzero_in_z=int((nonzero & z_pe).sum()),
+                         frac_z=float(z_pe.mean()),
+                         frac_sampled_in_z=float((z_pe & sampled_np).sum() / max(int(sampled_np.sum()), 1)))
+    return Z, info
+
+
+def estimate_noise_cov(kspace: torch.Tensor, mask: torch.Tensor, Z: torch.Tensor, info: KnownZeroInfo, *,
+                       min_samples: int = MIN_NOISE_SAMPLES, end_frac: float = READOUT_END_FRAC):
+    """Coil noise covariance Σ (C×C) from the readout-end samples (outer `end_frac` of the readout indices at
+    both ends) of the sampled NONZERO lines (appendix A, R2). `Z` is accepted for interface compatibility and
+    not used. Returns (Σ | None, winfo) with a uniform winfo key set; None means W = I."""
+    ro = info.ro_axis
+    m_r = torch.movedim(mask > 0.5, ro, -1)                           # (P0,P1,R)
+    y_r = torch.movedim(kspace, ro + 1, -1)                           # (C,P0,P1,R)
+    Rn = m_r.shape[-1]
+    n_end = max(int(round(end_frac * Rn)), 1)
+    a_line = (y_r.abs().amax(0) * m_r).amax(-1)
+    nonzero = m_r.any(-1) & (a_line >= info.zero_threshold)
+    sel = torch.zeros_like(m_r)
+    sel[..., :n_end] = True
+    sel[..., Rn - n_end:] = True
+    sel = sel & m_r & nonzero.unsqueeze(-1)
+    vals = y_r[:, sel]                                                # (C, N)
+    empty = {"coil_corr_max_offdiag": None, "coil_corr_mean_offdiag": None, "eig_ratio": None, "noise_level": None}
+    if vals.shape[1] < min_samples or float(vals.abs().max()) < info.zero_threshold:
+        return None, {"sigma_source": "identity", "n_noise_samples": int(vals.shape[1]), **empty}
+    vals = vals.to(torch.complex128)
+    Sigma = (vals @ vals.conj().T) / vals.shape[1]
+    d = torch.sqrt(torch.diagonal(Sigma).real)
+    corr = (Sigma / (d.view(-1, 1) * d.view(1, -1))).abs()
+    corr.fill_diagonal_(0.0)
+    ev = torch.linalg.eigvalsh(0.5 * (Sigma + Sigma.conj().T)).real
+    Cn = Sigma.shape[0]
+    winfo = {"sigma_source": "readout_ends", "n_noise_samples": int(vals.shape[1]),
+             "coil_corr_max_offdiag": float(corr.max()), "coil_corr_mean_offdiag": float(corr.sum() / (Cn * (Cn - 1))),
+             "eig_ratio": float(ev.max() / ev.clamp_min(1e-30).min()),
+             "noise_level": float(torch.diagonal(Sigma).real.mean())}
+    return Sigma.to(kspace.dtype), winfo
+```
+
+(then `whitening_matrix` and `build_fit_tensors` verbatim from c8adb79, including the `Z = Z.bool()` guard.)
+
+- [ ] **Step 3: Run the tests**
+
+Run: `PYTHONNOUSERSITE=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -m pytest tests/test_known_zero.py -v`
+Expected: 13 passed, pristine. If `test_ellipse_is_found_within_one_pixel` fails on the `r <= 0.98` bound because the fitted ellipse's expansion pushes Z inward is impossible (expansion only grows the ellipse); if it fails on `r >= 1.12` the expansion exceeded 1.1 — print `info.ellipse` and report; do not loosen the bounds. Also run `tests/test_tv_charbonnier.py` and `tests/diag_artefact` once (unchanged code, must still pass).
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add paired_gs/data/known_zero.py tests/test_known_zero.py
+git commit -m "feat(data): zero-line shape estimator for the known-zero region; noise covariance from readout ends
+
+Replaces the ring/cliff rule (spec appendix A): sampled PE lines are classified
+numerically zero or not (1e-10 of the data scale; the two populations are ten
+orders of magnitude apart), Z is the union of straight padding cuts and the
+exterior of a DC-centred ellipse fitted on the sampled lines and expanded until
+no sampled nonzero line lies outside it; Z never contains a sampled nonzero line.
+Sigma comes from the readout-end samples of the nonzero lines, which sit on the
+noise floor for both contrasts."
+```
+
+### Task 10: Integration re-check of Z / W on the real data, and the known-zero record
+
+**Files:**
+- Create: `docs/superpowers/records/af12_to_af10/known_zero_diagnostics.md`, `docs/superpowers/records/af12_to_af10/scores/kz_pw_smoke10b_score.json`
+- Create: `scripts/kz_oracle_check.py` (diagnostic, oracle-labelled)
+
+**Interfaces:** consumes Task 7's CLI (`--known_zero --prewhiten`) and Task 9's `estimate_known_zero`.
+
+- [ ] **Step 1: Switches-on integration run (10 iterations, idle GPU)**
+
+```bash
+G=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk -F', ' '$2<100{print $1; exit}')
+env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID /home/congcongliu/anaconda3/envs/GSTMI/bin/python -u arc/cycle.py \
+  --exp kz_pw_smoke10b --gpu $G --iters 10 --warmup 2 --lambda_geo 0.10 --max_radius 20 --kspace_high 2.2 \
+  --edge_tv --edge_tv_kappa_q 0.85 --edge_tv_wfloor 0.10 --tv_eps 0.04 --base_cfg configs/winner_v2_edgeTV.yaml \
+  --known_zero --prewhiten 2>&1 | tee results_arc/kz_pw_smoke10b.log
+grep "\[physics:" results_arc/kz_pw_smoke10b.log
+```
+Expected (hard stop if violated — report BLOCKED with the numbers): T1 `cuts.axis1_lo` in 44..47, `ellipse` None, `frac_z_used` in 0.19..0.21; FLAIR `ellipse` ≈ (123 ± 2, 88 ± 2, expand ≤ 1.03), `frac_z_used` in 0.36..0.40; `n_nonzero_in_z == 0` on both; `sigma_source == "readout_ends"` with `n_noise_samples ≥ 1e5` on both; `kz_energy == 0.0` on both.
+
+- [ ] **Step 2: Oracle check (labelled diagnostic, never used for fitting): `scripts/kz_oracle_check.py`**
+
+```python
+#!/usr/bin/env python3
+"""ORACLE diagnostic (uses the full k-space; never part of the fit): precision/recall of the estimated Z against
+the true numerically-zero lines, per contrast, for the winner_v2_edgeTV data config."""
+import sys, json
+from pathlib import Path
+import numpy as np, torch, yaml
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "paired_gs"))
+from trainers.joint_trainer import _load_dataset
+from data.private_paths import resolve_subject_paths
+from data.known_zero import ZERO_REL, estimate_known_zero
+cfg = yaml.safe_load(open(ROOT / "configs/winner_v2_edgeTV.yaml"))
+out = {}
+for sub in ("plain", "contrast"):
+    d = dict(cfg["data"][sub])
+    for k in ("data_path", "csm_path", "mask_path"):
+        d[k] = resolve_subject_paths(d[k])
+    ds = _load_dataset(d)
+    Z, info = estimate_known_zero(ds.kspace_undersampled_complex, ds.mask, int(ds.readout_axis))
+    ro = int(ds.readout_axis)
+    a_full = torch.movedim(ds.kspace_multicoil.abs().amax(0), ro, -1)
+    true_zero = (a_full.amax(-1) < ZERO_REL * float(a_full.max())).numpy()          # ORACLE whole-line zero map
+    z_pe = torch.movedim(Z, ro, -1)[:, :, 0].numpy()
+    tp = int((z_pe & true_zero).sum()); fp = int((z_pe & ~true_zero).sum()); fn = int((~z_pe & true_zero).sum())
+    out[sub] = {"name": d.get("name", sub), "precision": tp / max(tp + fp, 1), "recall": tp / max(tp + fn, 1),
+                "false_positive_lines": fp, "true_zero_fraction": float(true_zero.mean()), "frac_z": info.frac_z,
+                "cuts": info.cuts, "ellipse": info.ellipse}
+    print(sub, json.dumps(out[sub]))
+Path(ROOT / "results_arc" / "kz_oracle_check.json").write_text(json.dumps(out, indent=2))
+```
+Run it (`env PYTHONNOUSERSITE=1 PYTHONPATH= .../python scripts/kz_oracle_check.py`, CPU, ~4 min). Expected: precision ≥ 0.999 on both (Z must not contain true nonzero lines: `false_positive_lines` ≤ a handful, all in FLAIR's roll-off band), recall ≥ 0.95 (T1) and ≥ 0.85 (FLAIR; the notch and roll-off lines are left out by design).
+
+- [ ] **Step 3: Record and commit**
+
+Copy `results_arc/kz_pw_smoke10b_score.json` to `docs/superpowers/records/af12_to_af10/scores/`. Write `known_zero_diagnostics.md`: the physics lines for both contrasts, the oracle precision/recall table (labelled ORACLE), the Task 7 finding that led here (old rule: T1 rho_c 1.15 / FLAIR None), and the figure paths `docs/figures/af12_to_af10/kz_tiny_geometry_{T1,FLAIR}.png`. Then:
+
+```bash
+git add scripts/kz_oracle_check.py docs/superpowers/records/af12_to_af10/known_zero_diagnostics.md docs/superpowers/records/af12_to_af10/scores/kz_pw_smoke10b_score.json
+git commit -m "records: known-zero region on the real data - estimator diagnostics and oracle precision/recall"
+```
