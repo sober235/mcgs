@@ -1,0 +1,36 @@
+{
+  "run": "tvs4k_e040",
+  "npz": "/data0/congcong/code/GS/Paired_ARC_GS_general_framework/results_arc/tvs4k_e040_volumes.npz",
+  "plain": {
+    "head_psnr": 33.922017218259015,
+    "head_ssim": 0.9047054052352905,
+    "head_hfen": 0.16939226795452883,
+    "grain_ratio": 0.9599024487462566,
+    "head_frac": 0.270404052734375,
+    "gmax": 1.8865548372268677,
+    "zf": {
+      "head_psnr": 25.799686686886222,
+      "head_ssim": 0.7070828676223755,
+      "head_hfen": 0.6208053016819374,
+      "grain_ratio": 0.8029929354011403,
+      "head_frac": 0.270404052734375,
+      "gmax": 1.8865548372268677
+    }
+  },
+  "contrast": {
+    "head_psnr": 33.62435676578999,
+    "head_ssim": 0.9257586002349854,
+    "head_hfen": 0.1365222509106647,
+    "grain_ratio": 0.9489612510213163,
+    "head_frac": 0.2534725535999645,
+    "gmax": 1.568184494972229,
+    "zf": {
+      "head_psnr": 25.487282326367062,
+      "head_ssim": 0.7241590619087219,
+      "head_hfen": 0.6344467473904306,
+      "grain_ratio": 0.7547600119324968,
+      "head_frac": 0.2534725535999645,
+      "gmax": 1.568184494972229
+    }
+  }
+}

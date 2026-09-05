@@ -1,0 +1,73 @@
+{
+  "spec": "docs/superpowers/specs/2026-09-05-af12-to-af10-quality-design.md \u00a72",
+  "reference_run": "af10_joint_edgetv_e040_rerun20260904",
+  "repeat_run": "af10_joint_edgetv_e040",
+  "baseline_run": "tvs4k_e040",
+  "tolerance_rule": "tol = max(2*|ref-repeat|, floor); pass iff value >= ref-tol (max) or value <= ref+tol (min)",
+  "tolerance_floor": {
+    "head_psnr": 0.005,
+    "head_ssim": 0.0005,
+    "head_hfen": 0.001
+  },
+  "e_unobs_rule": "pass iff e_unobs <= baseline e_unobs (checkpoint replay of the AF12 baseline)",
+  "grain_ratio_max": 1.0,
+  "visual_gate": "butterfly z=160 + three views, judged by the user, recorded in decisions.jsonl",
+  "contrasts": {
+    "plain": {
+      "name": "T1",
+      "head_psnr": {
+        "ref": 34.60492475878486,
+        "repeat": 34.60447505652679,
+        "tol": 0.005,
+        "direction": "max"
+      },
+      "head_ssim": {
+        "ref": 0.9152268767356873,
+        "repeat": 0.9152018427848816,
+        "tol": 0.0005,
+        "direction": "max"
+      },
+      "head_hfen": {
+        "ref": 0.15351901041836663,
+        "repeat": 0.15360190096189083,
+        "tol": 0.001,
+        "direction": "min"
+      },
+      "e_unobs_baseline": 0.6487883399223735,
+      "baseline_head": {
+        "head_psnr": 33.922017218259015,
+        "head_ssim": 0.9047054052352905,
+        "head_hfen": 0.16939226795452883,
+        "grain_ratio": 0.9599024487462566
+      }
+    },
+    "contrast": {
+      "name": "FLAIR",
+      "head_psnr": {
+        "ref": 34.40085688957917,
+        "repeat": 34.40010519482051,
+        "tol": 0.005,
+        "direction": "max"
+      },
+      "head_ssim": {
+        "ref": 0.9352281093597412,
+        "repeat": 0.935214638710022,
+        "tol": 0.0005,
+        "direction": "max"
+      },
+      "head_hfen": {
+        "ref": 0.12224747846466742,
+        "repeat": 0.12228703162031222,
+        "tol": 0.001,
+        "direction": "min"
+      },
+      "e_unobs_baseline": 0.6444104961668644,
+      "baseline_head": {
+        "head_psnr": 33.62435676578999,
+        "head_ssim": 0.9257586002349854,
+        "head_hfen": 0.1365222509106647,
+        "grain_ratio": 0.9489612510213163
+      }
+    }
+  }
+}
