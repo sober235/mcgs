@@ -1,7 +1,11 @@
-"""Known-zero region Z (spec 2026-09-05 §4.1): estimated from ACQUIRED samples only, by the cliff rule.
+"""Known-zero region Z (spec 2026-09-05 §4.1 as amended by appendix A, 2026-09-06): whole PE lines that are
+numerically zero outside a hard shutter made of padding cuts and/or a DC-centred ellipse. Estimated from the
+ACQUIRED lines only. Plus the readout-end noise covariance (R2), whitening and the fit-side tensors.
 
 Run: PYTHONNOUSERSITE=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -m pytest tests/test_known_zero.py -v
 """
+import dataclasses
+import json
 import sys
 from pathlib import Path
 
@@ -11,130 +15,118 @@ import torch
 from scipy import ndimage
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "paired_gs"))
-from data.known_zero import RING_WIDTH, KnownZeroInfo, estimate_known_zero, pe_radius_map  # noqa: E402
+from data.known_zero import (MIN_NOISE_SAMPLES, KnownZeroInfo, build_fit_tensors, estimate_known_zero,  # noqa: E402
+                             estimate_noise_cov, whitening_matrix)
 
 C, P0, P1, R = 4, 48, 40, 24
 
 
-def _synth(rho_c=None, shutter=None, noise=2e-3, seed=0, ro_axis=2):
-    """Multicoil k-space of a textured object (broad spectrum), optionally low-pass filtered in the PE plane
-    (vendor filter, keeps noise) or hard-shuttered (exact zeros), vd-random mask broadcast along readout.
-    Returns (kspace (C,P0,P1,R) undersampled, mask (P0,P1,R)) with ro_axis last, then moved to `ro_axis`."""
+def _synth(cut_lo1=None, ellipse=None, noise=2e-3, seed=0, ro_axis=2, dc_shift=(0, 4), hard=True):
+    """Textured-object multicoil k-space (C,P0,P1,R) with the DC shifted by `dc_shift` on the PE plane (the real
+    data has a +22 px offset), whole PE lines outside the vendor support made numerically zero: array columns
+    j < cut_lo1 (padding) and/or lines outside an axis-aligned ellipse (a, b) about the DC. hard=True zeroes
+    exactly; hard=False leaves a 1e-30 residue like the real data. vd-random mask (35%) + ACS about the DC,
+    broadcast along readout. Returns (kspace, mask, dc, keep) with the readout axis moved to `ro_axis`."""
     rng = np.random.default_rng(seed)
     zz, yy, xx = np.ogrid[:P0, :P1, :R]
     blob = np.exp(-(((zz - P0 / 2) / (P0 / 4)) ** 2 + ((yy - P1 / 2) / (P1 / 4)) ** 2 + ((xx - R / 2) / (R / 4)) ** 2))
-    texture = ndimage.gaussian_filter(rng.normal(size=(P0, P1, R)), 0.7)
-    obj = blob * (1.0 + 0.8 * texture / texture.std())          # texture -> nearly flat high-frequency spectrum
+    tex = ndimage.gaussian_filter(rng.normal(size=(P0, P1, R)), 0.7)
+    obj = blob * (1.0 + 0.8 * tex / tex.std())
     ks = []
     for _ in range(C):
         cm = ndimage.gaussian_filter(rng.normal(size=(P0, P1, R)), 8.0)
         cm = cm / np.abs(cm).max() + 0.5
-        k = np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(cm * obj), norm="ortho"))
-        ks.append(k)
+        ks.append(np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(cm * obj), norm="ortho")))
     k = np.stack(ks).astype(np.complex64)
-    ii, jj = np.meshgrid(np.arange(P0), np.arange(P1), indexing="ij")
-    rho = np.sqrt(((ii - P0 // 2) / (P0 / 2)) ** 2 + ((jj - P1 // 2) / (P1 / 2)) ** 2)
-    if rho_c is not None:
-        k = k * (rho < rho_c)[None, :, :, None]
-    if noise:
-        k = k + noise * (rng.normal(size=k.shape) + 1j * rng.normal(size=k.shape)).astype(np.complex64) / np.sqrt(2)
-    if shutter is not None:
-        k = k * (rho < shutter)[None, :, :, None]                # exact zeros AFTER noise
+    k = k + noise * (rng.normal(size=k.shape) + 1j * rng.normal(size=k.shape)).astype(np.complex64) / np.sqrt(2)
+    k = np.roll(k, dc_shift, axis=(1, 2))
+    dc = (P0 // 2 + dc_shift[0], P1 // 2 + dc_shift[1])
+    ii, jj = np.meshgrid(np.arange(P0) - dc[0], np.arange(P1) - dc[1], indexing="ij")
+    keep = np.ones((P0, P1), bool)
+    if cut_lo1 is not None:
+        keep[:, :cut_lo1] = False
+    if ellipse is not None:
+        a, b = ellipse
+        keep &= (ii / a) ** 2 + (jj / b) ** 2 < 1.0
+    fac = np.where(keep, 1.0, 0.0 if hard else 1e-30).astype(np.float32)
+    k = k * fac[None, :, :, None]
     m2 = rng.random((P0, P1)) < 0.35
-    m2[P0 // 2 - 4:P0 // 2 + 4, P1 // 2 - 4:P1 // 2 + 4] = True
+    m2[dc[0] - 4:dc[0] + 4, dc[1] - 4:dc[1] + 4] = True
     mask = np.repeat(m2[:, :, None], R, axis=2).astype(np.float32)
     k = k * mask[None]
     kt, mt = torch.from_numpy(k), torch.from_numpy(mask)
-    return torch.movedim(kt, 3, ro_axis + 1).contiguous(), torch.movedim(mt, 2, ro_axis).contiguous()
+    return torch.movedim(kt, 3, ro_axis + 1).contiguous(), torch.movedim(mt, 2, ro_axis).contiguous(), dc, keep
 
 
-def test_vendor_lowpass_is_found_within_one_ring():
-    k, m = _synth(rho_c=0.8)
+def test_padding_cut_is_found_and_broadcast_along_readout():
+    k, m, dc, keep = _synth(cut_lo1=12)
     Z, info = estimate_known_zero(k, m, ro_axis=2)
-    assert isinstance(info, KnownZeroInfo)
-    assert info.rho_c is not None and abs(info.rho_c - 0.8) <= RING_WIDTH + 1e-9
-    assert info.kro_c is None                                    # nothing along readout
-    rho = pe_radius_map(tuple(m.shape), info.dc, 2, m.device)
-    assert Z.dtype == torch.bool and Z.shape == m.shape
-    assert bool(Z[rho >= 0.9].all()) and not bool(Z[rho <= 0.7].any())
-    assert info.frac_z == pytest.approx(float((rho >= info.rho_c).float().mean()), abs=1e-6)
-    assert 0.0 < info.frac_z < 1.0
+    assert isinstance(info, KnownZeroInfo) and info.ellipse is None
+    lo = info.cuts["axis1_lo"]
+    assert lo is not None and 12 <= lo <= 15                      # first SAMPLED nonzero column is >= 12
+    assert info.cuts["axis0_lo"] is None and info.cuts["axis0_hi"] is None and info.cuts["axis1_hi"] is None
+    zn = Z.numpy()
+    assert zn.dtype == bool and zn.shape == tuple(m.shape)
+    assert zn[:, :12, :].all() and not zn[:, lo:, :].any()
+    assert (zn == zn[:, :, :1]).all()                              # broadcast along readout
+    assert info.n_nonzero_in_z == 0 and info.n_zero_explained == info.n_zero_lines
+    assert info.frac_z == pytest.approx(lo / P1, abs=1e-9)
 
 
-def test_unfiltered_data_has_no_known_zero():
-    k, m = _synth(rho_c=None)
+def test_ellipse_is_found_within_one_pixel():
+    k, m, dc, keep = _synth(ellipse=(18.0, 14.0))
     Z, info = estimate_known_zero(k, m, ro_axis=2)
-    assert info.rho_c is None and info.kro_c is None
-    assert not bool(Z.any()) and info.frac_z == 0.0
+    assert info.ellipse is not None
+    a, b, s = info.ellipse
+    assert abs(a - 18.0) <= 1.0 and abs(b - 14.0) <= 1.0 and 1.0 <= s <= 1.1
+    assert info.dc[:2] == dc
+    assert all(v is None for v in info.cuts.values())              # an ellipse tip is not a padding cut
+    ii, jj = np.meshgrid(np.arange(P0) - dc[0], np.arange(P1) - dc[1], indexing="ij")
+    r = np.sqrt((ii / 18.0) ** 2 + (jj / 14.0) ** 2)
+    zn = Z.numpy()[:, :, 0]
+    assert zn[r >= 1.12].all() and not zn[r <= 0.98].any()
+    assert info.n_nonzero_in_z == 0 and info.n_zero_explained >= 0.9 * info.n_zero_lines
 
 
-def test_exact_shutter_is_found():
-    k, m = _synth(rho_c=None, shutter=1.0)
+def test_ellipse_plus_padding_cut_with_residue():
+    k, m, dc, keep = _synth(cut_lo1=8, ellipse=(20.0, 22.0), hard=False)     # 1e-30 residue like the real data
     Z, info = estimate_known_zero(k, m, ro_axis=2)
-    assert info.rho_c is not None and abs(info.rho_c - 1.0) <= RING_WIDTH + 1e-9
-    assert info.n0_pe == 0.0
+    assert info.cuts["axis1_lo"] is not None and info.ellipse is not None
+    zn = Z.numpy()[:, :, 0]
+    assert zn[:, :8].all()
+    sampled = m.numpy()[:, :, 0] > 0.5
+    assert not zn[keep & sampled].any()                            # never a sampled nonzero line
+    assert info.n_nonzero_in_z == 0 and info.frac_z > 0.3
+
+
+def test_no_shutter_gives_empty_Z():
+    k, m, dc, keep = _synth()
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    assert not bool(Z.any()) and info.ellipse is None and all(v is None for v in info.cuts.values())
+    assert info.n_zero_lines == 0 and info.frac_z == 0.0
 
 
 def test_uses_only_sampled_points():
-    """Filling the UNSAMPLED points with garbage must not change the estimate."""
-    k, m = _synth(rho_c=0.8, seed=3)
-    _, info_a = estimate_known_zero(k, m, ro_axis=2)
+    k, m, dc, keep = _synth(ellipse=(18.0, 14.0), seed=3)
+    _, a = estimate_known_zero(k, m, ro_axis=2)
     junk = torch.randn_like(k) * (1 - m).unsqueeze(0) * 10.0
-    _, info_b = estimate_known_zero(k + junk, m, ro_axis=2)
-    assert info_a.rho_c == info_b.rho_c and info_a.pe_profile == info_b.pe_profile
+    _, b = estimate_known_zero(k + junk, m, ro_axis=2)
+    assert a.ellipse == b.ellipse and a.cuts == b.cuts and a.frac_z == b.frac_z
 
 
 def test_readout_axis_position_does_not_matter():
-    k0, m0 = _synth(rho_c=0.8, seed=5, ro_axis=2)
-    k1, m1 = _synth(rho_c=0.8, seed=5, ro_axis=0)
-    _, i0 = estimate_known_zero(k0, m0, ro_axis=2)
-    _, i1 = estimate_known_zero(k1, m1, ro_axis=0)
-    assert i0.rho_c == i1.rho_c and i0.dc[2] == i1.dc[0]
-    assert np.allclose([p[1] for p in i0.pe_profile], [p[1] for p in i1.pe_profile], rtol=1e-5)   # reduction order may differ
+    k2, m2, dc, _ = _synth(cut_lo1=10, ellipse=(20.0, 22.0), seed=5, ro_axis=2)
+    k0, m0, _, _ = _synth(cut_lo1=10, ellipse=(20.0, 22.0), seed=5, ro_axis=0)
+    Z2, i2 = estimate_known_zero(k2, m2, ro_axis=2)
+    Z0, i0 = estimate_known_zero(k0, m0, ro_axis=0)
+    assert i2.cuts == i0.cuts and i2.ellipse == i0.ellipse and i2.frac_z == i0.frac_z
+    assert torch.equal(torch.movedim(Z0, 0, 2), Z2)
 
 
 def test_info_is_json_serializable():
-    import dataclasses, json
-    k, m = _synth(rho_c=0.8)
+    k, m, dc, keep = _synth(cut_lo1=8, ellipse=(20.0, 22.0))
     _, info = estimate_known_zero(k, m, ro_axis=2)
     json.dumps(dataclasses.asdict(info))
-
-
-def test_readout_band_limit_is_found():
-    """Controller addition: exercise the READOUT-axis branch of estimate_known_zero (no existing
-    test covers kro_c). Same object/coil model as _synth, but the band limit is along the readout
-    axis instead of the PE plane: k *= (kro < 0.7) where kro = |r - R/2| / (R/2), noise added after."""
-    rng = np.random.default_rng(7)
-    zz, yy, xx = np.ogrid[:P0, :P1, :R]
-    blob = np.exp(-(((zz - P0 / 2) / (P0 / 4)) ** 2 + ((yy - P1 / 2) / (P1 / 4)) ** 2 + ((xx - R / 2) / (R / 4)) ** 2))
-    texture = ndimage.gaussian_filter(rng.normal(size=(P0, P1, R)), 0.7)
-    obj = blob * (1.0 + 0.8 * texture / texture.std())
-    ks = []
-    for _ in range(C):
-        cm = ndimage.gaussian_filter(rng.normal(size=(P0, P1, R)), 8.0)
-        cm = cm / np.abs(cm).max() + 0.5
-        k = np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(cm * obj), norm="ortho"))
-        ks.append(k)
-    k = np.stack(ks).astype(np.complex64)
-    kro = np.abs(np.arange(R) - R / 2) / (R / 2)
-    k = k * (kro < 0.7)[None, None, None, :]
-    k = k + 2e-3 * (rng.normal(size=k.shape) + 1j * rng.normal(size=k.shape)).astype(np.complex64) / np.sqrt(2)
-    m2 = rng.random((P0, P1)) < 0.35
-    m2[P0 // 2 - 4:P0 // 2 + 4, P1 // 2 - 4:P1 // 2 + 4] = True
-    mask = np.repeat(m2[:, :, None], R, axis=2).astype(np.float32)
-    k = k * mask[None]
-    kt, mt = torch.from_numpy(k), torch.from_numpy(mask)
-    Z, info = estimate_known_zero(kt, mt, ro_axis=2)
-    assert info.kro_c is not None and abs(info.kro_c - 0.7) <= RING_WIDTH + 1e-9
-    assert info.rho_c is None
-    for r in range(R):
-        if kro[r] >= 0.8:
-            assert bool(Z[:, :, r].all())
-        elif kro[r] <= 0.6:
-            assert not bool(Z[:, :, r].any())
-
-
-from data.known_zero import MIN_NOISE_SAMPLES, build_fit_tensors, estimate_noise_cov, whitening_matrix  # noqa: E402
 
 
 def _corr_noise(sigma_true, n, seed=0):
@@ -144,10 +136,33 @@ def _corr_noise(sigma_true, n, seed=0):
     return L @ w
 
 
+def test_noise_cov_from_readout_ends_recovers_sigma():
+    rng = np.random.default_rng(0)
+    A = rng.normal(size=(C, C)) + 1j * rng.normal(size=(C, C))
+    S_true = (A @ A.conj().T + np.eye(C)) * 1e-4
+    noise = _corr_noise(S_true, P0 * P1 * R).reshape(C, P0, P1, R).astype(np.complex64)
+    mask = (rng.random((P0, P1)) < 0.6)[:, :, None].repeat(R, axis=2).astype(np.float32)
+    k = torch.from_numpy(noise) * torch.from_numpy(mask)
+    Z, info = estimate_known_zero(k, torch.from_numpy(mask), ro_axis=2)
+    S, winfo = estimate_noise_cov(k, torch.from_numpy(mask), Z, info)
+    assert winfo["sigma_source"] == "readout_ends" and winfo["n_noise_samples"] > MIN_NOISE_SAMPLES
+    assert winfo["n_noise_samples"] == int(mask[:, :, 0].sum()) * 2 * 3      # 1/8 of R=24 is 3 indices per end
+    rel = np.linalg.norm(S.numpy().astype(np.complex128) - S_true) / np.linalg.norm(S_true)
+    assert rel < 0.1
+    assert winfo["noise_level"] == pytest.approx(float(np.real(np.trace(S_true)) / C), rel=0.1)
+
+
+def test_noise_cov_identity_fallback_has_uniform_keys():
+    k, m, dc, keep = _synth(cut_lo1=8)
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    S, winfo = estimate_noise_cov(k, m, Z, info, min_samples=10 ** 9)
+    assert S is None and winfo["sigma_source"] == "identity"
+    assert set(winfo) == {"sigma_source", "n_noise_samples", "coil_corr_max_offdiag", "coil_corr_mean_offdiag", "eig_ratio", "noise_level"}
+
+
 def test_whitening_of_diagonal_equal_variance_is_identity():
     S = torch.eye(C, dtype=torch.complex64) * 0.3
-    W = whitening_matrix(S)
-    assert torch.equal(W, torch.eye(C, dtype=torch.complex64))
+    assert torch.equal(whitening_matrix(S), torch.eye(C, dtype=torch.complex64))
 
 
 def test_whitening_decorrelates_and_keeps_mean_variance():
@@ -160,64 +175,23 @@ def test_whitening_decorrelates_and_keeps_mean_variance():
     assert np.allclose(out, c * np.eye(C), atol=1e-4 * c)
 
 
-def test_noise_cov_from_known_zero_samples():
-    rng = np.random.default_rng(0)
-    A = rng.normal(size=(C, C)) + 1j * rng.normal(size=(C, C))
-    S_true = (A @ A.conj().T + np.eye(C)) * 1e-4
-    n = P0 * P1 * R
-    noise = _corr_noise(S_true, n).reshape(C, P0, P1, R).astype(np.complex64)
-    mask = (rng.random((P0, P1, R)) < 0.6).astype(np.float32)
-    k = torch.from_numpy(noise) * torch.from_numpy(mask)
-    Z = torch.ones((P0, P1, R), dtype=torch.bool)
-    _, info = estimate_known_zero(k, torch.from_numpy(mask), ro_axis=2)
-    S, winfo = estimate_noise_cov(k, torch.from_numpy(mask), Z, info)
-    assert winfo["sigma_source"] == "known_zero" and winfo["n_noise_samples"] > MIN_NOISE_SAMPLES
-    rel = np.linalg.norm(S.numpy().astype(np.complex128) - S_true) / np.linalg.norm(S_true)
-    assert rel < 0.08
-
-
-def test_noise_cov_falls_back_to_identity_when_z_is_exact_zero_and_ring_too_small():
-    k, m = _synth(rho_c=None, shutter=1.0, seed=1)
-    Z, info = estimate_known_zero(k, m, ro_axis=2)
-    S, winfo = estimate_noise_cov(k, m, Z, info, min_samples=10 ** 9)   # force both routes to fail
-    assert S is None and winfo["sigma_source"] == "identity"
-
-
-def test_noise_cov_outer_ring_fallback_when_z_is_exact_zero():
-    k, m = _synth(rho_c=None, shutter=1.0, seed=1)
-    Z, info = estimate_known_zero(k, m, ro_axis=2)
-    S, winfo = estimate_noise_cov(k, m, Z, info, min_samples=50)
-    assert S is not None and winfo["sigma_source"] == "outer_ring"
-
-
-def test_noise_cov_no_cliff_uses_outermost_sampled_ring():
-    k, m = _synth(rho_c=None, seed=4)
-    Z, info = estimate_known_zero(k, m, ro_axis=2)
-    assert info.rho_c is None and not bool(Z.any())
-    S, winfo = estimate_noise_cov(k, m, Z, info, min_samples=50)
-    assert S is not None and winfo["sigma_source"] == "outer_ring_nocliff"
-    rho = pe_radius_map(tuple(m.shape), info.dc, 2, m.device)
-    assert winfo["n_noise_samples"] == int((m.bool() & (rho >= float(rho[m.bool()].max()) + 1e-6 - 0.1)).sum())
-
-
 def test_build_fit_tensors_defaults_and_hard_dc_zero_on_Z():
-    k, m = _synth(rho_c=0.8, seed=2)
+    k, m, dc, keep = _synth(cut_lo1=8, ellipse=(20.0, 22.0), seed=2)
     csm = torch.randn(C, *m.shape, dtype=torch.complex64)
     Z, _ = estimate_known_zero(k, m, ro_axis=2)
     mask_fit, k_dc, k_fit, csm_fit = build_fit_tensors(k, m, csm, Z, None)
-    assert k_fit is k_dc and csm_fit is csm                       # no W -> no whitened copies
+    assert k_fit is k_dc and csm_fit is csm
     assert torch.equal(mask_fit, torch.maximum(m, Z.float()))
     assert float(k_dc[:, Z].abs().max()) == 0.0
-    pred = torch.randn_like(k)                                     # any model k-space
+    pred = torch.randn_like(k)
     hard_dc = pred * (1 - mask_fit).unsqueeze(0) + k_dc
-    assert float(hard_dc[:, Z].abs().max()) == 0.0                 # spec §4.1: exactly zero on Z
-    assert torch.equal(hard_dc[:, (m > 0.5) & ~Z], k[:, (m > 0.5) & ~Z])   # measured samples untouched
-    # denominator invariant: the caller keeps |Omega|; mask_fit grew
+    assert float(hard_dc[:, Z].abs().max()) == 0.0
+    assert torch.equal(hard_dc[:, (m > 0.5) & ~Z], k[:, (m > 0.5) & ~Z])
     assert float(mask_fit.sum()) > float(m.sum())
 
 
 def test_build_fit_tensors_with_identity_W_is_exact():
-    k, m = _synth(rho_c=0.8, seed=2)
+    k, m, dc, keep = _synth(seed=2)
     csm = torch.randn(C, *m.shape, dtype=torch.complex64)
     Z = torch.zeros_like(m, dtype=torch.bool)
     W = torch.eye(C, dtype=torch.complex64)

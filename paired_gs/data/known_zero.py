@@ -1,9 +1,18 @@
 """Known-zero k-space region Z and coil-noise prewhitening W — the Phase 1 physics levers
-(docs/superpowers/specs/2026-09-05-af12-to-af10-quality-design.md §4).
+(docs/superpowers/specs/2026-09-05-af12-to-af10-quality-design.md §4, as amended by appendix A, 2026-09-06).
 
-Everything here is estimated from the ACQUIRED samples of one scan (kspace already multiplied by the
-mask). Nothing reads the full k-space or the ground truth. Pure functions; the trainer only wires the
-outputs in. All rule constants are fixed a priori (spec §4.1) and are NOT tuning knobs.
+On this data the vendor's k-space support is a HARD shutter in the phase-encoding (PE) plane: whole readout
+lines are numerically zero (|y| ~ 1e-20 of the data scale; nothing between 1e-12 and 1e-4) outside an
+axis-aligned region built from rectangular padding cuts and/or an ellipse centred on the DC. Z is estimated
+from the ACQUIRED lines only; ZERO_REL, the grid steps and EXPAND_STEP are numerical resolutions, not knobs.
+
+    Z_PE = padding cuts (a side is cut only where the nonzero lines end on a straight, wide edge and every
+           sampled line beyond it is zero)
+         ∪ exterior of the fitted DC-centred ellipse (expanded until no sampled nonzero line lies outside)
+    Z_PE never contains a sampled nonzero line.      Z = Z_PE broadcast along the readout axis.
+
+Σ (prewhitening, R2) comes from the readout-end samples of the sampled nonzero lines, where the per-sample
+energy sits on the noise floor for both contrasts.
 """
 from __future__ import annotations
 
@@ -13,163 +22,193 @@ from typing import Optional
 import numpy as np
 import torch
 
-RING_WIDTH = 0.05        # ring / band width in normalised radius
-MARGIN = 1.5             # a ring is "at the floor" if E_r <= MARGIN * n0
-CLIFF_RATIO = 5.0        # the energy just inside Z must exceed the Z energy by this factor
-CLIFF_SPAN = 0.15        # ... within this radial distance
-MIN_RINGS = 2            # Z must span at least this many rings
-MIN_RING_POINTS = 30     # PE rings with fewer sampled points merge into the inner neighbour
-MIN_NOISE_SAMPLES = 2000 # per-coil samples needed for a noise covariance
+ZERO_REL = 1e-10            # a sampled line is numerically zero if max|y| over coils & readout < ZERO_REL * global max
+COARSE_STEP_PX = 4.0        # ellipse semi-axis grid, coarse stage
+GRID_STEP_PX = 0.5          # ellipse semi-axis grid, fine stage (±COARSE_STEP_PX around the coarse optimum)
+EXPAND_STEP = 0.005         # safety expansion resolution of the ellipse
+EXPAND_MAX = 2.0            # give the ellipse up beyond this expansion
+CUT_SPAN_MIN = 0.5          # a padding edge must carry nonzero lines over >= this fraction of the other axis' extent
+READOUT_END_FRAC = 0.125    # Σ source: outer 1/8 of the readout indices at both ends
+MIN_NOISE_SAMPLES = 2000
 
 
 @dataclass
 class KnownZeroInfo:
-    dc: tuple
+    dc: tuple                    # (i, j, k) array index of the sampled-energy peak (PE axes + readout)
     ro_axis: int
-    rho_c: Optional[float]
-    kro_c: Optional[float]
-    n0_pe: float
-    n0_ro: float
-    frac_z: float
-    frac_sampled_in_z: float
-    pe_profile: list
-    ro_profile: list
+    zero_threshold: float        # absolute max|y| below which a sampled line is numerically zero
+    cuts: dict                   # axis{0,1}_{lo,hi}: index bound of the zero padding (lo: indices < bound are zero;
+                                 # hi: indices > bound are zero), or None
+    ellipse: Optional[tuple]     # (a_px, b_px, expand) about dc on the PE axes, or None
+    n_sampled_lines: int
+    n_zero_lines: int
+    n_zero_explained: int        # sampled zero lines inside Z
+    n_nonzero_in_z: int          # sampled nonzero lines inside Z — 0 by construction
+    frac_z: float                # fraction of the PE plane in Z
+    frac_sampled_in_z: float     # |Z ∩ Ω| / |Ω| over lines
 
 
-def _profile(e_mean: np.ndarray, coord: np.ndarray, sampled: np.ndarray, width: float, min_points: int) -> list:
-    """[(coord_lo, median energy, n_points)] over sampled entries, ring by ring from the centre outward.
-    A ring with fewer than `min_points` sampled entries is merged into the previous (inner) ring."""
-    if not sampled.any():
-        return []
-    bin_idx = np.floor(coord / width).astype(int)
-    out: list = []
-    for b in range(0, int(bin_idx[sampled].max()) + 1):
-        sel = sampled & (bin_idx == b)
-        vals = e_mean[sel]
-        if vals.size == 0:
+def _pe_lines(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int):
+    """Per-PE-line max|y| and energy over the SAMPLED readout entries only; (P0,P1) each, plus sampled (P0,P1)."""
+    m_r = torch.movedim(mask > 0.5, ro_axis, -1)
+    a_r = torch.movedim(kspace.abs().amax(0), ro_axis, -1) * m_r
+    e_r = torch.movedim((kspace.real.square() + kspace.imag.square()).sum(0), ro_axis, -1) * m_r
+    return a_r.amax(-1), e_r.sum(-1), m_r.any(-1)
+
+
+def _rect_cuts(nonzero: np.ndarray, zero: np.ndarray, span_min: float = CUT_SPAN_MIN) -> dict:
+    """Per-side padding cuts. A side is cut only if (1) at least one sampled zero line lies beyond the bounding
+    box of the sampled nonzero lines on that side (every sampled line there is zero by construction) and (2) the
+    edge row/column of the bounding box carries nonzero lines over >= span_min of the other axis' nonzero extent
+    (a straight padding edge, not the tip of an ellipse)."""
+    cuts = {}
+    for ax in (0, 1):
+        other = 1 - ax
+        nz_idx = np.nonzero(nonzero.any(axis=other))[0]
+        z_idx = np.nonzero(zero.any(axis=other))[0]
+        if nz_idx.size == 0:
+            cuts[f"axis{ax}_lo"] = cuts[f"axis{ax}_hi"] = None
             continue
-        if vals.size < min_points and out:
-            out[-1][1] = np.concatenate([out[-1][1], vals])
-        else:
-            out.append([float(b * width), vals])
-    return [(lo, float(np.median(v)), int(v.size)) for lo, v in out]
+        lo, hi = int(nz_idx.min()), int(nz_idx.max())
+        ext_o = np.nonzero(nonzero.any(axis=ax))[0]
+        extent = int(ext_o.max() - ext_o.min() + 1)
+
+        def wide(idx):
+            line = np.nonzero(np.take(nonzero, idx, axis=ax))[0]
+            return line.size > 0 and (line.max() - line.min() + 1) >= span_min * extent
+
+        cuts[f"axis{ax}_lo"] = lo if (np.any(z_idx < lo) and wide(lo)) else None
+        cuts[f"axis{ax}_hi"] = hi if (np.any(z_idx > hi) and wide(hi)) else None
+    return cuts
 
 
-def _cutoff(profile: list, *, margin: float, cliff_ratio: float, cliff_span: float, min_rings: int):
-    """The cliff rule (spec §4.1 step 4). Returns (cutoff or None, n0)."""
-    if len(profile) < min_rings + 1:
-        return None, (float(min(p[1] for p in profile)) if profile else 0.0)
-    lo = np.array([p[0] for p in profile]); E = np.array([p[1] for p in profile])
-    n0 = float(E.min())
-    thr = margin * n0
-    k = len(E)
-    while k > 0 and E[k - 1] <= thr:          # maximal suffix at the floor, walking inward from the outermost ring
-        k -= 1
-    if len(E) - k < min_rings or k == 0:
-        return None, n0
-    rho_in = float(lo[k])
-    before = E[(lo >= rho_in - cliff_span) & (lo < rho_in)]
-    if before.size == 0:
-        return None, n0
-    e_z = float(E[k:].max())
-    cliff = (float(before.max()) >= cliff_ratio * e_z) if e_z > 0 else (float(before.max()) > 0)
-    if not cliff:
-        return None, n0
-    return rho_in, n0
+def _rect_zero(shape, cuts: dict) -> np.ndarray:
+    z = np.zeros(shape, bool)
+    if cuts["axis0_lo"] is not None:
+        z[:cuts["axis0_lo"], :] = True
+    if cuts["axis0_hi"] is not None:
+        z[cuts["axis0_hi"] + 1:, :] = True
+    if cuts["axis1_lo"] is not None:
+        z[:, :cuts["axis1_lo"]] = True
+    if cuts["axis1_hi"] is not None:
+        z[:, cuts["axis1_hi"] + 1:] = True
+    return z
 
 
-def pe_radius_map(shape: tuple, dc: tuple, ro_axis: int, device) -> torch.Tensor:
-    """Normalised PE-plane radius about `dc`, broadcast along the readout axis. (D,H,W) float32."""
-    pe = [a for a in range(3) if a != ro_axis]
-    n0, n1 = shape[pe[0]], shape[pe[1]]
-    i = torch.arange(n0, device=device, dtype=torch.float32)
-    j = torch.arange(n1, device=device, dtype=torch.float32)
-    rho2 = torch.sqrt(((i - dc[pe[0]]) / (n0 / 2)).view(-1, 1) ** 2 + ((j - dc[pe[1]]) / (n1 / 2)).view(1, -1) ** 2)
-    rho = rho2.unsqueeze(-1).expand(n0, n1, shape[ro_axis])
-    return torch.movedim(rho, -1, ro_axis).contiguous()
+def _fit_ellipse(di: np.ndarray, dj: np.ndarray, is_nonzero: np.ndarray, is_target: np.ndarray,
+                 half0: float, half1: float):
+    """Axis-aligned ellipse about the DC on the SAMPLED lines: (a, b, expand) or None.
+    di/dj: PE offsets of the sampled lines; is_nonzero: sampled nonzero lines (must end up outside Z);
+    is_target: sampled zero lines the padding cuts do not explain. Misclassification = nonzero outside the
+    ellipse + target inside it; 'no ellipse' competes with misclassification = |target|. The winner is then
+    expanded until no sampled nonzero line lies outside it, and dropped if it then explains no target line."""
+    n_target = int(is_target.sum())
+    if n_target == 0:
+        return None
+    di2, dj2 = di.astype(np.float64) ** 2, dj.astype(np.float64) ** 2
+
+    def mis(a, b):
+        outside = di2 / (a * a) + dj2 / (b * b) >= 1.0
+        return int((outside & is_nonzero).sum() + (~outside & is_target).sum())
+
+    best = (n_target, None)
+    for a in np.arange(COARSE_STEP_PX, 1.5 * half0 + COARSE_STEP_PX, COARSE_STEP_PX):
+        for b in np.arange(COARSE_STEP_PX, 1.5 * half1 + COARSE_STEP_PX, COARSE_STEP_PX):
+            m_ = mis(a, b)
+            if m_ < best[0]:
+                best = (m_, (float(a), float(b)))
+    if best[1] is None:
+        return None
+    a0, b0 = best[1]
+    for a in np.arange(a0 - COARSE_STEP_PX, a0 + COARSE_STEP_PX + 1e-9, GRID_STEP_PX):
+        for b in np.arange(b0 - COARSE_STEP_PX, b0 + COARSE_STEP_PX + 1e-9, GRID_STEP_PX):
+            if a <= 0 or b <= 0:
+                continue
+            m_ = mis(a, b)
+            if m_ < best[0]:
+                best = (m_, (float(a), float(b)))
+    a, b = best[1]
+    expand = 1.0
+    while expand <= EXPAND_MAX:
+        outside = di2 / (a * expand) ** 2 + dj2 / (b * expand) ** 2 >= 1.0
+        if not bool((outside & is_nonzero).any()):
+            break
+        expand += EXPAND_STEP
+    else:
+        return None
+    if int((outside & is_target).sum()) == 0:
+        return None
+    return (a, b, float(round(expand, 6)))
 
 
-def estimate_known_zero(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int, *,
-                        ring_width: float = RING_WIDTH, margin: float = MARGIN, cliff_ratio: float = CLIFF_RATIO,
-                        cliff_span: float = CLIFF_SPAN, min_rings: int = MIN_RINGS,
-                        min_points: int = MIN_RING_POINTS):
-    """Z from acquired samples only. kspace (C,D,H,W) complex, already masked; mask (D,H,W) in {0,1}."""
+def estimate_known_zero(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int):
+    """Z from the acquired lines only (appendix A, R1). kspace (C,D,H,W) complex, already masked; mask (D,H,W)."""
     assert kspace.ndim == 4 and mask.ndim == 3 and tuple(kspace.shape[1:]) == tuple(mask.shape)
     dev = kspace.device
-    Cn = kspace.shape[0]
-    m = mask > 0.5
-    e = (kspace.real.square() + kspace.imag.square()).sum(0) * m            # sampled energy, (D,H,W)
-    e_r = torch.movedim(e, ro_axis, -1); m_r = torch.movedim(m, ro_axis, -1)  # (P0,P1,R)
-    P0, P1, Rn = e_r.shape
-    # --- PE plane: DC = ACS energy peak of the sampled data
-    e_pe = e_r.sum(-1)
-    flat = int(torch.argmax(e_pe)); dc0, dc1 = flat // P1, flat % P1
-    n_ro = m_r.sum(-1)                                                     # sampled readout entries per PE point
-    sampled_pe = (n_ro > 0).cpu().numpy()
-    e_mean_pe = (e_pe / (Cn * n_ro.clamp_min(1))).cpu().numpy()           # per (coil, sample)
-    ii, jj = np.meshgrid(np.arange(P0), np.arange(P1), indexing="ij")
-    rho = np.sqrt(((ii - dc0) / (P0 / 2)) ** 2 + ((jj - dc1) / (P1 / 2)) ** 2)
-    pe_profile = _profile(e_mean_pe, rho, sampled_pe, ring_width, min_points)
-    rho_c, n0_pe = _cutoff(pe_profile, margin=margin, cliff_ratio=cliff_ratio, cliff_span=cliff_span, min_rings=min_rings)
-    # --- readout axis: each index already averages thousands of PE samples, so no merging (min_points=1)
-    e_ro = e_r.sum((0, 1))
-    n_pe = m_r.sum((0, 1))
+    amax, energy, sampled = _pe_lines(kspace, mask, ro_axis)
+    P0, P1 = sampled.shape
+    thr = ZERO_REL * float(amax.max())
+    sampled_np = sampled.cpu().numpy()
+    zero = (sampled & (amax < thr)).cpu().numpy()
+    nonzero = sampled_np & ~zero
+    flat = int(torch.argmax(energy))
+    dc0, dc1 = flat // P1, flat % P1
+    m_r = torch.movedim(mask > 0.5, ro_axis, -1)
+    e_ro = (torch.movedim((kspace.real.square() + kspace.imag.square()).sum(0), ro_axis, -1) * m_r).sum((0, 1))
     dc2 = int(torch.argmax(e_ro))
-    e_mean_ro = (e_ro / (Cn * n_pe.clamp_min(1))).cpu().numpy()
-    kro = np.abs(np.arange(Rn) - dc2) / (Rn / 2)
-    ro_profile = _profile(e_mean_ro, kro, (n_pe > 0).cpu().numpy(), ring_width, 1)
-    kro_c, n0_ro = _cutoff(ro_profile, margin=margin, cliff_ratio=cliff_ratio, cliff_span=cliff_span, min_rings=min_rings)
-    # --- assemble Z
-    Z_r = torch.zeros((P0, P1, Rn), dtype=torch.bool, device=dev)
-    if rho_c is not None:
-        Z_r |= torch.from_numpy(rho >= rho_c).to(dev)[:, :, None]
-    if kro_c is not None:
-        Z_r |= torch.from_numpy(kro >= kro_c).to(dev)[None, None, :]
-    Z = torch.movedim(Z_r, -1, ro_axis).contiguous()
+    cuts = _rect_cuts(nonzero, zero)
+    z_pe = _rect_zero((P0, P1), cuts)
+    si, sj = np.nonzero(sampled_np)
+    ell = _fit_ellipse(si - dc0, sj - dc1, nonzero[si, sj], (zero & ~z_pe)[si, sj], P0 / 2, P1 / 2)
+    if ell is not None:
+        a, b, s = ell
+        ii, jj = np.meshgrid(np.arange(P0) - dc0, np.arange(P1) - dc1, indexing="ij")
+        z_pe |= (ii / (a * s)) ** 2 + (jj / (b * s)) ** 2 >= 1.0
+    z_pe &= ~nonzero                                                  # never override a measured nonzero line
+    Rn = int(mask.shape[ro_axis])
+    Z = torch.movedim(torch.from_numpy(z_pe).to(dev).unsqueeze(-1).expand(P0, P1, Rn), -1, ro_axis).contiguous()
     dc = [0, 0, 0]
-    pe = [a for a in range(3) if a != ro_axis]
-    dc[pe[0]], dc[pe[1]], dc[ro_axis] = int(dc0), int(dc1), int(dc2)
-    info = KnownZeroInfo(dc=tuple(dc), ro_axis=int(ro_axis), rho_c=rho_c, kro_c=kro_c,
-                         n0_pe=float(n0_pe), n0_ro=float(n0_ro), frac_z=float(Z.float().mean()),
-                         frac_sampled_in_z=float((Z & m).sum().item() / max(m.sum().item(), 1)),
-                         pe_profile=pe_profile, ro_profile=ro_profile)
+    pe = [a_ for a_ in range(3) if a_ != ro_axis]
+    dc[pe[0]], dc[pe[1]], dc[ro_axis] = int(dc0), int(dc1), dc2
+    info = KnownZeroInfo(dc=tuple(dc), ro_axis=int(ro_axis), zero_threshold=float(thr), cuts=cuts, ellipse=ell,
+                         n_sampled_lines=int(sampled_np.sum()), n_zero_lines=int(zero.sum()),
+                         n_zero_explained=int((zero & z_pe).sum()), n_nonzero_in_z=int((nonzero & z_pe).sum()),
+                         frac_z=float(z_pe.mean()),
+                         frac_sampled_in_z=float((z_pe & sampled_np).sum() / max(int(sampled_np.sum()), 1)))
     return Z, info
 
 
 def estimate_noise_cov(kspace: torch.Tensor, mask: torch.Tensor, Z: torch.Tensor, info: KnownZeroInfo, *,
-                       min_samples: int = MIN_NOISE_SAMPLES):
-    """Coil noise covariance Σ (C×C) from the ACQUIRED samples inside Z (pure noise by construction).
-    Fallback (spec §4.2): the 0.1-wide sampled ring just inside the PE cliff, flagged `outer_ring`
-    (or `outer_ring_nocliff` when no cliff was found, using the outermost sampled ring instead);
-    then `identity` (caller uses W = I)."""
-    m = mask > 0.5
-    Z = Z.bool()
-    Cn = kspace.shape[0]
-
-    def _take(sel):
-        v = kspace[:, sel]
-        return v if (v.shape[1] >= min_samples and float(v.abs().max()) > 0.0) else None
-
-    vals, source = _take(m & Z), "known_zero"
-    if vals is None:
-        rho = pe_radius_map(tuple(mask.shape), info.dc, info.ro_axis, kspace.device)
-        if info.rho_c is not None:
-            edge, ring_source = info.rho_c, "outer_ring"
-        else:
-            edge, ring_source = float(rho[m].max()) + 1e-6, "outer_ring_nocliff"
-        vals, source = _take(m & (rho >= edge - 0.1) & (rho < edge)), ring_source
-    if vals is None:
-        return None, {"sigma_source": "identity", "n_noise_samples": 0,
-                       "coil_corr_max_offdiag": None, "coil_corr_mean_offdiag": None, "eig_ratio": None}
+                       min_samples: int = MIN_NOISE_SAMPLES, end_frac: float = READOUT_END_FRAC):
+    """Coil noise covariance Σ (C×C) from the readout-end samples (outer `end_frac` of the readout indices at
+    both ends) of the sampled NONZERO lines (appendix A, R2). `Z` is accepted for interface compatibility and
+    not used. Returns (Σ | None, winfo) with a uniform winfo key set; None means W = I."""
+    ro = info.ro_axis
+    m_r = torch.movedim(mask > 0.5, ro, -1)                           # (P0,P1,R)
+    y_r = torch.movedim(kspace, ro + 1, -1)                           # (C,P0,P1,R)
+    Rn = m_r.shape[-1]
+    n_end = max(int(round(end_frac * Rn)), 1)
+    a_line = (y_r.abs().amax(0) * m_r).amax(-1)
+    nonzero = m_r.any(-1) & (a_line >= info.zero_threshold)
+    sel = torch.zeros_like(m_r)
+    sel[..., :n_end] = True
+    sel[..., Rn - n_end:] = True
+    sel = sel & m_r & nonzero.unsqueeze(-1)
+    vals = y_r[:, sel]                                                # (C, N)
+    empty = {"coil_corr_max_offdiag": None, "coil_corr_mean_offdiag": None, "eig_ratio": None, "noise_level": None}
+    if vals.shape[1] < min_samples or float(vals.abs().max()) < info.zero_threshold:
+        return None, {"sigma_source": "identity", "n_noise_samples": int(vals.shape[1]), **empty}
     vals = vals.to(torch.complex128)
     Sigma = (vals @ vals.conj().T) / vals.shape[1]
     d = torch.sqrt(torch.diagonal(Sigma).real)
     corr = (Sigma / (d.view(-1, 1) * d.view(1, -1))).abs()
     corr.fill_diagonal_(0.0)
     ev = torch.linalg.eigvalsh(0.5 * (Sigma + Sigma.conj().T)).real
-    winfo = {"sigma_source": source, "n_noise_samples": int(vals.shape[1]),
+    Cn = Sigma.shape[0]
+    winfo = {"sigma_source": "readout_ends", "n_noise_samples": int(vals.shape[1]),
              "coil_corr_max_offdiag": float(corr.max()), "coil_corr_mean_offdiag": float(corr.sum() / (Cn * (Cn - 1))),
-             "eig_ratio": float(ev.max() / ev.clamp_min(1e-30).min())}
+             "eig_ratio": float(ev.max() / ev.clamp_min(1e-30).min()),
+             "noise_level": float(torch.diagonal(Sigma).real.mean())}
     return Sigma.to(kspace.dtype), winfo
 
 
