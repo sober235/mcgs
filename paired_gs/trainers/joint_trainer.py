@@ -200,10 +200,12 @@ class JointTrainer:
             rec = {"known_zero": use_kz, "prewhiten": bool(prewhiten and W is not None), **asdict(info), **winfo,
                    "frac_z_used": float(Z.float().mean())}
             self.physics_info[tag] = rec
-            print(f"[physics:{sub}] known_zero={use_kz} rho_c={info.rho_c} kro_c={info.kro_c} "
-                  f"frac_z_used={rec['frac_z_used']:.4f} n0_pe={info.n0_pe:.3e} "
+            print(f"[physics:{sub}] known_zero={use_kz} cuts={info.cuts} ellipse={info.ellipse} "
+                  f"frac_z_used={rec['frac_z_used']:.4f} zero_lines={info.n_zero_lines}/{info.n_sampled_lines} "
+                  f"explained={info.n_zero_explained} nonzero_in_z={info.n_nonzero_in_z} "
                   f"prewhiten={rec['prewhiten']} sigma_source={winfo.get('sigma_source')} "
-                  f"n_noise={winfo.get('n_noise_samples')} corr_max={winfo.get('coil_corr_max_offdiag')}")
+                  f"n_noise={winfo.get('n_noise_samples')} corr_max={winfo.get('coil_corr_max_offdiag')} "
+                  f"noise_level={winfo.get('noise_level')}")
 
     # -- model ---------------------------------------------------------
     def _setup_model(self):

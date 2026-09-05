@@ -196,7 +196,7 @@ def estimate_noise_cov(kspace: torch.Tensor, mask: torch.Tensor, Z: torch.Tensor
     sel = sel & m_r & nonzero.unsqueeze(-1)
     vals = y_r[:, sel]                                                # (C, N)
     empty = {"coil_corr_max_offdiag": None, "coil_corr_mean_offdiag": None, "eig_ratio": None, "noise_level": None}
-    if vals.shape[1] < min_samples or float(vals.abs().max()) < info.zero_threshold:
+    if vals.shape[1] < min_samples or float(vals.abs().max()) < info.zero_threshold or float(vals.abs().max()) <= 0.0:
         return None, {"sigma_source": "identity", "n_noise_samples": int(vals.shape[1]), **empty}
     vals = vals.to(torch.complex128)
     Sigma = (vals @ vals.conj().T) / vals.shape[1]

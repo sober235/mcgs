@@ -108,10 +108,11 @@ def test_no_shutter_gives_empty_Z():
 
 def test_uses_only_sampled_points():
     k, m, dc, keep = _synth(ellipse=(18.0, 14.0), seed=3)
-    _, a = estimate_known_zero(k, m, ro_axis=2)
+    Za, a = estimate_known_zero(k, m, ro_axis=2)
     junk = torch.randn_like(k) * (1 - m).unsqueeze(0) * 10.0
-    _, b = estimate_known_zero(k + junk, m, ro_axis=2)
+    Zb, b = estimate_known_zero(k + junk, m, ro_axis=2)
     assert a.ellipse == b.ellipse and a.cuts == b.cuts and a.frac_z == b.frac_z
+    assert torch.equal(Za, Zb) and a.zero_threshold == b.zero_threshold and a.dc == b.dc
 
 
 def test_readout_axis_position_does_not_matter():
@@ -150,6 +151,35 @@ def test_noise_cov_from_readout_ends_recovers_sigma():
     rel = np.linalg.norm(S.numpy().astype(np.complex128) - S_true) / np.linalg.norm(S_true)
     assert rel < 0.1
     assert winfo["noise_level"] == pytest.approx(float(np.real(np.trace(S_true)) / C), rel=0.1)
+
+
+def test_noise_cov_uses_only_nonzero_lines():
+    rng = np.random.default_rng(1)
+    A = rng.normal(size=(C, C)) + 1j * rng.normal(size=(C, C))
+    S_true = (A @ A.conj().T + np.eye(C)) * 1e-4
+    noise = _corr_noise(S_true, P0 * P1 * R, seed=1).reshape(C, P0, P1, R).astype(np.complex64)
+    noise[:, :, :12, :] = 0.0                                      # padding: array columns < 12 are zero lines
+    mask = (rng.random((P0, P1)) < 0.6)[:, :, None].repeat(R, axis=2).astype(np.float32)
+    k = torch.from_numpy(noise) * torch.from_numpy(mask)
+    Z, info = estimate_known_zero(k, torch.from_numpy(mask), ro_axis=2)
+    assert info.cuts["axis1_lo"] is not None
+    S, winfo = estimate_noise_cov(k, torch.from_numpy(mask), Z, info)
+    n_nonzero_lines = int(mask[:, 12:, 0].sum())
+    assert winfo["sigma_source"] == "readout_ends" and winfo["n_noise_samples"] == n_nonzero_lines * 2 * 3
+    rel = np.linalg.norm(S.numpy().astype(np.complex128) - S_true) / np.linalg.norm(S_true)
+    assert rel < 0.1                                               # zero lines did not dilute Sigma
+
+
+def test_padding_cut_on_the_high_side():
+    k, m, dc, keep = _synth(seed=7)
+    kn, mn = k.numpy().copy(), m.numpy()
+    kn[:, :, 30:, :] = 0.0                                         # array columns >= 30 are zero lines
+    k = torch.from_numpy(kn)
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    hi = info.cuts["axis1_hi"]
+    assert hi is not None and 26 <= hi <= 29 and info.ellipse is None
+    zn = Z.numpy()
+    assert zn[:, 30:, :].all() and not zn[:, :hi + 1, :].any() and info.n_nonzero_in_z == 0
 
 
 def test_noise_cov_identity_fallback_has_uniform_keys():
