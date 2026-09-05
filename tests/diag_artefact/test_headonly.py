@@ -78,12 +78,14 @@ def test_log_kernel_matches_paired_gs_definition():
     assert np.allclose(k, _log3d_kernel(1.5, 15), atol=1e-15)
 
 
-def test_grain_ratio_orders_smooth_and_noisy(phantom):
+def test_grain_ratio_is_monotone_in_added_grain_and_scale_free(phantom):
     rng = np.random.default_rng(2)
-    smooth = ndimage.gaussian_filter(phantom, 1.0).astype(np.float32)
-    noisy = (phantom + rng.normal(0, 0.03, phantom.shape)).astype(np.float32)
-    assert grain_ratio(smooth, phantom) < 1.1  # smooth should have less or similar grain (numerical tolerance)
-    assert grain_ratio(noisy, phantom) > 1.0
+    noise = rng.normal(0, 1, phantom.shape).astype(np.float32)
+    small = (phantom + 0.01 * noise).astype(np.float32)
+    large = (phantom + 0.03 * noise).astype(np.float32)
+    n_small, n_large = grain_ratio(small, phantom), grain_ratio(large, phantom)
+    assert 1.0 < n_small < n_large                      # added i.i.d. grain raises N, monotonically
+    assert grain_ratio(large * 0.5, phantom) == pytest.approx(0.5 * n_large, rel=1e-6)   # N is linear in rec's scale
 
 
 def test_score_headonly_returns_python_floats(phantom):
