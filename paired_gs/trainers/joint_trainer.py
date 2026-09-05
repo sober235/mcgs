@@ -46,6 +46,8 @@ from torch.utils.tensorboard import SummaryWriter
 
 from data.dataset import MRIDataset
 from data.transforms import fft3c, ifft3c
+from dataclasses import asdict
+from data.known_zero import build_fit_tensors, estimate_known_zero, estimate_noise_cov, whitening_matrix
 from losses.edge_tv import edge_preserving_tv, resolve_edge_kappa, tv_magnitude
 from gaussian.joint_gaussian_model import JointGaussianModel3D
 from gaussian.tile_voxelizer import TileVoxelizer
@@ -167,6 +169,41 @@ class JointTrainer:
         self.zf_p = zf_p
         self.zf_c = zf_c
         print(f"|zf_p| max {zf_p.abs().max().item():.4f}, |zf_c| max {zf_c.abs().max().item():.4f}")
+
+        # --- Phase 1 physics levers (spec 2026-09-05 §4): known-zero region Z, noise prewhitening W.
+        # Defaults: every fit-side tensor IS the original tensor and the DC denominator is |Omega|,
+        # so a run without the switches is bit-identical to before.
+        self.mask_fit_p, self.kspace_dc_p, self.kspace_fit_p, self.csm_fit_p = self.mask_p, self.kspace_p, self.kspace_p, self.csm_p
+        self.mask_fit_c, self.kspace_dc_c, self.kspace_fit_c, self.csm_fit_c = self.mask_c, self.kspace_c, self.kspace_c, self.csm_c
+        self._dc_norm_p = max(self.mask_p.sum().item(), 1.0)   # |Omega|: never grows with Z (spec §4.1)
+        self._dc_norm_c = max(self.mask_c.sum().item(), 1.0)
+        self.physics_info: Dict[str, Any] = {}
+        prewhiten = bool(self.config.get("loss", {}).get("prewhiten", False))
+        for tag, sub in (("p", "plain"), ("c", "contrast")):
+            use_kz = bool(data_cfg[sub].get("known_zero", False))
+            if not (use_kz or prewhiten):
+                continue
+            ds = self.ds_p if tag == "p" else self.ds_c
+            y, m, S = getattr(self, f"kspace_{tag}"), getattr(self, f"mask_{tag}"), getattr(self, f"csm_{tag}")
+            Z, info = estimate_known_zero(y, m, int(ds.readout_axis))
+            W, winfo = None, {}
+            if prewhiten:
+                Sigma, winfo = estimate_noise_cov(y, m, Z, info)
+                W = whitening_matrix(Sigma) if Sigma is not None else None
+            if not use_kz:
+                Z = torch.zeros_like(m, dtype=torch.bool)
+            mask_fit, k_dc, k_fit, S_fit = build_fit_tensors(y, m, S, Z, W)
+            setattr(self, f"mask_fit_{tag}", mask_fit)
+            setattr(self, f"kspace_dc_{tag}", k_dc)
+            setattr(self, f"kspace_fit_{tag}", k_fit)
+            setattr(self, f"csm_fit_{tag}", S_fit)
+            rec = {"known_zero": use_kz, "prewhiten": bool(prewhiten and W is not None), **asdict(info), **winfo,
+                   "frac_z_used": float(Z.float().mean())}
+            self.physics_info[tag] = rec
+            print(f"[physics:{sub}] known_zero={use_kz} rho_c={info.rho_c} kro_c={info.kro_c} "
+                  f"frac_z_used={rec['frac_z_used']:.4f} n0_pe={info.n0_pe:.3e} "
+                  f"prewhiten={rec['prewhiten']} sigma_source={winfo.get('sigma_source')} "
+                  f"n_noise={winfo.get('n_noise_samples')} corr_max={winfo.get('coil_corr_max_offdiag')}")
 
     # -- model ---------------------------------------------------------
     def _setup_model(self):
@@ -426,12 +463,14 @@ class JointTrainer:
 
     # -- losses --------------------------------------------------------
     def _kspace_loss(self, vol: torch.Tensor, csm: torch.Tensor, ksp_meas: torch.Tensor,
-                     mask: torch.Tensor, freq_weight: torch.Tensor | None) -> torch.Tensor:
+                     mask: torch.Tensor, freq_weight: torch.Tensor | None,
+                     norm: float | None = None) -> torch.Tensor:
         pred_ksp = fft3c(vol.unsqueeze(0) * csm)
         diff = (pred_ksp - ksp_meas) * mask.unsqueeze(0)
         if freq_weight is not None:
             diff = diff * freq_weight.unsqueeze(0)
-        return (diff.real.pow(2) + diff.imag.pow(2)).sum() / max(mask.sum().item(), 1.0)
+        denom = norm if norm is not None else max(mask.sum().item(), 1.0)
+        return (diff.real.pow(2) + diff.imag.pow(2)).sum() / denom
 
     def _tv_loss(self, vol: torch.Tensor) -> torch.Tensor:
         return tv_magnitude(vol, self._tv_eps, self._tv_vector)
@@ -782,8 +821,8 @@ class JointTrainer:
 
             # k-space DC (plain may use a decoupled higher high-band weight = sharper plain)
             freq_w_p = self._static_freq_w_plain if self._static_freq_w_plain is not None else freq_w
-            l_dc_p = self._kspace_loss(vol_p, self.csm_p, self.kspace_p, self.mask_p, freq_w_p)
-            l_dc_c = self._kspace_loss(vol_c, self.csm_c, self.kspace_c, self.mask_c, freq_w)
+            l_dc_p = self._kspace_loss(vol_p, self.csm_fit_p, self.kspace_fit_p, self.mask_fit_p, freq_w_p, norm=self._dc_norm_p)
+            l_dc_c = self._kspace_loss(vol_c, self.csm_fit_c, self.kspace_fit_c, self.mask_fit_c, freq_w, norm=self._dc_norm_c)
             loss = l_dc_p + l_dc_c
 
             # R_geo (renamed from v1 L_tv per INF-05 / A-LOSS-DROP; PDF §1.5
@@ -953,8 +992,8 @@ class JointTrainer:
             coil = ifft3c(ksp_dc)
             return torch.sum(torch.conj(csm) * coil, dim=0)
 
-        vol_p_dc = _hard_dc(vol_p, self.csm_p, self.kspace_p, self.mask_p)
-        vol_c_dc = _hard_dc(vol_c, self.csm_c, self.kspace_c, self.mask_c)
+        vol_p_dc = _hard_dc(vol_p, self.csm_p, self.kspace_dc_p, self.mask_fit_p)
+        vol_c_dc = _hard_dc(vol_c, self.csm_c, self.kspace_dc_c, self.mask_fit_c)
 
         sio.savemat(str(out_dir / "reconstruction_plain.mat"),
                     {"reconstruction": vol_p_dc.cpu().numpy()})
