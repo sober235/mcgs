@@ -139,9 +139,11 @@ def estimate_known_zero(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int, 
 def estimate_noise_cov(kspace: torch.Tensor, mask: torch.Tensor, Z: torch.Tensor, info: KnownZeroInfo, *,
                        min_samples: int = MIN_NOISE_SAMPLES):
     """Coil noise covariance Σ (C×C) from the ACQUIRED samples inside Z (pure noise by construction).
-    Fallback (spec §4.2): the 0.1-wide sampled ring just inside the PE cliff, flagged `outer_ring`;
+    Fallback (spec §4.2): the 0.1-wide sampled ring just inside the PE cliff, flagged `outer_ring`
+    (or `outer_ring_nocliff` when no cliff was found, using the outermost sampled ring instead);
     then `identity` (caller uses W = I)."""
     m = mask > 0.5
+    Z = Z.bool()
     Cn = kspace.shape[0]
 
     def _take(sel):
@@ -151,10 +153,14 @@ def estimate_noise_cov(kspace: torch.Tensor, mask: torch.Tensor, Z: torch.Tensor
     vals, source = _take(m & Z), "known_zero"
     if vals is None:
         rho = pe_radius_map(tuple(mask.shape), info.dc, info.ro_axis, kspace.device)
-        edge = info.rho_c if info.rho_c is not None else (info.pe_profile[-1][0] + RING_WIDTH if info.pe_profile else 1.0)
-        vals, source = _take(m & (rho >= edge - 0.1) & (rho < edge)), "outer_ring"
+        if info.rho_c is not None:
+            edge, ring_source = info.rho_c, "outer_ring"
+        else:
+            edge, ring_source = float(rho[m].max()) + 1e-6, "outer_ring_nocliff"
+        vals, source = _take(m & (rho >= edge - 0.1) & (rho < edge)), ring_source
     if vals is None:
-        return None, {"sigma_source": "identity", "n_noise_samples": 0}
+        return None, {"sigma_source": "identity", "n_noise_samples": 0,
+                       "coil_corr_max_offdiag": None, "coil_corr_mean_offdiag": None, "eig_ratio": None}
     vals = vals.to(torch.complex128)
     Sigma = (vals @ vals.conj().T) / vals.shape[1]
     d = torch.sqrt(torch.diagonal(Sigma).real)
@@ -185,6 +191,7 @@ def build_fit_tensors(kspace: torch.Tensor, mask: torch.Tensor, csm: torch.Tenso
         kspace_fit = W · kspace_dc           (loss only; == kspace_dc when W is None)
         csm_fit   = W · csm                  (loss only; == csm when W is None)
     The DC-loss denominator is NOT produced here: the caller keeps |Omega| = mask.sum()."""
+    Z = Z.bool()
     mask_fit = torch.maximum(mask, Z.to(mask.dtype))
     kspace_dc = kspace * (~Z).unsqueeze(0).to(kspace.dtype)
     if W is None:

@@ -147,7 +147,7 @@ def _corr_noise(sigma_true, n, seed=0):
 def test_whitening_of_diagonal_equal_variance_is_identity():
     S = torch.eye(C, dtype=torch.complex64) * 0.3
     W = whitening_matrix(S)
-    assert torch.allclose(W, torch.eye(C, dtype=torch.complex64), atol=1e-6)
+    assert torch.equal(W, torch.eye(C, dtype=torch.complex64))
 
 
 def test_whitening_decorrelates_and_keeps_mean_variance():
@@ -188,6 +188,16 @@ def test_noise_cov_outer_ring_fallback_when_z_is_exact_zero():
     Z, info = estimate_known_zero(k, m, ro_axis=2)
     S, winfo = estimate_noise_cov(k, m, Z, info, min_samples=50)
     assert S is not None and winfo["sigma_source"] == "outer_ring"
+
+
+def test_noise_cov_no_cliff_uses_outermost_sampled_ring():
+    k, m = _synth(rho_c=None, seed=4)
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    assert info.rho_c is None and not bool(Z.any())
+    S, winfo = estimate_noise_cov(k, m, Z, info, min_samples=50)
+    assert S is not None and winfo["sigma_source"] == "outer_ring_nocliff"
+    rho = pe_radius_map(tuple(m.shape), info.dc, 2, m.device)
+    assert winfo["n_noise_samples"] == int((m.bool() & (rho >= float(rho[m.bool()].max()) + 1e-6 - 0.1)).sum())
 
 
 def test_build_fit_tensors_defaults_and_hard_dc_zero_on_Z():
