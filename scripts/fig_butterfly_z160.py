@@ -8,7 +8,8 @@ from matplotlib.patches import Rectangle
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 Z = 160; R0, R1, C0, C1 = 55, 150, 80, 185
 af12_label = sys.argv[4] if len(sys.argv) > 4 else "AF12 tvs4k_e040"
-runs = [(f"{af12_label} (net 11.83)", np.load(sys.argv[1])), ("AF10 (net 9.87)", np.load(sys.argv[2]))]
+row_label = (sys.argv[4] + " (net 11.83)") if len(sys.argv) > 4 else "AF12 (net 11.83)"
+runs = [(row_label, np.load(sys.argv[1])), ("AF10 (net 9.87)", np.load(sys.argv[2]))]
 out_prefix = sys.argv[3]
 ax_ = lambda v: np.rot90(np.abs(v[:, :, Z]))
 def psnr(a, g, peak): return 20 * np.log10(peak / np.sqrt(np.mean((a - g) ** 2)))
