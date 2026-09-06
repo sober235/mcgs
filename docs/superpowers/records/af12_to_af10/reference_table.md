@@ -9,6 +9,8 @@
 | af10_joint_edgetv_e040_rerun20260904 | T1 | 34.605 | 0.9152 | 0.1535 | 0.952 | 38.945 | 0.9124 | 0.7314 | 0.6353 |
 | af10_joint_edgetv_e040_rerun20260904 | FLAIR | 34.401 | 0.9352 | 0.1222 | 0.949 | 38.867 | 0.9162 | 0.6309 | 0.6298 |
 
+`tvs4k_e040`'s e_unobs ("—" above) is the AF12 gating baseline used by `gates.json`: T1 0.6488, FLAIR 0.6444, from `scores/tvs4k_e040_kspace.json` (checkpoint replay of `results_arc/tvs4k_e040/tvs4k_e040/checkpoints/latest.pth`, iteration 4000; `best.pth` in the same directory holds the same iteration 4000, confirmed by reading both checkpoints' `iter` field).
+
 ## Gates (from gates.json)
 
 - **T1**: head_psnr ≥ 34.605 − 0.0050; head_ssim ≥ 0.9152 − 0.0005; head_hfen ≤ 0.1535 + 0.0010; e_unobs ≤ 0.6488; N ≤ 1.00
