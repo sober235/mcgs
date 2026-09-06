@@ -2131,3 +2131,207 @@ Copy `results_arc/kz_pw_smoke10b_score.json` to `docs/superpowers/records/af12_t
 git add scripts/kz_oracle_check.py docs/superpowers/records/af12_to_af10/known_zero_diagnostics.md docs/superpowers/records/af12_to_af10/scores/kz_pw_smoke10b_score.json
 git commit -m "records: known-zero region on the real data - estimator diagnostics and oracle precision/recall"
 ```
+
+### Task 11: Significance-gated expansion (R1'), oracle energy metrics, integration re-check and record (supersedes Task 10 steps 1–3)
+
+**Why.** Task 10's run on FLAIR: the fit (123, 88) is right, but 36 sampled nonzero lines lie outside it (a cap over rows 1–19 centred ~35 lines left of the DC, and a tighter right boundary), so the safety expansion grew the ellipse to 1.185×, Z fell to 22.6% of the plane (true 39.2%) and 75 truly-nonzero lines were still inside Z. Those outlier lines carry a median energy of 2.6e-5 × the noise floor; the 75 false positives carried 9.4e-9 of the total energy. Gating the expansion by the noise floor measured in R2 (prototype, scored against the oracle) gives: expansion 1.0, Z 39.6%, recall 0.959, and every one of the 1146 false-positive lines below the noise floor (max 0.96×, excess-over-noise energy exactly 0). Forcing zeros on noise-only lines cannot raise the expected error (the model cannot predict noise: E|v−n|² ≥ E|n|²). T1 is unchanged (precision and recall 1.000).
+
+**Files:**
+- Modify: `paired_gs/data/known_zero.py`, `tests/test_known_zero.py`
+- Replace: `scripts/kz_oracle_check.py` (Task 10 left an untracked draft; overwrite it)
+- Create: `docs/superpowers/records/af12_to_af10/known_zero_diagnostics.md`, `docs/superpowers/records/af12_to_af10/scores/kz_pw_smoke10c_score.json`
+
+**Interfaces:** `estimate_known_zero(kspace, mask, ro_axis)` (unchanged signature) now computes the readout-end noise floor internally; `KnownZeroInfo` gains `noise_level_used: float|None, n_outliers: int, n_significant_outliers: int` (appended after `frac_sampled_in_z`); new constant `SIG_NOISE = 3.0`; new helper `_readout_end_samples(kspace, mask, ro_axis, zero_threshold, end_frac) -> Tensor (C, N)` shared with `estimate_noise_cov`.
+
+- [ ] **Step 1: Tests first — extend `_synth` and add two tests to `tests/test_known_zero.py`**
+
+Extend the `_synth` signature with `extra_lines=(), extra_amp=0.0` and, right after `k = k * fac[None, :, :, None]`, add:
+
+```python
+    for (i, j) in extra_lines:                                    # sampled lines outside the support with given content
+        k[:, i, j, :] = (extra_amp * (rng.normal(size=(C, R)) + 1j * rng.normal(size=(C, R))) / np.sqrt(2)).astype(np.complex64)
+```
+and, right after `m2[dc[0] - 4:dc[0] + 4, dc[1] - 4:dc[1] + 4] = True`, add:
+```python
+    for (i, j) in extra_lines:
+        m2[i, j] = True
+```
+
+Then add (after `test_no_shutter_gives_empty_Z`):
+
+```python
+OUTSIDE = [(24 + 20, 24), (24 - 20, 24), (24, 24 + 16), (24, 24 - 16)]    # just outside the (18, 14) ellipse about dc=(24, 24)
+
+
+def test_expansion_ignores_noise_level_outliers():
+    k, m, dc, keep = _synth(ellipse=(18.0, 14.0), extra_lines=OUTSIDE, extra_amp=2e-3)   # pure noise at the fixture's noise level
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    assert info.noise_level_used is not None and info.n_outliers >= 4 and info.n_significant_outliers == 0
+    assert info.ellipse is not None and info.ellipse[2] == 1.0
+    zn = Z.numpy()[:, :, 0]
+    for (i, j) in OUTSIDE:
+        assert not zn[i, j]                                        # a sampled nonzero line is never zeroed
+    assert zn[24 + 22, 24] and zn[24 - 22, 24] and zn[24, 24 + 18]  # lines further out are still in Z
+    assert info.n_nonzero_in_z == 0
+
+
+def test_expansion_respects_significant_outliers():
+    k, m, dc, keep = _synth(ellipse=(18.0, 14.0), extra_lines=OUTSIDE, extra_amp=0.2)    # signal 100x the noise
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    assert info.n_significant_outliers == 4 and info.ellipse is not None
+    a, b, s = info.ellipse
+    assert s > 1.0
+    for (i, j) in OUTSIDE:
+        assert ((i - 24) / (a * s)) ** 2 + ((j - 24) / (b * s)) ** 2 < 1.0   # the expanded ellipse covers them
+    assert info.n_nonzero_in_z == 0
+```
+
+Run: `PYTHONNOUSERSITE=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -m pytest tests/test_known_zero.py -v` → the two new tests fail (`AttributeError: noise_level_used` / unexpected keyword); the other 15 pass.
+
+- [ ] **Step 2: Implement R1' in `paired_gs/data/known_zero.py`**
+
+Constants (add after `READOUT_END_FRAC`):
+```python
+SIG_NOISE = 3.0             # an outlier line drives the safety expansion only if its mean per-(coil,sample) energy
+                            # exceeds SIG_NOISE x the readout-end noise floor: a ~100-sigma detection on a ~3000-sample
+                            # mean, not a quality knob. Without a noise floor every outlier counts.
+```
+
+`KnownZeroInfo`: append three fields at the end:
+```python
+    noise_level_used: Optional[float]   # readout-end noise floor (mean |y|^2 per coil sample) used for the gate, or None
+    n_outliers: int                     # sampled nonzero lines outside the fitted (unexpanded) ellipse
+    n_significant_outliers: int         # ... of which above SIG_NOISE x the noise floor
+```
+
+`_pe_lines` returns a fourth item, the sampled readout count per line:
+```python
+    return a_r.amax(-1), e_r.sum(-1), m_r.any(-1), m_r.sum(-1)
+```
+
+New helper (place before `estimate_known_zero`):
+```python
+def _readout_end_samples(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int, zero_threshold: float,
+                         end_frac: float = READOUT_END_FRAC) -> torch.Tensor:
+    """(C, N) samples from the outer `end_frac` of the readout indices at both ends of the sampled NONZERO lines —
+    the noise-floor region on this data (appendix A). Shared by the Z gate (R1') and Σ (R2)."""
+    m_r = torch.movedim(mask > 0.5, ro_axis, -1)
+    y_r = torch.movedim(kspace, ro_axis + 1, -1)
+    Rn = m_r.shape[-1]
+    n_end = max(int(round(end_frac * Rn)), 1)
+    a_line = (y_r.abs().amax(0) * m_r).amax(-1)
+    nonzero = m_r.any(-1) & (a_line >= zero_threshold)
+    sel = torch.zeros_like(m_r)
+    sel[..., :n_end] = True
+    sel[..., Rn - n_end:] = True
+    sel = sel & m_r & nonzero.unsqueeze(-1)
+    return y_r[:, sel]
+```
+
+`_fit_ellipse` gains an `is_significant` argument and uses it in the expansion loop (the misclassification fit is unchanged):
+```python
+def _fit_ellipse(di, dj, is_nonzero, is_target, is_significant, half0, half1):
+    ...  # identical up to the expansion loop, then:
+    expand = 1.0
+    while expand <= EXPAND_MAX:
+        outside = di2 / (a * expand) ** 2 + dj2 / (b * expand) ** 2 >= 1.0
+        if not bool((outside & is_significant).any()):
+            break
+        expand += EXPAND_STEP
+    else:
+        return None
+    if int((outside & is_target).sum()) == 0:
+        return None
+    return (a, b, float(round(expand, 6)))
+```
+(Docstring: "expanded until no SIGNIFICANT sampled nonzero line lies outside it".)
+
+`estimate_known_zero`: after computing `thr`, `zero`, `nonzero`, and before the ellipse fit:
+```python
+    amax, energy, sampled, n_ro = _pe_lines(kspace, mask, ro_axis)
+    ...
+    vals = _readout_end_samples(kspace, mask, ro_axis, thr)
+    noise_level = float((vals.abs() ** 2).mean()) if (vals.shape[1] >= MIN_NOISE_SAMPLES and float(vals.abs().max()) > 0.0) else None
+    e_mean = (energy / (kspace.shape[0] * n_ro.clamp_min(1))).cpu().numpy()      # per (coil, sample), sampled entries only
+    significant = nonzero & (e_mean > SIG_NOISE * noise_level) if noise_level is not None else nonzero.copy()
+    ...
+    si, sj = np.nonzero(sampled_np)
+    is_nz, is_t, is_sig = nonzero[si, sj], (zero & ~z_pe)[si, sj], significant[si, sj]
+    ell = _fit_ellipse(si - dc0, sj - dc1, is_nz, is_t, is_sig, P0 / 2, P1 / 2)
+    n_out = n_sig = 0
+    if ell is not None:
+        a, b, s = ell
+        out = (((si - dc0) / a) ** 2 + ((sj - dc1) / b) ** 2 >= 1.0) & is_nz          # relative to the UNEXPANDED fit
+        n_out, n_sig = int(out.sum()), int((out & is_sig).sum())
+        ii, jj = np.meshgrid(np.arange(P0) - dc0, np.arange(P1) - dc1, indexing="ij")
+        z_pe |= (ii / (a * s)) ** 2 + (jj / (b * s)) ** 2 >= 1.0
+```
+and fill the three new info fields (`noise_level_used=noise_level, n_outliers=n_out, n_significant_outliers=n_sig`).
+
+`estimate_noise_cov`: replace its selection block by `vals = _readout_end_samples(kspace, mask, info.ro_axis, info.zero_threshold, end_frac)`; everything after (the guards, Σ, winfo) unchanged.
+
+Run the test file → 17 passed, pristine; also `tests/test_tv_charbonnier.py` and `tests/diag_artefact` once. Commit the two files:
+`fix(data): gate the ellipse safety expansion by the readout-end noise floor (appendix A, R1')` with a body stating the FLAIR numbers above (expansion 1.185 → 1.0, recall 0.575 → 0.959, all false positives below the noise floor).
+
+- [ ] **Step 3: Update the trainer print** in `paired_gs/trainers/joint_trainer.py` (`[physics:{sub}]` line): append `f"noise_level_used={info.noise_level_used} outliers={info.n_outliers}/{info.n_significant_outliers} "` before the `prewhiten=` field. Include this file in the same commit as Step 2 (it is a print only).
+
+- [ ] **Step 4: Replace `scripts/kz_oracle_check.py`** with a version that also reports energy metrics (ORACLE, never part of the fit):
+
+```python
+#!/usr/bin/env python3
+"""ORACLE diagnostic (uses the full k-space; never part of the fit): grades the estimated Z per contrast for the
+winner_v2_edgeTV data config — line precision/recall against the true numerically-zero lines, and the ENERGY the
+false positives carry: total, and the excess above the readout-end noise floor (a false positive at or below the
+noise floor is harmless: the model cannot predict noise, so forcing a zero there never raises the expected error)."""
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+import torch
+import yaml
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "paired_gs"))
+from trainers.joint_trainer import _load_dataset                       # noqa: E402
+from data.private_paths import resolve_subject_paths                   # noqa: E402
+from data.known_zero import ZERO_REL, estimate_known_zero, estimate_noise_cov   # noqa: E402
+
+cfg = yaml.safe_load(open(ROOT / "configs/winner_v2_edgeTV.yaml"))
+out = {}
+for sub in ("plain", "contrast"):
+    d = dict(cfg["data"][sub])
+    for k in ("data_path", "csm_path", "mask_path"):
+        d[k] = resolve_subject_paths(d[k])
+    ds = _load_dataset(d)
+    y, m, ro = ds.kspace_undersampled_complex, ds.mask, int(ds.readout_axis)
+    Z, info = estimate_known_zero(y, m, ro)
+    _, winfo = estimate_noise_cov(y, m, Z, info)
+    nl = winfo["noise_level"]
+    Cn, Rn = y.shape[0], m.shape[ro]
+    a_full = torch.movedim(ds.kspace_multicoil.abs().amax(0), ro, -1)
+    true_zero = (a_full.amax(-1) < ZERO_REL * float(a_full.max())).numpy()                 # ORACLE
+    e_line = torch.movedim((ds.kspace_multicoil.abs() ** 2).sum(0), ro, -1).sum(-1).numpy()  # ORACLE line energies
+    z_pe = torch.movedim(Z, ro, -1)[:, :, 0].numpy()
+    tp = int((z_pe & true_zero).sum()); fp_mask = z_pe & ~true_zero; fp = int(fp_mask.sum()); fn = int((~z_pe & true_zero).sum())
+    E = float(e_line.sum()); fp_e = e_line[fp_mask]
+    excess = float(np.maximum(fp_e - (nl * Cn * Rn if nl else 0.0), 0.0).sum()) if fp else 0.0
+    out[sub] = {"name": d.get("name", sub), "precision": tp / max(tp + fp, 1), "recall": tp / max(tp + fn, 1),
+                "false_positive_lines": fp, "fp_energy_fraction": float(fp_e.sum() / E) if fp else 0.0,
+                "fp_excess_over_noise_fraction": excess / E,
+                "max_fp_line_energy_over_noise": float(fp_e.max() / (nl * Cn * Rn)) if (fp and nl) else 0.0,
+                "true_zero_fraction": float(true_zero.mean()), "frac_z": info.frac_z, "cuts": info.cuts,
+                "ellipse": info.ellipse, "noise_level": nl, "n_outliers": info.n_outliers,
+                "n_significant_outliers": info.n_significant_outliers, "n_nonzero_in_z": info.n_nonzero_in_z}
+    print(sub, json.dumps(out[sub]), flush=True)
+Path(ROOT / "results_arc" / "kz_oracle_check.json").write_text(json.dumps(out, indent=2))
+```
+Run it (CPU, ~4 min). **Acceptance (stop with BLOCKED otherwise):** both contrasts `n_nonzero_in_z == 0` and `fp_excess_over_noise_fraction ≤ 1e-5`; T1 recall ≥ 0.99 and precision ≥ 0.999; FLAIR recall ≥ 0.90 and `max_fp_line_energy_over_noise ≤ 1.5`.
+
+- [ ] **Step 5: Integration run (10 iterations, idle GPU)** exactly as Task 10 Step 1 but `--exp kz_pw_smoke10c`. Expected: T1 `cuts.axis1_lo` 44, ellipse None, frac_z_used 0.19–0.21; FLAIR ellipse ≈ (123 ± 2, 88 ± 2, 1.0), frac_z_used 0.37–0.41, `n_significant_outliers == 0`; both `n_nonzero_in_z == 0`, `sigma_source == "readout_ends"`, `kz_energy == 0.0`.
+
+- [ ] **Step 6: Record and commit.** Copy `results_arc/kz_pw_smoke10c_score.json` to `docs/superpowers/records/af12_to_af10/scores/`. Write `docs/superpowers/records/af12_to_af10/known_zero_diagnostics.md`: the two `[physics:...]` lines, a table of the oracle metrics per contrast (labelled ORACLE), the history (old rule T1 rho_c 1.15 / FLAIR None; first shape estimator FLAIR expand 1.185 / recall 0.575; R1' result), and the figure paths. Commit:
+```bash
+git add scripts/kz_oracle_check.py docs/superpowers/records/af12_to_af10/known_zero_diagnostics.md docs/superpowers/records/af12_to_af10/scores/kz_pw_smoke10c_score.json
+git commit -m "records: known-zero region on the real data - R1' diagnostics and oracle precision/recall/energy"
+```
