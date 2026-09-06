@@ -1,0 +1,111 @@
+# ============================================================================
+# af12_kz_pwc.yaml — pins Phase 2's base1 (spec docs/superpowers/specs/2026-09-05-af12-to-af10-quality-design.md
+# §4.5; record docs/superpowers/records/af12_to_af10/2026-09-06-phase1-physics.md, "Addendum: af12_kz_pwc").
+# ----------------------------------------------------------------------------
+# Copy of configs/winner_v2_edgeTV.yaml (AF12 T1+FLAIR pair, same masks/warm-start) with the
+# Phase 1 physics levers baked in: known-zero region Z on BOTH contrasts (data.plain.known_zero,
+# data.contrast.known_zero), coil-noise prewhitening W on FLAIR (contrast) only
+# (data.contrast.prewhiten) — T1 stays unprewhitened, per the base1 addendum's disqualification
+# of full prewhitening (T1 head_hfen regressed beyond tolerance under it). Z (rule R1/R1',
+# appendix A) is estimated from the acquired lines only; W (rule R2) comes from the readout-end
+# noise floor.
+#
+# loss.tv_weight / tv_eps / edge_tv_kappa_q below (0.10 / 0.04 / 0.85) are the frozen working
+# point of the af12_kz_pwc run. IMPORTANT: arc/cycle.py's build_cfg() unconditionally overwrites
+# loss.tv_weight, loss.tv_eps, loss.kspace_high_weight and training.shared_warmup_iters from the
+# --lambda_geo/--tv_eps/--kspace_high/--warmup CLI flags (defaults 0.03/0.0/1.0/500), and only
+# touches edge_tv_kappa_q/edge_tv_wfloor when --edge_tv is passed (falling back to ITS OWN
+# --edge_tv_kappa_q/--edge_tv_wfloor CLI defaults, 0.75/0.1, if those aren't also given) — so
+# --base_cfg alone does NOT reproduce these values. known_zero/prewhiten below ARE reproduced by
+# --base_cfg alone (the CLI only ever ORs them to True, never resets to False). To reproduce the
+# frozen point exactly, pass the same flags as the record's addendum command:
+#   --iters 4000 --lambda_geo 0.10 --warmup 500 --max_radius 20 --kspace_high 2.2 \
+#   --edge_tv --edge_tv_kappa_q 0.85 --edge_tv_wfloor 0.10 --tv_eps 0.04 \
+#   --base_cfg configs/af12_kz_pwc.yaml --save_volumes
+# (--known_zero / --prewhiten_only contrast are redundant with this file but harmless.)
+#
+# The `data.*.name` keys are the ONLY thing that make a pair "T1/FLAIR" — the code is
+# contrast-agnostic. To reconstruct a different dual-contrast pair, copy configs/pair_template.yaml
+# instead and fill in your own paths/names.
+#
+# NOTE: data/CSM/mask/warm-start are large (GB) and are NOT bundled in the repo.
+# The paths below point at the canonical amax locations. On another machine,
+# regenerate them (scripts/estimate_csm.py, scripts/make_mask.py) or copy them
+# over, then edit these paths. See README "Bring your own dual-contrast pair".
+# ============================================================================
+data:
+  plain:
+    name: T1                       # <-- display/log label for the high-SNR guide channel
+    acceleration_factor: 12
+    data_path: /data1/data1_congcong/data/3D/T2_csm_ksp_n4_mat/Train_3dBrain_huangyuwei_20230705-160927-1451_161015_T1_trainer.mat
+    csm_path:  /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/csm_espirit/csm_espirit_T1.mat
+    mask_path: /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse_ALIGNED.mat
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [0, 1]             # transverse PE plane (house convention)
+    readout_axis: 2                # S-I fully sampled readout
+    presampled: false
+    skip_readout_check: true
+    known_zero: true                # Z estimated from acquired lines only (rule R1/R1', appendix A)
+  contrast:
+    name: FLAIR                    # <-- display/log label for the guided channel
+    acceleration_factor: 12
+    data_path: /data1/data1_congcong/data/3D/T2_csm_ksp_n4_mat/Train_3dBrain_huangyuwei_20230705-160927-1451_161015_FLAIR_trainer.mat
+    csm_path:  /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/csm_espirit/csm_espirit_FLAIR.mat
+    mask_path: /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/mask/mask3d_vdpois_af12_transverse_ALIGNED.mat
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [0, 1]
+    readout_axis: 2
+    presampled: false
+    skip_readout_check: true
+    known_zero: true                # Z estimated from acquired lines only (rule R1/R1', appendix A)
+    prewhiten: true                  # W (rule R2) applied to FLAIR only, per the base1 addendum
+gaussian:
+  density_lr: 0.015
+  init_scale: 0.008
+  initial_num_points: 200000
+  position_lr: 0.0003
+  rotation_lr: 0.0003
+  scale_lr: 0.002
+  # warm-start checkpoint (dual-warm 576902 Gaussians). Large; bring-your-own.
+  warm_start_checkpoint: /data0/congcong/code/GS/3DGS/GS_TMI/3DGS/3dgsVC/results_dualwarm_v2_t1_flairTV5/checkpoints/latest.pth
+hardware:
+  device: cuda:0
+loss:
+  loss_type: l2
+  tv_weight: 0.10                  # frozen working point (see header note on CLI override)
+  tv_eps: 0.04                     # Charbonnier eps; frozen working point (see header note)
+  kspace_freq_adaptive: true
+  kspace_center_fraction: 0.05
+  kspace_center_weight: 0.3
+  kspace_mid_weight: 1.0
+  kspace_high_weight: 2.2          # sharpness lever (opposes TV; 2.0-2.2)
+  lambda_diff: 0.01                # ignored by v2 trainer (posterior replaces it)
+  lambda_enh: 0                    # ignored by v2 trainer
+  edge_tv: true                  # replace isotropic _tv_loss with edge-weighted TV
+  edge_tv_kappa_q: 0.85          # frozen working point (see header note on CLI override)
+  edge_tv_wfloor: 0.1            # residual edge smoothing (damps Gibbs ringing)
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+output:
+  exp_name: af12_kz_pwc
+  output_dir: results_arc/af12_kz_pwc
+training:
+  max_iterations: 4000
+  shared_warmup_iters: 500
+  eval_every: 1000
+  log_every: 50
+  save_every: 1000
+  seed: 42
+  max_grad_norm: 1.0
+  lr_scheduler:
+    type: exponential
+    gamma: 0.9995
+voxelizer:
+  max_radius: 20
+  tile_size: 8

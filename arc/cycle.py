@@ -57,6 +57,8 @@ ap.add_argument("--known_zero", action="store_true")            # data.*.known_z
 ap.add_argument("--prewhiten", action="store_true")             # loss.prewhiten: coil-noise whitening on the fit side only (§4.2)
 ap.add_argument("--prewhiten_only", choices=["plain", "contrast"], default=None)  # data.<contrast>.prewhiten: per-contrast override (Task 12)
 args = ap.parse_args()
+if args.prewhiten and args.prewhiten_only:
+    ap.error("--prewhiten and --prewhiten_only are mutually exclusive (together they silently whiten both contrasts)")
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
@@ -212,12 +214,16 @@ def score_contrast(tr, which, dev):
         k_model = fft3c(csm * x.unsqueeze(0))
         y_full = ds.kspace_multicoil.to(dev)
         unobserved = (1.0 - m).unsqueeze(0)
+        z = (mf - m).clamp_min(0.0).unsqueeze(0)                       # Z = fit mask minus acquired mask
         unobserved_error = ((k_model - y_full) * unobserved).abs().square().sum()
         unobserved_energy = (y_full * unobserved).abs().square().sum().clamp_min(1e-12)
         nmse_unobs = float(unobserved_error / unobserved_energy)
         e_unobs = float(torch.sqrt(unobserved_error / unobserved_energy))
+        unobs_x = unobserved * (1.0 - z)                                 # unobserved & ~Z (excludes the known-zero region)
+        unobs_error_xz = ((k_model - y_full) * unobs_x).abs().square().sum()
+        unobs_energy_xz = (y_full * unobs_x).abs().square().sum().clamp_min(1e-12)
+        e_unobs_excl_z = float(torch.sqrt(unobs_error_xz / unobs_energy_xz))    # e_unobs restricted to (1-m) & ~Z; == e_unobs when Z is empty
         k_dc = mf.unsqueeze(0) * y_dc + (1.0 - mf).unsqueeze(0) * k_model
-        z = (mf - m).clamp_min(0.0).unsqueeze(0)                       # Z = fit mask minus acquired mask
         kz_energy = float((k_dc * z).abs().square().sum())              # must be 0.0 whenever Z is non-empty
         x_dc = (ifft3c(k_dc) * csm.conj()).sum(0)
         met = evaluate_reconstruction(x_dc, gt, compute_extended=False)
@@ -232,7 +238,7 @@ def score_contrast(tr, which, dev):
     comp = psnr + 25.0 * ssim - 60.0 * nmse - 25.0 * hf - 40.0 * max(0.0, 1.0 - sr) - 200.0 * gr
     beat = (ssim >= float(mz["ssim"])) and (nmse <= float(mz["nmse"])) and (hf <= zf_hf)
     return dict(psnr=psnr, ssim=ssim, nmse=nmse, hfen=hf, sharp=sr, grain=gr,
-                e_unobs=e_unobs, nmse_unobs=nmse_unobs, comp=comp, beat=beat,
+                e_unobs=e_unobs, e_unobs_excl_z=e_unobs_excl_z, nmse_unobs=nmse_unobs, comp=comp, beat=beat,
                 zf=(float(mz["psnr"]), float(mz["ssim"]), float(mz["nmse"]), zf_hf),
                 kz_energy=kz_energy, physics=tr.physics_info.get(tag, {}), **ho)
 
@@ -260,11 +266,11 @@ def main():
     npts = tr.model.num_points
 
     log(f"{name_p:5s} psnr={sp['psnr']:.3f} ssim={sp['ssim']:.4f} nmse={sp['nmse']:.4f} hfen={sp['hfen']:.4f} "
-        f"e_unobs={sp['e_unobs']:.4f} head_psnr={sp['head_psnr']:.3f} head_ssim={sp['head_ssim']:.4f} "
+        f"e_unobs={sp['e_unobs']:.4f} e_unobs_xz={sp['e_unobs_excl_z']:.4f} head_psnr={sp['head_psnr']:.3f} head_ssim={sp['head_ssim']:.4f} "
         f"head_hfen={sp['head_hfen']:.4f} N={sp['grain_ratio']:.3f} kz_energy={sp['kz_energy']:.3e} "
         f"sharp={sp['sharp']:.3f} grain={sp['grain']:.4f} comp={sp['comp']:.3f} beat={sp['beat']}")
     log(f"{name_c:5s} psnr={sc['psnr']:.3f} ssim={sc['ssim']:.4f} nmse={sc['nmse']:.4f} hfen={sc['hfen']:.4f} "
-        f"e_unobs={sc['e_unobs']:.4f} head_psnr={sc['head_psnr']:.3f} head_ssim={sc['head_ssim']:.4f} "
+        f"e_unobs={sc['e_unobs']:.4f} e_unobs_xz={sc['e_unobs_excl_z']:.4f} head_psnr={sc['head_psnr']:.3f} head_ssim={sc['head_ssim']:.4f} "
         f"head_hfen={sc['head_hfen']:.4f} N={sc['grain_ratio']:.3f} kz_energy={sc['kz_energy']:.3e} "
         f"sharp={sc['sharp']:.3f} grain={sc['grain']:.4f} comp={sc['comp']:.3f} beat={sc['beat']}")
     log(f"SCORE combined={combined:.3f} both_beat_zf={both_beat} N={npts} vram_gb={vram:.1f} "

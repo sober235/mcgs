@@ -22,6 +22,8 @@ from typing import Optional
 import numpy as np
 import torch
 
+from data.transforms import fft3c, ifft3c
+
 ZERO_REL = 1e-10            # a sampled line is numerically zero if max|y| over coils & readout < ZERO_REL * global max
 COARSE_STEP_PX = 4.0        # ellipse semi-axis grid, coarse stage
 GRID_STEP_PX = 0.5          # ellipse semi-axis grid, fine stage (±COARSE_STEP_PX around the coarse optimum)
@@ -156,7 +158,7 @@ def _readout_end_samples(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int,
     Rn = m_r.shape[-1]
     n_end = max(int(round(end_frac * Rn)), 1)
     a_line = (y_r.abs().amax(0) * m_r).amax(-1)
-    nonzero = m_r.any(-1) & (a_line >= zero_threshold)
+    nonzero = m_r.any(-1) & (a_line >= zero_threshold)      # must classify identically to estimate_known_zero's nonzero
     sel = torch.zeros_like(m_r)
     sel[..., :n_end] = True
     sel[..., Rn - n_end:] = True
@@ -260,3 +262,11 @@ def build_fit_tensors(kspace: torch.Tensor, mask: torch.Tensor, csm: torch.Tenso
     kspace_fit = torch.einsum("ij,jdhw->idhw", Wk, kspace_dc)
     csm_fit = torch.einsum("ij,jdhw->idhw", W.to(csm.dtype), csm)
     return mask_fit, kspace_dc, kspace_fit, csm_fit
+
+
+def hard_dc_combine(vol: torch.Tensor, csm: torch.Tensor, ksp_meas: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    """Hard data consistency then conjugate-SENSE combine: k = F(csm·vol)·(1 − mask) + ksp_meas; x = Σ_c conj(csm_c)·F⁻¹(k_c).
+    With mask = mask_fit (= mask ∪ Z) and ksp_meas = kspace_dc (zeroed on Z) the output k-space is exactly zero on Z."""
+    pred = fft3c(vol.unsqueeze(0) * csm)
+    k = pred * (1 - mask.unsqueeze(0)) + ksp_meas
+    return torch.sum(torch.conj(csm) * ifft3c(k), dim=0)

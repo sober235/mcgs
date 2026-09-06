@@ -266,3 +266,18 @@ def test_build_fit_tensors_with_identity_W_is_exact():
     mask_fit, k_dc, k_fit, csm_fit = build_fit_tensors(k, m, csm, Z, W)
     assert torch.equal(mask_fit, m) and torch.equal(k_dc, k)
     assert torch.allclose(k_fit, k) and torch.allclose(csm_fit, csm)
+
+
+def test_hard_dc_combine_is_zero_on_Z_and_keeps_measured_samples():
+    from data.known_zero import hard_dc_combine
+    from data.transforms import fft3c
+    k, m, dc, keep = _synth(cut_lo1=8, ellipse=(20.0, 22.0), seed=2)
+    csm = torch.randn(C, *m.shape, dtype=torch.complex64)
+    Z, _ = estimate_known_zero(k, m, ro_axis=2)
+    mask_fit, k_dc, _, _ = build_fit_tensors(k, m, csm, Z, None)
+    vol = torch.randn(*m.shape, dtype=torch.complex64)
+    x = hard_dc_combine(vol, csm, k_dc, mask_fit)
+    assert x.shape == tuple(m.shape) and x.dtype == torch.complex64
+    k_out = fft3c(vol.unsqueeze(0) * csm) * (1 - mask_fit.unsqueeze(0)) + k_dc      # the k-space the helper combined
+    assert float(k_out[:, Z].abs().max()) == 0.0
+    assert torch.equal(k_out[:, (m > 0.5) & ~Z], k[:, (m > 0.5) & ~Z])

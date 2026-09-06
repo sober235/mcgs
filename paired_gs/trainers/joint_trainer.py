@@ -47,7 +47,7 @@ from torch.utils.tensorboard import SummaryWriter
 from data.dataset import MRIDataset
 from data.transforms import fft3c, ifft3c
 from dataclasses import asdict
-from data.known_zero import build_fit_tensors, estimate_known_zero, estimate_noise_cov, whitening_matrix
+from data.known_zero import build_fit_tensors, estimate_known_zero, estimate_noise_cov, hard_dc_combine, whitening_matrix
 from losses.edge_tv import edge_preserving_tv, resolve_edge_kappa, tv_magnitude
 from gaussian.joint_gaussian_model import JointGaussianModel3D
 from gaussian.tile_voxelizer import TileVoxelizer
@@ -989,14 +989,8 @@ class JointTrainer:
         vol_c = self._render("contrast")
 
         # hard data consistency: replace measured ksp at sampled locations
-        def _hard_dc(vol, csm, ksp_meas, mask):
-            pred_ksp = fft3c(vol.unsqueeze(0) * csm)
-            ksp_dc = pred_ksp * (1 - mask.unsqueeze(0)) + ksp_meas
-            coil = ifft3c(ksp_dc)
-            return torch.sum(torch.conj(csm) * coil, dim=0)
-
-        vol_p_dc = _hard_dc(vol_p, self.csm_p, self.kspace_dc_p, self.mask_fit_p)
-        vol_c_dc = _hard_dc(vol_c, self.csm_c, self.kspace_dc_c, self.mask_fit_c)
+        vol_p_dc = hard_dc_combine(vol_p, self.csm_p, self.kspace_dc_p, self.mask_fit_p)
+        vol_c_dc = hard_dc_combine(vol_c, self.csm_c, self.kspace_dc_c, self.mask_fit_c)
 
         sio.savemat(str(out_dir / "reconstruction_plain.mat"),
                     {"reconstruction": vol_p_dc.cpu().numpy()})
