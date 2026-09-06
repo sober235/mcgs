@@ -2335,3 +2335,17 @@ Run it (CPU, ~4 min). **Acceptance (stop with BLOCKED otherwise):** both contras
 git add scripts/kz_oracle_check.py docs/superpowers/records/af12_to_af10/known_zero_diagnostics.md docs/superpowers/records/af12_to_af10/scores/kz_pw_smoke10c_score.json
 git commit -m "records: known-zero region on the real data - R1' diagnostics and oracle precision/recall/energy"
 ```
+
+### Task 12: Per-contrast prewhitening and the `af12_kz_pwc` run (Phase 1 addendum)
+
+**Why.** Phase 1 showed prewhitening is a per-contrast lever: FLAIR +0.36 dB head-only on top of Z (34.341, within 0.055 dB of the AF10 gate), T1 −0.08 dB with a head_hfen regression beyond tolerance. The gates are per contrast, so apply W where it helps: Z on both contrasts, W on FLAIR only.
+
+**Files:**
+- Modify: `paired_gs/trainers/joint_trainer.py` (`_setup_data`: per-contrast switch), `arc/cycle.py` (CLI)
+- Create: `docs/superpowers/records/af12_to_af10/scores/af12_kz_pwc_score.json`, `.../af12_kz_pwc_verdict.json`, figures `docs/figures/af12_to_af10/af12_kz_pwc*`, an addendum section in `docs/superpowers/records/af12_to_af10/2026-09-06-phase1-physics.md`
+
+- [ ] **Step 1: Per-contrast switch (defaults unchanged).** In `_setup_data`, replace the global `prewhiten = bool(self.config.get("loss", {}).get("prewhiten", False))` by, inside the loop, `use_pw = bool(data_cfg[sub].get("prewhiten", self.config.get("loss", {}).get("prewhiten", False)))` and use `use_pw` wherever `prewhiten` was used for that contrast (the `if not (use_kz or use_pw): continue`, the `if use_pw:` Σ block, the `rec["prewhiten"]`). In `arc/cycle.py` add `ap.add_argument("--prewhiten_only", choices=["plain", "contrast"], default=None)` and in `build_cfg`: `if args.prewhiten_only: cfg["data"][args.prewhiten_only]["prewhiten"] = True` (leave `--prewhiten` = both as is); record `prewhiten_only` in the JSON row. Regression: with no switches the iter-1 loss must equal `regression_anchor.txt` (10-iteration run on an idle GPU, as Task 7 Step 4). Commit: `feat(trainer): per-contrast prewhitening switch (data.<contrast>.prewhiten, --prewhiten_only)`.
+
+- [ ] **Step 2: Run** `af12_kz_pwc` with the Task 8 COMMON flags plus `--known_zero --prewhiten_only contrast` on an idle GPU (~1 h, same bounded-wait pattern). Expected: T1 within tolerance of `af12_kz` (head_psnr ≥ 34.277 − 0.005, head_hfen ≤ 0.1671 + 0.001), FLAIR within tolerance of `af12_kz_pw` (head_psnr ≥ 34.341 − 0.005).
+
+- [ ] **Step 3: Gates, figures, decision, record.** As Task 8 Steps 2–5 for this one run; `base1` rule (spec §4.5) re-applied over the three runs: FLAIR gates passed → tie: FLAIR e_unobs → tie: prefer the more-physics run; disqualify a run that regresses any metric of either contrast beyond tolerance vs `tvs4k_e040`. Append an "Addendum: af12_kz_pwc" section to the Phase 1 record with the three-run table and the final base1. Commit: `records: Phase 1 addendum - per-contrast prewhitening run and the final base1`.
