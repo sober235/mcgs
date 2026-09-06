@@ -203,6 +203,7 @@ class JointTrainer:
             print(f"[physics:{sub}] known_zero={use_kz} cuts={info.cuts} ellipse={info.ellipse} "
                   f"frac_z_used={rec['frac_z_used']:.4f} zero_lines={info.n_zero_lines}/{info.n_sampled_lines} "
                   f"explained={info.n_zero_explained} nonzero_in_z={info.n_nonzero_in_z} "
+                  f"noise_level_used={info.noise_level_used} outliers={info.n_outliers}/{info.n_significant_outliers} "
                   f"prewhiten={rec['prewhiten']} sigma_source={winfo.get('sigma_source')} "
                   f"n_noise={winfo.get('n_noise_samples')} corr_max={winfo.get('coil_corr_max_offdiag')} "
                   f"noise_level={winfo.get('noise_level')}")

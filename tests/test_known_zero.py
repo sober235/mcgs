@@ -21,7 +21,8 @@ from data.known_zero import (MIN_NOISE_SAMPLES, KnownZeroInfo, build_fit_tensors
 C, P0, P1, R = 4, 48, 40, 24
 
 
-def _synth(cut_lo1=None, ellipse=None, noise=2e-3, seed=0, ro_axis=2, dc_shift=(0, 4), hard=True):
+def _synth(cut_lo1=None, ellipse=None, noise=2e-3, seed=0, ro_axis=2, dc_shift=(0, 4), hard=True,
+          extra_lines=(), extra_amp=0.0):
     """Textured-object multicoil k-space (C,P0,P1,R) with the DC shifted by `dc_shift` on the PE plane (the real
     data has a +22 px offset), whole PE lines outside the vendor support made numerically zero: array columns
     j < cut_lo1 (padding) and/or lines outside an axis-aligned ellipse (a, b) about the DC. hard=True zeroes
@@ -50,8 +51,12 @@ def _synth(cut_lo1=None, ellipse=None, noise=2e-3, seed=0, ro_axis=2, dc_shift=(
         keep &= (ii / a) ** 2 + (jj / b) ** 2 < 1.0
     fac = np.where(keep, 1.0, 0.0 if hard else 1e-30).astype(np.float32)
     k = k * fac[None, :, :, None]
+    for (i, j) in extra_lines:                                    # sampled lines outside the support with given content
+        k[:, i, j, :] = (extra_amp * (rng.normal(size=(C, R)) + 1j * rng.normal(size=(C, R))) / np.sqrt(2)).astype(np.complex64)
     m2 = rng.random((P0, P1)) < 0.35
     m2[dc[0] - 4:dc[0] + 4, dc[1] - 4:dc[1] + 4] = True
+    for (i, j) in extra_lines:
+        m2[i, j] = True
     mask = np.repeat(m2[:, :, None], R, axis=2).astype(np.float32)
     k = k * mask[None]
     kt, mt = torch.from_numpy(k), torch.from_numpy(mask)
@@ -104,6 +109,39 @@ def test_no_shutter_gives_empty_Z():
     Z, info = estimate_known_zero(k, m, ro_axis=2)
     assert not bool(Z.any()) and info.ellipse is None and all(v is None for v in info.cuts.values())
     assert info.n_zero_lines == 0 and info.frac_z == 0.0
+
+
+OUTSIDE = [(24 + 20, 24), (24 - 20, 24), (24, 24 + 15), (24, 24 - 16)]    # just outside the (18, 14) ellipse about dc=(24, 24)
+                                                                          # (+j capped at 15: P1=40 leaves only 15px of
+                                                                          # headroom past dc1=24 on that side, vs. 23-24px
+                                                                          # on the other three cardinal directions)
+
+
+def test_expansion_ignores_noise_level_outliers():
+    k, m, dc, keep = _synth(ellipse=(18.0, 14.0), extra_lines=OUTSIDE, extra_amp=2e-3, seed=1)   # pure noise at the fixture's
+                                                                          # noise level (seed=1: seed=0's ~330 nonzero
+                                                                          # sampled lines give 1980 readout-end samples,
+                                                                          # just under MIN_NOISE_SAMPLES=2000)
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    assert info.noise_level_used is not None and info.n_outliers >= 4 and info.n_significant_outliers == 0
+    assert info.ellipse is not None and info.ellipse[2] == 1.0
+    zn = Z.numpy()[:, :, 0]
+    for (i, j) in OUTSIDE:
+        assert not zn[i, j]                                        # a sampled nonzero line is never zeroed
+    assert zn[24 + 22, 24] and zn[24 - 22, 24] and zn[24, 24 - 18]  # lines further out are still in Z (+j has no
+                                                                    # room left past the offset-15 outlier; -j does)
+    assert info.n_nonzero_in_z == 0
+
+
+def test_expansion_respects_significant_outliers():
+    k, m, dc, keep = _synth(ellipse=(18.0, 14.0), extra_lines=OUTSIDE, extra_amp=0.2)    # signal 100x the noise
+    Z, info = estimate_known_zero(k, m, ro_axis=2)
+    assert info.n_significant_outliers == 4 and info.ellipse is not None
+    a, b, s = info.ellipse
+    assert s > 1.0
+    for (i, j) in OUTSIDE:
+        assert ((i - 24) / (a * s)) ** 2 + ((j - 24) / (b * s)) ** 2 < 1.0   # the expanded ellipse covers them
+    assert info.n_nonzero_in_z == 0
 
 
 def test_uses_only_sampled_points():

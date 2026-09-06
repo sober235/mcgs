@@ -29,6 +29,9 @@ EXPAND_STEP = 0.005         # safety expansion resolution of the ellipse
 EXPAND_MAX = 2.0            # give the ellipse up beyond this expansion
 CUT_SPAN_MIN = 0.5          # a padding edge must carry nonzero lines over >= this fraction of the other axis' extent
 READOUT_END_FRAC = 0.125    # Σ source: outer 1/8 of the readout indices at both ends
+SIG_NOISE = 3.0             # an outlier line drives the safety expansion only if its mean per-(coil,sample) energy
+                            # exceeds SIG_NOISE x the readout-end noise floor: a ~100-sigma detection on a ~3000-sample
+                            # mean, not a quality knob. Without a noise floor every outlier counts.
 MIN_NOISE_SAMPLES = 2000
 
 
@@ -46,6 +49,9 @@ class KnownZeroInfo:
     n_nonzero_in_z: int          # sampled nonzero lines inside Z — 0 by construction
     frac_z: float                # fraction of the PE plane in Z
     frac_sampled_in_z: float     # |Z ∩ Ω| / |Ω| over lines
+    noise_level_used: Optional[float]   # readout-end noise floor (mean |y|^2 per coil sample) used for the gate, or None
+    n_outliers: int                     # sampled nonzero lines outside the fitted (unexpanded) ellipse
+    n_significant_outliers: int         # ... of which above SIG_NOISE x the noise floor
 
 
 def _pe_lines(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int):
@@ -53,7 +59,7 @@ def _pe_lines(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int):
     m_r = torch.movedim(mask > 0.5, ro_axis, -1)
     a_r = torch.movedim(kspace.abs().amax(0), ro_axis, -1) * m_r
     e_r = torch.movedim((kspace.real.square() + kspace.imag.square()).sum(0), ro_axis, -1) * m_r
-    return a_r.amax(-1), e_r.sum(-1), m_r.any(-1)
+    return a_r.amax(-1), e_r.sum(-1), m_r.any(-1), m_r.sum(-1)
 
 
 def _rect_cuts(nonzero: np.ndarray, zero: np.ndarray, span_min: float = CUT_SPAN_MIN) -> dict:
@@ -96,12 +102,12 @@ def _rect_zero(shape, cuts: dict) -> np.ndarray:
 
 
 def _fit_ellipse(di: np.ndarray, dj: np.ndarray, is_nonzero: np.ndarray, is_target: np.ndarray,
-                 half0: float, half1: float):
+                 is_significant: np.ndarray, half0: float, half1: float):
     """Axis-aligned ellipse about the DC on the SAMPLED lines: (a, b, expand) or None.
     di/dj: PE offsets of the sampled lines; is_nonzero: sampled nonzero lines (must end up outside Z);
     is_target: sampled zero lines the padding cuts do not explain. Misclassification = nonzero outside the
     ellipse + target inside it; 'no ellipse' competes with misclassification = |target|. The winner is then
-    expanded until no sampled nonzero line lies outside it, and dropped if it then explains no target line."""
+    expanded until no SIGNIFICANT sampled nonzero line lies outside it, and dropped if it then explains no target line."""
     n_target = int(is_target.sum())
     if n_target == 0:
         return None
@@ -131,7 +137,7 @@ def _fit_ellipse(di: np.ndarray, dj: np.ndarray, is_nonzero: np.ndarray, is_targ
     expand = 1.0
     while expand <= EXPAND_MAX:
         outside = di2 / (a * expand) ** 2 + dj2 / (b * expand) ** 2 >= 1.0
-        if not bool((outside & is_nonzero).any()):
+        if not bool((outside & is_significant).any()):
             break
         expand += EXPAND_STEP
     else:
@@ -141,16 +147,37 @@ def _fit_ellipse(di: np.ndarray, dj: np.ndarray, is_nonzero: np.ndarray, is_targ
     return (a, b, float(round(expand, 6)))
 
 
+def _readout_end_samples(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int, zero_threshold: float,
+                         end_frac: float = READOUT_END_FRAC) -> torch.Tensor:
+    """(C, N) samples from the outer `end_frac` of the readout indices at both ends of the sampled NONZERO lines —
+    the noise-floor region on this data (appendix A). Shared by the Z gate (R1') and Σ (R2)."""
+    m_r = torch.movedim(mask > 0.5, ro_axis, -1)
+    y_r = torch.movedim(kspace, ro_axis + 1, -1)
+    Rn = m_r.shape[-1]
+    n_end = max(int(round(end_frac * Rn)), 1)
+    a_line = (y_r.abs().amax(0) * m_r).amax(-1)
+    nonzero = m_r.any(-1) & (a_line >= zero_threshold)
+    sel = torch.zeros_like(m_r)
+    sel[..., :n_end] = True
+    sel[..., Rn - n_end:] = True
+    sel = sel & m_r & nonzero.unsqueeze(-1)
+    return y_r[:, sel]
+
+
 def estimate_known_zero(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int):
     """Z from the acquired lines only (appendix A, R1). kspace (C,D,H,W) complex, already masked; mask (D,H,W)."""
     assert kspace.ndim == 4 and mask.ndim == 3 and tuple(kspace.shape[1:]) == tuple(mask.shape)
     dev = kspace.device
-    amax, energy, sampled = _pe_lines(kspace, mask, ro_axis)
+    amax, energy, sampled, n_ro = _pe_lines(kspace, mask, ro_axis)
     P0, P1 = sampled.shape
     thr = ZERO_REL * float(amax.max())
     sampled_np = sampled.cpu().numpy()
     zero = (sampled & (amax < thr)).cpu().numpy()
     nonzero = sampled_np & ~zero
+    vals = _readout_end_samples(kspace, mask, ro_axis, thr)
+    noise_level = float((vals.abs() ** 2).mean()) if (vals.shape[1] >= MIN_NOISE_SAMPLES and float(vals.abs().max()) > 0.0) else None
+    e_mean = (energy / (kspace.shape[0] * n_ro.clamp_min(1))).cpu().numpy()      # per (coil, sample), sampled entries only
+    significant = nonzero & (e_mean > SIG_NOISE * noise_level) if noise_level is not None else nonzero.copy()
     flat = int(torch.argmax(energy))
     dc0, dc1 = flat // P1, flat % P1
     m_r = torch.movedim(mask > 0.5, ro_axis, -1)
@@ -159,9 +186,13 @@ def estimate_known_zero(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int):
     cuts = _rect_cuts(nonzero, zero)
     z_pe = _rect_zero((P0, P1), cuts)
     si, sj = np.nonzero(sampled_np)
-    ell = _fit_ellipse(si - dc0, sj - dc1, nonzero[si, sj], (zero & ~z_pe)[si, sj], P0 / 2, P1 / 2)
+    is_nz, is_t, is_sig = nonzero[si, sj], (zero & ~z_pe)[si, sj], significant[si, sj]
+    ell = _fit_ellipse(si - dc0, sj - dc1, is_nz, is_t, is_sig, P0 / 2, P1 / 2)
+    n_out = n_sig = 0
     if ell is not None:
         a, b, s = ell
+        out = (((si - dc0) / a) ** 2 + ((sj - dc1) / b) ** 2 >= 1.0) & is_nz          # relative to the UNEXPANDED fit
+        n_out, n_sig = int(out.sum()), int((out & is_sig).sum())
         ii, jj = np.meshgrid(np.arange(P0) - dc0, np.arange(P1) - dc1, indexing="ij")
         z_pe |= (ii / (a * s)) ** 2 + (jj / (b * s)) ** 2 >= 1.0
     z_pe &= ~nonzero                                                  # never override a measured nonzero line
@@ -174,7 +205,8 @@ def estimate_known_zero(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int):
                          n_sampled_lines=int(sampled_np.sum()), n_zero_lines=int(zero.sum()),
                          n_zero_explained=int((zero & z_pe).sum()), n_nonzero_in_z=int((nonzero & z_pe).sum()),
                          frac_z=float(z_pe.mean()),
-                         frac_sampled_in_z=float((z_pe & sampled_np).sum() / max(int(sampled_np.sum()), 1)))
+                         frac_sampled_in_z=float((z_pe & sampled_np).sum() / max(int(sampled_np.sum()), 1)),
+                         noise_level_used=noise_level, n_outliers=n_out, n_significant_outliers=n_sig)
     return Z, info
 
 
@@ -183,18 +215,7 @@ def estimate_noise_cov(kspace: torch.Tensor, mask: torch.Tensor, Z: torch.Tensor
     """Coil noise covariance Σ (C×C) from the readout-end samples (outer `end_frac` of the readout indices at
     both ends) of the sampled NONZERO lines (appendix A, R2). `Z` is accepted for interface compatibility and
     not used. Returns (Σ | None, winfo) with a uniform winfo key set; None means W = I."""
-    ro = info.ro_axis
-    m_r = torch.movedim(mask > 0.5, ro, -1)                           # (P0,P1,R)
-    y_r = torch.movedim(kspace, ro + 1, -1)                           # (C,P0,P1,R)
-    Rn = m_r.shape[-1]
-    n_end = max(int(round(end_frac * Rn)), 1)
-    a_line = (y_r.abs().amax(0) * m_r).amax(-1)
-    nonzero = m_r.any(-1) & (a_line >= info.zero_threshold)
-    sel = torch.zeros_like(m_r)
-    sel[..., :n_end] = True
-    sel[..., Rn - n_end:] = True
-    sel = sel & m_r & nonzero.unsqueeze(-1)
-    vals = y_r[:, sel]                                                # (C, N)
+    vals = _readout_end_samples(kspace, mask, info.ro_axis, info.zero_threshold, end_frac)
     empty = {"coil_corr_max_offdiag": None, "coil_corr_mean_offdiag": None, "eig_ratio": None, "noise_level": None}
     if vals.shape[1] < min_samples or float(vals.abs().max()) < info.zero_threshold or float(vals.abs().max()) <= 0.0:
         return None, {"sigma_source": "identity", "n_noise_samples": int(vals.shape[1]), **empty}
