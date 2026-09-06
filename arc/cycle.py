@@ -55,6 +55,7 @@ ap.add_argument("--curriculum", action="store_true")            # loss.kspace_fr
 ap.add_argument("--save_volumes", action="store_true")          # dump recon+GT npz (both contrasts) for figures
 ap.add_argument("--known_zero", action="store_true")            # data.*.known_zero: vendor band-limit / shutter as measured zeros (spec 2026-09-05 §4.1)
 ap.add_argument("--prewhiten", action="store_true")             # loss.prewhiten: coil-noise whitening on the fit side only (§4.2)
+ap.add_argument("--prewhiten_only", choices=["plain", "contrast"], default=None)  # data.<contrast>.prewhiten: per-contrast override (Task 12)
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -185,6 +186,8 @@ def build_cfg():
         cfg["data"]["contrast"]["known_zero"] = True
     if args.prewhiten:
         cfg["loss"]["prewhiten"] = True
+    if args.prewhiten_only:
+        cfg["data"][args.prewhiten_only]["prewhiten"] = True
     cfg.setdefault("output", {})
     cfg["output"]["output_dir"] = str(RES / args.exp)
     cfg["output"]["exp_name"] = args.exp
@@ -269,7 +272,7 @@ def main():
 
     row = dict(exp=args.exp, iters=args.iters, lambda_geo=args.lambda_geo, warmup=args.warmup,
                lambda_dtv=args.lambda_dtv, max_radius=args.max_radius, kspace_high=args.kspace_high,
-               known_zero=bool(args.known_zero), prewhiten=bool(args.prewhiten),
+               known_zero=bool(args.known_zero), prewhiten=bool(args.prewhiten), prewhiten_only=args.prewhiten_only,
                plain=sp, contrast=sc, plain_name=name_p, contrast_name=name_c,
                combined=combined, both_beat=both_beat, npts=int(npts), vram_gb=vram)
     (RES / f"{args.exp}_score.json").write_text(json.dumps(row, indent=2))

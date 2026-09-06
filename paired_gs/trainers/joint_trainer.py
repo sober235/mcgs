@@ -178,16 +178,16 @@ class JointTrainer:
         self._dc_norm_p = max(self.mask_p.sum().item(), 1.0)   # |Omega|: never grows with Z (spec §4.1)
         self._dc_norm_c = max(self.mask_c.sum().item(), 1.0)
         self.physics_info: Dict[str, Any] = {}
-        prewhiten = bool(self.config.get("loss", {}).get("prewhiten", False))
         for tag, sub in (("p", "plain"), ("c", "contrast")):
             use_kz = bool(data_cfg[sub].get("known_zero", False))
-            if not (use_kz or prewhiten):
+            use_pw = bool(data_cfg[sub].get("prewhiten", self.config.get("loss", {}).get("prewhiten", False)))
+            if not (use_kz or use_pw):
                 continue
             ds = self.ds_p if tag == "p" else self.ds_c
             y, m, S = getattr(self, f"kspace_{tag}"), getattr(self, f"mask_{tag}"), getattr(self, f"csm_{tag}")
             Z, info = estimate_known_zero(y, m, int(ds.readout_axis))
             W, winfo = None, {}
-            if prewhiten:
+            if use_pw:
                 Sigma, winfo = estimate_noise_cov(y, m, Z, info)
                 W = whitening_matrix(Sigma) if Sigma is not None else None
             if not use_kz:
@@ -197,7 +197,7 @@ class JointTrainer:
             setattr(self, f"kspace_dc_{tag}", k_dc)
             setattr(self, f"kspace_fit_{tag}", k_fit)
             setattr(self, f"csm_fit_{tag}", S_fit)
-            rec = {"known_zero": use_kz, "prewhiten": bool(prewhiten and W is not None), **asdict(info), **winfo,
+            rec = {"known_zero": use_kz, "prewhiten": bool(use_pw and W is not None), **asdict(info), **winfo,
                    "frac_z_used": float(Z.float().mean())}
             self.physics_info[tag] = rec
             print(f"[physics:{sub}] known_zero={use_kz} cuts={info.cuts} ellipse={info.ellipse} "
