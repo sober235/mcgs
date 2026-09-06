@@ -126,3 +126,100 @@ Both switches move T1 head_psnr and head_ssim in the same direction (up) relativ
 - `docs/superpowers/records/af12_to_af10/reference_table.md`: appended a line under the table stating the `tvs4k_e040` e_unobs replay values (T1 0.6488, FLAIR 0.6444; checkpoint `latest.pth` @ iteration 4000, `best.pth` confirmed same iteration).
 - Figures: `docs/figures/af12_to_af10/{af12_kz,af12_kz_pw}_{T1,FLAIR}_3views.png`, `docs/figures/af12_to_af10/{af12_kz,af12_kz_pw}_vs_af10_{T1,FLAIR}.png` (8 new files), copied to `/home/congcongliu/figs/af12_to_af10/`; figure server verified 200 on the index and on all 8 files.
 - Full volumes (git-ignored, not committed): `results_arc/af12_kz_volumes.npz`, `results_arc/af12_kz_pw_volumes.npz`.
+
+## Addendum: `af12_kz_pwc` (Task 12, per-contrast prewhitening)
+
+Task brief: `.superpowers/sdd/2026-09-05-af12-to-af10-phase0-phase1/task-12-brief.md`. Why: FLAIR gained most of its remaining head-PSNR/SSIM gap under full prewhitening (`af12_kz_pw`), but that run's T1 `head_hfen` regressed beyond tolerance vs `tvs4k_e040`, disqualifying it from `base1` above. Since Z/W are now per-contrast switches (`data.<contrast>.prewhiten`, CLI `--prewhiten_only {plain,contrast}`; see the Step 1 commit for the trainer/CLI diff), this run applies Z to both contrasts but W to FLAIR only, leaving T1 unprewhitened.
+
+### Command (exact, as executed)
+
+```bash
+env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID /home/congcongliu/anaconda3/envs/GSTMI/bin/python -u arc/cycle.py \
+  --exp af12_kz_pwc --gpu 0 --iters 4000 --lambda_geo 0.10 --warmup 500 --max_radius 20 --kspace_high 2.2 \
+  --edge_tv --edge_tv_kappa_q 0.85 --edge_tv_wfloor 0.10 --tv_eps 0.04 --base_cfg configs/winner_v2_edgeTV.yaml \
+  --save_volumes --known_zero --prewhiten_only contrast > results_arc/af12_kz_pwc.log 2>&1
+```
+
+| run | GPU | launch (UTC) | done (UTC) | elapsed (wall) | script `elapsed_s` | peak VRAM |
+|---|---|---|---|---|---|---|
+| `af12_kz_pwc` | 0 (idle before launch, memory.used=14 MiB) | 2026-09-06T11:21:33Z | 2026-09-06T12:13:34Z | 52m01s | 3104 | 23.3 GB |
+
+No traceback in the log; printed `[arc af12_kz_pwc] DONE -> .../results_grain.tsv`.
+
+### Z / noise physics diagnostics
+
+Z (rule R1/R1') is bit-identical to `af12_kz`/`af12_kz_pw` for both contrasts — confirmed by diffing the score-JSON `physics` blocks (cuts, ellipse, `frac_z_used`, outliers all match the table in the base record above). `n_nonzero_in_z = 0` and `kz_energy = 0.0` hold for both contrasts (the two hard invariants). Prewhitening ran on FLAIR only, per the new per-contrast switch:
+
+| contrast | known_zero | prewhiten | sigma_source | n_noise_samples | coil_corr_max_offdiag | noise_level (eig_ratio) |
+|---|---|---|---|---|---|---|
+| T1 (plain) | True | **False** | — (not computed) | — | — | — (`noise_level_used` for the R1' outlier gate only: 3.154294e-4) |
+| FLAIR (contrast) | True | **True** | readout_ends | 255232 | 0.431198 | 4.831003e-4 (eig_ratio 19.678) |
+
+FLAIR's W diagnostics agree with `af12_kz_pw`'s FLAIR values to 6 significant figures (n_noise_samples identical, `coil_corr_max_offdiag` 0.431198 vs 0.431198, `eig_ratio` 19.678 vs 19.678) — confirms the per-contrast switch reproduces the same per-contrast W computation as the global switch did, just gated to one contrast.
+
+### Metrics: three runs × two contrasts, vs the AF12 baseline and the AF10 reference
+
+| run | contrast | head_psnr | head_ssim | head_hfen | N (grain_ratio) | e_unobs | whole PSNR |
+|---|---|---|---|---|---|---|---|
+| `tvs4k_e040` (AF12 baseline) | T1 | 33.922017 | 0.904705 | 0.169392 | 0.959902 | 0.648788 | 38.379 |
+| `tvs4k_e040` (AF12 baseline) | FLAIR | 33.624357 | 0.925759 | 0.136522 | 0.948961 | 0.644410 | 38.221 |
+| `af10_joint_edgetv_e040_rerun20260904` (AF10 reference) | T1 | 34.604925 | 0.915227 | 0.153519 | 0.952 | 0.635300 | 38.945 |
+| `af10_joint_edgetv_e040_rerun20260904` (AF10 reference) | FLAIR | 34.400857 | 0.935228 | 0.122247 | 0.949 | 0.629800 | 38.867 |
+| `af12_kz` | T1 | 34.276970 | 0.909499 | 0.167053 | 0.951875 | 0.632776 | 38.707201 |
+| `af12_kz` | FLAIR | 33.976881 | 0.929381 | 0.135225 | 0.942868 | 0.627476 | 38.563734 |
+| `af12_kz_pw` | T1 | 34.199419 | 0.912518 | 0.171761 | 0.919313 | 0.630854 | 38.654698 |
+| `af12_kz_pw` | FLAIR | 34.341124 | 0.935353 | 0.129842 | 0.903360 | 0.617459 | 38.860607 |
+| **`af12_kz_pwc`** | **T1** | 34.262346 | 0.909224 | 0.168038 | 0.957169 | 0.634223 | 38.700043 |
+| **`af12_kz_pwc`** | **FLAIR** | 34.294122 | 0.934782 | 0.130339 | 0.901697 | 0.617442 | 38.827842 |
+
+Relative to `af12_kz` (Z only, no W anywhere): `af12_kz_pwc`'s T1 is essentially unchanged (head_psnr −0.014624 dB, head_hfen +0.000985 — both within joint-training noise from the shared Gaussian geometry seeing a differently-scaled FLAIR gradient, not a deliberate T1 lever) while FLAIR gains head_psnr +0.317241 dB and head_hfen improves −0.004886. Relative to `af12_kz_pw` (Z + W on both): `af12_kz_pwc` gives up some of the FLAIR gain (head_psnr −0.047002 dB) in exchange for T1 losing none of its `af12_kz`-level head_hfen margin (0.168038 vs. `af12_kz_pw`'s 0.171761) — this is exactly the trade the per-contrast switch was built to make available.
+
+### Per-gate verdicts (`scripts/eval_gates.py`, verbatim)
+
+```
+af12_kz_pwc T1     2/5 head_psnr=FAIL(34.2623,margin -0.3376) head_ssim=FAIL(0.9092,margin -0.0055) head_hfen=FAIL(0.1680,margin -0.0135) e_unobs=PASS(0.6342,margin +0.0146) grain_ratio=PASS(0.9572,margin +0.0428)
+af12_kz_pwc FLAIR  3/5 head_psnr=FAIL(34.2941,margin -0.1017) head_ssim=PASS(0.9348,margin +0.0001) head_hfen=FAIL(0.1303,margin -0.0071) e_unobs=PASS(0.6174,margin +0.0270) grain_ratio=PASS(0.9017,margin +0.0983)
+```
+
+FLAIR clears 3/5 (newly passes `head_ssim`, margin +0.0001 — the same gate `af12_kz_pw`'s FLAIR cleared). T1 stays at 2/5, same two gates passing (`e_unobs`, `grain_ratio`) as every Phase-1 run so far. Neither contrast fully passes.
+
+Verdict JSON: `docs/superpowers/records/af12_to_af10/scores/af12_kz_pwc_verdict.json`. Appended to `decisions.jsonl` (phase 1, one line).
+
+### Visual gate
+
+**Pending user.** New/regenerated figures (error maps: jet, fixed [0, 0.1] of GT peak; butterfly figures now carry a `<af12_label>` argument identifying the actual candidate run instead of a hard-coded baseline caption):
+
+- `http://localhost:8765/af12_to_af10/af12_kz_pwc_T1_3views.png`
+- `http://localhost:8765/af12_to_af10/af12_kz_pwc_FLAIR_3views.png`
+- `http://localhost:8765/af12_to_af10/af12_kz_pwc_vs_af10_T1.png`
+- `http://localhost:8765/af12_to_af10/af12_kz_pwc_vs_af10_FLAIR.png`
+- `http://localhost:8765/af12_to_af10/af12_kz_vs_af10_T1.png` (regenerated: caption now reads "AF12 af12_kz", was mislabelled "AF12 tvs4k_e040")
+- `http://localhost:8765/af12_to_af10/af12_kz_vs_af10_FLAIR.png` (regenerated, same fix)
+- `http://localhost:8765/af12_to_af10/af12_kz_pw_vs_af10_T1.png` (regenerated, same fix)
+- `http://localhost:8765/af12_to_af10/af12_kz_pw_vs_af10_FLAIR.png` (regenerated, same fix)
+
+No new artefacts, patchiness, or coherent banding have been screened by the user yet; this record does not assert a visual pass or fail.
+
+### `base1` decision, re-applied over the three runs (spec §4.5, generalized per the Task 12 brief)
+
+Rule, in order: (1) disqualify any run that regresses any of `{head_psnr, head_ssim, head_hfen}` (either contrast) beyond its registered tolerance (`gates.json` `tolerance_floor`: 0.005 dB / 0.0005 / 0.001) relative to `tvs4k_e040`; (2) among the survivors, more FLAIR gates passed wins; (3) tie → lower FLAIR `e_unobs`; (4) tie → prefer the more-physics run.
+
+**Disqualification check** (all three runs, value vs. `tvs4k_e040 ± tol`):
+
+- `af12_kz`: no regression on any of the six values (see the base-record disqualification check above) — **eligible**.
+- `af12_kz_pw`: T1 head_hfen 0.171761 > ceiling 0.169392+0.001=0.170392 (exceeds by 0.001369) — **disqualified**, unchanged from the base record (this run's own numbers did not change).
+- `af12_kz_pwc`: T1 head_psnr +0.340329, head_ssim +0.004519, head_hfen −0.001355 (better, ceiling 0.170392 vs. value 0.168038); FLAIR head_psnr +0.669765, head_ssim +0.009023, head_hfen −0.006183 (better, ceiling 0.137522 vs. value 0.130339). No regression on any of the six values — **eligible**.
+
+Two eligible runs remain: `af12_kz` and `af12_kz_pwc`.
+
+**Tie-break 1 (more FLAIR gates passed):** `af12_kz` FLAIR = 2/5; `af12_kz_pwc` FLAIR = 3/5 (the extra pass is `head_ssim`, margin +0.0001). **`af12_kz_pwc` wins outright — not a tie**, so tie-breaks 2/3 (FLAIR `e_unobs`, "more-physics") are not reached by the rule as written. Recorded for completeness since the numbers were already computed: FLAIR `e_unobs` is *also* lower for `af12_kz_pwc` (0.617442 vs. `af12_kz`'s 0.627476) and `af12_kz_pwc` is *also* the more-physics run (W engaged on FLAIR vs. none for `af12_kz`) — both would have pointed the same way had a tie-break been needed.
+
+**`base1` = `af12_kz_pwc`**, superseding the 2-run decision's `base1 = af12_kz`. This is a direct, intended consequence of the per-contrast switch: it recovers the FLAIR head_ssim gate pass that made `af12_kz_pw` attractive, without `af12_kz_pw`'s disqualifying T1 head_hfen regression, precisely because T1 is no longer forced through prewhitening it did not need.
+
+### Files (this addendum)
+
+- Score JSON: `docs/superpowers/records/af12_to_af10/scores/af12_kz_pwc_score.json` (copied from `results_arc/`, git-ignored).
+- Verdict JSON: `docs/superpowers/records/af12_to_af10/scores/af12_kz_pwc_verdict.json`.
+- `docs/superpowers/records/af12_to_af10/decisions.jsonl`: one phase-1 line appended, carrying the 3-run `base1` outcome and `"visual gate: pending user"`.
+- Figures: `docs/figures/af12_to_af10/af12_kz_pwc_{T1,FLAIR}_3views.png` (new), `docs/figures/af12_to_af10/af12_kz_pwc_vs_af10_{T1,FLAIR}.png` (new), `docs/figures/af12_to_af10/{af12_kz,af12_kz_pw}_vs_af10_{T1,FLAIR}.png` (regenerated in place, caption fix only — pixel content from the same volumes, unaffected by the label change); all copied to `/home/congcongliu/figs/af12_to_af10/`; figure server verified 200 on the index and on all 8 touched files.
+- Full volumes (git-ignored, not committed): `results_arc/af12_kz_pwc_volumes.npz`.
