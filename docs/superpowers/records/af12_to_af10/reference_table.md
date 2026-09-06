@@ -11,6 +11,8 @@
 
 `tvs4k_e040`'s e_unobs ("—" above) is the AF12 gating baseline used by `gates.json`: T1 0.6488, FLAIR 0.6444, from `scores/tvs4k_e040_kspace.json` (checkpoint replay of `results_arc/tvs4k_e040/tvs4k_e040/checkpoints/latest.pth`, iteration 4000; `best.pth` in the same directory holds the same iteration 4000, confirmed by reading both checkpoints' `iter` field).
 
+Metric environment (frozen with the gates): python 3.11.5, numpy 1.26.4, scipy 1.15.2, scikit-image 0.26.0, torch 2.7.1+cu118 — read from the GSTMI env.
+
 ## Gates (from gates.json)
 
 - **T1**: head_psnr ≥ 34.605 − 0.0050; head_ssim ≥ 0.9152 − 0.0005; head_hfen ≤ 0.1535 + 0.0010; e_unobs ≤ 0.6488; N ≤ 1.00

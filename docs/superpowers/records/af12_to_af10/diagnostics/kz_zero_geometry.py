@@ -1,4 +1,4 @@
-"""Read-only diagnostic v3 (fast): numerically-zero region (|y| < 1e-10*max) in 3-D k-space, HYW T1 / FLAIR.
+"""ORACLE — read-only diagnostic v3 (fast): numerically-zero region (|y| < 1e-10*max) in 3-D k-space, HYW T1 / FLAIR.
 Per PE point: readout extent of the nonzero support; regress extent^2 on (di^2, dj^2) -> ellipsoid semi-axes."""
 import sys, os, numpy as np, yaml, torch
 ROOT = "/data0/congcong/code/GS/Paired_ARC_GS_general_framework"
