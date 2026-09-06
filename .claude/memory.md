@@ -4,6 +4,46 @@
 > the 28-experiment autoresearch conclusion so it is not re-derived or re-tuned.
 > Last verified: 2026-07-15 (all training idle; winner reproduced).
 
+## 0. OUR METHOD (user decision 2026-07-24) = **MC-GS edge-TV** ; iso-winner set aside
+
+**User chose MC-GS edge-TV as the working method** on the SSIM / perceptual criterion (edge-TV has the
+highest SSIM = smoothest/cleanest look: T1 0.898, FLAIR 0.909, both > iso-winner by >noise-floor; the
+tradeoff is a touch lower PSNR/NMSE/edge-NMSE). "Do not consider the iso-TV winner for now."
+- **edge-TV method** = MC-GS + **edge-weighted TV** (`w=clamp(1/(1+(|∇u|_sg/κ)²),w_floor,1)`, detached
+  Perona-Malik, per-axis, within-contrast) instead of isotropic TV. Best cell **κ_q0.85 / λ_geo0.10 /
+  w_floor0.1**, 4000 iters. `edge_tv` config-gated (`configs/winner_v2_edgeTV.yaml`, branch
+  `edge-preserving-tv`, PR #1). Run `edgeTV_best` → `results_arc/edgeTV_best_volumes.npz`.
+  Reproduce: `... arc/cycle.py --exp edgeTV_best --iters 4000 --kspace_high 2.2 --warmup 500 --max_radius 20
+  --edge_tv --edge_tv_kappa_q 0.85 --edge_tv_wfloor 0.1 --lambda_geo 0.10 --base_cfg configs/winner_v2_edgeTV.yaml --save_volumes`
+- **Metrics (same-gauge, brain, @max):** T1 PSNR 33.90 / **SSIM 0.898** / NMSE 0.0137 / edge-NMSE 0.0150;
+  FLAIR 33.31 / **SSIM 0.909** / NMSE 0.0059 / edge-NMSE 0.0063. (⚠️ §7 called edge-TV a "FAIL" only against
+  the strict *edge-NMSE-down* bar; on the SSIM axis it is the preferred variant — the user's chosen criterion.)
+- **Baselines it beats (same AF=12 data/mask/CSM, same gauge, robust to N4-deshading):** conventional
+  **CS-SENSE (TV)** — T1 32.80/0.871/0.0176, FLAIR 33.11/0.886/0.0062 (grainier, all metrics worse); every
+  MC-GS variant ≫ CS-SENSE. Figs `results_arc/three_way_cssense_mcgs_edgeTV.png` (+ `_N4` version).
+- **PSNR/NMSE-optimal ALTERNATIVE (set aside per user) = iso-TV winner `reg_aligned_4k`** — details below.
+
+**iso-TV winner `reg_aligned_4k`** (PSNR/NMSE-optimal; ALIGNED AF=12 mask, 4000 iters):
+- **Algorithm:** MC-GS (`JointTrainer`+`JointGaussianModel3D`): ONE shared 3D-Gaussian geometry (μ,Σ=R(q)diag(s²)Rᵀ)
+  + per-primitive **dual complex density** α_plain→T1 / α_contrast→FLAIR. Forward `A_m=M_m·F3c·S_m`; scoring =
+  hard-DC `k_dc=m·y+(1−m)·F3c(S·x)` then conj-SENSE combine `x=Σ_c ifft3c(k_dc)·conj(S_c)`. Warm-start 576902
+  Gaussians, **densification OFF**.
+- **Key params:** `lambda_geo(TV)=0.06`, `kspace_freq_adaptive` (center_frac 0.05 / center_w 0.3 / mid 1.0 /
+  **high 2.2**), loss l2, **4000 iters**, warmup 500, seed 42, max_radius 20, init_scale 0.008,
+  lr {pos 3e-4, scale 2e-3, rot 3e-4, density 1.5e-2}, lr_sched exp γ0.9995.
+- **Data:** AF=12 **ALIGNED** vd-Poisson mask (net 11.83, 8.45% PE, readout fully sampled), ESPIRiT **1-map** CSM
+  (`ecalib -t0.001 -c0.0 -r24 -m1`, SoS≡1), norm P99.9. Config `configs/winner_v2_aligned.yaml`.
+- **Result @4000 (@max gauge):** T1 PSNR **38.512** / SSIM **0.8936** / NMSE **0.0201**; FLAIR PSNR **38.291** /
+  SSIM **0.9017** / NMSE **0.00842**. Volumes `results_arc/reg_aligned_4k_volumes.npz`; fig
+  `results_arc/FINAL_recon_winner_reg_aligned_4k.png`.
+- **Reproduce:** `CUDA_DEVICE_ORDER=PCI_BUS_ID PYTHONNOUSERSITE=1 PYTHONPATH= /home/congcongliu/anaconda3/envs/GSTMI/bin/python arc/cycle.py --exp reg_aligned_4k --gpu N --iters 4000 --lambda_geo 0.06 --kspace_high 2.2 --warmup 500 --max_radius 20 --base_cfg configs/winner_v2_aligned.yaml --save_volumes`
+- **Everything tested this session that does NOT beat it (do not re-try):** DC-centering (project memory §6),
+  N4 error-map de-shading (§6), **edge-preserving TV / edge_tv (§7 — reshape, WORSE on edge-NMSE)**, 2-map CSM
+  (§4/§12), **frozen MAISI VAE as a prior (§8 — INADMISSIBLE: the ORACLE VAE(GT) is 49%/89% worse than MC-GS
+  in the null space, the only region hard-DC lets a prior touch; best oracle blend ≤0.38 dB, achievable
+  ≤0.19 dB)**. Remaining residual = AF=12 unsampled high-freq (physics). Levers left: a **measurement-supervised
+  learned** recon (MAISI only as data-engine, never at inference), or lower AF.
+
 ## 1. Winner method = MC-GS "winner-v2"
 
 **Algorithm.** Multi-Contrast Gaussian Splatting joint reconstruction of a dual-contrast
@@ -172,3 +212,33 @@ lower AF (project note: AF12→AF6 ≈ MC-GS +1.3/+1.5 dB) or a learned/generati
 - **Usage** (`dataset.py`): forward `M·F3c(S·x)`; GT `Σ_c conj(S_c)·ifft3c(y_full_c)` (:313–315).
   Helper: `scripts/estimate_csm.py --recipe`/`--verify`. NOTE: ecalib `-r 24` ≠ mask `calib 24` (different roles).
   Full detail → project `memory.md`.
+
+## 12. Is 2-map CSM / recalibration a lever? — NO (verified 2026-07-17/21)
+- **2-map soft-SENSE ≈ 0 gain.** `ecalib -m2` on DC-centered ksp; coil-energy captured map0 vs span(map0,map1),
+  brain: default `-c0.8` T1/FLAIR **+0.00 pt** (2nd map cropped); uncropped `-c0` **T1 +0.51 / FLAIR +0.18 pt**.
+  2nd map is noise + faint edge ring (λ2≈0.24, 0.1–0.6% voxels λ2>0.5), not wrapped anatomy. **Opposite of
+  cheng_data** (limited FOV → `-m2` recovers ~11%); huangyuwei full-FOV → 1-map suffices.
+- **Shipped 1-map CSM already well-calibrated:** captures T1 **94.8%** / FLAIR **98.4%** ≈ fresh (96.1/98.6).
+  Raw ksp DC offset **+22 px (axis1)** but `ecalib` auto-detects the calib region → no harm. Recalibration
+  ≤1.3 pt (T1) / ~0 (FLAIR) → not worth a rerun.
+- **Actual 2-map recon confirms (decisive):** AF≈12 CG-SENSE (readout-decoupled), 1-map vs 2-map primary,
+  Tikhonov-λ sweep. 2-map only "wins" at under-reg λ=0.001 (noise-regime **implicit-smoothing artifact**,
+  1-map SSIM there 0.44); at best λ=0.01 **1-map 26.82 dB > 2-map 24.91 dB**, heavier reg 1-map ≥ 2-map,
+  overall-best recon = **1-map**. ⚠️ single-λ 2-map compare misleads → **sweep reg**. GS = strong prior
+  (≈ good reg) ⇒ 2-map won't help GS.
+- **Conclusion: CSM side (2-map + recalibration) is NOT a lever** (consistent with §8 + project `memory.md`
+  §3: bottleneck = prior-limited unsampled high-freq → learned prior). Figs `results_arc/{csm_1map_vs_2map_T1_FLAIR,
+  recon_1map_vs_2map_T1_frontier,recon_1map_vs_2map_T1_lam0.01}.png`. Do NOT re-try 2-map/recalibration.
+
+## 13. Spatial operations / registration — OUT OF SCOPE (user decision, 2026-07-21)
+- **User: do NOT bring T1↔FLAIR spatial registration into the project** (stated twice). Recorded so it isn't
+  silently re-enabled.
+- **ARC frontier HAS an inter-contrast registration module; MC-GS winner does NOT.** ARC §8 `deformation`
+  (`paired_arc_gs/modules/deformation.py`): `T_m(r)=R_m·r+t_m+u_m(r)` (rigid+nonrigid) on the shared Gaussian
+  centers, `reference_index=0` pins T1, FLAIR deforms relative = registration. `arc/cycle_arc.py` had it
+  `enable:True` + ran `s3_deformation` 200 iters → the **P1/P3 experiments ran with it ON**.
+- **But estimated deform ≈ identity** (log `def` reg 1e-7–1e-8 → nonrigid ∇u≈0; T1/FLAIR co-acquired, already
+  aligned; `u_max=0.05` caps it) → **P1/P3 negative results NOT confounded**. Caveat: `def` reg can't see a
+  rigid translation `t_m`, but co-aligned data → `t_m≈0` too.
+- **Rule:** MC-GS winner (`JointTrainer`) has NO deformation → main line = clean zero-registration. **Future
+  ARC runs MUST set `model.deformation.enable=False`**; do not pursue T1-FLAIR registration / spatial alignment.

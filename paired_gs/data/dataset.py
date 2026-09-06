@@ -88,6 +88,7 @@ class MRIDataset(Dataset):
         device: str = "cuda:0",
         presampled: bool = False,
         skip_readout_check: bool = False,
+        center_kspace_dc: bool = False,   # roll ksp+mask so k-space DC -> array center (algorithm-code alignment)
         # === v2 INF-01/INF-02 additions (additive, default-off, backward compat) ===
         enable_mask_split: bool = False,
         split_ratio: Tuple[float, float, float] = (0.60, 0.25, 0.15),
@@ -110,6 +111,8 @@ class MRIDataset(Dataset):
         self.normalization_scale = 1.0
         self.presampled = presampled
         self.skip_readout_check = skip_readout_check
+        self.center_kspace_dc = bool(center_kspace_dc)
+        self._dc_roll: Tuple[int, int, int] = (0, 0, 0)
         # v2 INF-01/INF-02 config (保存 before _load_data so subclasses can introspect)
         self.enable_mask_split = bool(enable_mask_split)
         self.split_ratio: Tuple[float, float, float] = tuple(split_ratio)  # type: ignore[assignment]
@@ -133,6 +136,8 @@ class MRIDataset(Dataset):
         self.num_coils = self.kspace_multicoil.shape[0]
         self.volume_shape = tuple(self.kspace_multicoil.shape[1:])
         self._normalize_axis_config()
+        if self.center_kspace_dc:
+            self._center_kspace_dc_to_array_center()
 
         print(f"Loaded k-space data with shape: {self.kspace_multicoil.shape}")
         print(f"Number of coils: {self.num_coils}")
@@ -140,6 +145,24 @@ class MRIDataset(Dataset):
         print(f"Readout axis: {self.readout_axis}, Phase axes: {self.phase_axes}")
 
         self._process_data()
+
+    def _center_kspace_dc_to_array_center(self):
+        """Roll the multicoil k-space so its DC (energy peak) lands on the array
+        geometric center, and record the shift so the external mask is rolled to
+        match (see _generate_mask). The shipped data's DC is offset (~+22px on a PE
+        axis); the winner compensates by rolling only the *mask* to the DC, leaving
+        the array-centered frequency-adaptive loss weight miscentered and an
+        image-domain phase ramp for the Gaussians to absorb. Centering the data once
+        removes both. Physics is unchanged: retained energy is invariant (mask is
+        rolled by the same shift) and |GT| is invariant (a k-space roll is a pure
+        image-domain phase modulation); only the phase ramp is removed."""
+        energy = (self.kspace_multicoil.real.pow(2) + self.kspace_multicoil.imag.pow(2)).sum(dim=0)
+        dc = np.unravel_index(int(torch.argmax(energy).item()), tuple(energy.shape))
+        center = tuple(s // 2 for s in energy.shape)
+        shift = tuple(int(center[a] - int(dc[a])) for a in range(3))
+        self.kspace_multicoil = torch.roll(self.kspace_multicoil, shifts=shift, dims=(1, 2, 3)).contiguous()
+        self._dc_roll = shift
+        print(f"[center_kspace_dc] k-space DC {tuple(int(x) for x in dc)} -> center {center}; rolled ksp by {shift}")
 
     def _normalize_axis_config(self):
         n_dims = len(self.volume_shape)
@@ -525,6 +548,9 @@ class MRIDataset(Dataset):
             if self.use_acs:
                 mask = self._add_acs_region(mask)
         self._validate_mask_geometry(mask, skip_acs_check=external)
+        if self.center_kspace_dc and any(self._dc_roll):
+            mask = torch.roll(mask, shifts=self._dc_roll, dims=(0, 1, 2)).contiguous()
+            print(f"[center_kspace_dc] rolled external mask by {self._dc_roll} to track centered DC")
         self.mask = mask
         actual_acc = mask.numel() / max(mask.sum().item(), 1.0)
         source = "external" if external else self.mask_type

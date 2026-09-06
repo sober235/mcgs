@@ -46,6 +46,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from data.dataset import MRIDataset
 from data.transforms import fft3c, ifft3c
+from losses.edge_tv import edge_preserving_tv, resolve_edge_kappa
 from gaussian.joint_gaussian_model import JointGaussianModel3D
 from gaussian.tile_voxelizer import TileVoxelizer
 from gaussian.voxelizer import Voxelizer
@@ -67,6 +68,7 @@ def _load_dataset(data_cfg: Dict[str, Any]) -> MRIDataset:
         normalize_kspace=data_cfg.get("normalize_kspace", True),
         normalization_percentile=data_cfg.get("normalization_percentile", 99.9),
         skip_readout_check=data_cfg.get("skip_readout_check", True),
+        center_kspace_dc=data_cfg.get("center_kspace_dc", False),
         presampled=data_cfg.get("presampled", True),
     )
 
@@ -744,6 +746,18 @@ class JointTrainer:
         _khp = self.config.get("loss", {}).get("kspace_high_weight_plain")
         self._static_freq_w_plain = self._build_freq_weight(high_override=_khp) if _khp is not None else None
 
+        # --- edge-preserving TV (self-contained edge-directed regularizer) ---
+        _loss_cfg = self.config.get("loss", {})
+        self._edge_tv = bool(_loss_cfg.get("edge_tv", False))
+        self._edge_tv_wfloor = float(_loss_cfg.get("edge_tv_wfloor", 0.1))
+        if self._edge_tv:
+            _kq = float(_loss_cfg.get("edge_tv_kappa_q", 0.75))
+            with torch.no_grad():
+                self._edge_kappa_p = resolve_edge_kappa(self._render("plain"), _kq)
+                self._edge_kappa_c = resolve_edge_kappa(self._render("contrast"), _kq)
+            print(f"[edge_tv] kappa_q={_kq} -> kappa_plain={self._edge_kappa_p:.5f} "
+                  f"kappa_contrast={self._edge_kappa_c:.5f} w_floor={self._edge_tv_wfloor}")
+
         log_path = self.out_dir / "joint_train.log"
         log_f = open(log_path, "w")
 
@@ -772,7 +786,11 @@ class JointTrainer:
             # R_geo (renamed from v1 L_tv per INF-05 / A-LOSS-DROP; PDF §1.5
             # casts this term as a geometry regularizer in the ELBO).
             if lambda_geo > 0:
-                l_geo = self._tv_loss(vol_p) + self._tv_loss(vol_c)
+                if self._edge_tv:
+                    l_geo = (edge_preserving_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor)
+                             + edge_preserving_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor))
+                else:
+                    l_geo = self._tv_loss(vol_p) + self._tv_loss(vol_c)
                 loss = loss + lambda_geo * l_geo
             else:
                 l_geo = torch.tensor(0.0, device=self.device)
