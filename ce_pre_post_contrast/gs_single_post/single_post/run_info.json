@@ -1,0 +1,9 @@
+{
+  "seed": 42,
+  "deterministic": false,
+  "gpu_pci_index": 2,
+  "cuda_visible_devices": "2",
+  "config_snapshot": "/data0/congcong/data/3D_data/ce_compare_20260907/gs_single_post/single_post/config.yaml",
+  "gaussian_model_sha256": "9303c79e70dfced8631d10261fd4c06b1f87958a5ddaa4a80d3b93e722ce8622",
+  "timestamp_utc": "2026-09-07T09:16:23.379091Z"
+}

@@ -1,0 +1,10 @@
+loading /data0/congcong/code/NV-Generate-CTMR/recon_real/work_ce_t1_16887049370060 ...
+coils=42 grid=(256, 232, 176) AF=5.3285
+scale (P99.9 of |ZF|) = 1.6715e+02
+  [admm 7/35] |x|max=2.6960
+  [admm 14/35] |x|max=2.6989
+  [admm 21/35] |x|max=2.7019
+  [admm 28/35] |x|max=2.7046
+  [admm 35/35] |x|max=2.7068
+[cssense_post] kres=0.14772 |alpha|=1.0150 in 41s -> /data0/congcong/data/3D_data/ce_compare_20260907/classical/cssense_post_complex.npy
+DONE

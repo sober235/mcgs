@@ -1,0 +1,39 @@
+loading /data0/congcong/code/NV-Generate-CTMR/recon_real/work_ce_t1_16887049370060 ...
+coils=42 grid=(256, 232, 176) AF=5.3285 scale=1.6715e+02
+lines: total 7663  fit 7280  held-out 383 (5.0%)  -> fit pts 1863680  ho pts 98048
+[inr] hash L=16 T=2^19 F=2 res 16..512 MLP 64x3 params=16.79M vs outputs=20.91M
+[inr] lr=0.005 iters=1500 tv=0.0
+[inr/post it     1/1500] fit=1.1852e+00 tv=0.00e+00 kres_fit=0.99725 kres_ho=0.99982  *  (4s)
+[inr/post it    50/1500] fit=7.6703e-02 tv=0.00e+00 kres_fit=0.27535 kres_ho=0.54090  *  (113s)
+[inr/post it   100/1500] fit=4.2760e-02 tv=0.00e+00 kres_fit=0.22512 kres_ho=0.42089  *  (223s)
+[inr/post it   150/1500] fit=3.0723e-02 tv=0.00e+00 kres_fit=0.17491 kres_ho=0.36413  *  (332s)
+[inr/post it   200/1500] fit=2.7242e-02 tv=0.00e+00 kres_fit=0.16513 kres_ho=0.32989  *  (439s)
+[inr/post it   250/1500] fit=2.5763e-02 tv=0.00e+00 kres_fit=0.16030 kres_ho=0.31298  *  (547s)
+[inr/post it   300/1500] fit=2.4498e-02 tv=0.00e+00 kres_fit=0.15854 kres_ho=0.30379  *  (655s)
+[inr/post it   350/1500] fit=2.3684e-02 tv=0.00e+00 kres_fit=0.15396 kres_ho=0.29715  *  (765s)
+[inr/post it   400/1500] fit=2.3460e-02 tv=0.00e+00 kres_fit=0.15359 kres_ho=0.29269  *  (874s)
+[inr/post it   450/1500] fit=2.3336e-02 tv=0.00e+00 kres_fit=0.15267 kres_ho=0.28953  *  (984s)
+[inr/post it   500/1500] fit=2.2836e-02 tv=0.00e+00 kres_fit=0.15164 kres_ho=0.28726  *  (1092s)
+[inr/post it   550/1500] fit=2.3003e-02 tv=0.00e+00 kres_fit=0.15109 kres_ho=0.28521  *  (1201s)
+[inr/post it   600/1500] fit=2.2896e-02 tv=0.00e+00 kres_fit=0.15128 kres_ho=0.28351  *  (1308s)
+[inr/post it   650/1500] fit=2.2552e-02 tv=0.00e+00 kres_fit=0.15058 kres_ho=0.28262  *  (1416s)
+[inr/post it   700/1500] fit=2.2591e-02 tv=0.00e+00 kres_fit=0.15071 kres_ho=0.28169  *  (1525s)
+[inr/post it   750/1500] fit=2.3685e-02 tv=0.00e+00 kres_fit=0.15484 kres_ho=0.28119  *  (1634s)
+[inr/post it   800/1500] fit=2.2336e-02 tv=0.00e+00 kres_fit=0.14976 kres_ho=0.28010  *  (1742s)
+[inr/post it   850/1500] fit=2.1997e-02 tv=0.00e+00 kres_fit=0.14828 kres_ho=0.27933  *  (1851s)
+[inr/post it   900/1500] fit=2.1986e-02 tv=0.00e+00 kres_fit=0.14814 kres_ho=0.27881  *  (1959s)
+[inr/post it   950/1500] fit=2.2224e-02 tv=0.00e+00 kres_fit=0.14886 kres_ho=0.27841  *  (2067s)
+[inr/post it  1000/1500] fit=2.4882e-02 tv=0.00e+00 kres_fit=0.15686 kres_ho=0.27865  (2174s)
+[inr/post it  1050/1500] fit=2.1840e-02 tv=0.00e+00 kres_fit=0.14778 kres_ho=0.27765  *  (2282s)
+[inr/post it  1100/1500] fit=2.1776e-02 tv=0.00e+00 kres_fit=0.14760 kres_ho=0.27728  *  (2390s)
+[inr/post it  1150/1500] fit=2.3746e-02 tv=0.00e+00 kres_fit=0.14919 kres_ho=0.27673  *  (2498s)
+[inr/post it  1200/1500] fit=2.2226e-02 tv=0.00e+00 kres_fit=0.14841 kres_ho=0.27675  (2605s)
+[inr/post it  1250/1500] fit=2.2017e-02 tv=0.00e+00 kres_fit=0.14876 kres_ho=0.27665  *  (2711s)
+[inr/post it  1300/1500] fit=2.2173e-02 tv=0.00e+00 kres_fit=0.14986 kres_ho=0.27659  *  (2818s)
+[inr/post it  1350/1500] fit=2.2138e-02 tv=0.00e+00 kres_fit=0.14973 kres_ho=0.27640  *  (2924s)
+[inr/post it  1400/1500] fit=2.1654e-02 tv=0.00e+00 kres_fit=0.14710 kres_ho=0.27602  *  (3031s)
+[inr/post it  1450/1500] fit=2.1805e-02 tv=0.00e+00 kres_fit=0.14801 kres_ho=0.27585  *  (3139s)
+[inr/post it  1500/1500] fit=2.3061e-02 tv=0.00e+00 kres_fit=0.15256 kres_ho=0.27618  (3248s)
+[inr/post] best held-out kres 0.27585 @ iter 1450
+[inr_post] kres_full=0.15176 kres_ho=0.27585 |alpha|=0.9991 in 3248s -> /data0/congcong/data/3D_data/ce_compare_20260907/dipinr/inr_post_complex.npy
+DONE

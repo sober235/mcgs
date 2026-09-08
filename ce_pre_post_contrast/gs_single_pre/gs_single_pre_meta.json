@@ -1,0 +1,16 @@
+{
+  "mode": "single_pre",
+  "channel": "plain",
+  "tag": "gs_single_pre",
+  "alpha_re": 1.0011250972747803,
+  "alpha_im": 0.0007491449941881001,
+  "kres_internal": 0.1924324929714203,
+  "shape": [
+    256,
+    176,
+    232
+  ],
+  "iters": 4000,
+  "points": 600000,
+  "warmup": 500
+}
