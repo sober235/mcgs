@@ -1,0 +1,127 @@
+{
+  "exp": "af12_kz",
+  "iters": 4000,
+  "lambda_geo": 0.1,
+  "warmup": 500,
+  "lambda_dtv": 0.0,
+  "max_radius": 20,
+  "kspace_high": 2.2,
+  "known_zero": true,
+  "prewhiten": false,
+  "plain": {
+    "psnr": 38.70720063870703,
+    "ssim": 0.9103910295299995,
+    "nmse": 0.0192441176623106,
+    "hfen": 0.7286421656608582,
+    "sharp": 0.8080352544784546,
+    "grain": 0.010146558284759521,
+    "e_unobs": 0.6327759027481079,
+    "nmse_unobs": 0.4004053473472595,
+    "comp": 32.38837369788321,
+    "beat": true,
+    "zf": [
+      31.112020324733784,
+      0.831875425050134,
+      0.1106153056025505,
+      0.940251350402832
+    ],
+    "kz_energy": 0.0,
+    "physics": {
+      "known_zero": true,
+      "prewhiten": false,
+      "dc": [
+        128,
+        132,
+        126
+      ],
+      "ro_axis": 2,
+      "zero_threshold": 5.664019012451172e-09,
+      "cuts": {
+        "axis0_lo": null,
+        "axis0_hi": null,
+        "axis1_lo": 44,
+        "axis1_hi": null
+      },
+      "ellipse": null,
+      "n_sampled_lines": 4760,
+      "n_zero_lines": 383,
+      "n_zero_explained": 383,
+      "n_nonzero_in_z": 0,
+      "frac_z": 0.2,
+      "frac_sampled_in_z": 0.08046218487394959,
+      "noise_level_used": 0.0003154293808620423,
+      "n_outliers": 0,
+      "n_significant_outliers": 0,
+      "frac_z_used": 0.19999998807907104
+    },
+    "head_psnr": 34.276970191292435,
+    "head_ssim": 0.9094989895820618,
+    "head_hfen": 0.16705312565363822,
+    "grain_ratio": 0.9518748197137448,
+    "head_frac": 0.270404052734375,
+    "gmax": 1.8865548372268677
+  },
+  "contrast": {
+    "psnr": 38.56373364662836,
+    "ssim": 0.9132976273112559,
+    "nmse": 0.00791149865835905,
+    "hfen": 0.6178040504455566,
+    "sharp": 0.8402018547058105,
+    "grain": 0.012620906345546246,
+    "e_unobs": 0.6274757385253906,
+    "nmse_unobs": 0.39372581243515015,
+    "comp": 36.56027606789247,
+    "beat": true,
+    "zf": [
+      30.698573708404954,
+      0.842052461354464,
+      0.04839218407869339,
+      0.8939357995986938
+    ],
+    "kz_energy": 0.0,
+    "physics": {
+      "known_zero": true,
+      "prewhiten": false,
+      "dc": [
+        128,
+        132,
+        127
+      ],
+      "ro_axis": 2,
+      "zero_threshold": 1.766591339111328e-08,
+      "cuts": {
+        "axis0_lo": null,
+        "axis0_hi": null,
+        "axis1_lo": null,
+        "axis1_hi": null
+      },
+      "ellipse": [
+        123.0,
+        88.0,
+        1.0
+      ],
+      "n_sampled_lines": 4760,
+      "n_zero_lines": 772,
+      "n_zero_explained": 735,
+      "n_nonzero_in_z": 0,
+      "frac_z": 0.3958984375,
+      "frac_sampled_in_z": 0.15441176470588236,
+      "noise_level_used": 0.00048310033162124455,
+      "n_outliers": 36,
+      "n_significant_outliers": 0,
+      "frac_z_used": 0.3958984315395355
+    },
+    "head_psnr": 33.97688112152374,
+    "head_ssim": 0.9293813109397888,
+    "head_hfen": 0.1352254501341083,
+    "grain_ratio": 0.9428676554448446,
+    "head_frac": 0.2534725535999645,
+    "gmax": 1.568184494972229
+  },
+  "plain_name": "T1",
+  "contrast_name": "FLAIR",
+  "combined": 34.47432488288784,
+  "both_beat": true,
+  "npts": 576902,
+  "vram_gb": 20.514114048
+}

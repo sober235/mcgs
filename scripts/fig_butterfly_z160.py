@@ -1,13 +1,15 @@
 """Transverse z=160 ("butterfly" ventricle slice): AF12 vs AF10, GT | ZF | recon | error(jet [0,0.1])
 plus the ventricular ROI zoom (rows 55:150, cols 80:185 after rot90, same box as scripts/fig_af12_butterfly_roi.py).
-usage: fig_butterfly_z160.py <af12.npz> <af10.npz> <out_prefix>
+usage: fig_butterfly_z160.py <af12.npz> <af10.npz> <out_prefix> [af12_label]
 """
 import sys, numpy as np, matplotlib
 matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 Z = 160; R0, R1, C0, C1 = 55, 150, 80, 185
-runs = [("AF12 (net 11.83)", np.load(sys.argv[1])), ("AF10 (net 9.87)", np.load(sys.argv[2]))]
+af12_label = sys.argv[4] if len(sys.argv) > 4 else "AF12 tvs4k_e040"
+row_label = (sys.argv[4] + " (net 11.83)") if len(sys.argv) > 4 else "AF12 (net 11.83)"
+runs = [(row_label, np.load(sys.argv[1])), ("AF10 (net 9.87)", np.load(sys.argv[2]))]
 out_prefix = sys.argv[3]
 ax_ = lambda v: np.rot90(np.abs(v[:, :, Z]))
 def psnr(a, g, peak): return 20 * np.log10(peak / np.sqrt(np.mean((a - g) ** 2)))
@@ -34,6 +36,6 @@ for con, k in (("T1", "T1"), ("FLAIR", "FL")):
             if c in (0, 1, 2, 3):
                 ax.add_patch(Rectangle((C0, R0), C1 - C0, R1 - R0, fill=False, edgecolor="red", linewidth=1.2))
         axes[r, 0].set_ylabel(name, fontsize=12)
-    fig.suptitle(f"{con}  transverse z={Z} (ventricular butterfly slice)  AF12 tvs4k_e040 vs AF10 rerun 2026-09-04  |  error: jet, fixed [0, 0.1] of GT peak", fontsize=12)
+    fig.suptitle(f"{con}  transverse z={Z} (ventricular butterfly slice)  {af12_label} vs AF10 rerun 2026-09-04  |  error: jet, fixed [0, 0.1] of GT peak", fontsize=12)
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     out = f"{out_prefix}_{con}.png"; fig.savefig(out, dpi=110); plt.close(fig); print("saved", out)

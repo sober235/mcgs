@@ -1,0 +1,82 @@
+{
+  "run": "af12_kz",
+  "gates_reference_run": "af10_joint_edgetv_e040_rerun20260904",
+  "contrasts": {
+    "plain": {
+      "name": "T1",
+      "head_psnr": {
+        "value": 34.276970191292435,
+        "ref": 34.60492475878486,
+        "tol": 0.005,
+        "pass": false,
+        "margin": -0.3229545674924239
+      },
+      "head_ssim": {
+        "value": 0.9094989895820618,
+        "ref": 0.9152268767356873,
+        "tol": 0.0005,
+        "pass": false,
+        "margin": -0.005227887153625543
+      },
+      "head_hfen": {
+        "value": 0.16705312565363822,
+        "ref": 0.15351901041836663,
+        "tol": 0.001,
+        "pass": false,
+        "margin": -0.012534115235271592
+      },
+      "e_unobs": {
+        "value": 0.6327759027481079,
+        "baseline": 0.6487883399223735,
+        "pass": true,
+        "margin": 0.016012437174265592
+      },
+      "grain_ratio": {
+        "value": 0.9518748197137448,
+        "max": 1.0,
+        "pass": true,
+        "margin": 0.04812518028625523
+      },
+      "n_pass": 2,
+      "all_pass": false
+    },
+    "contrast": {
+      "name": "FLAIR",
+      "head_psnr": {
+        "value": 33.97688112152374,
+        "ref": 34.40085688957917,
+        "tol": 0.005,
+        "pass": false,
+        "margin": -0.41897576805542514
+      },
+      "head_ssim": {
+        "value": 0.9293813109397888,
+        "ref": 0.9352281093597412,
+        "tol": 0.0005,
+        "pass": false,
+        "margin": -0.005346798419952448
+      },
+      "head_hfen": {
+        "value": 0.1352254501341083,
+        "ref": 0.12224747846466742,
+        "tol": 0.001,
+        "pass": false,
+        "margin": -0.011977971669440882
+      },
+      "e_unobs": {
+        "value": 0.6274757385253906,
+        "baseline": 0.6444104961668644,
+        "pass": true,
+        "margin": 0.016934757641473785
+      },
+      "grain_ratio": {
+        "value": 0.9428676554448446,
+        "max": 1.0,
+        "pass": true,
+        "margin": 0.05713234455515537
+      },
+      "n_pass": 2,
+      "all_pass": false
+    }
+  }
+}

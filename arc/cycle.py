@@ -53,7 +53,12 @@ ap.add_argument("--use_cloning", action="store_true")            # adaptive_cont
 ap.add_argument("--base_cfg", default="configs/winner_v2.yaml")  # mask/framework base (resolved against framework ROOT)
 ap.add_argument("--curriculum", action="store_true")            # loss.kspace_freq_curriculum (progressive high-freq)
 ap.add_argument("--save_volumes", action="store_true")          # dump recon+GT npz (both contrasts) for figures
+ap.add_argument("--known_zero", action="store_true")            # data.*.known_zero: vendor band-limit / shutter as measured zeros (spec 2026-09-05 §4.1)
+ap.add_argument("--prewhiten", action="store_true")             # loss.prewhiten: coil-noise whitening on the fit side only (§4.2)
+ap.add_argument("--prewhiten_only", choices=["plain", "contrast"], default=None)  # data.<contrast>.prewhiten: per-contrast override (Task 12)
 args = ap.parse_args()
+if args.prewhiten and args.prewhiten_only:
+    ap.error("--prewhiten and --prewhiten_only are mutually exclusive (together they silently whiten both contrasts)")
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
@@ -73,6 +78,8 @@ from trainers.joint_trainer import JointTrainer
 from data.private_paths import resolve_subject_paths
 from data.transforms import fft3c, ifft3c
 from metrics import evaluate_reconstruction
+sys.path.insert(0, str(ROOT))
+from diag_artefact.headonly import score_headonly
 
 BASE_CFG = ROOT / "configs/winner_v2.yaml"
 RES = ROOT / "results_arc"
@@ -176,6 +183,13 @@ def build_cfg():
         cfg["adaptive_control"]["use_cloning"] = True
     if args.split_quantile > 0 or args.max_points > 0 or args.use_cloning or args.densify_until > 0:
         cfg["adaptive_control"]["enable"] = True   # MASTER switch (joint_trainer:556); off by default -> no densify
+    if args.known_zero:
+        cfg["data"]["plain"]["known_zero"] = True
+        cfg["data"]["contrast"]["known_zero"] = True
+    if args.prewhiten:
+        cfg["loss"]["prewhiten"] = True
+    if args.prewhiten_only:
+        cfg["data"][args.prewhiten_only]["prewhiten"] = True
     cfg.setdefault("output", {})
     cfg["output"]["output_dir"] = str(RES / args.exp)
     cfg["output"]["exp_name"] = args.exp
@@ -183,43 +197,50 @@ def build_cfg():
 
 
 def score_contrast(tr, which, dev):
-    """Score hard-DC image quality and raw-model unobserved multicoil k-space error."""
+    """Score hard-DC image quality and raw-model unobserved multicoil k-space error.
+    Hard-DC uses the FIT-side tensors (mask ∪ Z, y zeroed on Z); e_unobs and the ZF anchor use the
+    ORIGINAL mask/y so they stay comparable with every earlier run (spec 2026-09-05 §4.1)."""
     if which == "plain":
         csm, y, mask, ds = tr.csm_p, tr.kspace_p, tr.mask_p, tr.ds_p
+        mask_fit, y_dc, tag = tr.mask_fit_p, tr.kspace_dc_p, "p"
     else:
         csm, y, mask, ds = tr.csm_c, tr.kspace_c, tr.mask_c, tr.ds_c
+        mask_fit, y_dc, tag = tr.mask_fit_c, tr.kspace_dc_c, "c"
     gt = ds.get_data()["ground_truth"].to(dev)
     m = (mask if mask.ndim == 3 else mask[0]).to(dev).float()
+    mf = (mask_fit if mask_fit.ndim == 3 else mask_fit[0]).to(dev).float()
     with torch.no_grad():
         x = tr._render(which)
         k_model = fft3c(csm * x.unsqueeze(0))
-        # Direct anti-alias oracle.  Use the dataset's full, complex, normalized
-        # multicoil acquisition; the magnitude-only saved NPZ cannot reproduce
-        # this quantity because it discards candidate phase.
         y_full = ds.kspace_multicoil.to(dev)
         unobserved = (1.0 - m).unsqueeze(0)
+        z = (mf - m).clamp_min(0.0).unsqueeze(0)                       # Z = fit mask minus acquired mask
         unobserved_error = ((k_model - y_full) * unobserved).abs().square().sum()
         unobserved_energy = (y_full * unobserved).abs().square().sum().clamp_min(1e-12)
         nmse_unobs = float(unobserved_error / unobserved_energy)
         e_unobs = float(torch.sqrt(unobserved_error / unobserved_energy))
-        k_dc = m.unsqueeze(0) * y + (1.0 - m).unsqueeze(0) * k_model
+        unobs_x = unobserved * (1.0 - z)                                 # unobserved & ~Z (excludes the known-zero region)
+        unobs_error_xz = ((k_model - y_full) * unobs_x).abs().square().sum()
+        unobs_energy_xz = (y_full * unobs_x).abs().square().sum().clamp_min(1e-12)
+        e_unobs_excl_z = float(torch.sqrt(unobs_error_xz / unobs_energy_xz))    # e_unobs restricted to (1-m) & ~Z; == e_unobs when Z is empty
+        k_dc = mf.unsqueeze(0) * y_dc + (1.0 - mf).unsqueeze(0) * k_model
+        kz_energy = float((k_dc * z).abs().square().sum())              # must be 0.0 whenever Z is non-empty
         x_dc = (ifft3c(k_dc) * csm.conj()).sum(0)
         met = evaluate_reconstruction(x_dc, gt, compute_extended=False)
         hf = hfen(x_dc.abs(), gt.abs())
         sr = sharp_ratio(x_dc.abs(), gt.abs())
         gr = grain(x_dc.abs(), gt.abs())
-        # ZF anchor (lower bound this contrast)
+        ho = score_headonly(x_dc.abs().cpu().numpy(), gt.abs().cpu().numpy())
         x_zf = (ifft3c(m.unsqueeze(0) * y) * csm.conj()).sum(0)
         mz = evaluate_reconstruction(x_zf, gt, compute_extended=False)
         zf_hf = hfen(x_zf.abs(), gt.abs())
     psnr, ssim, nmse = float(met["psnr"]), float(met["ssim"]), float(met["nmse"])
-    # tri-objective: anti-alias (low hfen) + anti-blur (sharp->1, one-sided) + anti-grain (low flat-
-    # region speckle). grain and sharp pull opposite ways -> the optimum is edge-preserving denoise.
     comp = psnr + 25.0 * ssim - 60.0 * nmse - 25.0 * hf - 40.0 * max(0.0, 1.0 - sr) - 200.0 * gr
     beat = (ssim >= float(mz["ssim"])) and (nmse <= float(mz["nmse"])) and (hf <= zf_hf)
     return dict(psnr=psnr, ssim=ssim, nmse=nmse, hfen=hf, sharp=sr, grain=gr,
-                e_unobs=e_unobs, nmse_unobs=nmse_unobs, comp=comp, beat=beat,
-                zf=(float(mz["psnr"]), float(mz["ssim"]), float(mz["nmse"]), zf_hf))
+                e_unobs=e_unobs, e_unobs_excl_z=e_unobs_excl_z, nmse_unobs=nmse_unobs, comp=comp, beat=beat,
+                zf=(float(mz["psnr"]), float(mz["ssim"]), float(mz["nmse"]), zf_hf),
+                kz_energy=kz_energy, physics=tr.physics_info.get(tag, {}), **ho)
 
 
 def main():
@@ -245,16 +266,19 @@ def main():
     npts = tr.model.num_points
 
     log(f"{name_p:5s} psnr={sp['psnr']:.3f} ssim={sp['ssim']:.4f} nmse={sp['nmse']:.4f} hfen={sp['hfen']:.4f} "
-        f"e_unobs={sp['e_unobs']:.4f} "
+        f"e_unobs={sp['e_unobs']:.4f} e_unobs_xz={sp['e_unobs_excl_z']:.4f} head_psnr={sp['head_psnr']:.3f} head_ssim={sp['head_ssim']:.4f} "
+        f"head_hfen={sp['head_hfen']:.4f} N={sp['grain_ratio']:.3f} kz_energy={sp['kz_energy']:.3e} "
         f"sharp={sp['sharp']:.3f} grain={sp['grain']:.4f} comp={sp['comp']:.3f} beat={sp['beat']}")
     log(f"{name_c:5s} psnr={sc['psnr']:.3f} ssim={sc['ssim']:.4f} nmse={sc['nmse']:.4f} hfen={sc['hfen']:.4f} "
-        f"e_unobs={sc['e_unobs']:.4f} "
+        f"e_unobs={sc['e_unobs']:.4f} e_unobs_xz={sc['e_unobs_excl_z']:.4f} head_psnr={sc['head_psnr']:.3f} head_ssim={sc['head_ssim']:.4f} "
+        f"head_hfen={sc['head_hfen']:.4f} N={sc['grain_ratio']:.3f} kz_energy={sc['kz_energy']:.3e} "
         f"sharp={sc['sharp']:.3f} grain={sc['grain']:.4f} comp={sc['comp']:.3f} beat={sc['beat']}")
     log(f"SCORE combined={combined:.3f} both_beat_zf={both_beat} N={npts} vram_gb={vram:.1f} "
         f"elapsed_s={time.time()-t0:.0f}")
 
     row = dict(exp=args.exp, iters=args.iters, lambda_geo=args.lambda_geo, warmup=args.warmup,
                lambda_dtv=args.lambda_dtv, max_radius=args.max_radius, kspace_high=args.kspace_high,
+               known_zero=bool(args.known_zero), prewhiten=bool(args.prewhiten), prewhiten_only=args.prewhiten_only,
                plain=sp, contrast=sc, plain_name=name_p, contrast_name=name_c,
                combined=combined, both_beat=both_beat, npts=int(npts), vram_gb=vram)
     (RES / f"{args.exp}_score.json").write_text(json.dumps(row, indent=2))
@@ -272,13 +296,16 @@ def main():
     if args.save_volumes:
         @torch.no_grad()
         def _vol(which):
-            if which == "plain": csm, y, mask, ds = tr.csm_p, tr.kspace_p, tr.mask_p, tr.ds_p
-            else:                 csm, y, mask, ds = tr.csm_c, tr.kspace_c, tr.mask_c, tr.ds_c
+            if which == "plain":
+                csm, y, mask, ds, mask_fit, y_dc = tr.csm_p, tr.kspace_p, tr.mask_p, tr.ds_p, tr.mask_fit_p, tr.kspace_dc_p
+            else:
+                csm, y, mask, ds, mask_fit, y_dc = tr.csm_c, tr.kspace_c, tr.mask_c, tr.ds_c, tr.mask_fit_c, tr.kspace_dc_c
             gt = ds.get_data()["ground_truth"].to(dev)
             m = (mask if mask.ndim == 3 else mask[0]).to(dev).float().unsqueeze(0)
+            mf = (mask_fit if mask_fit.ndim == 3 else mask_fit[0]).to(dev).float().unsqueeze(0)
             x = tr._render(which); k_model = fft3c(csm * x.unsqueeze(0))
-            x_dc = (ifft3c(m * y + (1.0 - m) * k_model) * csm.conj()).sum(0)
-            x_zf = (ifft3c(m * y) * csm.conj()).sum(0)                # zero-filled (aliased "before")
+            x_dc = (ifft3c(mf * y_dc + (1.0 - mf) * k_model) * csm.conj()).sum(0)
+            x_zf = (ifft3c(m * y) * csm.conj()).sum(0)                # zero-filled from the ORIGINAL acquisition
             f = lambda t: t.abs().cpu().numpy().astype("float32")
             return f(x_dc), f(gt), f(x_zf)
         rT, gT, zT = _vol("plain"); rF, gF, zF = _vol("contrast")

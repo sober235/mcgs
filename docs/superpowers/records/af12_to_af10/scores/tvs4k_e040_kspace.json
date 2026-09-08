@@ -1,0 +1,68 @@
+{
+  "checkpoint": {
+    "iteration": 4000,
+    "path": "/data0/congcong/code/GS/Paired_ARC_GS_general_framework/results_arc/tvs4k_e040/tvs4k_e040/checkpoints/latest.pth",
+    "sha256": "30f5a135b9d79845fb4c8dbe7434e74e3a6dd03ce2b5cf790333f13a1169cefa",
+    "shared_num_points": 576902
+  },
+  "config": {
+    "path": "/data0/congcong/code/GS/Paired_ARC_GS_general_framework/results_arc/tvs4k_e040/tvs4k_e040/config.yaml",
+    "sha256": "34360868419c7f5d9646c4f1457398e24d67645180d0427b1fc4799c23b98f7f"
+  },
+  "created_utc": "2026-09-05T14:16:18.688798+00:00",
+  "device": {
+    "cuda_visible_devices": "2",
+    "logical_device": "cuda:0",
+    "name": "NVIDIA A800 80GB PCIe",
+    "requested_physical_gpu": 2
+  },
+  "experiment": "tvs4k_e040",
+  "finite": true,
+  "formula": {
+    "aggregation": "none; reported separately per modality",
+    "e_unobs": "sqrt(nmse_unobs)",
+    "nmse_unobs": "sum(|residual|^2) / sum(|(1-mask)*kspace_multicoil|^2)",
+    "residual": "(1-mask) * (fft3c(csm*x) - kspace_multicoil)"
+  },
+  "metric": "complex_multicoil_unobserved_kspace_checkpoint_replay",
+  "modalities": {
+    "contrast": {
+      "channel": "contrast",
+      "denominator_energy": 69207.04134723416,
+      "e_unobs": 0.6444104961668644,
+      "finite": true,
+      "mask_sampled_count": 1218560,
+      "mask_total_count": 14417920,
+      "mask_unsampled_count": 13199360,
+      "mask_unsampled_multicoil_count": 158392320,
+      "name": "FLAIR",
+      "nmse_unobs": 0.4152648875700244,
+      "num_coils": 12,
+      "numerator_energy": 28739.254244113225
+    },
+    "plain": {
+      "channel": "plain",
+      "denominator_energy": 102397.38085307347,
+      "e_unobs": 0.6487883399223735,
+      "finite": true,
+      "mask_sampled_count": 1218560,
+      "mask_total_count": 14417920,
+      "mask_unsampled_count": 13199360,
+      "mask_unsampled_multicoil_count": 158392320,
+      "name": "T1",
+      "nmse_unobs": 0.4209263100192292,
+      "num_coils": 12,
+      "numerator_energy": 43101.751678117886
+    }
+  },
+  "model_load": {
+    "strict": true,
+    "voxelizer_backend": "tile_cuda"
+  },
+  "schema_version": 1,
+  "source_guards": {
+    "checkpoint_replayed": true,
+    "complex_multicoil_reference": "MRIDataset.kspace_multicoil",
+    "magnitude_npz_used": false
+  }
+}

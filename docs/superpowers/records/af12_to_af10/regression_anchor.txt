@@ -1,0 +1,76 @@
+Regression anchor: iteration-1 loss / dc_p / dc_c before and after wiring the known-zero
+region Z and prewhitening W into JointTrainer + arc/cycle.py (Task 7, spec
+docs/superpowers/specs/2026-09-05-af12-to-af10-quality-design.md §4).
+
+=== Step 1: PRE-CHANGE anchor (old code, before any edits in this task) ===
+
+Command:
+  env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID /home/congcongliu/anaconda3/envs/GSTMI/bin/python -u arc/cycle.py \
+    --exp reg_anchor_pre --gpu 3 --iters 10 --warmup 2 --lambda_geo 0.10 --max_radius 20 --kspace_high 2.2 \
+    --edge_tv --edge_tv_kappa_q 0.85 --edge_tv_wfloor 0.10 --tv_eps 0.04 --base_cfg configs/winner_v2_edgeTV.yaml \
+    2>&1 | tee results_arc/reg_anchor_pre.log
+
+GPU: 3 (NVIDIA A100 80GB PCIe; idle before the run, memory.used=14 MiB; GPUs 0/1 avoided per policy)
+
+iter-1 log line:
+  [iter     1/10] loss=2.6930e+00 dc_p=1.3235e+00 dc_c=1.3650e+00 R_geo=4.5612e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+
+=== Step 4: POST-CHANGE regression check (switches OFF: no --known_zero, no --prewhiten) ===
+
+Command:
+  env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID /home/congcongliu/anaconda3/envs/GSTMI/bin/python -u arc/cycle.py \
+    --exp reg_anchor_post --gpu 3 --iters 10 --warmup 2 --lambda_geo 0.10 --max_radius 20 --kspace_high 2.2 \
+    --edge_tv --edge_tv_kappa_q 0.85 --edge_tv_wfloor 0.10 --tv_eps 0.04 --base_cfg configs/winner_v2_edgeTV.yaml \
+    2>&1 | tee results_arc/reg_anchor_post.log
+
+GPU: 3 (same card as the anchor run)
+
+iter-1 log line:
+  [iter     1/10] loss=2.6930e+00 dc_p=1.3235e+00 dc_c=1.3650e+00 R_geo=4.5612e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+
+Comparison: `diff` of the two grepped iter-1 lines is EMPTY -- loss/dc_p/dc_c are identical on every
+printed field (%.4e, i.e. 5 significant digits) between the pre-change and post-change runs; the
+structural guarantee is that the fit-side tensors alias the originals and `_dc_norm_*` equals the old
+per-call denominator. Final per-contrast psnr/ssim/nmse/hfen are also identical (T1
+28.440/0.7147/0.2054/1.7390; FLAIR 26.628/0.6910/0.1251/1.8844 in both logs). New JSON fields present
+and correct with the switches off:
+  plain:    kz_energy=0.0, physics={}, head_psnr=23.4236
+  contrast: kz_energy=0.0, physics={}, head_psnr=21.3884
+  known_zero=False, prewhiten=False
+No regression. Wiring verified identical on every printed field (%.4e) when known_zero/prewhiten are
+both off; the structural guarantee (fit-side tensors alias the originals, `_dc_norm_*` equals the old
+per-call denominator) holds by construction when Z is empty and W is None.
+
+=== Step 5: integration check, switches ON (--known_zero --prewhiten) ===
+See task-7-report.md for the full physics diagnostics (rho_c, kro_c, frac_z_used, sigma_source,
+n_noise_samples, coil_corr_max_offdiag, eig_ratio, kz_energy) for both contrasts, and the oracle
+comparison against docs/superpowers/records/probe_output/diag_data_information_probe2_20260904.log.
+
+=== Task 12: per-contrast prewhitening switch regression check (no switches) ===
+Trainer changed: paired_gs/trainers/joint_trainer.py `_setup_data` now reads a per-contrast
+`use_pw = data.<contrast>.prewhiten` (falling back to the global `loss.prewhiten`) instead of one
+global `prewhiten` flag; arc/cycle.py adds `--prewhiten_only {plain,contrast}`. With no CLI switches
+at all, `use_pw` still resolves to the same global default (False) for both contrasts, so this run
+must reproduce the pre-existing anchor bit-for-bit.
+
+Command:
+  env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID /home/congcongliu/anaconda3/envs/GSTMI/bin/python -u arc/cycle.py \
+    --exp reg_anchor_task12 --gpu 2 --iters 10 --warmup 2 --lambda_geo 0.10 --max_radius 20 --kspace_high 2.2 \
+    --edge_tv --edge_tv_kappa_q 0.85 --edge_tv_wfloor 0.10 --tv_eps 0.04 --base_cfg configs/winner_v2_edgeTV.yaml \
+    2>&1 | tee results_arc/reg_anchor_task12.log
+
+GPU: 2 (idle before the run, memory.used=14 MiB)
+
+iter-1 log line:
+  [iter     1/10] loss=2.6930e+00 dc_p=1.3235e+00 dc_c=1.3650e+00 R_geo=4.5612e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+
+Comparison: identical to the Step 1/4 anchor line above (5 significant digits on every printed
+field: loss, dc_p, dc_c, R_geo). Final per-contrast psnr/ssim/nmse/hfen also identical (T1
+28.440/0.7147/0.2054/1.7390; FLAIR 26.628/0.6910/0.1251/1.8844) and head_psnr matches to 6 sig figs
+(plain 23.423580 vs anchor's 23.4236; contrast 21.388421 vs anchor's 21.3884). New JSON field
+`prewhiten_only=None` present and correct; `known_zero=False`, `prewhiten=False`,
+`plain.physics={}`, `contrast.physics={}`, both `kz_energy=0.0`. No regression from the
+per-contrast switch when neither --known_zero nor --prewhiten/--prewhiten_only is passed.
+
+Also ran (same task, before the af12_kz_pwc launch): `pytest tests/test_known_zero.py
+tests/test_tv_charbonnier.py tests/diag_artefact` -> 116 passed.

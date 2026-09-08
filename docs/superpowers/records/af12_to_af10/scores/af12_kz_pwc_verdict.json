@@ -1,0 +1,82 @@
+{
+  "run": "af12_kz_pwc",
+  "gates_reference_run": "af10_joint_edgetv_e040_rerun20260904",
+  "contrasts": {
+    "plain": {
+      "name": "T1",
+      "head_psnr": {
+        "value": 34.26234614542982,
+        "ref": 34.60492475878486,
+        "tol": 0.005,
+        "pass": false,
+        "margin": -0.337578613355042
+      },
+      "head_ssim": {
+        "value": 0.9092240333557129,
+        "ref": 0.9152268767356873,
+        "tol": 0.0005,
+        "pass": false,
+        "margin": -0.00550284337997442
+      },
+      "head_hfen": {
+        "value": 0.16803767680503742,
+        "ref": 0.15351901041836663,
+        "tol": 0.001,
+        "pass": false,
+        "margin": -0.013518666386670791
+      },
+      "e_unobs": {
+        "value": 0.6342228651046753,
+        "baseline": 0.6487883399223735,
+        "pass": true,
+        "margin": 0.01456547481769821
+      },
+      "grain_ratio": {
+        "value": 0.9571693353403018,
+        "max": 1.0,
+        "pass": true,
+        "margin": 0.0428306646596982
+      },
+      "n_pass": 2,
+      "all_pass": false
+    },
+    "contrast": {
+      "name": "FLAIR",
+      "head_psnr": {
+        "value": 34.294121903897384,
+        "ref": 34.40085688957917,
+        "tol": 0.005,
+        "pass": false,
+        "margin": -0.10173498568178019
+      },
+      "head_ssim": {
+        "value": 0.9347818493843079,
+        "ref": 0.9352281093597412,
+        "tol": 0.0005,
+        "pass": true,
+        "margin": 5.3740024566595324e-05
+      },
+      "head_hfen": {
+        "value": 0.1303388025431401,
+        "ref": 0.12224747846466742,
+        "tol": 0.001,
+        "pass": false,
+        "margin": -0.007091324078472669
+      },
+      "e_unobs": {
+        "value": 0.6174421310424805,
+        "baseline": 0.6444104961668644,
+        "pass": true,
+        "margin": 0.02696836512438394
+      },
+      "grain_ratio": {
+        "value": 0.9016970345495172,
+        "max": 1.0,
+        "pass": true,
+        "margin": 0.09830296545048278
+      },
+      "n_pass": 3,
+      "all_pass": false
+    }
+  }
+}

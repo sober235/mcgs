@@ -1,0 +1,36 @@
+{
+  "run": "af10_joint_edgetv_e040",
+  "npz": "/data0/congcong/code/GS/Paired_ARC_GS_general_framework/results_arc/af10_joint_edgetv_e040_volumes.npz",
+  "plain": {
+    "head_psnr": 34.60447505652679,
+    "head_ssim": 0.9152018427848816,
+    "head_hfen": 0.15360190096189083,
+    "grain_ratio": 0.9520261814977788,
+    "head_frac": 0.270404052734375,
+    "gmax": 1.8865548372268677,
+    "zf": {
+      "head_psnr": 26.077354277888308,
+      "head_ssim": 0.724112331867218,
+      "head_hfen": 0.5923463549710019,
+      "grain_ratio": 0.8114223077689608,
+      "head_frac": 0.270404052734375,
+      "gmax": 1.8865548372268677
+    }
+  },
+  "contrast": {
+    "head_psnr": 34.40010519482051,
+    "head_ssim": 0.935214638710022,
+    "head_hfen": 0.12228703162031222,
+    "grain_ratio": 0.949000046978909,
+    "head_frac": 0.2534725535999645,
+    "gmax": 1.568184494972229,
+    "zf": {
+      "head_psnr": 25.85302288574624,
+      "head_ssim": 0.7456554174423218,
+      "head_hfen": 0.6040083379750258,
+      "grain_ratio": 0.7605851774747017,
+      "head_frac": 0.2534725535999645,
+      "gmax": 1.568184494972229
+    }
+  }
+}
