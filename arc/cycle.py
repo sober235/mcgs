@@ -56,6 +56,7 @@ ap.add_argument("--save_volumes", action="store_true")          # dump recon+GT 
 ap.add_argument("--known_zero", action="store_true")            # data.*.known_zero: vendor band-limit / shutter as measured zeros (spec 2026-09-05 §4.1)
 ap.add_argument("--prewhiten", action="store_true")             # loss.prewhiten: coil-noise whitening on the fit side only (§4.2)
 ap.add_argument("--prewhiten_only", choices=["plain", "contrast"], default=None)  # data.<contrast>.prewhiten: per-contrast override (Task 12)
+ap.add_argument("--set", action="append", default=[], metavar="KEY.PATH=VALUE")  # generic cfg override applied LAST (autoresearch); value parsed as YAML
 args = ap.parse_args()
 if args.prewhiten and args.prewhiten_only:
     ap.error("--prewhiten and --prewhiten_only are mutually exclusive (together they silently whiten both contrasts)")
@@ -190,6 +191,15 @@ def build_cfg():
         cfg["loss"]["prewhiten"] = True
     if args.prewhiten_only:
         cfg["data"][args.prewhiten_only]["prewhiten"] = True
+    for kv in args.set:                                   # generic overrides, e.g. --set gaussian.init_mode=head
+        key, _, val = kv.partition("=")
+        if not _:
+            ap.error(f"--set expects KEY.PATH=VALUE, got {kv!r}")
+        node = cfg
+        parts = key.split(".")
+        for part in parts[:-1]:
+            node = node.setdefault(part, {})
+        node[parts[-1]] = yaml.safe_load(val)
     cfg.setdefault("output", {})
     cfg["output"]["output_dir"] = str(RES / args.exp)
     cfg["output"]["exp_name"] = args.exp
@@ -278,6 +288,7 @@ def main():
 
     row = dict(exp=args.exp, iters=args.iters, lambda_geo=args.lambda_geo, warmup=args.warmup,
                lambda_dtv=args.lambda_dtv, max_radius=args.max_radius, kspace_high=args.kspace_high,
+               set=list(args.set), argv=sys.argv[1:], elapsed_s=time.time() - t0,
                known_zero=bool(args.known_zero), prewhiten=bool(args.prewhiten), prewhiten_only=args.prewhiten_only,
                plain=sp, contrast=sc, plain_name=name_p, contrast_name=name_c,
                combined=combined, both_beat=both_beat, npts=int(npts), vram_gb=vram)

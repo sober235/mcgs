@@ -241,15 +241,43 @@ class JointTrainer:
                 self.model.rotations.copy_(rotations)
         else:
             n_init = gcfg.get("initial_num_points", 200000)
-            positions = torch.rand(n_init, 3, device=self.device) * 2 - 1
+            init_mode = str(gcfg.get("init_mode", "uniform"))
+            if init_mode == "uniform":
+                # historical cold start: uniform over the render box (most points land in air)
+                positions = torch.rand(n_init, 3, device=self.device) * 2 - 1
+                with torch.no_grad():
+                    ix = ((positions[:, 0] + 1) * 0.5 * d).clamp(0, d - 1).long()
+                    iy = ((positions[:, 1] + 1) * 0.5 * h).clamp(0, h - 1).long()
+                    iz = ((positions[:, 2] + 1) * 0.5 * w).clamp(0, w - 1).long()
+            else:
+                # cold start on the measured anatomy: positions drawn inside the ZF head support
+                # (paired_gs/gaussian/init_cloud.py); densities follow the same zf*0.1 rule.
+                from gaussian.init_cloud import sample_positions, union_magnitude
+                with torch.no_grad():
+                    mag = union_magnitude(self.zf_p, self.zf_c)
+                    gen = torch.Generator(device=self.device)
+                    gen.manual_seed(int(self.config.get("training", {}).get("seed", 42)))
+                    vox, positions = sample_positions(mag, n_init, init_mode,
+                                                      float(gcfg.get("init_head_frac", 0.05)),
+                                                      generator=gen)
+                    ix, iy, iz = vox[:, 0], vox[:, 1], vox[:, 2]
+                    inside = float(mag[ix, iy, iz].gt(0).float().mean())
+                print(f"[init_cloud] mode={init_mode} n={n_init} head_frac={gcfg.get('init_head_frac', 0.05)} "
+                      f"support_frac={float((mag > 0.05 * torch.quantile(mag.flatten()[::97], 0.999)).float().mean()):.4f}")
             with torch.no_grad():
-                ix = ((positions[:, 0] + 1) * 0.5 * d).clamp(0, d - 1).long()
-                iy = ((positions[:, 1] + 1) * 0.5 * h).clamp(0, h - 1).long()
-                iz = ((positions[:, 2] + 1) * 0.5 * w).clamp(0, w - 1).long()
                 d_p = self.zf_p[ix, iy, iz].to(torch.complex64) * 0.1
                 d_c = self.zf_c[ix, iy, iz].to(torch.complex64) * 0.1
             base_scale = gcfg.get("init_scale", 2.0 / max(d, h, w))
-            scales = torch.ones(n_init, 3, device=self.device) * base_scale
+            init_scale_mode = str(gcfg.get("init_scale_mode", "fixed"))
+            if init_scale_mode == "fixed":
+                scales = torch.ones(n_init, 3, device=self.device) * base_scale
+            elif init_scale_mode == "3nn":
+                from gaussian.init_cloud import scales_3nn
+                scales = scales_3nn(positions, (d, h, w), float(gcfg.get("init_scale_mult", 1.0)))
+                print(f"[init_cloud] 3nn scales: median {scales[:, 0].median().item():.5f} "
+                      f"min {scales.min().item():.5f} max {scales.max().item():.5f} (fixed would be {base_scale})")
+            else:
+                raise ValueError(f"gaussian.init_scale_mode must be 'fixed' or '3nn', got {init_scale_mode!r}")
             self.model = JointGaussianModel3D(
                 num_points=n_init,
                 volume_shape=self.volume_shape,
@@ -795,13 +823,27 @@ class JointTrainer:
         self._tv_vector = bool(_loss_cfg.get("tv_vector", False))
         if self._tv_eps > 0 or self._tv_vector:
             print(f"[tv_shape] eps={self._tv_eps} vector={self._tv_vector}")
+        _kappa_refresh = 0
         if self._edge_tv:
             _kq = float(_loss_cfg.get("edge_tv_kappa_q", 0.75))
+            # kappa is resolved ONCE. 'render' (historical) reads the initial render, which is a
+            # meaningful image only after a warm start; a cold start's first render is speckle.
+            # 'zf' reads the measured zero-filled image instead. edge_tv_kappa_refresh_iter > 0
+            # re-resolves kappa from the render at that iteration (once), when it has become an image.
+            _ksrc = str(_loss_cfg.get("edge_tv_kappa_source", "render"))
+            _kappa_refresh = int(_loss_cfg.get("edge_tv_kappa_refresh_iter", 0))
             with torch.no_grad():
-                self._edge_kappa_p = resolve_edge_kappa(self._render("plain"), _kq)
-                self._edge_kappa_c = resolve_edge_kappa(self._render("contrast"), _kq)
-            print(f"[edge_tv] kappa_q={_kq} -> kappa_plain={self._edge_kappa_p:.5f} "
-                  f"kappa_contrast={self._edge_kappa_c:.5f} w_floor={self._edge_tv_wfloor}")
+                if _ksrc == "render":
+                    self._edge_kappa_p = resolve_edge_kappa(self._render("plain"), _kq)
+                    self._edge_kappa_c = resolve_edge_kappa(self._render("contrast"), _kq)
+                elif _ksrc == "zf":
+                    self._edge_kappa_p = resolve_edge_kappa(self.zf_p, _kq)
+                    self._edge_kappa_c = resolve_edge_kappa(self.zf_c, _kq)
+                else:
+                    raise ValueError(f"loss.edge_tv_kappa_source must be 'render' or 'zf', got {_ksrc!r}")
+            print(f"[edge_tv] kappa_q={_kq} source={_ksrc} refresh_iter={_kappa_refresh} -> "
+                  f"kappa_plain={self._edge_kappa_p:.5f} kappa_contrast={self._edge_kappa_c:.5f} "
+                  f"w_floor={self._edge_tv_wfloor}")
 
         log_path = self.out_dir / "joint_train.log"
         log_f = open(log_path, "w")
@@ -821,6 +863,12 @@ class JointTrainer:
             freq_w = self._freq_weight_curriculum(it, max_iter)   # JSG-GS progressive freq (static if disabled)
             vol_p = self._render("plain")
             vol_c = self._render("contrast")
+            if self._edge_tv and _kappa_refresh > 0 and it == _kappa_refresh:
+                with torch.no_grad():
+                    self._edge_kappa_p = resolve_edge_kappa(vol_p, float(_loss_cfg.get("edge_tv_kappa_q", 0.75)))
+                    self._edge_kappa_c = resolve_edge_kappa(vol_c, float(_loss_cfg.get("edge_tv_kappa_q", 0.75)))
+                print(f"[edge_tv] kappa refreshed at iter {it}: kappa_plain={self._edge_kappa_p:.5f} "
+                      f"kappa_contrast={self._edge_kappa_c:.5f}")
 
             # k-space DC (plain may use a decoupled higher high-band weight = sharper plain)
             freq_w_p = self._static_freq_w_plain if self._static_freq_w_plain is not None else freq_w
