@@ -18,9 +18,10 @@ ARC = Path("/data0/congcong/code/GS/Paired_ARC_GS_general_framework/results_arc"
 
 COLS = ["psnr", "ssim", "nmse", "hfen", "head_psnr", "head_ssim", "head_hfen",
         "sharp", "grain", "grain_ratio"]
-ORDER = ["zf", "cgsense", "cssense", "zsssdu", "dip", "inr", "gs_single", "gs_joint"]
+ORDER = ["zf", "cgsense", "cssense", "zsssdu", "dip", "inr", "gs_single", "gs_joint", "gs_joint_v2"]
 LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "zsssdu": "ZS-SSDU",
-         "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint"}
+         "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
+         "gs_joint_v2": "MC-GS joint v2"}
 
 
 def main():
@@ -41,6 +42,13 @@ def main():
         for ch, name in (("plain", d.get("plain_name", "T1")), ("contrast", d.get("contrast_name", "T2"))):
             rows.append({"contrast": name, "method": "gs_joint",
                          **{k: d[ch].get(k) for k in COLS}, "seconds": None})
+    # v2 = autoresearch working point (autoresearch_t1t2.md in the framework repo), 4000 iters
+    vp = ARC / "ar3_P2_full4k_score.json"
+    if vp.exists():
+        d = json.load(open(vp))
+        for ch, name in (("plain", d.get("plain_name", "T1")), ("contrast", d.get("contrast_name", "T2"))):
+            rows.append({"contrast": name, "method": "gs_joint_v2",
+                         **{k: d[ch].get(k) for k in COLS}, "seconds": d.get("elapsed_s")})
     for c in ("T1", "T2"):
         sp = ARC / f"t1t2_af12_single_{c}_score.json"
         if sp.exists():

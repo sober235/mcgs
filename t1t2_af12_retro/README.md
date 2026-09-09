@@ -152,6 +152,7 @@ The set is the same eight the CE pre/post study compared, with the same hyper-pa
 | 3D-INR | 3D coordinate network, hash-grid encoding into a small ReLU MLP (SUMMIT backbone, complex weighted-image head), 16.79 M params. 1500 iterations, lr 5e-3 | `recon_dip_inr.py` |
 | MC-GS single | the frozen model with the SAME contrast in both channels (2x the single-scan objective; Adam is invariant to a global loss scale, so this is that contrast reconstructed alone) | `arc/cycle.py` |
 | MC-GS joint | the frozen model with T1 in the plain channel and T2 in the contrast channel, one shared Gaussian geometry, per-primitive dual complex density | `arc/cycle.py` |
+| MC-GS joint v2 | the same joint model with the cold-start path repaired (see the section below): points drawn inside the zero-filled head support, 3-NN spacing scales, edge-TV kappa from the ZF image, 1.2M points | `autoresearch_t1t2.sh` |
 
 **No method sees the ground truth during fitting or model selection.** ZS-SSDU stops on a held-out
 10 % of the acquired mask; DIP and INR stop on a held-out 5 % of the acquired PE lines, the same
@@ -175,9 +176,10 @@ metrics, so the learned arms and the classical arms are directly comparable.
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| CS-SENSE | **39.243** | 0.9294 | 0.01434 | 0.5682 | **34.607** | **0.9436** | 0.1071 | 0.817 | 0.01016 | 15 min |
+| **MC-GS joint v2** | **39.249** | 0.9047 | **0.01432** | 0.6052 | **34.978** | 0.9373 | **0.0863** | 0.912 | 0.01220 | 40 min |
+| CS-SENSE | 39.243 | 0.9294 | 0.01434 | **0.5682** | 34.607 | **0.9436** | 0.1071 | 0.817 | 0.01016 | 15 min |
 | ZS-SSDU | 38.635 | 0.9412 | 0.01649 | 0.6465 | 34.134 | 0.9365 | 0.1213 | 1.012 | 0.01387 | 22 min |
-| MC-GS single | 36.010 | 0.8479 | 0.03018 | 0.7521 | 33.296 | 0.9164 | **0.1162** | 0.935 | 0.01473 | 127 min |
+| MC-GS single | 36.010 | 0.8479 | 0.03018 | 0.7521 | 33.296 | 0.9164 | 0.1162 | 0.935 | 0.01473 | 127 min |
 | MC-GS joint | 36.353 | 0.8682 | 0.02789 | 0.7319 | 33.294 | 0.9190 | 0.1220 | 0.874 | 0.01243 | 99 min |
 | CG-SENSE | 34.514 | 0.7269 | 0.04259 | 0.8528 | 31.941 | 0.8981 | 0.1705 | 0.903 | 0.01623 | 11 min |
 | 3D-INR | 34.761 | 0.8182 | 0.04024 | 1.0278 | 30.838 | 0.8446 | 0.1435 | 1.218 | 0.02465 | 71 min |
@@ -188,7 +190,8 @@ metrics, so the learned arms and the classical arms are directly comparable.
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| CS-SENSE | **39.229** | 0.9307 | 0.01417 | 0.5440 | **34.219** | 0.9427 | 0.0916 | 0.741 | 0.00967 | 5 min |
+| **MC-GS joint v2** | **40.174** | 0.9314 | **0.01140** | **0.5239** | **35.429** | 0.9474 | **0.0665** | 0.857 | 0.01171 | 40 min |
+| CS-SENSE | 39.229 | 0.9307 | 0.01417 | 0.5440 | 34.219 | 0.9427 | 0.0916 | 0.741 | 0.00967 | 5 min |
 | ZS-SSDU | 38.991 | **0.9677** | 0.01497 | 0.5626 | 33.822 | **0.9493** | 0.1168 | 1.128 | 0.01589 | 42 min |
 | MC-GS single | 37.743 | 0.9162 | 0.01995 | 0.6361 | 33.497 | 0.9319 | 0.0932 | 0.866 | 0.01382 | 100 min |
 | MC-GS joint | 37.833 | 0.9365 | 0.01954 | 0.6478 | 33.121 | 0.9295 | 0.1005 | 0.802 | 0.01161 | 99 min |
@@ -198,8 +201,8 @@ metrics, so the learned arms and the classical arms are directly comparable.
 | ZF | 30.548 | 0.8659 | 0.10456 | 0.9198 | 25.193 | 0.7013 | 0.6406 | 0.277 | 0.00421 | 6 min |
 
 Figures: `figures/t1t2_af12_{T1,T2}_plane{0,1,2}.png`, mirrored to
-`/home/congcongliu/figs/t1t2_af12/`. Nine columns: ground truth (with the AF12 sampling pattern
-below it) then the eight methods, magnitudes on top and `|recon - GT| / max(GT)` below in jet with
+`/home/congcongliu/figs/t1t2_af12/`. Ten columns: ground truth (with the AF12 sampling pattern
+below it) then the nine arms, magnitudes on top and `|recon - GT| / max(GT)` below in jet with
 a fixed [0, 0.1] range.
 
 ### What the numbers say
@@ -216,11 +219,15 @@ SoS == 1 in air, so the ground truth's background carries full-amplitude noise a
 does not suppress it is punished. Head-only reverses the verdict, 0.898 against 0.670. Quote
 head-only numbers.
 
-**MC-GS sits about 3 dB behind CS-SENSE here, and the likely reason is the missing warm start.**
-The frozen headline (T1 38.4 dB on the old bundle) came from a 576902-Gaussian dual-warm cloud;
-that cloud belongs to a different FOV and cannot be registered onto this grid, so these runs start
-from a fresh 600 000-point cloud. That is the single deliberate deviation from the frozen recipe
-and it is not a small one. Building a warm start on this grid is the obvious next experiment.
+**The original MC-GS arms sit 1.3 dB behind CS-SENSE inside the head, and the reason turned out
+to be the cold-start path, not a missing warm start as such.** The frozen headline came from a
+576902-Gaussian dual-warm cloud that cannot be registered onto this grid, so these runs start
+from a fresh 600 000-point cloud, and that path had never been exercised at quality: it scatters
+the points uniformly over the render box (72 % of them in air, where they never move) and
+calibrates the edge-TV threshold on the speckle of the first render. Repairing it, and giving
+the cloud 1.2M points, is the "MC-GS joint v2" row: **+1.68 / +2.31 dB head-only over the
+original joint arm, first on head PSNR, whole PSNR, NMSE and head HFEN on both contrasts**, head
+SSIM second by 0.006 / 0.002. Details in the v2 section below.
 
 **Joint versus single is a wash inside the head.** Joint wins on whole-volume PSNR (+0.343 dB on
 T1, +0.090 on T2) but head-only is flat on T1 (33.294 vs 33.296) and *worse* on T2 (−0.376). So on
@@ -247,6 +254,48 @@ Gauge notes:
 - `grain_ratio` (N) uses the frozen "WM" band = strict [P55, P90] of in-brain intensity. On T1
   that band is white matter. **On T2 it is not** — T2 inverts the tissue ordering — so N is not
   comparable between the two contrasts. It remains comparable *across methods within* a contrast.
+
+## MC-GS joint v2 — the cold-start path repaired (autoresearch, 2026-09-09/10)
+
+Found and fixed with a Karpathy-style loop (one change per experiment, 1500-iteration
+screening, 4000-iteration promotion) run on this pair: program `autoresearch_t1t2.md`, ledger
+`autoresearch_t1t2.tsv`, runner `autoresearch_t1t2.sh`, branch `autoresearch-t1t2` of the
+framework repo. Three defects of the fresh-cloud path in `JointTrainer._setup_model`, each
+measured on its own at 1500 iterations (head PSNR T1 / T2, shipped cold start 32.55 / 32.35):
+
+| change | what it fixes | head PSNR after | delta |
+|---|---|---|---|
+| positions drawn inside the zero-filled head support (`gaussian.init_mode=head`) | 72 % of a uniform cloud lands in air with density ~0 and position gradient ~0; those points never move | 34.17 / 34.27 | **+1.62 / +1.92** |
+| + 3-NN spacing scales instead of a fixed 1-voxel scale (`init_scale_mode=3nn`) | coverage holes between points | 34.77 / 34.22 | +0.61 / −0.05 (SSIM and HFEN up on both) |
+| + edge-TV kappa resolved on the ZF image (`loss.edge_tv_kappa_source=zf`) | the threshold was the 0.85-quantile of the *initial render's* gradients, i.e. of speckle | 34.82 / 34.22 | +0.05 / 0.00 once 3-NN is on (+0.30 / +0.08 on the fixed-scale cloud) |
+| + 1.2M initial points (`gaussian.initial_num_points=1200000`) | capacity; the warm cloud had been densified, this one never was | 35.01 / 35.02 | +0.19 / +0.80 |
+
+Promotion at 4000 iterations = the v2 rows above (`results_arc/ar3_P2_full4k*`, 40 min, 32 GB).
+Repeat floor at this working point (seed 42 vs 43): 0.003 / 0.005 dB. Things that did **not**
+help, each as a single change: intensity-weighted sampling, densification (inert at the fixed
+scale; dominated by the initial count otherwise), position_lr x3.3, lambda_geo 0.07, plain
+high-band weight 1.0 or 3.0. Capacity is contrast-asymmetric: T1 peaks at 1.2M and falls
+beyond it (34.91 / 34.57 / 32.24 at 1.6 / 2.4 / 4.8M) because the extra points fit the acquired
+8.5 % better and extrapolate worse (oracle unsampled-k error 0.590 → 0.617 → 0.726), while T2,
+protected by its shutter, keeps rising to 2.4M (35.48). The shared geometry follows the binding
+contrast.
+
+Read this row with two caveats. (1) The four changes were **selected on this subject with the
+ground truth in the scorer**, unlike the other arms' fixed hyper-parameters; they are structural
+(where the cloud starts, how big it is, where the edge threshold comes from), not per-image
+tuning, and the same recipe is being checked unchanged on the two T1+FLAIR topics
+(`T1FLAIR_AF12_retro`, `T1FLAIR_AF12_v3_jiangyizhou`) — see the framework repo's
+`autoresearch_t1t2.md` round log for the outcome. (2) Whole-volume SSIM still favours ZS-SSDU
+and CS-SENSE; as explained above that gauge is dominated by the noisy air in the ground truth
+and is not the number to quote.
+
+```bash
+# v2, exactly (frozen working point baked into the runner; the four --set are the change)
+cd $F && SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar3_P2_full4k 4 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn \
+  --set loss.edge_tv_kappa_source=zf --set gaussian.initial_num_points=1200000
+env $E $PY $R/scripts/extract_gs_volumes.py && env $E $PY $R/scripts/summarize.py
+```
 
 ## Layout
 

@@ -19,7 +19,10 @@ ARC = Path("/data0/congcong/code/GS/Paired_ARC_GS_general_framework/results_arc"
 JOBS = [("t1t2_af12_joint", "gs_joint", [("recT1", "T1"), ("recFL", "T2")],
          [("gtT1", "T1"), ("gtFL", "T2")], [("zfT1", "T1"), ("zfFL", "T2")]),
         ("t1t2_af12_single_T1", "gs_single", [("recT1", "T1")], [], []),
-        ("t1t2_af12_single_T2", "gs_single", [("recT1", "T2")], [], [])]
+        ("t1t2_af12_single_T2", "gs_single", [("recT1", "T2")], [], []),
+        # v2 = the autoresearch working point (head-support init, 3-NN scales, kappa from ZF,
+        # 1.2M points), promoted at 4000 iterations on 2026-09-10; see README "MC-GS joint v2".
+        ("ar3_P2_full4k", "gs_joint_v2", [("recT1", "T1"), ("recFL", "T2")], [], [])]
 
 
 def main():

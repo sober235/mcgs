@@ -14,7 +14,7 @@ from pathlib import Path
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--contrast", required=True, choices=["T1", "T2"])
-ap.add_argument("--methods", default="zf,cgsense,cssense,zsssdu,dip,inr,gs_single,gs_joint")
+ap.add_argument("--methods", default="zf,cgsense,cssense,zsssdu,dip,inr,gs_single,gs_joint,gs_joint_v2")
 ap.add_argument("--out", default=None)
 args = ap.parse_args()
 
@@ -30,7 +30,7 @@ FIGS.mkdir(parents=True, exist_ok=True)
 ANAT = {0: "transverse (axial)", 1: "coronal", 2: "sagittal"}   # adjudicated 2026-09-09, see README
 LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV)",
          "zsssdu": "ZS-SSDU", "dip": "3D-DIP", "inr": "3D-INR",
-         "gs_single": "MC-GS single", "gs_joint": "MC-GS joint"}
+         "gs_single": "MC-GS single", "gs_joint": "MC-GS joint", "gs_joint_v2": "MC-GS joint v2"}
 
 
 def load(method, c):
