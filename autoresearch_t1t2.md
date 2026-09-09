@@ -102,3 +102,41 @@ Knobs already wired (cycle.py flags, or `--set key.path=value` for anything in t
 ## Round log
 
 (appended as rounds close; the per-experiment numbers are in `autoresearch_t1t2.tsv`)
+
+### Round 0 — 2026-09-09 22:28, seven runs at 1500 iterations, GPUs 1–7, ~20 min each
+
+Head-only PSNR T1 / T2 (dB), margins against CS-SENSE 34.607 / 34.219:
+
+| exp | change vs parent | T1 | T2 | vs parent | head SSIM T1/T2 | sharp T1/T2 | verdict |
+|---|---|---|---|---|---|---|---|
+| `ar0_A_base` | — (uniform init, the shipped cold start) | 32.547 | 32.345 | — | 0.9069 / 0.9199 | 0.877 / 0.794 | baseline |
+| `ar0_A_seed43` | seed 42 → 43 | 32.551 | 32.356 | +0.004 / +0.011 | | | repeat floor ≈ 0.01 dB |
+| `ar0_B_head` | init positions inside the ZF head support | 34.165 | 34.269 | **+1.62 / +1.92** vs A | 0.9265 / 0.9398 | 0.962 / 0.876 | **keep** |
+| `ar0_C_head3nn` | B + 3-NN spacing scales | 34.771 | 34.218 | **+0.61** / −0.05 vs B | 0.9409 / 0.9411 | 0.879 / 0.814 | **keep** (SSIM, HFEN up on both) |
+| `ar0_D_head_kzf` | B + kappa from the ZF image | 34.469 | 34.350 | **+0.30 / +0.08** vs B | 0.9339 / 0.9412 | 0.925 / 0.856 | **keep** |
+| `ar0_E_head_dens12` | B + densify (cap 1.2M) | 34.146 | 34.296 | −0.02 / +0.03 vs B | | | discard — inert, see below |
+| `ar0_F_head_poslr1e3` | B + position_lr 3e-4 → 1e-3 | 34.122 | 34.213 | −0.04 / −0.06 vs B | | | discard |
+
+Readings.
+
+- **Defect 1 confirmed and it is the whole story so far.** Drawing the same 600k points inside
+  the measured head support instead of the box is worth +1.6 / +1.9 dB at equal budget; every
+  other axis (SSIM, HFEN, sharpness) moves the same way. At 1500 iterations `ar0_B_head` already
+  passes CS-SENSE on T2 and `ar0_C_head3nn` on T1. The uniform baseline gained +0.75 dB from
+  1500 to 4000 iterations, so the promotion runs have headroom.
+- **Defect 2 confirmed.** Resolving kappa on the ZF image (0.031 / 0.031) instead of the
+  speckle render (0.016 / 0.018) is worth +0.30 / +0.08 dB with SSIM and HFEN improving.
+- **3-NN scales** trade sharpness (0.962 → 0.879 on T1) for +0.61 dB, higher SSIM and lower
+  HFEN on both contrasts, and stay above the program's floor (0.874 / 0.802). Ruling recorded
+  here rather than silently applied: the "no blur trade" check compares sharpness against the
+  program's floor (the current joint), not against a parent that is sharper than the ground
+  truth is worth — B's 0.96 was closer to speckle than to detail (ZS-SSDU sits at 1.01 with a
+  worse HFEN). SSIM and HFEN keep the parent-relative test.
+- **Densification as configured did nothing** (600000 → 635969): with the fixed 0.008 init
+  scale, no Gaussian exceeds `scale_threshold` 0.01, so `split` never fires and only the
+  starved `clone` branch adds points. Not a verdict on densification; re-run on the 3-NN
+  parent with `scale_threshold` below the init scale.
+- position_lr ×3.3 is slightly negative; leave the lrs alone.
+
+Round 1 parent = B + 3-NN + kappa_zf (`ar1_P1`), the two independent wins combined; the parent
+also goes to a 4000-iteration promotion straight away.
