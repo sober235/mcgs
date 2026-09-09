@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figure viewer</title>
+<style>
+  :root { --bg:#111; --panel:#1c1c1c; --fg:#ddd; --dim:#888; --acc:#5aa9ff; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--fg);
+              font:13px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans CJK SC",sans-serif; overflow:hidden; }
+  #top { position:fixed; left:0; right:0; top:0; height:40px; display:flex; align-items:center; gap:8px;
+         padding:0 10px; background:var(--panel); border-bottom:1px solid #333; z-index:5; white-space:nowrap; overflow:hidden; }
+  #top button { background:#2a2a2a; color:var(--fg); border:1px solid #444; border-radius:4px; padding:4px 9px; cursor:pointer; }
+  #top button:hover { border-color:var(--acc); }
+  #top button.on { background:#2d4a6b; border-color:var(--acc); }
+  #name { color:var(--dim); overflow:hidden; text-overflow:ellipsis; }
+  #zoom { min-width:5em; text-align:right; font-variant-numeric:tabular-nums; }
+  #side { position:fixed; left:0; top:40px; bottom:0; width:240px; background:var(--panel); border-right:1px solid #333;
+          overflow:auto; z-index:4; }
+  #side a { display:block; padding:5px 10px; color:var(--fg); text-decoration:none; border-bottom:1px solid #262626;
+            overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; }
+  #side a:hover { background:#262626; }
+  #side a.cur { background:#2d4a6b; color:#fff; }
+  #side .dir { padding:6px 10px; color:var(--dim); font-size:11px; letter-spacing:.04em; text-transform:uppercase; }
+  #stage { position:fixed; left:240px; top:40px; right:0; bottom:0; overflow:hidden; cursor:grab; background:var(--bg); touch-action:none; }
+  #stage.drag { cursor:grabbing; }
+  #img { position:absolute; left:0; top:0; transform-origin:0 0; user-select:none; -webkit-user-drag:none; will-change:transform; }
+  #img.pix { image-rendering:pixelated; image-rendering:crisp-edges; }
+  #hint { position:fixed; right:12px; bottom:10px; color:var(--dim); font-size:11px; z-index:5; text-align:right; }
+  body.noside #side { display:none; }  body.noside #stage { left:0; }
+</style>
+</head>
+<body>
+<div id="top">
+  <button id="bfit" title="适应窗口 (0)">适应窗口</button>
+  <button id="b100" title="原始像素 1:1 (1)">1:1</button>
+  <button id="bminus" title="缩小 (-)">−</button>
+  <button id="bplus" title="放大 (+)">+</button>
+  <button id="bpix" title="像素化渲染：放大看误差图时不插值 (p)">像素化</button>
+  <button id="bside" title="显示/隐藏目录 (s)">目录</button>
+  <button id="bprev" title="上一张 (←)">◀</button>
+  <button id="bnext" title="下一张 (→)">▶</button>
+  <span id="zoom">100%</span>
+  <span id="size" style="color:var(--dim)"></span>
+  <span id="name"></span>
+</div>
+<div id="side"></div>
+<div id="stage"><img id="img" alt=""></div>
+<div id="hint">滚轮 或 Ctrl+滚轮 缩放（以光标为中心） · 拖拽平移 · 双击适应窗口 · ←→ 切图 · 0 适应 · 1 原始 · p 像素化</div>
+<script>
+(function () {
+  const q = new URLSearchParams(location.search);
+  let img = q.get('img') || '';
+  const stage = document.getElementById('stage'), el = document.getElementById('img');
+  const zoomEl = document.getElementById('zoom'), sizeEl = document.getElementById('size'), nameEl = document.getElementById('name');
+  const side = document.getElementById('side');
+  let s = 1, tx = 0, ty = 0, natW = 0, natH = 0, list = [], dir = '';
+
+  function apply() {
+    el.style.transform = `translate(${tx}px, ${ty}px) scale(${s})`;
+    zoomEl.textContent = Math.round(s * 100) + '%';
+  }
+  function fit() {
+    if (!natW) return;
+    const W = stage.clientWidth, H = stage.clientHeight;
+    s = Math.min(W / natW, H / natH);
+    tx = (W - natW * s) / 2; ty = (H - natH * s) / 2; apply();
+  }
+  function one() {
+    const W = stage.clientWidth, H = stage.clientHeight;
+    s = 1; tx = (W - natW) / 2; ty = (H - natH) / 2; apply();
+  }
+  function zoomAt(cx, cy, factor) {
+    const ns = Math.min(64, Math.max(0.02, s * factor));
+    tx = cx - (cx - tx) * (ns / s); ty = cy - (cy - ty) * (ns / s); s = ns; apply();   // point under cursor stays put
+  }
+  function load(path) {
+    img = path;
+    const u = new URL(location.href); u.searchParams.set('img', path); history.replaceState(null, '', u);
+    nameEl.textContent = path; document.title = path.split('/').pop();
+    el.onload = () => { natW = el.naturalWidth; natH = el.naturalHeight; sizeEl.textContent = `${natW}×${natH}`; fit(); mark(); };
+    el.src = '/' + path.replace(/^\/+/, '') + '?t=' + Date.now();   // figures get regenerated: bust the cache
+  }
+  function mark() { for (const a of side.querySelectorAll('a')) a.classList.toggle('cur', a.dataset.p === img);
+                    const c = side.querySelector('a.cur'); if (c) c.scrollIntoView({block:'nearest'}); }
+  function step(d) { if (!list.length) return; let i = list.indexOf(img); i = (i + d + list.length) % list.length; load(list[i]); }
+
+  // directory listing straight from python http.server's index page
+  async function loadDir() {
+    dir = img.includes('/') ? img.slice(0, img.lastIndexOf('/')) : '';
+    try {
+      const html = await (await fetch('/' + (dir ? dir + '/' : ''))).text();
+      const names = [...html.matchAll(/href="([^"]+\.(?:png|jpg|jpeg|gif|svg|webp))"/gi)].map(m => decodeURIComponent(m[1]));
+      list = names.map(n => (dir ? dir + '/' : '') + n);
+    } catch (e) { list = img ? [img] : []; }
+    side.innerHTML = `<div class="dir">${dir || '/'} · ${list.length} 张</div>` +
+      list.map(p => `<a href="#" data-p="${p}" title="${p}">${p.split('/').pop()}</a>`).join('');
+    side.querySelectorAll('a').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); load(a.dataset.p); }));
+    mark();
+  }
+
+  // wheel: zoom about the cursor, with or without Ctrl; the browser must never page-zoom
+  stage.addEventListener('wheel', ev => {
+    ev.preventDefault();
+    const r = stage.getBoundingClientRect();
+    const k = Math.exp(-ev.deltaY * (ev.ctrlKey ? 0.0035 : 0.0018));
+    zoomAt(ev.clientX - r.left, ev.clientY - r.top, k);
+  }, { passive: false });
+  window.addEventListener('wheel', ev => { if (ev.ctrlKey) ev.preventDefault(); }, { passive: false });
+  window.addEventListener('keydown', ev => {   // Ctrl+plus / Ctrl+minus: zoom the image, not the page
+    if (ev.ctrlKey && (ev.key === '+' || ev.key === '=' || ev.key === '-')) { ev.preventDefault(); zoomAt(...center(), ev.key === '-' ? 0.8 : 1.25); }
+  });
+
+  // drag to pan
+  let drag = null;
+  stage.addEventListener('pointerdown', ev => { drag = { x: ev.clientX - tx, y: ev.clientY - ty }; stage.classList.add('drag'); stage.setPointerCapture(ev.pointerId); });
+  stage.addEventListener('pointermove', ev => { if (!drag) return; tx = ev.clientX - drag.x; ty = ev.clientY - drag.y; apply(); });
+  const up = () => { drag = null; stage.classList.remove('drag'); };
+  stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
+  stage.addEventListener('dblclick', fit);
+
+  const center = () => [stage.clientWidth / 2, stage.clientHeight / 2];
+  document.getElementById('bfit').onclick = fit;
+  document.getElementById('b100').onclick = one;
+  document.getElementById('bplus').onclick = () => zoomAt(...center(), 1.25);
+  document.getElementById('bminus').onclick = () => zoomAt(...center(), 0.8);
+  document.getElementById('bpix').onclick = function () { el.classList.toggle('pix'); this.classList.toggle('on'); };
+  document.getElementById('bside').onclick = () => { document.body.classList.toggle('noside'); fit(); };
+  document.getElementById('bprev').onclick = () => step(-1);
+  document.getElementById('bnext').onclick = () => step(1);
+  window.addEventListener('keydown', ev => {
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    if (ev.key === '+' || ev.key === '=') zoomAt(...center(), 1.25);
+    else if (ev.key === '-') zoomAt(...center(), 0.8);
+    else if (ev.key === '0') fit();
+    else if (ev.key === '1') one();
+    else if (ev.key === 'p') document.getElementById('bpix').click();
+    else if (ev.key === 's') document.getElementById('bside').click();
+    else if (ev.key === 'ArrowLeft') step(-1);
+    else if (ev.key === 'ArrowRight') step(1);
+    else return;
+    ev.preventDefault();
+  });
+  window.addEventListener('resize', fit);
+
+  if (img) { load(img); loadDir(); }
+  else { nameEl.textContent = '用法: view.html?img=<目录>/<文件>.png'; side.innerHTML = '<div class="dir">未指定图片</div>'; }
+})();
+</script>
+</body>
+</html>
