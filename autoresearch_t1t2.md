@@ -250,3 +250,29 @@ on T1. The transferable form of the knob is a **density**: 1 200 000 / (0.3199 �
 `ar7_tf_jyz_rho` = the jyz transfer with `initial_num_points=1588000` and nothing else changed;
 it is a pass only if both channels clear CS-SENSE (35.762 / 35.085). If it fails, the honest
 statement is "first on the tuning subject in both pairings, second on the held-out subject".
+
+### Round 6 — 4000-iteration runs (2026-09-10, 01:30–02:35): the two smoothing knobs at full budget, and joint versus single under the repaired cold start
+
+| exp | what | T1 head PSNR / SSIM / HFEN | T2 head PSNR / SSIM / HFEN | sharp | verdict |
+|---|---|---|---|---|---|
+| `ar3_P2_full4k` (reference) | P2 | 34.978 / 0.9373 / 0.0863 | 35.429 / 0.9474 / 0.0665 | 0.912 / 0.857 | promoted |
+| `ar6_P2_lam012_full4k` | P2 + lambda_geo 0.12 | 35.085 / 0.9388 / 0.0876 | 35.405 / 0.9466 / 0.0686 | 0.887 / 0.838 | not promoted |
+| `ar6_P2_kq090_full4k` | P2 + edge quantile 0.90 | 35.095 / 0.9387 / 0.0883 | 35.397 / 0.9461 / 0.0694 | 0.885 / 0.836 | not promoted |
+| `ar6_single_T1_v2` | single-contrast T1, same recipe | 34.680 / 0.9325 / 0.0923 | — | 0.916 | ablation |
+| `ar6_single_T2_v2` | single-contrast T2, same recipe | — | 35.680 / 0.9480 / 0.0661 | 0.866 | ablation |
+
+- **The two smoothing knobs buy T1 (+0.11 dB) with T2's SSIM and HFEN and both contrasts'
+  sharpness** — the same trade the 1500-iteration screen showed, so it survives the budget. Under
+  the pre-registered rule (SSIM and HFEN of either contrast not worse than the parent beyond
+  the repeat floor) they are not promoted; `min_margin` would read +0.48 instead of +0.37, but
+  that is a reshape toward T1, not a gain. P2 stays the working point. Head SSIM did not reach
+  CS-SENSE (0.9388 vs 0.9436) either way: the stretch goal is closed as not reachable by
+  fitting-side smoothing at this capacity.
+- **Joint versus single, repaired cold start, 4000 iterations: the shared geometry moves
+  accuracy from the easier contrast to the harder one.** T1: joint 34.978 vs single 34.680
+  (+0.30 dB head, +0.30 whole, SSIM +0.005, HFEN 0.086 vs 0.092). T2: joint 35.429 vs single
+  35.680 (−0.25 dB head, −0.13 whole, SSIM −0.0006). Single T1 clears CS-SENSE by only
+  +0.07 dB; it is the joint model that puts T1 +0.37 ahead. This replaces the pre-repair reading
+  "joint is a wash inside the head": at equal (shared) capacity the joint model gives the
+  binding contrast the gain and charges the other one, which is exactly what a shared point
+  budget with a T1-limited count should do (T2 alone would take 2.4M points, §rounds 1–3).
