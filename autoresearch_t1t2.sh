@@ -13,7 +13,7 @@ EXP=$1; GPU=$2; ITERS=$3; shift 3
 WARMUP=${WARMUP:-500}   # dead knob (no use-site) but cycle.py asserts warmup < iters/2; smoke runs set WARMUP=20
 ROOT=$(cd "$(dirname "$0")" && pwd)
 PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
-CONFIG=configs/t1t2_af12_hyw.yaml
+CONFIG=${CONFIG:-configs/t1t2_af12_hyw.yaml}   # transfer checks point this at the T1+FLAIR topic configs
 LOG="$ROOT/results_arc/${EXP}.log"
 for path in "$LOG" "$ROOT/results_arc/${EXP}_score.json" "$ROOT/results_arc/${EXP}"; do
   if [[ -e "$path" ]]; then echo "refusing to overwrite existing output: $path" >&2; exit 1; fi
@@ -29,5 +29,5 @@ env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID \
 RC=$?
 STATUS=pending
 if [[ $RC -ne 0 ]]; then STATUS=crash; fi
-env PYTHONNOUSERSITE=1 PYTHONPATH= "$PY" scripts/autoresearch_t1t2_row.py --exp "$EXP" --status "$STATUS" --note "rc=$RC"
+env PYTHONNOUSERSITE=1 PYTHONPATH= "$PY" scripts/autoresearch_t1t2_row.py --exp "$EXP" --status "$STATUS" --note "rc=$RC cfg=$CONFIG" ${BEST_PLAIN:+--best_plain "$BEST_PLAIN"} ${BEST_CONTRAST:+--best_contrast "$BEST_CONTRAST"}
 exit $RC

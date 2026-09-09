@@ -180,3 +180,30 @@ Readings.
   are fixed.
 - At 1500 iterations P2 beats CS-SENSE by +0.40 (T1) / +0.80 (T2) dB head-only and on the
   whole volume too (39.34 / 39.87 vs 39.24 / 39.23).
+
+### Promotion — `ar3_P2_full4k`, 2026-09-10 00:46: the 1.2M working point at 4000 iterations
+
+| | T1 | T2 | best competitor |
+|---|---|---|---|
+| head PSNR | **34.978** (+0.371) | **35.429** (+1.211) | CS-SENSE 34.607 / 34.219 |
+| head SSIM | 0.9373 | 0.9474 | CS-SENSE 0.9436 / ZS-SSDU 0.9493 |
+| head HFEN | **0.0863** | **0.0665** | CS-SENSE 0.1071 / 0.0916 |
+| whole PSNR | **39.249** | **40.174** | CS-SENSE 39.243 / 39.229 |
+| sharp / N | 0.912 / 0.998 | 0.857 / 0.948 | (current joint 0.874 / 0.802) |
+
+`min_margin = +0.371 dB` at the full budget: **the objective is met on head PSNR, head HFEN and
+whole-volume PSNR for both contrasts.** Head SSIM is second by 0.006 (T1) and 0.002 (T2) — the
+stretch goal, still open. Against the shipped cold start (33.294 / 33.121) this is
++1.68 / +2.31 dB from three fitting-side changes and no new prior. From 1500 to 4000
+iterations T1 is flat (35.007 → 34.978) while T2 gains +0.41; T1 has reached its plateau by
+1500 at this capacity. 40 min on an exclusive A800, 32 GB. Volumes in
+`results_arc/ar3_P2_full4k_volumes.npz`.
+
+Recipe = the frozen working point plus
+`--set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf --set gaussian.initial_num_points=1200000`.
+
+Round 4 (single deltas from P2, 1500 iters): seed 43 repeat 35.004 / 35.017 (floor 0.003 /
+0.005 dB); plain high-band weight 3.0 → 34.345 / 34.911, discard (2.2 is the optimum on T1:
+1.0 and 3.0 both lose). Pending: 1.5x initial scales, kappa refresh at 300, edge quantile 0.75.
+Next: transfer check on the two T1+FLAIR topics with the same recipe; archive the arm into
+`Results_20260908/T1T2_AF12_retro`.

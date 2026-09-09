@@ -27,7 +27,13 @@ def main():
     ap.add_argument("--exp", required=True)
     ap.add_argument("--status", default="pending")
     ap.add_argument("--note", default="")
+    ap.add_argument("--best_plain", type=float, default=None, help="override the plain-channel head PSNR to beat (transfer checks)")
+    ap.add_argument("--best_contrast", type=float, default=None, help="override the contrast-channel head PSNR to beat")
     a = ap.parse_args()
+    if a.best_plain is not None:
+        BEST["T1"]["head_psnr"] = a.best_plain
+    if a.best_contrast is not None:
+        BEST["T2"]["head_psnr"] = a.best_contrast
     sj = ROOT / "results_arc" / f"{a.exp}_score.json"
     if not sj.exists():
         row = {c: "" for c in COLS}
