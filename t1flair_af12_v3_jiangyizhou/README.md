@@ -28,6 +28,7 @@ whole-volume SSIM misleads on this data).
 |---|---|---|---|---|---|
 | CS-SENSE | **39.395** | 0.9523 | **35.762** | **0.9429** | 2 min |
 | ZS-SSDU | 39.357 | **0.9577** | 35.724 | 0.9422 | 22 min |
+| MC-GS joint v2 (transfer check, see below) | 38.949 | 0.9194 | 35.520 | 0.9321 | 42 min |
 | MC-GS joint | 36.349 | 0.8703 | 34.160 | 0.9169 | 29 min |
 | MC-GS single | 35.529 | 0.8297 | 33.799 | 0.9032 | 29 min |
 | CG-SENSE | 35.082 | 0.7562 | 33.514 | 0.8981 | 2 min |
@@ -40,6 +41,7 @@ whole-volume SSIM misleads on this data).
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
 | CS-SENSE | 38.773 | 0.9416 | **35.084** | 0.9307 | 2 min |
+| MC-GS joint v2 (transfer check, see below) | 38.584 | 0.9082 | 35.056 | 0.9238 | 42 min |
 | ZS-SSDU | **38.807** | **0.9563** | 35.034 | **0.9353** | 36 min |
 | CG-SENSE | 35.704 | 0.7782 | 33.957 | 0.9032 | 2 min |
 | MC-GS single | 36.204 | 0.8749 | 33.409 | 0.9006 | 29 min |
@@ -88,6 +90,28 @@ suppression by the explicit representation.
 
 Every MC-GS run in all three topics is a cold start (the frozen warm-start cloud belongs to the
 old FOV). That is the one untested lever left for the 1.3 to 1.7 dB gap to CS-SENSE.
+
+## MC-GS joint v2 — the T1+T2 recipe transferred unchanged: second, not first (2026-09-10)
+
+The recipe the autoresearch loop found on huangyuwei's T1+T2 pair (framework repo
+`autoresearch_t1t2.md`; "MC-GS joint v2" in the T1+T2 README: points drawn inside the ZF head
+support, 3-NN spacing scales, edge-TV kappa from the ZF image, 1.2M points) was applied here
+**without changing a knob**, as the held-out-subject check (`ar5_tf_jyz_t1flair`, 4000 iters).
+
+| channel | v2 head PSNR | best other arm | over the original joint arm | v2 head SSIM / best | v2 head HFEN / best |
+|---|---|---|---|---|---|
+| T1 | 35.520 | CS-SENSE 35.762 | +1.36 dB | 0.9321 / 0.9429 | **0.1056** / 0.1208 |
+| FLAIR | 35.056 | CS-SENSE 35.084 | +1.67 dB | 0.9238 / 0.9353 | **0.1063** / 0.1139 |
+
+On this subject the unchanged recipe is **second on head PSNR** (−0.24 dB on T1, −0.03 on
+FLAIR against CS-SENSE), first on head HFEN, behind on head SSIM. On huangyuwei it is first on
+both pairings. One measurable difference between the subjects is the size of the head in the
+FOV: the ZF support covers 42.3 % of the volume here against 32.0 % / 32.7 % on huangyuwei, so
+a fixed 1.2M points is a lower Gaussian density (0.246 vs 0.325 per support voxel), and
+capacity was the lever the T1 channel was most sensitive to. A points-per-support-voxel rule
+fixed on huangyuwei alone (0.325 → 1.59M points here) was pre-registered in the framework
+repo's `autoresearch_t1t2.md` before being run; its outcome is recorded there and, if it
+passes, as a further row here.
 
 ## Regenerating
 
