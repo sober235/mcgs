@@ -110,8 +110,14 @@ FOV: the ZF support covers 42.3 % of the volume here against 32.0 % / 32.7 % on 
 a fixed 1.2M points is a lower Gaussian density (0.246 vs 0.325 per support voxel), and
 capacity was the lever the T1 channel was most sensitive to. A points-per-support-voxel rule
 fixed on huangyuwei alone (0.325 → 1.59M points here) was pre-registered in the framework
-repo's `autoresearch_t1t2.md` before being run; its outcome is recorded there and, if it
-passes, as a further row here.
+repo's `autoresearch_t1t2.md` before being run. **It failed** (`ar7_tf_jyz_rho`, 1.588M points,
+4000 iterations): T1 35.273 / FLAIR 35.071 head PSNR, i.e. T1 0.25 dB *worse* than at 1.2M and
+FLAIR flat. The T1 capacity ceiling is not a density per head voxel; the acquired data is the
+same size on both subjects (same mask, 3847 lines × 256 × 26 coils), so the number of
+Gaussians it can pin down is roughly the same, and an absolute count near 1.2M is the
+transferable setting. The honest claim for the recipe is therefore: first on the tuning
+subject in both pairings, second on this held-out subject, +1.4 / +1.7 dB over the original
+joint arm everywhere.
 
 ## Regenerating
 
