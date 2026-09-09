@@ -207,3 +207,23 @@ Round 4 (single deltas from P2, 1500 iters): seed 43 repeat 35.004 / 35.017 (flo
 1.0 and 3.0 both lose). Pending: 1.5x initial scales, kappa refresh at 300, edge quantile 0.75.
 Next: transfer check on the two T1+FLAIR topics with the same recipe; archive the arm into
 `Results_20260908/T1T2_AF12_retro`.
+
+### Round 4 — single deltas from P2 at 1500 iterations, aimed at the head-SSIM gap (2026-09-10, 00:45–01:20)
+
+| exp | change vs P2 | T1 | T2 | vs P2 (35.007 / 35.022) | head SSIM | verdict |
+|---|---|---|---|---|---|---|
+| `ar4_P2_seed43` | seed 43 | 35.004 | 35.017 | −0.003 / −0.005 | 0.9394 / 0.9454 | repeat floor |
+| `ar4_P2_khp30` | plain high-band weight 3.0 | 34.345 | 34.911 | −0.66 / −0.11 | 0.9248 / 0.9449 | discard (2.2 is the T1 optimum: 1.0 and 3.0 both lose) |
+| `ar4_P2_kref300` | kappa re-resolved from the render at iter 300 | 35.024 | 34.688 | +0.02 / −0.33 | 0.9374 / 0.9380 | discard (blur: sharp 0.81 / 0.77, HFEN up) |
+| `ar4_P2_kq075` | edge quantile 0.85 → 0.75 | 34.786 | 34.961 | −0.22 / −0.06 | 0.9353 / 0.9452 | discard |
+| `ar4_P2_mult15` | 3-NN scales × 1.5 | 34.624 | 33.754 | −0.38 / −1.27 | 0.9412 / 0.9365 | discard |
+
+Nothing on the smoothing side has moved head SSIM up without paying PSNR so far. Still
+running as single deltas: edge quantile 0.90, lambda_geo 0.12, w_floor 0.20, tv_eps 0.06.
+
+**Incident, 01:15.** The session's memory watchdog killed every background launcher at once
+("system is running low on memory") while the host had 919 GB available of 1007 — it reads
+MemFree, which six concurrent h5 loads push down through the page cache. The six runs in
+flight (both transfer checks and four probes) died with them; partial outputs were removed
+and the runs relaunched with `setsid nohup`, detached from the session. Launch that way from
+now on; the ledger is the only thing the session needs to watch.
