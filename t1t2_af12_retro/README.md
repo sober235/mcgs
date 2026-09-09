@@ -45,11 +45,26 @@ The other six subjects are identical in shape and in support fraction
   carry the ACS/DC misregistration that cost the old bundle about 1 dB, so no roll is applied.
 - Coils are **not** compressible for free: 20 of 26 virtual coils are needed for 99 % of the
   central-block energy, 25 for 99.9 %. All 26 are kept.
-- **Anatomical axis labels are NOT adjudicated.** The mid-sagittal plane is clearly `axis2` (a
-  256x256 plane through corpus callosum, brainstem, cerebellum and spine), but axis 0 vs axis 1
-  has not been settled by a user ruling the way the (256,220,256) convention was. Figures label
-  panels `axis0 / axis1 / axis2`. Nothing in the reconstruction depends on this: the mask, the
-  readout axis and every metric are defined in array terms and were checked numerically.
+- **Anatomical axis labels, adjudicated 2026-09-09** (`figures/axis_orientation_check.png`):
+
+  | axis | anatomical direction | plane you get by fixing it | role |
+  |---|---|---|---|
+  | axis0 (256) | superior-inferior | **transverse (axial)** | readout, fully sampled |
+  | axis1 (256) | anterior-posterior | coronal | phase encode ky |
+  | axis2 (176) | left-right | sagittal | phase encode kz |
+
+  Three independent checks agree. Mirror symmetry holds only about axis2 (corr(v, flip) = 0.681
+  against 0.394 and 0.487), so axis2 is the left-right axis. Fixing axis0 walks a textbook
+  inferior-to-superior axial series: skull base with orbits, midbrain and cerebellum, lateral
+  ventricles, vertex. Fixing axis2 gives the mid-sagittal plane with corpus callosum, brainstem,
+  cerebellum and spine. The acquisition is a sagittal 1 mm slab, and 176 sagittal slices along
+  left-right is exactly axis2.
+
+  **So the undersampling mask, which lives on (ky, kz) = (axis1, axis2) = anterior-posterior by
+  left-right, lies in the TRANSVERSE plane, and the fully sampled readout runs head-foot.** That
+  is the same physical arrangement as the frozen house convention (Poisson pattern on the
+  transverse plane, readout along S-I); only the array ordering differs, since S-I is axis0 here
+  and axis2 in the (256,220,256) bundle.
 
 ### T1 / T2 co-registration
 

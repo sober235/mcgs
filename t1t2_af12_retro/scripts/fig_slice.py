@@ -23,6 +23,7 @@ import numpy as np
 
 R = Path("/data0/congcong/code/GS/Results_20260908/T1T2_AF12_retro")
 F = Path("/home/congcongliu/figs/t1t2_af12"); F.mkdir(parents=True, exist_ok=True)
+ANAT = {0: "transverse (axial)", 1: "coronal", 2: "sagittal"}   # adjudicated 2026-09-09, see README
 LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV)",
          "zsssdu": "ZS-SSDU", "dip": "3D-DIP", "inr": "3D-INR",
          "gs_single": "MC-GS single", "gs_joint": "MC-GS joint"}
@@ -69,7 +70,7 @@ for j, m in enumerate(methods, start=1):
     cb = fig.colorbar(im, ax=axes[1, j], fraction=0.046, pad=0.02); cb.ax.tick_params(labelsize=6)
 for a in axes.ravel():
     a.set_xticks([]); a.set_yticks([])
-fig.suptitle(f"{c}  retrospective AF 12  --  axis{ax} slice {i}   "
+fig.suptitle(f"{c}  retrospective AF 12  --  axis{ax} slice {i} ({ANAT[ax]})   "
              f"(head-masked PSNR of THIS slice; error maps jet, fixed [0, 0.1])",
              fontsize=15, fontweight="bold")
 fig.tight_layout(rect=[0, 0, 1, 0.94])

@@ -27,6 +27,7 @@ R = Path("/data0/congcong/code/GS/Results_20260908/T1T2_AF12_retro")
 FIGS = Path("/home/congcongliu/figs/t1t2_af12")
 FIGS.mkdir(parents=True, exist_ok=True)
 
+ANAT = {0: "transverse (axial)", 1: "coronal", 2: "sagittal"}   # adjudicated 2026-09-09, see README
 LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV)",
          "zsssdu": "ZS-SSDU", "dip": "3D-DIP", "inr": "3D-INR",
          "gs_single": "MC-GS single", "gs_joint": "MC-GS joint"}
@@ -74,7 +75,7 @@ def main():
                     scores[row["method"]] = row
 
     ncol = len(methods) + 1
-    for ip, pname in enumerate(["axis0 mid-slice", "axis1 mid-slice", "axis2 mid-slice"]):
+    for ip, pname in enumerate([f"axis{a} mid-slice = {ANAT[a]}" for a in range(3)]):
         fig, axes = plt.subplots(2, ncol, figsize=(3.4 * ncol, 7.6))
         gp = planes(gt)[ip]
         vmax = float(np.quantile(gp, 0.999))
