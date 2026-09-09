@@ -276,3 +276,34 @@ statement is "first on the tuning subject in both pairings, second on the held-o
   "joint is a wash inside the head": at equal (shared) capacity the joint model gives the
   binding contrast the gain and charges the other one, which is exactly what a shared point
   budget with a T1-limited count should do (T2 alone would take 2.4M points, §rounds 1–3).
+
+### The pre-registered density rule on jiangyizhou — FAIL (`ar7_tf_jyz_rho`, 2026-09-10 02:55)
+
+1.588M points (0.325 per ZF-support voxel, fixed on hyw): T1 **35.273** / FLAIR **35.071** head
+PSNR against 35.520 / 35.056 at 1.2M and CS-SENSE 35.762 / 35.084. More points made T1 worse
+by 0.25 dB on this subject too, FLAIR flat. The rule is rejected as declared.
+
+Reading: the T1 capacity ceiling is not a density per head voxel. The acquired data is the same
+size on both subjects (3847 phase-encode lines × 256 readout × 26 coils, the same mask), so
+the number of Gaussians the measurements can pin down is roughly the same, and a larger head
+simply gets fewer of them per voxel. An absolute count near 1.2M is the transferable setting
+for this acquisition; what is missing on jiangyizhou is not capacity.
+
+## Verdict (2026-09-10 03:00)
+
+- **Objective met on the arena it was set on.** hyw T1+T2, 4000 iterations: MC-GS joint v2
+  is first of nine arms on head PSNR (34.978 / 35.429, +0.37 / +1.21 dB over CS-SENSE), whole
+  PSNR, NMSE and head HFEN on both contrasts; second on head SSIM by 0.006 / 0.002.
+- **Same subject, other pairing (hyw T1+FLAIR): holds** — first on head PSNR and HFEN.
+- **Held-out subject (jiangyizhou T1+FLAIR): second on head PSNR** (−0.24 / −0.03 dB to
+  CS-SENSE), first on head HFEN, +1.4 / +1.7 dB over the original joint arm. The density rule
+  did not rescue it. The honest one-line claim is: *first on the tuning subject in both
+  pairings, second on the held-out subject*; the repaired cold start is worth +1.4 to +2.3 dB
+  head-only everywhere it was tried.
+- The recipe: the frozen working point plus `gaussian.init_mode=head`,
+  `gaussian.init_scale_mode=3nn`, `loss.edge_tv_kappa_source=zf`,
+  `gaussian.initial_num_points=1200000`. Everything else was tried as a single change and lost
+  or reshaped (ledger). Head SSIM cannot be bought on the fitting side at this capacity.
+- Joint versus single under the repaired cold start: +0.30 dB to T1, −0.25 dB from T2 — the
+  shared geometry helps the binding contrast at the other's expense.
+- 34 experiments, 8 of them at 4000 iterations, ~9 GPU-hours, 2026-09-09 21:40 to 09-10 03:00.
