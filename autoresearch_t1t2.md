@@ -140,3 +140,43 @@ Readings.
 
 Round 1 parent = B + 3-NN + kappa_zf (`ar1_P1`), the two independent wins combined; the parent
 also goes to a 4000-iteration promotion straight away.
+
+### Rounds 1–3 — 2026-09-10 00:05–00:45, 1500-iteration screening, GPUs 2–7
+
+Parent P1 = head init + 3-NN scales + kappa from ZF (`ar1_P1_rerun`, 600k): **34.818 / 34.218**.
+The original `ar1_P1` and its 4000-iteration promotion were killed at 00:26: another user's
+training jobs landed on GPUs 2 and 3 and slowed both to 24 s/iteration (20x). The parent was
+re-run on an exclusive GPU; the 600k promotion was dropped in favour of the 1.2M one below.
+
+| exp | change vs parent | T1 | T2 | vs parent | verdict |
+|---|---|---|---|---|---|
+| `ar1_P1_rerun` | C + kappa from ZF | 34.818 | 34.218 | +0.05 / 0.00 vs C | parent (kappa_zf adds little once 3-NN is on: C's render kappa was already 0.025) |
+| `ar1_P1_n12` | **initial points 600k → 1.2M** | **35.007** | **35.022** | **+0.19 / +0.80** | **keep = P2** |
+| `ar1_P1_dens` | densify 600k → 825k (scale_threshold 0.005) | 34.948 | 34.716 | +0.13 / +0.50 | discard, dominated by n12 |
+| `ar1_P1_intensity` | intensity-weighted init | 34.623 | 34.415 | −0.20 / +0.20 | discard (T1 is the binding contrast) |
+| `ar1_P1_lam007` | lambda_geo 0.10 → 0.07 | 34.711 | 34.213 | −0.11 / −0.01 | discard |
+| parent P2 = `ar1_P1_n12` (1.2M) | | 35.007 | 35.022 | | |
+| `ar3_n16` | 1.2M → 1.6M | 34.910 | 35.285 | −0.10 / +0.26 | discard |
+| `ar2_P2_n24` | 1.2M → 2.4M | 34.569 | 35.484 | −0.44 / +0.46 | discard |
+| `ar2_P2_n48` | 1.2M → 4.8M | 32.237 | 35.078 | −2.77 / +0.06 | discard |
+| `ar2_P2_dens24` | + densify to 1.6M | 34.890 | 35.409 | −0.12 / +0.39 | discard |
+| `ar2_P2_intensity` | intensity init at 1.2M | 34.795 | 35.064 | −0.21 / +0.04 | discard |
+| `ar3_n24_lam015` | 2.4M + lambda_geo 0.15 | 34.726 | 35.323 | −0.28 / +0.30 | discard (partial T1 rescue, not enough) |
+| `ar3_n24_khp10` | 2.4M + plain high-band weight 2.2 → 1.0 | 34.239 | 35.477 | −0.77 / +0.46 | discard (lowering T1's high band hurts T1) |
+
+Readings.
+
+- **Capacity is the second lever and it is contrast-asymmetric.** T1 peaks at 1.2M points and
+  falls monotonically beyond it (35.01 → 34.91 → 34.57 → 32.24 at 1.2 / 1.6 / 2.4 / 4.8M) while
+  T2 keeps rising to 2.4M (35.02 → 35.29 → 35.48). The training loss on the sampled k-space
+  falls monotonically with capacity (dc_p 1.05e-2 → 9.9e-3 → 9.4e-3) while T1's oracle
+  unsampled-k error rises (e_unobs 0.590 → 0.617 → 0.726): extra Gaussians fit the acquired
+  8.5 % better and extrapolate worse. T2 is protected by its shutter (22 % of k known-zero) and
+  its apodised spectrum. More TV at 2.4M buys back only part of T1; lowering T1's high-band
+  weight makes it worse. Since the geometry is shared, the point count follows the binding
+  contrast: **1.2M**.
+- Intensity-weighted sampling, 0.07 TV and densification are all inert-to-negative on top of
+  the head-support init; the kappa source is a small positive that matters mostly when scales
+  are fixed.
+- At 1500 iterations P2 beats CS-SENSE by +0.40 (T1) / +0.80 (T2) dB head-only and on the
+  whole volume too (39.34 / 39.87 vs 39.24 / 39.23).
