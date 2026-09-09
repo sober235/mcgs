@@ -227,3 +227,26 @@ MemFree, which six concurrent h5 loads push down through the page cache. The six
 flight (both transfer checks and four probes) died with them; partial outputs were removed
 and the runs relaunched with `setsid nohup`, detached from the session. Launch that way from
 now on; the ledger is the only thing the session needs to watch.
+
+### Transfer checks — the recipe applied unchanged to the two T1+FLAIR topics (2026-09-10, 01:22–02:05)
+
+| topic | channel | v2 head PSNR | best other arm | margin | original joint arm | head SSIM v2 / best | head HFEN v2 / best |
+|---|---|---|---|---|---|---|---|
+| hyw T1+FLAIR (`ar5_tf_hyw_t1flair`) | T1 | **34.950** | CS-SENSE 34.607 | **+0.343** | 33.181 | 0.9379 / 0.9436 | **0.0851** / 0.1071 |
+| | FLAIR | **33.492** | ZS-SSDU 33.269 | **+0.223** | 31.806 | 0.9023 / 0.9235 | **0.1150** / 0.1302 |
+| jyz T1+FLAIR (`ar5_tf_jyz_t1flair`) | T1 | 35.520 | CS-SENSE 35.762 | −0.242 | 34.160 | 0.9321 / 0.9429 | **0.1056** / 0.1208 |
+| | FLAIR | 35.056 | CS-SENSE 35.085 | −0.028 | 33.391 | 0.9238 / 0.9307 | **0.1063** / 0.1139 |
+
+**Same subject, other pairing: transfers (first on head PSNR and head HFEN on both channels).
+Other subject: does not — second on head PSNR by 0.24 / 0.03 dB**, still +1.36 / +1.67 dB over
+the original joint arm and first on head HFEN. Head SSIM is behind the best arm everywhere.
+
+Reading, and a pre-registered follow-up. The jyz head is larger: ZF support fraction 0.4234
+against 0.3199 (hyw T1+T2) / 0.3269 (hyw T1+FLAIR). A fixed 1.2M points is therefore
+0.246 points per support voxel on jyz against 0.325 on hyw, and capacity was the binding lever
+on T1. The transferable form of the knob is a **density**: 1 200 000 / (0.3199 × 256·256·176)
+= **0.325 points per ZF-support voxel**, fixed on hyw alone. On jyz that rule gives
+0.325 × 0.4234 × 11 534 336 = **1.59M points**. Declared before running:
+`ar7_tf_jyz_rho` = the jyz transfer with `initial_num_points=1588000` and nothing else changed;
+it is a pass only if both channels clear CS-SENSE (35.762 / 35.085). If it fails, the honest
+statement is "first on the tuning subject in both pairings, second on the held-out subject".
