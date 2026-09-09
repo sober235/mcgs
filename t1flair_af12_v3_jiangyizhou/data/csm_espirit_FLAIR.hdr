@@ -1,0 +1,8 @@
+# Dimensions
+256 256 176 26 1 1 1 1 1 1 1 1 1 1 1 1 
+# Command
+ecalib -t 0.001 -c 0.0 -r 24 -m 1 /data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/flair_train_jiangyizhou_cc /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/csm_espirit_FLAIR 
+# Files
+ >/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/csm_espirit_FLAIR </data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/flair_train_jiangyizhou_cc
+# Creator
+BART v1.0.00
