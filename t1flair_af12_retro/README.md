@@ -39,7 +39,8 @@ this pair than on T1+T2.
 
 | method | PSNR | SSIM | head PSNR | head SSIM |
 |---|---|---|---|---|
-| ZS-SSDU | 38.012 | 0.9525 | **33.269** | **0.9235** |
+| **MC-GS joint v2** (transfer check, see below) | 37.844 | 0.8835 | **33.492** | 0.9023 |
+| ZS-SSDU | 38.012 | 0.9525 | 33.269 | **0.9235** |
 | CS-SENSE | 37.897 | 0.9346 | 33.252 | 0.9127 |
 | CG-SENSE | 34.616 | 0.7328 | 32.192 | 0.8834 |
 | MC-GS joint | 35.466 | 0.8669 | 31.806 | 0.8870 |
@@ -48,8 +49,8 @@ this pair than on T1+T2.
 | 3D-DIP | 34.288 | 0.7924 | 29.397 | 0.8048 |
 | ZF | 31.677 | 0.8503 | 26.738 | 0.6882 |
 
-The T1 table is in `logs/summary.tsv` and matches the T1+T2 topic except for the joint row, which
-is necessarily different because T1 is now paired with FLAIR.
+The T1 table is in `logs/summary.tsv` and matches the T1+T2 topic except for the joint rows, which
+are necessarily different because T1 is now paired with FLAIR (v2: whole 39.253 / head 34.950, head SSIM 0.9379, against CS-SENSE 34.607 / 0.9436).
 
 ### The joint-versus-single result, four channel-pairings
 
@@ -68,8 +69,29 @@ is that shared geometry is buying background suppression from the explicit repre
 better anatomy.
 
 That the better-registered pairing does not rescue the head-only number is the informative part:
-it removes co-registration quality as the explanation for the T1+T2 null result. The remaining
-untested explanation is the missing warm start, which is common to every run in both topics.
+it removes co-registration quality as the explanation for the T1+T2 null result. The explanation
+turned out to be the cold-start path itself, common to every MC-GS run in both topics — see below.
+
+### MC-GS joint v2 — the T1+T2 recipe transferred unchanged (2026-09-10)
+
+The autoresearch loop run on the T1+T2 pair (framework repo `autoresearch_t1t2.md`, and the
+"MC-GS joint v2" section of the T1+T2 README) found three defects in the fresh-cloud path —
+uniform init over the render box with 72 % of the points in air, edge-TV kappa calibrated on
+the first render's speckle, no capacity growth — and fixed them with four structural changes
+(points drawn inside the ZF head support, 3-NN spacing scales, kappa from the ZF image, 1.2M
+points). Because those changes were selected on the T1+T2 pair with the ground truth in the
+scorer, this topic is a **transfer check: the recipe was applied here without touching a single
+knob** (`ar5_tf_hyw_t1flair`, 4000 iterations, volumes in `results_arc/`).
+
+| channel | v2 head PSNR | best other arm | v2 head SSIM | best other arm | v2 head HFEN | best other arm |
+|---|---|---|---|---|---|---|
+| T1 | **34.950** | CS-SENSE 34.607 | 0.9379 | CS-SENSE 0.9436 | **0.0851** | CS-SENSE 0.1071 |
+| FLAIR | **33.492** | ZS-SSDU 33.269 | 0.9023 | ZS-SSDU 0.9235 | **0.1150** | CS-SENSE 0.1302 |
+
+The transfer holds on head PSNR (+0.34 dB on T1, +0.22 dB on FLAIR over the best other arm; +1.77 / +1.69 dB over the
+original joint arm) and on head HFEN, and does not hold on head SSIM, where ZS-SSDU keeps a
+0.02 lead on FLAIR. Figures regenerated with the tenth column
+(`figures/t1flair_af12_{T1,FLAIR}_plane{0,1,2}.png`).
 
 ## Regenerating
 

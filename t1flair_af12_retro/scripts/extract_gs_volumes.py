@@ -19,7 +19,9 @@ ARC = Path("/data0/congcong/code/GS/Paired_ARC_GS_general_framework/results_arc"
 JOBS = [("t1flair_af12_joint", "gs_joint", [("recT1", "T1"), ("recFL", "FLAIR")],
          [("gtT1", "T1"), ("gtFL", "FLAIR")], [("zfT1", "T1"), ("zfFL", "FLAIR")]),
         ("t1flair_af12_single_T1", "gs_single", [("recT1", "T1")], [], []),
-        ("t1flair_af12_single_FLAIR", "gs_single", [("recT1", "FLAIR")], [], [])]
+        ("t1flair_af12_single_FLAIR", "gs_single", [("recT1", "FLAIR")], [], []),
+        # v2 = the autoresearch recipe found on the T1+T2 pair, applied here UNCHANGED as a transfer check
+        ("ar5_tf_hyw_t1flair", "gs_joint_v2", [("recT1", "T1"), ("recFL", "FLAIR")], [], [])]
 
 
 def main():
