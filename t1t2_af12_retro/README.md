@@ -177,6 +177,7 @@ metrics, so the learned arms and the classical arms are directly comparable.
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
 | **MC-GS joint v2** | **39.249** | 0.9047 | **0.01432** | 0.6052 | **34.978** | 0.9373 | **0.0863** | 0.912 | 0.01220 | 40 min |
+| MC-GS single v2 | 38.947 | 0.9084 | 0.01535 | 0.6195 | 34.680 | 0.9325 | 0.0923 | 0.916 | 0.01237 | 40 min |
 | CS-SENSE | 39.243 | 0.9294 | 0.01434 | **0.5682** | 34.607 | **0.9436** | 0.1071 | 0.817 | 0.01016 | 15 min |
 | ZS-SSDU | 38.635 | 0.9412 | 0.01649 | 0.6465 | 34.134 | 0.9365 | 0.1213 | 1.012 | 0.01387 | 22 min |
 | MC-GS single | 36.010 | 0.8479 | 0.03018 | 0.7521 | 33.296 | 0.9164 | 0.1162 | 0.935 | 0.01473 | 127 min |
@@ -190,7 +191,8 @@ metrics, so the learned arms and the classical arms are directly comparable.
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| **MC-GS joint v2** | **40.174** | 0.9314 | **0.01140** | **0.5239** | **35.429** | 0.9474 | **0.0665** | 0.857 | 0.01171 | 40 min |
+| MC-GS single v2 | **40.302** | 0.9290 | **0.01106** | **0.5082** | **35.680** | 0.9480 | **0.0661** | 0.866 | 0.01171 | 40 min |
+| MC-GS joint v2 | 40.174 | 0.9314 | 0.01140 | 0.5239 | 35.429 | 0.9474 | 0.0665 | 0.857 | 0.01171 | 40 min |
 | CS-SENSE | 39.229 | 0.9307 | 0.01417 | 0.5440 | 34.219 | 0.9427 | 0.0916 | 0.741 | 0.00967 | 5 min |
 | ZS-SSDU | 38.991 | **0.9677** | 0.01497 | 0.5626 | 33.822 | **0.9493** | 0.1168 | 1.128 | 0.01589 | 42 min |
 | MC-GS single | 37.743 | 0.9162 | 0.01995 | 0.6361 | 33.497 | 0.9319 | 0.0932 | 0.866 | 0.01382 | 100 min |
@@ -280,7 +282,17 @@ beyond it (34.91 / 34.57 / 32.24 at 1.6 / 2.4 / 4.8M) because the extra points f
 protected by its shutter, keeps rising to 2.4M (35.48). The shared geometry follows the binding
 contrast.
 
-Read this row with two caveats. (1) The four changes were **selected on this subject with the
+**Joint versus single under the repaired cold start** (`ar6_single_{T1,T2}_v2`, same recipe with
+one contrast in both channels, 4000 iterations): T1 joint 34.978 vs single 34.680 (+0.30 dB
+head, +0.30 whole, head SSIM +0.005, head HFEN 0.086 vs 0.092); T2 joint 35.429 vs single
+35.680 (−0.25 dB head, −0.13 whole). The shared geometry moves accuracy from the easier
+contrast to the harder one: single T1 clears CS-SENSE by only +0.07 dB, the joint model by
++0.37. This supersedes the pre-repair reading above ("joint versus single is a wash inside the
+head"), which was measured with 72 % of the cloud frozen in air. With a shared point budget
+capped by T1 (T2 alone would take 2.4M points), T2 pays for T1's gain; single T2 v2 is
+therefore the best T2 number in the table and joint v2 the best T1.
+
+Read the v2 rows with two caveats. (1) The four changes were **selected on this subject with the
 ground truth in the scorer**, unlike the other arms' fixed hyper-parameters; they are structural
 (where the cloud starts, how big it is, where the edge threshold comes from), not per-image
 tuning, and the same recipe is being checked unchanged on the two T1+FLAIR topics

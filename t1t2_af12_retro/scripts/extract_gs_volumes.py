@@ -22,7 +22,9 @@ JOBS = [("t1t2_af12_joint", "gs_joint", [("recT1", "T1"), ("recFL", "T2")],
         ("t1t2_af12_single_T2", "gs_single", [("recT1", "T2")], [], []),
         # v2 = the autoresearch working point (head-support init, 3-NN scales, kappa from ZF,
         # 1.2M points), promoted at 4000 iterations on 2026-09-10; see README "MC-GS joint v2".
-        ("ar3_P2_full4k", "gs_joint_v2", [("recT1", "T1"), ("recFL", "T2")], [], [])]
+        ("ar3_P2_full4k", "gs_joint_v2", [("recT1", "T1"), ("recFL", "T2")], [], []),
+        ("ar6_single_T1_v2", "gs_single_v2", [("recT1", "T1")], [], []),
+        ("ar6_single_T2_v2", "gs_single_v2", [("recT1", "T2")], [], [])]
 
 
 def main():

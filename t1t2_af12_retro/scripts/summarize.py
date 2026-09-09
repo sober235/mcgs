@@ -18,10 +18,10 @@ ARC = Path("/data0/congcong/code/GS/Paired_ARC_GS_general_framework/results_arc"
 
 COLS = ["psnr", "ssim", "nmse", "hfen", "head_psnr", "head_ssim", "head_hfen",
         "sharp", "grain", "grain_ratio"]
-ORDER = ["zf", "cgsense", "cssense", "zsssdu", "dip", "inr", "gs_single", "gs_joint", "gs_joint_v2"]
+ORDER = ["zf", "cgsense", "cssense", "zsssdu", "dip", "inr", "gs_single", "gs_joint", "gs_single_v2", "gs_joint_v2"]
 LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "zsssdu": "ZS-SSDU",
          "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
-         "gs_joint_v2": "MC-GS joint v2"}
+         "gs_single_v2": "MC-GS single v2", "gs_joint_v2": "MC-GS joint v2"}
 
 
 def main():
@@ -55,6 +55,11 @@ def main():
             d = json.load(open(sp))
             rows.append({"contrast": c, "method": "gs_single",
                          **{k: d["plain"].get(k) for k in COLS}, "seconds": None})
+        sp = ARC / f"ar6_single_{c}_v2_score.json"          # single-contrast arm of the v2 recipe (ablation)
+        if sp.exists():
+            d = json.load(open(sp))
+            rows.append({"contrast": c, "method": "gs_single_v2",
+                         **{k: d["plain"].get(k) for k in COLS}, "seconds": d.get("elapsed_s")})
 
     rows.sort(key=lambda r: (r["contrast"], ORDER.index(r["method"]) if r["method"] in ORDER else 99))
     hdr = ["contrast", "method"] + COLS
