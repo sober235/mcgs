@@ -14,7 +14,9 @@
 - 配方只有四项改动，逐项单独验证（见 `autoresearch_t1t2.md` Round 0–3）；默认路径逐位不变，174 测试通过。
 - 迁移检验：hyw T1+FLAIR 同配方第一（34.950 / 33.492）；jiangyizhou 第二（35.520 vs 35.762，35.056 vs 35.084），预注册密度规则失败（1.59M 点 T1 反降到 35.273）。
 - joint vs single（修复后）：T1 +0.30、T2 −0.25。三个归档课题的表、图、README 已加 v2 臂并镜像进仓库。
-- 账本 `autoresearch_t1t2.tsv` 34 行，每行有精确参数与 commit。
+- AF16 迁移（09-10 12:10，同配方不改）：hyw T1 33.465 / FLAIR 31.943（ZS-SSDU 33.665 / 32.685，−0.20 / −0.74）；jyz T1 33.982 / FLAIR 33.640（CS-SENSE 34.410 / ZS-SSDU 34.005，−0.43 / −0.36）→ 全部第二，仍比冷启动 joint +1.1~1.4 dB；并行会话正在 jyz AF16 上跑自己的循环（分支 autoresearch-jyz-af16）。
+- 出图：三课题的十列图灰度窗改为头部 P95；紧凑版式（掩膜在左下、等大面板、单 colorbar、旧 joint 臂删除、v2 标为 ours）的单层最优图与三轴面图已出（`fig_slice.py` / `fig_planes_v2.py`，逐层扫描 `find_best_slice_v2.py`）。
+- 账本 `autoresearch_t1t2.tsv` 36 行，每行有精确参数与 commit。
 
 ## 2. 待用户拍板
 - 对外表述选哪句："调参受试者两种配对第一、留出受试者第二"（诚实版）还是只报 hyw。

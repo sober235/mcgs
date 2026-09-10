@@ -308,7 +308,7 @@ for this acquisition; what is missing on jiangyizhou is not capacity.
   shared geometry helps the binding contrast at the other's expense.
 - 34 experiments, 8 of them at 4000 iterations, ~9 GPU-hours, 2026-09-09 21:40 to 09-10 03:00.
 
-### Addendum, 2026-09-10 03:20 — transfer to AF16 (pre-registered)
+### Addendum, 2026-09-10 11:18 — transfer to AF16 (pre-registered; the time stamps of the two sections above were estimated from run durations, the clock here is real)
 
 The parallel session finished the AF16 T1+FLAIR study on both subjects (branch
 `t1flair-af16-retro`, topics `Results_20260908/T1FLAIR_AF16_retro` and
@@ -317,3 +317,19 @@ The parallel session finished the AF16 T1+FLAIR study on both subjects (branch
 ZS-SSDU 33.665 (T1) / 32.685 (FLAIR); jyz CS-SENSE 34.410 (T1) / ZS-SSDU 34.005 (FLAIR). The
 original cold-start joint arms read 32.028 / 30.743 and 32.890 / 32.402. Results go in this
 file and the ledger; the AF16 topic archives belong to the other session and are not edited here.
+
+**AF16 outcome (12:10).** Same recipe, nothing changed, 4000 iterations:
+
+| topic | channel | v2 head PSNR | leader | margin | original cold-start joint |
+|---|---|---|---|---|---|
+| hyw T1+FLAIR AF16 (`ar8_tf_hyw_af16`) | T1 | 33.465 | ZS-SSDU 33.665 | −0.200 | 32.028 (+1.44) |
+| | FLAIR | 31.943 | ZS-SSDU 32.685 | −0.742 | 30.743 (+1.20) |
+| jyz T1+FLAIR AF16 (`ar8_tf_jyz_af16`) | T1 | 33.982 | CS-SENSE 34.410 | −0.427 | 32.890 (+1.09) |
+| | FLAIR | 33.640 | ZS-SSDU 34.005 | −0.364 | 32.402 (+1.24) |
+
+At AF16 the recipe is second on every channel, by 0.2–0.7 dB, while still +1.1 to +1.4 dB over the
+cold-start joint arm. The deficit grows with acceleration and is largest on FLAIR, where ZS-SSDU
+leads: at 6.6 % sampling the learned denoiser's prior is worth more than what the explicit
+representation recovers from the acquired points. The AF12 recipe was not re-tuned for AF16 here
+(the parallel session runs its own loop on jyz AF16, branch `autoresearch-jyz-af16`); the honest
+scope of the claim stays AF12 on the tuning subject.
