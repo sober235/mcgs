@@ -62,6 +62,9 @@ ARMS = [("GT", "Ground truth", R / f"recon/gt_{c}_complex.npy"),
         ("gs_joint", "MC-GS joint (cold)", R / f"recon/gs_joint_{c}_mag.npy"),
         (gs_key or "gs_ar", labels.get(gs_key, "MC-GS joint (autoresearch)"),
          (R / f"recon/{gs_key}_{c}_mag.npy") if gs_key else None)]
+if (R / f"recon/gs_single_ar_{c}_mag.npy").exists():
+    ARMS.insert(len(ARMS) - 1, ("gs_single_ar", "MC-GS single (autoresearch)", R / f"recon/gs_single_ar_{c}_mag.npy"))
+NCOL = (len(ARMS) + 1) // 2
 
 gt = np.abs(np.load(ARMS[0][2])).astype(np.float32)
 gmax = float(gt.max())
@@ -84,9 +87,9 @@ for key, lab, path in ARMS[1:]:
     psnr[key] = 20 * np.log10(gmax) - 10 * np.log10(float((e * e).mean()))
 rank = {k: i + 1 for i, k in enumerate(sorted(psnr, key=lambda k: -psnr[k]))}
 
-fig, axes = plt.subplots(4, 6, figsize=(4.0 * 6, 4.0 * 4 * (2 * h1) / (2 * h0) * 1.22))
+fig, axes = plt.subplots(4, NCOL, figsize=(4.0 * NCOL, 4.0 * 4 * (2 * h1) / (2 * h0) * 1.22))
 for i, (key, lab, path) in enumerate(ARMS):
-    b, j = divmod(i, 6)
+    b, j = divmod(i, NCOL)
     a_img, a_err = axes[2 * b, j], axes[2 * b + 1, j]
     if key == "GT":
         a_img.imshow(gcrop.T, cmap="gray", vmin=0, vmax=vmax, origin="lower")
@@ -111,6 +114,8 @@ for i, (key, lab, path) in enumerate(ARMS):
         cb = fig.colorbar(im, ax=a_err, fraction=0.046, pad=0.02); cb.ax.tick_params(labelsize=6)
     else:
         a_img.set_title(f"{lab}\n(not available)", fontsize=9.5); a_img.axis("off"); a_err.axis("off")
+for k in range(len(ARMS), 2 * NCOL):
+    b, j = divmod(k, NCOL); axes[2 * b, j].axis("off"); axes[2 * b + 1, j].axis("off")
 for a in axes.ravel():
     a.set_xticks([]); a.set_yticks([])
 fig.suptitle(f"{c}  jiangyizhou  retrospective AF 16 -- butterfly region, axis{args.axis} slice {args.index} (transverse)"
