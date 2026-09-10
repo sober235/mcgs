@@ -49,23 +49,31 @@ def main():
         row.update(exp=a.exp, status="crash", note=a.note or "no score json")
     else:
         d = json.loads(sj.read_text())
-        p, c = d["plain"], d["contrast"]
-        assert d.get("plain_name", "T1") == "T1" and d.get("contrast_name", "FLAIR") == "FLAIR", (d.get("plain_name"), d.get("contrast_name"))
-        dT1 = p["head_psnr"] - BEST["T1"]["head_psnr"]
-        dFL = c["head_psnr"] - BEST["FLAIR"]["head_psnr"]
+        # map channels by NAME: a joint run is (T1, FLAIR); a single-contrast run has both channels the
+        # same contrast (plain is used) and leaves the other contrast blank
+        ch = {}
+        for c in ("plain", "contrast"):
+            nm = d.get(f"{c}_name", {"plain": "T1", "contrast": "FLAIR"}[c])
+            ch.setdefault(nm, d[c])
+        p1, c1 = ch.get("T1"), ch.get("FLAIR")
+        dT1 = p1["head_psnr"] - BEST["T1"]["head_psnr"] if p1 else None
+        dFL = c1["head_psnr"] - BEST["FLAIR"]["head_psnr"] if c1 else None
+        mm = min(x for x in (dT1, dFL) if x is not None)
+        fmt = lambda r, k, f: (f"{r[k]:{f}}" if r else "")
+        sgn = lambda x: (f"{x:+.3f}" if x is not None else "")
         try:
             commit = subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"], text=True).strip()
         except Exception:
             commit = "?"
         row = dict(exp=a.exp, status=a.status, iters=d["iters"], npts=d["npts"], vram_gb=f"{d['vram_gb']:.1f}",
                    min=f"{(d.get('elapsed_s') or 0) / 60:.0f}",
-                   T1_head_psnr=f"{p['head_psnr']:.3f}", FLAIR_head_psnr=f"{c['head_psnr']:.3f}",
-                   dT1=f"{dT1:+.3f}", dFLAIR=f"{dFL:+.3f}", min_margin=f"{min(dT1, dFL):+.3f}",
-                   T1_head_ssim=f"{p['head_ssim']:.4f}", FLAIR_head_ssim=f"{c['head_ssim']:.4f}",
-                   T1_head_hfen=f"{p['head_hfen']:.4f}", FLAIR_head_hfen=f"{c['head_hfen']:.4f}",
-                   T1_psnr=f"{p['psnr']:.3f}", FLAIR_psnr=f"{c['psnr']:.3f}",
-                   T1_sharp=f"{p['sharp']:.3f}", FLAIR_sharp=f"{c['sharp']:.3f}",
-                   T1_N=f"{p['grain_ratio']:.3f}", FLAIR_N=f"{c['grain_ratio']:.3f}",
+                   T1_head_psnr=fmt(p1, "head_psnr", ".3f"), FLAIR_head_psnr=fmt(c1, "head_psnr", ".3f"),
+                   dT1=sgn(dT1), dFLAIR=sgn(dFL), min_margin=f"{mm:+.3f}",
+                   T1_head_ssim=fmt(p1, "head_ssim", ".4f"), FLAIR_head_ssim=fmt(c1, "head_ssim", ".4f"),
+                   T1_head_hfen=fmt(p1, "head_hfen", ".4f"), FLAIR_head_hfen=fmt(c1, "head_hfen", ".4f"),
+                   T1_psnr=fmt(p1, "psnr", ".3f"), FLAIR_psnr=fmt(c1, "psnr", ".3f"),
+                   T1_sharp=fmt(p1, "sharp", ".3f"), FLAIR_sharp=fmt(c1, "sharp", ".3f"),
+                   T1_N=fmt(p1, "grain_ratio", ".3f"), FLAIR_N=fmt(c1, "grain_ratio", ".3f"),
                    commit=commit, args=" ".join(d.get("argv", [])),
                    note=(a.note + f" bar={BEST['T1']['who']}:{BEST['T1']['head_psnr']:.3f}/"
                          f"{BEST['FLAIR']['who']}:{BEST['FLAIR']['head_psnr']:.3f}").strip())
