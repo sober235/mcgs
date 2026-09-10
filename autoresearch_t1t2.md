@@ -828,3 +828,15 @@ SAVE_VOLUMES=1 ./autoresearch_t1t2.sh <EXP> <GPU> 4000 \
 The T1+FLAIR form of v3.2 (with the FLAIR-channel 0.12) runs on hyw T1+FLAIR and on jiangyizhou (held out), and the
 seed-43 runs of all three topics are in flight; they land around 06:35. The archive tables and figures switch their
 proposed arm from v3 to v3.2 once those are in.
+
+**v3.2 on the T1+FLAIR topics (landed by 06:28; reported whatever they show).**
+- jiangyizhou, held out (`ar19_tf_jyz_full_C012`): T1 36.299 / FLAIR 36.039 against L1-ESPIRiT's 36.334 / 35.720 and v3's
+  36.337 / 35.935. FLAIR +0.319 dB, and first on FLAIR head SSIM (0.9369 against 0.9368). T1 −0.035 dB: second to
+  L1-ESPIRiT on T1 head PSNR, where v3.1 (T1 wavelet 0.06 alone) was +0.124 on this subject. Head HFEN 0.0965 / 0.1025
+  (L1-ESPIRiT 0.1034 / 0.1002), T1 head SSIM 0.9423 (converged TV 0.9459, L1-ESPIRiT 0.9443), T1 sharpness 0.921.
+  v3.2 against v3.1 here: T1 −0.159 dB. The two differ by edge-TV 0.07 and the FLAIR-channel 0.12; on hyw the FLAIR
+  strength left T1 unchanged, so the edge-TV step is the likely cause. That step was selected on hyw and does not
+  carry over to this subject's T1; the T1-channel wavelet does.
+- hyw T1+FLAIR (`ar19_tf_hyw_full_C012`): T1 35.816 / FLAIR 34.561, +0.286 / +0.456 over L1-ESPIRiT; head SSIM 0.9483 /
+  0.9215 (T1 first; FLAIR below L1-ESPIRiT's 0.9221 and ZS-SSDU's 0.9235); head HFEN 0.0799 / 0.1065, first on both;
+  T1 sharpness 0.897, above the floor.
