@@ -388,3 +388,9 @@ per-contrast lever found here. Memory 32.8 GB (one per card is fine). Waiters (`
 GPU 0 after `ar8_P4_wT1_006` → **`ar9_P5_n36`** (P5 at 3.6M, the single capacity delta); GPU 2 after
 `ar8_P4_wT1_010` and `ar8_P4_wav010` → **`ar9_n36_wT1_010_wFL_<x>`** (3.6M, T1 wavelet 0.10, FLAIR
 wavelet 0.10 if 0.10 beat 0.07 for FLAIR, else 0.07).
+
+- `ar8_P4_wT1_006` (T1 0.06 / FLAIR 0.05): **35.240 / 34.425 against 35.241 / 34.426 predicted** from the two
+  single-contrast curves — the wavelet strengths act independently, so each contrast is tuned on its own
+  axis (status `confirm-indep`).
+- Declared 23:05: GPU 3 after `ar8_P4_wav010` → **`ar9_P5_seed43`**, the seed floor at the working recipe
+  (2.4M + wavelet with cycle spinning); the only floor so far (0.01 dB) is from 1.2M without the wavelet.
