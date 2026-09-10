@@ -528,3 +528,16 @@ both contrasts (T1 40.411 vs joint TV 40.372; FLAIR 37.387 vs 37.271). Registere
 (the intermediate 2.4M arm was removed from the topic table; every intermediate stays in this ledger). Final figures:
 `figs/t1flair_v3_af16/t1flair_v3_af16_{T1,FLAIR}_butterflyfinal_axis0_168.png`. Still running: the P6 single arms
 and the P6 seed repeat at 4000.
+
+### The single-contrast arms at P6 (03:45)
+
+| arm (4000 iterations, P6 recipe) | T1 head PSNR | FLAIR head PSNR |
+|---|---|---|
+| **MC-GS joint** (`ar14_n36_v2tv_full4k`) | **35.552** | 34.807 |
+| **MC-GS single** (`ar15_P6_singleT1_full4k` / `ar15_P6_singleFLAIR_full4k`) | 35.515 | **34.810** |
+| L1-ESPIRiT | 35.209 | 34.503 |
+
+**The user's ordering — MC-GS joint first, MC-GS single second, then every other method — holds on T1 (joint − single
+= +0.037 dB); on FLAIR joint and single tie (−0.003 dB), both 0.30 dB above L1-ESPIRiT.** The shared geometry helps T1
+and is neutral for FLAIR, the same pattern as the old recipe (+0.098 / −0.009). Both arms are registered in the topic
+(`gs_joint_ar`, `gs_single_ar`) and shown in the final butterfly figures.
