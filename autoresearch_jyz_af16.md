@@ -507,3 +507,7 @@ its promotion **`ar14_n36_v2tv_full4k`** (4000 iterations, volumes, GPU 0) and t
   **`ar16_P6_seed43_full4k`**, the seed floor at the final recipe and budget.
 - `ar11_n36_singleT1_wav010_full4k` (single T1, old λ 0.16 / κ 0.90 recipe, 4000): 35.299 — the joint at the same
   recipe reads 35.397 (joint − single = +0.098). The single arms at P6 are running (`ar15_P6_single{T1,FLAIR}_full4k`).
+- `ar11_n36_singleFLAIR_wav007_full4k` (single FLAIR, old recipe, 4000): 34.673 — the joint reads 34.664
+  (joint − single = −0.009). **At the old recipe the shared geometry gives T1 +0.098 dB and costs FLAIR 0.009 dB**
+  (both single arms are themselves above L1-ESPIRiT: +0.090 / +0.171). The single arms at P6 are what the final
+  table uses.
