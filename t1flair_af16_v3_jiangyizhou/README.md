@@ -80,13 +80,17 @@ numbers to quote. AF 12 values per arm from `../T1FLAIR_AF12_v3_jiangyizhou/logs
 2. **The cold-start MC-GS joint is sixth on T1 and seventh on FLAIR of eleven arms**, 2.3 / 2.1 dB behind
    L1-ESPIRiT. The shared-geometry effect still holds between the two cold-start MC-GS arms: joint − single
    = +0.56 dB (T1) and +0.27 dB (FLAIR) head-only, +0.021 / +0.013 head SSIM.
-3. **The autoresearch loop on this subject** (worktree `mcgs_af16_wt`, branch `autoresearch-jyz-af16`,
-   program `autoresearch_jyz_af16.md`, ledger `autoresearch_jyz_af16.tsv`) repairs the cold start
-   (head-support initialisation, 3-NN scales, ZF-sourced edge-TV threshold), adds the wavelet-sparsity
-   prior and doubles the capacity. Status 2026-09-10 22:20: best screened configuration 35.169 / 34.426
-   at 1500 iterations (0.04 / 0.08 dB behind L1-ESPIRiT), full-budget promotion running. When it lands,
-   the arm is registered with `scripts/add_gs_arm.py` and appears in the tables above and in the
-   visual-gate figure.
+3. **The autoresearch loop on this subject makes MC-GS joint first on head PSNR, SSIM and HFEN** (worktree
+   `mcgs_af16_wt`, branch `autoresearch-jyz-af16`, program `autoresearch_jyz_af16.md`, ledger
+   `autoresearch_jyz_af16.tsv`; row "MC-GS joint (autoresearch)" above). Final recipe: the repaired cold start
+   (head-support initialisation, 3-NN scales, ZF-sourced edge-TV threshold), 3.6M points, edge-TV λ_geo 0.10 /
+   κ_q 0.85 with Charbonnier ε 0.04, wavelet sparsity (db2, 3 levels, cycle-spun) at 0.10 on T1 and 0.07 on FLAIR,
+   4000 iterations. Head PSNR 35.552 / 34.807 (+0.343 / +0.304 dB over L1-ESPIRiT), head SSIM 0.9351 / 0.9203,
+   head HFEN 0.1218 / 0.1188 — all three better than L1-ESPIRiT on both contrasts; sharpness 0.830 / 0.788 stays
+   just below it (0.849 / 0.789). The seed-to-seed spread at this recipe family is ≤ 0.001 dB. The lambdas of the
+   classical arms and the MC-GS knobs were both chosen on this subject's ground truth, so the comparison is fair
+   but it is not a held-out claim. The single-contrast arms at the same recipe and the seed repeat at 4000
+   iterations are being added.
 4. Per-slice sweep (`logs/per_slice.json`) covers the original eight arms only: there, MC-GS joint ranked
    first on 5 of 600 T1 slices and 0 of 606 FLAIR slices.
 5. 3D-INR (30.4 / 30.3) and 3D-DIP (31.0 / 30.7) stay 3 to 4 dB behind the leaders.
