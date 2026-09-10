@@ -434,3 +434,8 @@ the running runs, the single-contrast arms at the same recipe and budget —
 floor at the recipe (`ar9_P5_seed43`) lands shortly.
 - Declared 00:00: GPU 1 after the 2.4M control → **`ar12_n36_final_seed43_full4k`**, the final recipe at 4000
   iterations with seed 43 — the noise floor under the final claim (`scripts/ar12_final_seed_waiter.sh`).
+- **Seed floor at the working recipe** (`ar9_P5_seed43` vs `ar7_P4_wav007`, P5 at 2.4M, 1500 iterations):
+  35.289 / 34.462 vs 35.289 / 34.461 — **0.000 / 0.001 dB**, even with the wavelet term's random cycle
+  spinning and a different random initial cloud (the 1.2M v2 floor was 0.012 / 0.006). The 3.6M margins over
+  L1-ESPIRiT (+0.056 / +0.110) are 50–100× the run-to-run noise; the final recipe's own repeat at 4000
+  iterations (`ar12_n36_final_seed43_full4k`) is still run, because that is the budget the claim is made at.
