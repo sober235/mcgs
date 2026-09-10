@@ -415,3 +415,20 @@ over-fit at 2.4M that the hyw loop also saw (−0.049). The per-contrast wavelet
 that T1 loss (T1 0.10 gives 35.359 at 1500), so the promotion candidate is **T1 wavelet 0.10 / FLAIR
 0.07, 2.4M, 4000 iterations**: **`ar10_wT1010_wFL007_full4k`** (GPU 1, volumes saved). If it clears both
 contrasts it gets its seed repeat and the single-contrast arms at the same recipe and budget.
+
+### Round 9 — 3.6M points: MC-GS joint above L1-ESPIRiT on both contrasts (23:55)
+
+| exp | iters | T1 | FLAIR | vs bar | status |
+|---|---|---|---|---|---|
+| ar7_P4_wav007 (P5, 2.4M) | 1500 | 35.289 | 34.461 | +0.080 / −0.041 | parent P5 |
+| **ar9_P5_n36** (P5 at 3.6M) | 1500 | **35.265** | **34.613** | **+0.056 / +0.110** | **keep — both above** |
+
+**At 3.6M points MC-GS joint clears the L1-ESPIRiT bar on both contrasts at 1500 iterations** (min margin
++0.056 dB). Capacity lifts FLAIR by +0.15 and costs T1 0.02, as on hyw; the per-contrast wavelet (T1 0.10) is
+the known fix for the T1 side and runs at 3.6M now (`ar9_n36_wT1_010_wFL_007`, 1500). The final recipe is
+therefore **3.6M points, T1 wavelet 0.10 / FLAIR 0.07, λ_geo 0.16, κ_q 0.90** on the repaired cold start.
+Launched: its promotion **`ar10_n36_wT1010_wFL007_full4k`** (4000 iterations, volumes, GPU 0), and, behind
+the running runs, the single-contrast arms at the same recipe and budget —
+**`ar11_n36_singleT1_wav010_full4k`** (GPU 3) and **`ar11_n36_singleFLAIR_wav007_full4k`** (GPU 2).
+`ar10_wT1010_wFL007_full4k` (the same at 2.4M, GPU 1) stays as the capacity control at full budget; the seed
+floor at the recipe (`ar9_P5_seed43`) lands shortly.
