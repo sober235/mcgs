@@ -409,6 +409,7 @@ Head PSNR T1 / T2. Parent P2 at 1500 = 35.007 / 35.022; L1-ESPIRiT at its full b
 | `ar11_wav003_notv` | wavelet 0.03 replacing TV | 34.306 | 34.770 | 0.9227 / 0.9409 | 0.0816 / 0.0658 | 1.017 / 0.929 | discard (under-regularised, sharper than GT) |
 | `ar11_wav01_notv` | wavelet 0.1 replacing TV | 35.184 | 34.967 | 0.9443 / 0.9478 | 0.0831 / 0.0744 | 0.911 / 0.846 | discard (above P2 on T1, below TV + wavelet on both) |
 | `ar11_wav003_mag` | + wavelet 0.03 on the magnitude | 35.245 | 34.989 | 0.9418 / 0.9440 | 0.0875 / 0.0736 | 0.854 / 0.808 | discard (the complex modulus is better by 0.13 dB on both) |
+| `ar11_n24_wav005_tv` | **2.4M points + wavelet 0.05** | **35.746** | **35.885** | 0.9474 / 0.9521 | 0.0827 / 0.0695 | 0.867 / 0.823 | **keep, promoted (`ar12_n24_wav005_full4k`); above L1-ESPIRiT's full-budget numbers on both already at 1500** |
 | `ar11_n24_wav003_tv` | **2.4M points + wavelet 0.03** | **35.513** | **35.878** | 0.9439 / 0.9514 | 0.0834 / 0.0670 | 0.881 / 0.835 | **keep, promoted (`ar12_n24_wav003_full4k`)** |
 
 Readings.
@@ -430,3 +431,26 @@ Readings.
 - Pending: 2.4M + wavelet 0.05, 3.6M + wavelet 0.03 (single deltas from `ar11_n24_wav003_tv`), and
   the two 4000-iteration promotions. Nothing is claimed until the promotions land: at 1.2M, T1 was
   flat from 1500 to 4000 and T2 gained 0.4 dB, but at 2.4M the budget effect is unmeasured.
+
+### Round 12 — the two promotions at full budget (2026-09-10, 20:00–21:10)
+
+| exp (4000 iters) | config | T1 | T2 | head SSIM | head HFEN | whole PSNR | sharp |
+|---|---|---|---|---|---|---|---|
+| `ar12_wav003_full4k` | 1.2M + wavelet 0.03 | **35.546** | 35.598 | 0.9459 / 0.9502 | 0.0805 / 0.0671 | 39.795 / 40.357 | 0.882 / 0.833 |
+| `ar12_n24_wav003_full4k` | 2.4M + wavelet 0.03 | 35.448 | **36.082** | 0.9422 / 0.9521 | 0.0852 / 0.0659 | 39.563 / 40.701 | 0.880 / 0.838 |
+| L1-ESPIRiT (reference) | BART, 100 FISTA | 35.530 | 35.818 | 0.9471 / 0.9536 | 0.0867 / 0.0656 | 39.823 / 40.442 | 0.899 / 0.865 |
+
+- Each configuration beats L1-ESPIRiT on one contrast only: 1.2M on T1 (+0.016), 2.4M on T2 (+0.264).
+  With the wavelet term T1 now keeps improving from 1500 to 4000 at 1.2M (+0.17), but at 2.4M it
+  slips back (35.513 → 35.448): over a long budget the larger cloud still overfits T1.
+- Next step, and the fair analogue of what L1-ESPIRiT has: a per-contrast regularisation strength
+  (its lambda is 0.0015 for T1 and 0.001 for T2, while MC-GS shared one lambda between the
+  contrasts). `loss.lambda_wav_plain` / `loss.lambda_wav_contrast` weight the two volumes inside
+  `wavelet_l1` (9 tests). Run directly at 4000 iterations, because the T1 overfitting only shows up
+  late: `ar14_n24_wavP006_C003_full4k` (2.4M, T1 0.06, T2 0.03). A second one with T1 0.1 was
+  prepared but not run: the 2.4M screen at a shared 0.05 (`ar11_n24_wav005_tv`) came in at
+  35.746 / 35.885, above L1-ESPIRiT on both contrasts already at 1500 iterations, so the simpler
+  shared strength was promoted instead (`ar12_n24_wav005_full4k`).
+- The jiangyizhou transfer check of the 2.4M recipe was queued speculatively and removed before it
+  trained (the promotion showed the recipe is not final); the hyw T1+FLAIR one continues, as a
+  measurement of the wavelet term on FLAIR.

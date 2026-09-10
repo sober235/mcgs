@@ -30,6 +30,7 @@
 
 ## 3. 下一步
 - **第 11 轮（小波稀疏进 MC-GS，`loss.lambda_wav`，`paired_gs/losses/wavelet_l1.py`）已见效**：1500 步时加在 TV 之上 λ 0.03 给 T1 35.373 / T2 35.120（P2 为 35.007 / 35.022），λ 0.05 给 T1 35.447；替代 TV 更差。**240 万点 + 小波 0.03 + TV = T1 35.513 / T2 35.878，已到 L1-ESPIRiT 全预算的 35.530 / 35.818（差 −0.02 / +0.06），头内 HFEN 与 SSIM 两对比度都好于 P2，没有模糊代价**：小波先验解除了 T1 的容量上限。进行中：两个 4000 步晋级（`ar12_wav003_full4k` 在 GPU 4，`ar12_n24_wav003_full4k` 在 GPU 5）、240 万点 + 小波 0.05 筛选（GPU 7 排队）、0.1 替代 TV 与幅值模式两个筛选。晋级若两对比度都超 L1-ESPIRiT，再做三课题迁移检验（同配方不改）。
+- **全预算与分对比度（09-10 21:10 起）**：4000 步时 120 万点 + 小波 0.03 = 35.546 / 35.598（T1 超 L1-ESPIRiT 0.016，T2 差 0.22），240 万点 + 0.03 = 35.448 / 36.082（T2 超 0.26，T1 差 0.08，长预算下 T1 又过拟合）。**240 万点 + 共用小波 0.05 在 1500 步 = 35.746 / 35.885，两个对比度都已超过 L1-ESPIRiT**，其 4000 步晋级 `ar12_n24_wav005_full4k` 在 GPU 7；分对比度强度（`loss.lambda_wav_plain` / `lambda_wav_contrast`，9 个测试）已实现，`ar14_n24_wavP006_C003_full4k`（T1 0.06 / T2 0.03，4000 步）在 GPU 5；hyw T1+FLAIR 迁移（240 万点 + 0.03）在 GPU 4；360 万点筛选在 GPU 6。
 - **进行中**：P-LORAKS 全量（秩 40、R=2，每读出层一个 2D 问题，MATLAB 96 worker，三波五通道，预计到夜里）；`scratchpad/ploraks_finish.sh` 会逐个导入打分并自动刷新三个课题的表、逐层扫描和 12 张紧凑图。子集上它只有 28–30 dB（无校准低秩在面内 AF 11.7、16×16 校准区下结构性落后），入表只为完整。
 - 若要 jiangyizhou 也第一：不是容量（已证否），候选 = 逐受试者的 lambda_geo（jyz 头大、噪声不同）或 kappa 分位；先在 jyz 做 1500 步单旋钮筛选，别碰 hyw 的配方。
 - 其余四个 CFL 受试者（vol2/4/5/6/7）一条命令可克隆：`T1FLAIR_AF12_retro/scripts/setup_subject.sh`，然后同配方跑 `ar5_tf_*`。
@@ -38,7 +39,7 @@
 ## 4. 已知的坑与别重做
 - 经典臂必须查收敛：CS-SENSE 的 35 轮 ADMM 未收敛（200 轮高 0.35–0.6 dB）；L1-ESPIRiT 反而 100 步好于 300 步（早停正则），报告时写明步数。
 - 本机 BART 无 GPU（`-g` 报错），CPU 32 线程约 4 分钟一次；LORAKS 工具箱在 /data0/congcong/code/LORAKS_v2，P-LORAKS 在 R=3 下单层超 1 小时不可用；SENSE-LORAKS 输出是 MATLAB 1/N 逆 FFT 尺度（乘 √N 回到口径），λ≤1e-2 不起作用、λ=10 退化出 NaN，已放弃。
-- `pkill -f 模式` 会匹配到工具 shell 自己并把它杀掉（exit 144）；MATLAB 长跑与 GS 训练都要 setsid 脱离会话。
+- `pkill -f 模式` 会匹配到工具 shell 自己并把它杀掉（exit 144）；用 heredoc 在同一条命令里写出并立即执行的停机脚本也会中招（模式出现在 shell 命令行里），停机脚本要先写好、再单独一条命令执行。MATLAB 长跑与 GS 训练都要 setsid 脱离会话。
 - CPU 被 MATLAB 占满时，pytest 会因 torch 默认开满线程而近乎卡死（09-10 一小时只过 15 个用例）：跑测试加 `OMP_NUM_THREADS=4 MKL_NUM_THREADS=4`。
 - 别再试：intensity 初始化、密化（fixed 尺度下 split 不触发；3NN 下被初始点数支配）、position_lr、lambda_geo 0.07、T1 高频权重 1.0/3.0、kappa 300 步刷新、分位 0.75、1.5 倍尺度、tv_eps 0.06；平滑侧三旋钮（λ0.12/分位 0.90/w_floor 0.20）= T1 换 T2 的重塑。
 - 容量：T1 在 120 万点封顶，再加就过拟合采样 k（e_unobs 单调升）；T2 到 240 万还涨；几何共享跟 T1 走。密度规则（点/支撑体素）在 jyz 证否。

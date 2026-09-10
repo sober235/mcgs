@@ -60,6 +60,17 @@ def test_additive_over_volumes():
     assert math.isclose(float(wavelet_l1([a, b])), float(wavelet_l1([a])) + float(wavelet_l1([b])), rel_tol=1e-5)
 
 
+def test_per_volume_weights():
+    s, n = _vol()
+    s2, n2 = _vol(1)
+    a, b = s + n, 0.5 * s2 + n2
+    weighted = float(wavelet_l1([a, b], weights=(2.0, 3.0)))
+    assert math.isclose(weighted, 2 * float(wavelet_l1([a])) + 3 * float(wavelet_l1([b])), rel_tol=1e-5)
+    assert math.isclose(float(wavelet_l1([a, b], weights=(1.0, 1.0))), float(wavelet_l1([a, b])), rel_tol=1e-6)
+    with pytest.raises(ValueError):
+        wavelet_l1([a, b], weights=(1.0,))
+
+
 def test_noise_costs_more_than_smooth():
     s, n = _vol()
     assert float(wavelet_l1([s + n])) > 1.5 * float(wavelet_l1([s]))
