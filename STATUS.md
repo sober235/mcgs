@@ -40,7 +40,7 @@
 ## 3. 下一步
 - 第 16 轮（预注册与判定规则见 `autoresearch_t1t2.md` Round 16）：`ar16_n24_wav005_T1p06`（T1 通道小波 0.06，另一通道保持 0.05）、`ar16_n24_wav005_geo007`（edge-TV 0.10 → 0.07），4000 步，`scratchpad/queue16.sh` 在 GPU 4、6 空出后自动起跑（约 01:32、01:53）。替代 v3 的配置要再原样跑两个 T1+FLAIR 课题。
 - 第 17 轮（预注册见程序 Round 17）：FLAIR 通道小波 0.08 / 0.12，只在 hyw T1+FLAIR 上选（`ar17_tf_hyw_wavC008` / `wavC012`），`scratchpad/queue17.sh` 在 GPU 5、7 空出后起跑（约 02:15、02:25）；选中的值再原样跑 jiangyizhou。
-- 第 18 轮与 v3.1 迁移：调参对 v3 seed 43 已在 GPU 4 跑（02:52 起）；`scratchpad/queue19.sh` 按 GPU 5/4/6/7 空出顺序依次起跑 v3.1 迁移 jiangyizhou（`ar16_tf_jyz_T1p06`）、hyw T1+FLAIR（`ar16_tf_hyw_T1p06`）和第 18 轮 hyw T1+FLAIR 的 v3 seed 43；两种子平均由 `scratchpad/x2_after.sh` 在 seed 43 落账后自动打分。
+- 第 18 轮与 v3.1 迁移（03:36 起）：并行会话让出 GPU 1–3（GPU 0 仍是它的，约到 04:30），queue19 已停，三项直接开跑：GPU 1 `ar16_tf_jyz_T1p06`、GPU 2 `ar16_tf_hyw_T1p06`、GPU 3 `ar18_tf_hyw_t1flair_v3b_s43`，约 04:45 落账。GPU 4 调参对 v3 seed 43（约 04:00）；GPU 5 在 FLAIR 强度 0.08 跑完后由 `scratchpad/queue20.sh` 起跑 v3.1 seed 43（`ar18_n24_wav005_T1p06_s43`，第 18b 轮）；三个两种子平均都由 `scratchpad/x2_after.sh` 落账后自动打分。
 - 在跑：单对比度消融 `ar15_single_FLAIR_jyz_v3`（GPU 5，约 02:26）、`ar15_single_FLAIR_hyw_v3`（GPU 7，约 02:31）。已落账：分对比度变体 seed 43（与 seed 42 相同到 0.001 dB，但体素级差 25–29%）、jyz T1 单对比度 36.257（joint 比它高 0.08）、360 万点晋级（T1 35.662 / T2 36.233，按规则未采纳）。
 - 某个 T1+FLAIR 课题的两个单对比度落账后：跑该课题 `scripts/extract_gs_volumes.py`，再 `bash $S/refresh_topic.sh <课题> <前缀> T1,FLAIR`；README 的 v3 段落数字取 `python $S/v3_facts.py <课题>`；最后 `bash $S/mirror_topic.sh <课题> <镜像目录> <前缀> T1,FLAIR` 并提交（`S=/data0/congcong/code/GS/Results_20260908/T1T2_AF12_retro/scripts`）。
 - P-LORAKS 剩三个通道：hyw FLAIR 与 jyz T1 在跑（00:38 起，各 7–8 h），jyz FLAIR 随后。`scratchpad/ploraks_finish2.sh` 落一个导入一个，课题齐了自动刷新表、逐层与图（v3 最优层）。刷新后只剩镜像和提交：

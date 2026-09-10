@@ -683,3 +683,12 @@ run on the tuning pair (`ar18_n24_wav005_T1p06_s43`) takes GPU 5 when the FLAIR-
 Prediction from the Round 18 measurements: +0.07 to +0.10 dB and +0.0006 to +0.0008 head SSIM, which would put
 T2 head SSIM at or just above L1-ESPIRiT's 0.9536. The T1+FLAIR topics get seed-43 runs of v3.1 once its
 transfers land, if v3.1 is adopted.
+
+**Schedule change, 03:36.** The parallel session (jiangyizhou AF16 loop, worktree `mcgs_af16_wt`) released GPUs
+1–3. queue19 was stopped before it had launched anything, and its three jobs started there at once:
+`ar16_tf_jyz_T1p06` (GPU 1), `ar16_tf_hyw_T1p06` (GPU 2), `ar18_tf_hyw_t1flair_v3b_s43` (GPU 3). Its result, for
+context and not a result of this loop: on jiangyizhou T1+FLAIR at AF16, this loop's wavelet term with per-contrast
+strengths (T1 0.10 / FLAIR 0.07), 3.6M points and edge-TV back at 0.10 / quantile 0.85 put MC-GS joint first on
+head PSNR, SSIM and HFEN over L1-ESPIRiT (35.552 / 34.807 against 35.209 / 34.503). Two of its observations bear on
+this loop: a heavier edge-TV (0.16 / 0.90) over-regularises once the wavelet is strong, and the larger cloud pays
+off once T1's wavelet is strong enough, which at AF12 did not happen with the shared 0.05 (3.6M promotion above).
