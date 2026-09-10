@@ -511,3 +511,20 @@ its promotion **`ar14_n36_v2tv_full4k`** (4000 iterations, volumes, GPU 0) and t
   (joint − single = −0.009). **At the old recipe the shared geometry gives T1 +0.098 dB and costs FLAIR 0.009 dB**
   (both single arms are themselves above L1-ESPIRiT: +0.090 / +0.171). The single arms at P6 are what the final
   table uses.
+
+### Promotion 4 — P6 at full budget: the final MC-GS joint (02:55)
+
+| arm | T1 head PSNR | FLAIR head PSNR | head SSIM | head HFEN | sharp |
+|---|---|---|---|---|---|
+| **MC-GS joint, P6** (`ar14_n36_v2tv_full4k`, 4000) | **35.552** | **34.807** | **0.9351 / 0.9203** | **0.1218 / 0.1188** | 0.830 / 0.788 |
+| L1-ESPIRiT (best λ on this subject) | 35.209 | 34.503 | 0.9334 / 0.9201 | 0.1286 / 0.1210 | **0.849 / 0.789** |
+| margin | **+0.343** | **+0.304** | +0.0017 / +0.0002 | −0.0068 / −0.0022 | −0.019 / −0.001 |
+
+**Objective met, and more than the declared number.** At 4000 iterations the final MC-GS joint — the repaired cold
+start, 3.6M points, edge-TV λ_geo 0.10 / κ_q 0.85, wavelet sparsity T1 0.10 / FLAIR 0.07 — is first of all arms of
+the jiangyizhou AF16 table on head PSNR (+0.34 / +0.30 dB over L1-ESPIRiT), head SSIM and head HFEN, in both
+contrasts; only sharpness stays below L1-ESPIRiT (−0.019 on T1, −0.001 on FLAIR). In the butterfly crop it is first on
+both contrasts (T1 40.411 vs joint TV 40.372; FLAIR 37.387 vs 37.271). Registered as the topic's `gs_joint_ar`
+(the intermediate 2.4M arm was removed from the topic table; every intermediate stays in this ledger). Final figures:
+`figs/t1flair_v3_af16/t1flair_v3_af16_{T1,FLAIR}_butterflyfinal_axis0_168.png`. Still running: the P6 single arms
+and the P6 seed repeat at 4000.
