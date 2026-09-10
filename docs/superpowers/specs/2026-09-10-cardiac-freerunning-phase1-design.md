@@ -1,0 +1,136 @@
+# 设计规格 — 心脏自由运行多回波 3D 径向数据：读取、参考重建与评估口径（第一阶段）
+
+- **日期：** 2026-09-10
+- **状态：** 设计已在对话中获用户确认（范围 = 管线 + 参考重建 + 口径；隔离 = worktree + 新分支；参考重建复用前期 BART 调用；心动默认不分相），待用户审阅本文
+- **分支：** `cardiac-freerunning`（自 `autoresearch-t1t2` @ `4723b78` 开出，并入 `data-surveys-2026-09-08` @ `cb7f0a1` 的数据文档，合并提交 `60e87e5`）
+- **worktree：** `/data0/congcong/code/GS/mcgs_cardiac_wt`
+- **产生方式：** `superpowers:brainstorming`
+- **范围：** 只含第一阶段。第二阶段（MC-GS 接 NUFFT 前向）在本阶段验收后另立 spec。
+- **前置记录：** `docs/data_surveys_2026-09-08/downloaded_data_and_selection.md`、`docs/handoff/2026-09-10-cardiac-data.md`
+
+---
+
+## 1. 目标
+
+把伯尔尼/洛桑自由运行多回波 GRE 数据（Mackowiak et al., MRM 2023；Zenodo 7621356 与 7615780）读成可重建的形式，做出参考重建，并定下以后比较各方法时用的评估口径。先用 V07 打通，参数冻结后再跑 V03、V04、V08。
+
+### 1.1 约束（用户 2026-09-10 确认）
+
+1. **不妨碍基础代码和参数。** 主树 `Paired_ARC_GS_general_framework`（autoresearch 在用）和 `mcgs_af16_wt` 一行不动。本分支里已有的代码、配置、脚本也不改，只新增文件；例外只有两份交接文档（本分支的 `CLAUDE.md`、`STATUS.md` 改成这条线的入口），以及在课题归档根 `Results_20260908/README.md` 的课题表里加一行。
+2. **不妨碍其他重建进程。** 本阶段只用 CPU 版 BART（本机构建 `CUDA=0`），`OMP_NUM_THREADS=32`，不占 GPU。超过几分钟的任务一律 `setsid nohup` 脱离会话。
+3. **原始数据只读。** `/data1/data1_congcong/data/3D/cardiac_freerunning_multiecho_5D/` 与 `/data2/congcong/data/cardiac_3d_cine_public/` 下的原件不写、不移、不改名。
+4. **提交规矩。** 用仓库身份 `Congcong Liu <liuc23539@gmail.com>`（已在仓库本地 config），不留 AI 痕迹，只 stage 点名的文件。推送到 GitHub 前先问用户。
+
+### 1.2 不在本阶段
+
+MC-GS 的 NUFFT 前向；按心动相位分组的 5D 重建；水激发那套数据；V1、V2、V5、V6、V9、V10。
+
+## 2. 为什么不是"旧重建代码只换参数"（决定记录）
+
+- MC-GS 与自写的 CG-SENSE / CS-SENSE 臂，前向都是 `fft3c(图像×线圈图)×掩膜`（`paired_gs/trainers/joint_trainer.py:499`）；数据加载要 (C,X,Y,Z) 笛卡尔 k 空间，并从全采样 k 空间生成真值。本数据是 22,000 条方向各异的 3D 径向辐条，没有全采样，两条都不满足。
+- BART 的 `nufft`、`pics` 原生支持非笛卡尔，`ecalib` 用网格化后的中心数据即可。前期 L1-ESPIRiT 臂（`Results_20260908/T1T2_AF12_retro/scripts/recon_l1espirit.py`）的 `bart pics` 调用加一个轨迹参数 `-t` 就能用于本数据，所以本阶段的重建全走 BART。
+- 不采用"从参考图合成笛卡尔 k 空间，再让旧代码整套换配置跑"。合成数据与重建共用同一线圈模型，属于数据罪（Shimron et al., PNAS 2022），分数虚高，只能当冒烟测试。
+
+## 3. 已核实的数据事实（2026-09-10，只读 MDH 头与少量采样）
+
+| 项 | 值 | 来源 |
+|---|---|---|
+| 每个 .dat 的 measurement | 2 个：`AdjCoilSens` 预扫 + 成像，取最后一个 | multi-raid 头，四例 |
+| 成像 ADC | 176,001 = 第 0 条噪声预扫（evalInfoMask bit25，循环计数全 0）+ 22,000 辐条 × 8 回波 | MDH，四例 |
+| 采集顺序 | 每条辐条连续 8 个回波；`Lin = shot×22 + seg`，`Seg` 计数器 = shot（0–999） | MDH |
+| 读出 | 224 点（2 倍过采样），dwell 5 µs，k 空间中心列 112 | MDH（V07） |
+| 回波 | TE = 1.25 + 2.05·n ms（n = 0…7），单极性读出 | ASCCONV |
+| 轨迹 | phyllotaxis，22 段 × 1000 交错；每个交错第一条（seg 0）是 SI 自门控辐条 | 作者 `phyllotaxis3D.m`（`lk==1` 时极角 0）；MDH 标志位 bit34 恰在 `Lin%22==0` |
+| 生理信号 | `PhysioInfo.mat` 的 176,000 行 = 去掉噪声后的成像 ADC；`TimeStamp_ms` 与 MDH 时间戳一致（V07 前 5 行已对上） | PhysioInfo + MDH |
+| 读出首尾 | V07 采样 0、1、2 的平均幅度是同一 \|k\| 正常水平的 18 倍、4.4 倍、1.5 倍，221–223 正常；作者代码清零 0、1、222、223 | 实测 800 条读出；作者 `main.m` |
+| 满采基准 | 112 网格的 3D 径向约需 π/2 × 112² ≈ 19,704 条辐条 | 计算 |
+
+## 4. 隔离与目录
+
+- **代码：** worktree 里新增 Python 包 `cardiac_fr/`（读取、轨迹、生理、BART 封装、评分），测试为 `tests/test_cardiac_fr_*.py`（只用 CPU 和小的合成数据）。
+- **课题目录：** `/data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MEGRE/`，按归档约定放 `README.md`、`scripts/`（调用包的薄驱动脚本，绝对路径）、`logs/`、`figures/`、`recon/`。仓库内镜像为 `cardiac_freerunning_megre/`（不含数据）。
+- **大中间文件：** `/data2/congcong/data/cardiac_3d_cine_public/derived/megre/<Vxx>/`，课题 `data/` 下用软链接。
+- **图：** `/home/congcongliu/figs/cardiac_fr/`（`http://localhost:8765/cardiac_fr/<图>.png`），课题 `figures/` 镜像。
+- **第三方代码：** 作者的两个 MATLAB 仓库 `QIS-MRI/ReadDataAndTrajectory_FreeRunningFatFractionHeart` @ `a78f6f2` 与 `QIS-MRI/SG_RespiratoryCardiac_3DRadial` @ `4a9a484`（都没有 LICENSE 文件）放课题 `third_party/`，只用于交叉核对，不进仓库。
+
+## 5. 管线
+
+### 5.1 读取（`cardiac_fr/twix.py`）
+
+- 解析 multi-raid 头，取最后一个 measurement；逐 MDH 前进，SYNCDATA 按头里的 DMA 长度跳过，遇 ACQEND 停。
+- 第 0 条（NOISEADJSCAN）另存为噪声样本 `(24, 224)`。其余 176,000 条存为 `raw.h5`：`ksp` 形状 `(8, 22000, 24, 224)` complex64（回波, 辐条, 线圈, 采样），另存 `lin`、`seg`、`eco`、`ts_ticks`。
+- 断言：每条 224 点、24 线圈；回波按 0…7 循环；`Lin` 从 0 递增到 21999；总行数 176,000。
+- 交叉核对：V07 用作者 MATLAB 读取器（`mapVBVD_JH`，`flagIgnoreSeg=true`，`unsorted`）读同一文件，抽 1,000 条逐位比较，要求完全相同。
+
+### 5.2 读出采样点裁剪
+
+保留采样 3–220（共 218 点），丢弃 0–2 与 221–223。依据：作者清零 0、1、222、223；V07 实测 0–2 异常；为对称多丢 221。丢弃而不是清零，免得重建在 k 空间边缘去拟合零。实施时四例都量一次首尾幅度；若异常超出这个范围，停下来报告。
+
+### 5.3 轨迹（`cardiac_fr/trajectory.py`）
+
+- 移植作者 `phyllotaxis3D.m` 与 `computePhyllotaxis.m`（`flagSelfNav=true`，nshot 1000，nseg 22，N 224）。采样半径 r = −0.5 + j/224（j = 0…223），BART 坐标 = r × 112（图像网格 112³，坐标范围 [−56, 56)）。数组下标 = `Lin`。
+- 在 r 单位下与作者 MATLAB 函数输出的 kx、ky、kz 逐点比较，最大绝对差 < 1e-9。
+- 去掉 seg 0 的 SI 辐条。图像轴与解剖方向的对应由 R0 重建目视判定，写进 README。
+
+### 5.4 生理信号与呼吸门控（`cardiac_fr/physio.py`）
+
+- 全量核对：四例 `TimeStamp_ms` 与 `(ts_ticks − ts_ticks[0]) × 2.5` 逐行相等。
+- 每条辐条的呼吸值 = 其 8 行 `respSignal` 的均值；辐条时间 = 回波 0 的时间戳。
+- 稳态：丢弃前 10 s 采集的辐条（沿用作者自门控代码的 10 s 阈值；翻转角 12°，每条辐条约 17 ms，前几秒信号未稳）。
+- 呼吸门控：按呼吸值排序，取呼气末一端的 1/3 辐条。极性用两条独立判据：(a) 呼吸值直方图的主峰在哪一端（呼气末停留最久）；(b) 两端各取 1/3，按 R0 的设置分别重建回波 0，膈顶更靠头侧的一端是呼气末。两条一致才采用，不一致就停下来报告。
+- 心动：由 `cardTriggers` 给每条辐条算 RR 内相位 ∈ [0, 1)，存盘备用，本阶段不用来分组。
+
+### 5.5 线圈图
+
+用回波 0、稳态后的全部非 SI 辐条：`bart nufft -i -x 112:112:112 <traj> <ksp> <coilimg>`（逐线圈图像）→ `bart fft -u 7` → `bart ecalib -t 0.001 -c 0.0 -r 24 -m 1`（与脑部相同参数）。8 个回波共用这一组线圈图。核对：体内线圈图平方和约为 1，目视无卷绕。
+
+### 5.6 重建（BART `pics -t`，即前期 L1-ESPIRiT 臂的同一调用）
+
+- **缩放：** 所有重建都加 `-S`，把 BART 内部缩放还原到数据单位。REF 与全部欠采子集重建（5.7）在同一例同一回波上共用一个 `-w`，取 REF 重建时 BART 报告的 `Scaling` 值（默认输出里没有就加 `-d5` 取），保证它们同一标度、λ 同一含义。R0 和 5.4 的极性重建只用来看图，用 BART 自动缩放。
+- **R0 运动平均：** 稳态后全部非 SI 辐条（约 20,400 条，AF 约 0.97）× 8 回波，CG-SENSE `-l2 -r 1e-3 -i 100`。用途是验证整条链：解剖、方位、回波间幅值衰减与水脂相位变化是否合理。
+- **REF 参考：** 呼气末 1/3（约 6,800 条，AF 约 2.9）× 8 回波，同样的 `-l2 -r 1e-3 -i 100`。
+- **迭代数核对：** REF 回波 0 的 60 步结果 x60 与 100 步结果 x100，体内 ‖x100 − x60‖ / ‖x100‖ < 1%；不满足就改 200 步重跑。
+- **缩放核对：** 同一份 REF 数据分别用 `-w X` 与 `-w 2X` 重建（都加 `-S`，其余同 REF），两者体内幅值之比应为 1（误差 < 1%），证明 `-S` 确实还原到数据单位。
+
+### 5.7 评估口径（`cardiac_fr/gauge.py`）
+
+- **AF 定义：** AF = 19,704 / 实际辐条数，与脑部"相对全网格"的 AF 同义。
+- **留出集：** 从 REF 辐条中按固定种子（seed 0）随机取 5%，编号存文件，永不进入任何欠采重建。
+- **欠采子集：** 从 REF 去掉留出后的辐条池中按交错整组抽取。池里出现的交错按编号排序后，第 j 个选 round(j × 步长)，步长取使辐条数最接近目标的值。目标 AF 8、12、16，报实际 AF。所有方法共用同一份子集文件。
+- **指标**（幅值图，统一除以参考的 P99.9）：
+  - 整体：PSNR、SSIM、NMSE，用 `paired_gs.metrics.metrics.evaluate_reconstruction`（与脑部同一实现）。
+  - 体内：`diag_artefact.headonly` 的 `head_mask`（|ref| > 0.05 × P99.9，这里叫 body）、`head_psnr`、`head_ssim`、`head_hfen`。依赖脑白质掩膜的 `grain_ratio` 不用。
+  - 心脏框：在 V07 的 REF 上目视选一个包住心脏的长方体，坐标写进 README 与 `gauge.json`；报框内 PSNR、SSIM。
+  - 留出 k 空间 NRMSE = ‖A_ho x − y_ho‖ / ‖y_ho‖，其中 A_ho = 线圈图 × `bart nufft`（留出辐条的轨迹）。REF 自己的这个值是样本内，单独标注。
+- **排名主口径：** 留出 NRMSE。理由：REF 本身 AF 约 2.9、有噪声和条纹，图像指标会偏向与参考同类的 CG-SENSE；留出 NRMSE 不依赖参考。图像指标为辅，并始终配误差图。
+- **误差图：** |rec − ref| / P99.9(|ref|)，jet，固定 [0, 0.1]。
+- **口径自检**（V07，回波 0 与 4）：CG-SENSE 与 L1 小波（`pics -l1`）在 AF 8、12、16 上重建。L1 的 λ 在 AF 12、回波 0 上按体内 PSNR 从 {1e-4, 3e-4, 1e-3, 3e-3, 1e-2} 中选定后冻结；这和脑部课题"在 hyw 上选 λ"的做法相同，对 L1 偏乐观，已注明。要求体内 PSNR、SSIM、HFEN 和留出 NRMSE 全部随 AF 单调变差；不满足说明口径有问题，停下来查。
+
+### 5.8 冻结与批量
+
+V07 的全部核对与自检通过后，把本节所有参数写入课题的 `params_frozen.json` 与 `gauge.json`，再对 V03、V04、V08 跑 5.1–5.6（R0 + REF，8 个回波）。口径自检只在 V07 做；其余三例的心脏框等第二阶段要比较方法时再定。
+
+## 6. 验收
+
+1. 读取：V07 与作者 MATLAB 读取器抽 1,000 条逐位一致；四例各 176,000 条加 1 条噪声，断言全过。
+2. 轨迹：与作者 MATLAB 输出最大绝对差 < 1e-9。
+3. 生理：四例 `TimeStamp_ms` 与 MDH 时间戳逐行相等。
+4. 采样点：四例首尾异常点都落在丢弃范围内。
+5. 呼吸极性：两条判据一致。
+6. 图像：四例 R0 与 REF 的 8 个回波解剖正确（心、肝、脊柱可辨，方位已记录），回波间幅值衰减与水脂相位变化合理；图在 `figs/cardiac_fr/`。
+7. 迭代数与缩放核对通过。
+8. 口径自检单调。
+9. 记录：课题 README（数据、每步参数、可粘贴命令、原始输出摘录、实测耗时）；根 README 登记；本分支 `CLAUDE.md`、`STATUS.md` 改为这条线的入口与交接；按交接协议提交，并打 `handoff/<收尾当天日期>-cardiac` tag。
+
+## 7. 风险与已知限制
+
+- **视野：** 重建网格 112³（220 mm，与作者一致）。视野外的身体信号不在模型里，会带来条纹和数据残差下限。本阶段不处理；第二阶段若影响 MC-GS，再考虑 2 倍网格或线圈筛选。
+- **心动平均：** REF 里心脏被心动模糊。本阶段的参考是"呼气末、心动平均"状态，不是某一心动相位。
+- **参考不是真值：** 见 5.7 的排名主口径。
+- **噪声预扫：** 每线圈只有 224 个样本，协方差估计粗。只存不用，不做预白化（与脑部课题一致）。
+- **耗时：** BART CPU 耗时未知，V07 实测后写进 README。若单个回波的 REF 超过 1 小时，先报告再决定是否减迭代或用 `-U`。
+- **停止条件：** 5.1 的交叉核对、5.2 的采样点范围、5.3 的轨迹核对、5.4 的极性判据、5.6 的缩放核对、5.7 的口径自检，任一不过就停止后续步骤并报告，不绕过。
+
+## 8. 交给第二阶段的接口
+
+`raw.h5`（辐条数据）、轨迹、线圈图、门控/留出/子集编号文件、`gauge.py` 与冻结参数。第二阶段另立 spec，至少包含：用 torchkbnufft 前向替换 `fft3c×掩膜`；与 BART `nufft` 的一致性测试；回波选择（选两个对比度，或把 JointTrainer 推广到 8 个）。
