@@ -228,6 +228,11 @@ cd $F && CONFIG=configs/t1flair_v3_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t
   by itself +0.289 above L1-ESPIRiT, the single-contrast T1 −0.077 below it. The coupling moves accuracy from
   FLAIR to T1, and that is what brings T1 level with L1-ESPIRiT on this subject.
 - **Gate**: T1 sharpness 0.892 passes the pre-registered 0.874 floor on this subject.
+- **External arm, not held out**: the parallel AF16 loop's recipe, selected on this subject at AF16 (3.6M points,
+  wavelet T1 0.10 / FLAIR 0.07), run unchanged on this topic: head PSNR 36.753 / 36.165, head SSIM 0.9480 / 0.9374,
+  head HFEN 0.1009 / 0.1002, whole-volume PSNR 40.071 / 39.539 (`mcgs_af16_wt/results_arc/ar17_P6_tf_jyz_af12_full4k_score.json`).
+  It is first on head PSNR, head SSIM and whole-volume PSNR on both channels. Because it was selected on this
+  subject, it is cross-checked on huangyuwei (framework program, Round 20).
 - P-LORAKS for this subject is still running (see "Classical arms revisited").
 - Figures (compact panels, v3 as the proposed method): `figures/t1flair_v3_af12_T1_best_axis0_173.png`,
   `figures/t1flair_v3_af12_FLAIR_best_axis0_178.png` (v3's best transverse slices),

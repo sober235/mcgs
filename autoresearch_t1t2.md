@@ -707,3 +707,24 @@ needed whichever FLAIR value is kept. To use GPUs 6 and 4, which free before C01
 starts now on the first of them: `ar19_tf_hyw_T1p06_wavC008` (hyw T1+FLAIR; T1 0.06, FLAIR 0.08, everything else
 v3; `queue21.sh`). The Round 17 decision is still taken on C008 against C012 alone. If 0.12 is kept, its own
 combination follows and this run is reported as a variant.
+
+### Round 20 — cross-check of the AF16 loop's recipe on the huangyuwei subject (pre-registered 2026-09-11 03:57)
+
+The parallel AF16 loop (worktree `mcgs_af16_wt`, branch `autoresearch-jyz-af16`) selected its recipe on
+jiangyizhou at AF16: this loop's cold start and frozen edge-TV (0.10, quantile 0.85), 3.6M points, and wavelet T1
+0.10 / contrast 0.07 (`--set loss.lambda_wav=0.07 --set loss.lambda_wav_plain=0.10 --set
+gaussian.initial_num_points=3600000`). Run unchanged on this loop's jiangyizhou AF12 topic
+(`mcgs_af16_wt/results_arc/ar17_P6_tf_jyz_af12_full4k_score.json`, read and checked here) it gives head PSNR
+36.753 / 36.165, head SSIM 0.9480 / 0.9374, head HFEN 0.1009 / 0.1002 and whole-volume PSNR 40.071 / 39.539. That is
+first on head PSNR, head SSIM and whole-volume PSNR on both channels, first on T1 head HFEN among the other methods,
+and level with L1-ESPIRiT on FLAIR head HFEN (0.1002). jiangyizhou is that recipe's own subject, so this is not a
+held-out result for it; huangyuwei is.
+
+Two runs, the recipe unchanged: `ar20_xv_P6_hyw_t1flair` (hyw T1+FLAIR, the contrast pair it was selected on; GPU 0
+now) and `ar20_xv_P6_t1t2` (the tuning pair, its contrast-channel strength applied to T2; next free GPU, `queue22.sh`).
+
+Reading, fixed now: if it is first on head PSNR and head SSIM on both channels of both hyw topics, the recipe family
+(3.6M points with a strong per-contrast wavelet) has been selected on one subject and confirmed on the other in both
+directions (v3: hyw to jiangyizhou; this recipe: jiangyizhou to hyw), and it is reported that way. If it trails v3 or
+v3.1 on hyw, its jiangyizhou AF12 numbers are reported as subject-specific selection. No parameter of it is changed
+on hyw.
