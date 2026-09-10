@@ -564,3 +564,19 @@ Decision rules, fixed now:
 - If both qualify, their combination is run once at 4000 iterations before anything is adopted.
 - Whatever replaces v3 is then run unchanged on the two T1+FLAIR topics and reported whatever they show;
   jiangyizhou stays out of every decision above.
+
+**SSIM diagnosis, recorded before any Round 16 result (01:00).** Scorer-identical 3-D SSIM maps of v3 and
+L1-ESPIRiT on the tuning pair, split into the luminance and contrast-structure terms and binned by quintiles
+of the ground truth's gradient magnitude inside the head (`t1t2_af12_retro/scripts/ssim_breakdown.py`):
+- T1 (v3 − L1 = −0.0003): v3 wins the flattest fifth (+0.0034; less noise, local correlation 0.812 against
+  0.804) and loses the three middle fifths (−0.0005 / −0.0019 / −0.0021), all through the contrast-structure
+  term: lower local correlation (0.935 against 0.938, 0.957 against 0.960) and lower local variance (local
+  std 0.89–0.95 of the ground truth's, L1 0.94–0.97). Luminance is better everywhere.
+- T2 (v3 − L1 = −0.0005): the loss sits in the second and third fifths and is variance match only; v3's
+  local correlation is higher than L1's there, its local std is 0.86 / 0.91 of the ground truth's against
+  L1's 0.91 / 0.94. The flattest fifth adds a luminance loss. The single-contrast v3 (+0.0002 over L1) has
+  the same variance deficit but a smaller flat-region luminance loss.
+- Reading: the SSIM gap is under-represented mid-scale texture, not noise and not edges. Changes that add
+  local variance where the ground truth has moderate gradients should close it: less edge-TV (geo007) and
+  more capacity (the 3.6M promotion). The stronger T1 wavelet (T1p06) is expected to act on the T1
+  correlation part instead.
