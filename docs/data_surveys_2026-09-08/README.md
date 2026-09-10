@@ -7,6 +7,9 @@
 | `cardiac_local_kspace_inventory.md` | 本机五个数据根的心脏 k-space 盘点 | 唯一"3D 加多对比加心脏加前瞻欠采"原始数据是 `Corony_data/1`，UIH 5T 全心 Dixon 双回波 1 例；同目录其余 20 次扫描是大腿和盆腔；其余心脏 k-space 都是 2D cine，大量心脏影像只有 DICOM |
 | `3d_cine_kspace_public_survey.md` | 全网公开的多对比 3D cine k-space | 只有伯尔尼/洛桑两套自由运行 3D 径向全心数据（Zenodo 13868462：5 序列乘 5 人；7621356 加 7615780：8 回波乘 10 人），CC-BY 但无全采样参考；真 3D 笛卡尔只有 MR-linac 5D 10 例与 CMRx4DFlow2026；CMRxRecon 全系列没有 3D 采集 |
 | `brain_3d_t1_flair_kspace_survey.md` | 全网公开的脑 3D T1 加 3D FLAIR 同人 k-space | 只有哥本哈根 DRCMR 运动校正集，MPRAGE 22 人、FLAIR 仅 10 人，前瞻加速，PublicnEUro 需 DUA；M4Raw 与 fastMRI 是 2D，Calgary-Campinas 无 FLAIR；本机 UIH 自采 16 对 T1 加 FLAIR 更大，但 T2 目录多为 FLAIR 副本 |
+| `downloaded_data_and_selection.md` | 下载、校验、选型与归档（09-09 到 09-10 追加） | 两套都已下到 `/data2/congcong/data/cardiac_3d_cine_public/` 且 MD5 全对；水激发那套在 Zenodo 源头就坏了 7 个条目；最终选多回波那套的 V03、V04、V07、V08 归档进项目 3D 数据根 |
+
+本线的交接说明在 `../handoff/2026-09-10-cardiac-data.md`。
 
 `figures/` 是三张目视核实图：`case1_ACS11_IP.png` 证明 `Corony_data/1` 是心脏，`thigh_1p0_IP.png` 与 `pelvis_1p0_IP.png` 证明其余是外周血管。
 
