@@ -20,7 +20,7 @@ ap.add_argument("--prefix", required=True, help="figure name prefix and figs sub
 ap.add_argument("--slices", default=None, help="axis0,axis1,axis2 indices; default = per-plane best from logs/best_slice_v2.json")
 ap.add_argument("--ours", default="gs_joint_v2")
 ap.add_argument("--tag", default="best3planes")
-ap.add_argument("--exclude", default="gs_joint,gs_single", help="comma list of arms to leave out; the superseded joint and single arms by default (the v2 pair is the proposed method and its ablation)")
+ap.add_argument("--exclude", default="gs_joint,gs_single,cssense", help="comma list of arms to leave out; by default the superseded joint/single arms and the under-converged 35-iteration TV arm")
 args = ap.parse_args()
 
 import matplotlib
@@ -32,8 +32,9 @@ import scipy.io
 R = Path(args.topic)
 F = Path("/home/congcongliu/figs") / args.prefix; F.mkdir(parents=True, exist_ok=True)
 ANAT = {0: "transverse", 1: "coronal", 2: "sagittal"}
-ORDER = ["zf", "cgsense", "cssense", "zsssdu", "dip", "inr", "gs_single", "gs_joint", "gs_single_v2", "gs_joint_v2"]
-LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV)", "zsssdu": "ZS-SSDU",
+ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "ploraks", "zsssdu", "dip", "inr", "gs_single", "gs_joint", "gs_single_v2", "gs_joint_v2"]
+LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV, 35 it.)", "cssense_o200": "CS-SENSE (TV)",
+         "jcssense": "joint CS-SENSE", "l1espirit": "L1-ESPIRiT", "ploraks": "P-LORAKS", "zsssdu": "ZS-SSDU",
          "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
          "gs_single_v2": "MC-GS single (ours)", "gs_joint_v2": "MC-GS joint (ours)"}
 
@@ -112,7 +113,7 @@ for k, p in enumerate(planes):
             pos = b.get_position()
             cax = fig.add_axes([pos.x1 + 0.004, pos.y0, 0.010, pos.height])
             cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=7); cb.set_label("|recon - GT| / max(GT)", fontsize=7)
-fig.suptitle(f"{c}  retrospective AF 12  --  three planes, each at the slice where {LABEL[args.ours]} is best   "
+fig.suptitle(f"{c}  retrospective AF 12  --  three planes, each at the slice of highest {LABEL[args.ours]} head PSNR   "
              f"(head-masked PSNR of each slice; error maps jet, fixed [0, 0.1])", fontsize=11, fontweight="bold", y=0.995)
 out = F / f"{args.prefix}_{c}_{args.tag}.png"
 fig.savefig(out, dpi=110, bbox_inches="tight"); fig.savefig(R / f"figures/{out.name}", dpi=110, bbox_inches="tight")

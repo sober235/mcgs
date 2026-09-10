@@ -381,3 +381,10 @@ ESPIRiT maps are structurally behind every map-based arm; this is a property of 
 retrospective set-up (maps from the full k-space), stated as such. The table gets the
 calibrationless P-LORAKS at rank 40 / R = 2 on all five channels (full runs, ~50 min per
 channel on 48 workers), so the row is complete and its standing is what it is.
+
+**Per-slice check against the corrected arm set (16:40).** `find_best_slice_v2.py` now takes its margin
+against an explicit list of canonical, converged arms (converged TV, joint TV, L1-ESPIRiT, ZS-SSDU,
+DIP, INR, CG-SENSE, ZF; sweep variants in recon/ are ignored). Result: MC-GS joint v2 is first on
+0 of the full-brain slices in every plane of every topic; L1-ESPIRiT leads everywhere, including
+the slices where v2 peaks (hyw T1 slice 150: L1-ESPIRiT 37.02 vs v2 36.29). The compact figures
+were regenerated with those columns and the true ranks.

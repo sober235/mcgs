@@ -141,6 +141,11 @@ of it on hyw T2 (+0.26), behind on the FLAIR channels and on jiangyizhou. It kee
 head HFEN on hyw T1 (0.0863) and stays +1.4 to +2.3 dB above the cold-start joint arm it
 replaced. The claim that survives is the diagnosis and repair of the cold-start path, not
 "first among nine".
+A per-slice sweep against the converged and new arms (`scripts/find_best_slice_v2.py`, output in
+`logs/best_slice_v2.log`) finds v2 first on **none** of the full-brain slices (>= 20000 head
+voxels) in any plane of any topic; L1-ESPIRiT leads on the slices where v2 itself peaks as well.
+The compact figures (`scripts/fig_slice_v2.py`, `scripts/fig_planes_v2.py`) now carry the
+converged TV, joint TV and L1-ESPIRiT columns and show those ranks as they are.
 
 P-LORAKS (LORAKS v2 toolbox, per-readout-slice, S-matrix, R = 2) is the fourth arm of this
 revisit; its rank is being selected on a six-slice subset of hyw T1 at the time of writing and

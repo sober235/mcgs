@@ -20,6 +20,8 @@ ap.add_argument("--topic", required=True)
 ap.add_argument("--contrasts", required=True)
 ap.add_argument("--ours", default="gs_joint_v2")
 ap.add_argument("--min_head", type=int, default=20000)
+ap.add_argument("--others", default="zf,cgsense,cssense_o200,jcssense,l1espirit,ploraks,zsssdu,dip,inr",
+                help="arms the margin is taken against: canonical, converged versions only (sweep variants in recon/ are ignored); missing ones are skipped")
 args = ap.parse_args()
 R = Path(args.topic)
 
@@ -38,11 +40,12 @@ def main():
         gt = np.abs(np.load(R / f"recon/gt_{c}_complex.npy")).astype(np.float32)
         gmax = float(gt.max())
         head = gt > 0.05 * float(np.quantile(gt, 0.999))
-        methods = sorted({p.name.split(f"_{c}_")[0] for p in (R / "recon").glob(f"*_{c}_*.npy")
-                          if not p.name.startswith(("gt", "zfGS", "gtGS", "rss"))})
-        vols = {m: load(m, c) for m in methods}
+        cand = list(dict.fromkeys(args.others.split(",") + [args.ours, "gs_single_v2"]))
+        vols = {m: load(m, c) for m in cand}
         vols = {m: v for m, v in vols.items() if v is not None}
         assert args.ours in vols, (args.ours, list(vols))
+        other_set = [m for m in args.others.split(",") if m in vols and m != args.ours]
+        print(f"[{c}] ours = {args.ours}; margin taken against {other_set}")
         rows = []
         for ax in range(3):
             n = gt.shape[ax]
@@ -57,7 +60,7 @@ def main():
                 for m, v in vols.items():
                     e = v[sl][hp].astype(np.float64) - g
                     ps[m] = 20 * np.log10(gmax) - 10 * np.log10(float((e * e).mean()))
-                others = {m: p for m, p in ps.items() if m != args.ours and not m.endswith("_v2")}
+                others = {m: ps[m] for m in other_set}
                 best_other = max(others, key=others.get)
                 rows.append(dict(axis=ax, index=i, n_head=nh, ours=ps[args.ours],
                                  margin=ps[args.ours] - others[best_other], best_other=best_other,
