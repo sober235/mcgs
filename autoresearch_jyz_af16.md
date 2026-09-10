@@ -560,3 +560,20 @@ below L1-ESPIRiT). Directional TV (λ_dtv), prewhitening, FLAIR-only high-band w
 and λ_geo 0.07 all lost. Caveats: one subject; the MC-GS knobs and the classical λ were both selected on this
 subject's ground truth (fair, not held out); two unexplained GPU stalls cost ~2 h and led to one trainer per card.
 The jyz AF12 transfer run of the final recipe (`ar17_P6_tf_jyz_af12_full4k`) is pending.
+
+### Transfer check — the final recipe, unchanged, on jiangyizhou at AF12 (04:30)
+
+`ar17_P6_tf_jyz_af12_full4k` (config `configs/t1flair_v3_af12_hyw.yaml` = the jyz AF12 topic, 4000 iterations), scored
+against that topic's own table (`Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/logs/summary.json`):
+
+| arm (jyz AF12) | T1 head PSNR | FLAIR head PSNR | head SSIM | head HFEN | sharp |
+|---|---|---|---|---|---|
+| **P6 recipe (tuned at AF16), transferred** | **36.753** | **36.165** | **0.9480 / 0.9374** | 0.1009 / 0.1002 | 0.857 / 0.832 |
+| hyw loop's `gs_joint_v3x2` (their AF12 arm) | 36.539 | 36.049 | 0.9449 / 0.9360 | **0.0974 / 0.0985** | 0.883 / 0.842 |
+| L1-ESPIRiT | 36.334 | 35.720 | 0.9443 / 0.9368 | 0.1034 / 0.1002 | 0.906 / 0.809 |
+
+**The recipe transfers to the other acceleration on the same subject**: first on head PSNR (+0.42 / +0.45 dB over
+L1-ESPIRiT) and head SSIM in both contrasts; HFEN better than L1-ESPIRiT on T1 and tied on FLAIR (the hyw loop's arm
+has the lower HFEN). This is a same-subject check, not a held-out-subject one. The run is not registered in the AF12
+topic, which belongs to the hyw loop; the ledger row's margin columns use the AF16 bar and are marked as such. Loop
+closed.
