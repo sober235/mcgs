@@ -735,3 +735,20 @@ on hyw.
 0.0825 / 0.0675 (L1-ESPIRiT 0.0867 / 0.0656), whole-volume PSNR 40.004 / 40.815, first among the competing methods on
 both. On T1 it now leads L1-ESPIRiT on head SSIM too. On T2 it trails L1-ESPIRiT by 0.0001 on head SSIM and by 0.0019
 on head HFEN. The T2 gain is smaller than the per-contrast variant's (+0.069).
+
+**geo007 (`ar16_n24_wav005_geo007`, edge-TV 0.10 → 0.07, landed 04:21): qualifies.** T1 35.717 / T2 36.254 against
+v3's 35.771 / 36.112 (−0.054 / +0.142). The margin over L1-ESPIRiT is +0.187 / +0.436, so head PSNR stays first on
+both, and T1 sharpness is 0.906, above the 0.874 floor: the first configuration that meets every pre-registered
+gate. Head SSIM 0.9467 / 0.9552 (L1-ESPIRiT 0.9471 / 0.9536), head HFEN 0.0797 / 0.0646 (L1-ESPIRiT 0.0867 / 0.0656):
+first on T2 head SSIM and on head HFEN of both contrasts, 0.0004 short on T1 head SSIM. The prediction recorded
+before it ran (lower head SSIM) was wrong: T2 head SSIM rose by 0.0021 and T1 moved by −0.0001. Less edge-TV adds the
+local variance that the SSIM diagnosis found missing, without the correlation loss a weaker wavelet brings. This
+matches the AF16 loop's finding that a heavier edge-TV over-regularises once the wavelet is strong.
+
+**Combination rule (pre-registered before the combination runs).** T1p06 and geo007 both qualify, so they are
+combined once on the tuning pair: `ar19_n24_T1p06_geo007` (T1 wavelet 0.06, edge-TV 0.07, everything else v3;
+`queue23.sh`, first of GPUs 1/2/3/5 to free). It becomes v3.2 if it passes the T1 sharpness floor and its minimum
+margin over L1-ESPIRiT exceeds geo007's +0.187. If it misses the floor, geo007 alone becomes v3.2 (the only change
+that meets every gate) and T1p06 is reported as the higher-margin variant that misses it. On the T1+FLAIR topics
+v3.2 also takes the Round 17 FLAIR strength; that full recipe then runs on hyw T1+FLAIR and, unchanged, on
+jiangyizhou (held out).
