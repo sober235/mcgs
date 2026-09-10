@@ -124,3 +124,43 @@ winners combined), `ar1_pwc` (FLAIR-only prewhitening, `--prewhiten_only contras
 Queued for Round 2, FLAIR-specific: `--kspace_high 2.6 --kspace_high_plain 2.2` (more high-band
 weight on FLAIR than T1), `--lambda_dtv 0.05` (cross-contrast coupling, historically a small
 plus), tv_eps 0.03, w_floor 0.20, points 0.9M / 1.6M, init_head_frac.
+
+Results (1500 iterations; ~58 min each with two per card):
+
+| exp | T1 | FLAIR | dT1 | dFLAIR | min_margin | head SSIM T1 / FLAIR | head HFEN T1 / FLAIR | sharp T1 / FLAIR | status |
+|---|---|---|---|---|---|---|---|---|---|
+| ar1_lam016 | 34.611 | 33.771 | +0.202 | −0.233 | −0.233 | 0.9221 / 0.9058 | 0.1320 / 0.1308 | 0.837 / 0.760 | marginal |
+| ar1_lam013_kq090 | 34.601 | 33.778 | +0.192 | −0.226 | −0.226 | 0.9218 / 0.9056 | 0.1323 / 0.1316 | 0.841 / 0.758 | marginal |
+| ar1_pwc (FLAIR prewhitening) | 34.218 | 33.518 | −0.191 | −0.486 | −0.486 | 0.9131 / 0.9000 | 0.1336 / 0.1315 | 0.905 / 0.824 | discard |
+
+Reading. Stronger regularisation keeps paying on both contrasts with diminishing returns
+(λ 0.10 → 0.13 → 0.16: T1 +0.24 then +0.14, FLAIR +0.14 then +0.08); λ 0.13 + κ_q 0.90 lands at the
+same point as λ 0.16 — they are the same lever (more smoothing in flat regions). The price is
+sharpness (T1 0.90 → 0.84, FLAIR 0.82 → 0.76; still sharper than the TV competitor's 0.77 / 0.66)
+and a +0.001 FLAIR HFEN, so by the pre-registered clause these are "marginal", not "keep"; the
+promotion run and the visual gate decide. FLAIR prewhitening costs 0.03 dB on both — discarded.
+`ar1_base_2500` (budget curve) pending.
+
+### The bar moves (2026-09-10 17:40) — classical arms re-run converged and λ-swept on this subject
+
+The hyw loop's audit (`autoresearch_t1t2.md`, "Classical baselines revisited", commit db69313)
+found the CS-SENSE arm of every topic under-converged (35 ADMM iterations inherited from the CE
+study): converged TV is 0.35–0.6 dB higher and L1-wavelet ESPIRiT (BART) is first on all five AF12
+channels, 0.4–0.8 dB above v2. The AF16 topics used the same under-converged arm, so the bar above
+(34.409 / 34.005) is too low. The three revisited arms are being run on jiangyizhou AF16
+(`Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/scripts/run_classical_revisited.sh`, GPUs 2–3):
+converged TV at λ {0.7, 1, 1.4, 2}e-3 (T1) / {0.5, 0.7, 1, 1.4}e-3 (FLAIR), L1-ESPIRiT at
+λ {1, 1.5, 2.5, 4}e-3 (T1) / {3, 5, 7, 10}e-3 (FLAIR), joint vectorial TV at λ {1, 1.4}e-3. **λ is
+swept on this subject against the ground truth — exactly the privilege this loop has — and the
+best λ per contrast is the competitor.** When they land, the topic's `summary.json` is rebuilt, the
+row script picks the new bar up automatically (every row now records its bar in the note), and
+`scripts/autoresearch_jyz_af16_view.py` re-reads all rows against it.
+
+GPU split agreed with the hyw loop (17:50): this loop on GPUs 0–3, the hyw loop on 4–7.
+
+### Round 2 — 2026-09-10 17:43, six runs at 1500 iterations
+`ar2_P1_lam016_kq090` (the two Round-0/1 winners combined: candidate new parent),
+`ar2_lam020` (λ 0.20: where the λ curve turns), `ar2_dtv005` (T1-guided directional TV on FLAIR,
+λ_dtv 0.05: a FLAIR-targeted use of the shared anatomy), `ar2_khiFL26` (FLAIR high-band weight 2.6,
+T1 kept at 2.2), `ar2_n900k` (0.9M points: capacity under sparser data), `ar2_eps003` (Charbonnier
+ε 0.03, after `ar1_base_2500` frees its slot). GPUs 0, 1, 4, 5 (4 and 5 once, before the split).
