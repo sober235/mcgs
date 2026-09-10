@@ -39,8 +39,9 @@ this pair than on T1+T2.
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| MC-GS joint v3 ×2 seeds (2× compute) | **38.645** | 0.8863 | **34.417** | 0.9178 | 122 min |
-| **MC-GS joint v3** | 38.588 | 0.8857 | 34.359 | 0.9169 | 60 min |
+| **MC-GS joint v3.2** | **38.849** | 0.8798 | **34.561** | 0.9215 | 58 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | 38.645 | 0.8863 | 34.417 | 0.9178 | 122 min |
+| MC-GS joint v3 | 38.588 | 0.8857 | 34.359 | 0.9169 | 60 min |
 | MC-GS single v3 | 38.518 | 0.8764 | 34.341 | 0.9158 | 136 min |
 | L1-ESPIRiT | 38.607 | 0.9445 | 34.105 | 0.9221 | 4 min |
 | joint CS-SENSE (JTV) | 38.544 | 0.9447 | 33.929 | 0.9196 | 7 min |
@@ -203,6 +204,44 @@ cd $F && CONFIG=configs/t1flair_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t1t2
 - Figures (compact panels, v3 as the proposed method): `figures/t1flair_af12_T1_best_axis0_147.png`,
   `figures/t1flair_af12_FLAIR_best_axis0_153.png` (v3's best transverse slices),
   `figures/t1flair_af12_{T1,FLAIR}_best3planes.png`.
+
+## MC-GS joint v3.2 — T1-channel wavelet 0.06 and lighter edge-TV 0.07 (2026-09-11)
+
+v3.2 = v3 + a T1-channel wavelet strength of 0.06 (the second channel keeps 0.05) + edge-TV 0.07 instead of 0.10; on the
+T1+FLAIR topics the FLAIR channel takes 0.12. Selected on the tuning pair by the pre-registered rules of the framework
+program (Rounds 16–17, "## v3.2 — adopted"). Same subject as the tuning pair; the FLAIR-channel strength (0.12) was selected on this topic.
+
+```bash
+cd $F && CONFIG=configs/t1flair_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar19_tf_hyw_full_C012 3 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.12 --lambda_geo 0.07
+```
+
+Standing of v3.2 against every other method in this topic's table (single run, seed 42):
+
+| metric | T1 | FLAIR |
+|---|---|---|
+| head PSNR | **first**, 35.816 (next: L1-ESPIRiT 35.530) | **first**, 34.561 (next: L1-ESPIRiT 34.105) |
+| head SSIM | **first**, 0.9483 (next: L1-ESPIRiT 0.9471) | third, 0.9215 (best: ZS-SSDU 0.9235) |
+| head HFEN | **first**, 0.0799 (next: L1-ESPIRiT 0.0867) | **first**, 0.1065 (next: L1-ESPIRiT 0.1096) |
+| whole-volume PSNR | **first**, 39.997 (next: L1-ESPIRiT 39.823) | **first**, 38.849 (next: L1-ESPIRiT 38.607) |
+| whole-volume NMSE | **first**, 0.01205 (next: L1-ESPIRiT 0.01254) | **first**, 0.01438 (next: L1-ESPIRiT 0.01520) |
+| whole-volume HFEN | second, 0.5594 (best: converged TV 0.5549) | **first**, 0.5936 (next: joint CS-SENSE 0.6202) |
+| whole-volume SSIM | sixth, 0.9012 (best: joint CS-SENSE 0.9583) | sixth, 0.8798 (best: ZS-SSDU 0.9525) |
+
+| arm | head PSNR T1 / FLAIR | head SSIM | head HFEN | whole PSNR | sharp |
+|---|---|---|---|---|---|
+| **MC-GS joint v3.2** | 35.816 / 34.561 | 0.9483 / 0.9215 | 0.0799 / 0.1065 | 39.997 / 38.849 | 0.897 / 0.844 |
+| MC-GS joint v3 | 35.772 / 34.359 | 0.9470 / 0.9169 | 0.0828 / 0.1065 | 39.920 / 38.588 | 0.869 / 0.869 |
+| L1-ESPIRiT | 35.530 / 34.105 | 0.9471 / 0.9221 | 0.0867 / 0.1096 | 39.823 / 38.607 | 0.899 / 0.804 |
+| ZS-SSDU (best other head SSIM) | 34.134 / 33.269 | 0.9365 / 0.9235 | 0.1213 / 0.1432 | 38.635 / 38.012 | 1.012 / 1.110 |
+
+- **T1**: first on head PSNR, head SSIM, head HFEN, whole-volume PSNR, whole-volume NMSE; not first on whole-volume HFEN (second), whole-volume SSIM (sixth).
+- **FLAIR**: first on head PSNR, head HFEN, whole-volume PSNR, whole-volume NMSE, whole-volume HFEN; not first on head SSIM (third), whole-volume SSIM (sixth).
+- **Against v3**: T1 +0.044 dB / head SSIM +0.0013, FLAIR +0.202 dB / head SSIM +0.0047.
+- **Gate**: T1 sharpness 0.897 passes the pre-registered 0.874 floor.
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS not yet in on every channel): T1 first on 47/47, 86/88, 93/93 transverse / coronal / sagittal slices; FLAIR first on 61/61, 91/91, 94/94 transverse / coronal / sagittal slices.
+- Figures (compact panels, v3.2 as the proposed method): `figures/t1flair_af12_T1_best_axis0_150.png`, `figures/t1flair_af12_FLAIR_best_axis0_150.png`, `figures/t1flair_af12_{T1,FLAIR}_best3planes.png`.
 
 ## Regenerating
 
