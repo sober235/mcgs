@@ -26,9 +26,11 @@ whole-volume SSIM misleads on this data).
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| **MC-GS joint v3** | 39.662 | 0.9206 | **36.337** | 0.9428 | 63 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | **39.847** | 0.9219 | **36.539** | 0.9449 | 118 min |
+| **MC-GS joint v3** | 39.662 | 0.9206 | 36.337 | 0.9428 | 63 min |
 | L1-ESPIRiT | 39.497 | 0.9420 | 36.334 | 0.9443 | 5 min |
-| CS-SENSE (TV, converged) | **39.753** | 0.9522 | 36.144 | **0.9459** | 5 min |
+| MC-GS single v3 | 39.566 | 0.9251 | 36.257 | 0.9412 | 70 min |
+| CS-SENSE (TV, converged) | 39.753 | 0.9522 | 36.144 | **0.9459** | 5 min |
 | joint CS-SENSE (JTV) | 39.648 | **0.9587** | 36.070 | 0.9442 | 5 min |
 | CS-SENSE (TV, 35 outer, as run 09-09) | 39.395 | 0.9523 | 35.762 | 0.9429 | 2 min |
 | ZS-SSDU | 39.357 | 0.9577 | 35.724 | 0.9422 | 22 min |
@@ -45,7 +47,9 @@ whole-volume SSIM misleads on this data).
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| **MC-GS joint v3** | **39.334** | 0.9098 | **35.935** | 0.9346 | 63 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | **39.441** | 0.9107 | **36.049** | 0.9360 | 118 min |
+| MC-GS single v3 | 39.325 | 0.9011 | 36.009 | 0.9346 | 71 min |
+| **MC-GS joint v3** | 39.334 | 0.9098 | 35.935 | 0.9346 | 63 min |
 | L1-ESPIRiT | 39.327 | 0.9525 | 35.720 | **0.9368** | 5 min |
 | joint CS-SENSE (JTV) | 39.277 | 0.9523 | 35.624 | 0.9352 | 7 min |
 | CS-SENSE (TV, converged) | 39.142 | 0.9497 | 35.581 | 0.9353 | 5 min |
@@ -185,6 +189,49 @@ and is applied unchanged here. The T1 run (rank 40, R = 2, 48 MATLAB workers) st
 Scripts: `recon_classical.py --suffix` (sweeps), `recon_joint_cssense.py`, `recon_l1espirit.py`,
 `ploraks_export.py` / `run_ploraks.m` / `run_ploraks_ranks.m` / `ploraks_import.py`; sweep logs
 in `logs/sweeps/`, per-run json in `logs/`.
+
+## MC-GS joint v3 — the T1+T2 recipe with wavelet sparsity, run unchanged on the held-out subject (2026-09-10/11)
+
+v3 is defined and selected on the huangyuwei T1+T2 pair (`../T1T2_AF12_retro/README.md`, section "MC-GS joint
+v3"): v2's cold-start fixes + 2.4M initial points + a complex wavelet-sparsity term λ 0.05 on top of edge-TV,
+4000 iterations, one strength for both contrasts. Nothing was tuned on this subject; it stays out of every
+selection in the campaign (`autoresearch_t1t2.md` in the framework repo).
+
+```bash
+cd $F && CONFIG=configs/t1flair_v3_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar13_tf_jyz_t1flair_v3b 5 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05
+```
+
+| arm (4000 iters) | head PSNR T1 / FLAIR | head SSIM | head HFEN | whole PSNR | sharp |
+|---|---|---|---|---|---|
+| **MC-GS joint v3** | 36.337 / 35.935 | 0.9428 / 0.9346 | 0.0987 / 0.0994 | 39.662 / 39.334 | 0.892 / 0.847 |
+| MC-GS joint v3, seed 43 | 36.338 / 35.937 | 0.9428 / 0.9347 | 0.0987 / 0.0994 | 39.664 / 39.335 | 0.892 / 0.847 |
+| MC-GS joint v3 ×2 seeds (mean of the two runs, 2× compute) | 36.539 / 36.049 | 0.9449 / 0.9360 | 0.0974 / 0.0985 | 39.847 / 39.441 | 0.883 / 0.842 |
+| MC-GS single v3 (same recipe, one contrast) | 36.257 / 36.009 | 0.9412 / 0.9346 | 0.1019 / 0.0994 | 39.566 / 39.325 | 0.891 / 0.857 |
+| L1-ESPIRiT | 36.334 / 35.720 | 0.9443 / 0.9368 | 0.1034 / 0.1002 | 39.497 / 39.327 | 0.906 / 0.809 |
+| CS-SENSE (TV, converged) | 36.144 / 35.581 | 0.9459 / 0.9353 | 0.1107 / 0.1073 | 39.753 / 39.142 | 0.838 / 0.783 |
+| MC-GS joint v2 | 35.520 / 35.056 | 0.9321 / 0.9238 | 0.1056 / 0.1063 | 38.949 / 38.584 | 0.927 / 0.875 |
+
+- **Held out, v3 is first on head PSNR on FLAIR (+0.216 dB over L1-ESPIRiT) and ties on T1 (+0.003)**; the
+  seed-43 repeat gives +0.004 / +0.217. Head HFEN is first on both contrasts. Whole-volume PSNR and NMSE are
+  first on FLAIR and second on T1 (converged TV 39.753). Head SSIM trails: fourth on T1 and fifth on FLAIR
+  (best other arm: converged TV 0.9459 on T1, L1-ESPIRiT 0.9368 on FLAIR).
+- **Two seeds averaged** (v3 ×2, program Round 18): +0.205 / +0.329 dB over L1-ESPIRiT and first on
+  whole-volume PSNR on both contrasts, so the tie on T1 becomes a clear lead. Head SSIM rises to 0.9449 / 0.9360,
+  still below the best other arm on each channel. It is reported as its own row at twice the compute;
+  single-run v3 stays the headline arm.
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS not yet
+  in): FLAIR first on 94/94 transverse, 87/120 coronal and 118/118 sagittal slices; T1, where the volume-level
+  margin is a tie, first on 18/96, 77/121 and 56/118.
+- **Joint versus single**: the joint model is +0.080 dB on T1 and −0.074 on FLAIR. The single-contrast FLAIR is
+  by itself +0.289 above L1-ESPIRiT, the single-contrast T1 −0.077 below it. The coupling moves accuracy from
+  FLAIR to T1, and that is what brings T1 level with L1-ESPIRiT on this subject.
+- **Gate**: T1 sharpness 0.892 passes the pre-registered 0.874 floor on this subject.
+- P-LORAKS for this subject is still running (see "Classical arms revisited").
+- Figures (compact panels, v3 as the proposed method): `figures/t1flair_v3_af12_T1_best_axis0_173.png`,
+  `figures/t1flair_v3_af12_FLAIR_best_axis0_178.png` (v3's best transverse slices),
+  `figures/t1flair_v3_af12_{T1,FLAIR}_best3planes.png`.
 
 ## Regenerating
 
