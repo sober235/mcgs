@@ -448,3 +448,24 @@ floor at the recipe (`ar9_P5_seed43`) lands shortly.
 seed floor. T1's wavelet 0.07 → 0.10 at 3.6M adds +0.146 to T1 and leaves FLAIR where it was (34.613 → 34.611):
 the per-contrast independence holds at 3.6M too. Its 4000-iteration promotion (`ar10_n36_wT1010_wFL007_full4k`,
 GPU 0), its seed repeat, and the two single-contrast arms at the same recipe are running.
+
+### Promotion 2 — the 2.4M control at full budget (00:10)
+
+| exp | iters | T1 | FLAIR | head SSIM | head HFEN | sharp | vs bar (PSNR) |
+|---|---|---|---|---|---|---|---|
+| **ar10_wT1010_wFL007_full4k** (2.4M, T1 0.10 / FLAIR 0.07) | 4000 | **35.434** | **34.605** | 0.9325 / 0.9150 | 0.1307 / 0.1306 | 0.764 / 0.705 | **+0.224 / +0.102** |
+| L1-ESPIRiT (λ 0.0015 / 0.003) | 100 FISTA | 35.209 | 34.503 | **0.9334 / 0.9201** | **0.1286 / 0.1210** | **0.849 / 0.789** | 0 |
+
+At full budget the T1 wavelet 0.10 removes the late T1 over-fit P4 showed (35.120 → 35.434) and the budget adds
+FLAIR +0.14: **MC-GS joint beats L1-ESPIRiT on head PSNR in both contrasts at 2.4M already.** Registered in the
+topic as `gs_joint_ar24`; interim visual-gate figures
+`figs/t1flair_v3_af16/t1flair_v3_af16_{T1,FLAIR}_butterflyfinal_interim24_axis0_168.png` (in the butterfly crop it
+ranks first on both contrasts: T1 40.39, FLAIR 37.30 dB).
+
+**Honest caveat: PSNR is the only one of the four head metrics it wins.** Head SSIM (−0.001 / −0.005), head HFEN
+(+0.002 / +0.010) and sharpness (−0.085 / −0.084) still favour L1-ESPIRiT: the MC-GS reconstruction is smoother
+at edges (visible as faint edge-following structure in its FLAIR error map). The loop's declared number was head
+PSNR; its no-blur clause was checked against the parent, never against the competitor. Declared follow-up:
+**`ar13_n36_final_v2tv`** (the final recipe with the v2 edge-TV, λ_geo 0.10 / κ_q 0.85, 1500 iterations; GPU 0
+after the 3.6M promotion) — with the wavelet prior carrying part of the regularisation, less TV may restore the
+edges at little PSNR cost.
