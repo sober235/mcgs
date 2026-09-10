@@ -728,3 +728,10 @@ Reading, fixed now: if it is first on head PSNR and head SSIM on both channels o
 directions (v3: hyw to jiangyizhou; this recipe: jiangyizhou to hyw), and it is reported that way. If it trails v3 or
 v3.1 on hyw, its jiangyizhou AF12 numbers are reported as subject-specific selection. No parameter of it is changed
 on hyw.
+
+**Tuning pair v3 ×2 (`ar12_n24_wav005_full4k_x2`, scored 04:14).** Seed 43 (`ar18_n24_wav005_full4k_s43`) reads
+35.772 / 36.111 against seed 42's 35.771 / 36.112. The average of the two: head PSNR 35.877 / 36.164 (+0.106 /
++0.052 over v3, +0.347 / +0.346 over L1-ESPIRiT), head SSIM 0.9478 / 0.9535 (L1-ESPIRiT 0.9471 / 0.9536), head HFEN
+0.0825 / 0.0675 (L1-ESPIRiT 0.0867 / 0.0656), whole-volume PSNR 40.004 / 40.815, first among the competing methods on
+both. On T1 it now leads L1-ESPIRiT on head SSIM too. On T2 it trails L1-ESPIRiT by 0.0001 on head SSIM and by 0.0019
+on head HFEN. The T2 gain is smaller than the per-contrast variant's (+0.069).
