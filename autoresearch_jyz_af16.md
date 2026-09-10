@@ -485,3 +485,20 @@ and every structural metric (head SSIM, HFEN, sharpness all slightly worse than 
 beats L1-ESPIRiT on head SSIM, HFEN or sharpness. In the butterfly crop (axis0 slice 168) the 3.6M arm is second on
 both contrasts, 0.03 dB behind joint TV (T1 40.346 vs 40.372; FLAIR 37.240 vs 37.271), where the 2.4M arm was first
 (40.392 / 37.305). Final figures: `figs/t1flair_v3_af16/t1flair_v3_af16_{T1,FLAIR}_butterflyfinal_axis0_168.png`.
+
+### Round 10 — less edge-TV under the strong wavelet prior: the edge caveat disappears (01:15)
+
+| exp | TV (λ_geo / κ_q) | iters | T1 | FLAIR | head SSIM | head HFEN | sharp | vs bar (PSNR) |
+|---|---|---|---|---|---|---|---|---|
+| ar9_n36_wT1_010_wFL_007 | 0.16 / 0.90 | 1500 | 35.411 | 34.611 | 0.9317 / 0.9148 | 0.1330 / 0.1323 | 0.757 / 0.701 | +0.202 / +0.108 |
+| **ar13_n36_final_v2tv** | **0.10 / 0.85** | 1500 | **35.515** | **34.724** | **0.9353** / 0.9198 | **0.1217 / 0.1192** | 0.829 / 0.786 | **+0.306 / +0.222** |
+| L1-ESPIRiT | — | 100 FISTA | 35.209 | 34.503 | 0.9334 / **0.9201** | 0.1286 / 0.1210 | **0.849 / 0.789** | 0 |
+
+**With the wavelet prior at 0.10 / 0.07 and 3.6M points, the edge-TV of P1 was over-regularising.** Returning to the
+v2 edge-TV (λ_geo 0.10, κ_q 0.85) raises PSNR by +0.10 / +0.11 dB **and** fixes every structural metric: head HFEN
+now beats L1-ESPIRiT on both contrasts, head SSIM beats it on T1 and is within 0.0003 on FLAIR, sharpness is
+within 0.02 / 0.003. This reverses Round 4's ablation (at wavelet 0.03 and 2.4M the v2 TV was 0.21 / 0.09 dB worse):
+the stronger the wavelet prior, the less edge-TV is needed. **P6 = the final recipe with v2 edge-TV.** Launched:
+its promotion **`ar14_n36_v2tv_full4k`** (4000 iterations, volumes, GPU 0) and the next TV point down,
+**`ar14_n36_v2tv_lam007`** (λ_geo 0.07, 1500, GPU 1). The seed repeat of the superseded recipe was stopped
+(`superseded`); the single-contrast arms at P6 follow the old-recipe singles on GPUs 2 and 3.
