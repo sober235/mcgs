@@ -188,3 +188,33 @@ so the penalty is quadratic (Tikhonov-like) exactly where MC-GS shows its grain,
 competitor is L1-TV; `ar2_eps003` tests the direction, ε 0.02 / 0.01 follow if it pays;
 (2) a wavelet-sparsity term (what makes L1-ESPIRiT strong), which the hyw loop is building
 (uncommitted as of 18:10; it will be picked up once it has a screening result there).
+
+**Round 2 results (1500 iterations; margins re-read against the bar of 19:00)** — the bar moved
+again while Round 2 ran: the first L1-ESPIRiT points (λ 0.001 T1, λ 0.003 FLAIR, both at the lower
+edge of their grids, more λ pending) read **35.081 / 34.503**, above converged TV on both.
+
+| exp | T1 | FLAIR | vs parent T1 / FLAIR | head SSIM | head HFEN | sharp | status |
+|---|---|---|---|---|---|---|---|
+| ar2_P1_lam016_kq090 | **34.695** | 33.807 | +0.46 / +0.25 | 0.9233 / 0.9052 | 0.1341 / 0.1352 | 0.813 / 0.729 | **parent P1** (marginal clause) |
+| ar2_dtv005 (T1-guided dir. TV on FLAIR) | 34.233 | **33.873** | 0.00 / **+0.32** | 0.9137 / 0.9070 | 0.1335 / 0.1300 | 0.902 / 0.732 | keep-marginal |
+| ar2_eps003 | 34.350 | 33.630 | +0.12 / +0.08 | 0.9170 / 0.9036 | 0.1318 / 0.1291 | 0.886 / 0.807 | keep-marginal |
+| ar2_wfloor020 | 34.406 | 33.632 | +0.17 / +0.08 | 0.9160 / 0.9019 | 0.1338 / 0.1311 | 0.871 / 0.796 | marginal (smoothing family) |
+| ar2_n900k | 34.378 | 33.464 | +0.14 / −0.09 | | | | discard |
+| ar2_khiFL26 | 34.223 | 33.332 | −0.01 / −0.22 | | | | discard |
+| ar2_gamma999 (faster LR decay) | 34.251 | 33.442 | +0.02 / −0.11 | | | | discard |
+| ar2_lam020 → ar2_lam020_g2 | pending | | | | | | moved to GPU 2 |
+
+Reading. (1) The smoothing family (λ, κ_q, w_floor) is one lever and P1 is its best point so far;
+it buys PSNR with sharpness (T1 0.90 → 0.81, FLAIR 0.82 → 0.73) and slightly worse HFEN, so P1 is
+the parent under the marginal clause — the visual gate will have to accept it. (2) **λ_dtv is the
+first FLAIR-specific lever**: +0.32 dB on FLAIR, T1 untouched. The directional TV is a pure L1
+penalty on FLAIR gradients, relaxed at T1 edges — i.e. an L1-TV where the shared anatomy says
+"flat". That is consistent with suspect (1): what MC-GS lacks in flat regions is an L1 (sparsity)
+penalty; the edge-TV's Charbonnier ε makes it quadratic there. (3) ε 0.03 is a small plus in the
+same direction. (4) Capacity down, FLAIR high-band weight up and faster decay all lose.
+
+### Round 3 — 2026-09-10 19:00, on top of P1 (λ 0.16 + κ_q 0.90), 1500 iterations
+`ar3_P1_dtv005`, `ar3_P1_dtv010`, `ar3_P1_dtv020` (the dtv curve on the new parent),
+`ar3_P1_eps003`, `ar3_P1_eps002`, `ar3_P1_eps001` (toward L1 in flat regions, both contrasts),
+GPUs 0, 1, 3; a seventh on GPU 2 once `ar2_lam020_g2` frees it (λ 0.20 + κ 0.90 if λ 0.20 beats
+0.16 alone, else P1 + w_floor 0.20).
