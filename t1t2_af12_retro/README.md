@@ -209,7 +209,8 @@ metrics, so the learned arms and the classical arms are directly comparable.
 | MC-GS single (old cold start) | 37.743 | 0.9162 | 0.01995 | 0.6361 | 33.497 | 0.9319 | 0.0932 | 0.866 | 0.0138 |  |
 | MC-GS joint (old cold start) | 37.833 | 0.9365 | 0.01954 | 0.6478 | 33.121 | 0.9295 | 0.1005 | 0.802 | 0.0116 |  |
 | CG-SENSE | 35.919 | 0.7829 | 0.03036 | 0.7270 | 32.509 | 0.9210 | 0.1181 | 0.812 | 0.0145 | 7 min |
-| 3D-INR | 35.622 | 0.8584 | 0.03250 | 0.9478 | 31.021 | 0.8606 | 0.1053 | **1.233** | 0.0264 | 121 min |
+| P-LORAKS | 36.462 | 0.9110 | 0.02679 | 0.8482 | 31.343 | 0.8565 | 0.0921 | **1.317** | 0.0303 |  |
+| 3D-INR | 35.622 | 0.8584 | 0.03250 | 0.9478 | 31.021 | 0.8606 | 0.1053 | 1.233 | 0.0264 | 121 min |
 | 3D-DIP | 35.071 | 0.8763 | 0.03690 | 0.8131 | 29.708 | 0.8635 | 0.1888 | 0.641 | 0.0090 | 57 min |
 | ZF | 30.548 | 0.8659 | 0.10456 | 0.9198 | 25.193 | 0.7013 | 0.6406 | 0.277 | **0.0042** | 6 min |
 
@@ -375,8 +376,12 @@ The compact figures (`scripts/fig_slice_v2.py`, `scripts/fig_planes_v2.py`) now 
 converged TV, joint TV and L1-ESPIRiT columns and show those ranks as they are.
 
 P-LORAKS (LORAKS v2 toolbox, per-readout-slice, S-matrix, R = 2) is the fourth arm of this
-revisit; its rank is being selected on a six-slice subset of hyw T1 at the time of writing and
-its rows enter `logs/summary.tsv` through `scripts/summarize.py` once the full runs land.
+revisit; its rank (40) was selected on a six-slice subset of hyw T1 (`logs/ploraks/ranksweep_R2.log`). The full runs
+(rank 40, R = 2, at most 50 iterations, 48 MATLAB workers per channel) took 6.7 h for T1 and 8.0 h for T2, and
+both rows are in the tables. P-LORAKS is mid-table on whole-volume PSNR (35.512 / 36.462) but near
+the bottom on head PSNR (30.623 / 31.343). Its sharpness ratio (1.24 / 1.32) and grain ratio
+(2.08 / 1.21) show far more noise inside the head than in the ground truth; the
+whole-volume gauge dilutes that with background.
 Scripts: `recon_classical.py --suffix` (sweeps), `recon_joint_cssense.py`, `recon_l1espirit.py`,
 `ploraks_export.py` / `run_ploraks.m` / `run_ploraks_ranks.m` / `ploraks_import.py`; sweep logs
 in `logs/sweeps/`, per-run json in `logs/`.

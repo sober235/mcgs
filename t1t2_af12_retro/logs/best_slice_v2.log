@@ -41,7 +41,7 @@
       idx  79  head  30009  v2 36.754 dB  margin +0.512 vs l1espirit 36.242
       idx  95  head  29508  v2 36.562 dB  margin +0.502 vs l1espirit 36.060
       idx  73  head  29832  v2 36.523 dB  margin +0.497 vs l1espirit 36.025
-[T2] ours = gs_joint_v3; margin taken against ['zf', 'cgsense', 'cssense_o200', 'jcssense', 'l1espirit', 'zsssdu', 'dip', 'inr']
+[T2] ours = gs_joint_v3; margin taken against ['zf', 'cgsense', 'cssense_o200', 'jcssense', 'l1espirit', 'ploraks', 'zsssdu', 'dip', 'inr']
 
 === T2 axis0: 44 slices with >= 20000 head voxels; gs_joint_v3 first on 44 of them
    top-5 by own head PSNR:

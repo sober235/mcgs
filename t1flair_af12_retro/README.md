@@ -149,8 +149,10 @@ The compact figures (`scripts/fig_slice_v2.py`, `scripts/fig_planes_v2.py`) now 
 converged TV, joint TV and L1-ESPIRiT columns and show those ranks as they are.
 
 P-LORAKS (LORAKS v2 toolbox, per-readout-slice, S-matrix, R = 2) is the fourth arm of this
-revisit; its rank is being selected on a six-slice subset of hyw T1 at the time of writing and
-its rows enter `logs/summary.tsv` through `scripts/summarize.py` once the full runs land.
+revisit; its rank (40) was selected on a six-slice subset of hyw T1 (`../T1T2_AF12_retro/logs/ploraks/ranksweep_R2.log`).
+The T1 row here is the hyw T1 full run of the T1+T2 topic (the same acquisition; 6.7 h). The FLAIR run (rank 40,
+R = 2, 48 MATLAB workers) started 2026-09-11 00:38 and takes 7–8 h; its row enters `logs/summary.tsv` through
+`scripts/summarize.py` when it lands.
 Scripts: `recon_classical.py --suffix` (sweeps), `recon_joint_cssense.py`, `recon_l1espirit.py`,
 `ploraks_export.py` / `run_ploraks.m` / `run_ploraks_ranks.m` / `ploraks_import.py`; sweep logs
 in `logs/sweeps/`, per-run json in `logs/`.
