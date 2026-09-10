@@ -323,3 +323,14 @@ P1's extra smoothing still pays under wavelet + 2.4M (+0.21 dB on T1, the bindin
 smoothing direction is re-opened on P3: **`ar6_P3_lam020`** (λ_geo 0.20, GPU 3) next to
 `ar6_P3_wav005` (λ_wav 0.05, GPU 1) — the two T1 levers; the λ_dtv runs on P2 (GPUs 0 and 2) test the
 FLAIR lever before it is moved onto P3.
+
+**22:00 — a T1-only lever.** The hyw loop committed a per-contrast wavelet strength (3087cd0:
+`loss.lambda_wav_plain` / `loss.lambda_wav_contrast`, each defaulting to `loss.lambda_wav`), taken here
+as f49ec35 (code files only, 9 wavelet tests pass). On hyw its 4000-iteration promotions show why it
+matters: at 1.2M + wavelet 0.03 the longer budget helps both contrasts (+0.17 T1, +0.48 T2 over 1500
+iterations), but at 2.4M T1 over-fits late (−0.07) while T2 gains (+0.20) — so the stronger T1-only
+wavelet is their fix, and it is ours too, T1 being the binding contrast on P3. Waiters (declared now):
+GPU 0 after `ar5_P1w_dtv010` → **`ar6_P3_wavT1_006`** (P3 with λ_wav T1 0.06, FLAIR 0.03); GPU 2 after
+`ar5_P2_dtv020` → P3 + the better λ_dtv if λ_dtv lifts FLAIR over P2 by > 0.05 dB at ≤ 0.05 dB T1 cost,
+otherwise **`ar6_P3_wavT1_010`** (λ_wav T1 0.10). Promotion budget for the winner: 1500 and 4000 both,
+since the hyw promotions show the budget cuts differently per contrast at 2.4M.
