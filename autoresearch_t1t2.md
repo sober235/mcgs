@@ -656,3 +656,10 @@ both clauses of the rule. As at 1500 iterations, the larger cloud helps T2 (+0.1
 overfits T1 (head SSIM 0.9444 against 0.9468, head HFEN 0.0864 against 0.0831, sharpness 0.860). The SSIM
 prediction recorded before it landed holds on T2 only: capacity adds T2 head SSIM (+0.0004) and costs T1
 head SSIM (−0.0024). Wall time 208 min on GPU 6, which another user's job shares.
+
+**jiangyizhou v3 ×2 scored (02:09)** with `t1t2_af12_retro/scripts/score_average.py`, which first re-scores seed 42 from its saved
+volumes and matches every logged field (whole-volume HFEN to 1e-4). Head PSNR T1 36.539 / FLAIR 36.049, +0.205 /
++0.329 dB over L1-ESPIRiT; head HFEN 0.0974 / 0.0985; whole-volume PSNR 39.847 / 39.441, first on both;
+sharpness 0.883 / 0.842. Head SSIM 0.9449 / 0.9360 is still below the best other arm on each channel
+(converged TV 0.9459 on T1, L1-ESPIRiT 0.9368 on FLAIR). Ledger row `ar13_tf_jyz_t1flair_v3b_x2`, status
+x2-average.
