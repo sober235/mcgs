@@ -411,6 +411,7 @@ Head PSNR T1 / T2. Parent P2 at 1500 = 35.007 / 35.022; L1-ESPIRiT at its full b
 | `ar11_wav003_mag` | + wavelet 0.03 on the magnitude | 35.245 | 34.989 | 0.9418 / 0.9440 | 0.0875 / 0.0736 | 0.854 / 0.808 | discard (the complex modulus is better by 0.13 dB on both) |
 | `ar11_n24_wav005_tv` | **2.4M points + wavelet 0.05** | **35.746** | **35.885** | 0.9474 / 0.9521 | 0.0827 / 0.0695 | 0.867 / 0.823 | **keep, promoted (`ar12_n24_wav005_full4k`); above L1-ESPIRiT's full-budget numbers on both already at 1500** |
 | `ar11_n36_wav003_tv` | 3.6M points + wavelet 0.03 | 35.353 | 36.100 | 0.9401 / 0.9519 | 0.0882 / 0.0668 | 0.873 / 0.836 | discard (vs 2.4M: T2 +0.22, T1 −0.16 — more points need a stronger wavelet on T1); 3.6M + 0.05 queued (`ar11_n36_wav005_tv`) |
+| `ar11_n36_wav005_tv` | 3.6M points + wavelet 0.05 | 35.729 | 36.149 | 0.9457 / 0.9532 | 0.0851 / 0.0687 | 0.863 / 0.825 | keep (vs 2.4M + 0.05: T1 flat −0.02, T2 +0.26; min margin vs L1-ESPIRiT +0.07 → +0.20), promoted (`ar12_n36_wav005_full4k`) |
 | `ar11_n24_wav003_tv` | **2.4M points + wavelet 0.03** | **35.513** | **35.878** | 0.9439 / 0.9514 | 0.0834 / 0.0670 | 0.881 / 0.835 | **keep, promoted (`ar12_n24_wav003_full4k`)** |
 
 Readings.
