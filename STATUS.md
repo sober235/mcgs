@@ -39,7 +39,7 @@
 - 第 16 轮（预注册与判定规则见 `autoresearch_t1t2.md` Round 16）：`ar16_n24_wav005_T1p06`（T1 通道小波 0.06，另一通道保持 0.05）、`ar16_n24_wav005_geo007`（edge-TV 0.10 → 0.07），4000 步，`scratchpad/queue16.sh` 在 GPU 4、6 空出后自动起跑（约 01:32、01:53）。替代 v3 的配置要再原样跑两个 T1+FLAIR 课题。
 - 第 17 轮（预注册见程序 Round 17）：FLAIR 通道小波 0.08 / 0.12，只在 hyw T1+FLAIR 上选（`ar17_tf_hyw_wavC008` / `wavC012`），`scratchpad/queue17.sh` 在 GPU 5、7 空出后起跑（约 02:15、02:25）；选中的值再原样跑 jiangyizhou。
 - 第 18 轮（预注册见程序 Round 18）：`scratchpad/queue18.sh` 在 GPU 4（约 02:45）和 GPU 5/6（约 03:30）上补跑 v3 seed 43（`ar18_n24_wav005_full4k_s43`、`ar18_tf_hyw_t1flair_v3b_s43`），然后按定义出 v3 ×2 的行。
-- 在跑：360 万点晋级 `ar12_n36_wav005_full4k`（GPU 6，约 01:52）；分对比度变体 seed 43 `ar14_n24_wavP006_C003_full4k_s43`（GPU 5，约 01:14）；单对比度消融 `ar15_single_T1_jyz_v3`（GPU 4，约 01:30）、`ar15_single_FLAIR_jyz_v3`（接 GPU 5，约 02:15）、`ar15_single_FLAIR_hyw_v3`（GPU 7，约 02:25）。
+- 在跑：单对比度消融 `ar15_single_FLAIR_jyz_v3`（GPU 5，约 02:26）、`ar15_single_FLAIR_hyw_v3`（GPU 7，约 02:31）。已落账：分对比度变体 seed 43（与 seed 42 相同到 0.001 dB，但体素级差 25–29%）、jyz T1 单对比度 36.257（joint 比它高 0.08）、360 万点晋级（T1 35.662 / T2 36.233，按规则未采纳）。
 - 某个 T1+FLAIR 课题的两个单对比度落账后：跑该课题 `scripts/extract_gs_volumes.py`，再 `bash $S/refresh_topic.sh <课题> <前缀> T1,FLAIR`；README 的 v3 段落数字取 `python $S/v3_facts.py <课题>`；最后 `bash $S/mirror_topic.sh <课题> <镜像目录> <前缀> T1,FLAIR` 并提交（`S=/data0/congcong/code/GS/Results_20260908/T1T2_AF12_retro/scripts`）。
 - P-LORAKS 剩三个通道：hyw FLAIR 与 jyz T1 在跑（00:38 起，各 7–8 h），jyz FLAIR 随后。`scratchpad/ploraks_finish2.sh` 落一个导入一个，课题齐了自动刷新表、逐层与图（v3 最优层）。刷新后只剩镜像和提交：
   ```
@@ -60,7 +60,7 @@
 - GPU 6、7 上有别人的进程（09-10 18:25 起），同卡训练慢 2–3 倍：v3 本身在 GPU 7 跑了 189 min，同尺寸的其他运行 51–69 min。读时间前先看 `nvidia-smi --query-compute-apps`。
 - 旧 `ploraks_finish.sh` 按 v2 的最优层出图，会覆盖 v3 的图，已停掉，换成 `ploraks_finish2.sh`。
 - 仓库的 `*/logs/` 被 .gitignore，镜像 summary 与逐层结果要 `git add -f`（`mirror_topic.sh` 已处理）。
-- 别再试：intensity 初始化、密化、position_lr、T1 高频权重 1.0/3.0、kappa 300 步刷新、分位 0.75、1.5 倍尺度、tv_eps 0.06；小波替代 TV（λ 0.03 / 0.1 都差）、小波作用在幅值上（差 0.13 dB）、360 万点 + 小波 0.03（T1 −0.16）。lambda_geo 0.07 在无小波时（第 1 轮）证否，第 16 轮在有小波的前提下重测。
+- 别再试：intensity 初始化、密化、position_lr、T1 高频权重 1.0/3.0、kappa 300 步刷新、分位 0.75、1.5 倍尺度、tv_eps 0.06；小波替代 TV（λ 0.03 / 0.1 都差）、小波作用在幅值上（差 0.13 dB）、360 万点 + 小波 0.03（T1 −0.16）、360 万点 + 小波 0.05（4000 步 T1 −0.11、T2 +0.12，未采纳）。lambda_geo 0.07 在无小波时（第 1 轮）证否，第 16 轮在有小波的前提下重测。
 - 容量：无小波时 T1 在 120 万点封顶（过拟合采样 k）；加小波 0.05 后 240 万点 T1 也涨。密度规则（点/支撑体素）在 jyz 证否。
 
 ## 5. 关键决定的"为什么"

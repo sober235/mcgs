@@ -649,3 +649,10 @@ exists (`ar13_tf_jyz_t1flair_v3b_s43`). No larger ensemble is run. The same mode
 T1) to +0.31 dB (jiangyizhou T1) for four seeds, at four times the compute. The classical arms are
 deterministic, so averaging does nothing for them. ZS-SSDU, 3D-DIP and 3D-INR also depend on a seed and would
 gain from the same averaging, which was not run for them.
+
+**3.6M promotion (`ar12_n36_wav005_full4k`, landed 01:58): not adopted.** T1 35.662 / T2 36.233 against v3's
+35.771 / 36.112. The minimum margin over L1-ESPIRiT is +0.132 (v3 +0.241) and T1 falls 0.109 dB, so it fails
+both clauses of the rule. As at 1500 iterations, the larger cloud helps T2 (+0.121 dB, head SSIM 0.9535) and
+overfits T1 (head SSIM 0.9444 against 0.9468, head HFEN 0.0864 against 0.0831, sharpness 0.860). The SSIM
+prediction recorded before it landed holds on T2 only: capacity adds T2 head SSIM (+0.0004) and costs T1
+head SSIM (−0.0024). Wall time 208 min on GPU 6, which another user's job shares.
