@@ -1,6 +1,7 @@
 # STATUS — 2026-09-10 03:10（分支 `autoresearch-t1t2`，tag `handoff/2026-09-10`）
 
 ## 1. 已完成且已验证
+- **v3（09-11 00:25 定）= v2 冷启动修复 + 240 万点 + 共用复数小波 0.05（加在 edge-TV 之上），4000 步**：hyw T1+T2 头内 PSNR 35.771 / 36.112（L1-ESPIRiT 35.530 / 35.818，+0.24 / +0.29）；hyw T1+FLAIR 35.772 / 34.359（+0.24 / +0.25）；jiangyizhou（留出）36.337 / 35.935（T1 +0.003 两个 seed 一致=打平，FLAIR +0.22）。头内 HFEN 六个通道五个第一，头内 SSIM 与 L1-ESPIRiT 差 ≤0.005。⚠️ T1 锐度在 hyw 两个课题低于预注册下限 0.874（0.867 / 0.869），记为未过。命令：`./autoresearch_t1t2.sh <EXP> <GPU> 4000 --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05`。分对比度变体（T1 0.06 / T2 0.03）在 T1+T2 上 35.856 / 36.079。三个课题的表已加 v3 行。
 - **MC-GS joint v2 在 hyw T1+T2 八法表上头内 PSNR 第一**：T1 34.978 / T2 35.429（CS-SENSE 34.607 / 34.219），整图 PSNR、NMSE、头内 HFEN 也第一，头内 SSIM 第二（差 0.006 / 0.002）。
   ```
   cd /data0/congcong/code/GS/Paired_ARC_GS_general_framework

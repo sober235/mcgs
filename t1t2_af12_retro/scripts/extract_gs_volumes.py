@@ -24,7 +24,11 @@ JOBS = [("t1t2_af12_joint", "gs_joint", [("recT1", "T1"), ("recFL", "T2")],
         # 1.2M points), promoted at 4000 iterations on 2026-09-10; see README "MC-GS joint v2".
         ("ar3_P2_full4k", "gs_joint_v2", [("recT1", "T1"), ("recFL", "T2")], [], []),
         ("ar6_single_T1_v2", "gs_single_v2", [("recT1", "T1")], [], []),
-        ("ar6_single_T2_v2", "gs_single_v2", [("recT1", "T2")], [], [])]
+        ("ar6_single_T2_v2", "gs_single_v2", [("recT1", "T2")], [], []),
+        # v3 = v2's cold-start fixes + 2.4M points + wavelet sparsity 0.05 (autoresearch rounds 11-14)
+        ("ar12_n24_wav005_full4k", "gs_joint_v3", [("recT1", "T1"), ("recFL", "T2")], [], []),
+        ("ar15_single_T1_n24_wav005_full4k", "gs_single_v3", [("recT1", "T1")], [], []),
+        ("ar15_single_T2_n24_wav005_full4k", "gs_single_v3", [("recT1", "T2")], [], [])]
 
 
 def main():

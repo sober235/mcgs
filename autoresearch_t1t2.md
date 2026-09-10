@@ -502,3 +502,36 @@ Readings.
   margin is reproducible but negligible: a tie with L1-ESPIRiT in any practical sense, not a win.
   FLAIR's +0.22 dB is solid. The per-contrast T1+T2 winner gets the same repeat
   (`ar14_n24_wavP006_C003_full4k_s43`).
+
+## v3 — the recipe (decided 2026-09-11 00:25)
+
+**v3 = the v2 cold-start fixes (head-support init, 3-NN scales, kappa from ZF) + 2.4M initial points +
+a shared complex wavelet-sparsity term λ 0.05 on top of edge-TV**, 4000 iterations. One strength for both
+contrasts, so it transfers to a contrast it was not tuned on; that is why it is chosen over the
+per-contrast variant, which scores a slightly higher minimum margin on the tuning pair (+0.261 vs +0.241).
+
+```
+./autoresearch_t1t2.sh <EXP> <GPU> 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05
+```
+
+Head PSNR against the strongest arm of each table (L1-ESPIRiT everywhere):
+
+| topic | v3 | L1-ESPIRiT | margin | v2 | head HFEN v3 / L1 | T1 sharpness (floor 0.874) |
+|---|---|---|---|---|---|---|
+| hyw T1+T2 (tuning pair, `ar12_n24_wav005_full4k`) | 35.771 / 36.112 | 35.530 / 35.818 | **+0.241 / +0.294** | 34.978 / 35.429 | 0.0831 / 0.0679 vs 0.0867 / 0.0656 | 0.867 (missed by 0.007) |
+| hyw T1+FLAIR (`ar13_tf_hyw_t1flair_v3b`) | 35.772 / 34.359 | 35.530 / 34.105 | **+0.242 / +0.254** | 34.950 / 33.492 | 0.0828 / 0.1065 vs 0.0867 / 0.1096 | 0.869 (missed by 0.005) |
+| jiangyizhou T1+FLAIR, held out (`ar13_tf_jyz_t1flair_v3b`, seed 42 / 43) | 36.337 / 35.935 | 36.334 / 35.720 | +0.003 (tie) / **+0.215** | 35.520 / 35.056 | 0.0987 / 0.0994 vs 0.1034 / 0.1002 | 0.892 (passes) |
+
+- First on head PSNR on five of six channels and tied on the sixth; first on head HFEN on five of six;
+  head SSIM within 0.005 of L1-ESPIRiT everywhere (below it by 0.0001–0.005); whole-volume PSNR
+  first on the tuning pair.
+- The pre-registered T1 sharpness floor (0.874, the sharpness of the original cold-start joint arm)
+  is missed on both huangyuwei topics, by 0.007 and 0.005. It is reported as missed. The same runs
+  have a lower grain ratio and a lower head HFEN than v2, which points at noise removal rather than
+  lost detail, but the gate as written is not met there.
+- Per-contrast variant (`ar14_n24_wavP006_C003_full4k`, T1 0.06 / T2 0.03): 35.856 / 36.079 on the
+  tuning pair; kept as a variant, seed repeat running.
+- Still running at the time of writing: the single-contrast v3 ablations (hyw T1 done: 35.679; hyw T2,
+  hyw FLAIR, jyz T1, jyz FLAIR), 3.6M + 0.05 at 4000 as a capacity variant, P-LORAKS for the tables.

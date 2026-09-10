@@ -26,12 +26,13 @@ whole-volume SSIM misleads on this data).
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| L1-ESPIRiT | 39.497 | 0.9420 | **36.334** | 0.9443 | 5 min |
+| **MC-GS joint v3** | 39.662 | 0.9206 | **36.337** | 0.9428 | 63 min |
+| L1-ESPIRiT | 39.497 | 0.9420 | 36.334 | 0.9443 | 5 min |
 | CS-SENSE (TV, converged) | **39.753** | 0.9522 | 36.144 | **0.9459** | 5 min |
 | joint CS-SENSE (JTV) | 39.648 | **0.9587** | 36.070 | 0.9442 | 5 min |
 | CS-SENSE (TV, 35 outer, as run 09-09) | 39.395 | 0.9523 | 35.762 | 0.9429 | 2 min |
 | ZS-SSDU | 39.357 | 0.9577 | 35.724 | 0.9422 | 22 min |
-| **MC-GS joint v2** | 38.949 | 0.9194 | 35.520 | 0.9321 | 42 min |
+| MC-GS joint v2 | 38.949 | 0.9194 | 35.520 | 0.9321 | 42 min |
 | MC-GS single v2 | 38.601 | 0.9205 | 35.209 | 0.9260 | 42 min |
 | MC-GS joint (old cold start) | 36.349 | 0.8703 | 34.160 | 0.9169 |  |
 | MC-GS single (old cold start) | 35.529 | 0.8297 | 33.799 | 0.9032 |  |
@@ -44,12 +45,13 @@ whole-volume SSIM misleads on this data).
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| L1-ESPIRiT | **39.327** | 0.9525 | **35.720** | **0.9368** | 5 min |
+| **MC-GS joint v3** | **39.334** | 0.9098 | **35.935** | 0.9346 | 63 min |
+| L1-ESPIRiT | 39.327 | 0.9525 | 35.720 | **0.9368** | 5 min |
 | joint CS-SENSE (JTV) | 39.277 | 0.9523 | 35.624 | 0.9352 | 7 min |
 | CS-SENSE (TV, converged) | 39.142 | 0.9497 | 35.581 | 0.9353 | 5 min |
 | MC-GS single v2 | 38.503 | 0.8966 | 35.101 | 0.9216 | 39 min |
 | CS-SENSE (TV, 35 outer, as run 09-09) | 38.773 | 0.9416 | 35.084 | 0.9307 | 2 min |
-| **MC-GS joint v2** | 38.584 | 0.9082 | 35.056 | 0.9238 | 42 min |
+| MC-GS joint v2 | 38.584 | 0.9082 | 35.056 | 0.9238 | 42 min |
 | ZS-SSDU | 38.807 | **0.9563** | 35.034 | 0.9353 | 36 min |
 | CG-SENSE | 35.704 | 0.7782 | 33.957 | 0.9032 | 2 min |
 | MC-GS single (old cold start) | 36.204 | 0.8749 | 33.409 | 0.9006 |  |

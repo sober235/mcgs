@@ -39,10 +39,11 @@ this pair than on T1+T2.
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| L1-ESPIRiT | **38.607** | 0.9445 | **34.105** | 0.9221 | 4 min |
+| **MC-GS joint v3** | 38.588 | 0.8857 | **34.359** | 0.9169 | 60 min |
+| L1-ESPIRiT | **38.607** | 0.9445 | 34.105 | 0.9221 | 4 min |
 | joint CS-SENSE (JTV) | 38.544 | 0.9447 | 33.929 | 0.9196 | 7 min |
 | CS-SENSE (TV, converged) | 38.333 | 0.9414 | 33.873 | 0.9195 | 4 min |
-| **MC-GS joint v2** | 37.844 | 0.8835 | 33.492 | 0.9023 | 39 min |
+| MC-GS joint v2 | 37.844 | 0.8835 | 33.492 | 0.9023 | 39 min |
 | MC-GS single v2 | 37.639 | 0.8708 | 33.367 | 0.8975 | 38 min |
 | ZS-SSDU | 38.012 | **0.9525** | 33.269 | **0.9235** | 35 min |
 | CS-SENSE (TV, 35 outer, as run 09-09) | 37.897 | 0.9346 | 33.252 | 0.9127 | 2 min |

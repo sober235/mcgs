@@ -18,12 +18,13 @@ ARC = Path("/data0/congcong/code/GS/Paired_ARC_GS_general_framework/results_arc"
 
 COLS = ["psnr", "ssim", "nmse", "hfen", "head_psnr", "head_ssim", "head_hfen",
         "sharp", "grain", "grain_ratio"]
-ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "ploraks", "zsssdu", "dip", "inr", "gs_single", "gs_joint", "gs_single_v2", "gs_joint_v2"]
+ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "ploraks", "zsssdu", "dip", "inr", "gs_single", "gs_joint", "gs_single_v2", "gs_joint_v2", "gs_single_v3", "gs_joint_v3"]
 LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "zsssdu": "ZS-SSDU",
          "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
          "gs_single_v2": "MC-GS single v2", "gs_joint_v2": "MC-GS joint v2",
          "cssense_o200": "CS-SENSE (TV, converged)", "jcssense": "joint CS-SENSE (JTV)",
-         "l1espirit": "L1-ESPIRiT", "ploraks": "P-LORAKS"}
+         "l1espirit": "L1-ESPIRiT", "ploraks": "P-LORAKS",
+         "gs_single_v3": "MC-GS single v3", "gs_joint_v3": "MC-GS joint v3"}
 
 
 def main():
@@ -80,6 +81,17 @@ def main():
     if p.exists():
         for r in json.load(open(p)).get("rows", []):
             rows.append({"contrast": r["contrast"], "method": "jcssense", **{k: r.get(k) for k in COLS}, "seconds": r.get("seconds")})
+    # v3 = v2 + 2.4M points + wavelet sparsity 0.05 (framework repo autoresearch_t1t2.md, rounds 11-14), 4000 iters
+    p = ARC / "ar13_tf_hyw_t1flair_v3b_score.json"
+    if p.exists():
+        d = json.load(open(p))
+        for ch, name in (("plain", d.get("plain_name", "T1")), ("contrast", d.get("contrast_name", "FLAIR"))):
+            rows.append({"contrast": name, "method": "gs_joint_v3", **{k: d[ch].get(k) for k in COLS}, "seconds": d.get("elapsed_s")})
+    for c, e in {'T1': 'ar15_single_T1_n24_wav005_full4k', 'FLAIR': 'ar15_single_FLAIR_hyw_v3'}.items():
+        p = ARC / f"{e}_score.json"
+        if p.exists():
+            d = json.load(open(p))
+            rows.append({"contrast": c, "method": "gs_single_v3", **{k: d["plain"].get(k) for k in COLS}, "seconds": d.get("elapsed_s")})
     rows.sort(key=lambda r: (r["contrast"], ORDER.index(r["method"]) if r["method"] in ORDER else 99))
     hdr = ["contrast", "method"] + COLS
     lines = ["\t".join(hdr)]
