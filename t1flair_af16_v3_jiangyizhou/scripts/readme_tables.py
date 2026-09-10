@@ -10,7 +10,11 @@ from pathlib import Path
 
 T, T12 = Path(sys.argv[1]), Path(sys.argv[2])
 LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "zsssdu": "ZS-SSDU",
-         "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint"}
+         "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
+         "cssense_o200": "CS-SENSE (TV, converged)", "jcssense": "joint CS-SENSE (JTV)", "l1espirit": "L1-ESPIRiT"}
+_x = T / "logs/extra_gs_arms.json"
+if _x.exists():
+    LABEL.update({a["key"]: a["label"] for a in json.load(open(_x))})
 rows = json.load(open(T / "logs/summary.json"))
 rows12 = json.load(open(T12 / "logs/summary.json")) if (T12 / "logs/summary.json").exists() else []
 
@@ -30,7 +34,8 @@ for c in ("T1", "FLAIR"):
         hp = f"**{r['head_psnr']:.3f}**" if r["head_psnr"] == best_h else f"{r['head_psnr']:.3f}"
         hs = f"**{r['head_ssim']:.4f}**" if r["head_ssim"] == best_hs else f"{r['head_ssim']:.4f}"
         a12 = f"{a['head_psnr']:.3f}" if a else "--"; d12 = f"{r['head_psnr']-a['head_psnr']:+.2f}" if a else "--"
-        print(f"| {LABEL.get(m, m)} | {r['psnr']:.3f} | {r['ssim']:.4f} | {hp} | {hs} | {r['head_hfen']:.4f} | {r['sharp']:.3f} | {a12} | {d12} |")
+        lab = LABEL.get(m, m) + (f" (λ {r['lam']:g})" if r.get("lam") else "")
+        print(f"| {lab} | {r['psnr']:.3f} | {r['ssim']:.4f} | {hp} | {hs} | {r['head_hfen']:.4f} | {r['sharp']:.3f} | {a12} | {d12} |")
 print("\n**MC-GS joint minus MC-GS single**\n")
 print("| channel | whole PSNR | head PSNR | head SSIM | (AF12: whole / head) |")
 print("|---|---|---|---|---|")
