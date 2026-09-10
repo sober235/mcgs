@@ -29,3 +29,6 @@ Read in this order: this file → `STATUS.md` (current state, what to re-run fir
 - Branch topology: this framework's lineage is `master` (d0a47c0) → `af10-data-audit` →
   `af12-to-af10` → `t1t2-af12-retro` → `autoresearch-t1t2` (current). `main` / `origin/main`
   are an unrelated earlier snapshot plus the CE work; never merge across the two lineages.
+
+## jiangyizhou AF16 autoresearch line (branch `autoresearch-jyz-af16`, this worktree)
+Read `docs/handoff/2026-09-11-autoresearch-jyz-af16.md` first, then `autoresearch_jyz_af16.md`.
