@@ -394,3 +394,11 @@ wavelet 0.10 if 0.10 beat 0.07 for FLAIR, else 0.07).
   axis (status `confirm-indep`).
 - Declared 23:05: GPU 3 after `ar8_P4_wav010` → **`ar9_P5_seed43`**, the seed floor at the working recipe
   (2.4M + wavelet with cycle spinning); the only floor so far (0.01 dB) is from 1.2M without the wavelet.
+- `ar8_P4_wT1_010` (T1 0.10 / FLAIR 0.05): 35.360 / 34.423 against 35.359 / 34.426 predicted — independence
+  holds a second time.
+- **`ar8_P4_wav010` (0.10 / 0.10): 35.359 / 34.448 — FLAIR's wavelet curve peaks at ~0.07** (0.03 → 0.05 →
+  0.07 → 0.10 = 34.330 → 34.426 → 34.461 → 34.448). At 2.4M points the best per-contrast setting is
+  T1 0.10 / FLAIR 0.07 (predicted 35.36 / 34.46: T1 +0.15 above L1-ESPIRiT, FLAIR 0.04 below), and the wavelet
+  strength alone cannot close FLAIR's last 0.04 dB. The two remaining levers are capacity (Round 9, 3.6M) and
+  the budget (`ar7_P4_full4k`). By its declared rule GPU 2 now takes **`ar9_n36_wT1_010_wFL_007`** and GPU 3
+  the seed repeat `ar9_P5_seed43`.
