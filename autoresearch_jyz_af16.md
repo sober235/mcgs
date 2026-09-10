@@ -261,11 +261,11 @@ P1 + λ_dtv 0.20. `ar2_lam020_g2` is dropped (P1 already covers the smoothing fa
 
 | arm | T1 λ curve (head PSNR) | best T1 | FLAIR λ curve | best FLAIR |
 |---|---|---|---|---|
-| converged TV (200 outer) | 0.00035 → 34.63?, 0.0005 → 34.834, **0.0007 → 34.945**, 0.001 → 34.867, 0.0014 → 34.631 | 34.945 | 0.00025 → —, 0.00035 → 34.158, **0.0005 → 34.302**, 0.0007 → 34.278, 0.001 → 34.110 | 34.302 |
+| converged TV (200 outer) | 0.00035 → 34.504, 0.0005 → 34.834, **0.0007 → 34.945**, 0.001 → 34.867, 0.0014 → 34.631 | 34.945 | 0.00025 → 33.843, 0.00035 → 34.158, **0.0005 → 34.302**, 0.0007 → 34.278, 0.001 → 34.110 | 34.302 |
 | L1-ESPIRiT (BART, 100 FISTA) | 0.001 → 35.081, **0.0015 → 35.209**, 0.0025 → 35.060 | **35.209** | 0.002 → 34.377, **0.003 → 34.503**, 0.005 → 34.365 | **34.503** |
 | joint vectorial TV (200 outer) | 0.0007 → 34.782, 0.001 → 34.831 | 34.831 | 0.0007 → 34.355, 0.001 → 34.339 | 34.355 |
 
-(The two lowest TV points confirm the brackets; their values are in the topic logs.) **The loop's bar
+**The loop's bar
 is L1-ESPIRiT: 35.209 (T1) / 34.503 (FLAIR).** The 09-09 table's leaders were 34.409 / 34.005 —
 converged and λ-tuned classical arms are +0.8 / +0.5 dB stronger. Points beyond a bracket were
 stopped to spare the CPU (the host is shared with 96 P-LORAKS workers).
