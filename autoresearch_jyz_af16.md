@@ -432,3 +432,5 @@ the running runs, the single-contrast arms at the same recipe and budget —
 **`ar11_n36_singleT1_wav010_full4k`** (GPU 3) and **`ar11_n36_singleFLAIR_wav007_full4k`** (GPU 2).
 `ar10_wT1010_wFL007_full4k` (the same at 2.4M, GPU 1) stays as the capacity control at full budget; the seed
 floor at the recipe (`ar9_P5_seed43`) lands shortly.
+- Declared 00:00: GPU 1 after the 2.4M control → **`ar12_n36_final_seed43_full4k`**, the final recipe at 4000
+  iterations with seed 43 — the noise floor under the final claim (`scripts/ar12_final_seed_waiter.sh`).
