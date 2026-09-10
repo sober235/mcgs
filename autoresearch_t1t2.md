@@ -663,3 +663,13 @@ volumes and matches every logged field (whole-volume HFEN to 1e-4). Head PSNR T1
 sharpness 0.883 / 0.842. Head SSIM 0.9449 / 0.9360 is still below the best other arm on each channel
 (converged TV 0.9459 on T1, L1-ESPIRiT 0.9368 on FLAIR). Ledger row `ar13_tf_jyz_t1flair_v3b_x2`, status
 x2-average.
+
+### Round 16 results
+
+**T1p06 (`ar16_n24_wav005_T1p06`, landed 02:53): qualifies.** T1 35.855 / T2 36.110 against v3's 35.771 / 36.112. The minimum
+margin over L1-ESPIRiT is +0.292 (v3 +0.241), T2 moves −0.002 dB, and T1 head SSIM rises to 0.9481 (v3 0.9468,
+L1-ESPIRiT 0.9471). Head HFEN 0.0833 / 0.0680; sharpness 0.862 / 0.826, so T1 sits further below the 0.874 floor
+than v3 did. It is v3.1 provisionally: the combination clause waits for geo007, and a qualifying Round 17 FLAIR
+strength is combined with it once before adoption. Its pre-registered transfers run next on the first GPUs to
+free, jiangyizhou (held out) before hyw T1+FLAIR (`queue19.sh`); the Round 18 seed-43 run of v3 on hyw T1+FLAIR
+follows them. The tuning pair's seed-43 run of v3 had already started on GPU 4 (02:52) and keeps its slot.
