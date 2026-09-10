@@ -581,7 +581,7 @@ of the ground truth's gradient magnitude inside the head (`t1t2_af12_retro/scrip
   more capacity (the 3.6M promotion). The stronger T1 wavelet (T1p06) is expected to act on the T1
   correlation part instead.
 
-**Addenda to the Round 16 pre-registration (01:10, still before any result).**
+**Addenda to the Round 16 pre-registration (01:03, still before any result).**
 - Precedent: lambda_geo 0.07 was discarded once, in Round 1 (`ar1_P1_lam007`: 600k points, no wavelet term,
   1500 iterations): T1 −0.107 / T2 −0.005 dB against its parent (`ar1_P1_rerun`, 34.818 / 34.218), with
   sharpness up 0.024 / 0.019. It is re-tested because the wavelet term now does part of the smoothing. The
@@ -591,7 +591,7 @@ of the ground truth's gradient magnitude inside the head (`t1t2_af12_retro/scrip
   L1-ESPIRiT rises above +0.241 by more than 0.005 dB and neither channel's head PSNR falls by more than
   0.01 dB. Any two qualifying changes are combined once at 4000 iterations before adoption.
 
-**Second diagnosis and a prediction, before geo007 starts (01:20).** The per-contrast run
+**Second diagnosis and a prediction, before geo007 starts (01:05).** The per-contrast run
 (`ar14_n24_wavP006_C003_full4k`) against v3, same bins (`t1t2_af12_retro/scripts/ssim_pair_p006.py`):
 - T1, wavelet 0.06 against 0.05: head SSIM +0.0013, gained in every bin and entirely through local
   correlation (+0.001 to +0.004); local variance is unchanged. This supports the T1p06 expectation.
