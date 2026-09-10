@@ -164,3 +164,27 @@ GPU split agreed with the hyw loop (17:50): this loop on GPUs 0–3, the hyw loo
 λ_dtv 0.05: a FLAIR-targeted use of the shared anatomy), `ar2_khiFL26` (FLAIR high-band weight 2.6,
 T1 kept at 2.2), `ar2_n900k` (0.9M points: capacity under sparser data), `ar2_eps003` (Charbonnier
 ε 0.03, after `ar1_base_2500` frees its slot). GPUs 0, 1, 4, 5 (4 and 5 once, before the split).
+
+**Converged TV on this subject (200 outer ADMM, λ swept, 18:15)** — both optima interior:
+
+| λ (T1) | 0.0005 | **0.0007** | 0.001 | 0.0014 |
+|---|---|---|---|---|
+| T1 head PSNR | 34.834 | **34.945** | 34.867 | 34.631 |
+| sharp | 0.856 | 0.823 | 0.789 | 0.755 |
+
+| λ (FLAIR) | 0.00035 | **0.0005** | 0.0007 | 0.001 |
+|---|---|---|---|---|
+| FLAIR head PSNR | 34.158 | **34.302** | 34.278 | 34.110 |
+| sharp | 0.789 | 0.751 | 0.717 | 0.681 |
+
+The 09-09 arm (35 outer, λ 1e-3) read 34.409 / 33.806: convergence plus the λ choice is worth
++0.54 / +0.50 dB here. **Interim bar: T1 34.945 (converged TV), FLAIR 34.302 (converged TV)**;
+L1-ESPIRiT (CPU-bound, the host is saturated by the hyw loop's 96 P-LORAKS workers) and joint TV
+are still running. Against it the best screened MC-GS is −0.33 (T1) / −0.52 dB (FLAIR). At matched
+smoothness (TV's optimum has sharpness 0.82 / 0.75; λ 0.16 MC-GS 0.84 / 0.76) MC-GS is 0.3–0.5 dB
+behind, so the smoothing family alone cannot close the gap. Two structural suspects for Round 3:
+(1) the Charbonnier ε = 0.04 is larger than typical flat-region gradients of the normalised image,
+so the penalty is quadratic (Tikhonov-like) exactly where MC-GS shows its grain, while the
+competitor is L1-TV; `ar2_eps003` tests the direction, ε 0.02 / 0.01 follow if it pays;
+(2) a wavelet-sparsity term (what makes L1-ESPIRiT strong), which the hyw loop is building
+(uncommitted as of 18:10; it will be picked up once it has a screening result there).
