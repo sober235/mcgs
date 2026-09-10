@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# GSTMI python for this topic: house environment, CPU only (spec 1.1), nice 10, 32 BART threads.
+export PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_VISIBLE_DEVICES= CARDIAC_FR_THREADS=${CARDIAC_FR_THREADS:-32}
+exec nice -n 10 /home/congcongliu/anaconda3/envs/GSTMI/bin/python "$@"
