@@ -39,7 +39,8 @@ this pair than on T1+T2.
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| **MC-GS joint v3.2** | **38.849** | 0.8798 | **34.561** | 0.9215 | 58 min |
+| MC-GS joint v3.2 ×2 seeds (2× compute) | **38.882** | 0.8801 | **34.596** | 0.9221 | 116 min |
+| **MC-GS joint v3.2** | 38.849 | 0.8798 | 34.561 | 0.9215 | 58 min |
 | MC-GS joint v3 ×2 seeds (2× compute) | 38.645 | 0.8863 | 34.417 | 0.9178 | 122 min |
 | MC-GS joint v3 | 38.588 | 0.8857 | 34.359 | 0.9169 | 60 min |
 | MC-GS single v3 | 38.518 | 0.8764 | 34.341 | 0.9158 | 136 min |
@@ -240,6 +241,7 @@ Standing of v3.2 against every other method in this topic's table (single run, s
 - **FLAIR**: first on head PSNR, head HFEN, whole-volume PSNR, whole-volume NMSE, whole-volume HFEN; not first on head SSIM (third), whole-volume SSIM (sixth).
 - **Against v3**: T1 +0.044 dB / head SSIM +0.0013, FLAIR +0.202 dB / head SSIM +0.0047.
 - **Gate**: T1 sharpness 0.897 passes the pre-registered 0.874 floor.
+- **Two seeds averaged** (v3.2 ×2, Round 18c; its own table row, at twice the compute): head PSNR T1 35.935 (first), FLAIR 34.596 (first); head SSIM T1 0.9494 (first), FLAIR 0.9221 (third; ZS-SSDU 0.9235); head HFEN T1 0.0792 (first), FLAIR 0.1057 (first). Single-run v3.2 stays the headline arm.
 - **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS not yet in on every channel): T1 first on 47/47, 86/88, 93/93 transverse / coronal / sagittal slices; FLAIR first on 61/61, 91/91, 94/94 transverse / coronal / sagittal slices.
 - Figures (compact panels, v3.2 as the proposed method): `figures/t1flair_af12_T1_best_axis0_150.png`, `figures/t1flair_af12_FLAIR_best_axis0_150.png`, `figures/t1flair_af12_{T1,FLAIR}_best3planes.png`.
 

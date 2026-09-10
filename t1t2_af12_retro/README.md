@@ -176,14 +176,15 @@ metrics, so the learned arms and the classical arms are directly comparable.
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| MC-GS joint v3 ×2 seeds (2× compute) | **40.004** | 0.9024 | **0.01203** | 0.5550 | **35.877** | 0.9478 | 0.0825 | 0.864 | 0.0107 | 257 min |
-| **MC-GS joint v3.2** | 39.999 | 0.9007 | 0.01205 | 0.5585 | 35.827 | **0.9483** | **0.0799** | 0.897 | 0.0115 | 56 min |
+| MC-GS joint v3.2 ×2 seeds (2× compute) | **40.088** | 0.9012 | **0.01180** | **0.5505** | **35.929** | **0.9492** | **0.0793** | 0.893 | 0.0114 | 115 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | 40.004 | 0.9024 | 0.01203 | 0.5550 | 35.877 | 0.9478 | 0.0825 | 0.864 | 0.0107 | 257 min |
+| **MC-GS joint v3.2** | 39.999 | 0.9007 | 0.01205 | 0.5585 | 35.827 | 0.9483 | 0.0799 | 0.897 | 0.0115 | 56 min |
 | MC-GS joint v3 | 39.912 | 0.9019 | 0.01229 | 0.5631 | 35.771 | 0.9468 | 0.0831 | 0.867 | 0.0108 | 189 min |
 | MC-GS single v3 | 39.840 | 0.9073 | 0.01250 | 0.5685 | 35.679 | 0.9455 | 0.0851 | 0.864 | 0.0107 | 55 min |
 | L1-ESPIRiT | 39.823 | **0.9510** | 0.01254 | 0.5802 | 35.530 | 0.9471 | 0.0867 | 0.899 | 0.0118 | 5 min |
 | joint CS-SENSE (JTV) | 39.669 | 0.9468 | 0.01300 | 0.5573 | 35.020 | 0.9461 | 0.1001 | 0.854 | 0.0107 | 5 min |
 | MC-GS joint v2 | 39.249 | 0.9047 | 0.01432 | 0.6052 | 34.978 | 0.9373 | 0.0863 | 0.912 | 0.0122 | 40 min |
-| CS-SENSE (TV, converged) | 39.534 | 0.9271 | 0.01341 | **0.5549** | 34.966 | 0.9460 | 0.0993 | 0.829 | 0.0101 | 4 min |
+| CS-SENSE (TV, converged) | 39.534 | 0.9271 | 0.01341 | 0.5549 | 34.966 | 0.9460 | 0.0993 | 0.829 | 0.0101 | 4 min |
 | MC-GS single v2 | 38.947 | 0.9084 | 0.01535 | 0.6195 | 34.680 | 0.9325 | 0.0923 | 0.916 | 0.0124 | 40 min |
 | CS-SENSE (TV, 35 outer, as run 09-09) | 39.243 | 0.9294 | 0.01434 | 0.5682 | 34.607 | 0.9436 | 0.1071 | 0.817 | 0.0102 | 15 min |
 | ZS-SSDU | 38.635 | 0.9412 | 0.01649 | 0.6465 | 34.134 | 0.9365 | 0.1213 | 1.012 | 0.0139 | 22 min |
@@ -199,8 +200,9 @@ metrics, so the learned arms and the classical arms are directly comparable.
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| **MC-GS joint v3.2** | **40.893** | 0.9294 | **0.00966** | 0.4756 | **36.254** | **0.9552** | **0.0646** | 0.854 | 0.0115 | 56 min |
-| MC-GS single v3 | 40.846 | 0.9286 | 0.00976 | **0.4745** | 36.227 | 0.9538 | 0.0675 | 0.827 | 0.0107 | 51 min |
+| MC-GS joint v3.2 ×2 seeds (2× compute) | **40.949** | 0.9297 | **0.00953** | **0.4717** | **36.313** | **0.9557** | **0.0642** | 0.852 | 0.0114 | 115 min |
+| **MC-GS joint v3.2** | 40.893 | 0.9294 | 0.00966 | 0.4756 | 36.254 | 0.9552 | 0.0646 | 0.854 | 0.0115 | 56 min |
+| MC-GS single v3 | 40.846 | 0.9286 | 0.00976 | 0.4745 | 36.227 | 0.9538 | 0.0675 | 0.827 | 0.0107 | 51 min |
 | MC-GS joint v3 ×2 seeds (2× compute) | 40.815 | 0.9292 | 0.00983 | 0.4778 | 36.164 | 0.9535 | 0.0675 | 0.824 | 0.0107 | 257 min |
 | MC-GS joint v3 | 40.766 | 0.9290 | 0.00994 | 0.4812 | 36.112 | 0.9531 | 0.0679 | 0.826 | 0.0108 | 189 min |
 | L1-ESPIRiT | 40.442 | 0.9567 | 0.01072 | 0.5146 | 35.818 | 0.9536 | 0.0656 | 0.865 | 0.0119 | 5 min |
@@ -482,6 +484,7 @@ Standing of v3.2 against every other method in this topic's table (single run, s
 - **T2**: first on head PSNR, head SSIM, head HFEN, whole-volume PSNR, whole-volume NMSE, whole-volume HFEN; not first on whole-volume SSIM (sixth).
 - **Against v3**: T1 +0.057 dB / head SSIM +0.0014, T2 +0.142 dB / head SSIM +0.0020.
 - **Gate**: T1 sharpness 0.897 passes the pre-registered 0.874 floor.
+- **Two seeds averaged** (v3.2 ×2, Round 18c; its own table row, at twice the compute): head PSNR T1 35.929 (first), T2 36.313 (first); head SSIM T1 0.9492 (first), T2 0.9557 (first); head HFEN T1 0.0793 (first), T2 0.0642 (first). Single-run v3.2 stays the headline arm.
 - **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS included): T1 first on 47/47, 88/88, 93/93 transverse / coronal / sagittal slices; T2 first on 44/44, 83/83, 90/90 transverse / coronal / sagittal slices.
 - Whole-volume SSIM is dominated by the background noise that `ecalib -c 0.0` leaves in the air (see the gauge note above), which is why the campaign reads head-only metrics; it is reported as it stands.
 - Figures (compact panels, v3.2 as the proposed method): `figures/t1t2_af12_T1_best_axis0_150.png`, `figures/t1t2_af12_T2_best_axis0_144.png`, `figures/t1t2_af12_{T1,T2}_best3planes.png`.

@@ -840,3 +840,15 @@ proposed arm from v3 to v3.2 once those are in.
 - hyw T1+FLAIR (`ar19_tf_hyw_full_C012`): T1 35.816 / FLAIR 34.561, +0.286 / +0.456 over L1-ESPIRiT; head SSIM 0.9483 /
   0.9215 (T1 first; FLAIR below L1-ESPIRiT's 0.9221 and ZS-SSDU's 0.9235); head HFEN 0.0799 / 0.1065, first on both;
   T1 sharpness 0.897, above the floor.
+
+**Round 18c results (v3.2 ×2, scored 06:36–06:37).** Seed 43 of v3.2 agrees with seed 42 to within 0.003 dB on every topic.
+
+| topic | v3.2 head PSNR | v3.2 ×2 head PSNR | gain | v3.2 ×2 head SSIM |
+|---|---|---|---|---|
+| tuning pair | 35.827 / 36.254 | 35.929 / 36.313 | +0.102 / +0.059 | 0.9492 / 0.9557 |
+| hyw T1+FLAIR | 35.816 / 34.561 | 35.935 / 34.596 | +0.119 / +0.035 | 0.9494 / 0.9221 |
+| jiangyizhou, held out | 36.299 / 36.039 | 36.499 / 36.108 | +0.200 / +0.069 | 0.9445 / 0.9378 |
+
+On jiangyizhou the average lifts T1 above L1-ESPIRiT (+0.165) and FLAIR head SSIM above it (0.9378 against 0.9368); T1 head
+SSIM stays below converged TV (0.9459) and FLAIR head HFEN below L1-ESPIRiT (0.1015 against 0.1002). On hyw T1+FLAIR the
+average's FLAIR head SSIM ties L1-ESPIRiT (0.9221) and stays below ZS-SSDU (0.9235). Single-run v3.2 stays the headline arm.

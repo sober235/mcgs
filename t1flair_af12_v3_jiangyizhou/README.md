@@ -27,6 +27,7 @@ whole-volume SSIM misleads on this data).
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
 | MC-GS joint v3 ×2 seeds (2× compute) | **39.847** | 0.9219 | **36.539** | 0.9449 | 118 min |
+| MC-GS joint v3.2 ×2 seeds (2× compute) | 39.838 | 0.9213 | 36.499 | 0.9445 | 116 min |
 | MC-GS joint v3 | 39.662 | 0.9206 | 36.337 | 0.9428 | 63 min |
 | L1-ESPIRiT | 39.497 | 0.9420 | 36.334 | 0.9443 | 5 min |
 | **MC-GS joint v3.2** | 39.654 | 0.9200 | 36.299 | 0.9423 | 57 min |
@@ -48,8 +49,9 @@ whole-volume SSIM misleads on this data).
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| MC-GS joint v3 ×2 seeds (2× compute) | 39.441 | 0.9107 | **36.049** | 0.9360 | 118 min |
-| **MC-GS joint v3.2** | **39.473** | 0.9028 | 36.039 | **0.9369** | 57 min |
+| MC-GS joint v3.2 ×2 seeds (2× compute) | **39.536** | 0.9032 | **36.108** | **0.9378** | 116 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | 39.441 | 0.9107 | 36.049 | 0.9360 | 118 min |
+| **MC-GS joint v3.2** | 39.473 | 0.9028 | 36.039 | 0.9369 | 57 min |
 | MC-GS single v3 | 39.325 | 0.9011 | 36.009 | 0.9346 | 71 min |
 | MC-GS joint v3 | 39.334 | 0.9098 | 35.935 | 0.9346 | 63 min |
 | L1-ESPIRiT | 39.327 | 0.9525 | 35.720 | 0.9368 | 5 min |
@@ -275,6 +277,7 @@ Standing of v3.2 against every other method in this topic's table (single run, s
 - **FLAIR**: first on head PSNR, head SSIM, whole-volume PSNR, whole-volume NMSE, whole-volume HFEN; not first on head HFEN (second), whole-volume SSIM (sixth).
 - **Against v3**: T1 -0.038 dB / head SSIM -0.0005, FLAIR +0.104 dB / head SSIM +0.0023.
 - **Gate**: T1 sharpness 0.921 passes the pre-registered 0.874 floor.
+- **Two seeds averaged** (v3.2 ×2, Round 18c; its own table row, at twice the compute): head PSNR T1 36.499 (first), FLAIR 36.108 (first); head SSIM T1 0.9445 (second; converged TV 0.9459), FLAIR 0.9378 (first); head HFEN T1 0.0952 (first), FLAIR 0.1015 (second; L1-ESPIRiT 0.1002). Single-run v3.2 stays the headline arm.
 - **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS not yet in on every channel): T1 first on 9/96, 69/121, 33/118 transverse / coronal / sagittal slices; FLAIR first on 94/94, 120/120, 118/118 transverse / coronal / sagittal slices.
 - Figures (compact panels, v3.2 as the proposed method): `figures/t1flair_v3_af12_T1_best_axis0_173.png`, `figures/t1flair_v3_af12_FLAIR_best_axis0_177.png`, `figures/t1flair_v3_af12_{T1,FLAIR}_best3planes.png`.
 

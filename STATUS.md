@@ -33,6 +33,7 @@
   - hyw T1+FLAIR：头内 PSNR、HFEN 两通道第一，T1 头内 SSIM 第一，FLAIR 头内 SSIM 第三（0.9215，ZS-SSDU 0.9235、L1 0.9221）；逐层 T1 47/47、86/88、93/93，FLAIR 全部第一。
   - jyz（留出）：FLAIR 头内 PSNR 与 SSIM 第一（SSIM 领先 0.0001），FLAIR 头内 HFEN 第二；T1 头内 PSNR 第二（比 L1 低 0.035）、头内 SSIM 第五、头内 HFEN 第一；逐层 T1 9/96、69/121、33/118，FLAIR 全部第一。
   - 整图 SSIM 三个课题都第六（空气噪声主导的口径，照实报告）。
+- v3.2 两种子平均（第 18c 轮，2 倍算力，单列一行）：调参对 35.929 / 36.313，hyw T1+FLAIR 35.935 / 34.596，jyz 36.499 / 36.108；jyz 上 T1 反超 L1-ESPIRiT 0.165、FLAIR 头内 SSIM 0.9378 超过 L1，但 T1 头内 SSIM 仍低于收敛 TV、FLAIR 头内 HFEN 仍低于 L1；hyw FLAIR 头内 SSIM 与 L1 持平（0.9221），仍低于 ZS-SSDU。
 - v3.2 在 T1+FLAIR 课题上：jyz（留出）T1 36.299 / FLAIR 36.039，FLAIR 领先 L1-ESPIRiT 0.319 且头内 SSIM 以 0.0001 第一，但 **T1 比 L1-ESPIRiT 低 0.035**（v3.1 在这里是 +0.124）；edge-TV 0.07 这一步在 hyw 上选出，对 jyz 的 T1 不适用。hyw T1+FLAIR：35.816 / 34.561，头内 PSNR 两通道第一（+0.286 / +0.456），T1 SSIM 与两通道 HFEN 第一，FLAIR SSIM 仍低于 L1 与 ZS-SSDU。
 - v3.1（T1 通道 0.06）的迁移：jyz（留出）T1 36.458 / FLAIR 35.936，对 L1-ESPIRiT +0.124 / +0.216，T1 由打平变领先（单次运行），T1 头内 SSIM 0.9445 超过 L1、低于收敛 TV 0.9459，T1 锐度 0.884 过下限；hyw T1+FLAIR T1 35.850 / FLAIR 34.359（T1 +0.078，FLAIR 不变）。
 - 第 17 轮定为 FLAIR 通道小波 0.12（FLAIR 34.575，比 0.08 高 0.026，但 HFEN 与锐度变差，已近最优）；FLAIR 头内 SSIM 两个强度都仍低于 L1-ESPIRiT 和 ZS-SSDU。T1+FLAIR 课题的 v3.2 = T1 0.06 + FLAIR 0.12 + edge-TV 0.07，正在 jyz（留出）与 hyw T1+FLAIR 上跑，另跑三个课题的 v3.2 seed 43（第 18c 轮）。第 20 轮 hyw T1+FLAIR：AF16 配方头内 PSNR 两通道第一（35.952 / 34.557）、T1 SSIM 第一，但 FLAIR SSIM 不第一、T1 HFEN 比 L1 差、T1 锐度 0.840，两种预注册读法都不完全符合，原样报告。
