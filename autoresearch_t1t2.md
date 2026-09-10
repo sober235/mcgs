@@ -78,6 +78,7 @@ Knobs already wired (cycle.py flags, or `--set key.path=value` for anything in t
 | densification | `--use_cloning --split_quantile q --max_points N --densify_until I` | any of these enables `adaptive_control`; `--set adaptive_control.{densify_from_iter,densify_every,scale_threshold,opacity_threshold}` |
 | lrs | `--set gaussian.{position,scale,rotation,density}_lr` | schedule: `--set training.lr_scheduler.gamma` |
 | regulariser | `--lambda_geo --tv_eps --kspace_high --edge_tv_kappa_q --edge_tv_wfloor --kspace_center --kspace_mid` | |
+| wavelet sparsity (added 09-10) | `--set loss.lambda_wav=λ` (+ `loss.wav_name` db2, `wav_levels` 3, `wav_eps` 0, `wav_cycle_spin` true, `wav_on` complex/magnitude) | L1 of the 3-D wavelet detail coefficients of the render (`paired_gs/losses/wavelet_l1.py`), i.e. the L1-ESPIRiT prior; default off (bit-identical); +66 % time per iteration; `--lambda_geo 0` alongside it replaces TV instead of adding to it |
 | capacity | `--set gaussian.initial_num_points` | 600000 baseline; VRAM 32 GB at 600k joint |
 
 ## Budget and protocol
