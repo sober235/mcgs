@@ -590,3 +590,13 @@ of the ground truth's gradient magnitude inside the head (`t1t2_af12_retro/scrip
   v3 was decided) is judged by the T1p06 margin rule: it replaces 2.4M only if the minimum margin over
   L1-ESPIRiT rises above +0.241 by more than 0.005 dB and neither channel's head PSNR falls by more than
   0.01 dB. Any two qualifying changes are combined once at 4000 iterations before adoption.
+
+**Second diagnosis and a prediction, before geo007 starts (01:20).** The per-contrast run
+(`ar14_n24_wavP006_C003_full4k`) against v3, same bins (`t1t2_af12_retro/scripts/ssim_pair_p006.py`):
+- T1, wavelet 0.06 against 0.05: head SSIM +0.0013, gained in every bin and entirely through local
+  correlation (+0.001 to +0.004); local variance is unchanged. This supports the T1p06 expectation.
+- T2, wavelet 0.03 against 0.05: head SSIM −0.0010, lost in every bin through local correlation (−0.001 to
+  −0.007), while local variance rises only 0.005–0.008 of the ground truth's.
+- Prediction: loosening a prior adds little variance and costs correlation, so geo007 is expected to lower
+  head SSIM even if it clears the sharpness floor. The mid-scale variance deficit reads as a representation
+  limit, and capacity (the 3.6M promotion) is the lever for it.
