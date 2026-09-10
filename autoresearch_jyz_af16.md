@@ -345,3 +345,18 @@ since the hyw promotions show the budget cuts differently per contrast at 2.4M.
 directional TV was paying for the L1 sparsity in flat regions that the wavelet term now supplies, and on
 top of it only over-smooths FLAIR. λ_dtv leaves the loop. As pre-declared, GPU 2 takes
 **`ar6_P3_wavT1_010`** (P3 with λ_wav T1 0.10).
+
+### Round 6 — T1-side levers on P3 (from 21:40, one trainer per card)
+
+| exp | T1 | FLAIR | vs P3 | vs bar | head SSIM | head HFEN | sharp | status |
+|---|---|---|---|---|---|---|---|---|
+| **ar6_P3_wav005** (P3 with λ_wav 0.05, both contrasts) | **35.169** | **34.426** | **+0.23 / +0.10** | **−0.041 / −0.077** | 0.9285 / 0.9129 | 0.1310 / 0.1308 | 0.780 / 0.712 | **parent P4** |
+| ar6_P3_lam020 (P3 with λ_geo 0.20) | 34.857 | 34.234 | −0.09 / −0.10 | | | | | discard |
+
+**P4 is the best MC-GS of the loop and 0.04 / 0.08 dB short of L1-ESPIRiT** — PSNR, head SSIM and head
+HFEN all improve on P3 in both contrasts; only sharpness dips (0.780 / 0.712). The wavelet curve is the
+lever (λ_wav 0.03 → 0.05: +0.23 / +0.10), while more edge-TV now loses: with the wavelet prior carrying
+part of the regularisation, λ_geo 0.16 is at or past its optimum. Launched: **`ar7_P4_full4k`** (P4 at
+4000 iterations, volumes saved, GPU 1) — on hyw the full budget lifted the second contrast of this
+recipe — and **`ar7_P4_wav007`** (λ_wav 0.07, GPU 3). Still running on P3: T1-only wavelet 0.06 and
+0.10 (GPUs 0 and 2), which now read as "does T1 want more than P4's 0.05".
