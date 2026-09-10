@@ -439,3 +439,12 @@ floor at the recipe (`ar9_P5_seed43`) lands shortly.
   spinning and a different random initial cloud (the 1.2M v2 floor was 0.012 / 0.006). The 3.6M margins over
   L1-ESPIRiT (+0.056 / +0.110) are 50–100× the run-to-run noise; the final recipe's own repeat at 4000
   iterations (`ar12_n36_final_seed43_full4k`) is still run, because that is the budget the claim is made at.
+
+| exp | iters | T1 | FLAIR | vs bar | status |
+|---|---|---|---|---|---|
+| **ar9_n36_wT1_010_wFL_007** (3.6M, T1 wavelet 0.10 / FLAIR 0.07) | 1500 | **35.411** | **34.611** | **+0.202 / +0.108** | **the final recipe** |
+
+**The final recipe clears L1-ESPIRiT by 0.20 dB on T1 and 0.11 dB on FLAIR at 1500 iterations**, 100–200× the
+seed floor. T1's wavelet 0.07 → 0.10 at 3.6M adds +0.146 to T1 and leaves FLAIR where it was (34.613 → 34.611):
+the per-contrast independence holds at 3.6M too. Its 4000-iteration promotion (`ar10_n36_wT1010_wFL007_full4k`,
+GPU 0), its seed repeat, and the two single-contrast arms at the same recipe are running.
