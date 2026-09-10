@@ -692,3 +692,12 @@ strengths (T1 0.10 / FLAIR 0.07), 3.6M points and edge-TV back at 0.10 / quantil
 head PSNR, SSIM and HFEN over L1-ESPIRiT (35.552 / 34.807 against 35.209 / 34.503). Two of its observations bear on
 this loop: a heavier edge-TV (0.16 / 0.90) over-regularises once the wavelet is strong, and the larger cloud pays
 off once T1's wavelet is strong enough, which at AF12 did not happen with the shared 0.05 (3.6M promotion above).
+
+### Round 17 results
+
+**C008 (`ar17_tf_hyw_wavC008`, FLAIR-channel wavelet 0.08, landed 03:47):** T1 35.771 / FLAIR 34.549 against
+v3b's 35.772 / 34.359: FLAIR +0.190 dB (+0.444 over L1-ESPIRiT) with T1 unchanged (−0.001). FLAIR head SSIM 0.9205
+(v3b 0.9169; L1-ESPIRiT 0.9221, ZS-SSDU 0.9235), head HFEN 0.1056 (v3b 0.1065), FLAIR sharpness 0.842 (v3b 0.869).
+It clears the rule's bar (FLAIR +0.190 against the 0.005 needed, T1 within 0.01). The rule keeps whichever of 0.08
+and 0.12 gives the higher FLAIR head PSNR, so the decision waits for C012 (GPU 7, about 04:20). FLAIR was
+under-regularised at the shared 0.05, as the Round 17 diagnosis expected.
