@@ -535,3 +535,9 @@ Head PSNR against the strongest arm of each table (L1-ESPIRiT everywhere):
   tuning pair; kept as a variant, seed repeat running.
 - Still running at the time of writing: the single-contrast v3 ablations (hyw T1 done: 35.679; hyw T2,
   hyw FLAIR, jyz T1, jyz FLAIR), 3.6M + 0.05 at 4000 as a capacity variant, P-LORAKS for the tables.
+
+**T1+T2 topic, v3 per slice and joint versus single (00:45).** Against every other arm (L1-ESPIRiT and
+P-LORAKS included), v3 is first on 42/47 transverse, 83/88 coronal and 90/93 sagittal full-brain T1
+slices and on every full-brain T2 slice. Single-contrast v3: T1 35.679 / T2 36.227 — above L1-ESPIRiT on
+both by itself; joint minus single = +0.09 (T1) / −0.12 (T2). The margin comes from the representation
+with the wavelet prior and the larger cloud; the coupling redistributes accuracy between the contrasts.

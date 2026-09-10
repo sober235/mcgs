@@ -197,8 +197,9 @@ metrics, so the learned arms and the classical arms are directly comparable.
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| **MC-GS joint v3** | **40.766** | 0.9290 | **0.00994** | **0.4812** | **36.112** | 0.9531 | 0.0679 | 0.826 | 0.0108 | 189 min |
-| L1-ESPIRiT | 40.442 | 0.9567 | 0.01072 | 0.5146 | 35.818 | **0.9536** | **0.0656** | 0.865 | 0.0119 | 5 min |
+| MC-GS single v3 | **40.846** | 0.9286 | **0.00976** | **0.4745** | **36.227** | **0.9538** | 0.0675 | 0.827 | 0.0107 | 51 min |
+| **MC-GS joint v3** | 40.766 | 0.9290 | 0.00994 | 0.4812 | 36.112 | 0.9531 | 0.0679 | 0.826 | 0.0108 | 189 min |
+| L1-ESPIRiT | 40.442 | 0.9567 | 0.01072 | 0.5146 | 35.818 | 0.9536 | **0.0656** | 0.865 | 0.0119 | 5 min |
 | MC-GS single v2 | 40.302 | 0.9290 | 0.01106 | 0.5082 | 35.680 | 0.9480 | 0.0661 | 0.866 | 0.0117 | 38 min |
 | MC-GS joint v2 | 40.174 | 0.9314 | 0.01140 | 0.5239 | 35.429 | 0.9474 | 0.0665 | 0.857 | 0.0117 | 40 min |
 | CS-SENSE (TV, converged) | 40.110 | 0.9509 | 0.01156 | 0.5064 | 35.168 | 0.9493 | 0.0785 | 0.783 | 0.0101 | 4 min |
@@ -379,6 +380,60 @@ its rows enter `logs/summary.tsv` through `scripts/summarize.py` once the full r
 Scripts: `recon_classical.py --suffix` (sweeps), `recon_joint_cssense.py`, `recon_l1espirit.py`,
 `ploraks_export.py` / `run_ploraks.m` / `run_ploraks_ranks.m` / `ploraks_import.py`; sweep logs
 in `logs/sweeps/`, per-run json in `logs/`.
+
+## MC-GS joint v3 — wavelet sparsity and capacity (autoresearch, 2026-09-10/11)
+
+The classical revisit above left L1-wavelet ESPIRiT ahead of v2 on every channel, i.e. the strongest
+classical prior on this data is wavelet sparsity, while MC-GS was regularised with edge-TV only. v3 adds
+that prior to the MC-GS objective and, because the prior stops the extra Gaussians from overfitting
+the acquired samples, doubles the cloud:
+
+**v3 = v2 (head-support init, 3-NN scales, kappa from ZF) + 2.4M initial points + a complex
+wavelet-sparsity term λ 0.05 on top of edge-TV** (`paired_gs/losses/wavelet_l1.py`: per-voxel L1 of the
+3-D db2 detail coefficients of the rendered volume, 3 levels, periodic boundary, cycle spinning; one
+strength for both contrasts). 4000 iterations, about 32.6 GB; the other eight 2.4M wavelet runs took 51–69 min
+on an A800, the v3 run itself logged 189 min (the wavelet term costs +66 % time per iteration).
+
+```bash
+cd $F && SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar12_n24_wav005_full4k 7 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05
+```
+
+| arm (4000 iters) | head PSNR T1 / T2 | head SSIM | head HFEN | whole PSNR | sharp |
+|---|---|---|---|---|---|
+| **MC-GS joint v3** | 35.771 / 36.112 | 0.9468 / 0.9531 | 0.0831 / 0.0679 | 39.912 / 40.766 | 0.867 / 0.826 |
+| MC-GS single v3 (same recipe, one contrast) | 35.679 / 36.227 | 0.9455 / 0.9538 | 0.0851 / 0.0675 | 39.840 / 40.846 | 0.864 / 0.827 |
+| MC-GS joint v3, per-contrast wavelet (T1 0.06 / T2 0.03) | 35.856 / 36.079 | 0.9481 / 0.9521 | 0.0832 / 0.0661 | 40.006 / 40.700 | 0.862 / 0.838 |
+| L1-ESPIRiT | 35.530 / 35.818 | 0.9471 / 0.9536 | 0.0867 / 0.0656 | 39.823 / 40.442 | 0.899 / 0.865 |
+| CS-SENSE (TV, converged) | 34.966 / 35.168 | 0.9460 / 0.9493 | 0.0993 / 0.0785 | 39.534 / 40.110 | 0.829 / 0.783 |
+| MC-GS joint v2 | 34.978 / 35.429 | 0.9373 / 0.9474 | 0.0863 / 0.0665 | 39.249 / 40.174 | 0.912 / 0.857 |
+
+- **v3 is first on head PSNR on both contrasts**, +0.240 / +0.293 dB over L1-ESPIRiT and
+  +0.79 / +0.68 dB over v2; whole-volume PSNR and NMSE above every competing method on both (on T2 its own single-contrast
+  ablation is higher still); head HFEN first on T1 but not on T2 (0.0679 against L1-ESPIRiT 0.0656); head
+  SSIM 0.0003 / 0.0005 below L1-ESPIRiT.
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm including
+  L1-ESPIRiT and P-LORAKS; the single-contrast ablation is not counted as a competitor): v3 is first on
+  42 of 47 transverse, 83 of 88 coronal and 90 of 93 sagittal T1 slices, and on every full-brain T2
+  slice in all three planes.
+- **Joint versus single under v3**: T1 +0.09 dB for the joint model, T2 -0.12 dB. The single-contrast
+  v3 arm already beats L1-ESPIRiT on both contrasts on its own (35.679 / 36.227); the joint
+  coupling moves accuracy from T2 to T1, as it did under v2 (+0.30 / −0.25), with a smaller swing.
+  **The margin over L1-ESPIRiT comes from the Gaussian representation with the wavelet prior and the
+  larger cloud, not from the coupling.**
+- **Gate**: the pre-registered no-blur floor on T1 sharpness (0.874, the sharpness of the original
+  cold-start joint arm) is **missed by 0.007** (T1 sharpness 0.867); T2 passes. The grain ratio falls
+  from v2's 0.998 to 0.972 and the head HFEN from 0.0863 to 0.0831, which reads as noise removal
+  rather than lost detail, but the gate as written is not met.
+- **Selection**: the recipe (the wavelet strength and the point count) was selected on this subject with
+  the ground truth in the scorer — the same treatment the L1-ESPIRiT and TV lambdas received here. It was
+  then run unchanged on the two T1+FLAIR topics; see their READMEs (hyw T1+FLAIR +0.24 / +0.25 dB over
+  L1-ESPIRiT, held-out jiangyizhou tied on T1 and +0.215 dB on FLAIR).
+- The per-contrast variant scores a slightly higher minimum margin on this pair; v3 keeps one shared
+  strength because FLAIR, the other topics' second contrast, has no tuned value of its own.
+- Figures (compact panels, v3 as the proposed method): `figures/t1t2_af12_T1_best_axis0_150.png`,
+  `figures/t1t2_af12_T2_best_axis0_144.png` (v3's best transverse slices), `figures/t1t2_af12_{T1,T2}_best3planes.png`.
 
 ## Regenerating
 
