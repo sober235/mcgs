@@ -365,3 +365,19 @@ was audited. Head PSNR, hyw T1 / T2 / FLAIR and jyz T1 / FLAIR:
   Target for any further loop on hyw T1+T2: 35.53 / 35.82 (L1-ESPIRiT).
 - P-LORAKS (LORAKS v2 toolbox, per readout slice, S-matrix): R = 3 costs > 1 h per slice on a
   worker; the rank sweep runs at R = 2, 30 iterations (about 35 min per slice), results pending.
+
+**LORAKS family, probed on a six-slice hyw T1 subset (readout-decoupled 2-D problems, 26 coils,
+head-masked PSNR of the slices; CS-SENSE ≈ 35 dB and v2 ≈ 36 dB on the same slices).**
+P-LORAKS (calibrationless, S-matrix): R = 3 costs > 1 h per slice per worker and was abandoned;
+R = 2, strict DC, alg 4 converges by ~22 iterations and gives 30.2 dB at rank 40, worse at every
+larger rank (27.8 / 25.8 / 24.3 at 80 / 150 / 250) and at rank 20 (25.5). AC-LORAKS (nullspace
+from the 16×16 fully sampled centre): 27.5–28.7 dB, rising with rank to 250. SENSE-LORAKS
+(the toolbox's map-based variant): its images come out in MATLAB's 1/N FFT scale (×√N restores
+the gauge, verified: least-squares scale 209 vs √N = 212); at λ ≤ 1e-2 the penalty is inert
+(= pure SENSE, 31.7–32.0 dB ≈ CG-SENSE) and at λ = 10 the solver degenerates (image scale
+collapses, NaNs) — not pursued further. Reading: at a 2-D in-plane acceleration of 11.7 with a
+16×16 calibration region, the low-rank neighbourhood models that do not use the full-data
+ESPIRiT maps are structurally behind every map-based arm; this is a property of the
+retrospective set-up (maps from the full k-space), stated as such. The table gets the
+calibrationless P-LORAKS at rank 40 / R = 2 on all five channels (full runs, ~50 min per
+channel on 48 workers), so the row is complete and its standing is what it is.
