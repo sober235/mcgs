@@ -24,6 +24,7 @@ ap.add_argument("--admm_outer", type=int, default=35)
 ap.add_argument("--admm_cg", type=int, default=8)
 ap.add_argument("--lam", type=float, default=1e-3)
 ap.add_argument("--mu", type=float, default=0.1)
+ap.add_argument("--suffix", default="", help="appended to the method key and file names (lambda sweeps); empty = the canonical arm")
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -175,11 +176,11 @@ def run(method):
     rec = x.abs()
     met = evaluate_reconstruction(x, gt_c, compute_extended=False)
     ho = score_headonly(rec.cpu().numpy(), gt.cpu().numpy())
-    out = dict(method=method, contrast=args.contrast,
+    out = dict(method=method + args.suffix, contrast=args.contrast, lam=args.lam, mu=args.mu, tik=args.tik,
                psnr=float(met["psnr"]), ssim=float(met["ssim"]), nmse=float(met["nmse"]),
                hfen=hfen(rec, gt), sharp=sharp_ratio(rec, gt), grain=grain(rec, gt),
                seconds=time.time() - t, **{k: float(v) for k, v in ho.items()})
-    np.save(R / f"recon/{method}_{args.contrast}_complex.npy", x.cpu().numpy().astype(np.complex64))
+    np.save(R / f"recon/{method}{args.suffix}_{args.contrast}_complex.npy", x.cpu().numpy().astype(np.complex64))
     log(f"[{args.contrast}] {method:8s} psnr={out['psnr']:.3f} ssim={out['ssim']:.4f} "
         f"nmse={out['nmse']:.5f} hfen={out['hfen']:.4f} head_psnr={out['head_psnr']:.3f} "
         f"head_ssim={out['head_ssim']:.4f} sharp={out['sharp']:.3f} grain={out['grain']:.5f} "
@@ -188,8 +189,9 @@ def run(method):
 
 
 rows = [run(m) for m in args.methods.split(",")]
-np.save(R / f"recon/gt_{args.contrast}_complex.npy", gt_c.cpu().numpy().astype(np.complex64))
-p = R / f"logs/classical_{args.contrast}.json"
+if not args.suffix:
+    np.save(R / f"recon/gt_{args.contrast}_complex.npy", gt_c.cpu().numpy().astype(np.complex64))
+p = R / f"logs/classical_{args.contrast}{args.suffix}.json"
 json.dump({"contrast": args.contrast, "scale_p999": scale, "coils": int(NC),
            "mask_frac": float(m3.float().mean()), "rows": rows,
            "total_seconds": time.time() - t0}, open(p, "w"), indent=2)

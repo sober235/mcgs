@@ -1,0 +1,40 @@
+{
+  "T1": {
+    "cfl_dims": [
+      256,
+      256,
+      176,
+      26
+    ],
+    "h5": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/csm_espirit_T1.h5",
+    "shape": [
+      26,
+      256,
+      256,
+      176
+    ],
+    "sos_min": 0.9999997019767761,
+    "sos_max": 1.000000238418579,
+    "sos_mean": 1.0,
+    "sos_frac_within_5pct_of_1": 1.0
+  },
+  "FLAIR": {
+    "cfl_dims": [
+      256,
+      256,
+      176,
+      26
+    ],
+    "h5": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/csm_espirit_FLAIR.h5",
+    "shape": [
+      26,
+      256,
+      256,
+      176
+    ],
+    "sos_min": 0.9999997019767761,
+    "sos_max": 1.000000238418579,
+    "sos_mean": 1.0,
+    "sos_frac_within_5pct_of_1": 1.0
+  }
+}

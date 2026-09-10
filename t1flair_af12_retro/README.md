@@ -37,18 +37,21 @@ this pair than on T1+T2.
 
 `logs/summary.tsv`. FLAIR, sorted by head-only PSNR:
 
-| method | PSNR | SSIM | head PSNR | head SSIM |
-|---|---|---|---|---|
-| **MC-GS joint v2** (transfer check, see below) | 37.844 | 0.8835 | **33.492** | 0.9023 |
-| MC-GS single v2 (ablation) | 37.639 | 0.8708 | 33.367 | 0.8975 |
-| ZS-SSDU | 38.012 | 0.9525 | 33.269 | **0.9235** |
-| CS-SENSE | 37.897 | 0.9346 | 33.252 | 0.9127 |
-| CG-SENSE | 34.616 | 0.7328 | 32.192 | 0.8834 |
-| MC-GS joint | 35.466 | 0.8669 | 31.806 | 0.8870 |
-| MC-GS single | 35.176 | 0.8448 | 31.755 | 0.8814 |
-| 3D-INR | 33.919 | 0.7932 | 29.939 | 0.8070 |
-| 3D-DIP | 34.288 | 0.7924 | 29.397 | 0.8048 |
-| ZF | 31.677 | 0.8503 | 26.738 | 0.6882 |
+| method | PSNR | SSIM | head PSNR | head SSIM | wall |
+|---|---|---|---|---|---|
+| L1-ESPIRiT | **38.607** | 0.9445 | **34.105** | 0.9221 | 4 min |
+| joint CS-SENSE (JTV) | 38.544 | 0.9447 | 33.929 | 0.9196 | 7 min |
+| CS-SENSE (TV, converged) | 38.333 | 0.9414 | 33.873 | 0.9195 | 4 min |
+| **MC-GS joint v2** | 37.844 | 0.8835 | 33.492 | 0.9023 | 39 min |
+| MC-GS single v2 | 37.639 | 0.8708 | 33.367 | 0.8975 | 38 min |
+| ZS-SSDU | 38.012 | **0.9525** | 33.269 | **0.9235** | 35 min |
+| CS-SENSE (TV, 35 outer, as run 09-09) | 37.897 | 0.9346 | 33.252 | 0.9127 | 2 min |
+| CG-SENSE | 34.616 | 0.7328 | 32.192 | 0.8834 | 2 min |
+| MC-GS joint (old cold start) | 35.466 | 0.8669 | 31.806 | 0.8870 |  |
+| MC-GS single (old cold start) | 35.176 | 0.8448 | 31.755 | 0.8814 |  |
+| 3D-INR | 33.919 | 0.7932 | 29.939 | 0.8070 | 58 min |
+| 3D-DIP | 34.288 | 0.7924 | 29.397 | 0.8048 | 52 min |
+| ZF | 31.677 | 0.8503 | 26.738 | 0.6882 | 2 min |
 
 The T1 table is in `logs/summary.tsv` and matches the T1+T2 topic except for the joint rows, which
 are necessarily different because T1 is now paired with FLAIR (v2: whole 39.253 / head 34.950, head SSIM 0.9379, against CS-SENSE 34.607 / 0.9436).
@@ -99,6 +102,52 @@ Single-contrast arms of the same recipe (`ar6_single_T1_v2`, shared with the T1+
 above its own single-contrast ablation on this pairing, i.e. here the shared geometry helps both
 channels. The compact figures (`fig_slice.py`, `fig_planes_v2.py`) show only the v2 pair,
 labelled "MC-GS joint (ours)" and "MC-GS single (ours)"; the superseded arms stay in the table.
+
+## Classical arms revisited (2026-09-10): convergence, lambda sweeps, two new baselines
+
+Three classical baselines were added or corrected on this topic's data and gauge, after the
+"MC-GS joint v2" rows above had been established. Two findings change the reading of the tables.
+
+**1. The CS-SENSE (TV) arm of 09-09 was not converged.** Its 35 outer ADMM iterations were
+inherited from the CE study, where no ground truth could check convergence. At 100 and 200 outer
+iterations (same lambda) the head PSNR rises by 0.35 to 0.61 dB and then stops moving
+(hyw T1 34.607 → 34.955 → 34.966; T2 34.219 → 35.096 → 35.168 at its best lambda; FLAIR
+33.252 → 33.873 at 200). The original row is kept, labelled, for traceability; "CS-SENSE (TV,
+converged)" is the arm to compare against. Lambda was swept on huangyuwei with the ground truth
+in the scorer — the same treatment the v2 recipe received — over {0.5, 0.7, 1.0, 1.4, 2.0}e-3:
+the 09-09 value 1e-3 was already optimal on T1, and 0.7e-3 gains +0.07 (T2) / +0.01 (FLAIR).
+Those lambdas were transferred unchanged to jiangyizhou.
+
+**2. L1-wavelet ESPIRiT (BART `pics -l1`, 100 FISTA iterations, the BART default) is the
+strongest arm on every channel.** Lambda swept on huangyuwei over 0.0005 to 0.02 (per-contrast
+optima 0.0015 for T1, 0.001 for T2, 0.005 for FLAIR; both neighbours lower), transferred
+unchanged to jiangyizhou. Head PSNR: hyw T1 35.530 / T2 35.818 / FLAIR 34.105, jyz T1 36.334 /
+FLAIR 35.720 — above MC-GS joint v2 by 0.4 to 0.8 dB, and above the converged TV arm by
+0.15 to 0.65 dB. One caveat belongs next to it: at 300 instead of 100 FISTA iterations the
+hyw numbers drop (T1 35.526 → 35.218, T2 35.498 → 35.119 at lambda 0.002), so the arm as run
+includes an early-stopping regularisation on top of the wavelet prior; "100 iterations" is part
+of its definition, as "4000 iterations" is part of MC-GS's.
+
+**3. Joint CS-SENSE (vectorial TV over both contrasts, 200 outer iterations, lambda 1e-3
+selected on hyw over {0.5, 0.7, 1.0, 1.4, 2.0}e-3)** — the classical counterpart of "shared
+geometry" — is a wash against the converged single-contrast TV: within ±0.16 dB on every
+channel of every topic (hyw T1+T2 35.020 / 35.008; hyw T1+FLAIR 34.851 / 33.929; jyz 36.070 /
+35.624). Consistent with the project's earlier finding that a vectorial TV at the same lambda is
+just a weaker per-contrast penalty.
+
+**Where MC-GS joint v2 stands after this.** Second or third on head PSNR everywhere: behind
+L1-ESPIRiT on all five channels, tied with the converged TV on hyw T1 (34.978 vs 34.966), ahead
+of it on hyw T2 (+0.26), behind on the FLAIR channels and on jiangyizhou. It keeps the lowest
+head HFEN on hyw T1 (0.0863) and stays +1.4 to +2.3 dB above the cold-start joint arm it
+replaced. The claim that survives is the diagnosis and repair of the cold-start path, not
+"first among nine".
+
+P-LORAKS (LORAKS v2 toolbox, per-readout-slice, S-matrix, R = 2) is the fourth arm of this
+revisit; its rank is being selected on a six-slice subset of hyw T1 at the time of writing and
+its rows enter `logs/summary.tsv` through `scripts/summarize.py` once the full runs land.
+Scripts: `recon_classical.py --suffix` (sweeps), `recon_joint_cssense.py`, `recon_l1espirit.py`,
+`ploraks_export.py` / `run_ploraks.m` / `run_ploraks_ranks.m` / `ploraks_import.py`; sweep logs
+in `logs/sweeps/`, per-run json in `logs/`.
 
 ## Regenerating
 

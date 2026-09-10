@@ -176,31 +176,37 @@ metrics, so the learned arms and the classical arms are directly comparable.
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| **MC-GS joint v2** | **39.249** | 0.9047 | **0.01432** | 0.6052 | **34.978** | 0.9373 | **0.0863** | 0.912 | 0.01220 | 40 min |
-| MC-GS single v2 | 38.947 | 0.9084 | 0.01535 | 0.6195 | 34.680 | 0.9325 | 0.0923 | 0.916 | 0.01237 | 40 min |
-| CS-SENSE | 39.243 | 0.9294 | 0.01434 | **0.5682** | 34.607 | **0.9436** | 0.1071 | 0.817 | 0.01016 | 15 min |
-| ZS-SSDU | 38.635 | 0.9412 | 0.01649 | 0.6465 | 34.134 | 0.9365 | 0.1213 | 1.012 | 0.01387 | 22 min |
-| MC-GS single | 36.010 | 0.8479 | 0.03018 | 0.7521 | 33.296 | 0.9164 | 0.1162 | 0.935 | 0.01473 | 127 min |
-| MC-GS joint | 36.353 | 0.8682 | 0.02789 | 0.7319 | 33.294 | 0.9190 | 0.1220 | 0.874 | 0.01243 | 99 min |
-| CG-SENSE | 34.514 | 0.7269 | 0.04259 | 0.8528 | 31.941 | 0.8981 | 0.1705 | 0.903 | 0.01623 | 11 min |
-| 3D-INR | 34.761 | 0.8182 | 0.04024 | 1.0278 | 30.838 | 0.8446 | 0.1435 | 1.218 | 0.02465 | 71 min |
-| 3D-DIP | 35.127 | 0.8409 | 0.03699 | 0.7922 | 30.106 | 0.8542 | 0.2518 | 0.686 | 0.00777 | 57 min |
-| ZF | 29.067 | 0.8309 | 0.14930 | 0.9326 | 23.703 | 0.6699 | 0.6348 | 0.310 | 0.00443 | 9 min |
+| L1-ESPIRiT | **39.823** | **0.9510** | **0.01254** | 0.5802 | **35.530** | **0.9471** | 0.0867 | 0.899 | 0.0118 | 5 min |
+| joint CS-SENSE (JTV) | 39.669 | 0.9468 | 0.01300 | 0.5573 | 35.020 | 0.9461 | 0.1001 | 0.854 | 0.0107 | 5 min |
+| **MC-GS joint v2** | 39.249 | 0.9047 | 0.01432 | 0.6052 | 34.978 | 0.9373 | **0.0863** | 0.912 | 0.0122 | 40 min |
+| CS-SENSE (TV, converged) | 39.534 | 0.9271 | 0.01341 | **0.5549** | 34.966 | 0.9460 | 0.0993 | 0.829 | 0.0101 | 4 min |
+| MC-GS single v2 | 38.947 | 0.9084 | 0.01535 | 0.6195 | 34.680 | 0.9325 | 0.0923 | 0.916 | 0.0124 | 40 min |
+| CS-SENSE (TV, 35 outer, as run 09-09) | 39.243 | 0.9294 | 0.01434 | 0.5682 | 34.607 | 0.9436 | 0.1071 | 0.817 | 0.0102 | 15 min |
+| ZS-SSDU | 38.635 | 0.9412 | 0.01649 | 0.6465 | 34.134 | 0.9365 | 0.1213 | 1.012 | 0.0139 | 22 min |
+| MC-GS single (old cold start) | 36.010 | 0.8479 | 0.03018 | 0.7521 | 33.296 | 0.9164 | 0.1162 | 0.935 | 0.0147 |  |
+| MC-GS joint (old cold start) | 36.353 | 0.8682 | 0.02789 | 0.7319 | 33.294 | 0.9190 | 0.1220 | 0.874 | 0.0124 |  |
+| CG-SENSE | 34.514 | 0.7269 | 0.04259 | 0.8528 | 31.941 | 0.8981 | 0.1705 | 0.903 | 0.0162 | 11 min |
+| 3D-INR | 34.761 | 0.8182 | 0.04024 | 1.0278 | 30.838 | 0.8446 | 0.1435 | **1.218** | 0.0247 | 71 min |
+| 3D-DIP | 35.127 | 0.8409 | 0.03699 | 0.7922 | 30.106 | 0.8542 | 0.2518 | 0.686 | 0.0078 | 57 min |
+| ZF | 29.067 | 0.8309 | 0.14930 | 0.9326 | 23.703 | 0.6699 | 0.6348 | 0.310 | **0.0044** | 9 min |
 
 **T2**:
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| MC-GS single v2 | **40.302** | 0.9290 | **0.01106** | **0.5082** | **35.680** | 0.9480 | **0.0661** | 0.866 | 0.01171 | 40 min |
-| MC-GS joint v2 | 40.174 | 0.9314 | 0.01140 | 0.5239 | 35.429 | 0.9474 | 0.0665 | 0.857 | 0.01171 | 40 min |
-| CS-SENSE | 39.229 | 0.9307 | 0.01417 | 0.5440 | 34.219 | 0.9427 | 0.0916 | 0.741 | 0.00967 | 5 min |
-| ZS-SSDU | 38.991 | **0.9677** | 0.01497 | 0.5626 | 33.822 | **0.9493** | 0.1168 | 1.128 | 0.01589 | 42 min |
-| MC-GS single | 37.743 | 0.9162 | 0.01995 | 0.6361 | 33.497 | 0.9319 | 0.0932 | 0.866 | 0.01382 | 100 min |
-| MC-GS joint | 37.833 | 0.9365 | 0.01954 | 0.6478 | 33.121 | 0.9295 | 0.1005 | 0.802 | 0.01161 | 99 min |
-| CG-SENSE | 35.919 | 0.7829 | 0.03036 | 0.7270 | 32.509 | 0.9210 | 0.1181 | 0.812 | 0.01449 | 7 min |
-| 3D-INR | 35.622 | 0.8584 | 0.03250 | 0.9478 | 31.021 | 0.8606 | 0.1053 | 1.233 | 0.02639 | 121 min |
-| 3D-DIP | 35.071 | 0.8763 | 0.03690 | 0.8131 | 29.708 | 0.8635 | 0.1888 | 0.641 | 0.00896 | 57 min |
-| ZF | 30.548 | 0.8659 | 0.10456 | 0.9198 | 25.193 | 0.7013 | 0.6406 | 0.277 | 0.00421 | 6 min |
+| L1-ESPIRiT | **40.442** | 0.9567 | **0.01072** | 0.5146 | **35.818** | **0.9536** | **0.0656** | 0.865 | 0.0119 | 5 min |
+| MC-GS single v2 | 40.302 | 0.9290 | 0.01106 | 0.5082 | 35.680 | 0.9480 | 0.0661 | 0.866 | 0.0117 | 38 min |
+| **MC-GS joint v2** | 40.174 | 0.9314 | 0.01140 | 0.5239 | 35.429 | 0.9474 | 0.0665 | 0.857 | 0.0117 | 40 min |
+| CS-SENSE (TV, converged) | 40.110 | 0.9509 | 0.01156 | **0.5064** | 35.168 | 0.9493 | 0.0785 | 0.783 | 0.0101 | 4 min |
+| joint CS-SENSE (JTV) | 40.024 | 0.9552 | 0.01180 | 0.5109 | 35.008 | 0.9487 | 0.0818 | 0.798 | 0.0108 | 7 min |
+| CS-SENSE (TV, 35 outer, as run 09-09) | 39.229 | 0.9307 | 0.01417 | 0.5440 | 34.219 | 0.9427 | 0.0916 | 0.741 | 0.0097 | 5 min |
+| ZS-SSDU | 38.991 | **0.9677** | 0.01497 | 0.5626 | 33.822 | 0.9493 | 0.1168 | 1.128 | 0.0159 | 42 min |
+| MC-GS single (old cold start) | 37.743 | 0.9162 | 0.01995 | 0.6361 | 33.497 | 0.9319 | 0.0932 | 0.866 | 0.0138 |  |
+| MC-GS joint (old cold start) | 37.833 | 0.9365 | 0.01954 | 0.6478 | 33.121 | 0.9295 | 0.1005 | 0.802 | 0.0116 |  |
+| CG-SENSE | 35.919 | 0.7829 | 0.03036 | 0.7270 | 32.509 | 0.9210 | 0.1181 | 0.812 | 0.0145 | 7 min |
+| 3D-INR | 35.622 | 0.8584 | 0.03250 | 0.9478 | 31.021 | 0.8606 | 0.1053 | **1.233** | 0.0264 | 121 min |
+| 3D-DIP | 35.071 | 0.8763 | 0.03690 | 0.8131 | 29.708 | 0.8635 | 0.1888 | 0.641 | 0.0090 | 57 min |
+| ZF | 30.548 | 0.8659 | 0.10456 | 0.9198 | 25.193 | 0.7013 | 0.6406 | 0.277 | **0.0042** | 6 min |
 
 Figures: `figures/t1t2_af12_{T1,T2}_plane{0,1,2}.png`, mirrored to
 `/home/congcongliu/figs/t1t2_af12/`. Ten columns: ground truth (with the AF12 sampling pattern
@@ -318,6 +324,52 @@ figures/   published figures (mirrors of /home/congcongliu/figs/t1t2_af12/)
 logs/      every probe's JSON, every run's log, summary.tsv
 scripts/   everything needed to regenerate, absolute paths pointing into this folder
 ```
+
+## Classical arms revisited (2026-09-10): convergence, lambda sweeps, two new baselines
+
+Three classical baselines were added or corrected on this topic's data and gauge, after the
+"MC-GS joint v2" rows above had been established. Two findings change the reading of the tables.
+
+**1. The CS-SENSE (TV) arm of 09-09 was not converged.** Its 35 outer ADMM iterations were
+inherited from the CE study, where no ground truth could check convergence. At 100 and 200 outer
+iterations (same lambda) the head PSNR rises by 0.35 to 0.61 dB and then stops moving
+(hyw T1 34.607 → 34.955 → 34.966; T2 34.219 → 35.096 → 35.168 at its best lambda; FLAIR
+33.252 → 33.873 at 200). The original row is kept, labelled, for traceability; "CS-SENSE (TV,
+converged)" is the arm to compare against. Lambda was swept on huangyuwei with the ground truth
+in the scorer — the same treatment the v2 recipe received — over {0.5, 0.7, 1.0, 1.4, 2.0}e-3:
+the 09-09 value 1e-3 was already optimal on T1, and 0.7e-3 gains +0.07 (T2) / +0.01 (FLAIR).
+Those lambdas were transferred unchanged to jiangyizhou.
+
+**2. L1-wavelet ESPIRiT (BART `pics -l1`, 100 FISTA iterations, the BART default) is the
+strongest arm on every channel.** Lambda swept on huangyuwei over 0.0005 to 0.02 (per-contrast
+optima 0.0015 for T1, 0.001 for T2, 0.005 for FLAIR; both neighbours lower), transferred
+unchanged to jiangyizhou. Head PSNR: hyw T1 35.530 / T2 35.818 / FLAIR 34.105, jyz T1 36.334 /
+FLAIR 35.720 — above MC-GS joint v2 by 0.4 to 0.8 dB, and above the converged TV arm by
+0.15 to 0.65 dB. One caveat belongs next to it: at 300 instead of 100 FISTA iterations the
+hyw numbers drop (T1 35.526 → 35.218, T2 35.498 → 35.119 at lambda 0.002), so the arm as run
+includes an early-stopping regularisation on top of the wavelet prior; "100 iterations" is part
+of its definition, as "4000 iterations" is part of MC-GS's.
+
+**3. Joint CS-SENSE (vectorial TV over both contrasts, 200 outer iterations, lambda 1e-3
+selected on hyw over {0.5, 0.7, 1.0, 1.4, 2.0}e-3)** — the classical counterpart of "shared
+geometry" — is a wash against the converged single-contrast TV: within ±0.16 dB on every
+channel of every topic (hyw T1+T2 35.020 / 35.008; hyw T1+FLAIR 34.851 / 33.929; jyz 36.070 /
+35.624). Consistent with the project's earlier finding that a vectorial TV at the same lambda is
+just a weaker per-contrast penalty.
+
+**Where MC-GS joint v2 stands after this.** Second or third on head PSNR everywhere: behind
+L1-ESPIRiT on all five channels, tied with the converged TV on hyw T1 (34.978 vs 34.966), ahead
+of it on hyw T2 (+0.26), behind on the FLAIR channels and on jiangyizhou. It keeps the lowest
+head HFEN on hyw T1 (0.0863) and stays +1.4 to +2.3 dB above the cold-start joint arm it
+replaced. The claim that survives is the diagnosis and repair of the cold-start path, not
+"first among nine".
+
+P-LORAKS (LORAKS v2 toolbox, per-readout-slice, S-matrix, R = 2) is the fourth arm of this
+revisit; its rank is being selected on a six-slice subset of hyw T1 at the time of writing and
+its rows enter `logs/summary.tsv` through `scripts/summarize.py` once the full runs land.
+Scripts: `recon_classical.py --suffix` (sweeps), `recon_joint_cssense.py`, `recon_l1espirit.py`,
+`ploraks_export.py` / `run_ploraks.m` / `run_ploraks_ranks.m` / `ploraks_import.py`; sweep logs
+in `logs/sweeps/`, per-run json in `logs/`.
 
 ## Regenerating
 
