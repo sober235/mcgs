@@ -314,3 +314,12 @@ PSNR −0.03, head SSIM −0.005, HFEN +0.007 — the shared geometry's extra Ga
 cost T1 a little. The loop's number (the smaller margin) improves by +0.31 dB, so P3 is the parent,
 flagged marginal on T1's SSIM/HFEN. **T1 is now the binding contrast (−0.27 dB).** Next on P3:
 `ar6_P3_wav005` (λ_wav 0.05, the T1 side on hyw), GPU 1.
+
+| exp | T1 | FLAIR | vs P3 | status |
+|---|---|---|---|---|
+| ar4_v2_wav003_n24 (v2 smoothing λ 0.10 / κ 0.85 + λ_wav 0.03 + 2.4M — the hyw recipe as is) | 34.735 | 34.241 | −0.21 / −0.09 | ablation |
+
+P1's extra smoothing still pays under wavelet + 2.4M (+0.21 dB on T1, the binding contrast), so the
+smoothing direction is re-opened on P3: **`ar6_P3_lam020`** (λ_geo 0.20, GPU 3) next to
+`ar6_P3_wav005` (λ_wav 0.05, GPU 1) — the two T1 levers; the λ_dtv runs on P2 (GPUs 0 and 2) test the
+FLAIR lever before it is moved onto P3.
