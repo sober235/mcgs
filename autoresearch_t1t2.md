@@ -339,3 +339,29 @@ scope of the claim stays AF12 on the tuning subject.
 the single FLAIR arm edges CS-SENSE 35.084 by 0.017 dB, repeat-floor order, listed not claimed).
 Together with the T1+T2 pair (+0.30 / −0.25): the joint model is ahead of its ablation on five of six
 channels, always on T1, and the shared geometry costs at most 0.25 dB on the easier contrast.
+
+### Classical baselines revisited (2026-09-10, 13:00–15:00) — the standing changes
+
+At the user's request three more arms were run on all three AF12 topics, and the existing TV arm
+was audited. Head PSNR, hyw T1 / T2 / FLAIR and jyz T1 / FLAIR:
+
+| arm | hyw T1 | hyw T2 | hyw FLAIR | jyz T1 | jyz FLAIR |
+|---|---|---|---|---|---|
+| CS-SENSE TV as run 09-09 (35 outer) | 34.607 | 34.219 | 33.252 | 35.762 | 35.084 |
+| CS-SENSE TV converged (200 outer, lambda swept on hyw) | 34.966 | 35.168 | 33.873 | 36.144 | 35.581 |
+| joint CS-SENSE, vectorial TV (200 outer, lambda 1e-3) | 35.020 | 35.008 | 33.929 | 36.070 | 35.624 |
+| **L1-wavelet ESPIRiT** (BART, 100 FISTA, lambda per contrast on hyw) | **35.530** | **35.818** | **34.105** | **36.334** | **35.720** |
+| MC-GS joint v2 | 34.978 | 35.429 | 33.492 | 35.520 | 35.056 |
+
+- The 09-09 TV arm was under-converged (35 outer iterations inherited from the CE study); the
+  converged arm is 0.35–0.6 dB higher. Lambda re-swept on hyw: 1e-3 already optimal on T1,
+  0.7e-3 slightly better on T2/FLAIR.
+- L1-wavelet ESPIRiT with a swept lambda is first on all five channels, 0.4–0.8 dB above v2. Its
+  number includes an early-stopping effect (300 iterations score 0.3–0.4 dB lower).
+- Joint (vectorial) TV is a wash against single TV, as the project found before.
+- **Corrected verdict:** MC-GS joint v2 is second/third on head PSNR everywhere once the classical
+  arms are tuned and converged; it keeps the lowest head HFEN on hyw T1 and the +1.4–2.3 dB gain
+  over the cold-start arm. The campaign's real result is the repaired cold start, not "first".
+  Target for any further loop on hyw T1+T2: 35.53 / 35.82 (L1-ESPIRiT).
+- P-LORAKS (LORAKS v2 toolbox, per readout slice, S-matrix): R = 3 costs > 1 h per slice on a
+  worker; the rank sweep runs at R = 2, 30 iterations (about 35 min per slice), results pending.
