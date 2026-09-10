@@ -218,3 +218,17 @@ same direction. (4) Capacity down, FLAIR high-band weight up and faster decay al
 `ar3_P1_eps003`, `ar3_P1_eps002`, `ar3_P1_eps001` (toward L1 in flat regions, both contrasts),
 GPUs 0, 1, 3; a seventh on GPU 2 once `ar2_lam020_g2` frees it (λ 0.20 + κ 0.90 if λ 0.20 beats
 0.16 alone, else P1 + w_floor 0.20).
+
+**19:25 — the wavelet term arrives.** The hyw loop committed an opt-in wavelet-sparsity term for the
+joint trainer (c2c68e9: L1 of the 3-D db2 detail coefficients of both rendered volumes, 3 levels,
+complex modulus, cycle-spun — the L1-ESPIRiT prior on the MC-GS render; `--set loss.lambda_wav=λ`,
+default 0 = bit-identical). On hyw T1+T2 AF12 at 1500 iterations it lifted their v2 parent to
+35.37 / 35.12 (λ 0.03; 0.01 → 35.18 / 35.09; 0.1 → 35.35 / 34.83; without TV 34.31 / 34.77 — the TV
+is still needed). Taken into this branch as 63980bb (code files only, 8 unit tests pass here). The
+seventh Round 3 slot (GPU 2) is repointed from the pre-declared smoothing follow-up to
+**`ar3_P1_wav003`** (P1 + λ_wav 0.03): the smoothing family is where P1 already sits, the wavelet
+prior is the one structural lever the strongest competitor has and MC-GS lacks.
+
+**The L1-ESPIRiT curve (19:25)**: T1 λ 0.001 → 35.081, 0.0015 → **35.209** (still rising; 0.0025 and
+0.004 running); FLAIR λ 0.003 → **34.503**, 0.005 → 34.365 (falling, so 0.007 / 0.01 were stopped and
+0.002 / 0.0015 added). **Bar now 35.209 / 34.503.**
