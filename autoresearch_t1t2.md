@@ -459,3 +459,26 @@ Readings.
   FLAIR 34.061 against L1-ESPIRiT 35.530 / 34.105 (−0.06 / −0.04), and +0.52 / +0.57 over v2's
   transfer run; the wavelet term closes most of the FLAIR gap. The candidate recipe (2.4M + 0.05) is
   now run unchanged on the same topic (`ar13_tf_hyw_t1flair_v3b`), jiangyizhou next.
+
+### Round 14 — per-contrast wavelet strength at the full budget (2026-09-10, 21:15–22:15)
+
+| exp (4000 iters) | config | T1 | T2 | head SSIM | head HFEN | whole PSNR | sharp | grain ratio N |
+|---|---|---|---|---|---|---|---|---|
+| `ar14_n24_wavP006_C003_full4k` | 2.4M, wavelet T1 0.06 / T2 0.03 | **35.856** | **36.079** | **0.9481** / 0.9521 | **0.0832** / 0.0661 | **40.006** / **40.700** | 0.862 / 0.838 | 0.969 / 0.942 |
+| L1-ESPIRiT | BART, 100 FISTA | 35.530 | 35.818 | 0.9471 / **0.9536** | 0.0867 / **0.0656** | 39.823 / 40.442 | 0.899 / 0.865 | 1.008 / 0.953 |
+| CS-SENSE (TV, converged) | 200 outer | 34.966 | 35.168 | 0.9460 / 0.9493 | 0.0993 / 0.0785 | 39.534 / 40.110 | 0.829 / 0.783 | 0.973 / 0.932 |
+| MC-GS joint v2 (P2) | 1.2M, no wavelet | 34.978 | 35.429 | 0.9373 / 0.9474 | 0.0863 / 0.0665 | 39.249 / 40.174 | 0.912 / 0.857 | 0.998 / 0.948 |
+
+- **The first configuration above every arm on head PSNR of both contrasts at the full budget**:
+  +0.33 / +0.26 dB over L1-ESPIRiT, +0.89 / +0.91 over the converged TV arm, +0.88 / +0.65 over v2.
+  Whole-volume PSNR is first on both; head SSIM and HFEN are first on T1 and second on T2
+  (−0.0015 SSIM, +0.0005 HFEN against L1-ESPIRiT).
+- Gate check against the Objective section: head SSIM and HFEN are far inside their floors;
+  **T1 sharpness 0.862 is below the 0.874 floor by 0.012** (T2 0.838 passes). The sharpness drop
+  from v2 (0.912) comes with a lower grain ratio (0.998 → 0.969 of the ground truth's own grain)
+  and a lower head HFEN (0.0863 → 0.0832), i.e. with noise going and detail error going down, not
+  up. That reading is recorded next to the gate, and the gate is reported as missed on T1.
+- The per-contrast strengths were selected on this pair. For the transfer checks the
+  contrast-agnostic shared strength (2.4M + wavelet 0.05, its promotion `ar12_n24_wav005_full4k`
+  pending) is used: FLAIR has no tuned per-contrast value of its own, and L1-ESPIRiT's own FLAIR
+  λ is five times its T2 λ, so "contrast channel 0.03" would not be a like-for-like transfer.
