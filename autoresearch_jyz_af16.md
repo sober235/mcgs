@@ -334,3 +334,14 @@ GPU 0 after `ar5_P1w_dtv010` → **`ar6_P3_wavT1_006`** (P3 with λ_wav T1 0.06,
 `ar5_P2_dtv020` → P3 + the better λ_dtv if λ_dtv lifts FLAIR over P2 by > 0.05 dB at ≤ 0.05 dB T1 cost,
 otherwise **`ar6_P3_wavT1_010`** (λ_wav T1 0.10). Promotion budget for the winner: 1500 and 4000 both,
 since the hyw promotions show the budget cuts differently per contrast at 2.4M.
+
+| exp | T1 | FLAIR | vs P2 | status |
+|---|---|---|---|---|
+| ar5_P1w_dtv010 (P2 + λ_dtv 0.10) | 34.969 | 33.714 | −0.01 / **−0.21** | discard |
+| ar5_P2_dtv020 (P2 + λ_dtv 0.20) | 34.965 | 33.389 | −0.01 / **−0.54** | discard |
+
+**λ_dtv reverses under the wavelet prior.** Without it (v2 parent) λ_dtv 0.05 was FLAIR's best lever
+(+0.32 dB); with it, FLAIR loses monotonically (−0.21 at 0.10, −0.54 at 0.20) and T1 does not move. The
+directional TV was paying for the L1 sparsity in flat regions that the wavelet term now supplies, and on
+top of it only over-smooths FLAIR. λ_dtv leaves the loop. As pre-declared, GPU 2 takes
+**`ar6_P3_wavT1_010`** (P3 with λ_wav T1 0.10).
