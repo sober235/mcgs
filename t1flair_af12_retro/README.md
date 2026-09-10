@@ -40,6 +40,7 @@ this pair than on T1+T2.
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
 | **MC-GS joint v3** | 38.588 | 0.8857 | **34.359** | 0.9169 | 60 min |
+| MC-GS single v3 | 38.518 | 0.8764 | 34.341 | 0.9158 | 136 min |
 | L1-ESPIRiT | **38.607** | 0.9445 | 34.105 | 0.9221 | 4 min |
 | joint CS-SENSE (JTV) | 38.544 | 0.9447 | 33.929 | 0.9196 | 7 min |
 | CS-SENSE (TV, converged) | 38.333 | 0.9414 | 33.873 | 0.9195 | 4 min |
@@ -156,6 +157,47 @@ R = 2, 48 MATLAB workers) started 2026-09-11 00:38 and takes 7–8 h; its row en
 Scripts: `recon_classical.py --suffix` (sweeps), `recon_joint_cssense.py`, `recon_l1espirit.py`,
 `ploraks_export.py` / `run_ploraks.m` / `run_ploraks_ranks.m` / `ploraks_import.py`; sweep logs
 in `logs/sweeps/`, per-run json in `logs/`.
+
+## MC-GS joint v3 — the T1+T2 recipe with wavelet sparsity, run unchanged on T1+FLAIR (2026-09-10/11)
+
+v3 is defined and selected on the huangyuwei T1+T2 pair (`../T1T2_AF12_retro/README.md`, section "MC-GS joint
+v3"): v2's cold-start fixes + 2.4M initial points + a complex wavelet-sparsity term λ 0.05 on top of edge-TV,
+4000 iterations, one strength for both contrasts. This topic shares the subject and the T1 acquisition with the
+tuning pair, so it checks the recipe on a contrast it was not tuned on (FLAIR), not on a new subject.
+
+```bash
+cd $F && CONFIG=configs/t1flair_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar13_tf_hyw_t1flair_v3b 4 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05
+```
+
+| arm (4000 iters) | head PSNR T1 / FLAIR | head SSIM | head HFEN | whole PSNR | sharp |
+|---|---|---|---|---|---|
+| **MC-GS joint v3** | 35.772 / 34.359 | 0.9470 / 0.9169 | 0.0828 / 0.1065 | 39.920 / 38.588 | 0.869 / 0.869 |
+| MC-GS joint, 2.4M + wavelet 0.03 (first transfer run) | 35.471 / 34.061 | 0.9426 / 0.9111 | 0.0845 / 0.1102 | 39.597 / 38.267 | 0.882 / 0.892 |
+| MC-GS single v3 (same recipe, one contrast) | 35.679 / 34.341 | 0.9455 / 0.9158 | 0.0851 / 0.1069 | 39.840 / 38.518 | 0.864 / 0.876 |
+| L1-ESPIRiT | 35.530 / 34.105 | 0.9471 / 0.9221 | 0.0867 / 0.1096 | 39.823 / 38.607 | 0.899 / 0.804 |
+| CS-SENSE (TV, converged) | 34.966 / 33.873 | 0.9460 / 0.9195 | 0.0993 / 0.1196 | 39.534 / 38.333 | 0.829 / 0.775 |
+| ZS-SSDU | 34.134 / 33.269 | 0.9365 / 0.9235 | 0.1213 / 0.1432 | 38.635 / 38.012 | 1.012 / 1.110 |
+| MC-GS joint v2 | 34.950 / 33.492 | 0.9379 / 0.9023 | 0.0851 / 0.1150 | 39.253 / 37.844 | 0.912 / 0.915 |
+
+- **v3 is first on head PSNR on both contrasts**: +0.242 / +0.254 dB over L1-ESPIRiT and
+  +0.82 / +0.87 over v2. Head HFEN is first on both. Whole-volume PSNR is first on T1 and
+  second on FLAIR (L1-ESPIRiT 38.607 against 38.588). Head SSIM: T1 0.9470, second (best other arm L1-ESPIRiT 0.9471); FLAIR 0.9169, fifth (best other arm ZS-SSDU 0.9235).
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS T1 only):
+  T1 first on 43/47, 83/88, 90/93 transverse / coronal / sagittal slices; FLAIR first on 55/61, 73/91, 94/94.
+- **Joint versus single**: the joint model is +0.093 dB on T1 (the single-contrast T1 is the T1+T2 topic's
+  run on the same acquisition) and +0.018 on FLAIR. Unlike the T1+T2 pair and jiangyizhou, the coupling
+  costs the second contrast nothing here.
+- **Gate**: T1 sharpness 0.869, below the pre-registered 0.874 floor by 0.005; reported as missed.
+- **FLAIR head SSIM** (program, "SSIM diagnosis" and Round 17): three quarters of the gap to L1-ESPIRiT sits in
+  the flattest fifth of the head, in the darkest decile (suppressed CSF), where v3's local mean fluctuates. The
+  wavelet strength does not reach that part; it acts on local correlation. FLAIR-channel strengths 0.08 and 0.12
+  are being run on this topic (Round 17), and a second seed for a two-seed average (Round 18).
+- P-LORAKS: the T1 row is the T1+T2 topic's run (same acquisition); the FLAIR run is still in progress.
+- Figures (compact panels, v3 as the proposed method): `figures/t1flair_af12_T1_best_axis0_147.png`,
+  `figures/t1flair_af12_FLAIR_best_axis0_153.png` (v3's best transverse slices),
+  `figures/t1flair_af12_{T1,FLAIR}_best3planes.png`.
 
 ## Regenerating
 
