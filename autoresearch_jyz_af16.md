@@ -360,3 +360,23 @@ part of the regularisation, λ_geo 0.16 is at or past its optimum. Launched: **`
 4000 iterations, volumes saved, GPU 1) — on hyw the full budget lifted the second contrast of this
 recipe — and **`ar7_P4_wav007`** (λ_wav 0.07, GPU 3). Still running on P3: T1-only wavelet 0.06 and
 0.10 (GPUs 0 and 2), which now read as "does T1 want more than P4's 0.05".
+
+**The wavelet curves at 2.4M points (1500 iterations, head-only PSNR; λ_geo 0.16, κ_q 0.90):**
+
+| λ_wav (T1 / FLAIR) | T1 | FLAIR | exp |
+|---|---|---|---|
+| 0.03 / 0.03 (P3) | 34.943 | 34.330 | ar4_P1_wav003_n24 |
+| 0.05 / 0.05 (P4) | 35.169 | 34.426 | ar6_P3_wav005 |
+| 0.06 / 0.03 | 35.241 | 34.328 | ar6_P3_wavT1_006 |
+| **0.07 / 0.07 (P5)** | **35.289** | **34.461** | ar7_P4_wav007 |
+| 0.10 / 0.03 | **35.359** | 34.322 | ar6_P3_wavT1_010 |
+| bar (L1-ESPIRiT) | 35.209 | 34.503 | |
+
+- **T1 crosses the bar** from λ_wav(T1) 0.06 on and is still rising at 0.10 (+0.15 dB above L1-ESPIRiT).
+  The two contrasts' wavelet strengths act almost independently: FLAIR's level barely moves T1 and
+  T1's never moves FLAIR (FLAIR 34.32–34.33 whenever its own λ_wav is 0.03).
+- **FLAIR binds and flattens**: 0.03 → 0.05 → 0.07 = 34.330 → 34.426 → 34.461 (+0.10, +0.035); it is
+  0.041 dB short at 0.07. Running: `ar8_P4_wav010` (0.10 / 0.10, GPU 3) for FLAIR's next point;
+  `ar8_P4_wT1_006` / `ar8_P4_wT1_010` (T1 0.06 / 0.10 with FLAIR 0.05, GPUs 0 and 2) for the
+  per-contrast combination; `ar7_P4_full4k` (P4 at 4000 iterations, GPU 1) for the budget, which on hyw
+  lifted the second contrast of this recipe.
