@@ -19,7 +19,7 @@ ap.add_argument("--prefix", required=True, help="figs sub-directory and file-nam
 ap.add_argument("--contrast", required=True)
 ap.add_argument("--axis", type=int, required=True, choices=[0, 1, 2])
 ap.add_argument("--index", type=int, required=True)
-ap.add_argument("--methods", default="zf,cgsense,cssense_o200,jcssense,l1espirit,ploraks,zsssdu,dip,inr,gs_single_v2,gs_joint_v2")
+ap.add_argument("--methods", default="zf,cgsense,cssense_o200,jcssense,l1espirit,ploraks,zsssdu,dip,inr,gs_single_v3,gs_joint_v3")
 ap.add_argument("--tag", default="best")
 args = ap.parse_args()
 
@@ -36,7 +36,8 @@ ANAT = {0: "transverse (axial)", 1: "coronal", 2: "sagittal"}
 LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV, 35 it.)", "cssense_o200": "CS-SENSE (TV)",
          "jcssense": "joint CS-SENSE", "l1espirit": "L1-ESPIRiT", "ploraks": "P-LORAKS", "zsssdu": "ZS-SSDU",
          "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single (old)", "gs_joint": "MC-GS joint (old)",
-         "gs_single_v2": "MC-GS single (ours)", "gs_joint_v2": "MC-GS joint (ours)"}
+         "gs_single_v2": "MC-GS single v2", "gs_joint_v2": "MC-GS joint v2",
+         "gs_single_v3": "MC-GS single (ours)", "gs_joint_v3": "MC-GS joint (ours)"}
 
 
 def load(m, c):
