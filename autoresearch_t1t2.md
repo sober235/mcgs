@@ -580,3 +580,13 @@ of the ground truth's gradient magnitude inside the head (`t1t2_af12_retro/scrip
   local variance where the ground truth has moderate gradients should close it: less edge-TV (geo007) and
   more capacity (the 3.6M promotion). The stronger T1 wavelet (T1p06) is expected to act on the T1
   correlation part instead.
+
+**Addenda to the Round 16 pre-registration (01:10, still before any result).**
+- Precedent: lambda_geo 0.07 was discarded once, in Round 1 (`ar1_P1_lam007`: 600k points, no wavelet term,
+  1500 iterations): T1 −0.107 / T2 −0.005 dB against its parent (`ar1_P1_rerun`, 34.818 / 34.218), with
+  sharpness up 0.024 / 0.019. It is re-tested because the wavelet term now does part of the smoothing. The
+  Round 1 result predicts a T1 cost, and the decision rule prices it.
+- The 3.6M promotion (`ar12_n36_wav005_full4k`: 3.6M points + wavelet 0.05, 4000 iterations, started before
+  v3 was decided) is judged by the T1p06 margin rule: it replaces 2.4M only if the minimum margin over
+  L1-ESPIRiT rises above +0.241 by more than 0.005 dB and neither channel's head PSNR falls by more than
+  0.01 dB. Any two qualifying changes are combined once at 4000 iterations before adoption.
