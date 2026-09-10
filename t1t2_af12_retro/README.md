@@ -176,9 +176,10 @@ metrics, so the learned arms and the classical arms are directly comparable.
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| **MC-GS joint v3** | **39.912** | 0.9019 | **0.01229** | 0.5631 | **35.771** | 0.9468 | **0.0831** | 0.867 | 0.0108 | 189 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | **40.004** | 0.9024 | **0.01203** | 0.5550 | **35.877** | **0.9478** | **0.0825** | 0.864 | 0.0107 | 257 min |
+| **MC-GS joint v3** | 39.912 | 0.9019 | 0.01229 | 0.5631 | 35.771 | 0.9468 | 0.0831 | 0.867 | 0.0108 | 189 min |
 | MC-GS single v3 | 39.840 | 0.9073 | 0.01250 | 0.5685 | 35.679 | 0.9455 | 0.0851 | 0.864 | 0.0107 | 55 min |
-| L1-ESPIRiT | 39.823 | **0.9510** | 0.01254 | 0.5802 | 35.530 | **0.9471** | 0.0867 | 0.899 | 0.0118 | 5 min |
+| L1-ESPIRiT | 39.823 | **0.9510** | 0.01254 | 0.5802 | 35.530 | 0.9471 | 0.0867 | 0.899 | 0.0118 | 5 min |
 | joint CS-SENSE (JTV) | 39.669 | 0.9468 | 0.01300 | 0.5573 | 35.020 | 0.9461 | 0.1001 | 0.854 | 0.0107 | 5 min |
 | MC-GS joint v2 | 39.249 | 0.9047 | 0.01432 | 0.6052 | 34.978 | 0.9373 | 0.0863 | 0.912 | 0.0122 | 40 min |
 | CS-SENSE (TV, converged) | 39.534 | 0.9271 | 0.01341 | **0.5549** | 34.966 | 0.9460 | 0.0993 | 0.829 | 0.0101 | 4 min |
@@ -198,6 +199,7 @@ metrics, so the learned arms and the classical arms are directly comparable.
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
 | MC-GS single v3 | **40.846** | 0.9286 | **0.00976** | **0.4745** | **36.227** | **0.9538** | 0.0675 | 0.827 | 0.0107 | 51 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | 40.815 | 0.9292 | 0.00983 | 0.4778 | 36.164 | 0.9535 | 0.0675 | 0.824 | 0.0107 | 257 min |
 | **MC-GS joint v3** | 40.766 | 0.9290 | 0.00994 | 0.4812 | 36.112 | 0.9531 | 0.0679 | 0.826 | 0.0108 | 189 min |
 | L1-ESPIRiT | 40.442 | 0.9567 | 0.01072 | 0.5146 | 35.818 | 0.9536 | **0.0656** | 0.865 | 0.0119 | 5 min |
 | MC-GS single v2 | 40.302 | 0.9290 | 0.01106 | 0.5082 | 35.680 | 0.9480 | 0.0661 | 0.866 | 0.0117 | 38 min |
@@ -427,6 +429,10 @@ cd $F && SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar12_n24_wav005_full4k 7 4000 \
   coupling moves accuracy from T2 to T1, as it did under v2 (+0.30 / −0.25), with a smaller swing.
   **The margin over L1-ESPIRiT comes from the Gaussian representation with the wavelet prior and the
   larger cloud, not from the coupling.**
+- **Two seeds averaged** (v3 ×2, program Round 18; its own table row, at twice the compute): head PSNR 35.877 /
+  36.164, +0.347 / +0.346 dB over L1-ESPIRiT; head SSIM 0.9478 / 0.9535 against L1-ESPIRiT's 0.9471 / 0.9536, so it
+  leads on T1 and trails by 0.0001 on T2; head HFEN 0.0825 / 0.0675 (L1-ESPIRiT 0.0656 on T2); whole-volume PSNR
+  40.004 / 40.815. Single-run v3 stays the headline arm.
 - **Gate**: the pre-registered no-blur floor on T1 sharpness (0.874, the sharpness of the original
   cold-start joint arm) is **missed by 0.007** (T1 sharpness 0.867); T2 passes. The grain ratio falls
   from v2's 0.998 to 0.972 and the head HFEN from 0.0863 to 0.0831, which reads as noise removal
