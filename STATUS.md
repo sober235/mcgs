@@ -11,7 +11,7 @@
   # T1    psnr=39.249 ... head_psnr=34.978 head_ssim=0.9373 head_hfen=0.0863 ... sharp=0.912
   # T2    psnr=40.174 ... head_psnr=35.429 head_ssim=0.9474 head_hfen=0.0665 ... sharp=0.857
   ```
-- 配方只有四项改动，逐项单独验证（见 `autoresearch_t1t2.md` Round 0–3）；默认路径逐位不变，174 测试通过。
+- 配方只有四项改动，逐项单独验证（见 `autoresearch_t1t2.md` Round 0–3）；默认路径逐位不变，182 个测试通过（09-10 含小波模块的 8 个，限 4 线程 45 分钟）。
 - 迁移检验：hyw T1+FLAIR 同配方第一（34.950 / 33.492）；jiangyizhou 第二（35.520 vs 35.762，35.056 vs 35.084），预注册密度规则失败（1.59M 点 T1 反降到 35.273）。
 - joint vs single（修复后）：T1 +0.30、T2 −0.25。三个归档课题的表、图、README 已加 v2 臂并镜像进仓库。
 - AF16 迁移（09-10 12:10，同配方不改）：hyw T1 33.465 / FLAIR 31.943（ZS-SSDU 33.665 / 32.685，−0.20 / −0.74）；jyz T1 33.982 / FLAIR 33.640（CS-SENSE 34.410 / ZS-SSDU 34.005，−0.43 / −0.36）→ 全部第二，仍比冷启动 joint +1.1~1.4 dB；并行会话正在 jyz AF16 上跑自己的循环（分支 autoresearch-jyz-af16）。

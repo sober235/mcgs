@@ -407,6 +407,8 @@ Head PSNR T1 / T2. Parent P2 at 1500 = 35.007 / 35.022; L1-ESPIRiT at its full b
 | `ar11_wav005_tv` | + wavelet 0.05 | 35.447 | 35.082 | 0.9471 / 0.9472 | 0.0825 / 0.0732 | 0.859 / 0.809 | best T1 at 1.2M; T2 past its peak |
 | `ar11_wav01_tv` | + wavelet 0.1 | 35.350 | 34.834 | 0.9471 / 0.9446 | 0.0900 / 0.0827 | 0.830 / 0.781 | discard (over-regularised) |
 | `ar11_wav003_notv` | wavelet 0.03 replacing TV | 34.306 | 34.770 | 0.9227 / 0.9409 | 0.0816 / 0.0658 | 1.017 / 0.929 | discard (under-regularised, sharper than GT) |
+| `ar11_wav01_notv` | wavelet 0.1 replacing TV | 35.184 | 34.967 | 0.9443 / 0.9478 | 0.0831 / 0.0744 | 0.911 / 0.846 | discard (above P2 on T1, below TV + wavelet on both) |
+| `ar11_wav003_mag` | + wavelet 0.03 on the magnitude | 35.245 | 34.989 | 0.9418 / 0.9440 | 0.0875 / 0.0736 | 0.854 / 0.808 | discard (the complex modulus is better by 0.13 dB on both) |
 | `ar11_n24_wav003_tv` | **2.4M points + wavelet 0.03** | **35.513** | **35.878** | 0.9439 / 0.9514 | 0.0834 / 0.0670 | 0.881 / 0.835 | **keep, promoted (`ar12_n24_wav003_full4k`)** |
 
 Readings.
@@ -420,6 +422,11 @@ Readings.
   L1-ESPIRiT's full-budget T1 and 0.06 dB above its T2. Head HFEN is better than P2 on both
   contrasts (0.0834 / 0.0670 vs 0.0844 / 0.0690), head SSIM is higher on both, and sharpness
   stays above the program floor, so there is no blur trade.
-- Pending: wavelet 0.1 replacing TV, magnitude mode, 2.4M + wavelet 0.05, and the two
-  4000-iteration promotions. Nothing is claimed until the promotions land: at 1.2M, T1 was flat
-  from 1500 to 4000 and T2 gained 0.4 dB, but at 2.4M the budget effect is unmeasured.
+- A stronger wavelet alone (0.1, TV off) recovers most of the no-TV loss but stays below TV +
+  wavelet on both contrasts; penalising the magnitude instead of the complex coefficients loses
+  0.13 dB on both. The configuration to carry forward is complex wavelet 0.03 on top of edge-TV.
+- Code check: the full suite passes with the new module (182 tests, 45 min at 4 CPU threads under
+  the P-LORAKS load; the first attempt stalled on thread oversubscription, see STATUS §4).
+- Pending: 2.4M + wavelet 0.05, 3.6M + wavelet 0.03 (single deltas from `ar11_n24_wav003_tv`), and
+  the two 4000-iteration promotions. Nothing is claimed until the promotions land: at 1.2M, T1 was
+  flat from 1500 to 4000 and T2 gained 0.4 dB, but at 2.4M the budget effect is unmeasured.
