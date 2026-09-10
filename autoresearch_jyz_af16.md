@@ -232,3 +232,27 @@ prior is the one structural lever the strongest competitor has and MC-GS lacks.
 **The L1-ESPIRiT curve (19:25)**: T1 λ 0.001 → 35.081, 0.0015 → **35.209** (still rising; 0.0025 and
 0.004 running); FLAIR λ 0.003 → **34.503**, 0.005 → 34.365 (falling, so 0.007 / 0.01 were stopped and
 0.002 / 0.0015 added). **Bar now 35.209 / 34.503.**
+
+### Incident, 2026-09-10 19:01–20:05 — all seven runs on GPUs 0–3 stalled; relaunched one at a time
+
+Round 3's six runs (launched together at 19:00:21) and the running `ar2_lam020_g2` (iteration 850)
+all stopped advancing within a minute of each other: no line in `joint_train.log` and no TensorBoard
+event after 19:00:08–19:01:10, for an hour. Evidence gathered before killing them:
+- the cards read 100 % utilisation at 1410 MHz with no throttle reason but only ~82 W (real load is
+  200 W+); every stuck process had SM activity 28–71 % in `nvidia-smi pmon`;
+- in each process the thread burning CPU was `pt_autograd_0` (the device's autograd worker, 100 %),
+  the main thread slept on a futex waiting for it: a backward pass waiting on GPU work that did not
+  finish;
+- the hyw loop's runs of the same trainer on GPUs 4–7 kept running normally throughout, so not
+  system-wide; the voxelizer extension of this worktree was never rebuilt (`.so` from 09-09 22:41;
+  `TORCH_EXTENSIONS_DIR` is unused — the extension builds into `paired_gs/gaussian/cuda_ext/build`);
+  the data disk had 5.9 TB free; the pure-PyTorch joint-TV job on GPU 2 kept progressing;
+- `py-spy` could not attach (ptrace restricted) and the kernel log is not readable, so the stuck
+  kernel was not identified.
+The only event common to all seven was launching six trainer processes at the same second. Killed at
+20:05 (7 × ~60 GPU-minutes lost; outputs in `results_arc/aborted_1900/`, rows marked `stalled`).
+`scripts/relaunch_gated.sh` relaunches seven runs one at a time, each only after the previous one has
+passed iteration 100, and stops with an ALERT if a run fails to reach it within 15 minutes: if the
+stall recurs under staggered starts, the simultaneous launch was not the trigger. Order: P1 + λ_wav
+0.03, P1 + λ_wav 0.03 + 2.4M, v2 + λ_wav 0.03, P1 + λ_dtv 0.10, P1 + ε 0.02, v2 + λ_wav 0.03 + 2.4M,
+P1 + λ_dtv 0.20. `ar2_lam020_g2` is dropped (P1 already covers the smoothing family).
