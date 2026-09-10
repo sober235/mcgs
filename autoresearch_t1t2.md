@@ -701,3 +701,9 @@ v3b's 35.772 / 34.359: FLAIR +0.190 dB (+0.444 over L1-ESPIRiT) with T1 unchange
 It clears the rule's bar (FLAIR +0.190 against the 0.005 needed, T1 within 0.01). The rule keeps whichever of 0.08
 and 0.12 gives the higher FLAIR head PSNR, so the decision waits for C012 (GPU 7, about 04:20). FLAIR was
 under-regularised at the shared 0.05, as the Round 17 diagnosis expected.
+
+**Combination started ahead of C012 (03:48).** T1p06 and a FLAIR-channel strength both qualify, so the rule's combination run is
+needed whichever FLAIR value is kept. To use GPUs 6 and 4, which free before C012 lands, the combination with 0.08
+starts now on the first of them: `ar19_tf_hyw_T1p06_wavC008` (hyw T1+FLAIR; T1 0.06, FLAIR 0.08, everything else
+v3; `queue21.sh`). The Round 17 decision is still taken on C008 against C012 alone. If 0.12 is kept, its own
+combination follows and this run is reported as a variant.
