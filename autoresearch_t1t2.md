@@ -673,3 +673,13 @@ than v3 did. It is v3.1 provisionally: the combination clause waits for geo007, 
 strength is combined with it once before adoption. Its pre-registered transfers run next on the first GPUs to
 free, jiangyizhou (held out) before hyw T1+FLAIR (`queue19.sh`); the Round 18 seed-43 run of v3 on hyw T1+FLAIR
 follows them. The tuning pair's seed-43 run of v3 had already started on GPU 4 (02:52) and keeps its slot.
+
+### Round 18b — two-seed averaging for v3.1 (pre-registered 2026-09-11 03:37)
+
+T1p06 qualified (provisional v3.1), so the Round 18 definition applies to it as well: "v3.1 ×2" is the voxelwise
+mean of the magnitudes of two T1p06 runs that differ only in the seed (42, 43), at twice the compute. Its seed-43
+run on the tuning pair (`ar18_n24_wav005_T1p06_s43`) takes GPU 5 when the FLAIR-strength run there finishes
+(`queue20.sh`); `x2_after.sh` scores the average with `score_average.py` when it lands (`ar16_n24_wav005_T1p06_x2`).
+Prediction from the Round 18 measurements: +0.07 to +0.10 dB and +0.0006 to +0.0008 head SSIM, which would put
+T2 head SSIM at or just above L1-ESPIRiT's 0.9536. The T1+FLAIR topics get seed-43 runs of v3.1 once its
+transfers land, if v3.1 is adopted.
