@@ -31,15 +31,21 @@ def _rho(mag2: torch.Tensor, eps: float) -> torch.Tensor:
 
 
 def wavelet_l1(vols: Sequence[torch.Tensor], wavelet: str = "db2", levels: int = 3, eps: float = 0.0,
-               shifts: Optional[Iterable[int]] = None, on: str = "complex") -> torch.Tensor:
+               shifts: Optional[Iterable[int]] = None, on: str = "complex",
+               weights: Optional[Sequence[float]] = None) -> torch.Tensor:
     """Sum over ``vols`` (each (D, H, W), complex or real, same shape) of R_wav.
 
     on = "complex":   modulus of the complex wavelet coefficients (BART's penalty).
     on = "magnitude": wavelet L1 of |vol| (phase ignored, like the project's TV terms).
+    weights: optional per-volume multipliers, giving sum_v w_v R_wav(v) -- a per-contrast strength,
+             the way L1-ESPIRiT's lambda is chosen per contrast. None keeps the unweighted sum,
+             computed exactly as before.
     All volumes go through one batched transform.
     """
     if on not in ("complex", "magnitude"):
         raise ValueError(f"on must be 'complex' or 'magnitude', got {on!r}")
+    if weights is not None and len(weights) != len(vols):
+        raise ValueError(f"need one weight per volume, got {len(weights)} for {len(vols)}")
     parts = []
     for v in vols:
         if on == "complex":
@@ -53,9 +59,17 @@ def wavelet_l1(vols: Sequence[torch.Tensor], wavelet: str = "db2", levels: int =
     coeffs = ptwt.wavedec3(x, wavelet, level=levels, mode="periodic")
     per = 2 if on == "complex" else 1
     nv = len(vols)
-    total = x.new_zeros(())
-    for detail in coeffs[1:]:                                     # coeffs[0] is the approximation band
-        for band in detail.values():                              # (B, d1, d2, d3)
+    if weights is None:
+        total = x.new_zeros(())
+        for detail in coeffs[1:]:                                 # coeffs[0] is the approximation band
+            for band in detail.values():                          # (B, d1, d2, d3)
+                b = band.reshape(nv, per, *band.shape[1:])
+                total = total + _rho((b * b).sum(1), eps).sum()
+        return total / vols[0].numel()
+    per_vol = x.new_zeros(nv)
+    for detail in coeffs[1:]:
+        for band in detail.values():
             b = band.reshape(nv, per, *band.shape[1:])
-            total = total + _rho((b * b).sum(1), eps).sum()
-    return total / vols[0].numel()
+            per_vol = per_vol + _rho((b * b).sum(1), eps).reshape(nv, -1).sum(1)
+    w = torch.as_tensor([float(v) for v in weights], dtype=per_vol.dtype, device=per_vol.device)
+    return (per_vol * w).sum() / vols[0].numel()
