@@ -402,3 +402,16 @@ wavelet 0.10 if 0.10 beat 0.07 for FLAIR, else 0.07).
   strength alone cannot close FLAIR's last 0.04 dB. The two remaining levers are capacity (Round 9, 3.6M) and
   the budget (`ar7_P4_full4k`). By its declared rule GPU 2 now takes **`ar9_n36_wT1_010_wFL_007`** and GPU 3
   the seed repeat `ar9_P5_seed43`.
+
+### Promotion 1 — the budget (23:45)
+
+| exp | iters | T1 | FLAIR | vs bar |
+|---|---|---|---|---|
+| ar6_P3_wav005 (P4) | 1500 | 35.169 | 34.426 | −0.041 / −0.077 |
+| **ar7_P4_full4k** (P4) | **4000** | 35.120 | **34.543** | −0.089 / **+0.040** |
+
+**The full budget carries FLAIR past L1-ESPIRiT** (+0.117 dB over 1500 iterations); T1 pays the late
+over-fit at 2.4M that the hyw loop also saw (−0.049). The per-contrast wavelet is exactly the fix for
+that T1 loss (T1 0.10 gives 35.359 at 1500), so the promotion candidate is **T1 wavelet 0.10 / FLAIR
+0.07, 2.4M, 4000 iterations**: **`ar10_wT1010_wFL007_full4k`** (GPU 1, volumes saved). If it clears both
+contrasts it gets its seed repeat and the single-contrast arms at the same recipe and budget.
