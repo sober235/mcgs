@@ -752,3 +752,7 @@ margin over L1-ESPIRiT exceeds geo007's +0.187. If it misses the floor, geo007 a
 that meets every gate) and T1p06 is reported as the higher-margin variant that misses it. On the T1+FLAIR topics
 v3.2 also takes the Round 17 FLAIR strength; that full recipe then runs on hyw T1+FLAIR and, unchanged, on
 jiangyizhou (held out).
+
+**Schedule, 04:23.** `queue22.sh` never launched the Round 20 tuning-pair run: GPUs 6 and 7 carry another user's
+696 MiB process permanently, and its "no process on the GPU" check could not pass there. It was stopped and the run
+started on GPU 6 directly (`ar20_xv_P6_t1t2`). The fast GPUs that free around 04:45 are kept for the combination runs.

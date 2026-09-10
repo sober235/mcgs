@@ -64,6 +64,7 @@
 - 工具 shell 是 zsh：`$VAR` 不分词，多参数启动写成 bash 脚本；未加引号的 `--include=*.py` 会被当成通配符报错。`$VAR:r…` 会被 zsh 当成参数修饰符（去扩展名），拼路径写 `${VAR}:…`。工具 shell 的 cwd 会被重置到 `~/.claude`，写文件一律用绝对路径。
 - CPU 被 MATLAB 占满时跑 pytest 要加 `OMP_NUM_THREADS=4 MKL_NUM_THREADS=4`。
 - GPU 6、7 上有别人的进程（09-10 18:25 起），同卡训练慢 2–3 倍：v3 本身在 GPU 7 跑了 189 min，同尺寸的其他运行 51–69 min。读时间前先看 `nvidia-smi --query-compute-apps`。
+- GPU 6、7 上常驻别人的 696 MiB 进程：排队脚本判断"卡上没有进程"在这两张卡上永远不成立（queue22 因此卡住），要改成只看 4 GB 以上的进程。
 - 旧 `ploraks_finish.sh` 按 v2 的最优层出图，会覆盖 v3 的图，已停掉，换成 `ploraks_finish2.sh`。
 - 仓库的 `*/logs/` 被 .gitignore，镜像 summary 与逐层结果要 `git add -f`（`mirror_topic.sh` 已处理）。
 - 别再试：intensity 初始化、密化、position_lr、T1 高频权重 1.0/3.0、kappa 300 步刷新、分位 0.75、1.5 倍尺度、tv_eps 0.06；小波替代 TV（λ 0.03 / 0.1 都差）、小波作用在幅值上（差 0.13 dB）、360 万点 + 小波 0.03（T1 −0.16）、360 万点 + 小波 0.05（4000 步 T1 −0.11、T2 +0.12，未采纳）。lambda_geo 0.07 在无小波时（第 1 轮）证否，第 16 轮在有小波的前提下重测。
