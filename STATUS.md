@@ -27,6 +27,8 @@
 - 三个课题 README 的 v3 段落都已写好并镜像进仓库：T1+T2（c89bf4b）、jiangyizhou（d4b73f7）、hyw T1+FLAIR（409df68）。hyw T1+FLAIR：头内 PSNR 两对比度第一（+0.242 / +0.254），逐层 T1 第一 43/47、83/88、90/93，FLAIR 55/61、73/91、94/94，joint−single = +0.093 / +0.018（耦合不伤 FLAIR）。jiangyizhou：FLAIR 第一（+0.216），T1 打平，逐层 FLAIR 94/94、87/120、118/118，T1 18/96、77/121、56/118，joint−single = +0.080 / −0.074。三个课题的图都已探活（HTTP 200）。
 - 已提交：v3 定稿与三表 v3 行（0eaa964）、紧凑图改用 v3（db673f0）、T1+T2 README v3 段落与逐层（c89bf4b）、P-LORAKS T2 入表（2580721）、第 16 轮预注册（12d13d9）、SSIM 诊断与归档辅助脚本（a5dbb8a）。
 - 第 16 轮 T1 通道小波 0.06（`ar16_n24_wav005_T1p06`）按预注册规则通过：T1 35.855 / T2 36.110，对 L1-ESPIRiT 最小余量 +0.292（v3 +0.241），T1 头内 SSIM 0.9481 超过 L1-ESPIRiT 的 0.9471；T1 锐度 0.862，比 v3 离下限更远。暂定为 v3.1，等 geo007 与第 17 轮结果决定是否合并。
+- 第 17 轮 FLAIR 通道小波 0.08（`ar17_tf_hyw_wavC008`，hyw T1+FLAIR）：FLAIR 34.549（v3 34.359，+0.190；对 L1-ESPIRiT +0.444），T1 不变 35.771；FLAIR 头内 SSIM 0.9205（L1 0.9221、ZS-SSDU 0.9235 仍略高）。按规则等 0.12 的结果二选一。
+- 外部结果（并行 AF16 会话，**不是留出**）：它在 jyz AF16 上选出的配方（360 万点、小波 T1 0.10 / FLAIR 0.07、edge-TV 0.10/0.85）原样跑本循环的 jyz AF12：头内 PSNR 36.753 / 36.165、SSIM 0.9480 / 0.9374、HFEN 0.1009 / 0.1002、整图 PSNR 40.071 / 39.539，头内 PSNR、SSIM、整图 PSNR 两通道第一。jyz 是它的调参受试者，所以在 hyw 上交叉检验（第 20 轮）。
 - 两个种子平均（seed 42 与 43 的幅值平均，2 倍算力）：调参对分对比度变体 T1 35.856 → 35.951、T2 36.079 → 36.148；jiangyizhou v3 T1 36.337 → 36.539（对 L1-ESPIRiT 由打平变成 +0.205）、FLAIR 35.935 → 36.049；头内 SSIM 升 0.0006–0.0021。增益与两次运行误差相关系数的预测一致。
 - 仍成立的旧结论：冷启动修复在所有课题 +1.4~2.3 dB；v2 = 冷启动修复 + 120 万点（`ar3_P2_full4k`，34.978 / 35.429）。
 
@@ -34,13 +36,14 @@
 - 对外表述：v3 在调参对与 hyw T1+FLAIR 上头内 PSNR 两对比度第一，留出受试者 T1 打平、FLAIR 第一；SSIM 全部略低；hyw 两课题 T1 锐度门未过。是否按这个口径写。
 - T1 锐度下限 0.874 取自旧冷启动 joint 臂：v3 的颗粒度比与头内 HFEN 都更好，读作去噪。这条门是保持、改成对 GT 的双边带，还是看第 16 轮结果再定。
 - v3 ×2（两种子平均，2 倍算力）是否作为主推结果。目前主推仍是单次 v3，v3 ×2 单列一行。
+- 主推配方的表述（等第 20 轮）：v3 / v3.1 在 hyw 上选、在 jyz 上留出检验；AF16 会话的配方在 jyz 上选、在 hyw 上检验。若后者在 hyw 两个课题上也第一，可以写成"两个受试者互为留出，同一配方族都第一"。
 - 分支：本仓库 `main` 与本线无共同祖先（CE 那条线），是否把 `master` 快进到本分支当本线的 main。
 - 待看的图：`http://localhost:8765/t1t2_af12/t1t2_af12_T1_best_axis0_150.png`、`..._T2_best_axis0_144.png`、`..._T1_best3planes.png`、`..._T2_best3planes.png`。
 
 ## 3. 下一步
 - 第 16 轮（预注册与判定规则见 `autoresearch_t1t2.md` Round 16）：`ar16_n24_wav005_T1p06`（T1 通道小波 0.06，另一通道保持 0.05）、`ar16_n24_wav005_geo007`（edge-TV 0.10 → 0.07），4000 步，`scratchpad/queue16.sh` 在 GPU 4、6 空出后自动起跑（约 01:32、01:53）。替代 v3 的配置要再原样跑两个 T1+FLAIR 课题。
 - 第 17 轮（预注册见程序 Round 17）：FLAIR 通道小波 0.08 / 0.12，只在 hyw T1+FLAIR 上选（`ar17_tf_hyw_wavC008` / `wavC012`），`scratchpad/queue17.sh` 在 GPU 5、7 空出后起跑（约 02:15、02:25）；选中的值再原样跑 jiangyizhou。
-- 第 18 轮与 v3.1 迁移（03:36 起）：并行会话让出 GPU 1–3（GPU 0 仍是它的，约到 04:30），queue19 已停，三项直接开跑：GPU 1 `ar16_tf_jyz_T1p06`、GPU 2 `ar16_tf_hyw_T1p06`、GPU 3 `ar18_tf_hyw_t1flair_v3b_s43`，约 04:45 落账。GPU 4 调参对 v3 seed 43（约 04:00）；GPU 5 在 FLAIR 强度 0.08 跑完后由 `scratchpad/queue20.sh` 起跑 v3.1 seed 43（`ar18_n24_wav005_T1p06_s43`，第 18b 轮）；三个两种子平均都由 `scratchpad/x2_after.sh` 落账后自动打分。
+- GPU 分布（03:58）：GPU 0 `ar20_xv_P6_hyw_t1flair`（第 20 轮，约 05:10）；GPU 1 `ar16_tf_jyz_T1p06`、GPU 2 `ar16_tf_hyw_T1p06`、GPU 3 `ar18_tf_hyw_t1flair_v3b_s43`（约 04:45）；GPU 4 调参对 v3 seed 43（约 04:00）；GPU 5 `ar18_n24_wav005_T1p06_s43`（第 18b 轮，约 04:52）；GPU 6 geo007（将落账）；GPU 7 `ar17_tf_hyw_wavC012`（约 04:20）。GPU 4/6 空出后 `scratchpad/queue21.sh` 起跑 T1 0.06 + FLAIR 0.08 组合（`ar19_tf_hyw_T1p06_wavC008`），`scratchpad/queue22.sh` 在剩下的 GPU 上起跑第 20 轮调参对（`ar20_xv_P6_t1t2`）。三个 x2_after 等 seed 43 落账后打两种子平均，`scratchpad/after_x2.sh` 随后刷新 T1+T2 与 hyw T1+FLAIR 的表。0.12 落账后：按第 17 轮规则选 FLAIR 强度，选中的值原样跑 jyz。
 - 在跑：单对比度消融 `ar15_single_FLAIR_jyz_v3`（GPU 5，约 02:26）、`ar15_single_FLAIR_hyw_v3`（GPU 7，约 02:31）。已落账：分对比度变体 seed 43（与 seed 42 相同到 0.001 dB，但体素级差 25–29%）、jyz T1 单对比度 36.257（joint 比它高 0.08）、360 万点晋级（T1 35.662 / T2 36.233，按规则未采纳）。
 - 某个 T1+FLAIR 课题的两个单对比度落账后：跑该课题 `scripts/extract_gs_volumes.py`，再 `bash $S/refresh_topic.sh <课题> <前缀> T1,FLAIR`；README 的 v3 段落数字取 `python $S/v3_facts.py <课题>`；最后 `bash $S/mirror_topic.sh <课题> <镜像目录> <前缀> T1,FLAIR` 并提交（`S=/data0/congcong/code/GS/Results_20260908/T1T2_AF12_retro/scripts`）。
 - P-LORAKS 剩三个通道：hyw FLAIR 与 jyz T1 在跑（00:38 起，各 7–8 h），jyz FLAIR 随后。`scratchpad/ploraks_finish2.sh` 落一个导入一个，课题齐了自动刷新表、逐层与图（v3 最优层）。刷新后只剩镜像和提交：
