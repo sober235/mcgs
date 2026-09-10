@@ -469,3 +469,19 @@ PSNR; its no-blur clause was checked against the parent, never against the compe
 **`ar13_n36_final_v2tv`** (the final recipe with the v2 edge-TV, λ_geo 0.10 / κ_q 0.85, 1500 iterations; GPU 0
 after the 3.6M promotion) — with the wavelet prior carrying part of the regularisation, less TV may restore the
 edges at little PSNR cost.
+
+### Promotion 3 — the final recipe at full budget (00:55)
+
+| exp | points | iters | T1 | FLAIR | head SSIM | head HFEN | sharp | vs bar (PSNR) |
+|---|---|---|---|---|---|---|---|---|
+| **ar10_n36_wT1010_wFL007_full4k** — **final** | 3.6M | 4000 | 35.397 | **34.664** | 0.9306 / 0.9148 | 0.1345 / 0.1327 | 0.753 / 0.699 | **+0.187 / +0.161** |
+| ar10_wT1010_wFL007_full4k — control | 2.4M | 4000 | **35.434** | 34.605 | **0.9325 / 0.9150** | **0.1307 / 0.1306** | **0.764 / 0.705** | +0.224 / +0.102 |
+| L1-ESPIRiT | — | 100 FISTA | 35.209 | 34.503 | 0.9334 / 0.9201 | 0.1286 / 0.1210 | 0.849 / 0.789 | 0 |
+
+**By the loop's declared number (the smaller head-PSNR margin) the 3.6M recipe is the winner: +0.161 dB against
++0.102 for 2.4M.** It is the MC-GS joint registered in the topic (`gs_joint_ar`); the 2.4M run stays in the table
+as `gs_joint_ar24`. The trade between the two is real and stated: 3.6M buys FLAIR (+0.06) and pays T1 (−0.04)
+and every structural metric (head SSIM, HFEN, sharpness all slightly worse than 2.4M), at 1.5× the points. Neither
+beats L1-ESPIRiT on head SSIM, HFEN or sharpness. In the butterfly crop (axis0 slice 168) the 3.6M arm is second on
+both contrasts, 0.03 dB behind joint TV (T1 40.346 vs 40.372; FLAIR 37.240 vs 37.271), where the 2.4M arm was first
+(40.392 / 37.305). Final figures: `figs/t1flair_v3_af16/t1flair_v3_af16_{T1,FLAIR}_butterflyfinal_axis0_168.png`.
