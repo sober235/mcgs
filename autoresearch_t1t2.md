@@ -774,3 +774,32 @@ started on GPU 6 directly (`ar20_xv_P6_t1t2`). The fast GPUs that free around 04
 L1-ESPIRiT), head SSIM 0.9481 / 0.9178 (L1-ESPIRiT 0.9471 / 0.9221, ZS-SSDU 0.9235 on FLAIR), head HFEN 0.0821 / 0.1057,
 whole-volume PSNR 40.027 / 38.645, now first on FLAIR as well (L1-ESPIRiT 38.607). T1 head SSIM passes L1-ESPIRiT;
 FLAIR head SSIM stays 0.0043 below it.
+
+**Round 17 decision (C012 landed 05:28): the FLAIR-channel wavelet 0.12 is kept.** C012 (`ar17_tf_hyw_wavC012`) reads T1
+35.771 / FLAIR 34.575 against C008's 35.771 / 34.549 and v3b's 35.772 / 34.359. The rule keeps 0.12: it has the higher
+FLAIR head PSNR (+0.216 over v3b) and T1 stays within 0.01. What 0.12 adds over 0.08 is small (+0.026 dB; FLAIR head SSIM
+0.9213 against 0.9205), and it costs FLAIR head HFEN (0.1084 against 0.1056, still better than L1-ESPIRiT's 0.1096) and
+FLAIR sharpness (0.815 against 0.842): the FLAIR strength is near its optimum. FLAIR head SSIM stays below L1-ESPIRiT's
+0.9221 and ZS-SSDU's 0.9235 at both strengths.
+- T1 0.06 + FLAIR 0.08 on hyw T1+FLAIR (`ar19_tf_hyw_T1p06_wavC008`, started early): 35.851 / 34.548. The two changes add
+  without interacting (T1 as with T1 0.06 alone, FLAIR as with 0.08 alone). Reported as a variant, since 0.12 is kept.
+- v3.1 seed 43 on the tuning pair (`ar18_n24_wav005_T1p06_s43`): 35.856 / 36.109 against seed 42's 35.855 / 36.110.
+  v3.1 ×2 (`ar16_n24_wav005_T1p06_x2`): 35.950 / 36.162, head SSIM 0.9489 / 0.9535, head HFEN 0.0827 / 0.0675; on T2 it
+  is still 0.0001 short of L1-ESPIRiT on head SSIM and 0.0019 on head HFEN.
+- Round 20 on hyw T1+FLAIR (`ar20_xv_P6_hyw_t1flair`): 35.952 / 34.557, head SSIM 0.9495 / 0.9202, head HFEN 0.0886 /
+  0.1065, whole-volume PSNR 40.131 / 38.764, T1 sharpness 0.840. It is first on head PSNR on both channels, above v3 and
+  v3.1, and first on T1 head SSIM. It is not first on FLAIR head SSIM (ZS-SSDU 0.9235, L1-ESPIRiT 0.9221), its T1 head
+  HFEN is worse than L1-ESPIRiT's (0.0886 against 0.0867), and its T1 sharpness is far below the floor. Neither
+  pre-registered reading fits: it does not trail v3, and it is not first on head SSIM of every channel. It is reported
+  as it stands; the tuning-pair half is still running.
+
+**Full recipe for the T1+FLAIR topics (v3.2 there):** T1 wavelet 0.06, FLAIR wavelet 0.12, edge-TV 0.07, everything
+else v3. `queue24.sh 0.12` runs it on jiangyizhou, held out (`ar19_tf_jyz_full_C012`), and on hyw T1+FLAIR
+(`ar19_tf_hyw_full_C012`), plus the pre-registered FLAIR-only transfer to jiangyizhou (`ar17_tf_jyz_wavC012`, GPU 7).
+
+### Round 18c — two-seed averaging for v3.2 (pre-registered 2026-09-11 05:28)
+
+Seed-43 runs of the v3.2 recipe start now on GPUs that would otherwise sit idle until the tuning-pair combination
+lands: `ar18_n24_v32_s43` (tuning pair: T1 0.06, edge-TV 0.07), `ar18_tf_hyw_full_C012_s43` and
+`ar18_tf_jyz_full_C012_s43`. Each two-seed average is scored once both of its seeds have landed (`x2_after2.sh`). If
+the combination fails its rule, these runs are reported as variants of a recipe that was not adopted.
