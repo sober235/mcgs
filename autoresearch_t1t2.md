@@ -600,3 +600,25 @@ of the ground truth's gradient magnitude inside the head (`t1t2_af12_retro/scrip
 - Prediction: loosening a prior adds little variance and costs correlation, so geo007 is expected to lower
   head SSIM even if it clears the sharpness floor. The mid-scale variance deficit reads as a representation
   limit, and capacity (the 3.6M promotion) is the lever for it.
+
+### Round 17 — the FLAIR channel's wavelet strength (pre-registered 2026-09-11 01:13, before any run)
+
+Diagnosis on hyw T1+FLAIR (`t1t2_af12_retro/scripts/ssim_topic.py`, `bias_by_intensity.py`):
+- 74 % of v3's FLAIR head-SSIM gap to L1-ESPIRiT (0.9169 against 0.9221) sits in the flattest fifth of the
+  head, and there it is the luminance term. The loss is concentrated in the darkest intensity decile
+  (suppressed CSF). v3's local mean there is unbiased on average (−0.14 % of max against L1's −0.51 %) but
+  fluctuates, and the luminance term penalises the fluctuation (0.937 against 0.969). The wavelet strength
+  does not touch it: 0.03 gives 0.940 there, 0.05 gives 0.937.
+- The wavelet strength acts on correlation instead. From 0.03 to 0.05, FLAIR head SSIM rose 0.0058, spread
+  evenly over the five gradient bins and entirely through the contrast-structure term (local correlation
+  +0.002 to +0.020), with head PSNR +0.30 dB. On T2 the same step gave +0.0010 and +0.03 dB, so FLAIR is still
+  on the rising side at 0.05. L1-ESPIRiT's own FLAIR λ, selected on hyw, is 3.3 times its T1 λ.
+
+Two single deltas from v3 on hyw T1+FLAIR, 4000 iterations, T1 keeping 0.05: FLAIR-channel strength 0.08
+(`ar17_tf_hyw_wavC008`) and 0.12 (`ar17_tf_hyw_wavC012`), launched by `queue17.sh` on GPUs 5 and 7 as they free.
+
+Rule, fixed now: the strength with the higher FLAIR head PSNR is kept if it beats v3b's 34.359 by more than
+0.005 dB and T1 head PSNR does not fall more than 0.01 dB below 35.772; otherwise 0.05 stays. Head SSIM is
+reported alongside. The kept value then runs unchanged on jiangyizhou and is reported whatever it shows, the
+protocol L1-ESPIRiT received (a per-contrast λ selected on hyw, transferred unchanged). The dark-CSF
+luminance deficit is expected to remain.
