@@ -502,3 +502,8 @@ the stronger the wavelet prior, the less edge-TV is needed. **P6 = the final rec
 its promotion **`ar14_n36_v2tv_full4k`** (4000 iterations, volumes, GPU 0) and the next TV point down,
 **`ar14_n36_v2tv_lam007`** (λ_geo 0.07, 1500, GPU 1). The seed repeat of the superseded recipe was stopped
 (`superseded`); the single-contrast arms at P6 follow the old-recipe singles on GPUs 2 and 3.
+- `ar14_n36_v2tv_lam007` (λ_geo 0.07): 35.440 / 34.660, **−0.075 / −0.064 below P6** (λ_geo 0.10); with 0.16
+  (κ 0.90) also below, **the edge-TV strength is bracketed at 0.10** under the P6 wavelet prior. GPU 1 now runs
+  **`ar16_P6_seed43_full4k`**, the seed floor at the final recipe and budget.
+- `ar11_n36_singleT1_wav010_full4k` (single T1, old λ 0.16 / κ 0.90 recipe, 4000): 35.299 — the joint at the same
+  recipe reads 35.397 (joint − single = +0.098). The single arms at P6 are running (`ar15_P6_single{T1,FLAIR}_full4k`).
