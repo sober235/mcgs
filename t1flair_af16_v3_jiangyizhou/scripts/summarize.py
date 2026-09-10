@@ -18,9 +18,10 @@ ARC = Path("/data0/congcong/code/GS/mcgs_af16_wt/results_arc")
 
 COLS = ["psnr", "ssim", "nmse", "hfen", "head_psnr", "head_ssim", "head_hfen",
         "sharp", "grain", "grain_ratio"]
-ORDER = ["zf", "cgsense", "cssense", "zsssdu", "dip", "inr", "gs_single", "gs_joint"]
+ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "zsssdu", "dip", "inr", "gs_single", "gs_joint"]
 LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "zsssdu": "ZS-SSDU",
-         "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint"}
+         "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
+         "cssense_o200": "CS-SENSE (TV, converged)", "jcssense": "joint CS-SENSE (JTV)", "l1espirit": "L1-ESPIRiT"}
 
 
 def main():
@@ -34,6 +35,26 @@ def main():
                 rows.append({"contrast": c, "method": r["method"],
                              **{k: r.get(k) for k in COLS},
                              "seconds": r.get("seconds")})
+
+    # classical arms revisited (2026-09-10, ported from the AF12 topics' audit): converged TV (200 outer
+    # ADMM), L1-wavelet ESPIRiT (BART pics, 100 FISTA) and joint vectorial TV (200 outer), each with
+    # lambda SWEPT ON THIS SUBJECT against the ground truth -- the same privilege the MC-GS
+    # autoresearch loop has -- and the best lambda per contrast kept (scripts/run_classical_revisited.sh).
+    FAM = [("cssense_o200", "logs/classical_{c}_o200_lam*.json"),
+           ("l1espirit", "logs/l1espirit_{c}_lam*.json"),
+           ("jcssense", "logs/jcssense_o200_lam*.json")]
+    for c in ("T1", "FLAIR"):
+        for key, pat in FAM:
+            cands = []
+            for f in sorted(R.glob(pat.format(c=c))):
+                for r in json.load(open(f)).get("rows", []):
+                    if r.get("contrast", c) == c and r.get("head_psnr") is not None:
+                        cands.append(r)
+            if cands:
+                b = max(cands, key=lambda r: r["head_psnr"])
+                rows.append({"contrast": c, "method": key, **{k: b.get(k) for k in COLS},
+                             "seconds": b.get("seconds"), "lam": b.get("lam"), "n_lambda": len(cands),
+                             "lams": sorted(float(r.get("lam")) for r in cands if r.get("lam") is not None)})
 
     jp = ARC / "t1flair_v3_af16_joint_score.json"
     if jp.exists():
