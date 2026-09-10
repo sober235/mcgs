@@ -756,3 +756,15 @@ jiangyizhou (held out).
 **Schedule, 04:23.** `queue22.sh` never launched the Round 20 tuning-pair run: GPUs 6 and 7 carry another user's
 696 MiB process permanently, and its "no process on the GPU" check could not pass there. It was stopped and the run
 started on GPU 6 directly (`ar20_xv_P6_t1t2`). The fast GPUs that free around 04:45 are kept for the combination runs.
+
+**Round 16 transfers of T1p06 (reported whatever they show; landed by 04:42).**
+- jiangyizhou, held out (`ar16_tf_jyz_T1p06`): T1 36.458 / FLAIR 35.936 against v3's 36.337 / 35.935, i.e. T1 +0.121 dB
+  and FLAIR unchanged; over L1-ESPIRiT +0.124 / +0.216, so the T1 tie becomes a lead in a single run. Head SSIM
+  0.9445 / 0.9346 (L1-ESPIRiT 0.9443 / 0.9368, converged TV 0.9459 on T1), head HFEN 0.0980 / 0.0995, T1 sharpness 0.884
+  (above the 0.874 floor on this subject).
+- hyw T1+FLAIR (`ar16_tf_hyw_T1p06`): T1 35.850 / FLAIR 34.359 against v3's 35.772 / 34.359 (T1 +0.078, FLAIR
+  unchanged); head SSIM 0.9482 / 0.9168 (T1 above L1-ESPIRiT's 0.9471); T1 sharpness 0.863, below the floor.
+- The T1-channel strength behaves the same on all three topics: T1 +0.08 to +0.12 dB with T1 head SSIM up, the second
+  contrast unchanged.
+- Round 18 seed 43 of v3 on hyw T1+FLAIR (`ar18_tf_hyw_t1flair_v3b_s43`): 35.772 / 34.357 against seed 42's 35.772 /
+  34.359; the two-seed average is being scored.
