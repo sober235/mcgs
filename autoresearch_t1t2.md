@@ -541,3 +541,26 @@ P-LORAKS included), v3 is first on 42/47 transverse, 83/88 coronal and 90/93 sag
 slices and on every full-brain T2 slice. Single-contrast v3: T1 35.679 / T2 36.227 — above L1-ESPIRiT on
 both by itself; joint minus single = +0.09 (T1) / −0.12 (T2). The margin comes from the representation
 with the wavelet prior and the larger cloud; the coupling redistributes accuracy between the contrasts.
+
+### Round 16 — the remaining gaps (pre-registered 2026-09-11 00:50, before any run)
+
+v3 misses one pre-registered gate: T1 sharpness 0.867 is below the 0.874 floor on the tuning pair, and
+0.869 on hyw T1+FLAIR. It also trails L1-ESPIRiT on head SSIM, by 0.0003 / 0.0005 on the tuning pair and
+by up to 0.005 on the T1+FLAIR topics. On jiangyizhou T1 its head-PSNR margin is a tie (+0.003).
+Two single deltas from v3, 4000 iterations each, on the tuning pair:
+
+| exp | change vs v3 | aimed at |
+|---|---|---|
+| `ar16_n24_wav005_T1p06` | wavelet strength on the T1 channel 0.05 → 0.06; the second channel keeps 0.05 | T1 head SSIM and the T1 margin. T1 is the plain channel in all three topics, so the value transfers without a per-topic choice (per-contrast 0.06 / 0.03 gave T1 35.856, head SSIM 0.9481) |
+| `ar16_n24_wav005_geo007` | edge-TV weight lambda_geo 0.10 → 0.07 | the T1 sharpness floor: the wavelet term now does part of the smoothing that edge-TV did alone |
+
+Decision rules, fixed now:
+- T1p06 replaces v3 (as v3.1) only if, on the tuning pair, the minimum margin over L1-ESPIRiT rises above
+  v3's +0.241 by more than 0.005 dB (the largest seed spread measured), neither channel's head PSNR falls
+  by more than 0.01 dB, and T1 head SSIM rises.
+- geo007 replaces v3 only if T1 sharpness reaches the 0.874 floor while head PSNR stays first on both
+  contrasts (margin over L1-ESPIRiT above zero on each). Otherwise it is recorded as the measured price of
+  the sharpness gate.
+- If both qualify, their combination is run once at 4000 iterations before anything is adopted.
+- Whatever replaces v3 is then run unchanged on the two T1+FLAIR topics and reported whatever they show;
+  jiangyizhou stays out of every decision above.
