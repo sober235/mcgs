@@ -802,6 +802,20 @@ class JointTrainer:
         edge_kappa = float(loss_cfg.get("edge_kappa", 10.0))
         # R_vtv: vectorial (joint) TV — symmetric edge-LOCATION coupling (this work). Default 0.
         lambda_vtv = float(loss_cfg.get("lambda_vtv", 0.0))
+        # R_wav: L1 sparsity of the 3-D wavelet detail coefficients of the rendered volumes -- the
+        # prior behind L1-wavelet ESPIRiT (losses/wavelet_l1.py). Default 0 => no-op, nothing imported,
+        # no random numbers drawn, so a run without it is bit-identical to before.
+        lambda_wav = float(loss_cfg.get("lambda_wav", 0.0))
+        if lambda_wav > 0:
+            from losses.wavelet_l1 import wavelet_l1
+            wav_name = str(loss_cfg.get("wav_name", "db2"))
+            wav_levels = int(loss_cfg.get("wav_levels", 3))
+            wav_eps = float(loss_cfg.get("wav_eps", 0.0))
+            wav_spin = bool(loss_cfg.get("wav_cycle_spin", True))
+            wav_on = str(loss_cfg.get("wav_on", "complex"))
+            wav_gen = torch.Generator().manual_seed(int(train_cfg.get("seed", 42)) + 7919)
+            print(f"[wavelet] lambda={lambda_wav} wavelet={wav_name} levels={wav_levels} eps={wav_eps} "
+                  f"cycle_spin={wav_spin} on={wav_on}")
         loss_type = loss_cfg.get("loss_type", "l2")
         del loss_type   # placeholder if l1 added later
 
@@ -914,6 +928,14 @@ class JointTrainer:
             else:
                 l_vtv = torch.tensor(0.0, device=self.device)
 
+            # R_wav: wavelet sparsity of both rendered volumes, cycle-spun (BART pics -l1 analogue).
+            if lambda_wav > 0:
+                sh = tuple(torch.randint(0, 2 ** wav_levels, (3,), generator=wav_gen).tolist()) if wav_spin else None
+                l_wav = wavelet_l1([vol_p, vol_c], wav_name, wav_levels, wav_eps, sh, wav_on)
+                loss = loss + lambda_wav * l_wav
+            else:
+                l_wav = torch.tensor(0.0, device=self.device)
+
             # R_sp: keep the contrast-private residual amplitude sparse (localized).
             if lambda_private_sp > 0 and self.model.has_private:
                 loss = loss + lambda_private_sp * self.model.get_private_density().abs().mean()
@@ -937,6 +959,7 @@ class JointTrainer:
                 "loss/R_dtv": float((lambda_dtv * l_dtv).detach().item()),
                 "loss/R_edge": float((lambda_edge * l_edge).detach().item()),
                 "loss/R_vtv": float((lambda_vtv * l_vtv).detach().item()),
+                "loss/R_wav": float((lambda_wav * l_wav).detach().item()),
             }
             total_loss_value = sum(components.values()) + 1e-12
             ratios = {k: v / total_loss_value for k, v in components.items()}
@@ -994,6 +1017,7 @@ class JointTrainer:
                        f"dc_p={l_dc_p.item():.4e} dc_c={l_dc_c.item():.4e} "
                        f"R_geo={l_geo.item():.4e} R_dtv={l_dtv.item():.4e} "
                        f"R_edge={l_edge.item():.4e} R_vtv={l_vtv.item():.4e} "
+                       f"R_wav={l_wav.item():.4e} "
                        f"balance_violation={balance_violation}")
                 print(msg)
                 log_f.write(msg + "\n"); log_f.flush()
