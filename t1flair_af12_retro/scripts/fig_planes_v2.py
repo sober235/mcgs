@@ -20,7 +20,7 @@ ap.add_argument("--prefix", required=True, help="figure name prefix and figs sub
 ap.add_argument("--slices", default=None, help="axis0,axis1,axis2 indices; default = per-plane best from logs/best_slice_v2.json")
 ap.add_argument("--ours", default="gs_joint_v2")
 ap.add_argument("--tag", default="best3planes")
-ap.add_argument("--exclude", default="gs_joint", help="comma list of arms to leave out; the superseded joint arm by default (v2 is the proposed method)")
+ap.add_argument("--exclude", default="gs_joint,gs_single", help="comma list of arms to leave out; the superseded joint and single arms by default (the v2 pair is the proposed method and its ablation)")
 args = ap.parse_args()
 
 import matplotlib
@@ -35,7 +35,7 @@ ANAT = {0: "transverse", 1: "coronal", 2: "sagittal"}
 ORDER = ["zf", "cgsense", "cssense", "zsssdu", "dip", "inr", "gs_single", "gs_joint", "gs_single_v2", "gs_joint_v2"]
 LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV)", "zsssdu": "ZS-SSDU",
          "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
-         "gs_single_v2": "MC-GS single v2", "gs_joint_v2": "MC-GS joint (ours)"}
+         "gs_single_v2": "MC-GS single (ours)", "gs_joint_v2": "MC-GS joint (ours)"}
 
 
 def load(m, c):

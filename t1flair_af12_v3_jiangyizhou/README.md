@@ -29,6 +29,7 @@ whole-volume SSIM misleads on this data).
 | CS-SENSE | **39.395** | 0.9523 | **35.762** | **0.9429** | 2 min |
 | ZS-SSDU | 39.357 | **0.9577** | 35.724 | 0.9422 | 22 min |
 | MC-GS joint v2 (transfer check, see below) | 38.949 | 0.9194 | 35.520 | 0.9321 | 42 min |
+| MC-GS single v2 (ablation) | 38.601 | 0.9205 | 35.209 | 0.9260 | 40 min |
 | MC-GS joint | 36.349 | 0.8703 | 34.160 | 0.9169 | 29 min |
 | MC-GS single | 35.529 | 0.8297 | 33.799 | 0.9032 | 29 min |
 | CG-SENSE | 35.082 | 0.7562 | 33.514 | 0.8981 | 2 min |
@@ -40,7 +41,8 @@ whole-volume SSIM misleads on this data).
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| CS-SENSE | 38.773 | 0.9416 | **35.084** | 0.9307 | 2 min |
+| MC-GS single v2 (ablation) | 38.503 | 0.8966 | **35.101** | 0.9216 | 40 min |
+| CS-SENSE | 38.773 | 0.9416 | 35.084 | 0.9307 | 2 min |
 | MC-GS joint v2 (transfer check, see below) | 38.584 | 0.9082 | 35.056 | 0.9238 | 42 min |
 | ZS-SSDU | **38.807** | **0.9563** | 35.034 | **0.9353** | 36 min |
 | CG-SENSE | 35.704 | 0.7782 | 33.957 | 0.9032 | 2 min |
@@ -118,6 +120,11 @@ Gaussians it can pin down is roughly the same, and an absolute count near 1.2M i
 transferable setting. The honest claim for the recipe is therefore: first on the tuning
 subject in both pairings, second on this held-out subject, +1.4 / +1.7 dB over the original
 joint arm everywhere.
+
+Single-contrast arms of the same recipe (`ar9_single_{T1,FLAIR}_v2_jyz`): T1 35.209 / FLAIR 35.101
+head PSNR. On T1 the joint model is +0.31 dB above its ablation; on FLAIR the single arm is
++0.045 dB above the joint one and edges CS-SENSE by 0.017 dB — the same order as the run-to-run
+floor, so it is listed, not claimed. The compact figures show only the v2 pair.
 
 ## Regenerating
 

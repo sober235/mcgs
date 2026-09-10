@@ -333,3 +333,9 @@ leads: at 6.6 % sampling the learned denoiser's prior is worth more than what th
 representation recovers from the acquired points. The AF12 recipe was not re-tuned for AF16 here
 (the parallel session runs its own loop on jyz AF16, branch `autoresearch-jyz-af16`); the honest
 scope of the claim stays AF12 on the tuning subject.
+
+**Single-contrast v2 arms on the T1+FLAIR topics (12:55–13:40, `ar9_*`).** hyw FLAIR 33.367 (joint v2
+33.492, +0.13 for joint); jyz T1 35.209 (joint 35.520, +0.31) and FLAIR 35.101 (joint 35.056, −0.05;
+the single FLAIR arm edges CS-SENSE 35.084 by 0.017 dB, repeat-floor order, listed not claimed).
+Together with the T1+T2 pair (+0.30 / −0.25): the joint model is ahead of its ablation on five of six
+channels, always on T1, and the shared geometry costs at most 0.25 dB on the easier contrast.

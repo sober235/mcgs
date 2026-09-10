@@ -21,7 +21,10 @@ JOBS = [("t1flair_af12_joint", "gs_joint", [("recT1", "T1"), ("recFL", "FLAIR")]
         ("t1flair_af12_single_T1", "gs_single", [("recT1", "T1")], [], []),
         ("t1flair_af12_single_FLAIR", "gs_single", [("recT1", "FLAIR")], [], []),
         # v2 = the autoresearch recipe found on the T1+T2 pair, applied here UNCHANGED as a transfer check
-        ("ar5_tf_hyw_t1flair", "gs_joint_v2", [("recT1", "T1"), ("recFL", "FLAIR")], [], [])]
+        ("ar5_tf_hyw_t1flair", "gs_joint_v2", [("recT1", "T1"), ("recFL", "FLAIR")], [], []),
+        # single-contrast arms of the v2 recipe (ablation; the hyw T1 one is shared with the T1+T2 topic)
+        ("ar6_single_T1_v2", "gs_single_v2", [("recT1", "T1")], [], []),
+        ("ar9_single_FLAIR_v2_hyw", "gs_single_v2", [("recT1", "FLAIR")], [], [])]
 
 
 def main():

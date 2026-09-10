@@ -12,7 +12,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--contrast", required=True, choices=["T1", "FLAIR"])
 ap.add_argument("--axis", type=int, required=True, choices=[0, 1, 2])
 ap.add_argument("--index", type=int, required=True)
-ap.add_argument("--methods", default="zf,cgsense,cssense,zsssdu,dip,inr,gs_single,gs_joint_v2")   # the superseded joint arm is left out: v2 is the proposed method
+ap.add_argument("--methods", default="zf,cgsense,cssense,zsssdu,dip,inr,gs_single_v2,gs_joint_v2")   # superseded joint/single arms left out: the v2 pair is the proposed method and its ablation
 ap.add_argument("--tag", default="best")
 args = ap.parse_args()
 
@@ -27,7 +27,7 @@ ANAT = {0: "transverse (axial)", 1: "coronal", 2: "sagittal"}   # adjudicated 20
 LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV)",
          "zsssdu": "ZS-SSDU", "dip": "3D-DIP", "inr": "3D-INR",
          "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
-         "gs_single_v2": "MC-GS single v2", "gs_joint_v2": "MC-GS joint (ours)"}
+         "gs_single_v2": "MC-GS single (ours)", "gs_joint_v2": "MC-GS joint (ours)"}
 
 
 def load(m, c):

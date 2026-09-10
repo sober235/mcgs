@@ -40,6 +40,7 @@ this pair than on T1+T2.
 | method | PSNR | SSIM | head PSNR | head SSIM |
 |---|---|---|---|---|
 | **MC-GS joint v2** (transfer check, see below) | 37.844 | 0.8835 | **33.492** | 0.9023 |
+| MC-GS single v2 (ablation) | 37.639 | 0.8708 | 33.367 | 0.8975 |
 | ZS-SSDU | 38.012 | 0.9525 | 33.269 | **0.9235** |
 | CS-SENSE | 37.897 | 0.9346 | 33.252 | 0.9127 |
 | CG-SENSE | 34.616 | 0.7328 | 32.192 | 0.8834 |
@@ -92,6 +93,12 @@ The transfer holds on head PSNR (+0.34 dB on T1, +0.22 dB on FLAIR over the best
 original joint arm) and on head HFEN, and does not hold on head SSIM, where ZS-SSDU keeps a
 0.02 lead on FLAIR. Figures regenerated with the tenth column
 (`figures/t1flair_af12_{T1,FLAIR}_plane{0,1,2}.png`).
+
+Single-contrast arms of the same recipe (`ar6_single_T1_v2`, shared with the T1+T2 topic, and
+`ar9_single_FLAIR_v2_hyw`): T1 34.680 / FLAIR 33.367 head PSNR. The joint model is +0.27 / +0.13 dB
+above its own single-contrast ablation on this pairing, i.e. here the shared geometry helps both
+channels. The compact figures (`fig_slice.py`, `fig_planes_v2.py`) show only the v2 pair,
+labelled "MC-GS joint (ours)" and "MC-GS single (ours)"; the superseded arms stay in the table.
 
 ## Regenerating
 
