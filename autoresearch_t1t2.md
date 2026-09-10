@@ -622,3 +622,30 @@ Rule, fixed now: the strength with the higher FLAIR head PSNR is kept if it beat
 reported alongside. The kept value then runs unchanged on jiangyizhou and is reported whatever it shows, the
 protocol L1-ESPIRiT received (a per-contrast λ selected on hyw, transferred unchanged). The dark-CSF
 luminance deficit is expected to remain.
+
+### Round 18 — two-seed averaging (pre-registered 2026-09-11 01:53, before the two new runs)
+
+Seed 42 and seed 43 reconstructions differ voxel by voxel by 25–43 % of the error norm (error correlation
+0.91–0.97), while their global scores agree to 0.002 dB. Part of the error is seed-specific, so averaging
+runs removes it. Measured on the two pairs that already have both seeds (frozen head-only scorer; HFEN through
+an FFT convolution with the same kernel, within 0.0002 of the logged values), head PSNR / head SSIM:
+
+| pair | channel | seed 42 | seed 43 | average of the two | gain |
+|---|---|---|---|---|---|
+| tuning pair, per-contrast variant | T1 | 35.856 / 0.9481 | 35.856 / 0.9481 | 35.951 / 0.9489 | +0.095 dB / +0.0008 |
+| | T2 | 36.079 / 0.9521 | 36.079 / 0.9521 | 36.148 / 0.9527 | +0.069 dB / +0.0006 |
+| jiangyizhou, v3 | T1 | 36.337 / 0.9428 | 36.338 / 0.9428 | 36.539 / 0.9449 | +0.202 dB / +0.0021 |
+| | FLAIR | 35.935 / 0.9346 | 35.937 / 0.9347 | 36.049 / 0.9360 | +0.114 dB / +0.0014 |
+
+The gains are what the error correlation ρ predicts for an average of two, −10 log10((1 + ρ)/2): +0.096 for
+ρ 0.956 and +0.202 for ρ 0.909. Head HFEN improves on all four channels. On jiangyizhou T1 the tie with
+L1-ESPIRiT (36.334) becomes +0.205 dB, and head SSIM passes L1-ESPIRiT's 0.9443.
+
+Definition, fixed now: "v3 ×2" is the voxelwise mean of the magnitudes of two v3 runs that differ only in the
+seed (42 and 43), at twice the compute of v3. It is reported as its own row next to single-run v3, which stays
+the headline arm. Two runs complete it: `ar18_n24_wav005_full4k_s43` (tuning pair) and
+`ar18_tf_hyw_t1flair_v3b_s43` (hyw T1+FLAIR), launched by `queue18.sh` as GPUs free; jiangyizhou's seed 43
+exists (`ar13_tf_jyz_t1flair_v3b_s43`). No larger ensemble is run. The same model predicts +0.15 dB (tuning
+T1) to +0.31 dB (jiangyizhou T1) for four seeds, at four times the compute. The classical arms are
+deterministic, so averaging does nothing for them. ZS-SSDU, 3D-DIP and 3D-INR also depend on a seed and would
+gain from the same averaging, which was not run for them.
