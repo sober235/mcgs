@@ -389,3 +389,37 @@ DIP, INR, CG-SENSE, ZF; sweep variants in recon/ are ignored). Result: MC-GS joi
 0 of the full-brain slices in every plane of every topic; L1-ESPIRiT leads everywhere, including
 the slices where v2 peaks (hyw T1 slice 150: L1-ESPIRiT 37.02 vs v2 36.29). The compact figures
 were regenerated with those columns and the true ranks.
+
+### Round 11 — wavelet sparsity on the render (2026-09-10, 17:50–20:30), 1500-iteration screens, single deltas from P2
+
+L1-ESPIRiT's lead says the strongest classical prior on this data is wavelet sparsity, while MC-GS
+regularises with edge-TV. Round 11 adds that prior to the MC-GS objective (`loss.lambda_wav`,
+`paired_gs/losses/wavelet_l1.py`: per-voxel L1 of the 3-D db2 detail coefficients of the rendered
+complex volumes, 3 levels, periodic boundary, cycle spinning). λ was calibrated against the TV
+term on the v2 reconstruction: 0.03 is about 1.6 times the TV term.
+
+Head PSNR T1 / T2. Parent P2 at 1500 = 35.007 / 35.022; L1-ESPIRiT at its full budget = 35.530 / 35.818.
+
+| exp | change vs P2 | T1 | T2 | head SSIM | head HFEN | sharp | verdict |
+|---|---|---|---|---|---|---|---|
+| `ar11_wav001_tv` | + wavelet 0.01 | 35.179 | 35.085 | 0.9424 / 0.9466 | 0.0824 / 0.0689 | 0.889 / 0.835 | discard (dominated by 0.03) |
+| `ar11_wav003_tv` | + wavelet 0.03 | 35.373 | 35.120 | 0.9456 / 0.9474 | 0.0813 / 0.0704 | 0.873 / 0.821 | keep, promoted (`ar12_wav003_full4k`) |
+| `ar11_wav005_tv` | + wavelet 0.05 | 35.447 | 35.082 | 0.9471 / 0.9472 | 0.0825 / 0.0732 | 0.859 / 0.809 | best T1 at 1.2M; T2 past its peak |
+| `ar11_wav01_tv` | + wavelet 0.1 | 35.350 | 34.834 | 0.9471 / 0.9446 | 0.0900 / 0.0827 | 0.830 / 0.781 | discard (over-regularised) |
+| `ar11_wav003_notv` | wavelet 0.03 replacing TV | 34.306 | 34.770 | 0.9227 / 0.9409 | 0.0816 / 0.0658 | 1.017 / 0.929 | discard (under-regularised, sharper than GT) |
+| `ar11_n24_wav003_tv` | **2.4M points + wavelet 0.03** | **35.513** | **35.878** | 0.9439 / 0.9514 | 0.0834 / 0.0670 | 0.881 / 0.835 | **keep, promoted (`ar12_n24_wav003_full4k`)** |
+
+Readings.
+
+- Wavelet sparsity on top of edge-TV is the first new lever since capacity: +0.37 / +0.10 dB at
+  λ 0.03 and +0.44 / +0.06 at 0.05, with head SSIM up on both contrasts. Replacing TV by it is
+  worse, so on this data the two priors are complementary rather than substitutes.
+- **It removes the T1 capacity ceiling.** Without it, 2.4M points cost T1 0.44 dB (34.569, the
+  extra points overfit the acquired 8.5 %). With it, T1 at 2.4M is 35.513, so the point count can
+  follow T2 (35.484 → 35.878). At 1500 iterations this configuration sits 0.02 dB below
+  L1-ESPIRiT's full-budget T1 and 0.06 dB above its T2. Head HFEN is better than P2 on both
+  contrasts (0.0834 / 0.0670 vs 0.0844 / 0.0690), head SSIM is higher on both, and sharpness
+  stays above the program floor, so there is no blur trade.
+- Pending: wavelet 0.1 replacing TV, magnitude mode, 2.4M + wavelet 0.05, and the two
+  4000-iteration promotions. Nothing is claimed until the promotions land: at 1.2M, T1 was flat
+  from 1500 to 4000 and T2 gained 0.4 dB, but at 2.4M the budget effect is unmeasured.
