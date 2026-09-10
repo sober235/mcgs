@@ -39,9 +39,10 @@ this pair than on T1+T2.
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| **MC-GS joint v3** | 38.588 | 0.8857 | **34.359** | 0.9169 | 60 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | **38.645** | 0.8863 | **34.417** | 0.9178 | 122 min |
+| **MC-GS joint v3** | 38.588 | 0.8857 | 34.359 | 0.9169 | 60 min |
 | MC-GS single v3 | 38.518 | 0.8764 | 34.341 | 0.9158 | 136 min |
-| L1-ESPIRiT | **38.607** | 0.9445 | 34.105 | 0.9221 | 4 min |
+| L1-ESPIRiT | 38.607 | 0.9445 | 34.105 | 0.9221 | 4 min |
 | joint CS-SENSE (JTV) | 38.544 | 0.9447 | 33.929 | 0.9196 | 7 min |
 | CS-SENSE (TV, converged) | 38.333 | 0.9414 | 33.873 | 0.9195 | 4 min |
 | MC-GS joint v2 | 37.844 | 0.8835 | 33.492 | 0.9023 | 39 min |
@@ -189,6 +190,10 @@ cd $F && CONFIG=configs/t1flair_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t1t2
 - **Joint versus single**: the joint model is +0.093 dB on T1 (the single-contrast T1 is the T1+T2 topic's
   run on the same acquisition) and +0.018 on FLAIR. Unlike the T1+T2 pair and jiangyizhou, the coupling
   costs the second contrast nothing here.
+- **Two seeds averaged** (v3 ×2, program Round 18; its own table row, at twice the compute): head PSNR 35.897 /
+  34.417, +0.367 / +0.312 dB over L1-ESPIRiT; head SSIM 0.9481 / 0.9178 (T1 above L1-ESPIRiT's 0.9471, FLAIR still
+  below its 0.9221 and ZS-SSDU's 0.9235); whole-volume PSNR 40.027 / 38.645, first on both. Single-run v3 stays the
+  headline arm.
 - **Gate**: T1 sharpness 0.869, below the pre-registered 0.874 floor by 0.005; reported as missed.
 - **FLAIR head SSIM** (program, "SSIM diagnosis" and Round 17): three quarters of the gap to L1-ESPIRiT sits in
   the flattest fifth of the head, in the darkest decile (suppressed CSF), where v3's local mean fluctuates. The
