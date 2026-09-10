@@ -455,3 +455,7 @@ Readings.
 - The jiangyizhou transfer check of the 2.4M recipe was queued speculatively and removed before it
   trained (the promotion showed the recipe is not final); the hyw T1+FLAIR one continues, as a
   measurement of the wavelet term on FLAIR.
+- That hyw T1+FLAIR run (`ar13_tf_hyw_t1flair_v3`, 2.4M + wavelet 0.03, 4000 iterations): T1 35.471 /
+  FLAIR 34.061 against L1-ESPIRiT 35.530 / 34.105 (−0.06 / −0.04), and +0.52 / +0.57 over v2's
+  transfer run; the wavelet term closes most of the FLAIR gap. The candidate recipe (2.4M + 0.05) is
+  now run unchanged on the same topic (`ar13_tf_hyw_t1flair_v3b`), jiangyizhou next.
