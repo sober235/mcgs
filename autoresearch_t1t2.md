@@ -483,3 +483,19 @@ Readings.
   contrast-agnostic shared strength (2.4M + wavelet 0.05, its promotion `ar12_n24_wav005_full4k`
   pending) is used: FLAIR has no tuned per-contrast value of its own, and L1-ESPIRiT's own FLAIR
   λ is five times its T2 λ, so "contrast channel 0.03" would not be a like-for-like transfer.
+
+### Transfer checks of the contrast-agnostic recipe (2.4M + shared wavelet 0.05, 4000 iterations, unchanged)
+
+| topic | channel | recipe | L1-ESPIRiT | margin | v2 (previous recipe) | head SSIM recipe / L1 | head HFEN recipe / L1 |
+|---|---|---|---|---|---|---|---|
+| hyw T1+FLAIR (`ar13_tf_hyw_t1flair_v3b`) | T1 | **35.772** | 35.530 | **+0.242** | 34.950 | 0.9470 / 0.9471 | **0.0828** / 0.0867 |
+| | FLAIR | **34.359** | 34.105 | **+0.254** | 33.492 | 0.9169 / 0.9221 | **0.1065** / 0.1096 |
+| jiangyizhou T1+FLAIR, held out (`ar13_tf_jyz_t1flair_v3b`) | T1 | 36.337 | 36.334 | +0.003 (tie) | 35.520 | 0.9428 / 0.9443 | **0.0987** / 0.1034 |
+| | FLAIR | **35.935** | 35.720 | **+0.215** | 35.056 | 0.9346 / 0.9368 | **0.0994** / 0.1002 |
+
+- The recipe transfers: first on head PSNR on three of four channels and tied on the fourth (jyz T1,
+  +0.003 dB, inside the 0.003–0.005 dB seed-repeat floor measured at P2), first on head HFEN on all
+  four, and 0.8–0.9 dB above the previous recipe everywhere. Head SSIM trails L1-ESPIRiT by 0.0001
+  to 0.005.
+- The jyz T1 tie is measured again with seed 43 (`ar13_tf_jyz_t1flair_v3b_s43`) to put a repeat spread
+  on this subject next to the +0.003.
