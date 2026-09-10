@@ -16,6 +16,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--contrast", required=True, choices=["T1", "T2"])
 ap.add_argument("--methods", default="zf,cgsense,cssense,zsssdu,dip,inr,gs_single,gs_joint,gs_joint_v2")
 ap.add_argument("--out", default=None)
+ap.add_argument("--vmax_q", type=float, default=0.95)   # grey window = this quantile of the GT slice INSIDE the head; 0.999 over the whole slice was the old, darker window
 args = ap.parse_args()
 
 import matplotlib
@@ -78,7 +79,8 @@ def main():
     for ip, pname in enumerate([f"axis{a} mid-slice = {ANAT[a]}" for a in range(3)]):
         fig, axes = plt.subplots(2, ncol, figsize=(3.4 * ncol, 7.6))
         gp = planes(gt)[ip]
-        vmax = float(np.quantile(gp, 0.999))
+        head = gp > 0.05 * float(np.quantile(gp, 0.999))          # same head rule as the scorer
+        vmax = float(np.quantile(gp[head], args.vmax_q)) if head.any() else float(np.quantile(gp, 0.999))
         axes[0, 0].imshow(gp.T, cmap="gray", vmin=0, vmax=vmax, origin="lower")
         axes[0, 0].set_title(f"Ground truth ({c})", fontsize=12, fontweight="bold")
         # the otherwise-empty cell carries the sampling pattern the whole row is conditioned on
