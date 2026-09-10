@@ -803,3 +803,28 @@ Seed-43 runs of the v3.2 recipe start now on GPUs that would otherwise sit idle 
 lands: `ar18_n24_v32_s43` (tuning pair: T1 0.06, edge-TV 0.07), `ar18_tf_hyw_full_C012_s43` and
 `ar18_tf_jyz_full_C012_s43`. Each two-seed average is scored once both of its seeds have landed (`x2_after2.sh`). If
 the combination fails its rule, these runs are reported as variants of a recipe that was not adopted.
+
+## v3.2 — adopted (combination `ar19_n24_T1p06_geo007` landed, recorded 05:39)
+
+T1 wavelet 0.06 + edge-TV 0.07 on the tuning pair: T1 35.827 / T2 36.254, margin over L1-ESPIRiT +0.297 / +0.435
+(minimum +0.297 against geo007's +0.187) and T1 sharpness 0.897 (floor 0.874), so the combination rule adopts it as
+v3.2. Checked column by column against every competing method in the T1+T2 table:
+- head PSNR, head SSIM and head HFEN: first on both contrasts (head SSIM 0.9483 / 0.9552 against L1-ESPIRiT's 0.9471 /
+  0.9536; head HFEN 0.0799 / 0.0646 against 0.0867 / 0.0656);
+- whole-volume PSNR and NMSE: first on both; whole-volume HFEN: first on T2, third on T1 (converged TV 0.5549 against
+  0.5585);
+- whole-volume SSIM: sixth on both (0.9007 / 0.9294 against L1-ESPIRiT's 0.9511 on T1 and ZS-SSDU's 0.9677 on T2). This
+  gauge is dominated by the background noise that `ecalib -c 0.0` leaves in the air, which is why the program reads
+  head-only metrics; it is reported as it stands.
+- every pre-registered gate is met: head SSIM and HFEN far inside their floors, sharpness 0.897 / 0.854 above 0.874 / 0.802.
+
+```
+SAVE_VOLUMES=1 ./autoresearch_t1t2.sh <EXP> <GPU> 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05 --set loss.lambda_wav_plain=0.06 --lambda_geo 0.07
+# T1+FLAIR topics: add --set loss.lambda_wav_contrast=0.12, with CONFIG=configs/t1flair_af12_hyw.yaml (hyw) or configs/t1flair_v3_af12_hyw.yaml (jiangyizhou)
+```
+
+The T1+FLAIR form of v3.2 (with the FLAIR-channel 0.12) runs on hyw T1+FLAIR and on jiangyizhou (held out), and the
+seed-43 runs of all three topics are in flight; they land around 06:35. The archive tables and figures switch their
+proposed arm from v3 to v3.2 once those are in.

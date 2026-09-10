@@ -1,6 +1,7 @@
 # STATUS — 2026-09-11 01:05（分支 `autoresearch-t1t2`，上次 tag `handoff/2026-09-10`）
 
 ## 1. 已完成且已验证
+- **v3.2 已采纳**（调参对组合 `ar19_n24_T1p06_geo007`）：v3.2 = v3 + T1 通道小波 0.06 + edge-TV 0.07；T1+FLAIR 课题另加 FLAIR 通道小波 0.12。调参对 T1 35.827 / T2 36.254，头内 PSNR、SSIM、HFEN 两对比度都第一（SSIM 0.9483 / 0.9552 对 L1-ESPIRiT 0.9471 / 0.9536，HFEN 0.0799 / 0.0646 对 0.0867 / 0.0656），整图 PSNR、NMSE 两对比度第一，全部预注册门都过（T1 锐度 0.897）；整图 SSIM 两对比度第六（空气噪声主导的口径）、T1 整图 HFEN 第三。命令见程序文件 "## v3.2 — adopted"。T1+FLAIR 两个课题的 v3.2 与三个课题的 seed 43 约 06:35 落账，之后归档表和图的主推臂从 v3 换成 v3.2。
 - **v3 是当前配方（09-11 00:25 定）**：v2 的冷启动修复 + 240 万初始点 + 共用复数小波稀疏 λ 0.05（加在 edge-TV 之上），4000 步。
   ```
   cd /data0/congcong/code/GS/Paired_ARC_GS_general_framework
