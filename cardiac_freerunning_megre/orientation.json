@@ -1,0 +1,9 @@
+{
+ "decided_from": "figures/V07_r0.png and figures/V07_r0_orientation.png (scripts/orient_views.py)",
+ "si_axis": 2,
+ "superior_is_high_index": false,
+ "axis0": "patient right -> left (the liver lies at low axis0 in the coronal slices)",
+ "axis1": "posterior -> anterior (spine at low axis1, sternum and anterior chest wall at high axis1)",
+ "axis2": "superior -> inferior (great vessels leave the heart towards low axis2; liver dome and upper abdomen at high axis2)",
+ "note": "Axis 2 is the SI axis, as expected from the self-navigation spoke along trajectory z, but the head is at the LOW index (the plan's template assumed high). Transverse slices (axis2 fixed) show heart, lungs, spine and descending aorta; coronal and sagittal slices show the liver above the heart in array order. The tissue fraction of transverse slices rises from 0.38 at axis2=16 to 0.84 at axis2=88 (lung -> upper abdomen). Relative to LPS only the y and z directions flip, i.e. a rotation, not a mirror."
+}
