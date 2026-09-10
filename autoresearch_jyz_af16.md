@@ -269,3 +269,22 @@ P1 + λ_dtv 0.20. `ar2_lam020_g2` is dropped (P1 already covers the smoothing fa
 is L1-ESPIRiT: 35.209 (T1) / 34.503 (FLAIR).** The 09-09 table's leaders were 34.409 / 34.005 —
 converged and λ-tuned classical arms are +0.8 / +0.5 dB stronger. Points beyond a bracket were
 stopped to spare the CPU (the host is shared with 96 P-LORAKS workers).
+
+### Incident 2, 2026-09-10 20:33 — the stall recurs under staggered starts; one trainer per card from now on
+
+The gated relaunch ran cleanly through five starts (each passed iteration 100 in 261–360 s, GPUs
+at 220–230 W). All six of its runs then stopped writing between 20:32:56 and 20:35:06, while the sixth
+(`ar4_v2_wav003_n24`) was starting on GPU 3 — the same signature (100 % utilisation at ~83 W, one thread
+at 100 % CPU, this time the main thread) and again the hyw loop's runs on GPUs 4–7 unaffected. Staggered
+starts therefore do not prevent it. Forensics: no other process started in the window except the hyw
+loop's run on GPU 4 and NVIDIA UVM kernel threads; GPUs 0–4 show no volatile or uncorrectable ECC
+errors and no slowdown reason (GPU 3's 11 lifetime correctable DRAM errors equal GPU 4's). **The one
+pattern common to both stalls and absent from the rounds that ran cleanly: GPU 3 receiving its second
+trainer process** (two at once at 19:00; the second joining at 20:32; in Round 2 GPU 3 never held more
+than one while six trainers ran on GPUs 0–3). Mechanism unknown — a card hung inside the driver can hold
+the driver's global lock and freeze the other cards' processes, but that is not proven. Since one
+trainer alone on a card runs about twice as fast as two sharing it (~55 vs ~26 iterations a minute),
+**from now on the loop runs one trainer per card on GPUs 0–3**: the same total throughput, and the
+pattern cannot occur. Killed at 21:07 (6 runs × ~30 min lost; `results_arc/aborted_2033/`); the four
+wavelet runs relaunched one per card, 60 s apart. The stall detector (`scripts/stall_watch.sh`, alerts
+after 10 min without a training-log write outside scoring) keeps running.
