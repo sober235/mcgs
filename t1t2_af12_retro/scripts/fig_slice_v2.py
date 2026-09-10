@@ -19,7 +19,7 @@ ap.add_argument("--prefix", required=True, help="figs sub-directory and file-nam
 ap.add_argument("--contrast", required=True)
 ap.add_argument("--axis", type=int, required=True, choices=[0, 1, 2])
 ap.add_argument("--index", type=int, required=True)
-ap.add_argument("--methods", default="zf,cgsense,cssense_o200,jcssense,l1espirit,ploraks,zsssdu,dip,inr,gs_single_v3,gs_joint_v3")
+ap.add_argument("--methods", default="zf,cgsense,cssense_o200,jcssense,l1espirit,ploraks,zsssdu,dip,inr,gs_single_v3,gs_joint_v32")
 ap.add_argument("--tag", default="best")
 args = ap.parse_args()
 
@@ -37,7 +37,7 @@ LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV, 3
          "jcssense": "joint CS-SENSE", "l1espirit": "L1-ESPIRiT", "ploraks": "P-LORAKS", "zsssdu": "ZS-SSDU",
          "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single (old)", "gs_joint": "MC-GS joint (old)",
          "gs_single_v2": "MC-GS single v2", "gs_joint_v2": "MC-GS joint v2",
-         "gs_single_v3": "MC-GS single (ours)", "gs_joint_v3": "MC-GS joint (ours)"}
+         "gs_single_v3": "MC-GS single (ours)", "gs_joint_v3": "MC-GS joint v3", "gs_joint_v32": "MC-GS joint (ours)"}
 
 
 def load(m, c):
@@ -57,8 +57,12 @@ sl[ax] = i
 sl = tuple(sl)
 gp, hp = gt[sl], head[sl]
 g = gp[hp].astype(np.float64)
-vols = {m: load(m, c) for m in args.methods.split(",")}
-methods = [m for m in args.methods.split(",") if vols[m] is not None]
+mlist = args.methods.split(",")
+if "gs_joint_v32" in mlist and load("gs_joint_v32", c) is None:
+    mlist = [("gs_joint_v3" if m == "gs_joint_v32" else m) for m in mlist]
+    print("gs_joint_v32 volume missing; showing gs_joint_v3 instead")
+vols = {m: load(m, c) for m in mlist}
+methods = [m for m in mlist if vols[m] is not None]
 psnr = {}
 for m in methods:
     e = vols[m][sl][hp].astype(np.float64) - g

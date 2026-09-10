@@ -24,7 +24,7 @@ def table(rows, cols, hdr):
     return "\n".join(out)
 LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV, 35 outer, as run 09-09)", "cssense_o200": "CS-SENSE (TV, converged)",
          "jcssense": "joint CS-SENSE (JTV)", "l1espirit": "L1-ESPIRiT", "ploraks": "P-LORAKS", "zsssdu": "ZS-SSDU", "dip": "3D-DIP", "inr": "3D-INR",
-         "gs_single": "MC-GS single (old cold start)", "gs_joint": "MC-GS joint (old cold start)", "gs_single_v2": "MC-GS single v2", "gs_joint_v2": "MC-GS joint v2", "gs_single_v3": "MC-GS single v3", "gs_joint_v3": "**MC-GS joint v3**"}
+         "gs_single": "MC-GS single (old cold start)", "gs_joint": "MC-GS joint (old cold start)", "gs_single_v2": "MC-GS single v2", "gs_joint_v2": "MC-GS joint v2", "gs_single_v3": "MC-GS single v3", "gs_joint_v3": "MC-GS joint v3", "gs_joint_v3x2": "MC-GS joint v3 ×2 seeds (2× compute)", "gs_joint_v32": "**MC-GS joint v3.2**", "gs_joint_v32x2": "MC-GS joint v3.2 ×2 seeds (2× compute)"}
 topic = sys.argv[1]
 rows = json.load(open(R / topic / "logs/summary.json"))
 for r in rows: r["label"] = LABEL.get(r["method"], r["method"])

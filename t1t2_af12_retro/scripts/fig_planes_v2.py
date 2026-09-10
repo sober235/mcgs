@@ -18,9 +18,9 @@ ap.add_argument("--topic", required=True)
 ap.add_argument("--contrast", required=True)
 ap.add_argument("--prefix", required=True, help="figure name prefix and figs sub-directory, e.g. t1t2_af12")
 ap.add_argument("--slices", default=None, help="axis0,axis1,axis2 indices; default = per-plane best from logs/best_slice_v2.json")
-ap.add_argument("--ours", default="gs_joint_v3")
+ap.add_argument("--ours", default="gs_joint_v32")
 ap.add_argument("--tag", default="best3planes")
-ap.add_argument("--exclude", default="gs_joint,gs_single,cssense,gs_joint_v2,gs_single_v2", help="comma list of arms to leave out; by default the superseded joint/single arms and the under-converged 35-iteration TV arm")
+ap.add_argument("--exclude", default="gs_joint,gs_single,cssense,gs_joint_v2,gs_single_v2,gs_joint_v3", help="comma list of arms to leave out; by default the superseded joint/single arms and the under-converged 35-iteration TV arm")
 args = ap.parse_args()
 
 import matplotlib
@@ -32,12 +32,12 @@ import scipy.io
 R = Path(args.topic)
 F = Path("/home/congcongliu/figs") / args.prefix; F.mkdir(parents=True, exist_ok=True)
 ANAT = {0: "transverse", 1: "coronal", 2: "sagittal"}
-ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "ploraks", "zsssdu", "dip", "inr", "gs_single", "gs_joint", "gs_single_v2", "gs_joint_v2", "gs_single_v3", "gs_joint_v3"]
+ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "ploraks", "zsssdu", "dip", "inr", "gs_single", "gs_joint", "gs_single_v2", "gs_joint_v2", "gs_single_v3", "gs_joint_v3", "gs_joint_v32"]
 LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV, 35 it.)", "cssense_o200": "CS-SENSE (TV)",
          "jcssense": "joint CS-SENSE", "l1espirit": "L1-ESPIRiT", "ploraks": "P-LORAKS", "zsssdu": "ZS-SSDU",
          "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
          "gs_single_v2": "MC-GS single v2", "gs_joint_v2": "MC-GS joint v2",
-         "gs_single_v3": "MC-GS single (ours)", "gs_joint_v3": "MC-GS joint (ours)"}
+         "gs_single_v3": "MC-GS single (ours)", "gs_joint_v3": "MC-GS joint v3", "gs_joint_v32": "MC-GS joint (ours)"}
 
 
 def load(m, c):
@@ -53,7 +53,9 @@ gt = np.abs(np.load(R / f"recon/gt_{c}_complex.npy")).astype(np.float32)
 gmax = float(gt.max())
 head = gt > 0.05 * float(np.quantile(gt, 0.999))
 vols = {m: load(m, c) for m in ORDER}
-methods = [m for m in ORDER if vols[m] is not None and m not in set(filter(None, args.exclude.split(",")))]
+if vols.get(args.ours) is None and args.ours == "gs_joint_v32" and vols.get("gs_joint_v3") is not None:
+    print("gs_joint_v32 volume missing; falling back to gs_joint_v3 as ours"); args.ours = "gs_joint_v3"
+methods = [m for m in ORDER if vols[m] is not None and (m == args.ours or m not in set(filter(None, args.exclude.split(","))))]
 if args.slices:
     idx = [int(x) for x in args.slices.split(",")]
 else:

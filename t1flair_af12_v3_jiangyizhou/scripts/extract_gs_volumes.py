@@ -28,7 +28,9 @@ JOBS = [("t1flair_v3_af12_joint", "gs_joint", [("recT1", "T1"), ("recFL", "FLAIR
         # v3 = v2's cold-start fixes + 2.4M points + wavelet sparsity 0.05 (autoresearch rounds 11-14)
         ("ar13_tf_jyz_t1flair_v3b", "gs_joint_v3", [("recT1", "T1"), ("recFL", "FLAIR")], [], []),
         ("ar15_single_T1_jyz_v3", "gs_single_v3", [("recT1", "T1")], [], []),
-        ("ar15_single_FLAIR_jyz_v3", "gs_single_v3", [("recT1", "FLAIR")], [], [])]
+        ("ar15_single_FLAIR_jyz_v3", "gs_single_v3", [("recT1", "FLAIR")], [], []),
+        # v3.2 (framework program "## v3.2 — adopted")
+        ("ar19_tf_jyz_full_C012", "gs_joint_v32", [("recT1", "T1"), ("recFL", "FLAIR")], [], [])]
 
 
 def main():

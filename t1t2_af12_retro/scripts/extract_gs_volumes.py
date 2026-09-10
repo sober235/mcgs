@@ -28,7 +28,9 @@ JOBS = [("t1t2_af12_joint", "gs_joint", [("recT1", "T1"), ("recFL", "T2")],
         # v3 = v2's cold-start fixes + 2.4M points + wavelet sparsity 0.05 (autoresearch rounds 11-14)
         ("ar12_n24_wav005_full4k", "gs_joint_v3", [("recT1", "T1"), ("recFL", "T2")], [], []),
         ("ar15_single_T1_n24_wav005_full4k", "gs_single_v3", [("recT1", "T1")], [], []),
-        ("ar15_single_T2_n24_wav005_full4k", "gs_single_v3", [("recT1", "T2")], [], [])]
+        ("ar15_single_T2_n24_wav005_full4k", "gs_single_v3", [("recT1", "T2")], [], []),
+        # v3.2 (framework program "## v3.2 — adopted")
+        ("ar19_n24_T1p06_geo007", "gs_joint_v32", [("recT1", "T1"), ("recFL", "T2")], [], [])]
 
 
 def main():

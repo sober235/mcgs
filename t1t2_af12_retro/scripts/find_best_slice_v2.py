@@ -18,7 +18,7 @@ import numpy as np
 ap = argparse.ArgumentParser()
 ap.add_argument("--topic", required=True)
 ap.add_argument("--contrasts", required=True)
-ap.add_argument("--ours", default="gs_joint_v3")
+ap.add_argument("--ours", default="gs_joint_v32")
 ap.add_argument("--min_head", type=int, default=20000)
 ap.add_argument("--others", default="zf,cgsense,cssense_o200,jcssense,l1espirit,ploraks,zsssdu,dip,inr",
                 help="arms the margin is taken against: canonical, converged versions only (sweep variants in recon/ are ignored); missing ones are skipped")
@@ -40,9 +40,12 @@ def main():
         gt = np.abs(np.load(R / f"recon/gt_{c}_complex.npy")).astype(np.float32)
         gmax = float(gt.max())
         head = gt > 0.05 * float(np.quantile(gt, 0.999))
-        cand = list(dict.fromkeys(args.others.split(",") + [args.ours, "gs_single_v3"]))
+        cand = list(dict.fromkeys(args.others.split(",") + [args.ours, "gs_joint_v3", "gs_single_v3"]))
         vols = {m: load(m, c) for m in cand}
         vols = {m: v for m, v in vols.items() if v is not None}
+        if args.ours not in vols and args.ours == "gs_joint_v32" and "gs_joint_v3" in vols:
+            print(f"[{c}] gs_joint_v32 volume missing; falling back to gs_joint_v3 as ours")
+            args.ours = "gs_joint_v3"
         assert args.ours in vols, (args.ours, list(vols))
         other_set = [m for m in args.others.split(",") if m in vols and m != args.ours]
         print(f"[{c}] ours = {args.ours}; margin taken against {other_set}")
