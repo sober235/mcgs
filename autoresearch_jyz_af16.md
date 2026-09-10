@@ -288,3 +288,18 @@ trainer alone on a card runs about twice as fast as two sharing it (~55 vs ~26 i
 pattern cannot occur. Killed at 21:07 (6 runs × ~30 min lost; `results_arc/aborted_2033/`); the four
 wavelet runs relaunched one per card, 60 s apart. The stall detector (`scripts/stall_watch.sh`, alerts
 after 10 min without a training-log write outside scoring) keeps running.
+
+### Round 4 — the wavelet term on this subject (from 21:08, one trainer per card)
+
+| exp | T1 | FLAIR | vs P1 | vs bar | head SSIM | head HFEN | sharp | status |
+|---|---|---|---|---|---|---|---|---|
+| **ar4_P1_wav003** (P1 + λ_wav 0.03, 1.2M) | **34.975** | **33.924** | +0.28 / +0.12 | −0.235 / −0.579 | 0.9288 / 0.9082 | **0.1281** / 0.1318 | 0.794 / 0.712 | **parent P2** |
+
+The wavelet prior is active in the run (`R_wav` 0.040 at iteration 50, 0.058 at 1500 in
+`joint_train.log`). It is the largest T1 gain of the loop so far (+0.28 dB on top of P1, head HFEN
+0.1281 — the best of any MC-GS run, below CS-SENSE's 0.1531 and L1-ESPIRiT's 0.1289), but FLAIR moves
+only +0.12 and stays the binding contrast at −0.58 dB. Following the loop's rule (a knob joins the
+parent only after winning alone on this subject), the next runs are single deltas on P2 aimed at
+FLAIR: `ar5_P1w_dtv010` and `ar5_P2_dtv020` (P2 + λ_dtv 0.10 / 0.20, GPUs 0 and 2). Still running:
+`ar4_P1_wav003_n24` (P2 + 2.4M points, GPU 1) and `ar4_v2_wav003_n24` (the hyw recipe, GPU 3);
+`ar4_v2_wav003` postponed.
