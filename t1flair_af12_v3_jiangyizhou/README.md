@@ -27,8 +27,9 @@ whole-volume SSIM misleads on this data).
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
 | MC-GS joint v3 ×2 seeds (2× compute) | **39.847** | 0.9219 | **36.539** | 0.9449 | 118 min |
-| **MC-GS joint v3** | 39.662 | 0.9206 | 36.337 | 0.9428 | 63 min |
+| MC-GS joint v3 | 39.662 | 0.9206 | 36.337 | 0.9428 | 63 min |
 | L1-ESPIRiT | 39.497 | 0.9420 | 36.334 | 0.9443 | 5 min |
+| **MC-GS joint v3.2** | 39.654 | 0.9200 | 36.299 | 0.9423 | 57 min |
 | MC-GS single v3 | 39.566 | 0.9251 | 36.257 | 0.9412 | 70 min |
 | CS-SENSE (TV, converged) | 39.753 | 0.9522 | 36.144 | **0.9459** | 5 min |
 | joint CS-SENSE (JTV) | 39.648 | **0.9587** | 36.070 | 0.9442 | 5 min |
@@ -47,10 +48,11 @@ whole-volume SSIM misleads on this data).
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| MC-GS joint v3 ×2 seeds (2× compute) | **39.441** | 0.9107 | **36.049** | 0.9360 | 118 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | 39.441 | 0.9107 | **36.049** | 0.9360 | 118 min |
+| **MC-GS joint v3.2** | **39.473** | 0.9028 | 36.039 | **0.9369** | 57 min |
 | MC-GS single v3 | 39.325 | 0.9011 | 36.009 | 0.9346 | 71 min |
-| **MC-GS joint v3** | 39.334 | 0.9098 | 35.935 | 0.9346 | 63 min |
-| L1-ESPIRiT | 39.327 | 0.9525 | 35.720 | **0.9368** | 5 min |
+| MC-GS joint v3 | 39.334 | 0.9098 | 35.935 | 0.9346 | 63 min |
+| L1-ESPIRiT | 39.327 | 0.9525 | 35.720 | 0.9368 | 5 min |
 | joint CS-SENSE (JTV) | 39.277 | 0.9523 | 35.624 | 0.9352 | 7 min |
 | CS-SENSE (TV, converged) | 39.142 | 0.9497 | 35.581 | 0.9353 | 5 min |
 | MC-GS single v2 | 38.503 | 0.8966 | 35.101 | 0.9216 | 39 min |
@@ -237,6 +239,44 @@ cd $F && CONFIG=configs/t1flair_v3_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t
 - Figures (compact panels, v3 as the proposed method): `figures/t1flair_v3_af12_T1_best_axis0_173.png`,
   `figures/t1flair_v3_af12_FLAIR_best_axis0_178.png` (v3's best transverse slices),
   `figures/t1flair_v3_af12_{T1,FLAIR}_best3planes.png`.
+
+## MC-GS joint v3.2 — T1-channel wavelet 0.06 and lighter edge-TV 0.07 (2026-09-11)
+
+v3.2 = v3 + a T1-channel wavelet strength of 0.06 (the second channel keeps 0.05) + edge-TV 0.07 instead of 0.10; on the
+T1+FLAIR topics the FLAIR channel takes 0.12. Selected on the tuning pair by the pre-registered rules of the framework
+program (Rounds 16–17, "## v3.2 — adopted"). Held out: nothing in v3.2 was selected on this subject.
+
+```bash
+cd $F && CONFIG=configs/t1flair_v3_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar19_tf_jyz_full_C012 1 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.12 --lambda_geo 0.07
+```
+
+Standing of v3.2 against every other method in this topic's table (single run, seed 42):
+
+| metric | T1 | FLAIR |
+|---|---|---|
+| head PSNR | second, 36.299 (best: L1-ESPIRiT 36.334) | **first**, 36.039 (next: L1-ESPIRiT 35.720) |
+| head SSIM | fifth, 0.9423 (best: converged TV 0.9459) | **first**, 0.9369 (next: L1-ESPIRiT 0.9368) |
+| head HFEN | **first**, 0.0965 (next: L1-ESPIRiT 0.1034) | second, 0.1025 (best: L1-ESPIRiT 0.1002) |
+| whole-volume PSNR | second, 39.654 (best: converged TV 39.753) | **first**, 39.473 (next: L1-ESPIRiT 39.327) |
+| whole-volume NMSE | second, 0.01411 (best: converged TV 0.01379) | **first**, 0.01325 (next: L1-ESPIRiT 0.01370) |
+| whole-volume HFEN | fourth, 0.6449 (best: converged TV 0.6154) | **first**, 0.6013 (next: joint CS-SENSE 0.6188) |
+| whole-volume SSIM | sixth, 0.9200 (best: joint CS-SENSE 0.9587) | sixth, 0.9028 (best: ZS-SSDU 0.9563) |
+
+| arm | head PSNR T1 / FLAIR | head SSIM | head HFEN | whole PSNR | sharp |
+|---|---|---|---|---|---|
+| **MC-GS joint v3.2** | 36.299 / 36.039 | 0.9423 / 0.9369 | 0.0965 / 0.1025 | 39.654 / 39.473 | 0.921 / 0.822 |
+| MC-GS joint v3 | 36.337 / 35.935 | 0.9428 / 0.9346 | 0.0987 / 0.0994 | 39.662 / 39.334 | 0.892 / 0.847 |
+| L1-ESPIRiT | 36.334 / 35.720 | 0.9443 / 0.9368 | 0.1034 / 0.1002 | 39.497 / 39.327 | 0.906 / 0.809 |
+| converged TV (best other head SSIM) | 36.144 / 35.581 | 0.9459 / 0.9353 | 0.1107 / 0.1073 | 39.753 / 39.142 | 0.838 / 0.783 |
+
+- **T1**: first on head HFEN; not first on head PSNR (second), head SSIM (fifth), whole-volume PSNR (second), whole-volume NMSE (second), whole-volume HFEN (fourth), whole-volume SSIM (sixth).
+- **FLAIR**: first on head PSNR, head SSIM, whole-volume PSNR, whole-volume NMSE, whole-volume HFEN; not first on head HFEN (second), whole-volume SSIM (sixth).
+- **Against v3**: T1 -0.038 dB / head SSIM -0.0005, FLAIR +0.104 dB / head SSIM +0.0023.
+- **Gate**: T1 sharpness 0.921 passes the pre-registered 0.874 floor.
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS not yet in on every channel): T1 first on 9/96, 69/121, 33/118 transverse / coronal / sagittal slices; FLAIR first on 94/94, 120/120, 118/118 transverse / coronal / sagittal slices.
+- Figures (compact panels, v3.2 as the proposed method): `figures/t1flair_v3_af12_T1_best_axis0_173.png`, `figures/t1flair_v3_af12_FLAIR_best_axis0_177.png`, `figures/t1flair_v3_af12_{T1,FLAIR}_best3planes.png`.
 
 ## Regenerating
 
