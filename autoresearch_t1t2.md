@@ -307,3 +307,13 @@ for this acquisition; what is missing on jiangyizhou is not capacity.
 - Joint versus single under the repaired cold start: +0.30 dB to T1, −0.25 dB from T2 — the
   shared geometry helps the binding contrast at the other's expense.
 - 34 experiments, 8 of them at 4000 iterations, ~9 GPU-hours, 2026-09-09 21:40 to 09-10 03:00.
+
+### Addendum, 2026-09-10 03:20 — transfer to AF16 (pre-registered)
+
+The parallel session finished the AF16 T1+FLAIR study on both subjects (branch
+`t1flair-af16-retro`, topics `Results_20260908/T1FLAIR_AF16_retro` and
+`T1FLAIR_AF16_v3_jiangyizhou`). The v2 recipe is applied there **unchanged** (`ar8_tf_hyw_af16`,
+`ar8_tf_jyz_af16`, 4000 iterations, their configs and data). Head-PSNR leaders to clear: hyw
+ZS-SSDU 33.665 (T1) / 32.685 (FLAIR); jyz CS-SENSE 34.410 (T1) / ZS-SSDU 34.005 (FLAIR). The
+original cold-start joint arms read 32.028 / 30.743 and 32.890 / 32.402. Results go in this
+file and the ledger; the AF16 topic archives belong to the other session and are not edited here.
