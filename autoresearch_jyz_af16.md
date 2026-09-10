@@ -303,3 +303,14 @@ parent only after winning alone on this subject), the next runs are single delta
 FLAIR: `ar5_P1w_dtv010` and `ar5_P2_dtv020` (P2 + λ_dtv 0.10 / 0.20, GPUs 0 and 2). Still running:
 `ar4_P1_wav003_n24` (P2 + 2.4M points, GPU 1) and `ar4_v2_wav003_n24` (the hyw recipe, GPU 3);
 `ar4_v2_wav003` postponed.
+
+| exp | T1 | FLAIR | vs P2 | vs bar | head SSIM | head HFEN | sharp | status |
+|---|---|---|---|---|---|---|---|---|
+| **ar4_P1_wav003_n24** (P2 at 2.4M points) | 34.943 | **34.330** | −0.03 / **+0.41** | −0.266 / **−0.173** | 0.9241 / 0.9105 | 0.1352 / 0.1327 | 0.788 / 0.722 | **parent P3** (marginal on T1) |
+
+**Capacity is the FLAIR lever once the wavelet prior is in** (as on hyw, where 2.4M + wavelet lifted T2
+by +0.76): FLAIR +0.41 dB, and the gap to L1-ESPIRiT shrinks from −0.58 to −0.17. T1 does not follow:
+PSNR −0.03, head SSIM −0.005, HFEN +0.007 — the shared geometry's extra Gaussians serve FLAIR and
+cost T1 a little. The loop's number (the smaller margin) improves by +0.31 dB, so P3 is the parent,
+flagged marginal on T1's SSIM/HFEN. **T1 is now the binding contrast (−0.27 dB).** Next on P3:
+`ar6_P3_wav005` (λ_wav 0.05, the T1 side on hyw), GPU 1.
