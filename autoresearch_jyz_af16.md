@@ -27,7 +27,11 @@ Where we start (jiangyizhou AF16, 4000 iterations, head-only PSNR / SSIM):
 | CS-SENSE (T1 to beat) | **34.409** / **0.9276** | 33.806 / 0.9116 |
 | ZS-SSDU (FLAIR to beat) | 34.150 / 0.9216 | **34.005** / **0.9185** |
 | MC-GS joint, frozen cold start (AF16 study) | 32.890 / 0.8893 | 32.402 / 0.8834 |
-| MC-GS joint **v2** (hyw loop's recipe, transfer run `ar8_tf_jyz_af16` in the main tree) | pending | pending |
+| MC-GS joint **v2** (hyw loop's recipe, transfer run `ar8_tf_jyz_af16` in the main tree, 12:20) | 33.982 / 0.9069 | 33.640 / 0.9003 |
+
+v2 at 4000 iterations is second on both contrasts by **0.43 dB (T1) and 0.36 dB (FLAIR)**, head SSIM
+0.021 / 0.018 behind, head HFEN 0.1389 / 0.1304 (better than CS-SENSE's 0.1531 on T1, worse than
+its 0.1360 on FLAIR). The loop has to find +0.4 dB on both contrasts on top of v2.
 
 Gap from the frozen cold start: +1.52 dB on T1, +1.60 dB on FLAIR. The v2 recipe was worth
 +1.4 to +2.3 dB head-only everywhere it was tried at AF12 (first on hyw both pairings, second on
@@ -94,3 +98,29 @@ regulariser balance is the first suspect)
 
 ### Round 0 — 2026-09-10 12:05, four runs at 1500 iterations, GPUs 0–1
 `ar0_v2_base` (parent), `ar0_v2_seed43` (floor), `ar0_lam013` (λ_geo 0.13), `ar0_kq090` (κ_q 0.90).
+
+Results (1500 iterations, head-only PSNR T1 / FLAIR, margin to the competitor; ~47 min each, two per card):
+
+| exp | T1 | FLAIR | dT1 | dFLAIR | min_margin | head SSIM T1 / FLAIR | sharp T1 / FLAIR | status |
+|---|---|---|---|---|---|---|---|---|
+| ar0_v2_base (parent) | 34.235 | 33.553 | −0.174 | −0.451 | −0.451 | 0.9136 / 0.9014 | 0.844 / 0.824 | parent |
+| ar0_v2_seed43 | 34.247 | 33.559 | −0.162 | −0.446 | −0.446 | 0.9141 / 0.9016 | 0.844 / 0.824 | repeat: floor 0.012 / 0.006 dB |
+| ar0_lam013 (λ_geo 0.13) | 34.471 | 33.695 | **+0.061** | −0.310 | −0.310 | 0.9192 / 0.9046 | 0.815 / 0.789 | keep-marginal |
+| ar0_kq090 (κ_q 0.90) | 34.414 | 33.683 | +0.004 | −0.321 | −0.321 | 0.9179 / 0.9042 | 0.820 / 0.794 | keep-marginal |
+
+Reading. (1) The seed floor is 0.01 dB, so every delta above is real. (2) Both regularisation knobs
+gain on BOTH contrasts (+0.24 / +0.14 and +0.18 / +0.13 dB), improve head SSIM and head HFEN, and
+cost 0.03 of sharpness ratio — "keep-marginal" because the pre-registered sharpness clause is
+touched while SSIM/HFEN improve; the promotion run decides. (3) At 1500 iterations with λ 0.13,
+**T1 is already above CS-SENSE (+0.06)**; FLAIR is the bottleneck at −0.31. (4) The parent's T1 at
+1500 iterations (34.24) is HIGHER than v2's 4000-iteration transfer (33.98) while FLAIR is lower
+(33.55 vs 33.64): T1 over-fits the sampled k with more iterations, FLAIR still converges. The
+budget is therefore a knob (ar1_base_2500 maps it).
+
+### Round 1 — 2026-09-10 16:40, four runs, GPUs 0–1
+`ar1_lam016` (λ_geo 0.16: further along the winning direction), `ar1_lam013_kq090` (the two
+winners combined), `ar1_pwc` (FLAIR-only prewhitening, `--prewhiten_only contrast`),
+`ar1_base_2500` (parent at 2500 iterations: the budget curve between 1500 and 4000).
+Queued for Round 2, FLAIR-specific: `--kspace_high 2.6 --kspace_high_plain 2.2` (more high-band
+weight on FLAIR than T1), `--lambda_dtv 0.05` (cross-contrast coupling, historically a small
+plus), tv_eps 0.03, w_floor 0.20, points 0.9M / 1.6M, init_head_frac.

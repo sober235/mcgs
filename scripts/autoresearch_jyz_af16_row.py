@@ -24,7 +24,9 @@ def best_competitors():
     rows = json.load(open(TOPIC / "logs/summary.json"))
     best = {}
     for c in ("T1", "FLAIR"):
-        sub = [r for r in rows if r["contrast"] == c and r["method"] not in GS]
+        # every non-MC-GS arm counts as a competitor; any MC-GS variant (gs_*, "MC-GS ...") never does
+        sub = [r for r in rows if r["contrast"] == c and r["method"] not in GS
+               and not str(r["method"]).startswith(("gs_", "MC-GS"))]
         best[c] = dict(head_psnr=max(r["head_psnr"] for r in sub), head_ssim=max(r["head_ssim"] for r in sub),
                        head_hfen=min(r["head_hfen"] for r in sub), psnr=max(r["psnr"] for r in sub),
                        who=max(sub, key=lambda r: r["head_psnr"])["method"])
@@ -64,7 +66,9 @@ def main():
                    T1_psnr=f"{p['psnr']:.3f}", FLAIR_psnr=f"{c['psnr']:.3f}",
                    T1_sharp=f"{p['sharp']:.3f}", FLAIR_sharp=f"{c['sharp']:.3f}",
                    T1_N=f"{p['grain_ratio']:.3f}", FLAIR_N=f"{c['grain_ratio']:.3f}",
-                   commit=commit, args=" ".join(d.get("argv", [])), note=a.note)
+                   commit=commit, args=" ".join(d.get("argv", [])),
+                   note=(a.note + f" bar={BEST['T1']['who']}:{BEST['T1']['head_psnr']:.3f}/"
+                         f"{BEST['FLAIR']['who']}:{BEST['FLAIR']['head_psnr']:.3f}").strip())
     if not TSV.exists():
         TSV.write_text("\t".join(COLS) + "\n")
     with open(TSV, "a") as f:
