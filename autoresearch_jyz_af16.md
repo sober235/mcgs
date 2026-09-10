@@ -380,3 +380,11 @@ recipe — and **`ar7_P4_wav007`** (λ_wav 0.07, GPU 3). Still running on P3: T1
   `ar8_P4_wT1_006` / `ar8_P4_wT1_010` (T1 0.06 / 0.10 with FLAIR 0.05, GPUs 0 and 2) for the
   per-contrast combination; `ar7_P4_full4k` (P4 at 4000 iterations, GPU 1) for the budget, which on hyw
   lifted the second contrast of this recipe.
+
+**Round 9 declared (23:00): 3.6M points.** The hyw loop's 3.6M runs (`ar11_n36_wav003_tv`,
+`ar11_n36_wav005_tv`): with wavelet 0.05, 3.6M lifts the second contrast by +0.26 dB over 2.4M while T1
+holds (−0.02); with 0.03, T1 loses 0.16 — more points need a stronger T1 wavelet, which is exactly the
+per-contrast lever found here. Memory 32.8 GB (one per card is fine). Waiters (`scripts/ar9_waiters.sh`):
+GPU 0 after `ar8_P4_wT1_006` → **`ar9_P5_n36`** (P5 at 3.6M, the single capacity delta); GPU 2 after
+`ar8_P4_wT1_010` and `ar8_P4_wav010` → **`ar9_n36_wT1_010_wFL_<x>`** (3.6M, T1 wavelet 0.10, FLAIR
+wavelet 0.10 if 0.10 beat 0.07 for FLAIR, else 0.07).
