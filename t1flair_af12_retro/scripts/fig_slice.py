@@ -12,7 +12,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--contrast", required=True, choices=["T1", "FLAIR"])
 ap.add_argument("--axis", type=int, required=True, choices=[0, 1, 2])
 ap.add_argument("--index", type=int, required=True)
-ap.add_argument("--methods", default="zf,cgsense,cssense,zsssdu,dip,inr,gs_single,gs_joint")
+ap.add_argument("--methods", default="zf,cgsense,cssense,zsssdu,dip,inr,gs_single,gs_joint,gs_joint_v2")
 ap.add_argument("--tag", default="best")
 args = ap.parse_args()
 
@@ -26,7 +26,8 @@ F = Path("/home/congcongliu/figs/t1flair_af12"); F.mkdir(parents=True, exist_ok=
 ANAT = {0: "transverse (axial)", 1: "coronal", 2: "sagittal"}   # adjudicated 2026-09-09, see README
 LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV)",
          "zsssdu": "ZS-SSDU", "dip": "3D-DIP", "inr": "3D-INR",
-         "gs_single": "MC-GS single", "gs_joint": "MC-GS joint"}
+         "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
+         "gs_single_v2": "MC-GS single v2", "gs_joint_v2": "MC-GS joint v2"}
 
 
 def load(m, c):
@@ -54,7 +55,7 @@ rank = {m: r + 1 for r, m in enumerate(sorted(psnr, key=lambda k: -psnr[k]))}
 
 ncol = len(methods) + 1
 fig, axes = plt.subplots(2, ncol, figsize=(3.4 * ncol, 7.6))
-vmax = float(np.quantile(gp, 0.999))
+vmax = float(np.quantile(gp[hp], 0.95)) if hp.any() else float(np.quantile(gp, 0.999))   # in-head P95 window, same as make_figures.py
 axes[0, 0].imshow(gp.T, cmap="gray", vmin=0, vmax=vmax, origin="lower")
 axes[0, 0].set_title(f"Ground truth ({c})", fontsize=12, fontweight="bold")
 axes[1, 0].imshow(hp.T, cmap="gray", origin="lower")
