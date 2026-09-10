@@ -30,6 +30,7 @@ numbers to quote. AF 12 values per arm from `../T1FLAIR_AF12_v3_jiangyizhou/logs
 | method | PSNR | SSIM | head PSNR | head SSIM | head HFEN | sharp | head PSNR @AF12 | AF16 − AF12 |
 |---|---|---|---|---|---|---|---|---|
 | MC-GS joint (autoresearch) | 39.016 | 0.9124 | **35.552** | **0.9351** | 0.1218 | 0.830 | -- | -- |
+| MC-GS single (autoresearch) | 38.988 | 0.9182 | 35.515 | 0.9343 | 0.1240 | 0.824 | -- | -- |
 | L1-ESPIRiT (λ 0.0015) | 38.758 | 0.9479 | 35.209 | 0.9334 | 0.1286 | 0.849 | 36.334 | -1.12 |
 | CS-SENSE (TV, converged) (λ 0.0007) | 38.646 | 0.9506 | 34.945 | 0.9317 | 0.1380 | 0.823 | 36.144 | -1.20 |
 | joint CS-SENSE (JTV) (λ 0.001) | 38.595 | 0.9514 | 34.831 | 0.9311 | 0.1429 | 0.811 | 36.070 | -1.24 |
@@ -46,7 +47,8 @@ numbers to quote. AF 12 values per arm from `../T1FLAIR_AF12_v3_jiangyizhou/logs
 
 | method | PSNR | SSIM | head PSNR | head SSIM | head HFEN | sharp | head PSNR @AF12 | AF16 − AF12 |
 |---|---|---|---|---|---|---|---|---|
-| MC-GS joint (autoresearch) | 38.342 | 0.9045 | **34.807** | **0.9203** | 0.1188 | 0.788 | -- | -- |
+| MC-GS single (autoresearch) | 38.288 | 0.8922 | **34.810** | 0.9196 | 0.1182 | 0.795 | -- | -- |
+| MC-GS joint (autoresearch) | 38.342 | 0.9045 | 34.807 | **0.9203** | 0.1188 | 0.788 | -- | -- |
 | L1-ESPIRiT (λ 0.003) | 38.027 | 0.9310 | 34.503 | 0.9201 | 0.1210 | 0.789 | 35.720 | -1.22 |
 | joint CS-SENSE (JTV) (λ 0.0007) | 38.048 | 0.9408 | 34.355 | 0.9177 | 0.1302 | 0.775 | 35.624 | -1.27 |
 | CS-SENSE (TV, converged) (λ 0.0005) | 37.904 | 0.9365 | 34.302 | 0.9180 | 0.1309 | 0.751 | 35.581 | -1.28 |

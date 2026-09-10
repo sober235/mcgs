@@ -541,3 +541,22 @@ and the P6 seed repeat at 4000.
 = +0.037 dB); on FLAIR joint and single tie (−0.003 dB), both 0.30 dB above L1-ESPIRiT.** The shared geometry helps T1
 and is neutral for FLAIR, the same pattern as the old recipe (+0.098 / −0.009). Both arms are registered in the topic
 (`gs_joint_ar`, `gs_single_ar`) and shown in the final butterfly figures.
+- **Seed floor at the final recipe and budget** (`ar16_P6_seed43_full4k` vs `ar14_n36_v2tv_full4k`): 35.552 / 34.805 vs
+  35.552 / 34.807 — **0.000 / 0.002 dB**. The final margins over L1-ESPIRiT (+0.343 / +0.304) are ~150× the floor;
+  the FLAIR joint − single tie (−0.003) is at the floor.
+
+## Verdict (2026-09-11 03:50)
+
+**Objective met.** On jiangyizhou T1 + FLAIR at AF16, against a competitor table whose classical arms were re-run
+converged and λ-swept on this subject, the final MC-GS joint (repaired cold start, 3.6M points, edge-TV λ_geo 0.10 /
+κ_q 0.85, wavelet sparsity T1 0.10 / FLAIR 0.07, 4000 iterations) is **first of thirteen arms on head PSNR
+(+0.343 / +0.304 dB over L1-ESPIRiT), head SSIM and head HFEN in both contrasts**; sharpness stays 0.02 / 0.001 below
+L1-ESPIRiT. MC-GS single at the same recipe is second on T1 and ties the joint on FLAIR. The loop started 0.97 /
+0.95 dB behind at the frozen cold start. What moved it, in order of size: the wavelet-sparsity prior (+0.3–0.5 dB,
+imported from the hyw loop), capacity 1.2M → 3.6M under that prior (FLAIR +0.4 and +0.15), per-contrast wavelet
+strength (T1 +0.15), the full budget once T1's wavelet is strong (+0.1), and — last and decisively for the structural
+metrics — returning the edge-TV to its v2 strength once the wavelet carries the regularisation (+0.1 dB and HFEN
+below L1-ESPIRiT). Directional TV (λ_dtv), prewhitening, FLAIR-only high-band weight, faster LR decay, stronger TV
+and λ_geo 0.07 all lost. Caveats: one subject; the MC-GS knobs and the classical λ were both selected on this
+subject's ground truth (fair, not held out); two unexplained GPU stalls cost ~2 h and led to one trainer per card.
+The jyz AF12 transfer run of the final recipe (`ar17_P6_tf_jyz_af12_full4k`) is pending.
