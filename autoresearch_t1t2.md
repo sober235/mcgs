@@ -768,3 +768,9 @@ started on GPU 6 directly (`ar20_xv_P6_t1t2`). The fast GPUs that free around 04
   contrast unchanged.
 - Round 18 seed 43 of v3 on hyw T1+FLAIR (`ar18_tf_hyw_t1flair_v3b_s43`): 35.772 / 34.357 against seed 42's 35.772 /
   34.359; the two-seed average is being scored.
+
+**hyw T1+FLAIR v3 ×2 (`ar13_tf_hyw_t1flair_v3b_x2`, scored 04:50).** Seed 43 reads 35.772 / 34.357 against seed 42's
+35.772 / 34.359. The average of the two: head PSNR 35.897 / 34.417 (+0.125 / +0.058 over v3, +0.367 / +0.312 over
+L1-ESPIRiT), head SSIM 0.9481 / 0.9178 (L1-ESPIRiT 0.9471 / 0.9221, ZS-SSDU 0.9235 on FLAIR), head HFEN 0.0821 / 0.1057,
+whole-volume PSNR 40.027 / 38.645, now first on FLAIR as well (L1-ESPIRiT 38.607). T1 head SSIM passes L1-ESPIRiT;
+FLAIR head SSIM stays 0.0043 below it.
