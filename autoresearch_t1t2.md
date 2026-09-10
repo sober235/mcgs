@@ -497,5 +497,8 @@ Readings.
   +0.003 dB, inside the 0.003–0.005 dB seed-repeat floor measured at P2), first on head HFEN on all
   four, and 0.8–0.9 dB above the previous recipe everywhere. Head SSIM trails L1-ESPIRiT by 0.0001
   to 0.005.
-- The jyz T1 tie is measured again with seed 43 (`ar13_tf_jyz_t1flair_v3b_s43`) to put a repeat spread
-  on this subject next to the +0.003.
+- Seed 43 repeat on jiangyizhou (`ar13_tf_jyz_t1flair_v3b_s43`): T1 36.338 / FLAIR 35.937, margins
+  +0.004 / +0.217 against seed 42's +0.003 / +0.215. The seed spread is 0.001 / 0.002 dB, so the jyz T1
+  margin is reproducible but negligible: a tie with L1-ESPIRiT in any practical sense, not a win.
+  FLAIR's +0.22 dB is solid. The per-contrast T1+T2 winner gets the same repeat
+  (`ar14_n24_wavP006_C003_full4k_s43`).
