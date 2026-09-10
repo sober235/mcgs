@@ -54,27 +54,39 @@ for m in methods:
 rank = {m: r + 1 for r, m in enumerate(sorted(psnr, key=lambda k: -psnr[k]))}
 
 ncol = len(methods) + 1
-fig, axes = plt.subplots(2, ncol, figsize=(3.4 * ncol, 7.6))
+# Layout: every panel the same size (the displayed array is gp.T, so height/width = shape[0]/shape[1]),
+# near-zero gaps, no per-panel colorbars -- one shared error-map colorbar on the far right, and the
+# sampling pattern the whole row is conditioned on in the bottom-left cell.
+import scipy.io
+m2 = scipy.io.loadmat(R / "data/mask_vdpois_256x176_af12.mat")["mask"].astype(float)
+W = 2.6                                          # inches per column
+hw = gp.shape[1] / gp.shape[0]                   # displayed panel height / width
+fig = plt.figure(figsize=(W * ncol + 0.45, 2 * W * hw + 1.15))
+left, right, bottom, top = 0.004, 1 - 0.45 / (W * ncol + 0.45), 0.055, 0.86
+gs = fig.add_gridspec(2, ncol, left=left, right=right, bottom=bottom, top=top, wspace=0.015, hspace=0.015)
+axes = np.array([[fig.add_subplot(gs[r, k]) for k in range(ncol)] for r in range(2)])
 vmax = float(np.quantile(gp[hp], 0.95)) if hp.any() else float(np.quantile(gp, 0.999))   # in-head P95 window, same as make_figures.py
-axes[0, 0].imshow(gp.T, cmap="gray", vmin=0, vmax=vmax, origin="lower")
-axes[0, 0].set_title(f"Ground truth ({c})", fontsize=12, fontweight="bold")
-axes[1, 0].imshow(hp.T, cmap="gray", origin="lower")
-axes[1, 0].set_xlabel(f"head mask on this slice\n{int(hp.sum())} voxels", fontsize=9)
+axes[0, 0].imshow(gp.T, cmap="gray", vmin=0, vmax=vmax, origin="lower", aspect="auto")
+axes[0, 0].set_title(f"Ground truth ({c})", fontsize=9, fontweight="bold")
+axes[1, 0].imshow(m2.T, cmap="gray", origin="lower", interpolation="nearest", aspect="auto")
+axes[1, 0].set_xlabel(f"AF12 vd-Poisson mask (ky,kz), {100 * m2.mean():.2f} % of the PE plane", fontsize=7)
+im = None
 for j, m in enumerate(methods, start=1):
     v = load(m, c)[sl]
-    axes[0, j].imshow(v.T, cmap="gray", vmin=0, vmax=vmax, origin="lower")
-    mark = "  <-- best" if rank[m] == 1 else ""
-    axes[0, j].set_title(f"{LABEL[m]}{mark}\nslice head PSNR {psnr[m]:.2f} dB  (rank {rank[m]})",
-                         fontsize=10, fontweight="bold" if rank[m] == 1 else "normal")
-    im = axes[1, j].imshow((np.abs(v - gp) / gmax).T, cmap="jet", vmin=0.0, vmax=0.1, origin="lower")
-    axes[1, j].set_title("|recon - GT| / max(GT)", fontsize=9)
-    cb = fig.colorbar(im, ax=axes[1, j], fraction=0.046, pad=0.02); cb.ax.tick_params(labelsize=6)
+    axes[0, j].imshow(v.T, cmap="gray", vmin=0, vmax=vmax, origin="lower", aspect="auto")
+    mark = "  (best)" if rank[m] == 1 else ""
+    axes[0, j].set_title(f"{LABEL[m]}{mark}\n{psnr[m]:.2f} dB  rank {rank[m]}",
+                         fontsize=8.5, fontweight="bold" if rank[m] == 1 else "normal", pad=2)
+    im = axes[1, j].imshow((np.abs(v - gp) / gmax).T, cmap="jet", vmin=0.0, vmax=0.1, origin="lower", aspect="auto")
 for a in axes.ravel():
     a.set_xticks([]); a.set_yticks([])
+pos = axes[1, -1].get_position()
+cax = fig.add_axes([pos.x1 + 0.004, pos.y0, 0.010, pos.height])
+cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=7)
+cb.set_label("|recon - GT| / max(GT)", fontsize=7)
 fig.suptitle(f"{c}  retrospective AF 12  --  axis{ax} slice {i} ({ANAT[ax]})   "
-             f"(head-masked PSNR of THIS slice; error maps jet, fixed [0, 0.1])",
-             fontsize=15, fontweight="bold")
-fig.tight_layout(rect=[0, 0, 1, 0.94])
+             f"(head-masked PSNR of this slice; error maps jet, fixed [0, 0.1])",
+             fontsize=11, fontweight="bold", y=0.985)
 out = F / f"t1flair_af12_{c}_{args.tag}_axis{ax}_{i}.png"
 fig.savefig(out, dpi=110, bbox_inches="tight"); fig.savefig(R / f"figures/{out.name}", dpi=110, bbox_inches="tight")
 print("wrote", out)
