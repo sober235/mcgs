@@ -176,8 +176,9 @@ metrics, so the learned arms and the classical arms are directly comparable.
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| MC-GS joint v3 ×2 seeds (2× compute) | **40.004** | 0.9024 | **0.01203** | 0.5550 | **35.877** | **0.9478** | **0.0825** | 0.864 | 0.0107 | 257 min |
-| **MC-GS joint v3** | 39.912 | 0.9019 | 0.01229 | 0.5631 | 35.771 | 0.9468 | 0.0831 | 0.867 | 0.0108 | 189 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | **40.004** | 0.9024 | **0.01203** | 0.5550 | **35.877** | 0.9478 | 0.0825 | 0.864 | 0.0107 | 257 min |
+| **MC-GS joint v3.2** | 39.999 | 0.9007 | 0.01205 | 0.5585 | 35.827 | **0.9483** | **0.0799** | 0.897 | 0.0115 | 56 min |
+| MC-GS joint v3 | 39.912 | 0.9019 | 0.01229 | 0.5631 | 35.771 | 0.9468 | 0.0831 | 0.867 | 0.0108 | 189 min |
 | MC-GS single v3 | 39.840 | 0.9073 | 0.01250 | 0.5685 | 35.679 | 0.9455 | 0.0851 | 0.864 | 0.0107 | 55 min |
 | L1-ESPIRiT | 39.823 | **0.9510** | 0.01254 | 0.5802 | 35.530 | 0.9471 | 0.0867 | 0.899 | 0.0118 | 5 min |
 | joint CS-SENSE (JTV) | 39.669 | 0.9468 | 0.01300 | 0.5573 | 35.020 | 0.9461 | 0.1001 | 0.854 | 0.0107 | 5 min |
@@ -198,10 +199,11 @@ metrics, so the learned arms and the classical arms are directly comparable.
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| MC-GS single v3 | **40.846** | 0.9286 | **0.00976** | **0.4745** | **36.227** | **0.9538** | 0.0675 | 0.827 | 0.0107 | 51 min |
+| **MC-GS joint v3.2** | **40.893** | 0.9294 | **0.00966** | 0.4756 | **36.254** | **0.9552** | **0.0646** | 0.854 | 0.0115 | 56 min |
+| MC-GS single v3 | 40.846 | 0.9286 | 0.00976 | **0.4745** | 36.227 | 0.9538 | 0.0675 | 0.827 | 0.0107 | 51 min |
 | MC-GS joint v3 ×2 seeds (2× compute) | 40.815 | 0.9292 | 0.00983 | 0.4778 | 36.164 | 0.9535 | 0.0675 | 0.824 | 0.0107 | 257 min |
-| **MC-GS joint v3** | 40.766 | 0.9290 | 0.00994 | 0.4812 | 36.112 | 0.9531 | 0.0679 | 0.826 | 0.0108 | 189 min |
-| L1-ESPIRiT | 40.442 | 0.9567 | 0.01072 | 0.5146 | 35.818 | 0.9536 | **0.0656** | 0.865 | 0.0119 | 5 min |
+| MC-GS joint v3 | 40.766 | 0.9290 | 0.00994 | 0.4812 | 36.112 | 0.9531 | 0.0679 | 0.826 | 0.0108 | 189 min |
+| L1-ESPIRiT | 40.442 | 0.9567 | 0.01072 | 0.5146 | 35.818 | 0.9536 | 0.0656 | 0.865 | 0.0119 | 5 min |
 | MC-GS single v2 | 40.302 | 0.9290 | 0.01106 | 0.5082 | 35.680 | 0.9480 | 0.0661 | 0.866 | 0.0117 | 38 min |
 | MC-GS joint v2 | 40.174 | 0.9314 | 0.01140 | 0.5239 | 35.429 | 0.9474 | 0.0665 | 0.857 | 0.0117 | 40 min |
 | CS-SENSE (TV, converged) | 40.110 | 0.9509 | 0.01156 | 0.5064 | 35.168 | 0.9493 | 0.0785 | 0.783 | 0.0101 | 4 min |
@@ -445,6 +447,44 @@ cd $F && SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar12_n24_wav005_full4k 7 4000 \
   strength because FLAIR, the other topics' second contrast, has no tuned value of its own.
 - Figures (compact panels, v3 as the proposed method): `figures/t1t2_af12_T1_best_axis0_150.png`,
   `figures/t1t2_af12_T2_best_axis0_144.png` (v3's best transverse slices), `figures/t1t2_af12_{T1,T2}_best3planes.png`.
+
+## MC-GS joint v3.2 — T1-channel wavelet 0.06 and lighter edge-TV 0.07 (2026-09-11)
+
+v3.2 = v3 + a T1-channel wavelet strength of 0.06 (the second channel keeps 0.05) + edge-TV 0.07 instead of 0.10; on the
+T1+FLAIR topics the FLAIR channel takes 0.12. Selected on the tuning pair by the pre-registered rules of the framework
+program (Rounds 16–17, "## v3.2 — adopted"). This is the tuning pair: v3.2 was selected here.
+
+```bash
+cd $F && CONFIG=configs/t1t2_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar19_n24_T1p06_geo007 2 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05 --set loss.lambda_wav_plain=0.06 --lambda_geo 0.07
+```
+
+Standing of v3.2 against every other method in this topic's table (single run, seed 42):
+
+| metric | T1 | T2 |
+|---|---|---|
+| head PSNR | **first**, 35.827 (next: L1-ESPIRiT 35.530) | **first**, 36.254 (next: L1-ESPIRiT 35.818) |
+| head SSIM | **first**, 0.9483 (next: L1-ESPIRiT 0.9471) | **first**, 0.9552 (next: L1-ESPIRiT 0.9536) |
+| head HFEN | **first**, 0.0799 (next: L1-ESPIRiT 0.0867) | **first**, 0.0646 (next: L1-ESPIRiT 0.0656) |
+| whole-volume PSNR | **first**, 39.999 (next: L1-ESPIRiT 39.823) | **first**, 40.893 (next: L1-ESPIRiT 40.442) |
+| whole-volume NMSE | **first**, 0.01205 (next: L1-ESPIRiT 0.01254) | **first**, 0.00966 (next: L1-ESPIRiT 0.01072) |
+| whole-volume HFEN | third, 0.5585 (best: converged TV 0.5549) | **first**, 0.4756 (next: converged TV 0.5064) |
+| whole-volume SSIM | sixth, 0.9007 (best: L1-ESPIRiT 0.9510) | sixth, 0.9294 (best: ZS-SSDU 0.9677) |
+
+| arm | head PSNR T1 / T2 | head SSIM | head HFEN | whole PSNR | sharp |
+|---|---|---|---|---|---|
+| **MC-GS joint v3.2** | 35.827 / 36.254 | 0.9483 / 0.9552 | 0.0799 / 0.0646 | 39.999 / 40.893 | 0.897 / 0.854 |
+| MC-GS joint v3 | 35.771 / 36.112 | 0.9468 / 0.9531 | 0.0831 / 0.0679 | 39.912 / 40.766 | 0.867 / 0.826 |
+| L1-ESPIRiT | 35.530 / 35.818 | 0.9471 / 0.9536 | 0.0867 / 0.0656 | 39.823 / 40.442 | 0.899 / 0.865 |
+
+- **T1**: first on head PSNR, head SSIM, head HFEN, whole-volume PSNR, whole-volume NMSE; not first on whole-volume HFEN (third), whole-volume SSIM (sixth).
+- **T2**: first on head PSNR, head SSIM, head HFEN, whole-volume PSNR, whole-volume NMSE, whole-volume HFEN; not first on whole-volume SSIM (sixth).
+- **Against v3**: T1 +0.057 dB / head SSIM +0.0014, T2 +0.142 dB / head SSIM +0.0020.
+- **Gate**: T1 sharpness 0.897 passes the pre-registered 0.874 floor.
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS included): T1 first on 47/47, 88/88, 93/93 transverse / coronal / sagittal slices; T2 first on 44/44, 83/83, 90/90 transverse / coronal / sagittal slices.
+- Whole-volume SSIM is dominated by the background noise that `ecalib -c 0.0` leaves in the air (see the gauge note above), which is why the campaign reads head-only metrics; it is reported as it stands.
+- Figures (compact panels, v3.2 as the proposed method): `figures/t1t2_af12_T1_best_axis0_150.png`, `figures/t1t2_af12_T2_best_axis0_144.png`, `figures/t1t2_af12_{T1,T2}_best3planes.png`.
 
 ## Regenerating
 
