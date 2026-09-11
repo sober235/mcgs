@@ -317,3 +317,8 @@ FLAIR −0.022**; head HFEN better by 0.0047 / 0.0022, SSIM level, sharpness up.
 the smaller margin) but FLAIR's PSNR cell falls beyond the floor → by rule 1 a **reshape at 4000**, not a promotion.
 The decision passes to the combination `ar5_db4_lev1_full4k` (card 4, ~03:10), which at 1500 iterations held FLAIR
 at the baseline while keeping the T1 gain.
+- `ar6_wavlev1_wavC085` (1 level + FLAIR wavelet 0.085, on P7; card 4, 26 min): 36.757 / 36.118 against P7@1500
+  36.719 / 36.075 — **T1 +0.038, FLAIR +0.043**; head SSIM +0.0003 / +0.0010, head HFEN better by 0.0048 / 0.0029,
+  sharpness up. **Keep — every cell improves.** Under the 1-level prior the FLAIR strength 0.085 no longer costs
+  HFEN (it did with 3 levels: `ar4_wavC085`), so FLAIR gets PSNR and fidelity together. Pre-registered three-way
+  combination `ar6_db4_lev1_C085` (db4 + 1 level + FLAIR 0.085) queued on card 3 after the running density-lr knob.
