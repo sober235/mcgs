@@ -265,3 +265,8 @@ in flight (`ar5_n42_full4k` on card 3) are P6-based and are read against P6's ro
 | P7 seed floor | `ar1_P7_i1500_s43` | 5 | after the card-5 round-2 knobs |
 Still in flight from earlier rounds: `ar5_n42_full4k` (card 3, P6-based, 4000 it), `ar4_wavlev1` → `ar2_n60`
 (card 4, P7-based), `ar1_P7_i1500` → `ar4_db4` → `ar4_warmup250` → `ar4_kmid08` (card 5, P7-based).
+
+### Round 3 baseline — 00:42
+`ar1_P7_i1500` (card 5, 26 min): 36.719 / 36.075, SSIM 0.9482 / 0.9368, HFEN 0.1001 / 0.1003, sharp 0.857 / 0.830 —
+reproduces `ar4_wavlev2` (36.719 / 36.076) to 0.001 dB. Round-3 candidates are read against this row with the P6
+floor (0.006 / 0.004 dB); `ar1_P7_i1500_s43` (queued on card 5) re-measures the floor on P7.
