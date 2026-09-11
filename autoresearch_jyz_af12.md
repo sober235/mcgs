@@ -359,3 +359,9 @@ the FLAIR strength buys that back without the HFEN cost it had under 3 levels.
 |---|---|---|
 | FLAIR wavelet 0.10 under the 1-level prior (0.085 → 0.10) | `ar6_db4_lev1_C10` | 5 |
 | T1 wavelet 0.12 on the three-way row (the 1-level prior has fewer coefficients, T1 may take more strength) | `ar6_db4_lev1_C085_T112` | 5 |
+- `ar6_scale_lr003` (scale lr 0.003 instead of 0.002, P8-based; card 3, 27 min): **36.793 / 36.141** against P8@1500
+  36.767 / 36.095 — **+0.026 / +0.046**, head SSIM +0.0001 / +0.0004, head HFEN +0.0001 / +0.0002, sharpness level.
+  **Keep — every cell holds or improves.** An optimiser lever orthogonal to the prior's shape: the Gaussians' scales
+  adapt faster. Follow-ups pre-registered (card 4 after db6): `ar6_slr005` (0.005) and
+  `ar6_db4_lev1_C085_slr003` (the best three-way row + scale lr 0.003); promotion of scale lr 0.003 alone
+  (`ar5_slr003_full4k`, 4000 it, volumes) on card 5 after its round-4 steps.
