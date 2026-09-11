@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""fig_row_final.py -- one transverse slice, the compared methods in ONE row, error maps underneath.
+"""fig_row_final.py -- one slice (transverse; --axis 1 coronal, --axis 2 sagittal), the compared methods in ONE row, error maps underneath.
 
 Layout (2 rows x 10 columns):
   row 1: GT | CG-SENSE | CS-SENSE | Joint SENSE | L1-ESPIRiT | ZS-SSDU | 3D-DIP | 3D-INR | GS-single | MC-GS
@@ -80,29 +80,30 @@ for key, lab, path in ARMS:
 best = max(psnr, key=psnr.get)
 
 ncol = len(ARMS) + 1
-H, W = g2.shape[1], g2.shape[0]                      # displayed as .T: height = axis-2 extent, width = axis-1 extent
+D = (lambda x: x.T) if args.axis == 0 else (lambda x: x)  # axis 0 as before; axes 1, 2: axis 0 (inferior-superior) upright
+H, W = D(g2).shape
 pw, ws, cbw = 2.6, 0.03, 0.9                         # panel width (in), column gap (fraction of a panel), colorbar room (in)
 ph = pw * H / W                                      # panel height: every grid cell has the image's aspect, no slack
 top_in, gap_in, bot_in = 0.85, 0.30, 0.05            # room above row 1 (suptitle + titles), between the rows, below
 fw, fh = pw * (ncol + (ncol - 1) * ws) + cbw, top_in + 2 * ph + gap_in + bot_in
 fig, axes = plt.subplots(2, ncol, figsize=(fw, fh))
 fig.subplots_adjust(left=0, right=1 - cbw / fw, bottom=bot_in / fh, top=1 - top_in / fh, wspace=ws, hspace=gap_in / ph)
-axes[0, 0].imshow(g2.T, cmap="gray", vmin=0, vmax=vmax, origin="lower")
+axes[0, 0].imshow(D(g2), cmap="gray", vmin=0, vmax=vmax, origin="lower")
 axes[0, 0].set_title(f"GT ({c})", fontsize=13, fontweight="bold")
-axes[1, 0].imshow(m2.T, cmap="gray", origin="lower")
+axes[1, 0].imshow(D(m2), cmap="gray", origin="lower")
 axes[1, 0].set_title("head mask", fontsize=11)
 for j, (key, lab, _) in enumerate(ARMS, start=1):
     v = imgs[key]
-    axes[0, j].imshow(v.T, cmap="gray", vmin=0, vmax=vmax, origin="lower")
+    axes[0, j].imshow(D(v), cmap="gray", vmin=0, vmax=vmax, origin="lower")
     axes[0, j].set_title(f"{lab}\n{psnr[key]:.2f} dB", fontsize=12,
                          fontweight="bold" if key == best else "normal")
-    im = axes[1, j].imshow((np.abs(v - g2) / gmax).T, cmap="jet", vmin=0.0, vmax=0.1, origin="lower")
+    im = axes[1, j].imshow(D(np.abs(v - g2) / gmax), cmap="jet", vmin=0.0, vmax=0.1, origin="lower")
 for a in axes.ravel():
     a.set_xticks([]); a.set_yticks([])
 cax = fig.add_axes([axes[1, -1].get_position().x1 + 0.005, axes[1, -1].get_position().y0,
                     0.008, axes[1, -1].get_position().height])
 cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=9)
-region = "butterfly region" if args.crop else "transverse slice"
+region = "butterfly region" if args.crop else {0: "transverse", 1: "coronal", 2: "sagittal"}[args.axis] + " slice"
 fig.suptitle(f"{c}  jiangyizhou  AF 16 -- {region} {args.index}   "
              f"(PSNR = head-masked PSNR of this {'region' if args.crop else 'slice'};  error |recon - GT| / max(GT), jet [0, 0.1])",
              fontsize=13, fontweight="bold", y=0.99)

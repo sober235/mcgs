@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""best_slice_mcgs.py -- the transverse slices on which MC-GS leads every other method of the row figure by the most.
+"""best_slice_mcgs.py -- the slices (transverse; --axis 1 coronal, --axis 2 sagittal) on which MC-GS leads every other method of the row figure by the most.
 
 Methods = the nine of fig_row_final.py (same volumes, same lambdas) and the same gauge: head mask |GT| > 0.05 * P99.9
 of the volume, PSNR peak = max|GT| of the volume, MSE over the head voxels of the slice.
-Eligible: axis-0 slices whose head area is at least --min_area of the largest slice, in both contrasts (keeps the ends
+Eligible: slices along --axis whose head area is at least --min_area of the largest slice, in both contrasts (keeps the ends
 of the head out, where a handful of voxels decides the number).
 margin(slice, contrast) = PSNR(MC-GS) - max over the other eight (GS-single included).
 One slice for both contrasts: the eligible slice with the largest min(margin_T1, margin_FLAIR).
 Also lists distinct candidates (at least --gap slices apart): by that score, and, among the slices where MC-GS is first
 on both contrasts, by its lead over the best method outside the GS family (GS-single left out).
-Writes logs/best_slice_mcgs.json.
+Writes logs/best_slice_mcgs.json (axis 0) or logs/best_slice_mcgs_axis<k>.json.
 """
 import argparse, json, re
 from pathlib import Path
@@ -18,12 +18,15 @@ import numpy as np
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--min_area", type=float, default=0.5)
-ap.add_argument("--ref", type=int, default=168, help="slice to report for comparison")
+ap.add_argument("--axis", type=int, default=0, choices=[0, 1, 2], help="0 transverse, 1 coronal, 2 sagittal")
+ap.add_argument("--ref", type=int, default=None, help="slice to report for comparison (168 on axis 0, else the middle)")
 ap.add_argument("--gap", type=int, default=6, help="minimum distance between listed candidates")
 ap.add_argument("--top", type=int, default=8)
 args = ap.parse_args()
+red = tuple(a for a in range(3) if a != args.axis)          # the two in-plane axes
 
 R = Path(__file__).resolve().parents[1]
+out = R / ("logs/best_slice_mcgs.json" if args.axis == 0 else f"logs/best_slice_mcgs_axis{args.axis}.json")
 summary = json.load(open(R / "logs/summary.json"))
 
 
@@ -54,14 +57,14 @@ for c in ("T1", "FLAIR"):
     gt32 = np.abs(np.load(R / f"recon/gt_{c}_complex.npy")).astype(np.float32)
     head = gt32 > 0.05 * float(np.quantile(gt32, 0.999))
     gt = gt32.astype(np.float64)
-    n = head.sum(axis=(1, 2)).astype(np.float64)
+    n = head.sum(axis=red).astype(np.float64)
     ok = n >= args.min_area * n.max()
     elig = ok if elig is None else elig & ok
     peak = 20 * np.log10(gt.max())
     psnr[c] = {}
     for lab, path in arms(c):
         v = np.abs(np.load(path)).astype(np.float64)
-        se = (((v - gt) ** 2) * head).sum(axis=(1, 2))
+        se = (((v - gt) ** 2) * head).sum(axis=red)
         with np.errstate(divide="ignore", invalid="ignore"):
             psnr[c][lab] = peak - 10 * np.log10(se / n)
     others = [k for k in psnr[c] if k != "MC-GS"]
@@ -96,7 +99,7 @@ def line(s):
             f"FLAIR {lead['FLAIR'][s]:+.3f} [{leader['FLAIR'][s]}]")
 
 
-print(f"eligible slices (head area >= {args.min_area:g} of max, both contrasts): {idx.min()}..{idx.max()}  n={idx.size}")
+print(f"axis {args.axis}: eligible slices (head area >= {args.min_area:g} of max, both contrasts): {idx.min()}..{idx.max()}  n={idx.size}")
 for c in ("T1", "FLAIR"):
     own = int(idx[np.argmax(margin[c][idx])])
     print(f"{c:5s} MC-GS first on {int((margin[c][idx] > 0).sum())}/{idx.size} eligible slices; "
@@ -109,11 +112,12 @@ for s in cand_a:
 print(f"distinct candidates among the both-first slices by the smaller lead over the best non-GS method:")
 for s in cand_b:
     print(line(s))
-for s, tag in ((best, "CHOSEN"), (args.ref, "reference")):
+ref = args.ref if args.ref is not None else (168 if args.axis == 0 else len(elig) // 2)
+for s, tag in ((best, "CHOSEN"), (ref, "reference")):
     print(f"{tag} slice {s}:")
     for c in ("T1", "FLAIR"):
         print(f"  {c:5s} " + "  ".join(f"{k} {psnr[c][k][s]:.3f}" for k in psnr[c]))
-json.dump({"criterion": "max over eligible axis-0 slices of min(margin_T1, margin_FLAIR); margin = PSNR(MC-GS) - "
+json.dump({"axis": args.axis, "criterion": "max over eligible slices along the axis of min(margin_T1, margin_FLAIR); margin = PSNR(MC-GS) - "
                         "max over the other eight methods; head-masked slice PSNR, volume peak",
            "min_area": args.min_area, "eligible": idx.tolist(), "best_slice": best, "both_first": both.tolist(),
            "gap": args.gap, "candidates_all": cand_a, "candidates_non_gs": cand_b,
@@ -122,5 +126,5 @@ json.dump({"criterion": "max over eligible axis-0 slices of min(margin_T1, margi
            "runner_up": {c: runner[c].tolist() for c in runner},
            "lead_non_gs": {c: np.round(lead[c], 4).tolist() for c in lead},
            "leader_non_gs": {c: leader[c].tolist() for c in leader}},
-          open(R / "logs/best_slice_mcgs.json", "w"))
-print("wrote", R / "logs/best_slice_mcgs.json")
+          open(out, "w"))
+print("wrote", out)

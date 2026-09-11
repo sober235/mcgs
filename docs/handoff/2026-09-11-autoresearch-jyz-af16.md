@@ -60,6 +60,16 @@ Environment: `PYTHONNOUSERSITE=1 PYTHONPATH=`, conda env GSTMI (`/home/congcongl
   non-GS method: 124 (over L1-ESPIRiT T1 +0.417, FLAIR +0.544; over GS-single +0.019 / +0.028), 132 (+0.384 / +0.392;
   +0.025 / +0.035), then 118, 107, 77, 213, 194, 178. 124 and 132 cut the upper orbits, temporal lobes, brainstem and cerebellum.
   Figures `figures/t1flair_v3_af16_{T1,FLAIR}_row_axis0_{124,132}.png`.
+- Three planes (user asked 2026-09-11): `best_slice_mcgs.py --axis {1,2}` scans the coronal and sagittal planes the
+  same way (`logs/best_slice_mcgs_axis{1,2}.json`), `fig_row_final.py --axis {1,2}` draws them upright, and
+  `fig_three_planes.py --contrast C --slices TRA COR SAG` stacks the three row figures into one image.
+  Best per plane: coronal 110 (frontal horns, temporal lobes; over GS-single T1 +0.057, FLAIR +0.038; over
+  L1-ESPIRiT +0.312 / +0.170) and sagittal 151 (far lateral, near the edge of the scanned range; +0.060 / +0.078;
+  +0.347 / +0.370). MC-GS is first on both contrasts on 63/135 coronal and 50/128 sagittal slices; at the middle
+  coronal (128) and sagittal (88) slices GS-single is ahead on FLAIR (-0.023, -0.005).
+  Figures `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_109_110_151.png` (best per plane) and
+  `..._row3planes_159_110_108.png` (typical levels; parasagittal 108: +0.032 / +0.026 over GS-single, +0.309 / +0.282
+  over L1-ESPIRiT, MC-GS first on both contrasts in all three planes).
 
 ## 2. Waiting for the user
 
