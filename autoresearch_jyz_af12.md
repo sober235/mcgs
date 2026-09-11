@@ -395,3 +395,7 @@ here (baked by this commit); screening baseline `ar6_db4_lev1_C085` (36.812 / 36
 **+0.100 / +0.069 dB** head PSNR, HFEN better by 0.0059 / 0.0041, SSIM +0.0009 / +0.0016.
 Queued and still valid on P9: `ar5_db4_lev1_C10_full4k` (FLAIR 0.10, card 5) and the union row with T1 0.12 /
 scale lr 0.005 (card 4) — each is one or two steps beyond P9 and is read against it.
+- `ar6_db4_lev1_C12` (FLAIR wavelet 0.12 under the 1-level db4 prior; card 5, 26 min): 36.810 / 36.163 — against
+  the 0.10 row FLAIR +0.003 (at the floor), FLAIR SSIM +0.0004, FLAIR HFEN −0.0002. **Plateau**: the FLAIR curve
+  0.085 36.135 → 0.10 36.160 → 0.12 36.163 has flattened; 0.10 is taken as the FLAIR strength (its promotion is
+  running on card 5), 0.12 is not pursued.
