@@ -424,7 +424,7 @@ scale lr 0.005 (card 4) — each is one or two steps beyond P9 and is read again
 
 ### Promotion 7 — FLAIR wavelet 0.10 on P9 at 4000 iterations (05:35): Pareto keep, folded into the next parent
 `ar5_db4_lev1_C10_full4k` (card 5, 63 min, volumes): 36.852 / **36.268** against P9's 36.853 / 36.234 — T1 level,
-**FLAIR +0.034**, FLAIR head SSIM +0.0007, FLAIR head HFEN +0.0003, T1 cells level, sharpness level. No cell
+**FLAIR +0.034**, FLAIR head SSIM +0.0007, FLAIR head HFEN +0.0003, T1 cells level, FLAIR sharpness 0.823 vs 0.832 (−0.009, inside the 0.01 allowance but at its edge). No cell
 regresses; `min_margin` does not move because T1 now binds at 4000 (+0.426 vs FLAIR +0.511).
 Rule clarification (recorded now, applies from here): a run whose cells all hold within their floors and at least
 one improves is a **Pareto keep** even when `min_margin` is unchanged — the objective is the gap on every metric,
