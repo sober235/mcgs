@@ -365,3 +365,8 @@ the FLAIR strength buys that back without the HFEN cost it had under 3 levels.
   adapt faster. Follow-ups pre-registered (card 4 after db6): `ar6_slr005` (0.005) and
   `ar6_db4_lev1_C085_slr003` (the best three-way row + scale lr 0.003); promotion of scale lr 0.003 alone
   (`ar5_slr003_full4k`, 4000 it, volumes) on card 5 after its round-4 steps.
+- `ar6_db4_lev1_C10` (db4 + 1 level + FLAIR wavelet 0.10; card 5, 27 min): 36.812 / **36.160** — against the 0.085
+  row T1 level, FLAIR +0.025, FLAIR SSIM +0.0006, FLAIR HFEN +0.0002; against P8@1500 +0.045 / +0.065 with every
+  cell up. **Keep.** The FLAIR strength curve under the 1-level prior: 0.07 36.080, 0.085 36.135, 0.10 36.160 —
+  still rising with shrinking steps; `ar6_db4_lev1_C12` queued (card 5), then the promotion of the 0.10 row
+  (`ar5_db4_lev1_C10_full4k`) and of scale lr 0.003.
