@@ -949,5 +949,5 @@ to 0.905. On both held-out subjects, then, the T1-channel wavelet transfers for 
 
 Per slice, with v3.2 as ours: T1 first on 94/129, 128/128 and 104/129 full-brain slices, FLAIR on every full-brain slice.
 v3.2's whole-volume T1 PSNR and NMSE trail converged TV by 0.003 dB and 0.00001. The held-out picture over the two held-out
-subjects: head PSNR and head HFEN hold for every recipe except v3.2's T1 head PSNR on jiangyizhou; head SSIM does not hold
+subjects: head PSNR and head HFEN hold for every recipe except v3.2 on jiangyizhou, where its T1 head PSNR is second and its FLAIR head HFEN is second (0.1025 against L1-ESPIRiT's 0.1002); head SSIM does not hold
 for any recipe on any held-out channel except v3.2's FLAIR on jiangyizhou (by 0.0001).

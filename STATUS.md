@@ -1,8 +1,9 @@
-# STATUS — 2026-09-11 01:05（分支 `autoresearch-t1t2`，上次 tag `handoff/2026-09-10`）
+# STATUS — 2026-09-11 13:20（分支 `autoresearch-t1t2`，已推到 `origin/autoresearch-t1t2`，tag `handoff/2026-09-11`）
 
 ## 1. 已完成且已验证
+- **阶段总结（09-11 13:20）**：`docs/superpowers/records/2026-09-11-autoresearch-t1t2-v32-heldout.md`（英文），覆盖 v2 之后的全部结果：经典臂复核、小波先验与 v3、v3.1 / v3.2、两个留出受试者、两种子平均、AF16 配方交叉检验、P-LORAKS、没领先的指标和待定的决定。已快进推到 `origin/autoresearch-t1t2`。推送前测试 183 passed（GPU 0，2 分 20 秒）。
 - **v3.2 已采纳**（调参对组合 `ar19_n24_T1p06_geo007`）：v3.2 = v3 + T1 通道小波 0.06 + edge-TV 0.07；T1+FLAIR 课题另加 FLAIR 通道小波 0.12。调参对 T1 35.827 / T2 36.254，头内 PSNR、SSIM、HFEN 两对比度都第一（SSIM 0.9483 / 0.9552 对 L1-ESPIRiT 0.9471 / 0.9536，HFEN 0.0799 / 0.0646 对 0.0867 / 0.0656），整图 PSNR、NMSE 两对比度第一，全部预注册门都过（T1 锐度 0.897）；整图 SSIM 两对比度第六（空气噪声主导的口径）、T1 整图 HFEN 第三。命令见程序文件 "## v3.2 — adopted"。T1+FLAIR 两个课题的 v3.2 与三个课题的 seed 43 约 06:35 落账，之后归档表和图的主推臂从 v3 换成 v3.2。
-- **v3 是当前配方（09-11 00:25 定）**：v2 的冷启动修复 + 240 万初始点 + 共用复数小波稀疏 λ 0.05（加在 edge-TV 之上），4000 步。
+- **v3（09-11 00:25 定，已被 v3.2 取代）**：v2 的冷启动修复 + 240 万初始点 + 共用复数小波稀疏 λ 0.05（加在 edge-TV 之上），4000 步。
   ```
   cd /data0/congcong/code/GS/Paired_ARC_GS_general_framework
   SAVE_VOLUMES=1 ./autoresearch_t1t2.sh <EXP> <GPU> 4000 \
@@ -48,29 +49,17 @@
 - 仍成立的旧结论：冷启动修复在所有课题 +1.4~2.3 dB；v2 = 冷启动修复 + 120 万点（`ar3_P2_full4k`，34.978 / 35.429）。
 
 ## 2. 待用户拍板
-- 对外表述：v3 在调参对与 hyw T1+FLAIR 上头内 PSNR 两对比度第一，留出受试者 T1 打平、FLAIR 第一；SSIM 全部略低；hyw 两课题 T1 锐度门未过。是否按这个口径写。
-- T1 锐度下限 0.874 取自旧冷启动 joint 臂：v3 的颗粒度比与头内 HFEN 都更好，读作去噪。这条门是保持、改成对 GT 的双边带，还是看第 16 轮结果再定。
-- v3 ×2（两种子平均，2 倍算力）是否作为主推结果。目前主推仍是单次 v3，v3 ×2 单列一行。
-- 主推配方的表述（等第 20 轮）：v3 / v3.1 在 hyw 上选、在 jyz 上留出检验；AF16 会话的配方在 jyz 上选、在 hyw 上检验。若后者在 hyw 两个课题上也第一，可以写成"两个受试者互为留出，同一配方族都第一"。
-- 主推配方：v3.2 按预注册规则在 hyw 上选出，调参对头内三项全第一，但在留出的 jyz 上 T1 落后 L1-ESPIRiT 0.035；v3.1 在 jyz 上 T1 领先 0.124，但调参对 T2 的 SSIM/HFEN 不及 L1。对外主推哪一个（或都报），待用户定。
+- 主推配方：v3.2（按预注册规则选出，全部门都过，调参对头内三项全第一；四个课题八个通道头内 PSNR 七个第一，jyz T1 比 L1-ESPIRiT 低 0.035）；v3.1（八个通道头内 PSNR 全第一，但 hyw 两个课题与 tangbing 的 T1 锐度不过 0.874，调参对 T2 头内 SSIM、HFEN 不及 L1）；或两者的两种子平均（2 倍算力）。
+- 对外口径：头内 PSNR 与头内 HFEN 在四个课题上基本第一；头内 SSIM 在留出受试者上守不住（四个留出通道只有 v3.2 的 jyz FLAIR 以 0.0001 领先）；整图 SSIM 各课题第五或第六（空气噪声主导）。不能写成"所有指标第一"。
+- T1 锐度门：保留单边下限 0.874（取自旧冷启动 joint 臂），还是改成围绕真值 1.0 的双边带（sharp 是对真值的比值）。
 - 分支：本仓库 `main` 与本线无共同祖先（CE 那条线），是否把 `master` 快进到本分支当本线的 main。
 - 待看的图：`http://localhost:8765/t1t2_af12/t1t2_af12_T1_best_axis0_150.png`、`..._T2_best_axis0_144.png`、`..._T1_best3planes.png`、`..._T2_best3planes.png`。
 
 ## 3. 下一步
-- 第 16 轮（预注册与判定规则见 `autoresearch_t1t2.md` Round 16）：`ar16_n24_wav005_T1p06`（T1 通道小波 0.06，另一通道保持 0.05）、`ar16_n24_wav005_geo007`（edge-TV 0.10 → 0.07），4000 步，`scratchpad/queue16.sh` 在 GPU 4、6 空出后自动起跑（约 01:32、01:53）。替代 v3 的配置要再原样跑两个 T1+FLAIR 课题。
-- 第 17 轮（预注册见程序 Round 17）：FLAIR 通道小波 0.08 / 0.12，只在 hyw T1+FLAIR 上选（`ar17_tf_hyw_wavC008` / `wavC012`），`scratchpad/queue17.sh` 在 GPU 5、7 空出后起跑（约 02:15、02:25）；选中的值再原样跑 jiangyizhou。
-- 所有运行已结束（12:54），GPU 全部空闲；P-LORAKS 在三个原有课题全部入表，tangbing 上按预注册不跑。
-- 在跑：单对比度消融 `ar15_single_FLAIR_jyz_v3`（GPU 5，约 02:26）、`ar15_single_FLAIR_hyw_v3`（GPU 7，约 02:31）。已落账：分对比度变体 seed 43（与 seed 42 相同到 0.001 dB，但体素级差 25–29%）、jyz T1 单对比度 36.257（joint 比它高 0.08）、360 万点晋级（T1 35.662 / T2 36.233，按规则未采纳）。
-- 某个 T1+FLAIR 课题的两个单对比度落账后：跑该课题 `scripts/extract_gs_volumes.py`，再 `bash $S/refresh_topic.sh <课题> <前缀> T1,FLAIR`；README 的 v3 段落数字取 `python $S/v3_facts.py <课题>`；最后 `bash $S/mirror_topic.sh <课题> <镜像目录> <前缀> T1,FLAIR` 并提交（`S=/data0/congcong/code/GS/Results_20260908/T1T2_AF12_retro/scripts`）。
-- P-LORAKS 剩三个通道：hyw FLAIR 与 jyz T1 在跑（00:38 起，各 7–8 h），jyz FLAIR 随后。`scratchpad/ploraks_finish2.sh` 落一个导入一个，课题齐了自动刷新表、逐层与图（v3 最优层）。刷新后只剩镜像和提交：
-  ```
-  S=/data0/congcong/code/GS/Results_20260908/T1T2_AF12_retro/scripts
-  bash $S/mirror_topic.sh T1FLAIR_AF12_retro t1flair_af12_retro t1flair_af12 T1,FLAIR
-  bash $S/mirror_topic.sh T1FLAIR_AF12_v3_jiangyizhou t1flair_af12_v3_jiangyizhou t1flair_v3_af12 T1,FLAIR
-  git commit -m "archive: P-LORAKS rows for the two T1+FLAIR topics"
-  ```
-  scratchpad = `/tmp/claude-1002/-home-congcongliu--claude/02e916fd-fbec-4d76-a42c-a38bb99a9681/scratchpad`，日志 `ploraks_finish2.log`。
-- 其余四个 CFL 受试者（vol2/4/5/6/7）一条命令可克隆：`T1FLAIR_AF12_retro/scripts/setup_subject.sh`，然后同配方跑。
+- 所有运行已结束（09-11 12:54），GPU 全部空闲；P-LORAKS 在三个原有课题全部入表，tangbing 按预注册不跑。
+- 用户定了主推配方之后，再改各课题 README 与图的主推臂。
+- 可选，都没做：tangbing 的 seed 43 与两种子平均；其余 CFL 受试者（vol2/5/6/7）用 `T1FLAIR_AF12_retro/scripts/setup_subject.sh` 克隆后同配方跑；v3.2 在 AF16 上跑（本循环在 AF16 只跑过 v2）。
+- 刷新一个课题：`bash $S/refresh_topic.sh <课题> <前缀> T1,FLAIR`，README 的 MC-GS 段落数字取 `python $S/v3_facts.py <课题>`，再 `bash $S/mirror_topic.sh <课题> <镜像目录> <前缀> T1,FLAIR` 并提交（`S=/data0/congcong/code/GS/Results_20260908/T1T2_AF12_retro/scripts`）。克隆出来的课题先把 `summarize.py` / `extract_gs_volumes.py` 改成只读本受试者的运行。
 
 ## 4. 已知的坑与别重做
 - 经典臂必须查收敛：CS-SENSE 的 35 轮 ADMM 未收敛（200 轮高 0.35–0.6 dB）；L1-ESPIRiT 100 步好于 300 步（早停正则），报告时写明步数。
