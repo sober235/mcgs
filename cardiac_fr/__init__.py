@@ -18,6 +18,9 @@ N_SEG = 22            # spokes per interleave; seg 0 is the SI self-navigation s
 N_SPOKE = N_SHOT * N_SEG
 N_SAMP = 224          # readout samples, 2x oversampled
 N_COIL = 24
-GRID = 112            # image matrix, FOV 220 mm
+GRID = 112            # image matrix of the protocol, FOV 220 mm; R0 and the polarity reconstructions
+RECON_GRID = 224      # REF, held-out spokes and gauge subsets (spec 5.6/5.7 correction 5, 2026-09-11): 2x FOV
+                      # (448 mm) with the same 2 mm voxels, so signal outside 220 mm is modelled, not folded in
+FOV_CROP = slice((RECON_GRID - GRID) // 2, (RECON_GRID + GRID) // 2)   # the 220 mm FOV inside the 224 grid
 KEEP = slice(3, 221)  # readout samples kept (spec 5.2): 0-2 and 221-223 dropped
 T_STEADY_MS = 10_000.0

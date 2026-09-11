@@ -1665,6 +1665,7 @@ cd /data0/congcong/code/GS/mcgs_cardiac_wt && git add cardiac_freerunning_megre/
 
 > 2026-09-11 修正（用户批准）：判据 (b) 改为回波 3、各轴中心块 16:96、亚体素归一化互相关，|位移| < 0.5 体素算无法判断。原实现用回波 0、沿 SI 全长取剖面，被视野边缘不随呼吸移动的亮带主导，V07 上位移算成 0 而停下。
 > 2026-09-11 第二次修正（用户选方案 1）：各轴中心整块被脊柱、肋软骨、胸壁这些不随呼吸动的强边缘主导（V07 回波 3 得 +0.77，与局部测量相反）。改为在肝顶块与心脏块里局部测位移，两块方向一致且都不小于 0.5 体素才有效；块坐标逐例放在 R0 图上，写进课题 `polarity_boxes.json`。
+> 2026-09-11 晚第五处修订（2 倍视野，用户批准）：220 mm 视野只装下约四成信号，REF 的留出残差底 0.452 主要是视野外信号折叠（spec 5.6）。REF、留出与子集改在 224³ 上重建、存盘与指标取中心 112³：`cardiac_fr` 加 `RECON_GRID=224`、`FOV_CROP`、`bart.crop_center/embed_center/interp_maps`（含测试）；`common.grid_of/sens_of`（r0/low/high 仍 112³ 与 `sens`，其余 224³ 与 `sens2x`）、`recon()` 存中心裁剪、`ref_lmax` 按网格缓存、新 `ref_scaling()`（缓存或一步探针）；新脚本 `s05b_coilmaps_2x.py`（112³/448 mm ESPIRiT 插值到 224³）；V07 的链 `run_v07_fov2x.sh`。112³ 的 V07 结果移到 `recon/V07/grid112_fov220/`，日志与图加 `_grid112` 后缀。
 > 2026-09-11 第三处修订（用户选方案 1）：迭代数核对 60/100 与 120/200 都差约 31%，原因是径向下 AᴴA 最大特征值约 5,617，绝对 λ=1e-3 等于不正则。REF 与子集改用 λ = λ_rel × λmax：新脚本 `s08b_lambda_select.py` 在回波 0 上从 {1e-3, 3e-3, 1e-2} 选能过迭代数核对的最小 λ_rel；`s06_recon.py --lam-rel`、`s08_checks.py --lam-rel` 与 `s10_selfcheck.py` 的 CG 臂乘 λmax（`common.ref_lmax`，缓存在 `recon/<Vxx>/ref_lmax.json`）；启动脚本 `run_v07_ref_lam.sh`。
 
 **Files:**
@@ -1850,6 +1851,7 @@ cd /data0/congcong/code/GS/mcgs_cardiac_wt && git add cardiac_freerunning_megre/
 
 ### Task 11: V07 的评估口径：留出与子集、心脏框、自检
 
+> 2026-09-11 晚：自检在 224³ 上重跑（第五处修订，见 Task 10 注记）；第二次 112³ 自检（L1 绝对 λ 3e-3）CG 8/8 单调、L1 只 2/8，根因是视野外折叠把留出口径压到底噪之上 0.1–1% 的差别里（`logs/selfcheck_V07_l1_abs_fixed.*`）。
 > 2026-09-11：CG 用 REF 的 λ_rel × λmax；L1 的候选是绝对值。第一次自检把 L1 也乘了 λmax，图像被压成零、自检不过，经用户同意改回；100 步 FISTA 未收敛，按早停解报告。
 
 **Files:**
@@ -2017,6 +2019,7 @@ cd /data0/congcong/code/GS/mcgs_cardiac_wt && git add cardiac_freerunning_megre/
 
 ### Task 12: 冻结参数，跑 V03、V04、V08
 
+> 2026-09-11 晚：第一阶段（112³：线圈图、R0、图、两个三分组）已于 18:55 对 V03/V04/V08 启动（`run_rest.sh 1`，phase 1 不再读 `params_frozen.json`）。第二阶段改为 224³：`run_subject.sh` 的 phase 2 先跑 `s05b_coilmaps_2x.py`，REF 用本例 224³ 的 λmax；参数在 V07 224³ 自检通过后再冻结。
 > 2026-09-11：判据 (b) 需要每例的肝顶块与心脏块。三例先跑到两个呼吸三分组的重建为止，在各自 R0 图上放好块、写进 `polarity_boxes.json`，再跑极性、REF 与核对。REF 的 λ_rel 按 V07 冻结，每例用自己的 λmax（`ref_lmax.json`）。
 
 **Files:**

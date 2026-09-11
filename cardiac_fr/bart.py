@@ -106,3 +106,39 @@ def forward(traj, img, sens, out, work, log=None) -> None:
     tmp = Path(work) / f"{Path(out).name}_coilimg"
     run(["fmac", img, sens, tmp], log=log)
     run(["nufft", traj, tmp, out], log=log)
+
+
+def dims(base) -> tuple:
+    """Array dimensions from the .hdr file, without reading the data."""
+    lines = Path(f"{base}.hdr").read_text().split("\n")
+    return tuple(int(v) for v in lines[lines.index("# Dimensions") + 1].split())
+
+
+def crop_center(arr: np.ndarray, n: int) -> np.ndarray:
+    """Central n^3 of the first three axes: an image on a 2x FOV grid -> the protocol FOV. BART centres the image on
+    index N/2 for every grid size, so the crop is [(N - n)/2, (N + n)/2) on each axis (test_cardiac_fr_bart.py).
+    Note the normalisation: BART's NUFFT scales like a unitary FFT, so on a grid with 8x the voxels the forward
+    operator is 8^-1/2 smaller and a -S reconstruction is 2.83x brighter in data units; the metrics are scale-free
+    and held-out predictions use the same grid's operator, so nothing in the pipeline depends on this."""
+    sl = tuple(slice((s - n) // 2, (s + n) // 2) for s in arr.shape[:3])
+    return arr[sl]
+
+
+def embed_center(arr: np.ndarray, n: int) -> np.ndarray:
+    """Zero-pad the first three axes to n^3 around the same centre (the inverse of crop_center)."""
+    out = np.zeros((n, n, n) + arr.shape[3:], dtype=arr.dtype)
+    sl = tuple(slice((n - s) // 2, (n + s) // 2) for s in arr.shape[:3])
+    out[sl] = arr
+    return out
+
+
+def interp_maps(sens_in, out, grid: int, work, log=None) -> None:
+    """Coil maps on a coarser grid of the same FOV -> grid^3 by Fourier interpolation: unitary FFT, centred
+    zero-padding, unitary inverse FFT, scaled by (grid/n)^1.5 so the values at the original nodes are unchanged.
+    Spec 5.5 correction 5 (2026-09-11): ecalib's per-voxel step costs about 1 ms per voxel, hours on 224^3."""
+    work = Path(work)
+    n = dims(sens_in)[0]
+    run(["fft", "-u", "7", sens_in, work / "interp_k"], log=log)
+    run(["resize", "-c", "0", grid, "1", grid, "2", grid, work / "interp_k", work / "interp_kpad"], log=log)
+    run(["fft", "-u", "-i", "7", work / "interp_kpad", work / "interp_img"], log=log)
+    run(["scale", repr((grid / n) ** 1.5), work / "interp_img", out], log=log)

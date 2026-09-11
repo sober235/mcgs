@@ -6,7 +6,7 @@ import sys
 
 import numpy as np
 
-from common import LOGS, prepare_inputs, recon, recon_dir, ref_lmax
+from common import LOGS, prepare_inputs, recon, recon_dir, ref_lmax, ref_scaling
 
 sys.path.insert(0, "/data0/congcong/code/GS/mcgs_cardiac_wt")
 from diag_artefact.headonly import head_mask  # noqa: E402
@@ -18,8 +18,8 @@ ap.add_argument("--lam-rel", type=float, default=None, help="REF lambda relative
 a = ap.parse_args()
 s, n = a.subject, a.ref_iters
 rd = recon_dir(s)
-w = json.loads((rd / "ref_scaling.json").read_text())["0"]
 prepare_inputs(s, "ref", [0])
+w = ref_scaling(s, 0)
 short = int(round(0.6 * n))
 lam = a.lam_rel * ref_lmax(s) if a.lam_rel is not None else 1e-3
 recon(s, "ref", 0, "l2", lam, short, f"ref_it{short}", w=w, lam_rel=a.lam_rel)

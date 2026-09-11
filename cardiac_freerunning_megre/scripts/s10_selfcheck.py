@@ -7,7 +7,7 @@ import sys
 
 import numpy as np
 
-from common import LOGS, TOPIC, prepare_inputs, recon_dir, ref_lmax, run_many, save_fig, score
+from common import LOGS, TOPIC, prepare_inputs, recon_dir, ref_lmax, ref_scaling, run_many, save_fig, score
 
 sys.path.insert(0, "/data0/congcong/code/GS/mcgs_cardiac_wt")
 from cardiac_fr.gauge import error_map, monotone_worse  # noqa: E402
@@ -18,7 +18,7 @@ KEYS = (("body_psnr", True), ("body_ssim", True), ("body_hfen", False), ("heldou
 ITERS = json.loads((LOGS / "checks_V07.json").read_text())["ref_iters"]
 gj = json.loads((TOPIC / "gauge.json").read_text())
 box = gj[S]["heart_box"]
-scal = json.loads((recon_dir(S) / "ref_scaling.json").read_text())
+scal = {str(e): ref_scaling(S, e) for e in ECHOES}
 LMAX = ref_lmax(S)                                  # lambda = lambda_rel x LMAX (spec 5.6, 2026-09-11)
 REL = json.loads((recon_dir(S) / "ref_lambda.json").read_text())["lam_rel"]
 for name in (*AFS, "heldout"):

@@ -6,15 +6,15 @@ import sys
 
 import numpy as np
 
-from common import LOGS, prepare_inputs, recon, recon_dir, ref_lmax
+from common import LOGS, prepare_inputs, recon, recon_dir, ref_lmax, ref_scaling
 
 sys.path.insert(0, "/data0/congcong/code/GS/mcgs_cardiac_wt")
 from diag_artefact.headonly import head_mask  # noqa: E402
 
 s = sys.argv[1]
 rd = recon_dir(s)
-w = json.loads((rd / "ref_scaling.json").read_text())["0"]
 prepare_inputs(s, "ref", [0])
+w = ref_scaling(s, 0)
 lmax = ref_lmax(s)
 rows, chosen = [], None
 for rel in (1e-3, 3e-3, 1e-2):

@@ -13,12 +13,25 @@ import h5py
 import numpy as np
 
 sys.path.insert(0, "/data0/congcong/code/GS/mcgs_cardiac_wt")
-from cardiac_fr import DERIVED_ROOT, FIGS, GRID, KEEP, TOPIC  # noqa: E402
+from cardiac_fr import DERIVED_ROOT, FIGS, GRID, KEEP, RECON_GRID, TOPIC  # noqa: E402
 from cardiac_fr import bart  # noqa: E402
 from cardiac_fr.gauge import image_metrics, kspace_nrmse, norm_scale  # noqa: E402
 
 TRAJ_R = DERIVED_ROOT / "common" / "traj_r.npy"
 LOGS = TOPIC / "logs"
+LOOK_SETS = ("r0", "low", "high")   # GRID (112^3, 220 mm), BART's own scaling: anatomy, orientation, polarity
+
+
+def grid_of(name: str) -> int:
+    """Spec 5.6/5.7 correction 5 (2026-09-11): REF, the held-out spokes and the gauge subsets are reconstructed on
+    RECON_GRID (2x FOV, same voxels), so the signal outside the 220 mm FOV is modelled instead of folded in; the
+    stored .npy and every metric use the central GRID^3 (the protocol FOV)."""
+    return GRID if name in LOOK_SETS else RECON_GRID
+
+
+def sens_of(subject: str, name: str) -> Path:
+    """ESPIRiT maps for the set's grid: sens (112^3, s05) or sens2x (224^3, s05b)."""
+    return DERIVED_ROOT / subject / ("sens" if grid_of(name) == GRID else "sens2x")
 
 
 def work_dir(subject: str) -> Path:
@@ -44,7 +57,7 @@ def set_ids(subject: str, name: str) -> np.ndarray:
 
 def prepare_inputs(subject: str, name: str, echoes) -> None:
     ids = set_ids(subject, name)
-    k = np.load(TRAJ_R, mmap_mode="r")[:, KEEP][:, :, ids] * GRID
+    k = np.load(TRAJ_R, mmap_mode="r")[:, KEEP][:, :, ids] * grid_of(name)
     bart.write_cfl(work_dir(subject) / f"traj_{name}", bart.bart_traj(np.asarray(k)))
     with h5py.File(DERIVED_ROOT / subject / "raw.h5", "r") as h:
         for e in echoes:
@@ -56,12 +69,15 @@ def recon(subject: str, name: str, echo: int, reg: str, lam: float, iters: int, 
           w: float | None = None, debug: bool = False, lam_rel: float | None = None) -> dict:
     wd = work_dir(subject)
     out = wd / f"rec_{tag}_e{echo}"
-    info = bart.pics(wd / f"ksp_{name}_e{echo}", DERIVED_ROOT / subject / "sens", out, wd / f"traj_{name}",
+    info = bart.pics(wd / f"ksp_{name}_e{echo}", sens_of(subject, name), out, wd / f"traj_{name}",
                      reg=reg, lam=lam, iters=iters, w=w, debug=debug,
                      log=LOGS / f"bart_{subject}_{tag}_e{echo}.log")
-    np.save(recon_dir(subject) / f"{tag}_e{echo}.npy", bart.read_cfl(out).astype(np.complex64))
+    x = bart.read_cfl(out)
+    if grid_of(name) != GRID:
+        x = bart.crop_center(x, GRID)                     # the protocol FOV; the full volume stays in rec_<tag> (cfl)
+    np.save(recon_dir(subject) / f"{tag}_e{echo}.npy", x.astype(np.complex64))
     info.update(subject=subject, set=name, echo=echo, reg=reg, lam=lam, lam_rel=lam_rel, iters=iters, w=w, tag=tag,
-                n_spokes=int(set_ids(subject, name).size))
+                n_spokes=int(set_ids(subject, name).size), grid=grid_of(name))
     with open(LOGS / f"recon_{subject}.jsonl", "a") as fh:
         fh.write(json.dumps(info) + "\n")
     return info
@@ -72,14 +88,35 @@ def ref_lmax(subject: str) -> float:
     recon/<subject>/ref_lmax.json. Spec 5.6 (revised 2026-09-11): lambda = lambda_rel x this value."""
     p = recon_dir(subject) / "ref_lmax.json"
     if p.exists():
-        return float(json.loads(p.read_text())["lmax"])
+        d = json.loads(p.read_text())
+        if d.get("grid", GRID) == grid_of("ref"):         # the value depends on the grid and the maps
+            return float(d["lmax"])
     wd = work_dir(subject)
     if not (wd / "ksp_ref_e0.cfl").exists():
         prepare_inputs(subject, "ref", [0])
-    lmax = bart.max_eigenvalue(wd / "ksp_ref_e0", DERIVED_ROOT / subject / "sens", wd / "traj_ref", wd,
+    lmax = bart.max_eigenvalue(wd / "ksp_ref_e0", sens_of(subject, "ref"), wd / "traj_ref", wd,
                                log=LOGS / f"bart_{subject}_maxeig.log")
-    p.write_text(json.dumps({"lmax": lmax, "set": "ref", "n_spokes": int(set_ids(subject, "ref").size)}, indent=1))
+    p.write_text(json.dumps({"lmax": lmax, "grid": grid_of("ref"), "set": "ref",
+                             "n_spokes": int(set_ids(subject, "ref").size)}, indent=1))
     return lmax
+
+
+def ref_scaling(subject: str, echo: int) -> float:
+    """BART's data scaling for the REF spokes of this echo (-d5 'Inverse scaling of the data'), shared as -w by every
+    subset of the echo (spec 5.6). The REF run (s06 --debug) caches all echoes in recon/<subject>/ref_scaling.json;
+    before it, a one-step probe measures it (the value depends on the data and the operator, not on the iterations
+    or on lambda)."""
+    p = recon_dir(subject) / "ref_scaling.json"
+    d = json.loads(p.read_text()) if p.exists() else {}
+    if str(echo) not in d:
+        wd = work_dir(subject)
+        if not (wd / f"ksp_ref_e{echo}.cfl").exists():
+            prepare_inputs(subject, "ref", [echo])
+        info = bart.pics(wd / f"ksp_ref_e{echo}", sens_of(subject, "ref"), wd / "scaling_probe", wd / "traj_ref",
+                         reg="l2", lam=1e-3, iters=1, debug=True, log=LOGS / f"bart_{subject}_scaling_probe.log")
+        d[str(echo)] = info["scaling"]
+        p.write_text(json.dumps(d, indent=1))
+    return float(d[str(echo)])
 
 
 def run_many(jobs: list, n_parallel: int = 1) -> list:
@@ -92,7 +129,7 @@ def heldout_nrmse(subject: str, tag: str, echo: int) -> float:
     (prepare_inputs(subject, "heldout", ...) must have run first)."""
     wd = work_dir(subject)
     pred = wd / f"pred_{tag}_e{echo}"
-    bart.forward(wd / "traj_heldout", wd / f"rec_{tag}_e{echo}", DERIVED_ROOT / subject / "sens", pred, wd)
+    bart.forward(wd / "traj_heldout", wd / f"rec_{tag}_e{echo}", sens_of(subject, "heldout"), pred, wd)
     return kspace_nrmse(bart.read_cfl(pred), bart.read_cfl(wd / f"ksp_heldout_e{echo}"))
 
 
