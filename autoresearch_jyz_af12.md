@@ -220,3 +220,15 @@ Every one a single change against P6 at 1500 iterations; waiters start them when
   0.0028 / 0.0031, sharpness −0.023 / −0.024. **Discard.**
 - `ar4_kcenter015` (k-space centre weight 0.15; card 4, 26 min): 36.703 / 36.074 — −0.001 / +0.002 dB, every cell
   inside its floor. **Discard (null)**; with 0.5 also null, the centre weight is settled (does nothing under hard DC).
+
+### Promotion 1 — 4.8M points at 4000 iterations (23:25): not promoted
+`ar5_n48_full4k` (card 3, 67 min, 33.1 GB): 36.739 / 36.196 against the parent's 36.753 / 36.165 — **T1 −0.014,
+FLAIR +0.031**; T1 head SSIM −0.0006, T1 head HFEN worse by 0.0013, FLAIR head HFEN worse by 0.0006, sharpness
+level. `min_margin` (set by T1) falls from +0.327 to +0.314. **Discard (reshape at 4000)**: at the full budget the
+extra capacity moves quality from T1 to FLAIR, the AF16 pattern (T1 over-fits the sampled k-space when capacity
+grows; the wavelet term only partly holds it). The 1500-iteration screen missed this because T1's over-fit sets in
+late — capacity decisions need the promotion budget.
+Consequences: the combination `ar5_n48_wavlev2_full4k` was cancelled at start (rule 2 combines kept knobs only;
+partial outputs removed, no ledger row). Card 3 now runs `ar4_warmup1000` then **`ar5_n42_full4k`** (4.2M at 4000,
+volumes): the capacity curve at the promotion budget between 3.6M and 4.8M, pre-registered keep rule = T1 not below
+the parent beyond the floor, FLAIR above it, no cell regressing.
