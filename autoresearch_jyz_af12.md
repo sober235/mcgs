@@ -478,3 +478,18 @@ P10 stays the parent and both are reported as marginal.
 - `ar7_P10_waveps` (soft L1 on the wavelet coefficients, eps 1e-3, on P10; card 4, 26 min): 36.881 / 36.157 against
   P10@1500 36.885 / 36.159 — −0.004 / −0.002 (at the floors), HFEN −0.0002 / −0.0002. **Discard (null)**: the
   Charbonnier floor on the coefficients changes nothing at this eps; the prior is settled as pure L1.
+- `ar7_P10_density_lr02` (density lr 0.02, on P10; card 4, 26 min): 36.883 / 36.157 — null. Density lr settled
+  (0.01 / 0.015 / 0.02 read the same). **Every pre-registered single knob has now been run.**
+
+### Promotion 11 — scale lr 0.005 on P10 at 4000 iterations (07:45): keep-marginal; P10 stays the parent
+`ar5_P10_slr005_full4k` (card 5, 62 min, volumes): **36.955 / 36.316** against P10's 36.944 / 36.268 — **T1 +0.011,
+FLAIR +0.048**, FLAIR head SSIM +0.0004, FLAIR head HFEN +0.0002, T1 head SSIM −0.0001 (= its floor), **T1 head HFEN
+−0.0002** (floor 0.0001), sharpness level; `min_margin` +0.529 (the highest of the three). By the pre-registered
+decision rule neither lr run is clean (T1 HFEN slips by 0.0002 at 0.005 and 0.0003 at 0.008), so **P10 remains the
+parent**; both runs are reported as marginal. For the user: scale lr 0.005 buys +0.011 / +0.048 dB and better FLAIR
+cells for a 0.0002 T1 HFEN cost (0.2% of the value) — accepting it is a judgement call outside the loop's rule.
+
+### Final-recipe rows (launched 07:50)
+Card 5 `ar5_P10_s43_full4k` (seed 43, the 4000-iteration floor and the second seed of the 2x row); card 4
+`ar8_P10_singleT1_full4k` → `ar8_P10_singleFLAIR_full4k` (GS-single arms, configs `t1flair_v3_af12_hyw_single*.yaml`);
+card 3 after the sym4 promotion `ar3_P10_i6000` (the 1.5x-compute row).
