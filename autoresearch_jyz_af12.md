@@ -275,3 +275,10 @@ floor (0.006 / 0.004 dB); `ar1_P7_i1500_s43` (queued on card 5) re-measures the 
   Capacity curve at the promotion budget: 3.6M 36.753 / 36.165 → 4.2M 36.749 / 36.188 → 4.8M 36.739 / 36.196 —
   T1 falls monotonically as FLAIR rises. **Capacity is settled at 3.6M** while T1 is the binding channel; `ar2_n60`
   (1500 it, card 4) still runs as the last point of the screening curve but cannot be promoted on this evidence.
+- `ar4_wavlev1` (wavelet prior on 1 level only, on P7; card 4, 25 min): 36.756 / 36.061 against P7@1500 36.719 /
+  36.075 — **T1 +0.037**, FLAIR −0.014; T1 SSIM +0.0003, FLAIR SSIM level, head HFEN better by **0.0049 (T1) /
+  0.0024 (FLAIR)**. `min_margin` rises from +0.293 to +0.304 (now set by FLAIR), but FLAIR's PSNR cell falls
+  beyond its floor → **keep-marginal**, promotion decides: `ar5_wavlev1_full4k` (4000 it, volumes) on card 3 after
+  the warm-up run. The finest scale alone carries the T1 gain and the HFEN gain on both channels; FLAIR gives back
+  0.014 dB of PSNR. Pre-registered follow-up on card 4: `ar6_wavlev1_wavC085` (1 level + FLAIR wavelet 0.085) to
+  see whether FLAIR's PSNR recovers while its HFEN stays ahead of the parent.
