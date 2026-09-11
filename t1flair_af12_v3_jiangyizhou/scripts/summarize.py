@@ -114,6 +114,20 @@ def main():
             d = json.load(open(p))
             for ch, name in (("plain", d.get("plain_name", "T1")), ("contrast", d.get("contrast_name", "FLAIR"))):
                 rows.append({"contrast": name, "method": meth, **{k: d[ch].get(k) for k in COLS}, "seconds": d.get("elapsed_s")})
+    # extra MC-GS arms from the AF12 autoresearch loop (scripts/add_gs_arm.py, worktree mcgs_af12_wt): metrics
+    # straight from the run's own score json, so the row is exactly what its scorer printed
+    xp = R / "logs/extra_gs_arms.json"
+    if xp.exists():
+        ARC12 = Path("/data0/congcong/code/GS/mcgs_af12_wt/results_arc")
+        for arm in json.load(open(xp)):
+            d = json.load(open(ARC12 / f"{arm['exp']}_score.json"))
+            for c, ch in arm["map"].items():
+                rows.append({"contrast": c, "method": arm["key"], **{k: d[ch].get(k) for k in COLS},
+                             "seconds": d.get("elapsed_s"), "exp": arm["exp"], "iters": d.get("iters")})
+            LABEL.setdefault(arm["key"], arm["label"])
+            if arm["key"] not in ORDER:
+                ORDER.append(arm["key"])
+
     rows.sort(key=lambda r: (r["contrast"], ORDER.index(r["method"]) if r["method"] in ORDER else 99))
     hdr = ["contrast", "method"] + COLS
     lines = ["\t".join(hdr)]
