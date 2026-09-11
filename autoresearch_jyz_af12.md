@@ -152,3 +152,6 @@ screening budget is sensitive enough.
   **0.002 36.426**, 0.0025 36.374, 0.003 36.255, 0.004 35.934 (head PSNR). Best SSIM 0.9473 at 0.0025, best
   HFEN 0.1034 at 0.0015. T1 bar now: PSNR 36.426 (L1@0.002), SSIM 0.9473, HFEN 0.1034. The converged-TV T1
   curve peaks at 0.0007 = 36.162 (0.0005 35.970, 0.001 36.144, 0.0014 35.931, 0.002 35.501), below L1.
+- `ar2_n24` (2.4M points instead of 3.6M; card 5, 23 min): 36.557 / 35.821 — **−0.147 / −0.251 dB** under the
+  parent, FLAIR SSIM −0.0021, sharpness 0.841 / 0.812. **Discard.** Capacity is not a free knob downward at AF12
+  either; the 4.8M run (`ar2_n48`, card 4, queued) tests the other direction.
