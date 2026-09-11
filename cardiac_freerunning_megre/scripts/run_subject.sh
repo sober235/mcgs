@@ -2,7 +2,8 @@
 # Spec 5.8 for one subject whose raw.h5 and spokes.npz exist (Tasks 6 and 8), in two phases because criterion
 # (b) of the polarity check needs boxes placed on this subject's R0 image (spec 5.4, 2026-09-11):
 #   phase 1: coil maps, R0 (8 echoes) and its figures, the two respiratory thirds at echo 3
-#   phase 2: polarity, REF (8 echoes, lambda relative to this subject's lambda_max), the two checks, REF figure
+#   phase 2 (2x FOV, correction 5): 224^3 coil maps, polarity (112^3 thirds), REF (8 echoes on 224^3, lambda relative
+#   to this subject's 224^3 lambda_max), the two checks, REF figure
 # Usage: run_subject.sh <Vxx> <1|2> <iterations> <REF lambda_rel>
 set -euo pipefail
 S=$1
@@ -18,6 +19,7 @@ if [ "$PHASE" = 1 ]; then
   ./py s06_recon.py "$S" --set low --echoes 3 --iters "$IT"
   ./py s06_recon.py "$S" --set high --echoes 3 --iters "$IT"
 else
+  ./py s05b_coilmaps_2x.py "$S"
   ./py s07_polarity.py "$S"
   ./py s06_recon.py "$S" --set ref --debug --iters "$IT" --lam "$REL" --lam-rel
   ./py s08_checks.py "$S" --ref-iters "$IT" --lam-rel "$REL"
