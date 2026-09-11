@@ -399,3 +399,8 @@ scale lr 0.005 (card 4) — each is one or two steps beyond P9 and is read again
   the 0.10 row FLAIR +0.003 (at the floor), FLAIR SSIM +0.0004, FLAIR HFEN −0.0002. **Plateau**: the FLAIR curve
   0.085 36.135 → 0.10 36.160 → 0.12 36.163 has flattened; 0.10 is taken as the FLAIR strength (its promotion is
   running on card 5), 0.12 is not pursued.
+- `ar6_best_C10_T112` (db4 + 1 level + FLAIR 0.10 + T1 0.12 = P9 + two steps; card 4, 26 min): **36.885 / 36.159** —
+  T1 equals the T1-0.12 row, FLAIR equals the FLAIR-0.10 row: the two strengths are independent, as at AF16.
+  Against P9@1500 36.812 / 36.135: +0.073 / +0.024, head SSIM +0.0012 / +0.0006, HFEN level. **Keep.** Promotion of
+  the union (`ar5_best_C10_T112_full4k`, 4000 it, volumes) replaces the T1-only promotion on card 3; the FLAIR-only
+  promotion (`ar5_db4_lev1_C10_full4k`) keeps running on card 5 as the single-step reference.
