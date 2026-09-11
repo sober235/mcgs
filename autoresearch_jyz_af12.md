@@ -166,3 +166,6 @@ screening budget is sensitive enough.
   this brackets the wavelet strengths at AF12: weaker loses PSNR and SSIM, stronger buys FLAIR PSNR with HFEN and
   sharpness; P6's 0.10 / 0.07 sits at the optimum for this budget. Round-2 option (low priority): FLAIR-only
   0.085, since the two channels' strengths were independent at AF16.
+- `ar2_geo013` (edge-TV λ_geo 0.13; card 4, 26 min): 36.697 / 36.061 — −0.007 / −0.011 dB (at the floor), head
+  HFEN worse by 0.0030 / 0.0031, sharpness 0.829 / 0.799 (−0.026 / −0.030). **Discard**: more edge-TV smooths
+  without buying PSNR. `ar2_geo007` (card 3) tests the other direction.
