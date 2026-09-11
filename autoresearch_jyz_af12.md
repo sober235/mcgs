@@ -461,3 +461,7 @@ the same knob was +0.042 / +0.118 with nothing regressing: the faster scale adap
 capacity pattern again. **Reshape at 4000, not promoted on P9.** The P10 + 0.008 run on card 3 (~07:10) decides
 for P10; pre-registered fallback `ar5_P10_slr005_full4k` (the intermediate lr at 4000, volumes) launched on card 5
 now so that the answer for 0.005 arrives an hour earlier if 0.008 fails.
+- `ar7_P10_sym4` (wavelet family sym4 instead of db4, on P10; card 4, 27 min): 36.892 / 36.162 against P10@1500
+  36.885 / 36.159 — +0.007 / +0.003 (at the floors), T1 head HFEN +0.0006, SSIM +0.0001. **Keep-marginal, deferred**:
+  sym4 and db4 (same length, symmetric vs minimum-phase) read the same within noise; a promotion run only if a card
+  is idle after the scale-lr decisions. The family is settled at 4-vanishing-moment, 8-tap filters.
