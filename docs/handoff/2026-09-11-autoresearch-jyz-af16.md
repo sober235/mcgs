@@ -85,6 +85,15 @@ Environment: `PYTHONNOUSERSITE=1 PYTHONPATH=`, conda env GSTMI (`/home/congcongl
   largest PSNR lead of those (over GS-single T1 +0.024, FLAIR +0.024; over L1-ESPIRiT +0.250 / +0.408; SSIM over
   GS-single +0.0005 / +0.0010 Gaussian, +0.0005 / +0.0009 uniform). 70 is 18 slices from the midline (88), on the
   side opposite 108. Current three-plane set: `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_174_110_70.png`.
+- Sagittal replaced again (user asked 2026-09-11): all 18 both-first parasagittal slices in 50-125 more than 5 from
+  70, 108 and 151, checked with `slice_quality.py` under both SSIM windows. Passing all four checks: 102, 53, 119,
+  114, 101, 115, 54, 50, 121, 120, 59, 58, 55 (failing: 118, 124 T1 SSIM L1-ESPIRiT; 87 FLAIR SSIM ZS-SSDU; 97 FLAIR
+  SSIM L1-ESPIRiT; 125 FLAIR SSIM ZS-SSDU under the uniform window). Chosen 102: the largest smaller PSNR lead
+  (0.0174 dB; 53 and 119 0.0166), the largest lead on the other contrast (T1 +0.079), nearest the middle slice 88 (+14).
+  Over L1-ESPIRiT +0.400 / +0.344; SSIM over the runner-up +0.0012 / +0.0017 Gaussian, +0.0012 / +0.0008 uniform.
+  Current three-plane set: `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_174_110_102.png`.
+  Coronal 110 on SSIM: first on T1 (+0.0009 over GS-single), not on FLAIR (CS-SENSE ahead by 0.0007 with the
+  Gaussian window; MC-GS third with the uniform window). Its PSNR is first on both contrasts.
 
 ## 2. Waiting for the user
 

@@ -61,7 +61,7 @@ maps below on a fixed jet scale [0, 0.1]; head mask bottom-left):
 | figure | T1 | FLAIR |
 |---|---|---|
 | transverse 168, the unselected butterfly slice | [T1](../../../t1flair_af16_v3_jiangyizhou/figures/t1flair_v3_af16_T1_row_axis0_168.png) | [FLAIR](../../../t1flair_af16_v3_jiangyizhou/figures/t1flair_v3_af16_FLAIR_row_axis0_168.png) |
-| three planes 174 / 110 / 70, the current choice (MC-GS first on slice PSNR in both contrasts on all three; on SSIM too at 174 and 70, per `slice_quality.py`) | [T1](../../../t1flair_af16_v3_jiangyizhou/figures/t1flair_v3_af16_T1_row3planes_174_110_70.png) | [FLAIR](../../../t1flair_af16_v3_jiangyizhou/figures/t1flair_v3_af16_FLAIR_row3planes_174_110_70.png) |
+| three planes 174 / 110 / 102, the current choice (MC-GS first on slice PSNR in both contrasts on all three; on SSIM too at 174 and 102, not at 110 where CS-SENSE leads the FLAIR SSIM, per `slice_quality.py`) | [T1](../../../t1flair_af16_v3_jiangyizhou/figures/t1flair_v3_af16_T1_row3planes_174_110_102.png) | [FLAIR](../../../t1flair_af16_v3_jiangyizhou/figures/t1flair_v3_af16_FLAIR_row3planes_174_110_102.png) |
 | three planes 159 / 110 / 108, typical levels | [T1](../../../t1flair_af16_v3_jiangyizhou/figures/t1flair_v3_af16_T1_row3planes_159_110_108.png) | [FLAIR](../../../t1flair_af16_v3_jiangyizhou/figures/t1flair_v3_af16_FLAIR_row3planes_159_110_108.png) |
 | three planes 109 / 110 / 151, the best slice per plane, chosen to favour MC-GS (109 is at the skull base) | [T1](../../../t1flair_af16_v3_jiangyizhou/figures/t1flair_v3_af16_T1_row3planes_109_110_151.png) | [FLAIR](../../../t1flair_af16_v3_jiangyizhou/figures/t1flair_v3_af16_FLAIR_row3planes_109_110_151.png) |
 
