@@ -96,6 +96,14 @@ Environment: `PYTHONNOUSERSITE=1 PYTHONPATH=`, conda env GSTMI (`/home/congcongl
   Gaussian window; MC-GS third with the uniform window). Its PSNR is first on both contrasts.
 
 ## 2. Waiting for the user
+- FLAIR known zeros are MC-GS-only (found 2026-09-11 when the user asked whether this is really AF 16). One AF16
+  mask serves both contrasts and every arm (nominal 16; T1 15.19; FLAIR 12.49 against its elliptical shutter, 16.49
+  on the full plane; 233 of the 2966 mask points land on FLAIR's unacquired corners; figure
+  `figures/t1flair_v3_af16_mask_T1_vs_FLAIR.png`). MC-GS joint and GS-single estimate the shutter from the
+  measured zeros of the undersampled data (`paired_gs/data/known_zero.py`, `known_zero: true` on FLAIR) and fit
+  that region as zeros; CG-SENSE, CS-SENSE, joint TV, L1-ESPIRiT, ZS-SSDU, 3D-DIP and 3D-INR use the mask only.
+  The effect of this asymmetry on the jyz FLAIR numbers is not measured. Decide whether the baselines get the
+  same region.
 
 - Merge this branch into `main`? `main` (4 commits: vdPois + CE pipeline) shares no history with this line; the hyw
   loop's STATUS already lists the same question. The branch was pushed to origin as `autoresearch-jyz-af16` on 2026-09-11; results summary in
