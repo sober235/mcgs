@@ -56,6 +56,7 @@ this pair than on T1+T2.
 | MC-GS single (old cold start) | 35.176 | 0.8448 | 31.755 | 0.8814 |  |
 | 3D-INR | 33.919 | 0.7932 | 29.939 | 0.8070 | 58 min |
 | 3D-DIP | 34.288 | 0.7924 | 29.397 | 0.8048 | 52 min |
+| P-LORAKS | 33.701 | 0.8355 | 29.147 | 0.7750 |  |
 | ZF | 31.677 | 0.8503 | 26.738 | 0.6882 | 2 min |
 
 The T1 table is in `logs/summary.tsv` and matches the T1+T2 topic except for the joint rows, which
@@ -155,8 +156,7 @@ converged TV, joint TV and L1-ESPIRiT columns and show those ranks as they are.
 P-LORAKS (LORAKS v2 toolbox, per-readout-slice, S-matrix, R = 2) is the fourth arm of this
 revisit; its rank (40) was selected on a six-slice subset of hyw T1 (`../T1T2_AF12_retro/logs/ploraks/ranksweep_R2.log`).
 The T1 row here is the hyw T1 full run of the T1+T2 topic (the same acquisition; 6.7 h). The FLAIR run (rank 40,
-R = 2, 48 MATLAB workers) started 2026-09-11 00:38 and takes 7–8 h; its row enters `logs/summary.tsv` through
-`scripts/summarize.py` when it lands.
+R = 2, 48 MATLAB workers) started 2026-09-11 00:38 and took 7.4 h; both rows are in the tables.
 Scripts: `recon_classical.py --suffix` (sweeps), `recon_joint_cssense.py`, `recon_l1espirit.py`,
 `ploraks_export.py` / `run_ploraks.m` / `run_ploraks_ranks.m` / `ploraks_import.py`; sweep logs
 in `logs/sweeps/`, per-run json in `logs/`.
@@ -201,7 +201,7 @@ cd $F && CONFIG=configs/t1flair_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t1t2
   the flattest fifth of the head, in the darkest decile (suppressed CSF), where v3's local mean fluctuates. The
   wavelet strength does not reach that part; it acts on local correlation. FLAIR-channel strengths 0.08 and 0.12
   are being run on this topic (Round 17), and a second seed for a two-seed average (Round 18).
-- P-LORAKS: the T1 row is the T1+T2 topic's run (same acquisition); the FLAIR run is still in progress.
+- P-LORAKS: the T1 row is the T1+T2 topic's run (same acquisition); the FLAIR run has finished and both rows are in the tables.
 - Figures (compact panels, v3 as the proposed method): `figures/t1flair_af12_T1_best_axis0_147.png`,
   `figures/t1flair_af12_FLAIR_best_axis0_153.png` (v3's best transverse slices),
   `figures/t1flair_af12_{T1,FLAIR}_best3planes.png`.
@@ -242,7 +242,7 @@ Standing of v3.2 against every other method in this topic's table (single run, s
 - **Against v3**: T1 +0.044 dB / head SSIM +0.0013, FLAIR +0.202 dB / head SSIM +0.0047.
 - **Gate**: T1 sharpness 0.897 passes the pre-registered 0.874 floor.
 - **Two seeds averaged** (v3.2 ×2, Round 18c; its own table row, at twice the compute): head PSNR T1 35.935 (first), FLAIR 34.596 (first); head SSIM T1 0.9494 (first), FLAIR 0.9221 (third; ZS-SSDU 0.9235); head HFEN T1 0.0792 (first), FLAIR 0.1057 (first). Single-run v3.2 stays the headline arm.
-- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS not yet in on every channel): T1 first on 47/47, 86/88, 93/93 transverse / coronal / sagittal slices; FLAIR first on 61/61, 91/91, 94/94 transverse / coronal / sagittal slices.
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS included): T1 first on 47/47, 86/88, 93/93 transverse / coronal / sagittal slices; FLAIR first on 61/61, 91/91, 94/94 transverse / coronal / sagittal slices.
 - Figures (compact panels, v3.2 as the proposed method): `figures/t1flair_af12_T1_best_axis0_150.png`, `figures/t1flair_af12_FLAIR_best_axis0_150.png`, `figures/t1flair_af12_{T1,FLAIR}_best3planes.png`.
 
 ## Regenerating

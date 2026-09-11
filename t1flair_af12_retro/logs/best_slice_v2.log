@@ -41,7 +41,7 @@
       idx  75  head  29763  v2 36.739 dB  margin +0.523 vs l1espirit 36.217
       idx  87  head  29444  v2 36.322 dB  margin +0.522 vs l1espirit 35.801
       idx  73  head  29832  v2 36.523 dB  margin +0.498 vs l1espirit 36.025
-[FLAIR] ours = gs_joint_v32; margin taken against ['zf', 'cgsense', 'cssense_o200', 'jcssense', 'l1espirit', 'zsssdu', 'dip', 'inr']
+[FLAIR] ours = gs_joint_v32; margin taken against ['zf', 'cgsense', 'cssense_o200', 'jcssense', 'l1espirit', 'ploraks', 'zsssdu', 'dip', 'inr']
 
 === FLAIR axis0: 61 slices with >= 20000 head voxels; gs_joint_v32 first on 61 of them
    top-5 by own head PSNR:
