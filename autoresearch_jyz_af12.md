@@ -296,3 +296,10 @@ floor (0.006 / 0.004 dB); `ar1_P7_i1500_s43` (queued on card 5) re-measures the 
   up and T1 down already at 1500 iterations. Capacity stays 3.6M (settled at both budgets).
 - `ar4_warmup250` (shared warm-up 250, on P7; card 5, 26 min): 36.719 / 36.076 — identical to the baseline.
   **Discard (null)**; warm-up 250 / 500 / 700 all read the same, the knob is settled.
+
+### The bar (final) — classical λ re-sweep complete, 01:32
+Joint TV: 0.0005 35.584 / 35.383, 0.0007 35.936 / 35.606, **0.001 36.070 / 35.624**, 0.0014 35.986 / 35.464,
+0.002 lower — peak at the huangyuwei λ. Table rows now carry the best λ per family (`summarize.py`, mirrored):
+L1-ESPIRiT T1 λ 0.002 (36.426), FLAIR λ 0.004 (35.757); converged TV 0.0007 / 0.0007; joint TV 0.001. Bar per
+cell (best over every swept λ): T1 PSNR 36.426 / SSIM 0.9473 / HFEN 0.1034 — all L1-ESPIRiT; FLAIR PSNR 35.757 /
+SSIM 0.9368 / HFEN 0.1000 — all L1-ESPIRiT. Card 6 is released (nothing of this loop runs there any more).
