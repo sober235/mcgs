@@ -379,3 +379,8 @@ the FLAIR strength buys that back without the HFEN cost it had under 3 levels.
   queue re-cut (pre-registered): `ar6_best_C10_T112` (db4 + 1 level + FLAIR 0.10 + T1 0.12, the union of the kept
   steps), `ar6_best_C10_T114` (T1 0.14), `ar6_best_C10_T112_slr003` (scale lr 0.003 on top), then sym4, wav_eps,
   density lr 0.02. `ar6_wavT1_012` on P8 is dropped (superseded by the T1-0.12 result on the 1-level row).
+- `ar6_slr005` (scale lr 0.005, P8-based; card 4, 26 min): **36.812 / 36.183** against P8@1500 36.767 / 36.095 —
+  **+0.045 / +0.088**, head SSIM level / +0.0007, head HFEN +0.0001 / +0.0004, sharpness level. **Keep**, above the
+  0.003 point (+0.026 / +0.046): the scale-lr curve 0.002 → 0.003 → 0.005 is still rising. Queues re-cut: `ar6_slr008`
+  next on card 4; the union-row combination uses 0.005 (`ar6_best_C10_T112_slr005`); the promotion on card 5 is
+  `ar5_slr005_full4k` instead of 0.003.
