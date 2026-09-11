@@ -192,3 +192,6 @@ Every one a single change against P6 at 1500 iterations; waiters start them when
   diminishing steps, so **`ar3_i6000`** (P6 at 6000 iterations, volumes saved) is queued on card 5 ahead of its
   round-2 knobs: if it beats the 4000-iteration parent by more than the floor with no cell regressing, the
   promotion budget becomes 6000 and that run is the new parent (rule 2).
+- 21:42 converged-TV FLAIR curve complete: 0.0004 35.462, 0.0005 35.575, **0.0007 35.581**, 0.001 35.400,
+  0.0014 35.075 — the huangyuwei-selected 0.0007 was already the peak; TV stays 0.18 dB under L1-ESPIRiT on
+  FLAIR and 0.26 dB on T1. Joint TV (4 λ) is the last family still running on card 6.
