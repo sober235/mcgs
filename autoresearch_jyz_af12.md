@@ -112,3 +112,9 @@ args. Waiting: poll `results_arc/<exp>_score.json`, never `pgrep -f` from the to
   0.0014, 0.002} (0.001 exists), FLAIR {0.0004, 0.0005, 0.001, 0.0014} (0.0007 exists); joint TV {0.0005,
   0.0007, 0.0014, 0.002} (0.001 exists); L1-ESPIRiT T1 {0.0007, 0.001, 0.0025, 0.004} (0.0015 exists),
   FLAIR {0.003, 0.007, 0.01} (0.005 exists), BART on CPU, nice 10, 32 threads.
+- 19:59 card 5 came free (clean card, ~4x the shared-card speed: the card-7 parent run logs 12.5 it/min, so a
+  1500-iteration screening run takes ~2 h there). `scripts/chain_gpu5.sh` on card 5: the seed floor
+  `ar1_P6_i1500_s43` first, then `ar2_wav_down`, `ar2_geo007`, `ar2_kq090`, `ar2_n48` (4.8M points). The card-6/7
+  queues skip anything that already exists (the runner refuses to overwrite), so no run is duplicated.
+- Classical re-sweep so far: L1-ESPIRiT T1 rises through 0.0007 → 0.001 → 0.0015 (35.226 → 35.917 → 36.334);
+  converged TV T1 0.0005 = 35.970 < 0.001's 36.144. Weaker regularisation does not help either arm on T1.
