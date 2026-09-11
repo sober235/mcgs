@@ -195,3 +195,7 @@ Every one a single change against P6 at 1500 iterations; waiters start them when
 - 21:42 converged-TV FLAIR curve complete: 0.0004 35.462, 0.0005 35.575, **0.0007 35.581**, 0.001 35.400,
   0.0014 35.075 — the huangyuwei-selected 0.0007 was already the peak; TV stays 0.18 dB under L1-ESPIRiT on
   FLAIR and 0.26 dB on T1. Joint TV (4 λ) is the last family still running on card 6.
+
+### Round 2 read
+- `ar4_wavlev4` (wavelet 4 levels; card 3, 25 min): 36.699 / 36.070 — −0.005 / −0.002 dB, every cell inside its
+  floor. **Discard (null)**: the fourth decomposition level adds nothing; the prior's work is in the fine scales.
