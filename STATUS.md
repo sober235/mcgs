@@ -1,3 +1,7 @@
+> This worktree is on branch `autoresearch-jyz-af16`, the jiangyizhou AF 16 line. Its current state is
+> `docs/handoff/2026-09-11-autoresearch-jyz-af16.md` and `docs/superpowers/records/2026-09-11-autoresearch-jyz-af16.md`.
+> Everything below is the 2026-09-10 T1+T2 status of the other branch, kept as it was.
+
 # STATUS — 2026-09-10 03:10（分支 `autoresearch-t1t2`，tag `handoff/2026-09-10`）
 
 ## 1. 已完成且已验证
