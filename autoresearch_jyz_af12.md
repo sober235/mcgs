@@ -373,3 +373,9 @@ the FLAIR strength buys that back without the HFEN cost it had under 3 levels.
 - `ar6_db6` (wavelet family db6, on P8's 2 levels; card 4, 32 min): 36.750 / 36.090 against P8@1500 (db4) 36.767 /
   36.095 — −0.017 / −0.005, T1 head HFEN worse by 0.0012, slower (12-tap filters). **Discard**: the family curve
   db2 36.719 → db4 36.767 → db6 36.750 peaks at db4; `ar6_sym4` (same length as db4, symmetric) still queued.
+- `ar6_db4_lev1_C085_T112` (three-way row + T1 wavelet 0.12; card 5, 27 min): **36.885 / 36.134** — against the
+  0.085 row **T1 +0.073**, FLAIR level, T1 head SSIM +0.0012, HFEN level, sharpness level. **Keep.** Under the
+  1-level db4 prior the T1 channel takes more strength cleanly (with 3-level db2, 0.14 was a reshape). Card 4's
+  queue re-cut (pre-registered): `ar6_best_C10_T112` (db4 + 1 level + FLAIR 0.10 + T1 0.12, the union of the kept
+  steps), `ar6_best_C10_T114` (T1 0.14), `ar6_best_C10_T112_slr003` (scale lr 0.003 on top), then sym4, wav_eps,
+  density lr 0.02. `ar6_wavT1_012` on P8 is dropped (superseded by the T1-0.12 result on the 1-level row).
