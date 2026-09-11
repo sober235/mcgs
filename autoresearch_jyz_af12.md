@@ -234,3 +234,14 @@ volumes): the capacity curve at the promotion budget between 3.6M and 4.8M, pre-
 the parent beyond the floor, FLAIR above it, no cell regressing.
 - `ar4_warmup1000` crashed at start: cycle.py guards `warmup < 0.5 * iters`, so 1000 is illegal at 1500 iterations
   (ledger row `crash`, nothing trained). Re-queued as `ar4_warmup700` on card 3 after `ar5_n42_full4k`.
+
+### Promotion 2 — wavelet prior on 2 levels at 4000 iterations (23:55): **promoted, P7**
+`ar5_wavlev2_full4k` (card 4, 61 min, volumes saved): **36.765 / 36.168** against the parent's 36.753 / 36.165
+(+0.012 / +0.003), head SSIM +0.0002 / +0.0001, head HFEN better by 0.0010 / 0.0005, sharpness level. Every cell
+holds or improves at the promotion budget too. Six-cell margins on the current bar: PSNR +0.339 / +0.411, SSIM
++0.0009 / +0.0007, HFEN +0.0035 / **+0.0003** — the FLAIR HFEN cell, level with L1-ESPIRiT under P6, is now ahead.
+**P7 = P6 + `loss.wav_levels=2`** is the parent from here: the runner bakes it (this commit); every experiment
+launched after this commit sits on P7 (its `args` column shows `--set loss.wav_levels=2` from the runner), and
+the screening baseline is re-measured as `ar1_P7_i1500` (card 5, right after the 6000-iteration run). Runs already
+in flight (`ar5_n42_full4k` on card 3) are P6-based and are read against P6's rows. The seed floor measured on P6
+(0.006 / 0.004 dB at 1500) is carried over.
