@@ -270,3 +270,8 @@ Still in flight from earlier rounds: `ar5_n42_full4k` (card 3, P6-based, 4000 it
 `ar1_P7_i1500` (card 5, 26 min): 36.719 / 36.075, SSIM 0.9482 / 0.9368, HFEN 0.1001 / 0.1003, sharp 0.857 / 0.830 —
 reproduces `ar4_wavlev2` (36.719 / 36.076) to 0.001 dB. Round-3 candidates are read against this row with the P6
 floor (0.006 / 0.004 dB); `ar1_P7_i1500_s43` (queued on card 5) re-measures the floor on P7.
+- `ar5_n42_full4k` (4.2M points, P6-based, 4000 it; card 3, 64 min): 36.749 / 36.188 — T1 −0.004 (inside the floor),
+  FLAIR +0.023; T1 head HFEN worse by 0.0007, T1 SSIM −0.0003. `min_margin` does not rise. **Discard (reshape).**
+  Capacity curve at the promotion budget: 3.6M 36.753 / 36.165 → 4.2M 36.749 / 36.188 → 4.8M 36.739 / 36.196 —
+  T1 falls monotonically as FLAIR rises. **Capacity is settled at 3.6M** while T1 is the binding channel; `ar2_n60`
+  (1500 it, card 4) still runs as the last point of the screening curve but cannot be promoted on this evidence.
