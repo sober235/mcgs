@@ -866,3 +866,9 @@ reported as it stands. The two-way cross-check: v3.2 (selected on huangyuwei) ca
 jiangyizhou on FLAIR only, losing T1 by 0.035 dB; the AF16 recipe (selected on jiangyizhou) carries it to huangyuwei on
 all four channels but pays in HFEN and sharpness. Neither recipe is first on every metric on the subject it was not
 selected on.
+
+**Round 17 transfer to jiangyizhou, held out (`ar17_tf_jyz_wavC012`: v3 + FLAIR-channel 0.12; landed 09:33).** T1 36.338 /
+FLAIR 36.030 against v3's 36.337 / 35.935: FLAIR +0.095 dB with T1 unchanged (+0.004 over L1-ESPIRiT on T1, +0.310 on
+FLAIR). FLAIR head SSIM 0.9364 (v3 0.9346, L1-ESPIRiT 0.9368), FLAIR head HFEN 0.1050 (v3 0.0994, L1-ESPIRiT 0.1002), FLAIR
+sharpness 0.795. The FLAIR-channel strength carries its head-PSNR gain to the held-out subject, at less than half the
+size seen on hyw (+0.216), and costs FLAIR head HFEN there as it did on hyw.

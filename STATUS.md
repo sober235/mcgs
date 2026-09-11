@@ -28,6 +28,7 @@
 - 三个课题 README 的 v3 段落都已写好并镜像进仓库：T1+T2（c89bf4b）、jiangyizhou（d4b73f7）、hyw T1+FLAIR（409df68）。hyw T1+FLAIR：头内 PSNR 两对比度第一（+0.242 / +0.254），逐层 T1 第一 43/47、83/88、90/93，FLAIR 55/61、73/91、94/94，joint−single = +0.093 / +0.018（耦合不伤 FLAIR）。jiangyizhou：FLAIR 第一（+0.216），T1 打平，逐层 FLAIR 94/94、87/120、118/118，T1 18/96、77/121、56/118，joint−single = +0.080 / −0.074。三个课题的图都已探活（HTTP 200）。
 - 已提交：v3 定稿与三表 v3 行（0eaa964）、紧凑图改用 v3（db673f0）、T1+T2 README v3 段落与逐层（c89bf4b）、P-LORAKS T2 入表（2580721）、第 16 轮预注册（12d13d9）、SSIM 诊断与归档辅助脚本（a5dbb8a）。
 - 第 16 轮 T1 通道小波 0.06（`ar16_n24_wav005_T1p06`）按预注册规则通过：T1 35.855 / T2 36.110，对 L1-ESPIRiT 最小余量 +0.292（v3 +0.241），T1 头内 SSIM 0.9481 超过 L1-ESPIRiT 的 0.9471；T1 锐度 0.862，比 v3 离下限更远。暂定为 v3.1，等 geo007 与第 17 轮结果决定是否合并。
+- 第 17 轮在 jyz（留出）上的单项迁移（v3 + FLAIR 通道 0.12）：T1 36.338 不变，FLAIR 36.030（比 v3 +0.095，hyw 上是 +0.216），FLAIR 头内 HFEN 变差（0.1050，L1 0.1002），与 hyw 上一致。
 - 第 20 轮完整（AF16 会话配方在 hyw 上交叉检验）：调参对 35.946 / 36.179，hyw T1+FLAIR 35.952 / 34.557，四个通道头内 PSNR 都第一，T1 头内 SSIM 两个课题都第一；但 T2 头内 SSIM 落后 L1 0.00007，FLAIR 头内 SSIM 不第一，头内 HFEN 四个通道三个不如 L1，T1 锐度 0.839–0.840 远低于下限。双向交叉：v3.2（hyw 选）到 jyz 只保住 FLAIR 的 PSNR 领先；AF16 配方（jyz 选）到 hyw 保住 PSNR 但丢了 HFEN 与锐度。两种预注册读法都不完全符合，照实报告。
 - 三个课题的归档表与图已改以 v3.2 为主推臂（T1+T2 aace779、jyz 7b7345f、hyw T1+FLAIR 2aca3d7），逐列对照全部对手：
   - T1+T2：头内 PSNR、SSIM、HFEN 两对比度第一，整图 PSNR、NMSE 两对比度第一，整图 HFEN T2 第一、T1 第三；逐层两对比度三个方向所有完整脑层全部第一。
@@ -56,7 +57,7 @@
 ## 3. 下一步
 - 第 16 轮（预注册与判定规则见 `autoresearch_t1t2.md` Round 16）：`ar16_n24_wav005_T1p06`（T1 通道小波 0.06，另一通道保持 0.05）、`ar16_n24_wav005_geo007`（edge-TV 0.10 → 0.07），4000 步，`scratchpad/queue16.sh` 在 GPU 4、6 空出后自动起跑（约 01:32、01:53）。替代 v3 的配置要再原样跑两个 T1+FLAIR 课题。
 - 第 17 轮（预注册见程序 Round 17）：FLAIR 通道小波 0.08 / 0.12，只在 hyw T1+FLAIR 上选（`ar17_tf_hyw_wavC008` / `wavC012`），`scratchpad/queue17.sh` 在 GPU 5、7 空出后起跑（约 02:15、02:25）；选中的值再原样跑 jiangyizhou。
-- 在跑（08:04）：第 20 轮调参对交叉检验 `ar20_xv_P6_t1t2`（GPU 6，3450/4000 步，约 08:40）；jyz 的 FLAIR 单项迁移 `ar17_tf_jyz_wavC012`（GPU 7，2500/4000 步，约 09:40），两者都在较慢的共享卡上。P-LORAKS：hyw FLAIR 已入表（7.4 h，09cdb88）；jyz T1 将导入，jyz FLAIR 约 16:00 跑完，`scratchpad/ploraks_finish2.sh` 随后自动刷新 jyz 课题，之后更新 jyz README 的逐层行与 P-LORAKS 说明再镜像提交。GPU 0–5 空闲；预注册的轮次都已跑完。
+- 在跑（09:4x）：GPU 训练全部结束。只剩 P-LORAKS 的 jyz FLAIR（约 16:00），`scratchpad/ploraks_finish2.sh` 导入后自动刷新 jyz 课题；之后把 jyz README 的逐层行改成含 P-LORAKS、更新 P-LORAKS 说明，再 `mirror_topic.sh` 镜像提交。
 - 在跑：单对比度消融 `ar15_single_FLAIR_jyz_v3`（GPU 5，约 02:26）、`ar15_single_FLAIR_hyw_v3`（GPU 7，约 02:31）。已落账：分对比度变体 seed 43（与 seed 42 相同到 0.001 dB，但体素级差 25–29%）、jyz T1 单对比度 36.257（joint 比它高 0.08）、360 万点晋级（T1 35.662 / T2 36.233，按规则未采纳）。
 - 某个 T1+FLAIR 课题的两个单对比度落账后：跑该课题 `scripts/extract_gs_volumes.py`，再 `bash $S/refresh_topic.sh <课题> <前缀> T1,FLAIR`；README 的 v3 段落数字取 `python $S/v3_facts.py <课题>`；最后 `bash $S/mirror_topic.sh <课题> <镜像目录> <前缀> T1,FLAIR` 并提交（`S=/data0/congcong/code/GS/Results_20260908/T1T2_AF12_retro/scripts`）。
 - P-LORAKS 剩三个通道：hyw FLAIR 与 jyz T1 在跑（00:38 起，各 7–8 h），jyz FLAIR 随后。`scratchpad/ploraks_finish2.sh` 落一个导入一个，课题齐了自动刷新表、逐层与图（v3 最优层）。刷新后只剩镜像和提交：
