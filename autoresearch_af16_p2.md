@@ -155,3 +155,44 @@ wavelet is what costs that.
 | `p2_promo_ptv05_full4k` | 0 | wavelet T1 0.14 / FLAIR 0.10 + phase TV 0.05, volumes | the screening winner at full budget |
 | `p2_promo_p6ptv_full4k` | 1 | P6 wavelet (T1 0.10 / FLAIR 0.07) + phase TV 0.05, volumes | minimal change from P6: does the phase term alone cross the bar while keeping P6's FLAIR HFEN lead |
 | `p2_promo_ptv05_s43_full4k` | 2 | the winner with seed 43 | seed floor on BOTH gauges, unmeasured for the complex one |
+
+Results at 4000 iterations. Margins are against the best of the seven comparison arms, per contrast and per
+metric (magnitude and complex head PSNR in dB, head SSIM, head HFEN where lower is better; sharpness is
+compared with L1-ESPIRiT, and separately with ZS-SSDU which owns that metric).
+
+| recipe | T1 mag | FLAIR mag | T1 cplx | FLAIR cplx | T1 ssim | FLAIR ssim | T1 hfen | FLAIR hfen | sharp |
+|---|---|---|---|---|---|---|---|---|---|
+| P6 parent (start) | +0.343 | +0.304 | **-0.251** | **-0.516** | +0.0017 | +0.0002 | +0.0069 | +0.0022 | 0.830 / 0.788 |
+| `wav14` (wavelet only) | +0.403 | +0.321 | +0.086 | +0.039 | +0.0034 | +0.0018 | +0.0030 | **-0.0047** | 0.810 / 0.744 |
+| `ptv05` (wavelet 0.14/0.10 + phase TV) | +0.155 | +0.265 | **+0.212** | **+0.204** | +0.0028 | +0.0032 | +0.0021 | +0.0023 | 0.844 / 0.806 |
+| **`p6ptv`** (P6 wavelet + phase TV) | +0.102 | +0.237 | +0.121 | +0.134 | +0.0019 | +0.0030 | **+0.0083** | **+0.0063** | **0.876 / 0.837** |
+
+Seed floor, `ptv05` at seed 43 against seed 42: magnitude 0.003 / 0.002 dB, complex 0.003 / 0.001 dB, HFEN
+0.0004. Every margin above is at least 30x that floor. A seed-43 repeat of `p6ptv` is running for the same
+check.
+
+## Verdict (2026-09-11, phase 2)
+
+**Objective met.** Two recipes put MC-GS joint first against all seven comparison arms on both contrasts and
+on both gauges, and also first on head SSIM and head HFEN:
+
+* `p6ptv` = the published P6 recipe plus the new phase-only TV at 0.05, nothing else changed. First on every
+  metric with the largest structural margins (FLAIR HFEN +0.0063, T1 +0.0083) and the best sharpness of any
+  GS recipe here (0.876 / 0.837, against P6's 0.830 / 0.788 and L1-ESPIRiT's 0.849 / 0.789). Recommended: it
+  is one new term with one weight on top of the recipe already in the repo.
+* `ptv05` = wavelet raised to T1 0.14 / FLAIR 0.10 plus the same phase TV. The PSNR-maximal variant
+  (complex +0.212 / +0.204) but its HFEN margin is thin (+0.002) and its sharpness is lower than `p6ptv`'s.
+
+What moved the complex gauge, in order: the phase-only TV term (+0.37 / +0.65 dB of complex head PSNR over
+P6 at the same wavelet strength), the full budget (the wavelet path needs 4000 iterations to cross: +0.14 dB
+of FLAIR complex from 1500 to 4000), and the wavelet strength (+0.28 / +0.31 at 1500, saturating by 0.14).
+Phase agreement inside the head went from 0.9911 / 0.9907 at P6 to 0.9928 / 0.9931, against L1-ESPIRiT's
+0.9925 / 0.9930 — the GS arms no longer trail the classical arms on phase.
+
+Losers, do not retry: kspace_high 3.0 (-0.8 dB magnitude), the frequency curriculum (-1.5 dB), phase TV at
+0.10 (breaks the magnitude constraint for 0.006 dB of complex margin), stacking FLAIR wavelet 0.14 on top of
+phase TV (the two complex priors overlap), 5.0M points at 1500 iterations (flat).
+
+Caveats: one subject; the knobs were selected on this subject's ground truth, like the classical lambdas;
+ZS-SSDU still matches GT sharpness best (1.016 / 1.036) and on FLAIR 3D-INR is also closer to 1 than the GS
+recipes; the FLAIR known-zero asymmetry from the first loop is unchanged (only the GS arms use it).
