@@ -8,6 +8,8 @@ k-space and its own two ESPIRiT maps (house recipe `ecalib -t 0.001 -c 0.0 -r 24
 and geometry as the other subjects (the mask file is byte-identical across topics). Created with
 `../T1FLAIR_AF12_retro/scripts/setup_subject.sh vol4_tangbing tangbing v4`.
 
+Geometry matches the other subjects to the voxel: T1 support 1.0000, FLAIR support 0.7577 (elliptical shutter), DC on the array centre, AF 11.71 on T1 and 9.74 on FLAIR against their own support; both ESPIRiT maps have SoS == 1 over the FOV. T1/FLAIR co-registration: peak cross-correlation shift (0, 0, 0), brain-mask Dice 0.901.
+
 Every comparison arm runs at the settings fixed on the other topics, nothing tuned here: CG-SENSE, converged TV CS-SENSE
 (200 ADMM outer iterations, λ 1e-3 on T1, 7e-4 on FLAIR), joint CS-SENSE (200 outer, λ 1e-3, μ 0.1), L1-ESPIRiT (BART,
 100 iterations, λ 0.0015 on T1, 0.005 on FLAIR, selected on huangyuwei), ZS-SSDU (100 epochs), 3D-DIP (5000 iterations),
