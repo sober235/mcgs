@@ -475,3 +475,6 @@ when `ar5_P10_slr005_full4k` (card 5, ~07:45) lands, the parent becomes the run 
 among {P10, P10+0.005, P10+0.008} that has **no** cell below P10's beyond its floor; if neither lr run is clean,
 P10 stays the parent and both are reported as marginal.
 - 07:15 card 3 idle → the deferred sym4 promotion `ar5_P10_sym4_full4k` (4000 it, volumes) launched.
+- `ar7_P10_waveps` (soft L1 on the wavelet coefficients, eps 1e-3, on P10; card 4, 26 min): 36.881 / 36.157 against
+  P10@1500 36.885 / 36.159 — −0.004 / −0.002 (at the floors), HFEN −0.0002 / −0.0002. **Discard (null)**: the
+  Charbonnier floor on the coefficients changes nothing at this eps; the prior is settled as pure L1.
