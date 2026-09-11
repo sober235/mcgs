@@ -338,3 +338,8 @@ promotions in, both from the shape of the wavelet prior.
 - `ar4_kmid08` (k-space mid-band weight 0.8, P8-based; card 5, 26 min): 36.612 / 36.034 against P8@1500 (`ar4_db4`)
   36.767 / 36.095 — **−0.155 / −0.061**, head HFEN worse by 0.010 / 0.009, SSIM down. **Discard**: the mid band
   carries the detail the prior cannot supply; down-weighting it costs fidelity everywhere. Band weights settled.
+- `ar6_db4_lev1_C085` (db4 + 1 level + FLAIR wavelet 0.085; card 3, 26 min): **36.812 / 36.135** against P8@1500
+  (`ar4_db4`) 36.767 / 36.095 — **+0.045 / +0.040**, head SSIM +0.0003 / +0.0010, head HFEN better by 0.0052 /
+  0.0028, sharpness up. **Keep — every cell improves**, and against `ar6_db4_lev1` it holds T1 and adds +0.055 on
+  FLAIR with better FLAIR HFEN. Best screening row so far (`min_margin` +0.378). Promotion
+  `ar5_db4_lev1_C085_full4k` (4000 it, volumes) queued on card 3 after the running scale-lr knob.
