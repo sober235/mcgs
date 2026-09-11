@@ -370,3 +370,6 @@ the FLAIR strength buys that back without the HFEN cost it had under 3 levels.
   cell up. **Keep.** The FLAIR strength curve under the 1-level prior: 0.07 36.080, 0.085 36.135, 0.10 36.160 —
   still rising with shrinking steps; `ar6_db4_lev1_C12` queued (card 5), then the promotion of the 0.10 row
   (`ar5_db4_lev1_C10_full4k`) and of scale lr 0.003.
+- `ar6_db6` (wavelet family db6, on P8's 2 levels; card 4, 32 min): 36.750 / 36.090 against P8@1500 (db4) 36.767 /
+  36.095 — −0.017 / −0.005, T1 head HFEN worse by 0.0012, slower (12-tap filters). **Discard**: the family curve
+  db2 36.719 → db4 36.767 → db6 36.750 peaks at db4; `ar6_sym4` (same length as db4, symmetric) still queued.
