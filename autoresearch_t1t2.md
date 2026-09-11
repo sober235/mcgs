@@ -932,3 +932,5 @@ to 0.905. On both held-out subjects, then, the T1-channel wavelet transfers for 
   on the margin over the strongest other arm, which is 0.35 dB for v3.1 here and 0.12 dB on jiangyizhou.
 - All three recipes are first on head PSNR and head HFEN on both channels. None is first on head SSIM: converged TV leads
   on T1 and L1-ESPIRiT on FLAIR, by 0.0018 to 0.0077.
+
+**P-LORAKS complete on every topic (11:43).** jiangyizhou FLAIR, the last channel, reads head PSNR 31.176 / head SSIM 0.8165 / sharpness 1.446; like every other P-LORAKS channel it ranks near the bottom on the head gauges, with far more noise inside the head than in the ground truth. All P-LORAKS rows are in the three topic tables and in their per-slice sweeps.

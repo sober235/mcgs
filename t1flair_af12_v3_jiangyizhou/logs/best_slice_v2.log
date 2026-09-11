@@ -1,4 +1,4 @@
-[T1] ours = gs_joint_v32; margin taken against ['zf', 'cgsense', 'cssense_o200', 'jcssense', 'l1espirit', 'zsssdu', 'dip', 'inr']
+[T1] ours = gs_joint_v32; margin taken against ['zf', 'cgsense', 'cssense_o200', 'jcssense', 'l1espirit', 'ploraks', 'zsssdu', 'dip', 'inr']
 
 === T1 axis0: 96 slices with >= 20000 head voxels; gs_joint_v32 first on 9 of them
    top-5 by own head PSNR:
@@ -41,7 +41,7 @@
       idx 103  head  34668  v2 37.530 dB  margin +0.138 vs l1espirit 37.391
       idx  75  head  34021  v2 37.331 dB  margin +0.130 vs l1espirit 37.201
       idx  88  head  34146  v2 36.986 dB  margin +0.127 vs l1espirit 36.859
-[FLAIR] ours = gs_joint_v32; margin taken against ['zf', 'cgsense', 'cssense_o200', 'jcssense', 'l1espirit', 'zsssdu', 'dip', 'inr']
+[FLAIR] ours = gs_joint_v32; margin taken against ['zf', 'cgsense', 'cssense_o200', 'jcssense', 'l1espirit', 'ploraks', 'zsssdu', 'dip', 'inr']
 
 === FLAIR axis0: 94 slices with >= 20000 head voxels; gs_joint_v32 first on 94 of them
    top-5 by own head PSNR:

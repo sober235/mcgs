@@ -41,6 +41,7 @@ whole-volume SSIM misleads on this data).
 | MC-GS joint (old cold start) | 36.349 | 0.8703 | 34.160 | 0.9169 |  |
 | MC-GS single (old cold start) | 35.529 | 0.8297 | 33.799 | 0.9032 |  |
 | CG-SENSE | 35.082 | 0.7562 | 33.514 | 0.8981 | 2 min |
+| P-LORAKS | 35.874 | 0.8889 | 31.992 | 0.8528 |  |
 | 3D-INR | 34.668 | 0.8218 | 31.638 | 0.8373 | 57 min |
 | 3D-DIP | 35.267 | 0.8475 | 31.363 | 0.8634 | 50 min |
 | ZF | 30.240 | 0.8353 | 26.130 | 0.7009 | 2 min |
@@ -65,6 +66,7 @@ whole-volume SSIM misleads on this data).
 | MC-GS single (old cold start) | 36.204 | 0.8749 | 33.409 | 0.9006 |  |
 | MC-GS joint (old cold start) | 36.646 | 0.9079 | 33.391 | 0.9064 |  |
 | 3D-INR | 34.637 | 0.8274 | 31.190 | 0.8277 | 57 min |
+| P-LORAKS | 35.071 | 0.8731 | 31.176 | 0.8165 |  |
 | 3D-DIP | 34.730 | 0.8131 | 30.810 | 0.8333 | 50 min |
 | ZF | 32.109 | 0.8523 | 28.193 | 0.7330 | 2 min |
 
@@ -188,8 +190,8 @@ converged TV, joint TV and L1-ESPIRiT columns and show those ranks as they are.
 
 P-LORAKS (LORAKS v2 toolbox, per-readout-slice, S-matrix, R = 2) is the fourth arm of this
 revisit; its rank (40) was selected on a six-slice subset of hyw T1 (`../T1T2_AF12_retro/logs/ploraks/ranksweep_R2.log`)
-and is applied unchanged here. The T1 run (rank 40, R = 2, 48 MATLAB workers) started 2026-09-11 00:38 and takes
-7–8 h; the FLAIR run follows it. Their rows enter `logs/summary.tsv` through `scripts/summarize.py` when they land.
+and is applied unchanged here. The T1 run (rank 40, R = 2, 48 MATLAB workers) took 5.7 h and the FLAIR run
+3.6 h; both rows are in the tables.
 Scripts: `recon_classical.py --suffix` (sweeps), `recon_joint_cssense.py`, `recon_l1espirit.py`,
 `ploraks_export.py` / `run_ploraks.m` / `run_ploraks_ranks.m` / `ploraks_import.py`; sweep logs
 in `logs/sweeps/`, per-run json in `logs/`.
@@ -237,7 +239,7 @@ cd $F && CONFIG=configs/t1flair_v3_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t
   head HFEN 0.1009 / 0.1002, whole-volume PSNR 40.071 / 39.539 (`mcgs_af16_wt/results_arc/ar17_P6_tf_jyz_af12_full4k_score.json`).
   It is first on head PSNR, head SSIM and whole-volume PSNR on both channels. Because it was selected on this
   subject, it is cross-checked on huangyuwei (framework program, Round 20).
-- P-LORAKS for this subject is still running (see "Classical arms revisited").
+- P-LORAKS for this subject has finished; both rows are in the tables (see "Classical arms revisited").
 - Figures (compact panels, v3 as the proposed method): `figures/t1flair_v3_af12_T1_best_axis0_173.png`,
   `figures/t1flair_v3_af12_FLAIR_best_axis0_178.png` (v3's best transverse slices),
   `figures/t1flair_v3_af12_{T1,FLAIR}_best3planes.png`.
@@ -278,7 +280,7 @@ Standing of v3.2 against every other method in this topic's table (single run, s
 - **Against v3**: T1 -0.038 dB / head SSIM -0.0005, FLAIR +0.104 dB / head SSIM +0.0023.
 - **Gate**: T1 sharpness 0.921 passes the pre-registered 0.874 floor.
 - **Two seeds averaged** (v3.2 ×2, Round 18c; its own table row, at twice the compute): head PSNR T1 36.499 (first), FLAIR 36.108 (first); head SSIM T1 0.9445 (second; converged TV 0.9459), FLAIR 0.9378 (first); head HFEN T1 0.0952 (first), FLAIR 0.1015 (second; L1-ESPIRiT 0.1002). Single-run v3.2 stays the headline arm.
-- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS not yet in on every channel): T1 first on 9/96, 69/121, 33/118 transverse / coronal / sagittal slices; FLAIR first on 94/94, 120/120, 118/118 transverse / coronal / sagittal slices.
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS included): T1 first on 9/96, 69/121, 33/118 transverse / coronal / sagittal slices; FLAIR first on 94/94, 120/120, 118/118 transverse / coronal / sagittal slices.
 - Figures (compact panels, v3.2 as the proposed method): `figures/t1flair_v3_af12_T1_best_axis0_173.png`, `figures/t1flair_v3_af12_FLAIR_best_axis0_177.png`, `figures/t1flair_v3_af12_{T1,FLAIR}_best3planes.png`.
 
 ## Regenerating
