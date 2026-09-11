@@ -94,6 +94,17 @@ Environment: `PYTHONNOUSERSITE=1 PYTHONPATH=`, conda env GSTMI (`/home/congcongl
   Current three-plane set: `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_174_110_102.png`.
   Coronal 110 on SSIM: first on T1 (+0.0009 over GS-single), not on FLAIR (CS-SENSE ahead by 0.0007 with the
   Gaussian window; MC-GS third with the uniform window). Its PSNR is first on both contrasts.
+- Magnitude gauge vs complex gauge (measured 2026-09-11, after the complex GS volumes existed): every error map and
+  every table number uses the magnitude difference | |recon| - |GT| |. Under the strict complex difference
+  |recon - GT| the head-only volume ranking changes. T1: L1-ESPIRiT 32.201 > MC-GS 31.950 = CS-SENSE 31.947 >
+  GS-single 31.894 > Joint SENSE 31.844 > ZS-SSDU 31.185. FLAIR: L1-ESPIRiT 31.718 > ZS-SSDU 31.545 = Joint SENSE
+  31.540 = CS-SENSE 31.528 > MC-GS 31.201 > GS-single 31.140. The GS arms lose 3.6 dB when the gauge changes against
+  2.5-3.0 dB for the others; their magnitude-weighted phase cos inside the head is 0.991 against 0.992-0.9935. Not an
+  artifact: the optimal global phase is under 0.15 degrees, the optimal complex scale is 1.000 for the GS arms, and
+  removing a smooth 9^3 phase field recovers at most 0.01 dB, so the phase mismatch is high-frequency. Figures:
+  `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_cplxerr_174_110_102.png`, from `fig_row_final.py --err_complex` and
+  `fig_three_planes.py --err_complex`. Magnitude gauges are the norm for MRI reconstruction, so this qualifies the
+  claim rather than voiding it: MC-GS is first on magnitude, not on the complex gauge.
 
 ## 2. Waiting for the user
 - Decided 2026-09-11 (was open): AF 16 stays nominal. The user kept the existing results, with no re-run at an
