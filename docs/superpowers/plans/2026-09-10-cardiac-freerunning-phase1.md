@@ -1663,6 +1663,8 @@ cd /data0/congcong/code/GS/mcgs_cardiac_wt && git add cardiac_freerunning_megre/
 
 ### Task 10: 呼吸极性（判据 b）、V07 参考重建（REF）与两项核对
 
+> 2026-09-11 修正（用户批准）：判据 (b) 改为回波 3、各轴中心块 16:96、亚体素归一化互相关，|位移| < 0.5 体素算无法判断。原实现用回波 0、沿 SI 全长取剖面，被视野边缘不随呼吸移动的亮带主导，V07 上位移算成 0 而停下。
+
 **Files:**
 - Create（课题 `scripts/`）：`s07_polarity.py`、`s08_checks.py`、`run_v07_ref.sh`
 
@@ -1673,8 +1675,12 @@ cd /data0/congcong/code/GS/mcgs_cardiac_wt && git add cardiac_freerunning_megre/
 - [ ] **Step 1: 写 `s07_polarity.py`**
 
 ```python
-"""Spec 5.4 criterion (b): the respiratory third whose anatomy sits more superior is end-expiration.
-It must agree with criterion (a) (physio.json); only then is ref_ids.npy written."""
+"""Spec 5.4 criterion (b), as corrected on 2026-09-11 (approved by the user): the respiratory third whose
+anatomy sits more superior is end-expiration. Both thirds are reconstructed at echo 3; their shift along
+the SI axis is the sub-voxel peak of the normalised cross-correlation of the two magnitude volumes inside
+the central block 16:96 on every axis (the bright band at the FOV edge does not move with breathing and
+made the first version blind). |shift| < 0.5 voxel counts as ambiguous. The result must agree with
+criterion (a) (physio.json); only then is ref_ids.npy written."""
 import json
 import sys
 
@@ -1682,31 +1688,38 @@ import numpy as np
 
 from common import DERIVED_ROOT, LOGS, TOPIC, recon_dir, save_fig, set_ids
 
+ECHO = 3
+BLOCK = slice(16, 96)
+LAGS = np.arange(-8, 9)
+
 s = sys.argv[1]
 ori = json.loads((TOPIC / "orientation.json").read_text())
 si, sup_high = int(ori["si_axis"]), bool(ori["superior_is_high_index"])
-low = np.abs(np.load(recon_dir(s) / "low_e0.npy"))
-high = np.abs(np.load(recon_dir(s) / "high_e0.npy"))
-other = [i for i in range(3) if i != si]
+low = np.abs(np.load(recon_dir(s) / f"low_e{ECHO}.npy"))
+high = np.abs(np.load(recon_dir(s) / f"high_e{ECHO}.npy"))
+a = np.moveaxis(low[BLOCK, BLOCK, BLOCK], si, -1)
+b = np.moveaxis(high[BLOCK, BLOCK, BLOCK], si, -1)
+n = a.shape[-1]
 
 
-def profile(v):
-    sl = [slice(None)] * 3
-    for i in other:
-        sl[i] = slice(v.shape[i] // 4, 3 * v.shape[i] // 4)
-    p = v[tuple(sl)].mean(axis=tuple(other))
-    return p - p.mean()
+def ncc(u, v):
+    u = u - u.mean()
+    v = v - v.mean()
+    return float(np.sum(u * v) / np.sqrt(np.sum(u * u) * np.sum(v * v)))
 
 
-pl, ph = profile(low), profile(high)
-n = pl.size
-lags = np.arange(-20, 21)
-corr = [float(np.sum(pl[max(0, -L):n - max(0, L)] * ph[max(0, L):n - max(0, -L)])) for L in lags]
-lag = int(lags[int(np.argmax(corr))])            # high(z + lag) matches low(z)
-image_end = "ambiguous" if lag == 0 else ("high" if (lag > 0) == sup_high else "low")
+cc = np.array([ncc(a[..., max(0, -L):n - max(0, L)], b[..., max(0, L):n - max(0, -L)]) for L in LAGS])
+i = int(np.argmax(cc))
+frac = 0.5 * (cc[i - 1] - cc[i + 1]) / (cc[i - 1] - 2 * cc[i] + cc[i + 1]) if 0 < i < len(cc) - 1 else 0.0
+shift = float(LAGS[i] + frac)                     # high(z) = low(z - shift) along the SI axis
+if abs(shift) < 0.5:
+    image_end = "ambiguous"
+else:
+    image_end = "high" if (shift > 0) == sup_high else "low"   # the more superior third is end-expiration
 hist_end = json.loads((DERIVED_ROOT / s / "physio.json").read_text())["expiration_end_by_histogram"]
 agreed = image_end == hist_end
-rep = {"subject": s, "lag_vox_high_vs_low": lag, "image_end": image_end, "histogram_end": hist_end,
+rep = {"subject": s, "echo": ECHO, "block": [BLOCK.start, BLOCK.stop], "ncc_peak": float(cc[i]),
+       "shift_vox_high_vs_low": round(shift, 3), "image_end": image_end, "histogram_end": hist_end,
        "agreed": agreed}
 if agreed:
     np.save(DERIVED_ROOT / s / "ref_ids.npy", set_ids(s, hist_end))
@@ -1718,19 +1731,25 @@ import matplotlib  # noqa: E402
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-fig, axs = plt.subplots(1, 3, figsize=(12, 4))
-axs[0].plot(pl, label="low third")
-axs[0].plot(ph, label="high third")
-axs[0].legend()
-axs[0].set_xlabel(f"axis {si} (superior = {'high' if sup_high else 'low'} index)")
+other = [k for k in range(3) if k != si]
 cut = other[0]
-rest = [i for i in range(3) if i != cut]          # this plane keeps the SI axis
+rest = [k for k in range(3) if k != cut]           # this plane keeps the SI axis
+vmax = float(np.quantile(low[BLOCK, BLOCK, BLOCK], 0.995))
+fig, axs = plt.subplots(1, 3, figsize=(13, 4.5))
+axs[0].plot(LAGS, cc, "o-")
+axs[0].axvline(shift, color="r", lw=0.8)
+axs[0].set_xlabel("shift of the high third along the SI axis (voxels)")
+axs[0].set_ylabel("normalised cross-correlation")
 for k, (v, t) in enumerate(((low, "low third"), (high, "high third"))):
     sl = np.take(v, v.shape[cut] // 2, axis=cut)
-    axs[k + 1].imshow(sl if rest.index(si) == 0 else sl.T, cmap="gray", origin="lower", vmin=0,
-                      vmax=float(np.quantile(v, 0.995)))
-    axs[k + 1].set_title(t)
-fig.suptitle(f"{s}: lag {lag} vox; image says end-expiration = {image_end}, histogram says {hist_end}")
+    img = sl if rest.index(si) == 0 else sl.T         # SI vertical
+    axs[k + 1].imshow(img, cmap="gray", origin="lower", vmin=0, vmax=vmax)
+    axs[k + 1].axhline(BLOCK.start, color="y", lw=0.6)
+    axs[k + 1].axhline(BLOCK.stop, color="y", lw=0.6)
+    axs[k + 1].set_title(f"{t}, echo {ECHO}")
+fig.suptitle(f"{s}: shift {shift:+.2f} vox (superior = {'high' if sup_high else 'low'} index); "
+             f"image says end-expiration = {image_end}, histogram says {hist_end}")
+fig.tight_layout()
 save_fig(fig, f"{s}_polarity.png")
 sys.exit(0 if agreed else 1)
 ```
@@ -1782,8 +1801,8 @@ cat > /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MEGRE/scripts
 # Spec 5.4(b) and 5.6 on V07: respiratory thirds, polarity, REF (8 echoes), checks, REF figure.
 set -euo pipefail
 cd /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MEGRE/scripts
-./py s06_recon.py V07 --set low --echoes 0
-./py s06_recon.py V07 --set high --echoes 0
+./py s06_recon.py V07 --set low --echoes 3
+./py s06_recon.py V07 --set high --echoes 3
 ./py s07_polarity.py V07
 ./py s06_recon.py V07 --set ref --debug
 ./py s08_checks.py V07
@@ -2024,8 +2043,8 @@ cd /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MEGRE/scripts
 ./py s05_coilmaps.py "$S"
 ./py s06_recon.py "$S" --set r0 --iters "$IT"
 ./py s11_figures.py "$S" --tag r0
-./py s06_recon.py "$S" --set low --echoes 0 --iters "$IT"
-./py s06_recon.py "$S" --set high --echoes 0 --iters "$IT"
+./py s06_recon.py "$S" --set low --echoes 3 --iters "$IT"
+./py s06_recon.py "$S" --set high --echoes 3 --iters "$IT"
 ./py s07_polarity.py "$S"
 ./py s06_recon.py "$S" --set ref --debug --iters "$IT"
 ./py s08_checks.py "$S" --ref-iters "$IT"
