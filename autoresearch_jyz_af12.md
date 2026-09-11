@@ -411,3 +411,9 @@ scale lr 0.005 (card 4) — each is one or two steps beyond P9 and is read again
   **+0.042 / +0.118**, FLAIR head SSIM +0.0010, FLAIR HFEN +0.0007, T1 cells level. **Keep.** The scale-lr curve
   keeps rising (0.002 → 0.003 → 0.005 on P8; 0.008 on P9). Queues re-cut: `ar6_slr012` next on card 4, the union
   combination takes 0.008 (`ar6_best_C10_T112_slr008`), the card-5 promotion becomes `ar5_slr008_full4k`.
+- `ar6_best_C10_T114` (union row with T1 0.14; card 4, 26 min): 36.918 / 36.158 — against the T1-0.12 union row
+  **T1 +0.033**, FLAIR level, T1 head SSIM +0.0008, T1 head HFEN −0.0004 (4x its floor), sharpness −0.003.
+  `min_margin` unchanged (FLAIR binds at +0.401). **Keep-marginal on the non-binding channel**: the T1 strength
+  curve under the 1-level db4 prior is 0.10 36.812 → 0.12 36.885 → 0.14 36.918, flattening, and HFEN starts to
+  give. `ar6_best_C10_T116` queued as the end-point; the promotion in flight uses 0.12, a 0.14 step at 4000 follows
+  only if 0.16 confirms the plateau.
