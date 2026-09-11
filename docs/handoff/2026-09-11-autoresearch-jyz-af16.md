@@ -70,6 +70,15 @@ Environment: `PYTHONNOUSERSITE=1 PYTHONPATH=`, conda env GSTMI (`/home/congcongl
   Figures `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_109_110_151.png` (best per plane) and
   `..._row3planes_159_110_108.png` (typical levels; parasagittal 108: +0.032 / +0.026 over GS-single, +0.309 / +0.282
   over L1-ESPIRiT, MC-GS first on both contrasts in all three planes).
+- Another transverse slice (user asked 2026-09-11, MC-GS must stay best): `slice_quality.py --axis 0 --slices ...`
+  prints head-masked PSNR and SSIM ranks (SSIM: Gaussian window sigma 1.5; `--ssim uniform` = the 7x7 window of
+  paired_gs/metrics). Typical-level candidates (135-200, not 154-164) with MC-GS first on PSNR for both contrasts, by
+  the smaller lead: 142, 174, 178, 148, 166, 136, 194, 182, 153. MC-GS is also first on SSIM for both contrasts at
+  174, 178, 148, 136, 194, 182 (not 142: T1 L1-ESPIRiT; not 166, 153: FLAIR ZS-SSDU). Chosen 174, the largest PSNR
+  lead of those (over GS-single T1 +0.037, FLAIR +0.031; over L1-ESPIRiT +0.273 / +0.198), SSIM-first under both
+  windows (uniform +0.0006 / +0.0004). 174 cuts the bodies of the lateral ventricles, the butterfly level 6 above 168.
+  At 159 the FLAIR SSIM is a tie with ZS-SSDU that flips with the window. Figures
+  `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_174_110_108.png`.
 
 ## 2. Waiting for the user
 
