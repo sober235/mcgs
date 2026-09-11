@@ -146,3 +146,5 @@ screening budget is sensitive enough.
   floor) and FLAIR SSIM +0.0008. `min_margin` +0.334 vs +0.329: the rise (+0.005) is under the floor and a cell
   regresses → **discard (reshape)**: the stronger wavelet buys FLAIR PSNR with FLAIR high-frequency fidelity, as
   the peer's magnitude-gauge caveat predicted (+0.03–0.05 there).
+  Full six cells (view script): T1 HFEN margin −0.0032 vs the parent's +0.0022 (worse by 0.0054), sharpness
+  0.834 / 0.808 vs 0.855 / 0.829 (−0.021, over the 0.01 allowance). Three gates fail, not one.
