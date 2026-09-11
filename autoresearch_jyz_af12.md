@@ -181,3 +181,6 @@ Every one a single change against P6 at 1500 iterations; waiters start them when
 | FLAIR-only wavelet 0.085 (T1 stays 0.10) | `--set loss.lambda_wav=0.085` | 4 | between the bracketed 0.07 and 0.10 on the channel that gained in `ar2_wav_up` |
 | wavelet family db4 (default db2) | `--set loss.wav_name=db4` | 5 | smoother basis; never varied |
 | k-space mid weight 0.8 (default 1.0) | `--kspace_mid` | 5 | band balance |
+- `ar2_geo007` (edge-TV λ_geo 0.07; card 3, 25 min): 36.638 / 36.013 — **−0.066 / −0.059 dB** under the parent,
+  head SSIM −0.0007 / −0.0007, head HFEN better by 0.0022 / 0.0018, sharpness up. **Discard (reshape)**: less
+  edge-TV sharpens but loses PSNR and SSIM. With `ar2_geo013`, edge-TV is bracketed at P6's 0.10 on this budget.
