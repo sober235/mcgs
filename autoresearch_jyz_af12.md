@@ -289,3 +289,5 @@ floor (0.006 / 0.004 dB); `ar1_P7_i1500_s43` (queued on card 5) re-measures the 
   Promotion `ar5_db4_full4k` (4000 it, volumes) on card 5 right after the running warm-up knob. Pre-registered
   follow-ups on card 4 after the 6.0M point: `ar6_db4_lev1` (db4 + 1 level, the two T1 levers together),
   `ar6_db6`, `ar6_sym4` (family curve), then the rest of round 3.
+- `ar4_warmup700` (shared warm-up 700 instead of 500, on P7; card 3, 25 min): 36.719 / 36.076 — identical to the
+  baseline to 0.001 dB in every cell. **Discard (null)**; the warm-up length does nothing in this range.
