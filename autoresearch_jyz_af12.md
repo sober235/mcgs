@@ -232,3 +232,5 @@ Consequences: the combination `ar5_n48_wavlev2_full4k` was cancelled at start (r
 partial outputs removed, no ledger row). Card 3 now runs `ar4_warmup1000` then **`ar5_n42_full4k`** (4.2M at 4000,
 volumes): the capacity curve at the promotion budget between 3.6M and 4.8M, pre-registered keep rule = T1 not below
 the parent beyond the floor, FLAIR above it, no cell regressing.
+- `ar4_warmup1000` crashed at start: cycle.py guards `warmup < 0.5 * iters`, so 1000 is illegal at 1500 iterations
+  (ledger row `crash`, nothing trained). Re-queued as `ar4_warmup700` on card 3 after `ar5_n42_full4k`.
