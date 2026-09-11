@@ -207,3 +207,5 @@ Every one a single change against P6 at 1500 iterations; waiters start them when
   with a real PSNR gain at AF12; `ar2_n60` (6.0M) is queued on card 4 after its round-2 chain.
 - `ar2_eps003` (Charbonnier eps 0.03; card 5, 26 min): 36.701 / 36.071 — −0.003 / −0.001 dB, HFEN −0.0010 both.
   **Discard (null)**, as on hyw.
+- `ar4_kcenter05` (k-space centre weight 0.5; card 3, 25 min): 36.702 / 36.065 — −0.002 / −0.007 dB, other cells
+  inside their floors. **Discard (null)**: with hard data consistency the low-band weight barely matters.
