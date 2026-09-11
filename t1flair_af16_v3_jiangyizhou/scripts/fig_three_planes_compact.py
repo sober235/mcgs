@@ -16,6 +16,7 @@ Slice metrics, head mask |GT| > 0.05 * P99.9 of the volume: PSNR at the volume's
 (7x7 uniform window as paired_gs/metrics/compute_ssim; --ssim gaussian: sigma 1.5; data range = max|GT| of the
 volume) averaged over the head pixels, as slice_quality.py; NMSE = compute_nmse restricted to the head pixels,
 sum (recon - GT)^2 / sum GT^2.
+Title: nominal AF 16 and the actual acceleration against the contrast's own acquired support (logs/prep_04_export.json).
 Writes t1flair_v3_af16_<contrast>_row3planes_compact_<tra>_<cor>_<sag>.png to the served figs folder and figures/.
 """
 import argparse, json, re
@@ -44,6 +45,8 @@ c = args.contrast
 METRIC_COLOR = "#FFC23D"          # orange-yellow for the in-panel metrics (user request 2026-09-11); best of each plane in bold
 SSIM_KW = (dict(win_size=7) if args.ssim == "uniform"
            else dict(gaussian_weights=True, sigma=1.5, use_sample_covariance=False))
+_af = json.load(open(R / "logs/prep_04_export.json"))["contrasts"][c]    # nominal AF 16 label (user decision 2026-09-11)
+AF_LABEL = f"nominal AF 16, actual {_af['AF_vs_own_support']:.2f}x" + (" of its acquired k-space" if _af["support_frac"] < 1 else "")
 rows = {r["method"]: r for r in json.load(open(R / "logs/summary.json")) if r["contrast"] == c}
 
 
@@ -177,7 +180,7 @@ for k, p in enumerate(planes):
 last_top = top_in + sum(row_h[:-1]) + (len(row_h) - 1) * gap
 cax = fig.add_axes([(ncol * pw + (ncol - 1) * gap + cbpad) / fw, 1 - (last_top + row_h[-1]) / fh, cbw / fw, row_h[-1] / fh])
 cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=10)
-fig.suptitle(f"{c}  jiangyizhou  AF 16  --  transverse {args.slices[0]} / coronal {args.slices[1]} / sagittal {args.slices[2]}",
+fig.suptitle(f"{c}  jiangyizhou  {AF_LABEL}  --  transverse {args.slices[0]} / coronal {args.slices[1]} / sagittal {args.slices[2]}",
              fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
 fig.text(0.5, 1 - 0.40 / fh, f"head-masked slice PSNR / SSIM ({'7x7 window' if args.ssim == 'uniform' else 'Gaussian window, sigma 1.5'}) / NMSE "
          f"in each panel, the best of each plane in bold;   error |recon - GT| / max(GT), jet [0, 0.1];   "
