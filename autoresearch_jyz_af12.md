@@ -123,3 +123,10 @@ args. Waiting: poll `results_arc/<exp>_score.json`, never `pgrep -f` from the to
   `summarize.py` keeps per family). A competitor tuned for SSIM or HFEN therefore counts for those cells.
   With L1-ESPIRiT T1 λ 0.0025 = 36.374 / 0.9473 / 0.1056 (0.0015: 36.334 / 0.9443 / 0.1034) the T1 bar is
   now PSNR 36.374 (L1@0.0025), SSIM 0.9473 (L1@0.0025), HFEN 0.1034 (L1@0.0015).
+- 20:07 cards 1–4 came free (the other user's jobs ended). Proposed split with the AF16 phase-2 loop: it keeps
+  0 and takes 1–2; this loop takes 3, 4 and 5. The card-7 parent run (150/1500 after 12 min) and the card-6/7
+  round-1 waiters were stopped (runner killed before the trainer, no ledger row, partial outputs removed) and
+  the same experiments relaunched on clean cards: card 3 `ar1_P6_i1500` → `ar2_wav_down` → `ar2_geo007`;
+  card 4 `ar2_wav_up` → `ar2_geo013` → `ar2_kq090` → `ar2_n48`; card 5 after the seed floor (flag-gated in
+  case the AF16 loop still wants the card) `ar2_n24` → `ar3_i2500` (budget knob) → `ar2_eps003` → `ar2_wfloor02`.
+  Card 6 keeps only the classical GPU chain; card 7 is released.
