@@ -872,3 +872,24 @@ FLAIR 36.030 against v3's 36.337 / 35.935: FLAIR +0.095 dB with T1 unchanged (+0
 FLAIR). FLAIR head SSIM 0.9364 (v3 0.9346, L1-ESPIRiT 0.9368), FLAIR head HFEN 0.1050 (v3 0.0994, L1-ESPIRiT 0.1002), FLAIR
 sharpness 0.795. The FLAIR-channel strength carries its head-PSNR gain to the held-out subject, at less than half the
 size seen on hyw (+0.216), and costs FLAIR head HFEN there as it did on hyw.
+
+### Round 21 — a second held-out subject: tangbing, MC_Jia vol4 (pre-registered 2026-09-11 09:44, before any of its data is read)
+
+Why: v3.2 was selected on huangyuwei and loses T1 head PSNR on jiangyizhou (−0.035 against L1-ESPIRiT), where v3.1 leads
+(+0.124). jiangyizhou has now been used to explain that result, so it can no longer settle which recipe transfers. A
+subject that none of the recipes has seen can.
+
+Topic `Results_20260908/T1FLAIR_AF12_v4_tangbing`, cloned with `setup_subject.sh vol4_tangbing tangbing v4`: same
+geometry and the same vd-Poisson AF12 mask, its own ESPIRiT maps with the house recipe. Arms, all with settings already
+fixed on the other topics and nothing tuned here: zero-filled, CG-SENSE, converged TV CS-SENSE (200 ADMM outer
+iterations), joint CS-SENSE (200 outer, λ 1e-3, μ 0.1), L1-ESPIRiT (BART, 100 iterations, λ T1 0.0015 / FLAIR 0.005 as
+selected on huangyuwei), ZS-SSDU (100 epochs), 3D-DIP (5000 iterations), 3D-INR (1500 iterations), and three MC-GS joint
+recipes, unchanged: v3 (`ar21_tf_v4_v3`), v3.1 (`ar21_tf_v4_v31`: T1 wavelet 0.06) and v3.2 (`ar21_tf_v4_v32`: T1
+wavelet 0.06, FLAIR wavelet 0.12, edge-TV 0.07). P-LORAKS is not run here (7 h of CPU per channel, last on every other
+topic).
+
+Reading, fixed now: each recipe's column-by-column standing against the other arms is reported as it stands. No recipe
+is selected on this subject and nothing about the recipes changes because of it. If v3.2 is first on head PSNR on both
+channels here, the jiangyizhou T1 result reads as subject-specific. If it trails L1-ESPIRiT on T1 again while v3.1 leads,
+the edge-TV step is recorded as not transferring for T1, and the headline question goes to the user with both held-out
+subjects in view.
