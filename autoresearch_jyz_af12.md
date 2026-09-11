@@ -384,3 +384,14 @@ the FLAIR strength buys that back without the HFEN cost it had under 3 levels.
   0.003 point (+0.026 / +0.046): the scale-lr curve 0.002 → 0.003 → 0.005 is still rising. Queues re-cut: `ar6_slr008`
   next on card 4; the union-row combination uses 0.005 (`ar6_best_C10_T112_slr005`); the promotion on card 5 is
   `ar5_slr005_full4k` instead of 0.003.
+
+### Promotion 6 — db4 + 1 level + FLAIR wavelet 0.085 at 4000 iterations (04:20): **promoted, P9**
+`ar5_db4_lev1_C085_full4k` (card 3, 62 min, volumes): **36.853 / 36.234** against P8's 36.819 / 36.189 — **+0.034 /
++0.045**, head SSIM +0.0002 / +0.0011, head HFEN better by **0.0048 / 0.0028**, sharpness up. Every cell improves;
+the FLAIR strength 0.085 more than pays back what the 1-level prior alone gave away on FLAIR (−0.024).
+Six-cell margins on the bar: PSNR **+0.427 / +0.477**, SSIM +0.0016 / +0.0022, HFEN +0.0084 / +0.0039.
+**P9 = P8 + `loss.wav_levels=1` + `loss.lambda_wav=0.085`** (T1 keeps `lambda_wav_plain` 0.10) is the parent from
+here (baked by this commit); screening baseline `ar6_db4_lev1_C085` (36.812 / 36.135). Against the user's P6:
+**+0.100 / +0.069 dB** head PSNR, HFEN better by 0.0059 / 0.0041, SSIM +0.0009 / +0.0016.
+Queued and still valid on P9: `ar5_db4_lev1_C10_full4k` (FLAIR 0.10, card 5) and the union row with T1 0.12 /
+scale lr 0.005 (card 4) — each is one or two steps beyond P9 and is read against it.
