@@ -351,3 +351,11 @@ FLAIR −0.024**; head HFEN better by 0.0049 / 0.0019, T1 SSIM +0.0002, FLAIR SS
 **reshape at 4000**, as with 1 level alone on P7 (−0.022). The 1-level prior consistently gives FLAIR back ~0.02 dB
 at the full budget; the three-way run with FLAIR 0.085 (`ar5_db4_lev1_C085_full4k`, card 3, ~04:30) tests whether
 the FLAIR strength buys that back without the HFEN cost it had under 3 levels.
+- `ar1_P8_i1500_s43` (card 5, 27 min): 36.761 / 36.093 against seed 42's 36.767 / 36.095 — **P8 seed floor 0.006 /
+  0.002 dB**, SSIM 0.0000 / 0.0000, HFEN 0.0001 / 0.0001; the P6 floor carries over unchanged.
+
+### Round 4 queue — pre-registered 03:30, single steps beyond the best screening row (db4 + 1 level + FLAIR 0.085)
+| knob | how | card |
+|---|---|---|
+| FLAIR wavelet 0.10 under the 1-level prior (0.085 → 0.10) | `ar6_db4_lev1_C10` | 5 |
+| T1 wavelet 0.12 on the three-way row (the 1-level prior has fewer coefficients, T1 may take more strength) | `ar6_db4_lev1_C085_T112` | 5 |
