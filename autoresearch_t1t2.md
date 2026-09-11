@@ -900,3 +900,16 @@ subjects in view.
 2.3 dB. The ground truth is clean and its air noise floor matches jiangyizhou's, so the subject is not noisier. L1-ESPIRiT
 at the huangyuwei λ is visibly under-regularized on tangbing's T1 (head PSNR 31.86, sharpness 1.10, below TV's 33.06); it
 keeps its fixed setting, as every arm does.
+
+**Round 21, the three MC-GS recipes on tangbing (landed by 11:14; comparison with the other arms follows when they land).**
+
+| recipe | head PSNR T1 / FLAIR | head SSIM | head HFEN | T1 sharpness |
+|---|---|---|---|---|
+| v3 (`ar21_tf_v4_v3`) | 33.825 / 32.403 | 0.9281 / 0.9005 | 0.1129 / 0.1189 | 0.876 |
+| v3.1 (`ar21_tf_v4_v31`) | 33.929 / 32.403 | 0.9301 / 0.9004 | 0.1122 / 0.1189 | 0.869 |
+| v3.2 (`ar21_tf_v4_v32`) | 33.791 / 32.591 | 0.9275 / 0.9050 | 0.1110 / 0.1191 | 0.905 |
+
+The pattern of jiangyizhou repeats on a second subject that no recipe has seen. The T1-channel wavelet (v3.1 against v3)
+gains T1 +0.104 dB and T1 head SSIM +0.0020. The edge-TV step with the FLAIR-channel 0.12 (v3.2 against v3.1) costs T1
+0.138 dB and T1 head SSIM 0.0026, gains FLAIR +0.188 dB and FLAIR head SSIM +0.0046, and lifts T1 sharpness from 0.869
+to 0.905. On both held-out subjects, then, the T1-channel wavelet transfers for T1 and the edge-TV step does not.
