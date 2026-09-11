@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""fig_row_final.py -- one transverse slice, the compared methods in ONE row, error maps underneath.
+
+Layout (2 rows x 10 columns):
+  row 1: GT | CG-SENSE | CS-SENSE | Joint SENSE | L1-ESPIRiT | ZS-SSDU | 3D-DIP | 3D-INR | GS-single | MC-GS
+  row 2: head mask (bottom left) | |recon - GT| / max(GT) for each method, jet, FIXED [0, 0.1], one shared colorbar
+Naming (user decision 2026-09-11): "GS-single" = the single-contrast MC-GS arm of the autoresearch recipe,
+"MC-GS" = the autoresearch MC-GS joint. CS-SENSE and Joint SENSE are the converged, lambda-swept arms (the
+lambda summarize.py kept). Titles: method + head-masked PSNR of the shown region; the best is bold.
+Default: the whole slice; --crop: the butterfly region around the head centroid.
+"""
+import argparse, json, re
+from pathlib import Path
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--contrast", required=True, choices=["T1", "FLAIR"])
+ap.add_argument("--axis", type=int, default=0)
+ap.add_argument("--index", type=int, default=168)
+ap.add_argument("--crop", action="store_true", help="butterfly region instead of the whole slice")
+ap.add_argument("--half", type=int, nargs=2, default=[52, 38])
+ap.add_argument("--tag", default=None)
+args = ap.parse_args()
+tag = args.tag or ("row_crop" if args.crop else "row")
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+
+R = Path(__file__).resolve().parents[1]
+F = Path("/home/congcongliu/figs/t1flair_v3_af16"); F.mkdir(parents=True, exist_ok=True)
+c = args.contrast
+rows = {r["method"]: r for r in json.load(open(R / "logs/summary.json")) if r["contrast"] == c}
+
+
+def lam_file(row_key, prefix):
+    """saved volume of a swept family (recon/<prefix>_lam<L>_<c>_complex.npy) at the lambda kept for its row"""
+    lam = rows.get(row_key, {}).get("lam")
+    if lam is None:
+        return None
+    for p in R.glob(f"recon/{prefix}_lam*_{c}_complex.npy"):
+        m = re.fullmatch(re.escape(prefix) + r"_lam([0-9.]+)_" + c + r"_complex\.npy", p.name)
+        if m and abs(float(m.group(1)) - float(lam)) < 1e-12:
+            return p
+    return None
+
+
+ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
+        ("cssense_o200", "CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
+        ("jcssense", "Joint SENSE", lam_file("jcssense", "jcssense_o200")),
+        ("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espirit")),
+        ("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
+        ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy"),
+        ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy"),
+        ("gs_single_ar", "GS-single", R / f"recon/gs_single_ar_{c}_mag.npy"),
+        ("gs_joint_ar", "MC-GS", R / f"recon/gs_joint_ar_{c}_mag.npy")]
+missing = [lab for _, lab, p in ARMS if p is None or not Path(p).exists()]
+assert not missing, f"missing volumes for {c}: {missing}"
+
+gt = np.abs(np.load(R / f"recon/gt_{c}_complex.npy")).astype(np.float32)
+gmax = float(gt.max())
+head = gt > 0.05 * float(np.quantile(gt, 0.999))
+sl = [slice(None)] * 3; sl[args.axis] = args.index; sl = tuple(sl)
+gp, hp = gt[sl], head[sl]
+if args.crop:
+    yy, xx = np.nonzero(hp); cy, cx = int(yy.mean()), int(xx.mean()); h0, h1 = args.half
+    win = (slice(max(cy - h0, 0), cy + h0), slice(max(cx - h1, 0), cx + h1))
+else:
+    win = (slice(0, gp.shape[0]), slice(0, gp.shape[1]))
+g2, m2 = gp[win], hp[win]
+g = g2[m2].astype(np.float64)
+vmax = float(np.quantile(g2, 0.999))
+
+imgs, psnr = {}, {}
+for key, lab, path in ARMS:
+    v = np.abs(np.load(path)).astype(np.float32)[sl][win]
+    imgs[key] = v
+    e = v[m2].astype(np.float64) - g
+    psnr[key] = 20 * np.log10(gmax) - 10 * np.log10(float((e * e).mean()))
+best = max(psnr, key=psnr.get)
+
+ncol = len(ARMS) + 1
+H, W = g2.shape[1], g2.shape[0]                      # displayed as .T: height = axis-2 extent, width = axis-1 extent
+pw = 2.6
+fig, axes = plt.subplots(2, ncol, figsize=(pw * ncol + 0.9, 2 * pw * H / W + 1.3),
+                         gridspec_kw=dict(wspace=0.03, hspace=0.12))
+axes[0, 0].imshow(g2.T, cmap="gray", vmin=0, vmax=vmax, origin="lower")
+axes[0, 0].set_title(f"GT ({c})", fontsize=13, fontweight="bold")
+axes[1, 0].imshow(m2.T, cmap="gray", origin="lower")
+axes[1, 0].set_title("head mask", fontsize=11)
+for j, (key, lab, _) in enumerate(ARMS, start=1):
+    v = imgs[key]
+    axes[0, j].imshow(v.T, cmap="gray", vmin=0, vmax=vmax, origin="lower")
+    axes[0, j].set_title(f"{lab}\n{psnr[key]:.2f} dB", fontsize=12,
+                         fontweight="bold" if key == best else "normal")
+    im = axes[1, j].imshow((np.abs(v - g2) / gmax).T, cmap="jet", vmin=0.0, vmax=0.1, origin="lower")
+for a in axes.ravel():
+    a.set_xticks([]); a.set_yticks([])
+cax = fig.add_axes([axes[1, -1].get_position().x1 + 0.005, axes[1, -1].get_position().y0,
+                    0.008, axes[1, -1].get_position().height])
+cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=9)
+region = "butterfly region" if args.crop else "transverse slice"
+fig.suptitle(f"{c}  jiangyizhou  AF 16 -- {region} {args.index}   "
+             f"(PSNR = head-masked PSNR of this {'region' if args.crop else 'slice'};  error |recon - GT| / max(GT), jet [0, 0.1])",
+             fontsize=13, fontweight="bold", y=0.99)
+out = F / f"t1flair_v3_af16_{c}_{tag}_axis{args.axis}_{args.index}.png"
+fig.savefig(out, dpi=130, bbox_inches="tight"); fig.savefig(R / f"figures/{out.name}", dpi=130, bbox_inches="tight")
+print("wrote", out)
+print(json.dumps({lab: round(psnr[k], 3) for k, lab, _ in ARMS}))
