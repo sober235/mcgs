@@ -404,3 +404,6 @@ scale lr 0.005 (card 4) — each is one or two steps beyond P9 and is read again
   Against P9@1500 36.812 / 36.135: +0.073 / +0.024, head SSIM +0.0012 / +0.0006, HFEN level. **Keep.** Promotion of
   the union (`ar5_best_C10_T112_full4k`, 4000 it, volumes) replaces the T1-only promotion on card 3; the FLAIR-only
   promotion (`ar5_db4_lev1_C10_full4k`) keeps running on card 5 as the single-step reference.
+- `ar6_headfrac03` (init head fraction 0.03 instead of 0.05, on P9; card 3, 28 min): 36.629 / 35.945 against
+  P9@1500 36.812 / 36.135 — **−0.183 / −0.190**, HFEN worse by 0.009 / 0.006. **Discard**: a wider initial support
+  spends Gaussians outside the head. Settled.
