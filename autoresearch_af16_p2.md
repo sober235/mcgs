@@ -99,3 +99,30 @@ time. Candidates all attack the binding contrast, on top of round 1's winner whe
 | `p2_r2_wav14` | wavelet T1 0.14 / FLAIR 0.14 | push the winning direction on the binding contrast |
 | `p2_r2_ptv05` | round 1 winner + `--lambda_ptv 0.05` | the new phase-only TV term, aimed straight at the gauge gap |
 | `p2_r2_wav18f` | wavelet T1 0.14 / FLAIR 0.18 | FLAIR-heavy, to find where the wavelet stops paying |
+
+Results (1500 iterations; bar complex T1 32.2011 / FLAIR 31.7175, magnitude 35.2092 / 34.5028):
+
+| exp | T1 mag | FLAIR mag | T1 cplx | FLAIR cplx | min margin cplx | min margin mag | cos phase |
+|---|---|---|---|---|---|---|---|
+| **`p2_r2_ptv05`** | 35.320 | 34.682 | **32.365** | **31.830** | **+0.112** | +0.111 | **0.9929 / 0.9931** |
+| `p2_r2_wav18f` | 35.543 | 34.593 | 32.255 | 31.690 | -0.028 | +0.090 | 0.9922 / 0.9927 |
+| `p2_r2_wav14` | 35.545 | 34.714 | 32.257 | 31.664 | -0.053 | +0.211 | 0.9922 / 0.9925 |
+| `p2_r3_wavT118` | 35.460 | 34.712 | 32.332 | 31.662 | -0.056 | +0.209 | 0.9925 / 0.9925 |
+
+**Objective met at the screening budget.** `p2_r2_ptv05` = round-1 winner + the new phase-only TV at 0.05 is
+above the bar on BOTH gauges and BOTH contrasts: complex +0.164 / +0.112, magnitude +0.111 / +0.179. Its
+phase agreement, 0.9929 / 0.9931, matches and slightly beats L1-ESPIRiT's 0.9925 / 0.9930, which is what the
+term was built for. The cost is on the T1 magnitude side: the margin there falls from +0.336 (wav14) to
++0.111, so the term trades a little magnitude accuracy for phase.
+
+The wavelet path alone saturates: FLAIR 0.18 gains 0.026 dB of FLAIR complex over 0.14 while giving up
+0.121 dB of FLAIR magnitude, and T1 0.18 gains nothing over 0.14. So the wavelet is done at T1 0.14 /
+FLAIR 0.10-0.14 and the phase term carries the rest.
+
+### Round 3 — 2026-09-11, from 20:35
+
+| exp | GPU | change from `p2_r2_ptv05` | rationale |
+|---|---|---|---|
+| `p2_r3_wav14_ptv05` | 0 | FLAIR wavelet 0.10 -> 0.14 | stack the two winners; FLAIR was the binding contrast |
+| `p2_r3_ptv10` | 2 | phase TV 0.05 -> 0.10 | find where the phase term stops paying |
+| `p2_promo_wav14_full4k` | 1 | wav14 at 4000 iterations, volumes | full-budget reference for the wavelet-only path (launched 20:10) |
