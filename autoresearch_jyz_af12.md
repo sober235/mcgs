@@ -218,3 +218,5 @@ Every one a single change against P6 at 1500 iterations; waiters start them when
   `ar4_wavlev1` (1 level) as the follow-up single knob on card 4.
 - `ar2_wfloor02` (edge-TV w_floor 0.20; card 5, 26 min): 36.681 / 36.025 — −0.023 / −0.047 dB, HFEN worse by
   0.0028 / 0.0031, sharpness −0.023 / −0.024. **Discard.**
+- `ar4_kcenter015` (k-space centre weight 0.15; card 4, 26 min): 36.703 / 36.074 — −0.001 / +0.002 dB, every cell
+  inside its floor. **Discard (null)**; with 0.5 also null, the centre weight is settled (does nothing under hard DC).
