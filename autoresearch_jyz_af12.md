@@ -417,3 +417,7 @@ scale lr 0.005 (card 4) — each is one or two steps beyond P9 and is read again
   curve under the 1-level db4 prior is 0.10 36.812 → 0.12 36.885 → 0.14 36.918, flattening, and HFEN starts to
   give. `ar6_best_C10_T116` queued as the end-point; the promotion in flight uses 0.12, a 0.14 step at 4000 follows
   only if 0.16 confirms the plateau.
+  Correction (05:30, on the view's sharpness column): against the parent P9@1500 (0.865 / 0.829) the T1-0.14 row's
+  T1 sharpness is 0.848, **−0.017, beyond the 0.01 allowance** → **discard (reshape)**, not keep-marginal. The
+  T1-0.12 union row sits at 0.856 / 0.820 (−0.009 / −0.009), inside the allowance but at its edge; its promotion
+  at 4000 is judged on sharpness against P9's 0.867 / 0.832 as well.
