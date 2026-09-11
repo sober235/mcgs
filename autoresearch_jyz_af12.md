@@ -442,3 +442,6 @@ points, repaired cold start** — baked into the runner by this commit; screenin
 T1 strength is closed at 0.12: 0.14 fails the sharpness gate at 1500; the queued 0.16 end-point is dropped. Round 5
 (P10-based, card 4 after the running scale-lr 0.012 screen): scale lr 0.008 on P10, sym4, wavelet eps, density lr
 0.02. Card 5's `ar5_slr008_full4k` (P9 + scale lr 0.008) is read against P9 and, if it passes, combined with P10.
+- 06:05 card 3: `ar5_P10_slr008_full4k` (P10 + scale lr 0.008, 4000 it, volumes) launched in parallel with the 1500-it
+  screen of the same knob on card 4 and the P9 + 0.008 promotion on card 5; pre-registered keep rule as usual
+  (against P10's 4000 row 36.944 / 36.268, sharpness 0.858 / 0.823).
