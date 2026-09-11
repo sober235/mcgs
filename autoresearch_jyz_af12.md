@@ -335,3 +335,6 @@ Against P6 (the user's provisional best): +0.066 / +0.024 dB head PSNR, HFEN bet
 promotions in, both from the shape of the wavelet prior.
 - `ar6_density_lr01` (density lr 0.01, P7-based; card 3, 25 min): 36.716 / 36.068 against P7@1500 36.719 / 36.075 —
   −0.003 / −0.007, HFEN +0.0003 / +0.0001, SSIM level. **Discard (null)**; the 0.02 point (card 4) completes the pair.
+- `ar4_kmid08` (k-space mid-band weight 0.8, P8-based; card 5, 26 min): 36.612 / 36.034 against P8@1500 (`ar4_db4`)
+  36.767 / 36.095 — **−0.155 / −0.061**, head HFEN worse by 0.010 / 0.009, SSIM down. **Discard**: the mid band
+  carries the detail the prior cannot supply; down-weighting it costs fidelity everywhere. Band weights settled.
