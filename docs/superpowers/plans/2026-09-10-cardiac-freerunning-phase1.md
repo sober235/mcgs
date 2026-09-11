@@ -1664,6 +1664,7 @@ cd /data0/congcong/code/GS/mcgs_cardiac_wt && git add cardiac_freerunning_megre/
 ### Task 10: 呼吸极性（判据 b）、V07 参考重建（REF）与两项核对
 
 > 2026-09-11 修正（用户批准）：判据 (b) 改为回波 3、各轴中心块 16:96、亚体素归一化互相关，|位移| < 0.5 体素算无法判断。原实现用回波 0、沿 SI 全长取剖面，被视野边缘不随呼吸移动的亮带主导，V07 上位移算成 0 而停下。
+> 2026-09-11 第二次修正（用户选方案 1）：各轴中心整块被脊柱、肋软骨、胸壁这些不随呼吸动的强边缘主导（V07 回波 3 得 +0.77，与局部测量相反）。改为在肝顶块与心脏块里局部测位移，两块方向一致且都不小于 0.5 体素才有效；块坐标逐例放在 R0 图上，写进课题 `polarity_boxes.json`。
 
 **Files:**
 - Create（课题 `scripts/`）：`s07_polarity.py`、`s08_checks.py`、`run_v07_ref.sh`
@@ -1675,12 +1676,13 @@ cd /data0/congcong/code/GS/mcgs_cardiac_wt && git add cardiac_freerunning_megre/
 - [ ] **Step 1: 写 `s07_polarity.py`**
 
 ```python
-"""Spec 5.4 criterion (b), as corrected on 2026-09-11 (approved by the user): the respiratory third whose
-anatomy sits more superior is end-expiration. Both thirds are reconstructed at echo 3; their shift along
-the SI axis is the sub-voxel peak of the normalised cross-correlation of the two magnitude volumes inside
-the central block 16:96 on every axis (the bright band at the FOV edge does not move with breathing and
-made the first version blind). |shift| < 0.5 voxel counts as ambiguous. The result must agree with
-criterion (a) (physio.json); only then is ref_ids.npy written."""
+"""Spec 5.4 criterion (b), second correction 2026-09-11 (user-approved option 1): the respiratory third
+whose anatomy sits more superior is end-expiration, measured where the anatomy moves. Both thirds are
+reconstructed at echo 3. Inside a liver-dome box and a heart box (per subject, polarity_boxes.json, placed
+on that subject's R0 image) the SI shift is the sub-voxel peak of the normalised cross-correlation of the
+two magnitude volumes. Both boxes must agree in sign with |shift| >= 0.5 voxel, else the result is
+ambiguous. (A whole-volume block is dominated by spine, costal cartilage and chest wall, which do not move
+with breathing.) The result must agree with criterion (a) (physio.json); only then is ref_ids.npy written."""
 import json
 import sys
 
@@ -1689,17 +1691,17 @@ import numpy as np
 from common import DERIVED_ROOT, LOGS, TOPIC, recon_dir, save_fig, set_ids
 
 ECHO = 3
-BLOCK = slice(16, 96)
 LAGS = np.arange(-8, 9)
+MIN_SHIFT = 0.5
 
 s = sys.argv[1]
 ori = json.loads((TOPIC / "orientation.json").read_text())
 si, sup_high = int(ori["si_axis"]), bool(ori["superior_is_high_index"])
+boxes = json.loads((TOPIC / "polarity_boxes.json").read_text()).get(s)
+if boxes is None:
+    sys.exit(f"no polarity boxes for {s} in polarity_boxes.json: place them on its R0 image first")
 low = np.abs(np.load(recon_dir(s) / f"low_e{ECHO}.npy"))
 high = np.abs(np.load(recon_dir(s) / f"high_e{ECHO}.npy"))
-a = np.moveaxis(low[BLOCK, BLOCK, BLOCK], si, -1)
-b = np.moveaxis(high[BLOCK, BLOCK, BLOCK], si, -1)
-n = a.shape[-1]
 
 
 def ncc(u, v):
@@ -1708,19 +1710,29 @@ def ncc(u, v):
     return float(np.sum(u * v) / np.sqrt(np.sum(u * u) * np.sum(v * v)))
 
 
-cc = np.array([ncc(a[..., max(0, -L):n - max(0, L)], b[..., max(0, L):n - max(0, -L)]) for L in LAGS])
-i = int(np.argmax(cc))
-frac = 0.5 * (cc[i - 1] - cc[i + 1]) / (cc[i - 1] - 2 * cc[i] + cc[i + 1]) if 0 < i < len(cc) - 1 else 0.0
-shift = float(LAGS[i] + frac)                     # high(z) = low(z - shift) along the SI axis
-if abs(shift) < 0.5:
+def shift_in(box):
+    sl = tuple(slice(a, b) for a, b in box)
+    a = np.moveaxis(low[sl], si, -1)
+    b = np.moveaxis(high[sl], si, -1)
+    n = a.shape[-1]
+    cc = np.array([ncc(a[..., max(0, -L):n - max(0, L)], b[..., max(0, L):n - max(0, -L)]) for L in LAGS])
+    i = int(np.argmax(cc))
+    f = 0.5 * (cc[i - 1] - cc[i + 1]) / (cc[i - 1] - 2 * cc[i] + cc[i + 1]) if 0 < i < len(cc) - 1 else 0.0
+    return float(LAGS[i] + f), cc                    # high(z) = low(z - shift) along the SI axis
+
+
+res = {name: shift_in(boxes[name]) for name in ("dome", "heart")}
+d_dome, d_heart = res["dome"][0], res["heart"][0]
+if min(abs(d_dome), abs(d_heart)) < MIN_SHIFT or np.sign(d_dome) != np.sign(d_heart):
     image_end = "ambiguous"
 else:
-    image_end = "high" if (shift > 0) == sup_high else "low"   # the more superior third is end-expiration
+    image_end = "high" if (d_dome > 0) == sup_high else "low"   # the more superior third is end-expiration
 hist_end = json.loads((DERIVED_ROOT / s / "physio.json").read_text())["expiration_end_by_histogram"]
 agreed = image_end == hist_end
-rep = {"subject": s, "echo": ECHO, "block": [BLOCK.start, BLOCK.stop], "ncc_peak": float(cc[i]),
-       "shift_vox_high_vs_low": round(shift, 3), "image_end": image_end, "histogram_end": hist_end,
-       "agreed": agreed}
+rep = {"subject": s, "echo": ECHO, "boxes": boxes,
+       "shift_vox_high_vs_low": {k: round(v[0], 3) for k, v in res.items()},
+       "ncc_peak": {k: round(float(v[1].max()), 3) for k, v in res.items()},
+       "image_end": image_end, "histogram_end": hist_end, "agreed": agreed}
 if agreed:
     np.save(DERIVED_ROOT / s / "ref_ids.npy", set_ids(s, hist_end))
     rep["n_ref"] = int(set_ids(s, hist_end).size)
@@ -1729,25 +1741,28 @@ print(json.dumps(rep, indent=1), flush=True)
 
 import matplotlib  # noqa: E402
 matplotlib.use("Agg")
+from matplotlib.patches import Rectangle  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 
-other = [k for k in range(3) if k != si]
-cut = other[0]
-rest = [k for k in range(3) if k != cut]           # this plane keeps the SI axis
-vmax = float(np.quantile(low[BLOCK, BLOCK, BLOCK], 0.995))
-fig, axs = plt.subplots(1, 3, figsize=(13, 4.5))
-axs[0].plot(LAGS, cc, "o-")
-axs[0].axvline(shift, color="r", lw=0.8)
+cut = [k for k in range(3) if k != si][1]          # coronal-like plane that keeps the SI axis
+keep = [k for k in range(3) if k != cut]
+c = (max(boxes["dome"][cut][0], boxes["heart"][cut][0]) + min(boxes["dome"][cut][1], boxes["heart"][cut][1])) // 2
+vmax = float(np.quantile(low[16:96, 16:96, 16:96], 0.995))
+fig, axs = plt.subplots(1, 3, figsize=(14, 4.8))
+for name, col in (("dome", "tab:red"), ("heart", "tab:blue")):
+    axs[0].plot(LAGS, res[name][1], "o-", color=col, label=f"{name}: {res[name][0]:+.2f} vox")
+axs[0].legend()
 axs[0].set_xlabel("shift of the high third along the SI axis (voxels)")
 axs[0].set_ylabel("normalised cross-correlation")
 for k, (v, t) in enumerate(((low, "low third"), (high, "high third"))):
-    sl = np.take(v, v.shape[cut] // 2, axis=cut)
-    img = sl if rest.index(si) == 0 else sl.T         # SI vertical
-    axs[k + 1].imshow(img, cmap="gray", origin="lower", vmin=0, vmax=vmax)
-    axs[k + 1].axhline(BLOCK.start, color="y", lw=0.6)
-    axs[k + 1].axhline(BLOCK.stop, color="y", lw=0.6)
-    axs[k + 1].set_title(f"{t}, echo {ECHO}")
-fig.suptitle(f"{s}: shift {shift:+.2f} vox (superior = {'high' if sup_high else 'low'} index); "
+    sl = np.take(v, c, axis=cut)
+    axs[k + 1].imshow(sl if keep.index(si) == 0 else sl.T, cmap="gray", origin="lower", vmin=0, vmax=vmax)
+    x_ax = keep[0] if keep.index(si) == 1 else keep[1]
+    for name, col in (("dome", "tab:red"), ("heart", "tab:blue")):
+        (x0, x1), (y0, y1) = boxes[name][x_ax], boxes[name][si]
+        axs[k + 1].add_patch(Rectangle((x0, y0), x1 - x0, y1 - y0, fill=False, ec=col, lw=1))
+    axs[k + 1].set_title(f"{t}, echo {ECHO}, axis{cut}={c}")
+fig.suptitle(f"{s}: dome {d_dome:+.2f} / heart {d_heart:+.2f} vox (superior = {'high' if sup_high else 'low'} index); "
              f"image says end-expiration = {image_end}, histogram says {hist_end}")
 fig.tight_layout()
 save_fig(fig, f"{s}_polarity.png")
@@ -1998,6 +2013,8 @@ cd /data0/congcong/code/GS/mcgs_cardiac_wt && git add cardiac_freerunning_megre/
 ```
 
 ### Task 12: 冻结参数，跑 V03、V04、V08
+
+> 2026-09-11：判据 (b) 需要每例的肝顶块与心脏块。三例先跑到两个呼吸三分组的重建为止，在各自 R0 图上放好块、写进 `polarity_boxes.json`，再跑极性、REF 与核对。
 
 **Files:**
 - Create（课题根）：`params_frozen.json`
