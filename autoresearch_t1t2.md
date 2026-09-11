@@ -913,3 +913,22 @@ The pattern of jiangyizhou repeats on a second subject that no recipe has seen. 
 gains T1 +0.104 dB and T1 head SSIM +0.0020. The edge-TV step with the FLAIR-channel 0.12 (v3.2 against v3.1) costs T1
 0.138 dB and T1 head SSIM 0.0026, gains FLAIR +0.188 dB and FLAIR head SSIM +0.0046, and lifts T1 sharpness from 0.869
 to 0.905. On both held-out subjects, then, the T1-channel wavelet transfers for T1 and the edge-TV step does not.
+
+**Round 21 reading (11:25; every arm in except 3D-INR and the FLAIR half of 3D-DIP, which rank last or near last on the other three topics).** The strongest other arm on tangbing is converged TV on T1 (head PSNR 33.580, head SSIM 0.9319) and L1-ESPIRiT on FLAIR (32.351,
+0.9081); at the huangyuwei λ, L1-ESPIRiT is far behind on T1 (31.865).
+
+| | v3 | v3.1 | v3.2 | best other arm |
+|---|---|---|---|---|
+| head PSNR T1 | 33.825 (+0.245) | 33.929 (+0.349) | 33.791 (+0.211) | converged TV 33.580 |
+| head PSNR FLAIR | 32.403 (+0.052) | 32.403 (+0.052) | 32.591 (+0.240) | L1-ESPIRiT 32.351 |
+| head SSIM T1 | 0.9281 | 0.9301 | 0.9275 | converged TV 0.9319 |
+| head SSIM FLAIR | 0.9005 | 0.9004 | 0.9050 | L1-ESPIRiT 0.9081 |
+| head HFEN T1 | 0.1129 | 0.1122 | 0.1110 | converged TV 0.1274 |
+| head HFEN FLAIR | 0.1189 | 0.1189 | 0.1191 | L1-ESPIRiT 0.1193 |
+| T1 sharpness | 0.876 | 0.869 | 0.905 | floor 0.874 |
+
+- Pre-registered reading: v3.2 is first on head PSNR on both channels here, so the jiangyizhou T1 result reads as
+  subject-specific. The T1 cost of the edge-TV step (−0.138 dB against v3.1) repeats; whether it flips a ranking depends
+  on the margin over the strongest other arm, which is 0.35 dB for v3.1 here and 0.12 dB on jiangyizhou.
+- All three recipes are first on head PSNR and head HFEN on both channels. None is first on head SSIM: converged TV leads
+  on T1 and L1-ESPIRiT on FLAIR, by 0.0018 to 0.0077.
