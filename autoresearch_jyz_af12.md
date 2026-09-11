@@ -430,3 +430,15 @@ Rule clarification (recorded now, applies from here): a run whose cells all hold
 one improves is a **Pareto keep** even when `min_margin` is unchanged — the objective is the gap on every metric,
 and the binding channel may swap. FLAIR 0.10 therefore enters the next parent together with whatever the union
 promotion (`ar5_best_C10_T112_full4k`, T1 0.12 + FLAIR 0.10, card 3, ~05:55) decides for T1.
+
+### Promotion 8 — FLAIR 0.10 + T1 0.12 on P9 at 4000 iterations (05:55): **promoted, P10**
+`ar5_best_C10_T112_full4k` (card 3, 63 min, volumes): **36.944 / 36.268** against P9's 36.853 / 36.234 — **T1 +0.091,
+FLAIR +0.034**, head SSIM +0.0014 / +0.0008, head HFEN +0.0003 / +0.0003, sharpness 0.858 / 0.823 (−0.009 / −0.009,
+inside the 0.01 allowance, at its edge). Six-cell margins on the bar: PSNR **+0.518 / +0.511**, SSIM +0.0030 /
++0.0030, HFEN +0.0087 / +0.0042. **P10 = db4 wavelet, 1 level, T1 0.12 / FLAIR 0.10, edge-TV 0.10 / κ_q 0.85, 3.6M
+points, repaired cold start** — baked into the runner by this commit; screening baseline `ar6_best_C10_T112`
+(36.885 / 36.159). Against the user's P6: **+0.191 / +0.103 dB** head PSNR, SSIM +0.0023 / +0.0024, HFEN better by
+0.0062 / 0.0044; sharpness 0.858 / 0.823 vs P6's 0.857 / 0.832.
+T1 strength is closed at 0.12: 0.14 fails the sharpness gate at 1500; the queued 0.16 end-point is dropped. Round 5
+(P10-based, card 4 after the running scale-lr 0.012 screen): scale lr 0.008 on P10, sym4, wavelet eps, density lr
+0.02. Card 5's `ar5_slr008_full4k` (P9 + scale lr 0.008) is read against P9 and, if it passes, combined with P10.
