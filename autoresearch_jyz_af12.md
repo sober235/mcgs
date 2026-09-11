@@ -303,3 +303,10 @@ Joint TV: 0.0005 35.584 / 35.383, 0.0007 35.936 / 35.606, **0.001 36.070 / 35.62
 L1-ESPIRiT T1 λ 0.002 (36.426), FLAIR λ 0.004 (35.757); converged TV 0.0007 / 0.0007; joint TV 0.001. Bar per
 cell (best over every swept λ): T1 PSNR 36.426 / SSIM 0.9473 / HFEN 0.1034 — all L1-ESPIRiT; FLAIR PSNR 35.757 /
 SSIM 0.9368 / HFEN 0.1000 — all L1-ESPIRiT. Card 6 is released (nothing of this loop runs there any more).
+- `ar6_db4_lev1` (db4 + 1 level, on P7; card 4, 27 min): **36.812 / 36.080** against P7@1500 36.719 / 36.075 —
+  **T1 +0.093**, FLAIR +0.005; head SSIM +0.0008 / +0.0003, head HFEN better by **0.0050 / 0.0030**, sharpness up.
+  `min_margin` +0.323 (set by FLAIR). **Keep — every cell improves**, and the two T1 levers add up (db4 alone
+  +0.048, 1 level alone +0.037; together +0.093 on T1 while FLAIR returns to baseline instead of −0.014).
+  Promotion `ar5_db4_lev1_full4k` (4000 it, volumes) on card 4 after the running 1-level + FLAIR-0.085 screen; the
+  single-knob promotions `ar5_wavlev1_full4k` (card 3) and `ar5_db4_full4k` (card 5) keep running as the
+  single-lever references at 4000.
