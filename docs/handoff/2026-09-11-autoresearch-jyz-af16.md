@@ -36,6 +36,13 @@ Environment: `PYTHONNOUSERSITE=1 PYTHONPATH=`, conda env GSTMI (`/home/congcongl
   TV), every λ curve bracketed: `scripts/run_classical_revisited*.sh` in the topic.
 - Topic table / README / figures regenerate with one command:
   `bash /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/scripts/finalize_af16_jyz.sh ar14_n36_v2tv_full4k ar15_P6_singleT1_full4k ar15_P6_singleFLAIR_full4k`.
+- One-row comparison figure (layout set by the user on 2026-09-11): `scripts/fig_row_final.py --contrast {T1,FLAIR}`
+  in the topic writes `figures/t1flair_v3_af16_{T1,FLAIR}_row_axis0_168.png` (whole slice 168; `--crop` gives the
+  butterfly region). Top row: GT, CG-SENSE, CS-SENSE, Joint SENSE, L1-ESPIRiT, ZS-SSDU, 3D-DIP, 3D-INR, GS-single,
+  MC-GS. Error maps (jet, fixed [0, 0.1]) below, head mask bottom-left. Slice head PSNR: T1 MC-GS 36.71 > GS-single
+  36.69 > L1-ESPIRiT 36.47; FLAIR GS-single 34.79, MC-GS 34.78, L1-ESPIRiT 34.56.
+  **Naming decided by the user: the single-contrast arm is "GS-single"; "MC-GS" means the joint arm.** Use these names
+  from now on (older tables still say "MC-GS single / joint (autoresearch)").
 
 ## 2. Waiting for the user
 

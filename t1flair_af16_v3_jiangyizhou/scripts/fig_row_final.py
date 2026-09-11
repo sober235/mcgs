@@ -81,9 +81,12 @@ best = max(psnr, key=psnr.get)
 
 ncol = len(ARMS) + 1
 H, W = g2.shape[1], g2.shape[0]                      # displayed as .T: height = axis-2 extent, width = axis-1 extent
-pw = 2.6
-fig, axes = plt.subplots(2, ncol, figsize=(pw * ncol + 0.9, 2 * pw * H / W + 1.3),
-                         gridspec_kw=dict(wspace=0.03, hspace=0.12))
+pw, ws, cbw = 2.6, 0.03, 0.9                         # panel width (in), column gap (fraction of a panel), colorbar room (in)
+ph = pw * H / W                                      # panel height: every grid cell has the image's aspect, no slack
+top_in, gap_in, bot_in = 0.85, 0.30, 0.05            # room above row 1 (suptitle + titles), between the rows, below
+fw, fh = pw * (ncol + (ncol - 1) * ws) + cbw, top_in + 2 * ph + gap_in + bot_in
+fig, axes = plt.subplots(2, ncol, figsize=(fw, fh))
+fig.subplots_adjust(left=0, right=1 - cbw / fw, bottom=bot_in / fh, top=1 - top_in / fh, wspace=ws, hspace=gap_in / ph)
 axes[0, 0].imshow(g2.T, cmap="gray", vmin=0, vmax=vmax, origin="lower")
 axes[0, 0].set_title(f"GT ({c})", fontsize=13, fontweight="bold")
 axes[1, 0].imshow(m2.T, cmap="gray", origin="lower")
