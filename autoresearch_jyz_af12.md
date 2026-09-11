@@ -209,3 +209,12 @@ Every one a single change against P6 at 1500 iterations; waiters start them when
   **Discard (null)**, as on hyw.
 - `ar4_kcenter05` (k-space centre weight 0.5; card 3, 25 min): 36.702 / 36.065 — −0.002 / −0.007 dB, other cells
   inside their floors. **Discard (null)**: with hard data consistency the low-band weight barely matters.
+- `ar4_wavlev2` (wavelet 2 levels; card 4, 26 min): 36.719 / 36.076 — **+0.015 / +0.004 dB** (`min_margin` +0.293,
+  2.5x the floor), head SSIM +0.0002 / +0.0001, head HFEN better by 0.0010 / 0.0005, sharpness +0.002 / +0.001.
+  **Keep — every cell holds or improves.** Restricting the L1 wavelet prior to the two finest scales keeps the
+  fine-detail sparsity and drops the coarse-scale penalty that was slightly biasing the anatomy.
+  Promotion `ar5_wavlev2_full4k` (4000 it, volumes) queued on card 4 after its current run; the combination with
+  the other keep, `ar5_n48_wavlev2_full4k` (4.8M + 2 levels, 4000 it, volumes), on card 3 after the 4.8M promotion;
+  `ar4_wavlev1` (1 level) as the follow-up single knob on card 4.
+- `ar2_wfloor02` (edge-TV w_floor 0.20; card 5, 26 min): 36.681 / 36.025 — −0.023 / −0.047 dB, HFEN worse by
+  0.0028 / 0.0031, sharpness −0.023 / −0.024. **Discard.**
