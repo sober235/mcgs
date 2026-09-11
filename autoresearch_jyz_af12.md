@@ -453,3 +453,11 @@ T1 strength is closed at 0.12: 0.14 fails the sharpness gate at 1500; the queued
 - `ar7_P10_slr008` (P10 + scale lr 0.008; card 4, 26 min): **36.948 / 36.288** against P10@1500 36.885 / 36.159 —
   **+0.063 / +0.129**, head SSIM +0.0001 / +0.0012, head HFEN +0.0004 / +0.0009, sharpness level. **Keep** — the
   scale-lr gain carries over to P10 unchanged. Its promotion run is already on card 3 (`ar5_P10_slr008_full4k`).
+
+### Promotion 9 — scale lr 0.008 on P9 at 4000 iterations (06:40): reshape
+`ar5_slr008_full4k` (card 5, 61 min, volumes): 36.842 / 36.286 against P9's 36.853 / 36.234 — **T1 −0.011, FLAIR
++0.052**; T1 head SSIM −0.0005, T1 head HFEN worse by 0.0006, FLAIR cells up, sharpness level. At 1500 iterations
+the same knob was +0.042 / +0.118 with nothing regressing: the faster scale adaptation lets T1 over-fit late, the
+capacity pattern again. **Reshape at 4000, not promoted on P9.** The P10 + 0.008 run on card 3 (~07:10) decides
+for P10; pre-registered fallback `ar5_P10_slr005_full4k` (the intermediate lr at 4000, volumes) launched on card 5
+now so that the answer for 0.005 arrives an hour earlier if 0.008 fails.
