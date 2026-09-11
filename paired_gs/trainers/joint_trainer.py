@@ -802,6 +802,13 @@ class JointTrainer:
         edge_kappa = float(loss_cfg.get("edge_kappa", 10.0))
         # R_vtv: vectorial (joint) TV — symmetric edge-LOCATION coupling (this work). Default 0.
         lambda_vtv = float(loss_cfg.get("lambda_vtv", 0.0))
+        # R_ptv: phase-only TV (this work, 2026-09-11). Default 0 => no-op, nothing imported.
+        lambda_ptv = float(loss_cfg.get("lambda_ptv", 0.0))
+        if lambda_ptv > 0:
+            if not bool(loss_cfg.get("edge_tv", False)):
+                raise ValueError("loss.lambda_ptv reuses the edge-TV kappa / w_floor; enable loss.edge_tv")
+            from losses.phase_tv import phase_tv
+            print(f"[phase-tv] lambda_ptv={lambda_ptv} eps={float(loss_cfg.get('tv_eps', 0.0))}")
         # R_wav: L1 sparsity of the 3-D wavelet detail coefficients of the rendered volumes -- the
         # prior behind L1-wavelet ESPIRiT (losses/wavelet_l1.py). Default 0 => no-op, nothing imported,
         # no random numbers drawn, so a run without it is bit-identical to before.
@@ -931,6 +938,14 @@ class JointTrainer:
             else:
                 l_vtv = torch.tensor(0.0, device=self.device)
 
+            # R_ptv: phase-only TV — the orthogonal part of the complex gradient (this work).
+            if lambda_ptv > 0:
+                l_ptv = (phase_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor, self._tv_eps)
+                         + phase_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor, self._tv_eps))
+                loss = loss + lambda_ptv * l_ptv
+            else:
+                l_ptv = torch.tensor(0.0, device=self.device)
+
             # R_wav: wavelet sparsity of both rendered volumes, cycle-spun (BART pics -l1 analogue).
             if lambda_wav > 0:
                 sh = tuple(torch.randint(0, 2 ** wav_levels, (3,), generator=wav_gen).tolist()) if wav_spin else None
@@ -969,6 +984,7 @@ class JointTrainer:
                 "loss/R_edge": float((lambda_edge * l_edge).detach().item()),
                 "loss/R_vtv": float((lambda_vtv * l_vtv).detach().item()),
                 "loss/R_wav": float((lambda_wav * l_wav).detach().item()),
+                "loss/R_ptv": float((lambda_ptv * l_ptv).detach().item()),
             }
             total_loss_value = sum(components.values()) + 1e-12
             ratios = {k: v / total_loss_value for k, v in components.items()}

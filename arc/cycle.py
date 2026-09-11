@@ -34,6 +34,7 @@ ap.add_argument("--dtv_eta_scale", type=float, default=1.0)
 ap.add_argument("--lambda_edge", type=float, default=0.0)        # loss.lambda_edge symmetric common-edge cross-grad prior (helps BOTH contrasts)
 ap.add_argument("--edge_p", type=float, default=0.75)            # loss.edge_p edge-gate quantile
 ap.add_argument("--edge_kappa", type=float, default=10.0)        # loss.edge_kappa edge-gate sigmoid sharpness
+ap.add_argument("--lambda_ptv", type=float, default=0.0)         # loss.lambda_ptv phase-only TV (phase-2 loop; complex gauge)
 ap.add_argument("--lambda_vtv", type=float, default=0.0)         # loss.lambda_vtv vectorial (joint) TV; symmetric edge-location coupling (stable)
 ap.add_argument("--max_radius", type=int, default=20)            # voxelizer.max_radius; geometry expressivity
 ap.add_argument("--kspace_high", type=float, default=1.0)        # loss.kspace_high_weight (contrast/shared); SECONDARY
@@ -154,6 +155,7 @@ def build_cfg():
     cfg["loss"]["edge_p"] = args.edge_p
     cfg["loss"]["edge_kappa"] = args.edge_kappa
     cfg["loss"]["lambda_vtv"] = args.lambda_vtv
+    cfg["loss"]["lambda_ptv"] = args.lambda_ptv
     cfg["loss"]["kspace_high_weight"] = args.kspace_high
     cfg["loss"]["tv_eps"] = args.tv_eps
     cfg["loss"]["tv_vector"] = args.tv_vector
@@ -237,6 +239,16 @@ def score_contrast(tr, which, dev):
         k_dc = mf.unsqueeze(0) * y_dc + (1.0 - mf).unsqueeze(0) * k_model
         kz_energy = float((k_dc * z).abs().square().sum())              # must be 0.0 whenever Z is non-empty
         x_dc = (ifft3c(k_dc) * csm.conj()).sum(0)
+        # complex gauge (2026-09-11): |recon - GT| on the COMPLEX volumes over the same head mask as
+        # score_headonly, plus the magnitude-weighted phase agreement. The magnitude gauge ignores the
+        # phase part of the unobserved-region error; L1-ESPIRiT leads the GS arms there.
+        gm = gt.abs()
+        hm = gm > 0.05 * torch.quantile(gm.reshape(-1).float(), 0.999)
+        dz = (x_dc - gt)[hm]
+        head_psnr_cplx = float(20 * torch.log10(gm.max()) - 10 * torch.log10(dz.abs().square().mean()))
+        wph = (x_dc.abs() * gm)[hm]
+        cos_phase = float((wph * torch.cos(torch.angle(x_dc[hm]) - torch.angle(gt[hm]))).sum()
+                          / wph.sum().clamp_min(1e-12))
         met = evaluate_reconstruction(x_dc, gt, compute_extended=False)
         hf = hfen(x_dc.abs(), gt.abs())
         sr = sharp_ratio(x_dc.abs(), gt.abs())
@@ -249,6 +261,7 @@ def score_contrast(tr, which, dev):
     comp = psnr + 25.0 * ssim - 60.0 * nmse - 25.0 * hf - 40.0 * max(0.0, 1.0 - sr) - 200.0 * gr
     beat = (ssim >= float(mz["ssim"])) and (nmse <= float(mz["nmse"])) and (hf <= zf_hf)
     return dict(psnr=psnr, ssim=ssim, nmse=nmse, hfen=hf, sharp=sr, grain=gr,
+                head_psnr_cplx=head_psnr_cplx, cos_phase=cos_phase,
                 e_unobs=e_unobs, e_unobs_excl_z=e_unobs_excl_z, nmse_unobs=nmse_unobs, comp=comp, beat=beat,
                 zf=(float(mz["psnr"]), float(mz["ssim"]), float(mz["nmse"]), zf_hf),
                 kz_energy=kz_energy, physics=tr.physics_info.get(tag, {}), **ho)
@@ -284,11 +297,15 @@ def main():
     log(f"{name_p:5s} psnr={sp['psnr']:.3f} ssim={sp['ssim']:.4f} nmse={sp['nmse']:.4f} hfen={sp['hfen']:.4f} "
         f"e_unobs={sp['e_unobs']:.4f} e_unobs_xz={sp['e_unobs_excl_z']:.4f} head_psnr={sp['head_psnr']:.3f} head_ssim={sp['head_ssim']:.4f} "
         f"head_hfen={sp['head_hfen']:.4f} N={sp['grain_ratio']:.3f} kz_energy={sp['kz_energy']:.3e} "
-        f"sharp={sp['sharp']:.3f} grain={sp['grain']:.4f} comp={sp['comp']:.3f} beat={sp['beat']}")
+        f"sharp={sp['sharp']:.3f} grain={sp['grain']:.4f} "
+        f"head_psnr_cplx={sp['head_psnr_cplx']:.3f} cos_phase={sp['cos_phase']:.4f} "
+        f"comp={sp['comp']:.3f} beat={sp['beat']}")
     log(f"{name_c:5s} psnr={sc['psnr']:.3f} ssim={sc['ssim']:.4f} nmse={sc['nmse']:.4f} hfen={sc['hfen']:.4f} "
         f"e_unobs={sc['e_unobs']:.4f} e_unobs_xz={sc['e_unobs_excl_z']:.4f} head_psnr={sc['head_psnr']:.3f} head_ssim={sc['head_ssim']:.4f} "
         f"head_hfen={sc['head_hfen']:.4f} N={sc['grain_ratio']:.3f} kz_energy={sc['kz_energy']:.3e} "
-        f"sharp={sc['sharp']:.3f} grain={sc['grain']:.4f} comp={sc['comp']:.3f} beat={sc['beat']}")
+        f"sharp={sc['sharp']:.3f} grain={sc['grain']:.4f} "
+        f"head_psnr_cplx={sc['head_psnr_cplx']:.3f} cos_phase={sc['cos_phase']:.4f} "
+        f"comp={sc['comp']:.3f} beat={sc['beat']}")
     log(f"SCORE combined={combined:.3f} both_beat_zf={both_beat} N={npts} vram_gb={vram:.1f} "
         f"elapsed_s={time.time()-t0:.0f}")
 
