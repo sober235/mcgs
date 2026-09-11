@@ -1,7 +1,7 @@
 # Autoresearch on the retrospective AF12 pairs, part 2: a wavelet prior, v3.2 and two held-out subjects — session record, 2026-09-10 / 11
 
 Continues `2026-09-10-autoresearch-t1t2-coldstart.md`, which ended at v2 (the repaired cold start). The goal is
-unchanged (set by the user on 2026-09-09): MC-GS joint above every other arm of the AF12 tables on imaging metrics.
+unchanged (set by the user on 2026-09-09): MC-GS above every other arm of the AF12 tables on imaging metrics.
 The tuning pair is hyw T1+T2 (`Results_20260908/T1T2_AF12_retro`), the only topic used for selection. hyw T1+FLAIR
 checks transfer to another contrast on the same subject. jiangyizhou and tangbing are held out and were never used
 to select anything. Every change was a single delta whose decision rule was written into the program before the
@@ -12,6 +12,9 @@ campaign, part 1 included), runner `autoresearch_t1t2.sh`, branch `autoresearch-
 Gauge: head-only unless marked whole-volume (head = |GT| > 0.05 · P99.9; PSNR at the ground-truth maximum; SSIM
 with a 7³ window; HFEN with a LoG of σ 1.5). Whole-volume SSIM is dominated by the air noise that `ecalib -c 0.0`
 leaves, so claims are made on the head gauges and whole-volume SSIM is reported as it stands.
+
+Naming: MC-GS is the joint arm and GS-single the single-contrast arm. The tables of this line still carry the older
+labels "MC-GS joint" and "MC-GS single".
 
 ## 1. The bar moved: converged classical arms (09-10 afternoon)
 
@@ -25,7 +28,7 @@ other arm, 0.4–0.8 dB above v2. Head PSNR:
 | CS-SENSE, TV, converged | 34.966 | 35.168 | 33.873 | 36.144 | 35.581 |
 | joint CS-SENSE, vectorial TV | 35.020 | 35.008 | 33.929 | 36.070 | 35.624 |
 | L1-ESPIRiT | **35.530** | **35.818** | **34.105** | **36.334** | **35.720** |
-| MC-GS joint v2 | 34.978 | 35.429 | 33.492 | 35.520 | 35.056 |
+| MC-GS v2 | 34.978 | 35.429 | 33.492 | 35.520 | 35.056 |
 
 Against the converged arms v2 was first on 0 full-brain slices. The loop's target became L1-ESPIRiT's
 35.530 / 35.818 on the tuning pair. P-LORAKS (rank 40, R = 2, one 2-D problem per readout slice, 6.7–8 h of CPU
@@ -47,8 +50,8 @@ because FLAIR has no tuned value of its own. Head PSNR over L1-ESPIRiT: tuning p
 channels. Head SSIM trailed L1-ESPIRiT by 0.0001–0.005, and T1 sharpness (0.867 / 0.869) missed the pre-registered
 floor of 0.874 on both hyw topics.
 
-Single-contrast v3 (the same recipe, one contrast at a time) is also above L1-ESPIRiT on the tuning pair
-(35.679 / 36.227). Joint minus single: +0.09 / −0.12 on the tuning pair, +0.093 / +0.018 on hyw T1+FLAIR,
+GS-single v3 (the same recipe, one contrast at a time) is also above L1-ESPIRiT on the tuning pair
+(35.679 / 36.227). MC-GS minus GS-single: +0.09 / −0.12 on the tuning pair, +0.093 / +0.018 on hyw T1+FLAIR,
 +0.080 / −0.074 on jiangyizhou. The lead comes from the representation, the wavelet prior and the capacity; the
 coupling moves accuracy between the contrasts.
 
@@ -155,7 +158,7 @@ head HFEN is worse than L1-ESPIRiT's on three of the four channels and T1 sharpn
 AF12, its own subject, it reads 36.753 / 36.165. Neither recipe is first on every metric on the subject it was not
 selected on.
 
-## 6. Where MC-GS joint does not lead
+## 6. Where MC-GS does not lead
 
 - Whole-volume SSIM: fifth or sixth on every channel of every topic (the air-noise gauge).
 - Head SSIM on the held-out subjects (section 4).
@@ -171,7 +174,7 @@ selected on.
    −0.035). v3.1 is first on head PSNR on all eight channels in single runs, but misses the T1 sharpness floor on
    both hyw topics and on tangbing, and trails L1-ESPIRiT on T2 head SSIM and HFEN of the tuning pair. ×2 of either
    costs twice the compute.
-2. The T1 sharpness gate: keep the one-sided floor 0.874 (taken from the old cold-start joint arm), or replace it by
+2. The T1 sharpness gate: keep the one-sided floor 0.874 (taken from the old cold-start MC-GS arm), or replace it by
    a two-sided band around the ground truth's 1.0 (the metric is a ratio to the ground truth).
 3. Whether to fast-forward `master` to this branch as this lineage's main (`main` is an unrelated lineage and must
    not be merged).
