@@ -249,3 +249,7 @@ in flight (`ar5_n42_full4k` on card 3) are P6-based and are read against P6's ro
   by 0.0004 / 0.0002, SSIM level. The budget curve is still rising at 6000 but the step is at the floor on T1 and
   costs 1.5x. **Decision (pre-registered now): the promotion budget stays 4000; the final recipe is run once at 6000
   as a 1.5x-compute row, like the two-seed average, not folded into screening.**
+- `ar4_wavC085` (FLAIR-only wavelet 0.085, P6-based — launched before the P7 commit; card 4, 26 min): 36.702 /
+  36.103 against P6@1500 36.704 / 36.072 — T1 null, FLAIR +0.031 with FLAIR head HFEN worse by 0.0012 and FLAIR
+  SSIM +0.0006. `min_margin` unchanged (T1 binds). **Discard (reshape)**: the FLAIR wavelet curve at AF12 is the
+  same trade at every strength above 0.07 — PSNR for high-frequency fidelity — and FLAIR is not the binding channel.
