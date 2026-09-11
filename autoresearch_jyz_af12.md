@@ -148,3 +148,7 @@ screening budget is sensitive enough.
   the peer's magnitude-gauge caveat predicted (+0.03–0.05 there).
   Full six cells (view script): T1 HFEN margin −0.0032 vs the parent's +0.0022 (worse by 0.0054), sharpness
   0.834 / 0.808 vs 0.855 / 0.829 (−0.021, over the 0.01 allowance). Three gates fail, not one.
+- 20:44 the L1-ESPIRiT T1 λ curve is complete (100 FISTA, BART): 0.0007 35.226, 0.001 35.917, 0.0015 36.334,
+  **0.002 36.426**, 0.0025 36.374, 0.003 36.255, 0.004 35.934 (head PSNR). Best SSIM 0.9473 at 0.0025, best
+  HFEN 0.1034 at 0.0015. T1 bar now: PSNR 36.426 (L1@0.002), SSIM 0.9473, HFEN 0.1034. The converged-TV T1
+  curve peaks at 0.0007 = 36.162 (0.0005 35.970, 0.001 36.144, 0.0014 35.931, 0.002 35.501), below L1.
