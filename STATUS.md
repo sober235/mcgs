@@ -57,7 +57,7 @@
 ## 3. 下一步
 - 第 16 轮（预注册与判定规则见 `autoresearch_t1t2.md` Round 16）：`ar16_n24_wav005_T1p06`（T1 通道小波 0.06，另一通道保持 0.05）、`ar16_n24_wav005_geo007`（edge-TV 0.10 → 0.07），4000 步，`scratchpad/queue16.sh` 在 GPU 4、6 空出后自动起跑（约 01:32、01:53）。替代 v3 的配置要再原样跑两个 T1+FLAIR 课题。
 - 第 17 轮（预注册见程序 Round 17）：FLAIR 通道小波 0.08 / 0.12，只在 hyw T1+FLAIR 上选（`ar17_tf_hyw_wavC008` / `wavC012`），`scratchpad/queue17.sh` 在 GPU 5、7 空出后起跑（约 02:15、02:25）；选中的值再原样跑 jiangyizhou。
-- 在跑（09:4x）：GPU 训练全部结束。只剩 P-LORAKS 的 jyz FLAIR（约 16:00），`scratchpad/ploraks_finish2.sh` 导入后自动刷新 jyz 课题；之后把 jyz README 的逐层行改成含 P-LORAKS、更新 P-LORAKS 说明，再 `mirror_topic.sh` 镜像提交。
+- 在跑（09:55）：第 21 轮，第二个留出受试者 tangbing（MC_Jia vol4，课题 `Results_20260908/T1FLAIR_AF12_v4_tangbing`，预注册 2654f1d）。线圈灵敏度图在算（CPU），`scratchpad/round21_arms.sh` 随后自动跑全部对比方法（设置同其他课题）与三个 MC-GS 配方 v3 / v3.1 / v3.2（`ar21_tf_v4_*`）；汇总与抽取脚本已改为只读本受试者的运行。P-LORAKS：jyz FLAIR 约 12:00–13:45 跑完，finish2 自动刷新 jyz 课题后跑 `scratchpad/jyz_ploraks_readme.py` 再镜像提交。
 - 在跑：单对比度消融 `ar15_single_FLAIR_jyz_v3`（GPU 5，约 02:26）、`ar15_single_FLAIR_hyw_v3`（GPU 7，约 02:31）。已落账：分对比度变体 seed 43（与 seed 42 相同到 0.001 dB，但体素级差 25–29%）、jyz T1 单对比度 36.257（joint 比它高 0.08）、360 万点晋级（T1 35.662 / T2 36.233，按规则未采纳）。
 - 某个 T1+FLAIR 课题的两个单对比度落账后：跑该课题 `scripts/extract_gs_volumes.py`，再 `bash $S/refresh_topic.sh <课题> <前缀> T1,FLAIR`；README 的 v3 段落数字取 `python $S/v3_facts.py <课题>`；最后 `bash $S/mirror_topic.sh <课题> <镜像目录> <前缀> T1,FLAIR` 并提交（`S=/data0/congcong/code/GS/Results_20260908/T1T2_AF12_retro/scripts`）。
 - P-LORAKS 剩三个通道：hyw FLAIR 与 jyz T1 在跑（00:38 起，各 7–8 h），jyz FLAIR 随后。`scratchpad/ploraks_finish2.sh` 落一个导入一个，课题齐了自动刷新表、逐层与图（v3 最优层）。刷新后只剩镜像和提交：
