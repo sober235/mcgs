@@ -139,3 +139,10 @@ sharp 0.001 / 0.001.** Rule 1 threshold for a keep: `min_margin` up by more than
 +0.329 (i.e. above +0.335 on the current bar), no other cell down by more than its floor, sharpness not
 below 0.844 / 0.820. 1500 iterations already sit 0.05 / 0.10 dB under the 4000-iteration P6, so the
 screening budget is sensitive enough.
+
+### Round 1 — candidates at 1500 iterations against `ar1_P6_i1500` (36.704 / 36.072; floor 0.006 / 0.004)
+- `ar2_wav_up` (wavelet T1 0.14 / FLAIR 0.10, the AF16 phase-2 lever; card 4, 26 min): 36.708 / 36.101 —
+  T1 +0.004 (inside the floor), FLAIR +0.029; but FLAIR head HFEN 0.1038 vs 0.1008 (worse by 0.0030, 15x its
+  floor) and FLAIR SSIM +0.0008. `min_margin` +0.334 vs +0.329: the rise (+0.005) is under the floor and a cell
+  regresses → **discard (reshape)**: the stronger wavelet buys FLAIR PSNR with FLAIR high-frequency fidelity, as
+  the peer's magnitude-gauge caveat predicted (+0.03–0.05 there).
