@@ -322,3 +322,14 @@ at the baseline while keeping the T1 gain.
   sharpness up. **Keep — every cell improves.** Under the 1-level prior the FLAIR strength 0.085 no longer costs
   HFEN (it did with 3 levels: `ar4_wavC085`), so FLAIR gets PSNR and fidelity together. Pre-registered three-way
   combination `ar6_db4_lev1_C085` (db4 + 1 level + FLAIR 0.085) queued on card 3 after the running density-lr knob.
+
+### Promotion 4 — db4 wavelet family at 4000 iterations (02:25): **promoted, P8**
+`ar5_db4_full4k` (card 5, 64 min, volumes): **36.819 / 36.189** against P7's 36.765 / 36.168 — **+0.054 / +0.021**,
+head SSIM +0.0005 / +0.0004, head HFEN better by 0.0001 / 0.0008, sharpness level. Every cell holds or improves.
+Six-cell margins on the bar: PSNR **+0.394 / +0.432**, SSIM +0.0014 / +0.0011, HFEN +0.0036 / +0.0011.
+**P8 = P7 + `loss.wav_name=db4`** is the parent from here (baked into the runner by this commit). Its screening
+baseline is `ar4_db4` (36.767 / 36.095, the same recipe run as a candidate on P7). Runs launched before this
+commit (`ar6_density_lr01` on card 3, `ar5_db4_lev1_full4k` on card 4 — which already carries db4 explicitly) are
+read against the rows they were launched on; the combination's promotion is judged against P8's 4000 row.
+Against P6 (the user's provisional best): +0.066 / +0.024 dB head PSNR, HFEN better by 0.0011 / 0.0013 — two
+promotions in, both from the shape of the wavelet prior.
