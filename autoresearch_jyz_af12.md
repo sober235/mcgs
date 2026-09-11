@@ -161,3 +161,8 @@ screening budget is sensitive enough.
 - 20:56 the L1-ESPIRiT FLAIR λ curve is complete: 0.003 35.689, **0.004 35.757**, 0.005 35.720, 0.006 35.630,
   0.007 35.513, 0.01 35.095; SSIM best 0.9368 (0.004 and 0.005), HFEN best 0.1000 (0.004). L1-ESPIRiT re-sweep
   finished on both contrasts; converged TV FLAIR and joint TV still running on card 6.
+- `ar2_wav_down` (wavelet T1 0.07 / FLAIR 0.05; card 3, 26 min): 36.550 / 35.960 — **−0.154 / −0.112 dB** under the
+  parent, head SSIM −0.0025 / −0.0019, sharpness 0.860 / 0.831 (+0.005 / +0.002). **Discard.** With `ar2_wav_up`
+  this brackets the wavelet strengths at AF12: weaker loses PSNR and SSIM, stronger buys FLAIR PSNR with HFEN and
+  sharpness; P6's 0.10 / 0.07 sits at the optimum for this budget. Round-2 option (low priority): FLAIR-only
+  0.085, since the two channels' strengths were independent at AF16.
