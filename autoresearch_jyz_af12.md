@@ -158,3 +158,6 @@ screening budget is sensitive enough.
 - 20:50 L1-ESPIRiT FLAIR refinement: λ 0.004 = 35.757 / 0.9368 / 0.1000 beats 0.005 (35.720 / 0.9368 / 0.1002).
   FLAIR bar now: PSNR 35.757 (L1@0.004), SSIM 0.9368, HFEN 0.1000. Parent margins at 1500 iterations on the
   current bar: T1 +0.278 / FLAIR +0.315.
+- 20:56 the L1-ESPIRiT FLAIR λ curve is complete: 0.003 35.689, **0.004 35.757**, 0.005 35.720, 0.006 35.630,
+  0.007 35.513, 0.01 35.095; SSIM best 0.9368 (0.004 and 0.005), HFEN best 0.1000 (0.004). L1-ESPIRiT re-sweep
+  finished on both contrasts; converged TV FLAIR and joint TV still running on card 6.
