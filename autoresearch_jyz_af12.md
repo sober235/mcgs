@@ -407,3 +407,7 @@ scale lr 0.005 (card 4) — each is one or two steps beyond P9 and is read again
 - `ar6_headfrac03` (init head fraction 0.03 instead of 0.05, on P9; card 3, 28 min): 36.629 / 35.945 against
   P9@1500 36.812 / 36.135 — **−0.183 / −0.190**, HFEN worse by 0.009 / 0.006. **Discard**: a wider initial support
   spends Gaussians outside the head. Settled.
+- `ar6_slr008` (scale lr 0.008, on P9; card 4, 26 min): **36.854 / 36.253** against P9@1500 36.812 / 36.135 —
+  **+0.042 / +0.118**, FLAIR head SSIM +0.0010, FLAIR HFEN +0.0007, T1 cells level. **Keep.** The scale-lr curve
+  keeps rising (0.002 → 0.003 → 0.005 on P8; 0.008 on P9). Queues re-cut: `ar6_slr012` next on card 4, the union
+  combination takes 0.008 (`ar6_best_C10_T112_slr008`), the card-5 promotion becomes `ar5_slr008_full4k`.
