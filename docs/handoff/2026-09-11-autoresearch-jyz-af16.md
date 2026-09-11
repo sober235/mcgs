@@ -79,6 +79,12 @@ Environment: `PYTHONNOUSERSITE=1 PYTHONPATH=`, conda env GSTMI (`/home/congcongl
   windows (uniform +0.0006 / +0.0004). 174 cuts the bodies of the lateral ventricles, the butterfly level 6 above 168.
   At 159 the FLAIR SSIM is a tie with ZS-SSDU that flips with the window. Figures
   `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_174_110_108.png`.
+- Sagittal replaced (user asked 2026-09-11): parasagittal slices 58-118 (not 103-113) with MC-GS first on PSNR for
+  both contrasts, by the smaller lead: 70, 118, 102, 114, 87, 97, 59. SSIM-first on both contrasts under both
+  windows: 70, 102, 114, 59 (118: T1 L1-ESPIRiT ahead; 87: FLAIR ZS-SSDU; 97: FLAIR L1-ESPIRiT). Chosen 70, the
+  largest PSNR lead of those (over GS-single T1 +0.024, FLAIR +0.024; over L1-ESPIRiT +0.250 / +0.408; SSIM over
+  GS-single +0.0005 / +0.0010 Gaussian, +0.0005 / +0.0009 uniform). 70 is 18 slices from the midline (88), on the
+  side opposite 108. Current three-plane set: `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_174_110_70.png`.
 
 ## 2. Waiting for the user
 
