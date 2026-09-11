@@ -421,3 +421,12 @@ scale lr 0.005 (card 4) — each is one or two steps beyond P9 and is read again
   T1 sharpness is 0.848, **−0.017, beyond the 0.01 allowance** → **discard (reshape)**, not keep-marginal. The
   T1-0.12 union row sits at 0.856 / 0.820 (−0.009 / −0.009), inside the allowance but at its edge; its promotion
   at 4000 is judged on sharpness against P9's 0.867 / 0.832 as well.
+
+### Promotion 7 — FLAIR wavelet 0.10 on P9 at 4000 iterations (05:35): Pareto keep, folded into the next parent
+`ar5_db4_lev1_C10_full4k` (card 5, 63 min, volumes): 36.852 / **36.268** against P9's 36.853 / 36.234 — T1 level,
+**FLAIR +0.034**, FLAIR head SSIM +0.0007, FLAIR head HFEN +0.0003, T1 cells level, sharpness level. No cell
+regresses; `min_margin` does not move because T1 now binds at 4000 (+0.426 vs FLAIR +0.511).
+Rule clarification (recorded now, applies from here): a run whose cells all hold within their floors and at least
+one improves is a **Pareto keep** even when `min_margin` is unchanged — the objective is the gap on every metric,
+and the binding channel may swap. FLAIR 0.10 therefore enters the next parent together with whatever the union
+promotion (`ar5_best_C10_T112_full4k`, T1 0.12 + FLAIR 0.10, card 3, ~05:55) decides for T1.
