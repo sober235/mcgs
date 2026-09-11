@@ -474,3 +474,4 @@ but two T1 cells slip by a hair → **keep-marginal at 4000**, not a clean promo
 when `ar5_P10_slr005_full4k` (card 5, ~07:45) lands, the parent becomes the run with the highest `min_margin`
 among {P10, P10+0.005, P10+0.008} that has **no** cell below P10's beyond its floor; if neither lr run is clean,
 P10 stays the parent and both are reported as marginal.
+- 07:15 card 3 idle → the deferred sym4 promotion `ar5_P10_sym4_full4k` (4000 it, volumes) launched.
