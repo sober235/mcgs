@@ -18,7 +18,7 @@
 - 超过几分钟的任务写成 bash 脚本，用 `setsid nohup bash <脚本> > <日志> 2>&1 < /dev/null &` 启动，再看日志。工具 shell 是 zsh，命令里不要依赖 `$VAR` 分词，路径一律写全。
 - 原始数据只读：`/data1/data1_congcong/data/3D/cardiac_freerunning_multiecho_5D/` 与 `/data2/congcong/data/cardiac_3d_cine_public/` 下，除新建的 `derived/` 外一概不写。
 - 提交：仓库本地身份 `Congcong Liu <liuc23539@gmail.com>`（已配置，不用改），消息写成普通人工提交，不加任何 AI trailer；只 `git add` 点名的文件；推送到 GitHub 前先问用户。
-- 数值（取自 spec）：保留读出采样 3–220（`KEEP = slice(3, 221)`）；稳态阈值 10 s；呼气末取 1/3；AF = 19,704 / 辐条数；留出 5%，seed 0；子集 AF 8、12、16，按整组交错抽；R0 与 REF 用 `pics -l2 -r 1e-3 -i 100`；线圈图 `ecalib -t 0.001 -c 0.0 -r 24 -m 1`；L1 λ 候选 {1e-4, 3e-4, 1e-3, 3e-3, 1e-2}。
+- 数值（取自 spec）：保留读出采样 3–220（`KEEP = slice(3, 221)`）；稳态阈值 10 s；呼气末取 1/3；AF = 19,704 / 辐条数；留出 5%，seed 0；子集 AF 8、12、16，按整组交错抽；R0 与极性重建用 `pics -l2 -r 1e-3 -i 100`，REF 与子集用 λ = λ_rel × λmax（2026-09-11 修订，见 spec 5.6）；线圈图 `ecalib -t 0.001 -c 0.0 -r 24 -m 1`；L1 的 λ_rel 候选 {1e-4, 3e-4, 1e-3, 3e-3, 1e-2}（乘 λmax）。
 - BART：所有 `pics` 加 `-S`；`-l1` 必须加 `-e`（径向下不加会发散，2026-09-10 在 16³ 体模上实测数据残差 6.5e10）；REF 与所有子集共用该回波 REF 的 `-w`。
 - 误差图：|rec − ref| / P99.9(|ref|)，jet，固定 [0, 0.1]。
 - 图存 `/home/congcongliu/figs/cardiac_fr/` 并复制到课题 `figures/`；报给用户时先写 `http://localhost:8765/cardiac_fr/<图>.png`，再写绝对路径。
@@ -1665,6 +1665,7 @@ cd /data0/congcong/code/GS/mcgs_cardiac_wt && git add cardiac_freerunning_megre/
 
 > 2026-09-11 修正（用户批准）：判据 (b) 改为回波 3、各轴中心块 16:96、亚体素归一化互相关，|位移| < 0.5 体素算无法判断。原实现用回波 0、沿 SI 全长取剖面，被视野边缘不随呼吸移动的亮带主导，V07 上位移算成 0 而停下。
 > 2026-09-11 第二次修正（用户选方案 1）：各轴中心整块被脊柱、肋软骨、胸壁这些不随呼吸动的强边缘主导（V07 回波 3 得 +0.77，与局部测量相反）。改为在肝顶块与心脏块里局部测位移，两块方向一致且都不小于 0.5 体素才有效；块坐标逐例放在 R0 图上，写进课题 `polarity_boxes.json`。
+> 2026-09-11 第三处修订（用户选方案 1）：迭代数核对 60/100 与 120/200 都差约 31%，原因是径向下 AᴴA 最大特征值约 5,617，绝对 λ=1e-3 等于不正则。REF 与子集改用 λ = λ_rel × λmax：新脚本 `s08b_lambda_select.py` 在回波 0 上从 {1e-3, 3e-3, 1e-2} 选能过迭代数核对的最小 λ_rel；`s06_recon.py --lam-rel`、`s08_checks.py --lam-rel`、`s10_selfcheck.py` 都乘 λmax（`common.ref_lmax`，缓存在 `recon/<Vxx>/ref_lmax.json`）；启动脚本 `run_v07_ref_lam.sh`。
 
 **Files:**
 - Create（课题 `scripts/`）：`s07_polarity.py`、`s08_checks.py`、`run_v07_ref.sh`
@@ -1849,6 +1850,8 @@ cd /data0/congcong/code/GS/mcgs_cardiac_wt && git add cardiac_freerunning_megre/
 
 ### Task 11: V07 的评估口径：留出与子集、心脏框、自检
 
+> 2026-09-11：CG 用 REF 的 λ_rel，L1 的候选按 λ_rel 解释，都乘 REF 的 λmax（见 Task 10 第三处修订）。
+
 **Files:**
 - Create（课题 `scripts/`）：`s09_gauge_split.py`、`s10_selfcheck.py`、`run_v07_selfcheck.sh`
 - Create（课题根）：`gauge.json`（s09 写入，心脏框手工补）
@@ -2014,7 +2017,7 @@ cd /data0/congcong/code/GS/mcgs_cardiac_wt && git add cardiac_freerunning_megre/
 
 ### Task 12: 冻结参数，跑 V03、V04、V08
 
-> 2026-09-11：判据 (b) 需要每例的肝顶块与心脏块。三例先跑到两个呼吸三分组的重建为止，在各自 R0 图上放好块、写进 `polarity_boxes.json`，再跑极性、REF 与核对。
+> 2026-09-11：判据 (b) 需要每例的肝顶块与心脏块。三例先跑到两个呼吸三分组的重建为止，在各自 R0 图上放好块、写进 `polarity_boxes.json`，再跑极性、REF 与核对。REF 的 λ_rel 按 V07 冻结，每例用自己的 λmax（`ref_lmax.json`）。
 
 **Files:**
 - Create（课题根）：`params_frozen.json`

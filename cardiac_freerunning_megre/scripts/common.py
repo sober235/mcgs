@@ -53,18 +53,33 @@ def prepare_inputs(subject: str, name: str, echoes) -> None:
 
 
 def recon(subject: str, name: str, echo: int, reg: str, lam: float, iters: int, tag: str,
-          w: float | None = None, debug: bool = False) -> dict:
+          w: float | None = None, debug: bool = False, lam_rel: float | None = None) -> dict:
     wd = work_dir(subject)
     out = wd / f"rec_{tag}_e{echo}"
     info = bart.pics(wd / f"ksp_{name}_e{echo}", DERIVED_ROOT / subject / "sens", out, wd / f"traj_{name}",
                      reg=reg, lam=lam, iters=iters, w=w, debug=debug,
                      log=LOGS / f"bart_{subject}_{tag}_e{echo}.log")
     np.save(recon_dir(subject) / f"{tag}_e{echo}.npy", bart.read_cfl(out).astype(np.complex64))
-    info.update(subject=subject, set=name, echo=echo, reg=reg, lam=lam, iters=iters, w=w, tag=tag,
+    info.update(subject=subject, set=name, echo=echo, reg=reg, lam=lam, lam_rel=lam_rel, iters=iters, w=w, tag=tag,
                 n_spokes=int(set_ids(subject, name).size))
     with open(LOGS / f"recon_{subject}.jsonl", "a") as fh:
         fh.write(json.dumps(info) + "\n")
     return info
+
+
+def ref_lmax(subject: str) -> float:
+    """Largest eigenvalue of A^H A for the subject's REF spoke set (echo-independent), cached in
+    recon/<subject>/ref_lmax.json. Spec 5.6 (revised 2026-09-11): lambda = lambda_rel x this value."""
+    p = recon_dir(subject) / "ref_lmax.json"
+    if p.exists():
+        return float(json.loads(p.read_text())["lmax"])
+    wd = work_dir(subject)
+    if not (wd / "ksp_ref_e0.cfl").exists():
+        prepare_inputs(subject, "ref", [0])
+    lmax = bart.max_eigenvalue(wd / "ksp_ref_e0", DERIVED_ROOT / subject / "sens", wd / "traj_ref", wd,
+                               log=LOGS / f"bart_{subject}_maxeig.log")
+    p.write_text(json.dumps({"lmax": lmax, "set": "ref", "n_spokes": int(set_ids(subject, "ref").size)}, indent=1))
+    return lmax
 
 
 def run_many(jobs: list, n_parallel: int = 1) -> list:
