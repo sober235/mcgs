@@ -253,3 +253,15 @@ in flight (`ar5_n42_full4k` on card 3) are P6-based and are read against P6's ro
   36.103 against P6@1500 36.704 / 36.072 — T1 null, FLAIR +0.031 with FLAIR head HFEN worse by 0.0012 and FLAIR
   SSIM +0.0006. `min_margin` unchanged (T1 binds). **Discard (reshape)**: the FLAIR wavelet curve at AF12 is the
   same trade at every strength above 0.07 — PSNR for high-frequency fidelity — and FLAIR is not the binding channel.
+
+### Round 3 queue — pre-registered 00:20, on P7, T1 is the binding channel
+| knob | how | card | why |
+|---|---|---|---|
+| T1 wavelet 0.12 (FLAIR stays 0.07) | `--set loss.lambda_wav_plain=0.12` | 4 | the 2-level prior is weaker overall; T1 may take a little more strength without the 0.14 reshape |
+| soft L1 on the wavelet coefficients, eps 1e-3 | `--set loss.wav_eps=0.001` | 4 | pure L1 shrinks every small coefficient; a Charbonnier floor spares them |
+| density lr 0.02 / 0.01 (default 0.015) | `--set gaussian.density_lr=` | 4 / 3 | the hyw loop settled position_lr only |
+| scale lr 0.003 (default 0.002) | `--set gaussian.scale_lr=0.003` | 3 | never varied |
+| init head fraction 0.03 (default 0.05) | `--set gaussian.init_head_frac=0.03` | 3 | a wider initial support; never varied |
+| P7 seed floor | `ar1_P7_i1500_s43` | 5 | after the card-5 round-2 knobs |
+Still in flight from earlier rounds: `ar5_n42_full4k` (card 3, P6-based, 4000 it), `ar4_wavlev1` → `ar2_n60`
+(card 4, P7-based), `ar1_P7_i1500` → `ar4_db4` → `ar4_warmup250` → `ar4_kmid08` (card 5, P7-based).
