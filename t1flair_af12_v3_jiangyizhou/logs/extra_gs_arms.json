@@ -1,0 +1,11 @@
+[
+ {
+  "key": "gs_joint_ar",
+  "label": "MC-GS (AF12 loop, P10)",
+  "exp": "ar5_best_C10_T112_full4k",
+  "map": {
+   "T1": "plain",
+   "FLAIR": "contrast"
+  }
+ }
+]
