@@ -43,6 +43,17 @@ Environment: `PYTHONNOUSERSITE=1 PYTHONPATH=`, conda env GSTMI (`/home/congcongl
   36.69 > L1-ESPIRiT 36.47; FLAIR GS-single 34.79, MC-GS 34.78, L1-ESPIRiT 34.56.
   **Naming decided by the user: the single-contrast arm is "GS-single"; "MC-GS" means the joint arm.** Use these names
   from now on (older tables still say "MC-GS single / joint (autoresearch)").
+- Best slice for MC-GS (user request 2026-09-11): `scripts/best_slice_mcgs.py` in the topic scans the axis-0 slices
+  whose head area is at least half of the largest (48..223, 176 slices) and scores each by the smaller of the two
+  per-contrast margins, margin = PSNR(MC-GS) - max of the other eight methods (GS-single included). Chosen slice 109:
+  T1 33.886 vs GS-single 33.764 (+0.122), FLAIR 34.068 vs GS-single 33.965 (+0.103); over L1-ESPIRiT +0.434 / +0.299.
+  Slices 106-109 are the top four. MC-GS is first on 151/176 (T1) and 109/176 (FLAIR) of the scanned slices.
+  Figures `figures/t1flair_v3_af16_{T1,FLAIR}_row_axis0_109.png`, per-slice numbers in `logs/best_slice_mcgs.json`.
+  Slice 109 was selected to favour MC-GS; slice 168 is the unselected butterfly slice.
+  Slice 109 cuts through the orbits, pons and cerebellum. Best slice from 120 up: 159 (just below the ventricle
+  level of 168), T1 36.696 vs GS-single 36.635 (+0.061), FLAIR 34.929 vs GS-single 34.896 (+0.033); over L1-ESPIRiT
+  +0.269 / +0.173. Figures `figures/t1flair_v3_af16_{T1,FLAIR}_row_axis0_159.png`. By level: MC-GS's lead is largest
+  at 98-117, small from 120 to 187, and from about 198 to the vertex GS-single is ahead on both contrasts.
 
 ## 2. Waiting for the user
 
