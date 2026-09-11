@@ -282,3 +282,10 @@ floor (0.006 / 0.004 dB); `ar1_P7_i1500_s43` (queued on card 5) re-measures the 
   the warm-up run. The finest scale alone carries the T1 gain and the HFEN gain on both channels; FLAIR gives back
   0.014 dB of PSNR. Pre-registered follow-up on card 4: `ar6_wavlev1_wavC085` (1 level + FLAIR wavelet 0.085) to
   see whether FLAIR's PSNR recovers while its HFEN stays ahead of the parent.
+- `ar4_db4` (wavelet family db4 instead of db2, on P7; card 5, 28 min): **36.767 / 36.095** against P7@1500 36.719 /
+  36.075 — **+0.048 / +0.020 dB**, head SSIM +0.0005 / +0.0004, FLAIR head HFEN better by 0.0007, T1 head HFEN
+  −0.0002 (at the floor), sharpness up. `min_margin` +0.337 vs +0.293. **Keep** — the largest single gain so far:
+  the longer db4 filters (8 taps, 4 vanishing moments) sparsify the anatomy better than db2's 4 taps.
+  Promotion `ar5_db4_full4k` (4000 it, volumes) on card 5 right after the running warm-up knob. Pre-registered
+  follow-ups on card 4 after the 6.0M point: `ar6_db4_lev1` (db4 + 1 level, the two T1 levers together),
+  `ar6_db6`, `ar6_sym4` (family curve), then the rest of round 3.
