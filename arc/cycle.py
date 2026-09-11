@@ -53,6 +53,7 @@ ap.add_argument("--use_cloning", action="store_true")            # adaptive_cont
 ap.add_argument("--base_cfg", default="configs/winner_v2.yaml")  # mask/framework base (resolved against framework ROOT)
 ap.add_argument("--curriculum", action="store_true")            # loss.kspace_freq_curriculum (progressive high-freq)
 ap.add_argument("--save_volumes", action="store_true")          # dump recon+GT npz (both contrasts) for figures
+ap.add_argument("--from_ckpt", default=None, help="skip training: load model_state from this checkpoint (e.g. results_arc/EXP/EXP/checkpoints/latest.pth), then score and save as usual")
 ap.add_argument("--known_zero", action="store_true")            # data.*.known_zero: vendor band-limit / shutter as measured zeros (spec 2026-09-05 §4.1)
 ap.add_argument("--prewhiten", action="store_true")             # loss.prewhiten: coil-noise whitening on the fit side only (§4.2)
 ap.add_argument("--prewhiten_only", choices=["plain", "contrast"], default=None)  # data.<contrast>.prewhiten: per-contrast override (Task 12)
@@ -266,7 +267,12 @@ def main():
         f"warmup={args.warmup} lambda_dtv={args.lambda_dtv} max_radius={args.max_radius} "
         f"kspace_high={args.kspace_high}")
     tr = JointTrainer(cfg, device=dev)
-    tr.train()
+    if args.from_ckpt:
+        ck = torch.load(args.from_ckpt, map_location="cpu", weights_only=False)
+        tr.model.load_state_dict(ck["model_state"])
+        log(f"[arc {args.exp}] loaded {args.from_ckpt} (iter {ck.get('iter')}); training skipped")
+    else:
+        tr.train()
 
     sp = score_contrast(tr, "plain", dev)
     sc = score_contrast(tr, "contrast", dev)
@@ -318,10 +324,13 @@ def main():
             x_dc = (ifft3c(mf * y_dc + (1.0 - mf) * k_model) * csm.conj()).sum(0)
             x_zf = (ifft3c(m * y) * csm.conj()).sum(0)                # zero-filled from the ORIGINAL acquisition
             f = lambda t: t.abs().cpu().numpy().astype("float32")
-            return f(x_dc), f(gt), f(x_zf)
-        rT, gT, zT = _vol("plain"); rF, gF, zF = _vol("contrast")
+            fc = lambda t: t.cpu().numpy().astype("complex64")       # complex volumes too (user request 2026-09-11)
+            return (f(x_dc), f(gt), f(x_zf)), (fc(x_dc), fc(gt), fc(x_zf))
+        (rT, gT, zT), cT = _vol("plain"); (rF, gF, zF), cF = _vol("contrast")
         np.savez_compressed(RES / f"{args.exp}_volumes.npz",
-                            recT1=rT, gtT1=gT, zfT1=zT, recFL=rF, gtFL=gF, zfFL=zF)
+                            recT1=rT, gtT1=gT, zfT1=zT, recFL=rF, gtFL=gF, zfFL=zF,
+                            recT1_complex=cT[0], gtT1_complex=cT[1], zfT1_complex=cT[2],
+                            recFL_complex=cF[0], gtFL_complex=cF[1], zfFL_complex=cF[2])
         log(f"  saved volumes -> {RES}/{args.exp}_volumes.npz")
     log(f"[arc {args.exp}] DONE -> {tsv}")
 

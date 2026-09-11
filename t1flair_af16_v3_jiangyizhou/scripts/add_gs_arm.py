@@ -4,7 +4,8 @@
 usage: add_gs_arm.py --exp EXP --key KEY --label LABEL [--map T1:plain,FLAIR:contrast]
   --map: which channel of the run is which contrast (joint run: T1:plain,FLAIR:contrast;
          a single-T1 run: T1:plain; a single-FLAIR run: FLAIR:plain).
-Writes recon/<KEY>_<c>_mag.npy from results_arc/<EXP>_volumes.npz when the run saved volumes, and
+Writes recon/<KEY>_<c>_mag.npy (and recon/<KEY>_<c>_complex.npy when the npz carries complex volumes, runs
+saved from 2026-09-11 on) from results_arc/<EXP>_volumes.npz when the run saved volumes, and
 records the arm in logs/extra_gs_arms.json; summarize.py then reads the arm's metrics straight from
 results_arc/<EXP>_score.json, so the table always shows the run's own scorer output.
 """
@@ -15,6 +16,7 @@ import numpy as np
 R = Path(__file__).resolve().parents[1]
 ARC = Path("/data0/congcong/code/GS/mcgs_af16_wt/results_arc")
 NPZ = {"plain": "recT1", "contrast": "recFL"}   # cycle.py's fixed npz keys, by channel
+NPZ_C = {"plain": "recT1_complex", "contrast": "recFL_complex"}   # complex volumes, when saved
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--exp", required=True)
@@ -35,6 +37,9 @@ if vol.exists():
         for c, ch in m.items():
             np.save(R / f"recon/{a.key}_{c}_mag.npy", np.asarray(z[NPZ[ch]], dtype=np.float32))
             print(f"wrote recon/{a.key}_{c}_mag.npy")
+            if NPZ_C[ch] in z.files:
+                np.save(R / f"recon/{a.key}_{c}_complex.npy", np.asarray(z[NPZ_C[ch]], dtype=np.complex64))
+                print(f"wrote recon/{a.key}_{c}_complex.npy")
 else:
     print(f"(no volumes for {a.exp}: table row only)")
 p = R / "logs/extra_gs_arms.json"
