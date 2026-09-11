@@ -60,6 +60,25 @@ def parse_scaling(output: str) -> float:
     return float(m.group(1))
 
 
+_MAXEIG = re.compile(r"Maximum eigenvalue:\s*([0-9.eE+-]+)")
+
+
+def parse_max_eigenvalue(output: str) -> float:
+    m = _MAXEIG.search(output)
+    if m is None:
+        raise ValueError("no 'Maximum eigenvalue' line (run pics with -e -d5)")
+    return float(m.group(1))
+
+
+def max_eigenvalue(ksp, sens, traj, work, log=None) -> float:
+    """Largest eigenvalue of pics' normal operator A^H A for this trajectory and these coil maps (BART's own
+    power iteration via -e, printed at -d5). It does not depend on the data. On radial data it is far above 1
+    (Cartesian SENSE with normalised maps: about 1), so regularisation weights are set relative to it."""
+    txt = run(["pics", "-t", traj, "-l1", "-r", "1e-9", "-i", "1", "-e", "-d5", ksp, sens,
+               Path(work) / "maxeig_probe"], log=log)
+    return parse_max_eigenvalue(txt)
+
+
 def pics(ksp, sens, out, traj, reg: str, lam: float, iters: int, w: float | None = None,
          debug: bool = False, log=None) -> dict:
     args = ["pics", "-t", traj, "-l1" if reg == "l1" else "-l2", "-r", lam, "-i", iters, "-S"]

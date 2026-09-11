@@ -58,3 +58,18 @@ def test_pics_l1_is_stable_on_radial(phantom):
     bart.forward(d / "traj", d / "x4", d / "sens", d / "y4", d)
     y4 = bart.read_cfl(d / "y4")
     assert np.isfinite(y4).all() and _nrmse(y4, bart.read_cfl(d / "ksp")) < 0.1
+
+
+def test_parse_max_eigenvalue():
+    assert bart.parse_max_eigenvalue("x\nMaximum eigenvalue: 5.616503e+03\ny\n") == pytest.approx(5616.503)
+    with pytest.raises(ValueError):
+        bart.parse_max_eigenvalue("conjugate gradients\n")
+
+
+def test_max_eigenvalue_grows_with_the_number_of_spokes(phantom, tmp_path):
+    d = phantom
+    bart.write_cfl(tmp_path / "traj200", bart.read_cfl(d / "traj")[:, :, :200])
+    bart.write_cfl(tmp_path / "ksp200", bart.read_cfl(d / "ksp")[:, :, :200])
+    l400 = bart.max_eigenvalue(d / "ksp", d / "sens", d / "traj", tmp_path)
+    l200 = bart.max_eigenvalue(tmp_path / "ksp200", d / "sens", tmp_path / "traj200", tmp_path)
+    assert l400 > 0 and 1.5 < l400 / l200 < 2.5
