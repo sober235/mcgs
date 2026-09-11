@@ -169,3 +169,15 @@ screening budget is sensitive enough.
 - `ar2_geo013` (edge-TV λ_geo 0.13; card 4, 26 min): 36.697 / 36.061 — −0.007 / −0.011 dB (at the floor), head
   HFEN worse by 0.0030 / 0.0031, sharpness 0.829 / 0.799 (−0.026 / −0.030). **Discard**: more edge-TV smooths
   without buying PSNR. `ar2_geo007` (card 3) tests the other direction.
+
+### Round 2 queue — pre-registered 21:05, before round 1 finished (knobs the previous loops never touched)
+Every one a single change against P6 at 1500 iterations; waiters start them when the round-1 chain on that card ends.
+
+| knob | how | card | why |
+|---|---|---|---|
+| wavelet depth 4 / 2 levels (default 3) | `--set loss.wav_levels=4` / `=2` | 3 / 4 | the prior's scale range; never varied |
+| k-space centre weight 0.5 / 0.15 (default 0.3) | `--kspace_center` | 3 / 4 | low-band DC emphasis; the hyw loop only varied the high band |
+| shared warm-up 1000 / 250 (default 500) | `--warmup` | 3 / 5 | schedule; never varied |
+| FLAIR-only wavelet 0.085 (T1 stays 0.10) | `--set loss.lambda_wav=0.085` | 4 | between the bracketed 0.07 and 0.10 on the channel that gained in `ar2_wav_up` |
+| wavelet family db4 (default db2) | `--set loss.wav_name=db4` | 5 | smoother basis; never varied |
+| k-space mid weight 0.8 (default 1.0) | `--kspace_mid` | 5 | band balance |
