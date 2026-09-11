@@ -465,3 +465,12 @@ now so that the answer for 0.005 arrives an hour earlier if 0.008 fails.
   36.885 / 36.159 — +0.007 / +0.003 (at the floors), T1 head HFEN +0.0006, SSIM +0.0001. **Keep-marginal, deferred**:
   sym4 and db4 (same length, symmetric vs minimum-phase) read the same within noise; a promotion run only if a card
   is idle after the scale-lr decisions. The family is settled at 4-vanishing-moment, 8-tap filters.
+
+### Promotion 10 — scale lr 0.008 on P10 at 4000 iterations (07:10): keep-marginal, decision deferred to 0.005
+`ar5_P10_slr008_full4k` (card 3, 60 min, volumes): **36.953 / 36.328** against P10's 36.944 / 36.268 — **T1 +0.009,
+FLAIR +0.060**; FLAIR head SSIM +0.0006, FLAIR head HFEN +0.0003; but T1 head SSIM −0.0002 and T1 head HFEN
+−0.0003 (2–3x their floors), sharpness level. `min_margin` +0.527 (up 0.016). Far milder than on P9 (T1 −0.011),
+but two T1 cells slip by a hair → **keep-marginal at 4000**, not a clean promotion. Pre-registered decision (now):
+when `ar5_P10_slr005_full4k` (card 5, ~07:45) lands, the parent becomes the run with the highest `min_margin`
+among {P10, P10+0.005, P10+0.008} that has **no** cell below P10's beyond its floor; if neither lr run is clean,
+P10 stays the parent and both are reported as marginal.
