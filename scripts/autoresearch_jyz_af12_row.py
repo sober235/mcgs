@@ -27,11 +27,24 @@ def is_gs(method):
     return m.startswith(("gs_", "MC-GS", "GS-")) or m in {"gs_single", "gs_joint"}
 
 
+FAM = [("cssense_o200", "logs/classical_{c}_o200*.json"), ("l1espirit", "logs/l1espirit_{c}_lam*.json"),
+       ("jcssense", "logs/jcssense_o200*.json")]
+
+
 def best_competitors():
+    """Per contrast and cell, the best non-MC-GS value. summary.json keeps one lambda per classical family
+    (the head-PSNR-best one); the bar is stricter: every lambda of the three swept families counts for every
+    cell, so a competitor tuned for SSIM or HFEN is also beaten (pre-registered 2026-09-11 20:10, before
+    any candidate row existed)."""
     rows = json.load(open(TOPIC / "logs/summary.json"))
     best = {}
     for c in ("T1", "FLAIR"):
         sub = [r for r in rows if r["contrast"] == c and not is_gs(r["method"]) and r["method"] != "zf"]
+        for key, pat in FAM:
+            for f in sorted(TOPIC.glob(pat.format(c=c))):
+                for r in json.load(open(f)).get("rows", []):
+                    if r.get("contrast", c) == c and r.get("head_psnr") is not None:
+                        sub.append({**r, "method": f"{key}@{r.get('lam')}"})
         best[c] = dict(head_psnr=max(r["head_psnr"] for r in sub), head_ssim=max(r["head_ssim"] for r in sub),
                        head_hfen=min(r["head_hfen"] for r in sub), psnr=max(r["psnr"] for r in sub),
                        who_psnr=max(sub, key=lambda r: r["head_psnr"])["method"],
