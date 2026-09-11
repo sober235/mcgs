@@ -343,3 +343,11 @@ promotions in, both from the shape of the wavelet prior.
   0.0028, sharpness up. **Keep — every cell improves**, and against `ar6_db4_lev1` it holds T1 and adds +0.055 on
   FLAIR with better FLAIR HFEN. Best screening row so far (`min_margin` +0.378). Promotion
   `ar5_db4_lev1_C085_full4k` (4000 it, volumes) queued on card 3 after the running scale-lr knob.
+
+### Promotion 5 — db4 + 1 level at 4000 iterations (03:10): not promoted on its own
+`ar5_db4_lev1_full4k` (card 4, 63 min, volumes): 36.853 / 36.165 against P8's 36.819 / 36.189 — **T1 +0.034,
+FLAIR −0.024**; head HFEN better by 0.0049 / 0.0019, T1 SSIM +0.0002, FLAIR SSIM −0.0002, sharpness up.
+`min_margin` rises to +0.408 (FLAIR now the smaller margin), but FLAIR's PSNR cell falls beyond the floor →
+**reshape at 4000**, as with 1 level alone on P7 (−0.022). The 1-level prior consistently gives FLAIR back ~0.02 dB
+at the full budget; the three-way run with FLAIR 0.085 (`ar5_db4_lev1_C085_full4k`, card 3, ~04:30) tests whether
+the FLAIR strength buys that back without the HFEN cost it had under 3 levels.
