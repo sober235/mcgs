@@ -245,3 +245,7 @@ launched after this commit sits on P7 (its `args` column shows `--set loss.wav_l
 the screening baseline is re-measured as `ar1_P7_i1500` (card 5, right after the 6000-iteration run). Runs already
 in flight (`ar5_n42_full4k` on card 3) are P6-based and are read against P6's rows. The seed floor measured on P6
 (0.006 / 0.004 dB at 1500) is carried over.
+- `ar3_i6000` (P6 at 6000 iterations; card 5, 89 min): 36.760 / 36.179 — +0.007 / +0.014 over 4000, HFEN better
+  by 0.0004 / 0.0002, SSIM level. The budget curve is still rising at 6000 but the step is at the floor on T1 and
+  costs 1.5x. **Decision (pre-registered now): the promotion budget stays 4000; the final recipe is run once at 6000
+  as a 1.5x-compute row, like the two-seed average, not folded into screening.**
