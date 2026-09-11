@@ -21,6 +21,12 @@ first subject to four digits, as at AF 12.
 
 ## Results
 
+AF 16 is the nominal setting of the mask generator. The mask samples 2966 of 45056 phase-encode points: 15.19x for
+T1, and 12.49x of FLAIR's acquired k-space (its vendor shutter keeps 75.8% of the plane; 233 mask points land on the
+unacquired corners, `figures/t1flair_v3_af16_mask_T1_vs_FLAIR.png`). The user chose on 2026-09-11 to keep these
+results under the nominal label rather than re-run at an exact 16x. FLAIR known zeros are used by MC-GS and GS-single
+only; any re-run gives every arm the same region.
+
 `logs/summary.tsv`; gauge proof `logs/post_gauge.log` (`GAUGE OK`). Head-only PSNR / SSIM are the
 numbers to quote. AF 12 values per arm from `../T1FLAIR_AF12_v3_jiangyizhou/logs/summary.json`.
 

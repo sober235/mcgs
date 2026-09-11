@@ -31,6 +31,7 @@ R = Path(__file__).resolve().parents[1]
 F = Path("/home/congcongliu/figs/t1flair_v3_af16"); F.mkdir(parents=True, exist_ok=True)
 c = args.contrast
 rows = {r["method"]: r for r in json.load(open(R / "logs/summary.json")) if r["contrast"] == c}
+af_eff = json.load(open(R / "logs/prep_04_export.json"))["contrasts"][c]["AF_vs_own_support"]   # user 2026-09-11: label AF 16 as nominal
 
 
 def lam_file(row_key, prefix):
@@ -104,7 +105,8 @@ cax = fig.add_axes([axes[1, -1].get_position().x1 + 0.005, axes[1, -1].get_posit
                     0.008, axes[1, -1].get_position().height])
 cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=9)
 region = "butterfly region" if args.crop else {0: "transverse", 1: "coronal", 2: "sagittal"}[args.axis] + " slice"
-fig.suptitle(f"{c}  jiangyizhou  AF 16 -- {region} {args.index}   "
+af_txt = f"nominal AF 16, actual {af_eff:.2f}x" + (" of its acquired k-space" if c == "FLAIR" else "")
+fig.suptitle(f"{c}  jiangyizhou  {af_txt} -- {region} {args.index}   "
              f"(PSNR = head-masked PSNR of this {'region' if args.crop else 'slice'};  error |recon - GT| / max(GT), jet [0, 0.1])",
              fontsize=13, fontweight="bold", y=0.99)
 out = F / f"t1flair_v3_af16_{c}_{tag}_axis{args.axis}_{args.index}.png"

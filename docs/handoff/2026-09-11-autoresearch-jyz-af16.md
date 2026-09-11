@@ -96,14 +96,14 @@ Environment: `PYTHONNOUSERSITE=1 PYTHONPATH=`, conda env GSTMI (`/home/congcongl
   Gaussian window; MC-GS third with the uniform window). Its PSNR is first on both contrasts.
 
 ## 2. Waiting for the user
-- FLAIR known zeros are MC-GS-only (found 2026-09-11 when the user asked whether this is really AF 16). One AF16
-  mask serves both contrasts and every arm (nominal 16; T1 15.19; FLAIR 12.49 against its elliptical shutter, 16.49
-  on the full plane; 233 of the 2966 mask points land on FLAIR's unacquired corners; figure
-  `figures/t1flair_v3_af16_mask_T1_vs_FLAIR.png`). MC-GS joint and GS-single estimate the shutter from the
-  measured zeros of the undersampled data (`paired_gs/data/known_zero.py`, `known_zero: true` on FLAIR) and fit
-  that region as zeros; CG-SENSE, CS-SENSE, joint TV, L1-ESPIRiT, ZS-SSDU, 3D-DIP and 3D-INR use the mask only.
-  The effect of this asymmetry on the jyz FLAIR numbers is not measured. Decide whether the baselines get the
-  same region.
+- Decided 2026-09-11 (was open): AF 16 stays nominal. The user kept the existing results, with no re-run at an
+  exact-16x mask, under the label nominal AF 16, actual T1 15.19x and FLAIR 12.49x of its acquired k-space;
+  `fig_row_final.py` titles say so, README and record carry the note. One AF16 mask serves both contrasts and every
+  arm; 233 of its 2966 points land on FLAIR's unacquired corners (`figures/t1flair_v3_af16_mask_T1_vs_FLAIR.png`).
+  FLAIR known zeros: MC-GS joint and GS-single estimate the shutter from the measured zeros (`paired_gs/data/
+  known_zero.py`) and fit it as zeros; the seven comparison arms use the mask only. The user decided that any re-run
+  gives all arms that region. The current results still carry the asymmetry, unmeasured. (The house generator
+  vdPoisMex is random: at the old setting it redraws a different mask, 2927 points this time.)
 
 - Merge this branch into `main`? `main` (4 commits: vdPois + CE pipeline) shares no history with this line; the hyw
   loop's STATUS already lists the same question. The branch was pushed to origin as `autoresearch-jyz-af16` on 2026-09-11; results summary in

@@ -20,6 +20,10 @@ cold-start MC-GS arm reads 32.890 / 32.402.
 
 ## 2. Result at AF16
 
+AF16 is the nominal setting of the mask generator: the mask samples 2966 of 45056 phase-encode points, which is
+15.19x for T1 and 12.49x of FLAIR's acquired k-space (vendor elliptical shutter, 75.8% of the plane). The user
+chose on 2026-09-11 to keep these results under that label rather than re-run at an exact 16x.
+
 Final MC-GS (`ar14_n36_v2tv_full4k`, recipe "P6"): the repaired cold start (head-support init, 3-NN scales,
 ZF-sourced edge-TV threshold) + 3.6M points + edge-TV λ_geo 0.10 / κ_q 0.85 / ε 0.04 + wavelet sparsity T1 0.10 /
 FLAIR 0.07, 4000 iterations. Rank among the nine non-GS arms (ZF, CG-SENSE, CS-SENSE at 35 iterations, converged
@@ -92,6 +96,9 @@ subject. The run is not registered in the AF12 topic table.
 
 ## 4. Caveats
 
+- FLAIR known zeros: MC-GS and GS-single estimate FLAIR's shutter from the measured zeros of the undersampled
+  data and fit it as zeros; the seven comparison arms use the mask only. The effect is not measured. The user
+  decided on 2026-09-11 that any re-run gives every arm the same region.
 - One subject. At AF16 the MC-GS knobs and the classical λ were both selected on this subject's ground truth: fair,
   not held out.
 - Whole-volume SSIM is sixth at both accelerations (the air noise that `ecalib -c 0.0` leaves dominates it), and T1
