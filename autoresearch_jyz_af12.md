@@ -333,3 +333,5 @@ commit (`ar6_density_lr01` on card 3, `ar5_db4_lev1_full4k` on card 4 — which 
 read against the rows they were launched on; the combination's promotion is judged against P8's 4000 row.
 Against P6 (the user's provisional best): +0.066 / +0.024 dB head PSNR, HFEN better by 0.0011 / 0.0013 — two
 promotions in, both from the shape of the wavelet prior.
+- `ar6_density_lr01` (density lr 0.01, P7-based; card 3, 25 min): 36.716 / 36.068 against P7@1500 36.719 / 36.075 —
+  −0.003 / −0.007, HFEN +0.0003 / +0.0001, SSIM level. **Discard (null)**; the 0.02 point (card 4) completes the pair.
