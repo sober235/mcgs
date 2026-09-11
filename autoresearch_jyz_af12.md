@@ -199,3 +199,11 @@ Every one a single change against P6 at 1500 iterations; waiters start them when
 ### Round 2 read
 - `ar4_wavlev4` (wavelet 4 levels; card 3, 25 min): 36.699 / 36.070 — −0.005 / −0.002 dB, every cell inside its
   floor. **Discard (null)**: the fourth decomposition level adds nothing; the prior's work is in the fine scales.
+- `ar2_n48` (4.8M points; card 4, 28 min, 33.1 GB): 36.736 / 36.157 — **+0.032 / +0.085 dB** over the parent
+  (`min_margin` +0.310, 5x the floor), FLAIR SSIM +0.0005; but T1 SSIM −0.0003, head HFEN worse by 0.0010 (T1) /
+  0.0004 (FLAIR) — above their 0.0001–0.0002 floors, an order of magnitude smaller than the reshapes above.
+  Recorded **keep-marginal**: the promotion run decides (`ar5_n48_full4k`, 4000 iterations with volumes, card 3
+  right after the current run), judged by rule 2 against the 4000-iteration parent. Capacity is the first lever
+  with a real PSNR gain at AF12; `ar2_n60` (6.0M) is queued on card 4 after its round-2 chain.
+- `ar2_eps003` (Charbonnier eps 0.03; card 5, 26 min): 36.701 / 36.071 — −0.003 / −0.001 dB, HFEN −0.0010 both.
+  **Discard (null)**, as on hyw.
