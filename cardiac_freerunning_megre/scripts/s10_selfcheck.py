@@ -1,5 +1,6 @@
 """Spec 5.7 self-check on V07: choose the L1 lambda on AF12 echo 0 (body PSNR vs REF), then CG-SENSE and
-L1 at AF 8/12/16 on echoes 0 and 4. Every metric must get monotonically worse with AF."""
+L1 at AF 8/12/16 on echoes 0 and 4. Every metric must get monotonically worse with AF.
+CG uses the REF lambda_rel x lambda_max; the L1 lambda is absolute (BART's data scaling), see spec 5.7."""
 import csv
 import json
 import sys
@@ -23,11 +24,11 @@ REL = json.loads((recon_dir(S) / "ref_lambda.json").read_text())["lam_rel"]
 for name in (*AFS, "heldout"):
     prepare_inputs(S, name, ECHOES)
 
-run_many([dict(subject=S, name="af12", echo=0, reg="l1", lam=l * LMAX, lam_rel=l, iters=ITERS, tag=f"l1sweep_{l:g}",
+run_many([dict(subject=S, name="af12", echo=0, reg="l1", lam=l, iters=ITERS, tag=f"l1sweep_{l:g}",
                w=scal["0"]) for l in LAMS])
 sweep = {l: score(S, f"l1sweep_{l:g}", 0, box)["body_psnr"] for l in LAMS}
 best = max(LAMS, key=sweep.get)
-gj["l1_lambda"] = best                              # relative to LMAX
+gj["l1_lambda"] = best                              # absolute, in BART's own data scaling
 gj["lmax_ref"] = LMAX
 gj["ref_lam_rel"] = REL
 gj["l1_lambda_sweep_body_psnr"] = {f"{l:g}": round(v, 3) for l, v in sweep.items()}
@@ -36,8 +37,9 @@ print("L1 lambda sweep (body PSNR, AF12, echo 0):", gj["l1_lambda_sweep_body_psn
 if best in (LAMS[0], LAMS[-1]):
     print("NOTE: the best lambda is at the edge of the grid", flush=True)
 
-run_many([dict(subject=S, name=a, echo=e, reg=r, lam=l * LMAX, lam_rel=l, iters=ITERS, tag=f"{m}_{a}", w=scal[str(e)])
-          for e in ECHOES for a in AFS for (m, r, l) in (("cg", "l2", REL), ("l1", "l1", best))])
+arms = (("cg", "l2", REL * LMAX, REL), ("l1", "l1", best, None))   # CG relative to LMAX, L1 absolute (spec 5.7)
+run_many([dict(subject=S, name=a, echo=e, reg=r, lam=lam, lam_rel=rel, iters=ITERS, tag=f"{m}_{a}", w=scal[str(e)])
+          for e in ECHOES for a in AFS for (m, r, lam, rel) in arms])
 rows, verdicts = [], []
 for e in ECHOES:
     rows.append({"echo": e, "method": "ref_in_sample", "set": "ref", "af": round(gj[S]["af_ref"], 3),
