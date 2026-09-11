@@ -934,3 +934,20 @@ to 0.905. On both held-out subjects, then, the T1-channel wavelet transfers for 
   on T1 and L1-ESPIRiT on FLAIR, by 0.0018 to 0.0077.
 
 **P-LORAKS complete on every topic (11:43).** jiangyizhou FLAIR, the last channel, reads head PSNR 31.176 / head SSIM 0.8165 / sharpness 1.446; like every other P-LORAKS channel it ranks near the bottom on the head gauges, with far more noise inside the head than in the ground truth. All P-LORAKS rows are in the three topic tables and in their per-slice sweeps.
+
+**Round 21, final standings on tangbing (every arm in, 12:54).** Rank among the other arms, 1 = first:
+
+| column | v3 T1 / FLAIR | v3.1 T1 / FLAIR | v3.2 T1 / FLAIR |
+|---|---|---|---|
+| head PSNR | 1 / 1 | 1 / 1 | 1 / 1 |
+| head SSIM | 4 / 5 | 2 / 5 | 4 / 4 |
+| head HFEN | 1 / 1 | 1 / 1 | 1 / 1 |
+| whole-volume PSNR | 1 / 3 | 1 / 3 | 2 / 1 |
+| whole-volume NMSE | 1 / 3 | 1 / 3 | 2 / 1 |
+| whole-volume HFEN | 4 / 3 | 2 / 3 | 4 / 1 |
+| whole-volume SSIM | 5 / 6 | 5 / 6 | 5 / 6 |
+
+Per slice, with v3.2 as ours: T1 first on 94/129, 128/128 and 104/129 full-brain slices, FLAIR on every full-brain slice.
+v3.2's whole-volume T1 PSNR and NMSE trail converged TV by 0.003 dB and 0.00001. The held-out picture over the two held-out
+subjects: head PSNR and head HFEN hold for every recipe except v3.2's T1 head PSNR on jiangyizhou; head SSIM does not hold
+for any recipe on any held-out channel except v3.2's FLAIR on jiangyizhou (by 0.0001).

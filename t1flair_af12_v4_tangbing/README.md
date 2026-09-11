@@ -95,7 +95,7 @@ Standing of v3.2 against every other method in this topic's table (single run, s
 - **FLAIR**: first on head PSNR, head HFEN, whole-volume PSNR, whole-volume NMSE, whole-volume HFEN; not first on head SSIM (fourth), whole-volume SSIM (sixth).
 - **Against v3**: T1 -0.034 dB / head SSIM -0.0006, FLAIR +0.187 dB / head SSIM +0.0045.
 - **Gate**: T1 sharpness 0.905 passes the pre-registered 0.874 floor.
-- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS not yet in on every channel): T1 first on 94/129, 128/128, 104/129 transverse / coronal / sagittal slices; FLAIR first on 120/120, 130/130, 128/128 transverse / coronal / sagittal slices.
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS is not run on this subject): T1 first on 94/129, 128/128, 104/129 transverse / coronal / sagittal slices; FLAIR first on 120/120, 130/130, 128/128 transverse / coronal / sagittal slices.
 - Figures (compact panels, v3.2 as the proposed method): `figures/t1flair_v4_af12_T1_best_axis0_170.png`, `figures/t1flair_v4_af12_FLAIR_best_axis0_71.png`, `figures/t1flair_v4_af12_{T1,FLAIR}_best3planes.png`.
 
 ## Regenerating
