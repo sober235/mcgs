@@ -852,3 +852,17 @@ proposed arm from v3 to v3.2 once those are in.
 On jiangyizhou the average lifts T1 above L1-ESPIRiT (+0.165) and FLAIR head SSIM above it (0.9378 against 0.9368); T1 head
 SSIM stays below converged TV (0.9459) and FLAIR head HFEN below L1-ESPIRiT (0.1015 against 0.1002). On hyw T1+FLAIR the
 average's FLAIR head SSIM ties L1-ESPIRiT (0.9221) and stays below ZS-SSDU (0.9235). Single-run v3.2 stays the headline arm.
+
+**Round 20, tuning pair (`ar20_xv_P6_t1t2`, landed 08:43).** The AF16 loop's recipe, unchanged: T1 35.946 / T2
+36.179 (+0.416 / +0.361 over L1-ESPIRiT), head SSIM 0.94942 / 0.95355 (L1-ESPIRiT 0.94715 /
+0.95362), head HFEN 0.0887 / 0.0710 (L1-ESPIRiT 0.0867 / 0.0656), whole-volume PSNR 40.128 / 40.846,
+sharpness 0.839 / 0.815 (T1 floor 0.874). Against v3.2 on this pair it is higher on T1 head PSNR and SSIM, lower on T2
+head PSNR (36.179 against 36.254) and SSIM (0.9536 against 0.9552), and worse on head HFEN of both contrasts.
+
+Reading of Round 20. On huangyuwei, the subject it never saw, the AF16 recipe is first on head PSNR on all four channels
+and on T1 head SSIM of both topics; it is 0.00007 below L1-ESPIRiT on T2 head SSIM, not first on FLAIR head SSIM, worse than L1-ESPIRiT on head HFEN on
+three of the four channels, and far below the T1 sharpness floor. Neither pre-registered reading fits, so it is
+reported as it stands. The two-way cross-check: v3.2 (selected on huangyuwei) carries its head-PSNR lead to
+jiangyizhou on FLAIR only, losing T1 by 0.035 dB; the AF16 recipe (selected on jiangyizhou) carries it to huangyuwei on
+all four channels but pays in HFEN and sharpness. Neither recipe is first on every metric on the subject it was not
+selected on.

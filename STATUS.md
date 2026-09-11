@@ -28,6 +28,7 @@
 - 三个课题 README 的 v3 段落都已写好并镜像进仓库：T1+T2（c89bf4b）、jiangyizhou（d4b73f7）、hyw T1+FLAIR（409df68）。hyw T1+FLAIR：头内 PSNR 两对比度第一（+0.242 / +0.254），逐层 T1 第一 43/47、83/88、90/93，FLAIR 55/61、73/91、94/94，joint−single = +0.093 / +0.018（耦合不伤 FLAIR）。jiangyizhou：FLAIR 第一（+0.216），T1 打平，逐层 FLAIR 94/94、87/120、118/118，T1 18/96、77/121、56/118，joint−single = +0.080 / −0.074。三个课题的图都已探活（HTTP 200）。
 - 已提交：v3 定稿与三表 v3 行（0eaa964）、紧凑图改用 v3（db673f0）、T1+T2 README v3 段落与逐层（c89bf4b）、P-LORAKS T2 入表（2580721）、第 16 轮预注册（12d13d9）、SSIM 诊断与归档辅助脚本（a5dbb8a）。
 - 第 16 轮 T1 通道小波 0.06（`ar16_n24_wav005_T1p06`）按预注册规则通过：T1 35.855 / T2 36.110，对 L1-ESPIRiT 最小余量 +0.292（v3 +0.241），T1 头内 SSIM 0.9481 超过 L1-ESPIRiT 的 0.9471；T1 锐度 0.862，比 v3 离下限更远。暂定为 v3.1，等 geo007 与第 17 轮结果决定是否合并。
+- 第 20 轮完整（AF16 会话配方在 hyw 上交叉检验）：调参对 35.946 / 36.179，hyw T1+FLAIR 35.952 / 34.557，四个通道头内 PSNR 都第一，T1 头内 SSIM 两个课题都第一；但 T2 头内 SSIM 落后 L1 0.00007，FLAIR 头内 SSIM 不第一，头内 HFEN 四个通道三个不如 L1，T1 锐度 0.839–0.840 远低于下限。双向交叉：v3.2（hyw 选）到 jyz 只保住 FLAIR 的 PSNR 领先；AF16 配方（jyz 选）到 hyw 保住 PSNR 但丢了 HFEN 与锐度。两种预注册读法都不完全符合，照实报告。
 - 三个课题的归档表与图已改以 v3.2 为主推臂（T1+T2 aace779、jyz 7b7345f、hyw T1+FLAIR 2aca3d7），逐列对照全部对手：
   - T1+T2：头内 PSNR、SSIM、HFEN 两对比度第一，整图 PSNR、NMSE 两对比度第一，整图 HFEN T2 第一、T1 第三；逐层两对比度三个方向所有完整脑层全部第一。
   - hyw T1+FLAIR：头内 PSNR、HFEN 两通道第一，T1 头内 SSIM 第一，FLAIR 头内 SSIM 第三（0.9215，ZS-SSDU 0.9235、L1 0.9221）；逐层 T1 47/47、86/88、93/93，FLAIR 全部第一。
