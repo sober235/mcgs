@@ -54,6 +54,12 @@ Environment: `PYTHONNOUSERSITE=1 PYTHONPATH=`, conda env GSTMI (`/home/congcongl
   level of 168), T1 36.696 vs GS-single 36.635 (+0.061), FLAIR 34.929 vs GS-single 34.896 (+0.033); over L1-ESPIRiT
   +0.269 / +0.173. Figures `figures/t1flair_v3_af16_{T1,FLAIR}_row_axis0_159.png`. By level: MC-GS's lead is largest
   at 98-117, small from 120 to 187, and from about 198 to the vertex GS-single is ahead on both contrasts.
+- Other slices (user asked 2026-09-11 for more): MC-GS is first on both contrasts on 108/176 scanned slices.
+  `best_slice_mcgs.py` also lists candidates at least 6 slices apart. By the smaller lead over all eight: 109, 89, 70,
+  54, 99, 117, 78, 48, all at or below the skull base. Among the both-first slices, by the smaller lead over the best
+  non-GS method: 124 (over L1-ESPIRiT T1 +0.417, FLAIR +0.544; over GS-single +0.019 / +0.028), 132 (+0.384 / +0.392;
+  +0.025 / +0.035), then 118, 107, 77, 213, 194, 178. 124 and 132 cut the upper orbits, temporal lobes, brainstem and cerebellum.
+  Figures `figures/t1flair_v3_af16_{T1,FLAIR}_row_axis0_{124,132}.png`.
 
 ## 2. Waiting for the user
 
