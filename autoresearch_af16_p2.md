@@ -126,3 +126,32 @@ FLAIR 0.10-0.14 and the phase term carries the rest.
 | `p2_r3_wav14_ptv05` | 0 | FLAIR wavelet 0.10 -> 0.14 | stack the two winners; FLAIR was the binding contrast |
 | `p2_r3_ptv10` | 2 | phase TV 0.05 -> 0.10 | find where the phase term stops paying |
 | `p2_promo_wav14_full4k` | 1 | wav14 at 4000 iterations, volumes | full-budget reference for the wavelet-only path (launched 20:10) |
+
+Results (1500 iterations unless noted):
+
+| exp | T1 mag | FLAIR mag | min margin mag | T1 cplx | FLAIR cplx | min margin cplx | cos phase |
+|---|---|---|---|---|---|---|---|
+| `p2_r2_ptv05` (round-2 winner) | 35.320 | 34.682 | +0.111 | 32.365 | 31.830 | **+0.112** | 0.9929 / 0.9931 |
+| `p2_r3_wav14_ptv05` | 35.319 | 34.616 | +0.110 | 32.365 | 31.821 | +0.103 | 0.9929 / 0.9931 |
+| `p2_r3_ptv10` | 35.045 | 34.507 | **-0.164** | 32.208 | 31.792 | +0.006 | 0.9928 / 0.9933 |
+| `p2_promo_wav14_full4k` (4000) | 35.612 | 34.824 | +0.321 | 32.288 | 31.757 | +0.039 | 0.9922 / 0.9926 |
+
+**Phase TV 0.05 is the working point.** At 0.10 the term breaks the magnitude constraint (T1 -0.164 under the
+bar) for 0.006 dB of complex margin, so it is past its optimum. Stacking FLAIR wavelet 0.14 on top of
+phase TV adds nothing (-0.009 dB of FLAIR complex, -0.066 dB of FLAIR magnitude): the two priors overlap,
+both acting on the complex volume. So the recipe is the round-1 wavelet (T1 0.14 / FLAIR 0.10) plus phase
+TV 0.05.
+
+**The full budget matters for the complex gauge.** `p2_promo_wav14_full4k` at 4000 iterations crosses the
+complex bar on both contrasts (+0.086 / +0.039) with no phase term at all, while the same recipe at 1500
+was 0.053 dB short. It also holds head SSIM first on both contrasts and T1 head HFEN first, but it loses
+FLAIR head HFEN to L1-ESPIRiT (0.1257 against 0.1210, where the P6 parent led at 0.1188). The heavier
+wavelet is what costs that.
+
+### Promotions — 2026-09-11 from 20:50, three runs at 4000 iterations
+
+| exp | GPU | recipe | purpose |
+|---|---|---|---|
+| `p2_promo_ptv05_full4k` | 0 | wavelet T1 0.14 / FLAIR 0.10 + phase TV 0.05, volumes | the screening winner at full budget |
+| `p2_promo_p6ptv_full4k` | 1 | P6 wavelet (T1 0.10 / FLAIR 0.07) + phase TV 0.05, volumes | minimal change from P6: does the phase term alone cross the bar while keeping P6's FLAIR HFEN lead |
+| `p2_promo_ptv05_s43_full4k` | 2 | the winner with seed 43 | seed floor on BOTH gauges, unmeasured for the complex one |
