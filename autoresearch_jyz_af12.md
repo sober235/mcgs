@@ -310,3 +310,10 @@ SSIM 0.9368 / HFEN 0.1000 — all L1-ESPIRiT. Card 6 is released (nothing of thi
   Promotion `ar5_db4_lev1_full4k` (4000 it, volumes) on card 4 after the running 1-level + FLAIR-0.085 screen; the
   single-knob promotions `ar5_wavlev1_full4k` (card 3) and `ar5_db4_full4k` (card 5) keep running as the
   single-lever references at 4000.
+
+### Promotion 3 — wavelet on 1 level at 4000 iterations (02:15): not promoted on its own
+`ar5_wavlev1_full4k` (card 3, 59 min, volumes): 36.791 / 36.146 against P7's 36.765 / 36.168 — **T1 +0.026,
+FLAIR −0.022**; head HFEN better by 0.0047 / 0.0022, SSIM level, sharpness up. `min_margin` rises to +0.365 (T1 now
+the smaller margin) but FLAIR's PSNR cell falls beyond the floor → by rule 1 a **reshape at 4000**, not a promotion.
+The decision passes to the combination `ar5_db4_lev1_full4k` (card 4, ~03:10), which at 1500 iterations held FLAIR
+at the baseline while keeping the T1 gain.
