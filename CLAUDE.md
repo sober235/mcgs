@@ -31,4 +31,6 @@ Read in this order: this file → `STATUS.md` (current state, what to re-run fir
   are an unrelated earlier snapshot plus the CE work; never merge across the two lineages.
 
 ## jiangyizhou AF16 autoresearch line (branch `autoresearch-jyz-af16`, this worktree)
-Read `docs/handoff/2026-09-11-autoresearch-jyz-af16.md` first, then `autoresearch_jyz_af16.md`.
+Read `docs/handoff/2026-09-11-autoresearch-jyz-af16.md` first, then `autoresearch_jyz_af16.md`. Results summary:
+`docs/superpowers/records/2026-09-11-autoresearch-jyz-af16.md`. Tests on this branch: 183 pass; `tests/test_score_edge.py`
+needs the gitignored `results_arc/reg_aligned_4k_volumes.npz`, which only the main checkout has.

@@ -559,7 +559,7 @@ metrics — returning the edge-TV to its v2 strength once the wavelet carries th
 below L1-ESPIRiT). Directional TV (λ_dtv), prewhitening, FLAIR-only high-band weight, faster LR decay, stronger TV
 and λ_geo 0.07 all lost. Caveats: one subject; the MC-GS knobs and the classical λ were both selected on this
 subject's ground truth (fair, not held out); two unexplained GPU stalls cost ~2 h and led to one trainer per card.
-The jyz AF12 transfer run of the final recipe (`ar17_P6_tf_jyz_af12_full4k`) is pending.
+The jyz AF12 transfer run of the final recipe (`ar17_P6_tf_jyz_af12_full4k`) landed at 04:30 (next section).
 
 ### Transfer check — the final recipe, unchanged, on jiangyizhou at AF12 (04:30)
 

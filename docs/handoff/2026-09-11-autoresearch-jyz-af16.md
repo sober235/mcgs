@@ -83,7 +83,8 @@ Environment: `PYTHONNOUSERSITE=1 PYTHONPATH=`, conda env GSTMI (`/home/congcongl
 ## 2. Waiting for the user
 
 - Merge this branch into `main`? `main` (4 commits: vdPois + CE pipeline) shares no history with this line; the hyw
-  loop's STATUS already lists the same question. Nothing has been pushed.
+  loop's STATUS already lists the same question. The branch was pushed to origin as `autoresearch-jyz-af16` on 2026-09-11; results summary in
+  `docs/superpowers/records/2026-09-11-autoresearch-jyz-af16.md`.
 - Whether a held-out check is wanted: the MC-GS knobs and the classical λ were both selected on jyz's ground truth
   (fair, not held out). Candidates: the other CFL subjects (vol2/4/5/6/7), cloneable with the AF16 setup scripts.
 
