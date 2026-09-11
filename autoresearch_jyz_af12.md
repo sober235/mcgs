@@ -445,3 +445,6 @@ T1 strength is closed at 0.12: 0.14 fails the sharpness gate at 1500; the queued
 - 06:05 card 3: `ar5_P10_slr008_full4k` (P10 + scale lr 0.008, 4000 it, volumes) launched in parallel with the 1500-it
   screen of the same knob on card 4 and the P9 + 0.008 promotion on card 5; pre-registered keep rule as usual
   (against P10's 4000 row 36.944 / 36.268, sharpness 0.858 / 0.823).
+- `ar6_slr012` (scale lr 0.012, P9-based; card 4, 26 min): 36.851 / 36.270 — against the 0.008 row T1 −0.003 (at the
+  floor), FLAIR +0.017, T1 SSIM −0.0002, HFEN level. **Plateau**: the scale-lr curve flattens past 0.008 (T1 stops,
+  FLAIR still creeps); 0.008 is taken as the scale lr, its promotions run on cards 5 (on P9) and 3 (on P10).
