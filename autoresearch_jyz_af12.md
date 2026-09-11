@@ -184,3 +184,6 @@ Every one a single change against P6 at 1500 iterations; waiters start them when
 - `ar2_geo007` (edge-TV λ_geo 0.07; card 3, 25 min): 36.638 / 36.013 — **−0.066 / −0.059 dB** under the parent,
   head SSIM −0.0007 / −0.0007, head HFEN better by 0.0022 / 0.0018, sharpness up. **Discard (reshape)**: less
   edge-TV sharpens but loses PSNR and SSIM. With `ar2_geo013`, edge-TV is bracketed at P6's 0.10 on this budget.
+- `ar2_kq090` (κ_q 0.90; card 4, 26 min): 36.714 / 36.078 — +0.010 / +0.006 dB over the parent (`min_margin`
+  +0.011, just over the 0.006 floor), but head HFEN worse by 0.0022 / 0.0027 and head SSIM −0.0002 / −0.0006,
+  sharpness down. **Discard (reshape)**: the same smoothing trade the AF16 loop saw for κ_q 0.90.
