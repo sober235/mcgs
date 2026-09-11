@@ -893,3 +893,10 @@ is selected on this subject and nothing about the recipes changes because of it.
 channels here, the jiangyizhou T1 result reads as subject-specific. If it trails L1-ESPIRiT on T1 again while v3.1 leads,
 the edge-TV step is recorded as not transferring for T1, and the headline question goes to the user with both held-out
 subjects in view.
+
+**Round 21 data note, recorded before any MC-GS result on tangbing (10:4x).** Every arm's head PSNR on tangbing sits
+2.7–3.4 dB below jiangyizhou's (zero-filled T1 23.28 against 26.13, CG-SENSE 30.69 against 33.51, TV 35 it. 33.06 against
+35.76). Most of that is the PSNR peak: tangbing's max/P99.9 is 1.75 / 1.77 against jiangyizhou's 2.29 / 2.27, about
+2.3 dB. The ground truth is clean and its air noise floor matches jiangyizhou's, so the subject is not noisier. L1-ESPIRiT
+at the huangyuwei λ is visibly under-regularized on tangbing's T1 (head PSNR 31.86, sharpness 1.10, below TV's 33.06); it
+keeps its fixed setting, as every arm does.

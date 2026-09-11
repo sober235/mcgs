@@ -16,6 +16,13 @@ Every comparison arm runs at the settings fixed on the other topics, nothing tun
 3D-INR (1500 iterations). P-LORAKS is not run here (7 h of CPU per channel; last on every other topic). Three MC-GS
 joint recipes run unchanged: v3, v3.1 (T1 wavelet 0.06) and v3.2 (T1 wavelet 0.06, FLAIR wavelet 0.12, edge-TV 0.07).
 
+**Reading this topic.** Head PSNR here sits 2.7–3.4 dB below jiangyizhou's for every arm, zero-filling and CG-SENSE
+included. Most of that offset is the PSNR peak, not reconstruction difficulty: this subject's max/P99.9 is 1.75 on T1
+and 1.77 on FLAIR against jiangyizhou's 2.29 and 2.27, worth about 2.3 dB. The ground truth is clean (no visible motion
+or ghosting) and its air background has the same noise floor as jiangyizhou's. Compare arms within this topic, not
+absolute PSNR across subjects. At the λ selected on huangyuwei, L1-ESPIRiT is visibly under-regularized on this
+subject's T1 (grainy, sharpness 1.10) and falls behind TV; every arm runs at its fixed setting, MC-GS included.
+
 ## Results
 
 **T1** — sorted by head-only PSNR (head = |GT| > 0.05 P99.9):
