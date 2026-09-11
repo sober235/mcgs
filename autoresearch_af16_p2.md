@@ -71,4 +71,31 @@ Directional TV (λ_dtv), prewhitening, FLAIR-only high-band weight, faster LR de
 | `p2_r1_n50` | 3 | 5.0M points | capacity for finer structure, and for phase detail |
 | `p2_r1_curric` | 4 | `--curriculum` | progressive high-frequency schedule, untried on this subject |
 
-Results appended below when the round finishes.
+Results (1500 iterations; bar on the complex gauge: T1 32.2011, FLAIR 31.7175):
+
+| exp | T1 mag | FLAIR mag | T1 cplx | FLAIR cplx | min margin cplx | cos phase T1 / FLAIR |
+|---|---|---|---|---|---|---|
+| `p2_r1_parent` | 35.515 | 34.724 | 31.981 | 31.187 | -0.531 | 0.9913 / 0.9908 |
+| **`p2_r1_wavup`** | **35.546** | **34.771** | **32.257** | **31.499** | **-0.218** | **0.9922 / 0.9918** |
+| `p2_r1_n50` | 35.520 | 34.803 | 31.848 | 31.148 | -0.570 | 0.9908 / 0.9905 |
+| `p2_r1_kh30` | 34.718 | 34.109 | 30.880 | 30.271 | -1.447 | 0.9883 / 0.9881 |
+| `p2_r1_curric` | 33.958 | 33.180 | 31.028 | 30.526 | -1.192 | 0.9902 / 0.9910 |
+
+**The complex-aware prior is the lever, as the diagnosis predicted.** Wavelet T1 0.14 / FLAIR 0.10 gains
++0.276 (T1) and +0.312 (FLAIR) on the complex gauge over the control at the same budget, passes the bar on
+T1 (+0.056) and lifts the phase agreement 0.9913 -> 0.9922 and 0.9908 -> 0.9918. The magnitude gauge moves
+with it (+0.031 / +0.047), so nothing is traded away. FLAIR is now the binding contrast (-0.219 left).
+Both high-band levers lose badly: kspace_high 3.0 costs 0.8 dB on the magnitude gauge and 1.1 on the
+complex one, and the frequency curriculum costs 1.5 dB of magnitude. Capacity 5.0M is flat at this budget
+(the first loop's capacity gain needed the full budget), so it is deferred to a promotion run, not dropped.
+
+### Round 2 — 2026-09-11, three runs at 1500 iterations, serial on GPU 0
+
+The other user took GPUs 1-7 (60-78 GB each) right after round 1 finished, so this round runs one card at a
+time. Candidates all attack the binding contrast, on top of round 1's winner where stated:
+
+| exp | change | rationale |
+|---|---|---|
+| `p2_r2_wav14` | wavelet T1 0.14 / FLAIR 0.14 | push the winning direction on the binding contrast |
+| `p2_r2_ptv05` | round 1 winner + `--lambda_ptv 0.05` | the new phase-only TV term, aimed straight at the gauge gap |
+| `p2_r2_wav18f` | wavelet T1 0.14 / FLAIR 0.18 | FLAIR-heavy, to find where the wavelet stops paying |
