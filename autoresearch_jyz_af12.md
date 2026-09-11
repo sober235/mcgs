@@ -294,3 +294,5 @@ floor (0.006 / 0.004 dB); `ar1_P7_i1500_s43` (queued on card 5) re-measures the 
 - `ar2_n60` (6.0M points, on P7; card 4, 30 min, 33.4 GB): 36.714 / 36.188 — T1 −0.005, FLAIR +0.113; T1 head SSIM
   −0.0013, T1 head HFEN worse by 0.0022. **Discard (reshape)**: the screening curve 3.6M → 4.8M → 6.0M moves FLAIR
   up and T1 down already at 1500 iterations. Capacity stays 3.6M (settled at both budgets).
+- `ar4_warmup250` (shared warm-up 250, on P7; card 5, 26 min): 36.719 / 36.076 — identical to the baseline.
+  **Discard (null)**; warm-up 250 / 500 / 700 all read the same, the knob is settled.
