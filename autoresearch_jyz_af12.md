@@ -187,3 +187,8 @@ Every one a single change against P6 at 1500 iterations; waiters start them when
 - `ar2_kq090` (κ_q 0.90; card 4, 26 min): 36.714 / 36.078 — +0.010 / +0.006 dB over the parent (`min_margin`
   +0.011, just over the 0.006 floor), but head HFEN worse by 0.0022 / 0.0027 and head SSIM −0.0002 / −0.0006,
   sharpness down. **Discard (reshape)**: the same smoothing trade the AF16 loop saw for κ_q 0.90.
+- `ar3_i2500` (P6 at 2500 iterations; card 5, 40 min): 36.734 / 36.134 — +0.030 / +0.062 over 1500, −0.019 /
+  −0.031 under 4000; SSIM and HFEN track the parent. The budget curve 1500 → 2500 → 4000 is still rising with
+  diminishing steps, so **`ar3_i6000`** (P6 at 6000 iterations, volumes saved) is queued on card 5 ahead of its
+  round-2 knobs: if it beats the 4000-iteration parent by more than the floor with no cell regressing, the
+  promotion budget becomes 6000 and that run is the new parent (rule 2).
