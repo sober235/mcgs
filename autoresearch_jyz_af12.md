@@ -130,3 +130,12 @@ args. Waiting: poll `results_arc/<exp>_score.json`, never `pgrep -f` from the to
   card 4 `ar2_wav_up` → `ar2_geo013` → `ar2_kq090` → `ar2_n48`; card 5 after the seed floor (flag-gated in
   case the AF16 loop still wants the card) `ar2_n24` → `ar3_i2500` (budget knob) → `ar2_eps003` → `ar2_wfloor02`.
   Card 6 keeps only the classical GPU chain; card 7 is released.
+
+### Round 0 read — 20:36
+Parent P6 at 1500 iterations (`ar1_P6_i1500`, card 3, 26 min): head PSNR 36.704 / 36.072, SSIM 0.9480 / 0.9367,
+HFEN 0.1012 / 0.1008, sharp 0.854 / 0.830. Seed 43 (`ar1_P6_i1500_s43`, card 5, 26 min): 36.698 / 36.068.
+**Seed floor at the screening budget: PSNR 0.006 / 0.004 dB; SSIM 0.0000 / 0.0001; HFEN 0.0001 / 0.0002;
+sharp 0.001 / 0.001.** Rule 1 threshold for a keep: `min_margin` up by more than 0.006 dB over the parent's
++0.329 (i.e. above +0.335 on the current bar), no other cell down by more than its floor, sharpness not
+below 0.844 / 0.820. 1500 iterations already sit 0.05 / 0.10 dB under the 4000-iteration P6, so the
+screening budget is sensitive enough.
