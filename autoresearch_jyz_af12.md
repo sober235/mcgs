@@ -153,5 +153,8 @@ screening budget is sensitive enough.
   HFEN 0.1034 at 0.0015. T1 bar now: PSNR 36.426 (L1@0.002), SSIM 0.9473, HFEN 0.1034. The converged-TV T1
   curve peaks at 0.0007 = 36.162 (0.0005 35.970, 0.001 36.144, 0.0014 35.931, 0.002 35.501), below L1.
 - `ar2_n24` (2.4M points instead of 3.6M; card 5, 23 min): 36.557 / 35.821 — **−0.147 / −0.251 dB** under the
-  parent, FLAIR SSIM −0.0021, sharpness 0.841 / 0.812. **Discard.** Capacity is not a free knob downward at AF12
+  parent, FLAIR SSIM −0.0021, sharpness 0.849 / 0.820. **Discard.** Capacity is not a free knob downward at AF12
   either; the 4.8M run (`ar2_n48`, card 4, queued) tests the other direction.
+- 20:50 L1-ESPIRiT FLAIR refinement: λ 0.004 = 35.757 / 0.9368 / 0.1000 beats 0.005 (35.720 / 0.9368 / 0.1002).
+  FLAIR bar now: PSNR 35.757 (L1@0.004), SSIM 0.9368, HFEN 0.1000. Parent margins at 1500 iterations on the
+  current bar: T1 +0.278 / FLAIR +0.315.
