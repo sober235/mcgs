@@ -31,9 +31,10 @@ for ch, key in (("plain", "T1"), ("contrast", "FL")):
     rec = np.mean([np.asarray(v[f"rec{key}"], dtype=np.float32) for v in vols], axis=0)
     gt = np.asarray(vols[0][f"gt{key}"], dtype=np.float32)
     zf = np.asarray(vols[0][f"zf{key}"], dtype=np.float32)
-    t_rec, t_gt, t_zf = (torch.from_numpy(x) for x in (rec, gt, zf))
+    dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")   # the 3-D SSIM is slow and memory-hungry on the host
+    t_rec, t_gt, t_zf = (torch.from_numpy(x).to(dev) for x in (rec, gt, zf))
     met = cycle.evaluate_reconstruction(t_rec, t_gt, compute_extended=False)
-    hf, sr, gr = cycle.hfen(t_rec, t_gt), cycle.sharp_ratio(t_rec, t_gt), cycle.grain(t_rec, t_gt)
+    hf, sr, gr = (float(v) for v in (cycle.hfen(t_rec, t_gt), cycle.sharp_ratio(t_rec, t_gt), cycle.grain(t_rec, t_gt)))
     ho = cycle.score_headonly(rec, gt)
     mz = cycle.evaluate_reconstruction(t_zf, t_gt, compute_extended=False)
     zf_hf = cycle.hfen(t_zf, t_gt)
