@@ -52,3 +52,10 @@ The user marked this line's result as the current best AF 12 reconstruction on j
   v3.2 (36.299 / 36.039). No compact orange-metric figure exists at AF 12 yet.
 - Caveats carried over: recipe and classical lambda were selected on this subject (fair, not held out); all numbers are on
   the magnitude gauge — on the strict complex gauge L1-ESPIRiT ranks first (record, section 4).
+
+## Phase 2 and the freeze (branch `autoresearch-jyz-af16-phase2`, this worktree, 2026-09-12)
+Read `STATUS.md`, then `docs/handoff/2026-09-12-autoresearch-jyz-af16-phase2.md` and the phase-2 record. Phase 2 added
+the complex-gauge scorer and the phase-only TV term (`paired_gs/losses/phase_tv.py`); p6ptv = P6 + phase TV 0.05 is first
+on both gauges. **User decision 2026-09-12: this line is frozen — no further runs; no code or parameter from the AF12
+line (`autoresearch-jyz-af12`, recipe P10) is merged or adopted here.** The AF12 numbers quoted in the section above
+are superseded by that line's own record; they stay here as history.

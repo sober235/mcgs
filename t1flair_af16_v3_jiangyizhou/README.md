@@ -115,3 +115,24 @@ subject uses).
 
 See `../T1FLAIR_AF16_retro/README.md`; the scheduler runs both subjects, and
 `scripts/postprocess.sh jyz <gpu>` does everything after the arms.
+
+## Phase 2 — the complex gauge, and the line frozen (2026-09-11/12)
+
+Phase 2 of the autoresearch loop (framework branch `autoresearch-jyz-af16-phase2`, `autoresearch_af16_p2.md`) asked
+for MC-GS first on the strict complex gauge |rec − GT| as well, with the magnitude margin kept non-negative. The lever is
+a phase-only TV term (`--lambda_ptv 0.05`); registered here as `gs_joint_p2` ("MC-GS (P6 + phase TV)") and
+`gs_joint_p2b` (wavelet T1 0.14 / FLAIR 0.10 + phase TV). Head-only, 4000 iterations, T1 / FLAIR:
+
+| arm | magnitude PSNR | complex PSNR | head SSIM | head HFEN | sharp |
+|---|---|---|---|---|---|
+| MC-GS (P6, the magnitude headline, `gs_joint_ar`) | **35.552 / 34.807** | 31.950 / 31.201 | 0.9351 / 0.9203 | 0.1218 / 0.1188 | 0.830 / 0.788 |
+| MC-GS (P6 + phase TV, `gs_joint_p2`) | 35.311 / 34.740 | 32.322 / 31.851 | 0.9353 / 0.9231 | 0.1204 / 0.1147 | **0.876 / 0.837** |
+| MC-GS (wavelet up + phase TV, `gs_joint_p2b`) | 35.364 / 34.768 | **32.413 / 31.922** | 0.9362 / 0.9234 | 0.1265 / 0.1187 | 0.844 / 0.806 |
+| L1-ESPIRiT | 35.209 / 34.503 | 32.201 / 31.718 | 0.9334 / 0.9201 | 0.1286 / 0.1210 | 0.849 / 0.789 |
+
+Both phase-2 recipes are first against the seven comparison arms on both gauges and on head SSIM / HFEN; neither beats
+P6 on the magnitude gauge (phase TV costs 0.24 / 0.07 dB there). A transfer test of the AF12 line's wavelet shape
+(db4, one level, T1 0.12 / FLAIR 0.10) stacked on P6 + phase TV read 35.528 / 34.805 magnitude, 32.485 / 31.918 complex,
+SSIM 0.9382 / 0.9250, HFEN 0.1167 / 0.1140 — it is not part of any AF16 recipe. **The line is frozen (user, 2026-09-12):
+no further runs, code and parameters kept separate from the AF12 line.** Figures:
+`figures/t1flair_v3_af16_{T1,FLAIR}_row_p2_axis{0,1,2}_*.png`, `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_p2_174_110_102.png`.
