@@ -53,6 +53,18 @@ The user marked this line's result as the current best AF 12 reconstruction on j
 - Caveats carried over: recipe and classical lambda were selected on this subject (fair, not held out); all numbers are on
   the magnitude gauge — on the strict complex gauge L1-ESPIRiT ranks first (record, section 4).
 
+## Current AF 12 result (user decision 2026-09-12, supersedes the provisional P6 note above)
+The user fixed the current AF 12 result of this line as two figures of the P10 recipe (`autoresearch_jyz_af12.md`,
+promotion 8; topic `Results_20260908/T1FLAIR_AF12_v3_jiangyizhou`, arm `gs_joint_ar` / `gs_joint_ar_fl11`):
+- T1, every arm at AF 12: `t1flair_af12_v3_jiangyizhou/figures/t1flair_v3_af12_T1_row3planes_compact_174_110_47_headerr.png`
+  (`http://localhost:8765/t1flair_v3_af12/t1flair_v3_af12_T1_row3planes_compact_174_110_47_headerr.png`).
+- FLAIR, design B (MC-GS on the AF 11 mask, every comparison arm at AF 12; the panel shows the AF 11 mask):
+  `t1flair_af12_v3_jiangyizhou/figures/t1flair_v3_af12_FLAIR_row3planes_compact_flair_af11_174_110_47_headerr.png`
+  (`http://localhost:8765/t1flair_v3_af12/t1flair_v3_af12_FLAIR_row3planes_compact_flair_af11_174_110_47_headerr.png`).
+Numbers behind them (head PSNR / SSIM / HFEN): T1 36.944 / 0.9503 / 0.0947 (AF 12), FLAIR 36.637 / 0.9439 / 0.0906 (AF 11
+mask; 36.268 / 0.9397 / 0.0958 at AF 12). Design B is the working setting from here on: the phase-2 loop
+(`autoresearch_jyz_af12_p2.md`, branch `autoresearch-jyz-af12-phase2`, runner `autoresearch_jyz_af12_p2.sh`) tunes in it.
+
 ## jiangyizhou AF12 autoresearch line (branch `autoresearch-jyz-af12`, this worktree)
 Read `STATUS.md` first, then `autoresearch_jyz_af12.md` (program, pre-registered rules, round log) and the record
 `docs/superpowers/records/2026-09-12-autoresearch-jyz-af12.md`. Update to the section above (2026-09-12): the loop
