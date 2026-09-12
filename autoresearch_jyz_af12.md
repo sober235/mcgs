@@ -493,3 +493,11 @@ cells for a 0.0002 T1 HFEN cost (0.2% of the value) — accepting it is a judgem
 Card 5 `ar5_P10_s43_full4k` (seed 43, the 4000-iteration floor and the second seed of the 2x row); card 4
 `ar8_P10_singleT1_full4k` → `ar8_P10_singleFLAIR_full4k` (GS-single arms, configs `t1flair_v3_af12_hyw_single*.yaml`);
 card 3 after the sym4 promotion `ar3_P10_i6000` (the 1.5x-compute row).
+
+### Promotion 12 — sym4 on P10 at 4000 iterations (08:15): equivalent to db4, recipe unchanged
+`ar5_P10_sym4_full4k` (card 3, 62 min, volumes): 36.952 / 36.272 against P10's 36.944 / 36.268 — +0.008 / +0.004
+(1.3x / 2x the floors), T1 head HFEN +0.0005, SSIM +0.0001 / 0, sharpness level. Nothing regresses, so by the
+Pareto clause it is a keep; but the gain is at the floor and the final-recipe rows (seed 43, GS-single arms, 6000
+iterations) are already running on db4. **Judgement call, recorded: the reported recipe stays P10 (db4); sym4 is
+listed as an equivalent basis (+0.008 / +0.004) the user may switch to, at the cost of re-running the three final
+rows.** This is the one place the loop's letter and its budget disagree, and it is written down as such.
