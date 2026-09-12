@@ -78,6 +78,22 @@ def edge_preserving_tv(vol: torch.Tensor, kappa: float, w_floor: float,
     return _VECTOR_SCALE * (_edge_weight(gn, kappa, w_floor) * charbonnier(gn, eps)).mean()
 
 
+def geo_term(l_p: torch.Tensor, l_c: torch.Tensor, lam: float, lam_p: float, lam_c: float):
+    """Geometry (edge-TV) term of the joint objective for the two rendered contrasts.
+
+    Returns (term, l_geo): `term` is what the objective adds, `l_geo` the unit-strength value
+    the trainer logs as R_geo / lam. With lam_p == lam_c == lam this is exactly
+    lam * (l_p + l_c), the same floating-point operations as the shipped objective, so the
+    default path is bit-identical. Otherwise lam_p * l_p + lam_c * l_c: a per-contrast edge-TV
+    strength, the way lambda_wav_plain / lambda_wav_contrast weight the wavelet prior
+    (phase-2 lever, 2026-09-12)."""
+    if lam_p == lam and lam_c == lam:
+        l_geo = l_p + l_c
+        return lam * l_geo, l_geo
+    term = lam_p * l_p + lam_c * l_c
+    return term, (term / lam if lam > 0 else term)
+
+
 def resolve_edge_kappa(vol: torch.Tensor, q: float, brain_frac: float = 0.05) -> float:
     """Absolute edge threshold = q-quantile of the in-brain per-axis gradient magnitude
     of the (initial) render. Fixed once so the edge bands do not drift during training."""
