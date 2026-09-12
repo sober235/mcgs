@@ -107,6 +107,13 @@ sharpness gate and head HFEN first, then PSNR. If σ_rel 0.01–0.02 still costs
 refresh policy (K 250, K0 1000: a target computed from a better-fitted volume, refreshed more often) and the denoiser's
 own sharpening option (`BM4DProfile.set_sharpen`), not a larger λ.
 
+## Round 2 (queued 20:35) — the remaining terms on the db4/1-level base
+
+Base B = P6 + `wav_name=db4, wav_levels=1, lambda_wav_plain=0.12, lambda_wav=0.10` (1500-it reference `p3_r0_db4l1` = 35.683 / 34.792,
+SSIM 0.9376 / 0.9222, HFEN 0.1171 / 0.1166, sharp 0.830 / 0.779). Screens `p3_r2_*`: phase TV 0.02 and 0.05 (sharpness lever first),
+vectorial TV 0.005 / 0.02, common-edge 0.001 / 0.005, FLAIR-private residual 0.3M. Read-out as before; the sharpness gate is now the
+binding constraint (B is 0.019 / 0.010 below L1-ESPIRiT's 0.849 / 0.789).
+
 ## Round log
 
 Head-only, 1500 it unless noted; bar L1-ESPIRiT 35.209 / 34.503 (current mask). Six cells = PSNR / SSIM / HFEN per contrast.
@@ -121,3 +128,4 @@ Head-only, 1500 it unless noted; bar L1-ESPIRiT 35.209 / 34.503 (current mask). 
 | 19:14 | p3_r0_db4l1 (P6 + the AF12 wavelet shape: db4, 1 level, T1 0.12 / FLAIR 0.10) | **35.683** | **34.792** | 0.9376 / 0.9222 | 0.1171 / 0.1166 | 0.830 / 0.779 | +0.168 / +0.067 dB over the control, SSIM and HFEN better on both contrasts; FLAIR sharpness −0.006 (just past the 0.005 tolerance) → **keep-marginal**, promotion `p3_r0_db4l1_full4k` queued first (4000 it, volumes). Note: stacked on p6ptv in phase 2 this shape gave no magnitude gain; on P6 it does — the phase-TV term was in the way. |
 | 19:20 | p3_r1b_nl1_s01 (λ_nl 1, σ_rel 0.01) | 35.510 | 34.602 | 0.9374 / 0.9204 | 0.1222 / 0.1198 | 0.799 / 0.749 | **discard**: T1 flat, FLAIR −0.12, HFEN slightly worse, sharpness −0.03 / −0.04 even at the gentlest setting. With nl4_s04 this brackets the class: the lagged-BM4D pull only smooths here, at no PSNR gain — the residual it removes is real signal, as the 09-04 data audit said of the AF12 residual. `p3_r1b_nl1_s02` (launched 19:20 by the scheduler before the queue edit) was stopped at ~iter 200 and removed; nl4_s02 / nl4_s01 dropped. Last try of the class: `p3_r1c_nl1_s02_sh13` = the same term with BM4D's transform-domain sharpening α 1.3 (`loss.nl_sharpen`, commit below), a detail-boosting rather than smoothing target. If it also loses sharpness, the non-local RED lever is closed. |
 | 19:58 | p3_r1c_nl1_s02_sh13 (λ_nl 1, σ_rel 0.02, BM4D sharpen α 1.3) | 35.564 | 34.641 | 0.9382 / 0.9209 | 0.1220 / 0.1194 | 0.788 / 0.736 | **discard — the non-local RED class is closed**: T1 +0.05 but FLAIR −0.08, HFEN flat, sharpness −0.04 / −0.05 even with the sharpened target. Three settings (σ 4 %, 1 %, 2 % sharpened) all lose sharpness and never gain FLAIR; the prior has no information to add on this data. Kept in the trainer (default off) for the record. |
+| 20:33 | p3_r0_db4l1_full4k (**4000 it**, volumes) | **35.729** | **34.888** | 0.9376 / 0.9231 | 0.1169 / 0.1159 | 0.831 / 0.781 | vs P6@4000 (35.552 / 34.807): +0.177 / +0.081 dB, SSIM and HFEN better on both; FLAIR sharpness 0.781 vs 0.788 — the −0.007 slip is NOT repaired at 4000, so by the pre-registered rule it stays **keep-marginal**: not promoted on its own, but adopted as the base of Round 2 (every remaining Round-0 term is now screened on top of it, one round instead of two), and the final recipe must pass the sharpness gate anyway (target ≥ 0.849 / 0.789 — no recipe so far does; phase TV is the known sharpness lever). Margin over L1-ESPIRiT +0.520 / +0.385. |

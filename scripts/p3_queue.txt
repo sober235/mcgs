@@ -1,10 +1,10 @@
 # phase-3 queue (autoresearch_af16_p3.md): [KEY=VAL ...] EXP ITERS [extra args]; consumed by scripts/p3_sched.sh, top first
 SAVE_VOLUMES=1 p3_r0_db4l1_full4k 4000 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10
-p3_r1c_nl1_s02_sh13 1500 --set loss.lambda_nl=1 --set loss.nl_sigma_rel=0.02 --set loss.nl_refresh=500 --set loss.nl_start=500 --set loss.nl_sharpen=1.3
 MASK_VARIANT=flair_c p3_probe_c_P6_kz_vtv0005 1500 --lambda_vtv 0.005
-p3_r0_vtv0005 1500 --lambda_vtv 0.005
-p3_r0_ptv002 1500 --lambda_ptv 0.02
-p3_r0_edge0001 1500 --lambda_edge 0.001
-p3_r0_priv03 1500 --set gaussian.num_private_points=300000
-p3_r0_vtv002 1500 --lambda_vtv 0.02
-p3_r0_edge0005 1500 --lambda_edge 0.005
+p3_r2_ptv002 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_ptv 0.02
+p3_r2_vtv0005 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_vtv 0.005
+p3_r2_edge0001 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_edge 0.001
+p3_r2_priv03 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --set gaussian.num_private_points=300000
+p3_r2_vtv002 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_vtv 0.02
+p3_r2_edge0005 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_edge 0.005
+p3_r2_ptv005 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_ptv 0.05
