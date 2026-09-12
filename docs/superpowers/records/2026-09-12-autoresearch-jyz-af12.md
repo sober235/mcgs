@@ -1,24 +1,18 @@
-# autoresearch on jiangyizhou T1 + FLAIR at AF12 — the MC-GS lead over every arm, widened (2026-09-11 19:40 → 2026-09-12)
+# jiangyizhou AF12 autoresearch — MC-GS joint ahead of every arm on every head cell (2026-09-11 19:40 → 2026-09-12)
 
-Branch `autoresearch-jyz-af12` (worktree `/data0/congcong/code/GS/mcgs_af12_wt`, forked from `autoresearch-jyz-af16`
-at 3a44aba, the code that produced P6). Program and round log: `autoresearch_jyz_af12.md`; ledger
-`autoresearch_jyz_af12.tsv` (63 rows); every row's score json and log in `results_arc/`. Topic archive:
-`Results_20260908/T1FLAIR_AF12_v3_jiangyizhou` (tables, volumes, figures), mirrored here as
-`t1flair_af12_v3_jiangyizhou/`. Cards 3, 4, 5 (one trainer per card), card 6 for the classical re-sweep; the
-AF16 phase-2 loop held 0–2 throughout.
+Branch `autoresearch-jyz-af12` (from `autoresearch-jyz-af16` at 3a44aba), worktree `/data0/congcong/code/GS/mcgs_af12_wt`.
+Program and round log: `autoresearch_jyz_af12.md`; ledger `autoresearch_jyz_af12.tsv` (every row has the commit and the
+exact args); topic `Results_20260908/T1FLAIR_AF12_v3_jiangyizhou` (mirrored as `t1flair_af12_v3_jiangyizhou/`).
 
 ## 1. The bar
 
-The user's starting point was P6 — the jyz AF16 loop's final recipe run unchanged on the AF12 mask (one vd-Poisson
-mask, AF 11.71 on T1 / 9.74 on FLAIR against their own acquired support): head PSNR 36.753 / 36.165 at 4000
-iterations, marked "provisional best 12x reconstruction" on 2026-09-11. The objective: raise MC-GS joint and widen
-its lead over every comparison arm on every head metric.
-
-Before the first candidate, the three strongest classical arms had their λ **re-swept on this subject against the
-ground truth** (the same privilege the loop has; until then their λ came from huangyuwei). L1-ESPIRiT: T1 peak
-λ 0.002 = 36.426 (was 0.0015 = 36.334), FLAIR peak 0.004 = 35.757 (was 0.005 = 35.720); converged TV peaks at
-0.0007 on both (36.162 / 35.581); joint TV at 0.001 (36.070 / 35.624). The bar per cell is the best of **every**
-swept λ, so a competitor tuned for SSIM or HFEN counts for that cell:
+The user marked the AF16 loop's recipe (P6) as the provisional best 12x reconstruction and asked for a loop that widens
+MC-GS joint's lead over every comparison arm on every metric, on jiangyizhou AF12 (one vd-Poisson mask, AF 11.71 on T1 /
+9.74 on FLAIR against their own support). Six head cells per run: PSNR, SSIM and HFEN margins per contrast over the
+best non-MC-GS arm of that cell. Before the loop the classical arms ran at the huangyuwei-selected λ; the loop first
+re-swept λ **on this subject against the ground truth** (the same privilege it has itself) for converged TV, joint TV
+and L1-ESPIRiT (28 BART/GPU runs, `scripts/run_classical_resweep_af12.sh`, `run_l1_refine_af12.sh`), and the bar
+takes the best of every swept λ per cell:
 
 | cell | T1 bar | FLAIR bar |
 |---|---|---|
@@ -26,113 +20,94 @@ swept λ, so a competitor tuned for SSIM or HFEN counts for that cell:
 | head SSIM | 0.9473 (L1-ESPIRiT λ 0.0025) | 0.9368 (L1-ESPIRiT λ 0.004 / 0.005) |
 | head HFEN | 0.1034 (L1-ESPIRiT λ 0.0015) | 0.1000 (L1-ESPIRiT λ 0.004) |
 
-Rules, pre-registered before any candidate ran (program, "Decision rules"): screening at 1500 iterations; keep =
-the smaller of the two head-PSNR margins rises by more than the seed floor **and** none of the other five head
-cells (SSIM ×2, HFEN ×2, the other PSNR) falls beyond its floor **and** sharpness does not drop more than 0.01;
-promotion = the same test at 4000 iterations with volumes saved; the promoted run becomes the parent and the
-runner bakes it. Seed floors: 0.006 / 0.004 dB at 1500 (P6, P8 both), 0.002 / 0.001 dB at 4000 (P10); SSIM and
-HFEN floors 0.0000–0.0002. Two clarifications were added during the loop and are dated in the program: a run whose
-cells all hold and at least one improves is a *Pareto keep* even when the smaller margin does not move (the
-binding channel swaps); and Pareto keeps at the floor do not change the recipe once the final rows are running.
+Converged TV peaks at λ 0.0007 on both (36.162 / 35.581), joint TV at 0.001 (36.070 / 35.624); L1-ESPIRiT is the
+strongest classical arm on every cell. The re-sweep raised the T1 bar by 0.092 dB and the FLAIR bar by 0.037.
 
-## 2. Result
+## 2. Rules (pre-registered before the first candidate)
 
-**P10 = P6 with the wavelet prior reshaped**: db4 wavelet family (was db2), the L1 penalty on the finest
-decomposition level only (was 3 levels), strengths T1 0.12 / FLAIR 0.10 (were 0.10 / 0.07). Everything else is
-P6: 3.6M Gaussians, edge-TV λ_geo 0.10 / κ_q 0.85 / w_floor 0.10 / eps 0.04, kspace_high 2.2, repaired cold
-start (head-support init, 3-NN scales, κ from ZF), 4000 iterations, seed 42.
+Screen at 1500 iterations against the parent at the same budget; keep = `min_margin` (the smaller of the two head-PSNR
+margins) up by more than the seed floor, no other cell down by more than its floor, sharpness not more than 0.01 below
+the parent; a PSNR gain paid with SSIM/HFEN is a *reshape*, not a keep. Promote kept knobs at 4000 iterations with
+volumes against the 4000-iteration parent by the same rule; the promoted run becomes the parent and the runner bakes
+it. Two clarifications recorded during the loop: a run whose cells all hold and at least one improves is a *Pareto
+keep* even if `min_margin` is unchanged (the binding channel swaps); the promotion budget stays 4000, 6000 and the
+two-seed average are reported as extra-compute rows. Seed floors: 0.006 / 0.004 dB at 1500 (P6 and P8 alike), 0.002 /
+0.001 at 4000 (P10); SSIM and HFEN floors 0.0000–0.0002.
 
-| head cell | P6 | **P10** | P10 − P6 | bar | P10 − bar |
-|---|---|---|---|---|---|
-| T1 PSNR | 36.753 | **36.944** | +0.191 | 36.426 | **+0.518** |
-| FLAIR PSNR | 36.165 | **36.268** | +0.103 | 35.757 | **+0.511** |
-| T1 SSIM | 0.9480 | **0.9503** | +0.0023 | 0.9473 | +0.0030 |
-| FLAIR SSIM | 0.9374 | **0.9397** | +0.0024 | 0.9368 | +0.0030 |
-| T1 HFEN | 0.1009 | **0.0947** | −0.0062 | 0.1034 | +0.0087 |
-| FLAIR HFEN | 0.1002 | **0.0958** | −0.0044 | 0.1000 | +0.0042 |
-| sharpness | 0.857 / 0.832 | 0.858 / 0.823 | +0.001 / −0.009 | L1-ESPIRiT 0.906 / 0.809 | — |
-| whole-volume PSNR | 40.071 / 39.539 | **40.272 / 39.692** | +0.201 / +0.153 | 39.893 / 39.205 | +0.379 / +0.487 |
+## 3. Result
 
-Under P6 the FLAIR HFEN cell was level with L1-ESPIRiT and the T1 SSIM cell led by 0.0007; under P10 every head cell
-leads, the thinnest by 0.0030 (SSIM, both contrasts). Seed 43 reproduces P10 to 0.002 / 0.001 dB.
+Four promotions, all from the *shape* of the L1 wavelet prior and its per-channel strength; nothing else moved the
+binding channel without a trade.
 
-The promotion chain (each step judged at 4000 iterations against the previous parent, all six cells holding or
-improving):
+| parent | change | 4000 it, head PSNR T1 / FLAIR | vs previous | six-cell margins on the bar (PSNR / SSIM / HFEN, T1 · FLAIR) |
+|---|---|---|---|---|
+| P6 (user's mark) | — | 36.753 / 36.165 | — | +0.327 / +0.0007 / +0.0025 · +0.408 / +0.0006 / −0.0002 |
+| P7 | wavelet on 2 levels (was 3) | 36.765 / 36.168 | +0.012 / +0.003 | +0.339 / +0.0009 / +0.0035 · +0.411 / +0.0007 / +0.0003 |
+| P8 | db4 wavelet (was db2) | 36.819 / 36.189 | +0.054 / +0.021 | +0.394 / +0.0014 / +0.0036 · +0.432 / +0.0011 / +0.0011 |
+| P9 | 1 level + FLAIR wavelet 0.085 | 36.853 / 36.234 | +0.034 / +0.045 | +0.427 / +0.0016 / +0.0084 · +0.477 / +0.0022 / +0.0039 |
+| **P10** | **T1 wavelet 0.12, FLAIR 0.10** | **36.944 / 36.268** | +0.091 / +0.034 | **+0.518 / +0.0030 / +0.0087 · +0.511 / +0.0030 / +0.0042** |
 
-| parent | change | head PSNR at 4000 | step |
-|---|---|---|---|
-| P6 | — | 36.753 / 36.165 | — |
-| P7 | wavelet on 2 levels | 36.765 / 36.168 | +0.012 / +0.003 |
-| P8 | db4 family | 36.819 / 36.189 | +0.054 / +0.021 |
-| P9 | 1 level + FLAIR 0.085 | 36.853 / 36.234 | +0.034 / +0.045 |
-| **P10** | FLAIR 0.10 + T1 0.12 | **36.944 / 36.268** | +0.091 / +0.034 |
+**P10 = P6 with the wavelet prior changed to db4 on its finest level only, T1 strength 0.12, FLAIR 0.10** (edge-TV
+λ_geo 0.10 / κ_q 0.85, 3.6M points, the repaired cold start, 4000 iterations unchanged). Against P6: **+0.191 / +0.103
+dB** head PSNR, SSIM +0.0023 / +0.0024, HFEN better by 0.0062 / 0.0044, sharpness 0.858 / 0.823 vs 0.857 / 0.832.
+Whole-volume PSNR 40.272 / 39.692 (P6 40.071 / 39.539). Per slice, against every canonical arm at its best λ: **first on
+every full-brain slice in every direction on both contrasts** (T1 96/96, 121/121, 118/118; FLAIR 94/94, 120/120,
+118/118). Registered in the topic table as `gs_joint_ar` ("MC-GS (AF12 loop, P10)").
 
-Extra rows at the final recipe (own rows, not the headline): two-seed average (seeds 42 + 43, 2x compute)
-36.990 / 36.295; scale lr 0.005 at 4000 36.955 / 36.316 and 0.008 36.953 / 36.328 (both raise the smaller PSNR
-margin but slip T1 HFEN by 0.0002–0.0003, over its floor — recorded as marginal, not adopted); sym4 in place of db4
-36.952 / 36.272 (equivalent within the floor); GS-single T1 (same recipe, T1 alone) 36.897 (joint +0.047).
-Per slice (`scripts/find_best_slice_ar.py`, head-masked slice PSNR over every full-brain slice, the classical
-arms at their best re-swept λ, P-LORAKS included): P10 is first on **every** slice — T1 96/96 transverse, 121/121
-coronal, 118/118 sagittal; FLAIR 94/94, 120/120, 118/118 (`logs/best_slice_ar_{T1,FLAIR}.json`). Under v3.2 the T1
-count was 9/96, 69/121, 33/118.
+Extra-compute and reference rows (own rows, not the headline):
 
-Rows still running at the time of writing are appended in section 7.
+| row | head PSNR T1 / FLAIR | note |
+|---|---|---|
+| P10 seed 43 | 36.942 / 36.267 | 4000-iteration floor 0.002 / 0.001 |
+| P10 ×2 seeds (magnitude mean, 2x compute) | 36.990 / 36.295 | `scripts/score_x2.py`; registered as `gs_joint_ar_x2` |
+| P10 at 6000 iterations (1.5x) | 36.953 / 36.284 | budget still creeps |
+| GS-single T1 (P10 recipe, T1 alone) | 36.897 / — | joint − single **+0.047** on T1 |
+| GS-single FLAIR (P10 recipe, FLAIR alone) | — / PENDING_singleFLAIR | joint − single PENDING_singleFLAIR_delta on FLAIR |
+| P10 + scale lr 0.005 / 0.008 | 36.955 / 36.316, 36.953 / 36.328 | marginal: T1 head HFEN slips 0.0002 / 0.0003 (2–3x its floor); not folded in |
+| P10 with sym4 instead of db4 | 36.952 / 36.272 | equivalent within 0.008 / 0.004 |
 
-## 3. What moved and what did not
+## 4. What did not work (single knobs on the parent of the day; all at 1500 unless noted)
 
-Levers, single knobs on the parent of their day at 1500 iterations unless stated (full numbers in the ledger):
+Reshapes (PSNR for SSIM/HFEN/sharpness): wavelet strength up on db2/3 levels (T1 0.14 / FLAIR 0.10), κ_q 0.90, λ_geo 0.07
+(sharpens, loses PSNR) and 0.13 (smooths), FLAIR-only 0.085 on 3 levels, T1 0.14 under the 1-level prior (sharpness
+−0.017), capacity 4.2M / 4.8M / 6.0M (**T1 falls as FLAIR rises at 4000 iterations, invisible at 1500**), scale lr 0.008
+on P9 at 4000 (T1 −0.011). Losses: wavelet strength down (−0.15 / −0.11), 2.4M points (−0.15 / −0.25), w_floor 0.2,
+k-space mid-band weight 0.8 (−0.16 / −0.06), init head fraction 0.03 (−0.18 / −0.19), db6 (below db4). Null: wavelet
+4 levels, k-space centre weight 0.5 / 0.15, warm-up 250 / 700 (1000 is illegal at 1500 it), tv_eps 0.03, wavelet eps
+1e-3, density lr 0.01 / 0.02. Plateaus: FLAIR wavelet 0.12 under 1 level, scale lr 0.012. Budget: 1500 → 2500 → 4000 →
+6000 rises with shrinking steps (P6: 36.704 / 36.072 → 36.734 / 36.134 → 36.753 / 36.165 → 36.760 / 36.179).
 
-| lever | verdict |
-|---|---|
-| wavelet **family** db2 → db4 | keep, +0.048 / +0.020; db6 −0.017; sym4 = db4 |
-| wavelet **depth** 3 → 2 → 1 level | 2 levels keep (+0.015 / +0.004, HFEN better); 1 level T1 +0.037 / HFEN better on both but FLAIR −0.014 alone, fixed by more FLAIR strength; 4 levels null |
-| wavelet **strength** under the 1-level db4 prior | T1 0.10 → 0.12 +0.073 (0.14 fails sharpness); FLAIR 0.07 → 0.085 → 0.10 → 0.12 = 36.080 → 36.135 → 36.160 → 36.163 (plateau); under the old 3-level db2 prior, up (0.14/0.10) or down (0.07/0.05) were both losses or reshapes |
-| capacity 2.4M / 4.2M / 4.8M / 6.0M | at 4000 iterations every step above 3.6M moves quality from T1 to FLAIR (T1 −0.004 … −0.014); settled at 3.6M — the 1500-iteration screen does not see T1's late over-fit |
-| scale lr 0.002 → 0.003 → 0.005 → 0.008 → 0.012 | rises at 1500 (+0.063 / +0.129 for 0.008 on P10); at 4000 it is a reshape on P9 (T1 −0.011) and marginal on P10 (T1 HFEN −0.0002/−0.0003) |
-| iteration budget 1500 / 2500 / 4000 / 6000 | monotone, diminishing: P6 36.704 → 36.734 → 36.753 → 36.760 (T1); promotion budget kept at 4000 |
-| edge-TV λ_geo 0.07 / 0.13, κ_q 0.90, w_floor 0.20, eps 0.03 | 0.07 sharpens but loses 0.06 dB; 0.13 and κ_q 0.90 smooth (HFEN, sharpness); w_floor −0.02/−0.05; eps null |
-| k-space band weights (centre 0.15 / 0.5, mid 0.8) | centre null both ways; mid 0.8 −0.16 / −0.06 |
-| warm-up 250 / 700, density lr 0.01 / 0.02, wavelet eps 1e-3, init head fraction 0.03 | null, null, null, −0.18 / −0.19 |
+Two lessons the ledger makes explicit: (1) **capacity and learning-rate knobs must be judged at the promotion budget** —
+three times a 1500-iteration keep turned into a T1-for-FLAIR reshape at 4000; (2) **the prior's shape beat its
+strength** — level count, wavelet family and per-channel strength under the finer prior gave +0.19 dB on T1 where the
+strength alone was bracketed on both sides.
 
-The whole gain came from the *shape* of the sparsity prior — which basis, which scales — not from its weight or
-from the geometry side. Every smoothing knob traded HFEN and sharpness for PSNR and was refused by the rule.
+## 5. Caveats
 
-## 4. Caveats
-
-- **Magnitude gauge.** Every number above is | |rec| − |GT| |. On the strict complex difference |rec − GT|
-  (`scripts/complex_gauge.py` in the topic) L1-ESPIRiT is first on both contrasts, 33.449 / 32.961 against P10's
-  33.418 / 32.887; MC-GS loses 3.5 dB from magnitude to complex where the classical arms lose 2.8–3.0, and its
-  in-head phase agreement is 0.9855 / 0.9821 against L1-ESPIRiT's 0.9862 / 0.9833. Same picture as the AF16 line.
-- **Sharpness sits at the edge of its allowance**: P10 is −0.009 on both contrasts against P9 (allowance 0.01),
-  and T1 0.14 failed it. Further wavelet strength is not available without paying in sharpness.
-- **Screening at 1500 iterations misreads two lever families**: capacity and scale lr both look like clean gains at
-  1500 and become T1-for-FLAIR reshapes at 4000. Their decisions were taken at the promotion budget only.
-- **One subject, fair but not held out**: the classical λ and the MC-GS knobs were both selected on jiangyizhou's
-  ground truth. The recipe has not been run on another subject or another acceleration.
-- **FLAIR known zeros**: as in every earlier topic, the GS arms fit FLAIR's measured shutter as zeros; the seven
-  comparison arms use the mask only. Unchanged, unmeasured.
-- **Whole-volume SSIM** stays sixth (air-noise gauge), reported, not optimised.
-
-## 5. Open decisions (for the user)
-
-1. Accept scale lr 0.005 on top of P10 (36.955 / 36.316, smaller PSNR margin +0.529, FLAIR cells up, T1 HFEN
-   −0.0002)? The loop's rule says no; the cost is below anything visible.
-2. Whether the topic's headline stays the single seed-42 run (36.944 / 36.268) with the two-seed average as its own
-   row (36.990 / 36.295), as in the earlier topics.
-3. A second subject at AF12 with the recipe frozen (the CFL subjects vol2/5/6/7, or tangbing).
-4. The branch is local only; push `autoresearch-jyz-af12` to origin. `main` shares no history with this lineage.
+- **Magnitude gauge.** Every table and figure uses | |rec| − |GT| |. On the strict complex gauge |rec − GT|
+  (`scripts/complex_gauge.py`, `logs/complex_gauge.json`) L1-ESPIRiT is first on both contrasts (33.449 / 32.961) and
+  P10 second (33.418 / 32.887): MC-GS loses 3.5 / 3.4 dB from magnitude to complex against 2.8–3.0 for the classical arms,
+  its head phase agreement 0.9855 / 0.9821 against L1-ESPIRiT's 0.9862 / 0.9833. Same finding as the AF16 line. The lead
+  is a magnitude-gauge lead.
+- **Selected on this subject.** The recipe and the classical λ were both tuned on jiangyizhou's ground truth (fair, not
+  held out). Nothing was run on huangyuwei or a second held-out subject in this loop.
+- Sharpness of P10 (0.858 / 0.823) sits 0.009 under P9 on both channels, inside the 0.01 allowance at its edge; the T1
+  wavelet strength is closed at 0.12 for that reason.
+- FLAIR known zeros: as in every MC-GS run of these topics, the GS arms fit the measured shutter as zeros, the
+  comparison arms use the mask only (documented asymmetry, unchanged).
+- Whole-volume SSIM stays sixth (air-noise gauge), as documented in the topic READMEs.
 
 ## 6. Reproduce
 
 ```bash
-cd /data0/congcong/code/GS/mcgs_af12_wt          # branch autoresearch-jyz-af12; the runner bakes P10
-SAVE_VOLUMES=1 ./autoresearch_jyz_af12.sh <EXP> <GPU> 4000        # = ar5_best_C10_T112_full4k
-# explicit form of P10 on the 3a44aba runner (P6 baked):
+cd /data0/congcong/code/GS/mcgs_af12_wt
+# P10 at 4000 iterations with volumes (the runner bakes P10; the extra args are a no-op restatement)
+SAVE_VOLUMES=1 ./autoresearch_jyz_af12.sh <EXP> <GPU> 4000
+# equivalently, from the P6 runner of the AF16 line:
 #   --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.12
-python scripts/autoresearch_jyz_af12_view.py     # every ledger row against the current bar, six cells
-# topic: register a run as an arm, refresh the table, complex gauge, compact three-plane figure
-cd /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou
-python scripts/add_gs_arm.py --exp ar5_best_C10_T112_full4k --key gs_joint_ar --label "MC-GS (AF12 loop, P10)"
-python scripts/summarize.py && python scripts/complex_gauge.py
-python scripts/fig_three_planes_compact.py --contrast T1 --slices 174 110 47 --mask_error
+# every row against the current bar, six cells
+PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/autoresearch_jyz_af12_view.py
 ```
+Topic refresh: `scripts/add_gs_arm.py` registers a run as an arm, `scripts/summarize.py` rebuilds the table,
+`scripts/find_best_slice_v2.py --ours gs_joint_ar` the per-slice ranking, `scripts/fig_three_planes_compact.py
+--contrast T1 --slices 174 110 47 --mask_error` the compact figure, `scripts/complex_gauge.py` the caveat table.

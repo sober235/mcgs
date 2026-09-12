@@ -525,3 +525,7 @@ the strict complex difference — the MC-GS phase is marginally less faithful. L
 - `ar3_P10_i6000` (P10 at 6000 iterations, 1.5x compute; card 3, 90 min, volumes): **36.953 / 36.284**, +0.009 /
   +0.016 over 4000, head SSIM level / +0.0001, head HFEN +0.0001 / +0.0002. Reported as its own row; the 4000-iteration
   P10 stays the headline (the budget step is 4x the floor on FLAIR, at the floor on T1).
+- Per slice (`find_best_slice_v2.py --ours gs_joint_ar`, full-brain slices with ≥ 20000 head voxels, against
+  every canonical arm at its best λ): **P10 first on every slice in every direction on both contrasts** — T1 96/96
+  transverse, 121/121 coronal, 118/118 sagittal; FLAIR 94/94, 120/120, 118/118 (v3.2 was 9/96, 69/121, 33/118 on
+  T1). Best own transverse slices 173 (T1, 38.266, +0.421 over L1-ESPIRiT) and 178 (FLAIR, 36.559, +0.493).
