@@ -1,0 +1,5 @@
+[default] mask_path=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16_3d.h5
+[default] samples=2966 sampled_lines_with_zero_energy=233 scale=9.851180e+01
+[Pair] FLAIR: mask override T1T2_MASK_FLAIR=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16c_flair_3d.h5
+[override] mask_path=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16c_flair_3d.h5
+[override] samples=2966 sampled_lines_with_zero_energy=0 scale=9.851180e+01

@@ -1,0 +1,12 @@
+[Pair] FLAIR: mask override T1T2_MASK_FLAIR=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16c_flair_3d.h5
+[FLAIR] coils=26 vol=(256, 256, 176) scale=9.8512e+01
+/home/congcongliu/src/bart/bart pics -l1 -r 0.002 -i 100 -S /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/l1espirit_FLAIR_l8x1ctwa/ksp /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/l1espirit_FLAIR_l8x1ctwa/maps /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/l1espirit_FLAIR_l8x1ctwa/out
+
+Size: 11534336 Samples: 759295 Acc: 15.19
+l1-wavelet regularization: 0.002000
+Regularization terms: 1, Supporting variables: 0
+FISTA
+Total Time: 453.429369
+
+[FLAIR] l1espirit_probe_c_lam0.002 psnr=37.551 ssim=0.8866 head_psnr=34.677 head_ssim=0.9189 head_hfen=0.1180 sharp=0.868 (454 s)
+WROTE /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/logs/l1espirit_FLAIR_probe_c_lam0.002.json

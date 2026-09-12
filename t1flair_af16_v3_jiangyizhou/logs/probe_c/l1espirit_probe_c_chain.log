@@ -1,0 +1,7 @@
+[2026-09-12 16:15] start lam=0.003 gpu=4 T1T2_MASK_FLAIR=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16c_flair_3d.h5
+[2026-09-12 16:28] l1 FLAIR probe_c lam=0.003 rc=0
+[2026-09-12 16:28] start lam=0.002 gpu=4 T1T2_MASK_FLAIR=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16c_flair_3d.h5
+[2026-09-12 16:38] l1 FLAIR probe_c lam=0.002 rc=0
+[2026-09-12 16:38] start lam=0.005 gpu=4 T1T2_MASK_FLAIR=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16c_flair_3d.h5
+[2026-09-12 16:48] l1 FLAIR probe_c lam=0.005 rc=0
+[2026-09-12 16:48] CHAIN_PROBE_C_DONE

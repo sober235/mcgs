@@ -1,0 +1,12 @@
+  OK  psnr        recon_classical=34.559489  t1t2_common=34.559489  d=0.00e+00
+  OK  ssim        recon_classical=0.762097  t1t2_common=0.762097  d=0.00e+00
+  OK  nmse        recon_classical=0.045589  t1t2_common=0.045589  d=0.00e+00
+  OK  hfen        recon_classical=0.927785  t1t2_common=0.927785  d=0.00e+00
+  OK  head_psnr   recon_classical=32.353835  t1t2_common=32.353835  d=0.00e+00
+  OK  head_ssim   recon_classical=0.882462  t1t2_common=0.882462  d=0.00e+00
+  OK  head_hfen   recon_classical=0.223894  t1t2_common=0.223894  d=0.00e+00
+  OK  sharp       recon_classical=0.859246  t1t2_common=0.859246  d=0.00e+00
+  OK  grain       recon_classical=0.014100  t1t2_common=0.014100  d=0.00e+00
+scale: recon_classical=9.925055e+01  t1t2_common=9.925055e+01
+GAUGE OK -- the shared module reproduces recon_classical exactly
+$PY scripts/check_gauge.py --contrast T1 --method cgsense --gpu 4  145.13s user 22.28s system 118% cpu 2:21.36 total

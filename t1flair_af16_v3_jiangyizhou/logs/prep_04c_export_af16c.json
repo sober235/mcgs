@@ -1,0 +1,512 @@
+{
+  "target_samples": 2966,
+  "support_points": 34139,
+  "plane_points": 45056,
+  "support_frac": 0.7577015269886364,
+  "support_h5_coil0_points": 34139,
+  "samples": 2966,
+  "in_support_samples": 2966,
+  "overlap_with_af16": 733,
+  "overlap_with_af16_in_support": 733,
+  "af16_samples": 2966,
+  "af16_in_support": 2733,
+  "calib24_samples": 475,
+  "calib24_samples_af16": 472,
+  "calib24_points": 576,
+  "sampling_frac_of_plane": 0.06582919034090909,
+  "AF_vs_full_grid": 15.190829399865137,
+  "AF_vs_flair_support": 11.510114632501686,
+  "AF_vs_flair_support_af16": 12.491401390413465,
+  "outside_calib": {
+    "plane_points": 44480,
+    "support_points": 33563,
+    "af16_samples": 2494,
+    "af16c_samples": 2491,
+    "union_samples": 4676,
+    "overlap_samples": 309,
+    "union_coverage_of_plane": 0.10512589928057554,
+    "af16_coverage_of_plane": 0.056070143884892086,
+    "union_coverage_of_flair_support": 0.13237791615767364
+  },
+  "chosen_draw": {
+    "draw": "draw_33.mat",
+    "accelx": 3.6,
+    "accely": 4,
+    "calib": 24,
+    "nnz": 3231,
+    "in_support": 2968,
+    "duplicate_of": null
+  },
+  "trim": {
+    "n_trimmed": 2,
+    "seed": 0,
+    "trimmed_radius_min": 126.4792473095883,
+    "trimmed_radius_max": 127.03542812932147,
+    "kept_radius_max": 126.39620247459969,
+    "kept_radius_median": 41.0,
+    "current_mask_radius_max": 153.1012736720371
+  },
+  "pool": [
+    {
+      "draw": "draw_01.mat",
+      "accelx": 3.0,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3848,
+      "in_support": 3498,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_02.mat",
+      "accelx": 3.0,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3816,
+      "in_support": 3467,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_03.mat",
+      "accelx": 3.0,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3835,
+      "in_support": 3493,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_04.mat",
+      "accelx": 3.0,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3842,
+      "in_support": 3486,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_05.mat",
+      "accelx": 3.0,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3840,
+      "in_support": 3491,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_06.mat",
+      "accelx": 3.1,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3705,
+      "in_support": 3369,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_07.mat",
+      "accelx": 3.1,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3701,
+      "in_support": 3366,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_08.mat",
+      "accelx": 3.1,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3709,
+      "in_support": 3371,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_09.mat",
+      "accelx": 3.1,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3712,
+      "in_support": 3377,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_10.mat",
+      "accelx": 3.1,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3702,
+      "in_support": 3376,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_11.mat",
+      "accelx": 3.2,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3603,
+      "in_support": 3286,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_12.mat",
+      "accelx": 3.2,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3582,
+      "in_support": 3269,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_13.mat",
+      "accelx": 3.2,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3641,
+      "in_support": 3315,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_14.mat",
+      "accelx": 3.2,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3598,
+      "in_support": 3279,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_15.mat",
+      "accelx": 3.2,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3632,
+      "in_support": 3316,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_16.mat",
+      "accelx": 3.3,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3528,
+      "in_support": 3229,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_17.mat",
+      "accelx": 3.3,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3533,
+      "in_support": 3230,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_18.mat",
+      "accelx": 3.3,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3535,
+      "in_support": 3236,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_19.mat",
+      "accelx": 3.3,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3504,
+      "in_support": 3201,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_20.mat",
+      "accelx": 3.3,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3499,
+      "in_support": 3197,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_21.mat",
+      "accelx": 3.4,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3406,
+      "in_support": 3121,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_22.mat",
+      "accelx": 3.4,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3405,
+      "in_support": 3127,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_23.mat",
+      "accelx": 3.4,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3412,
+      "in_support": 3123,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_24.mat",
+      "accelx": 3.4,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3403,
+      "in_support": 3108,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_25.mat",
+      "accelx": 3.4,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3383,
+      "in_support": 3095,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_26.mat",
+      "accelx": 3.5,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3325,
+      "in_support": 3049,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_27.mat",
+      "accelx": 3.5,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3312,
+      "in_support": 3034,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_28.mat",
+      "accelx": 3.5,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3333,
+      "in_support": 3057,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_29.mat",
+      "accelx": 3.5,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3314,
+      "in_support": 3031,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_30.mat",
+      "accelx": 3.5,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3333,
+      "in_support": 3061,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_31.mat",
+      "accelx": 3.6,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3239,
+      "in_support": 2973,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_32.mat",
+      "accelx": 3.6,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3241,
+      "in_support": 2979,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_33.mat",
+      "accelx": 3.6,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3231,
+      "in_support": 2968,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_34.mat",
+      "accelx": 3.6,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3235,
+      "in_support": 2969,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_35.mat",
+      "accelx": 3.6,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3231,
+      "in_support": 2955,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_36.mat",
+      "accelx": 3.7,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3118,
+      "in_support": 2865,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_37.mat",
+      "accelx": 3.7,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3139,
+      "in_support": 2874,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_38.mat",
+      "accelx": 3.7,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3159,
+      "in_support": 2905,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_39.mat",
+      "accelx": 3.7,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3157,
+      "in_support": 2893,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_40.mat",
+      "accelx": 3.7,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3190,
+      "in_support": 2930,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_41.mat",
+      "accelx": 3.8,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3105,
+      "in_support": 2857,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_42.mat",
+      "accelx": 3.8,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3086,
+      "in_support": 2836,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_43.mat",
+      "accelx": 3.8,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3082,
+      "in_support": 2833,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_44.mat",
+      "accelx": 3.8,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3088,
+      "in_support": 2829,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_45.mat",
+      "accelx": 3.8,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3103,
+      "in_support": 2856,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_46.mat",
+      "accelx": 3.9,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3039,
+      "in_support": 2804,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_47.mat",
+      "accelx": 3.9,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3037,
+      "in_support": 2794,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_48.mat",
+      "accelx": 3.9,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3051,
+      "in_support": 2808,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_49.mat",
+      "accelx": 3.9,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3013,
+      "in_support": 2779,
+      "duplicate_of": null
+    },
+    {
+      "draw": "draw_50.mat",
+      "accelx": 3.9,
+      "accely": 4,
+      "calib": 24,
+      "nnz": 3018,
+      "in_support": 2773,
+      "duplicate_of": null
+    }
+  ],
+  "pool_size": 50,
+  "pool_unique": 50,
+  "generator": "vdPoisMex(256,176,256,176, accelx, 4, 24, 0, 1), scripts/prep_02c_mask_af16c.m",
+  "mask2d_path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_vdpois_256x176_af16c_flair.mat",
+  "mask3d_path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16c_flair_3d.h5",
+  "current_mask3d_path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16_3d.h5",
+  "md5": {
+    "mask2d": "48d6acbd47aab6c725a65a61a3501f14",
+    "mask3d": "fc844500be8d29ff34b2b07bd8603836",
+    "current_mask3d": "d08179b8e74f35846455983dbe299294"
+  }
+}

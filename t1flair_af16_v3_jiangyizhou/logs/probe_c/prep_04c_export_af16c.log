@@ -1,0 +1,67 @@
+[support] FLAIR readout-line energy: 34139 of 45056 = 0.7577; h5 coil-0 all lines: 34139; identical=True
+[pick] draw_33.mat accelx 3.6 nnz 3231 in_support 2968 (excess 2)
+{
+  "target_samples": 2966,
+  "support_points": 34139,
+  "plane_points": 45056,
+  "support_frac": 0.7577015269886364,
+  "support_h5_coil0_points": 34139,
+  "samples": 2966,
+  "in_support_samples": 2966,
+  "overlap_with_af16": 733,
+  "overlap_with_af16_in_support": 733,
+  "af16_samples": 2966,
+  "af16_in_support": 2733,
+  "calib24_samples": 475,
+  "calib24_samples_af16": 472,
+  "calib24_points": 576,
+  "sampling_frac_of_plane": 0.06582919034090909,
+  "AF_vs_full_grid": 15.190829399865137,
+  "AF_vs_flair_support": 11.510114632501686,
+  "AF_vs_flair_support_af16": 12.491401390413465,
+  "outside_calib": {
+    "plane_points": 44480,
+    "support_points": 33563,
+    "af16_samples": 2494,
+    "af16c_samples": 2491,
+    "union_samples": 4676,
+    "overlap_samples": 309,
+    "union_coverage_of_plane": 0.10512589928057554,
+    "af16_coverage_of_plane": 0.056070143884892086,
+    "union_coverage_of_flair_support": 0.13237791615767364
+  },
+  "chosen_draw": {
+    "draw": "draw_33.mat",
+    "accelx": 3.6,
+    "accely": 4,
+    "calib": 24,
+    "nnz": 3231,
+    "in_support": 2968,
+    "duplicate_of": null
+  },
+  "trim": {
+    "n_trimmed": 2,
+    "seed": 0,
+    "trimmed_radius_min": 126.4792473095883,
+    "trimmed_radius_max": 127.03542812932147,
+    "kept_radius_max": 126.39620247459969,
+    "kept_radius_median": 41.0,
+    "current_mask_radius_max": 153.1012736720371
+  },
+  "pool_size": 50,
+  "pool_unique": 50,
+  "generator": "vdPoisMex(256,176,256,176, accelx, 4, 24, 0, 1), scripts/prep_02c_mask_af16c.m",
+  "mask2d_path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_vdpois_256x176_af16c_flair.mat",
+  "mask3d_path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16c_flair_3d.h5",
+  "current_mask3d_path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16_3d.h5",
+  "md5": {
+    "mask2d": "48d6acbd47aab6c725a65a61a3501f14",
+    "mask3d": "fc844500be8d29ff34b2b07bd8603836",
+    "current_mask3d": "d08179b8e74f35846455983dbe299294"
+  }
+}
+wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_vdpois_256x176_af16c_flair.mat
+      /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16c_flair_3d.h5
+      /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/logs/prep_04c_export_af16c.json
+      /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/figures/probe_c_mask_T1_vs_FLAIRc.png (+ /home/congcongliu/figs/t1flair_v3_af16)
+env PYTHONNOUSERSITE=1 PYTHONPATH=  scripts/prep_04c_export_af16c.py  7.97s user 5.55s system 207% cpu 6.522 total
