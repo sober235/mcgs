@@ -313,3 +313,13 @@ Chain E's bash on card 3 was stopped (its `p2_rotlr004` runner left alone); chai
   P10): rotation only 0.001 +0.023 / +0.025, 0.002 +0.038 / +0.045, 0.004 +0.053 / +0.064; with scale lr 0.005:
   0.001 +0.067 / +0.123, 0.002 +0.077 / +0.137. Running: `p2_rotlr008` (card 3), then `p2_rotlr004_slr005`;
   `p2_rotlr002_full4k` at 2650/4000 on card 2.
+
+### Promotion 2 — 21:12: rotation lr 0.002 at 4000 iterations — **promoted, P12** (rotation-only line)
+`p2_rotlr002_full4k` (card 2, 63 min, volumes): **36.962 / 36.665** — +0.006 / +0.011 over P11 (floor 0.003 / 0.004),
++0.017 / +0.028 over P10; SSIM +0.0000 / +0.0001, HFEN −0.0000 / +0.0001 (inside the floor), sharpness 0.858 / 0.831.
+**KEEP by rule 2.** **P12 = P10 + `gaussian.rotation_lr=0.002`** (explicit `--set` on the guarded P10 runner; no new
+runner file until the optimiser grid settles). The 4000-iteration gain is about half the 1500-iteration one at every
+rotation lr so far (0.001: +0.023 → +0.011; 0.002: +0.038 → +0.017 on T1) — the lever is real but shrinks with the
+budget. Card 2 moved on to chain E's wavelet screens (`p2_wav_lev2_w05` running); card 3 finishes `p2_rotlr008`, then
+`p2_rotlr004_slr005`. Bracket stop rule (stated now): the rotation bracket ends at the first value that does not beat
+the previous one by more than the floor at 1500; the grid's best row is then promoted at 4000 against P12.
