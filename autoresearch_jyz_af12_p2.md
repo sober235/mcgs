@@ -418,3 +418,20 @@ while the rotation component pays on both channels. Scale lr 0.003 was a keep at
 knobs, so: **`p2_rot002_slr003_full4k`** = P10 + rotation lr 0.002 + scale lr 0.003, 4000 iterations, volumes, card 3,
 read by rule 1 against **P12** (`p2_rotlr002_full4k` 36.962 / 36.665) with the design-B 4000 floor (0.003 / 0.004,
 SSIM 0.0000, HFEN 0.0002). A keep becomes P13; a T1 loss closes the scale-lr direction at this working point.
+
+### Promotion 4 — 00:00: the second stacked row also fails to clear P12; the scale-lr direction closes at 4000
+`p2_best_rot004_slr005_full4k` (rotation 0.004 + scale lr 0.005; card 2, 62 min, volumes): **36.960 / 36.712** —
+against P12: T1 −0.002 (inside the 0.003 floor → **null**), FLAIR +0.047; against P10: reshape (T1 SSIM −0.0002,
+T1 HFEN −0.0004). Both stacked rows therefore buy the same thing: about +0.05 dB of FLAIR for T1's SSIM and HFEN,
+with T1 PSNR flat to slightly down. **Scale lr 0.005 on top of a faster rotation is closed at 4000** (0.003 still
+running as round 3). The 1500-iteration screen ranked these two rows top of the grid; at 4000 neither beats a
+rotation-only parent — the third instance in this project of a screening keep turning into a full-budget trade.
+
+### Round 4 — pre-registered 00:02, before the runs started: the rotation-only curve at the full budget
+Only rotation lr 0.001 and 0.002 have ever been run at 4000. The 1500-iteration rotation-only curve is concave with
+its top at 0.008 (+0.063; 0.016 is inside the floor of it), and full-budget gains have been running at about half the
+screening ones, so the 4000-iteration optimum need not be 0.002. Two promotions of already-kept knobs (rule 2), each
+read by rule 1 against **P12** with the design-B floor; the better keep becomes P13:
+- **`p2_rotlr008_full4k`** — rotation lr 0.008, 4000 iterations, volumes, card 2 (now).
+- **`p2_rotlr004_full4k`** — rotation lr 0.004, 4000 iterations, volumes, card 3 (after round 3 lands).
+If both lose, P12 (rotation lr 0.002) is the phase-2 recipe and the loop moves to the delivery runs.
