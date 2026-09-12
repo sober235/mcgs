@@ -501,3 +501,11 @@ Pareto clause it is a keep; but the gain is at the floor and the final-recipe ro
 iterations) are already running on db4. **Judgement call, recorded: the reported recipe stays P10 (db4); sym4 is
 listed as an equivalent basis (+0.008 / +0.004) the user may switch to, at the cost of re-running the three final
 rows.** This is the one place the loop's letter and its budget disagree, and it is written down as such.
+
+### Final-recipe rows — read as they land
+- `ar5_P10_s43_full4k` (seed 43, 4000 it; card 5, 62 min): 36.942 / 36.267 against seed 42's 36.944 / 36.268 —
+  **4000-iteration floor 0.002 / 0.001 dB**, SSIM 0.0000 / 0.0001, HFEN 0.0001 / 0.0001. Every promotion margin
+  above (≥ +0.009 on the binding channel) clears it. The two-seed average is being scored on card 5.
+- `ar8_P10_singleT1_full4k` (GS-single, T1 alone with the P10 recipe; card 4, 63 min): head PSNR **36.897**, head
+  SSIM 0.9496, head HFEN 0.0965 — the joint arm leads its own single by **+0.047 dB**, +0.0007 SSIM, 0.0018 HFEN.
+  Against L1-ESPIRiT the single is +0.471 / +0.0023 / +0.0069 on its own. FLAIR single running (card 4).
