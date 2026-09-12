@@ -350,3 +350,34 @@ Figures (compact three planes, orange in-panel head-masked slice PSNR / SSIM / N
 `scripts/fig_three_planes_compact.py --contrast T1 --slices 174 110 47 --mask_error`, mirrored to
 `/home/congcongliu/figs/t1flair_v3_af12/`): `figures/t1flair_v3_af12_T1_row3planes_compact_174_110_47_headerr.png`
 — MC-GS best on all three planes (38.18 / 37.95 / 36.59 dB, GS-single second, L1-ESPIRiT third).
+
+## MC-GS after the AF12 autoresearch loop — P10 (2026-09-12)
+
+The jiangyizhou AF12 autoresearch loop (framework repo, branch `autoresearch-jyz-af12`, `autoresearch_jyz_af12.md`) started
+from the AF16 loop's recipe P6 (the user's provisional best 12x result) and changed only the L1 wavelet prior: **db4
+family (was db2), the finest decomposition level only (was 3 levels), T1 strength 0.12 / FLAIR 0.10** (edge-TV 0.10 / κ_q 0.85,
+3.6M points, repaired cold start, 4000 iterations unchanged). Registered here as `gs_joint_ar` ("MC-GS (AF12 loop, P10)"),
+with `gs_single_ar` (the same recipe, one contrast at a time) and `gs_joint_ar_x2` (magnitude mean of seeds 42 and 43, 2x compute).
+The classical arms are at their λ re-swept on this subject (section above).
+
+| arm | T1 head PSNR / SSIM / HFEN | FLAIR head PSNR / SSIM / HFEN | whole PSNR T1 / FLAIR |
+|---|---|---|---|
+| **MC-GS (P10)** | **36.944 / 0.9503 / 0.0947** | **36.268 / 0.9397 / 0.0958** | **40.272 / 39.692** |
+| MC-GS (P10) ×2 seeds (2x compute) | 36.990 / 0.9507 / 0.0943 | 36.295 / 0.9401 / 0.0954 | 40.319 / 39.723 |
+| GS-single (P10) | 36.897 / 0.9495 / 0.0965 | 36.323 / 0.9405 / 0.0944 | 40.241 / 39.693 |
+| MC-GS joint v3.2 (hyw-selected, previous proposed arm) | 36.299 / 0.9423 / 0.0965 | 36.039 / 0.9369 / 0.1025 | 39.654 / 39.473 |
+| P6 (AF16 loop's recipe, unchanged) | 36.753 / 0.9480 / 0.1009 | 36.165 / 0.9374 / 0.1002 | 40.071 / 39.539 |
+| L1-ESPIRiT (best λ per cell) | 36.426 / 0.9473 / 0.1034 | 35.757 / 0.9368 / 0.1000 | 39.893 / 39.205 |
+
+- **Head-only PSNR, SSIM and HFEN: first on both contrasts** (margins over the best other arm +0.518 / +0.0030 / +0.0087 on
+  T1, +0.511 / +0.0030 / +0.0042 on FLAIR); whole-volume PSNR and NMSE first; whole-volume SSIM sixth (air-noise gauge).
+- **Per slice** (`scripts/find_best_slice_v2.py --ours gs_joint_ar`, full-brain slices, every canonical arm at its best λ):
+  first on every slice in every direction — T1 96/96, 121/121, 118/118; FLAIR 94/94, 120/120, 118/118.
+- Joint − single: **+0.047 on T1, −0.055 on FLAIR** — the coupling moves quality towards T1 on this subject, as with v3.
+- Seed floor at 4000 iterations 0.002 / 0.001 dB (seed 43: 36.942 / 36.267). 6000 iterations: 36.953 / 36.284.
+- **Complex gauge** (`scripts/complex_gauge.py`, `logs/complex_gauge.json`): on |rec − GT| L1-ESPIRiT is first (33.449 /
+  32.961) and P10 second (33.418 / 32.887); the lead is a magnitude-gauge lead, as the AF16 line found.
+- Selected on this subject (recipe and classical λ alike): fair, not held out.
+- Figures (compact three-plane panels, orange in-panel slice PSNR / SSIM / NMSE, head-only error maps):
+  `figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_174_110_47_headerr.png`, served from
+  `http://localhost:8765/t1flair_v3_af12/`. Script `scripts/fig_three_planes_compact.py`.

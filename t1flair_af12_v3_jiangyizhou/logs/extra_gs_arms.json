@@ -9,11 +9,28 @@
   }
  },
  {
+  "key": "gs_joint_ar_x2",
+  "label": "MC-GS (AF12 loop, P10) x2 seeds",
+  "exp": "ar5_P10_x2_full4k",
+  "map": {
+   "T1": "plain",
+   "FLAIR": "contrast"
+  }
+ },
+ {
   "key": "gs_single_ar",
   "label": "GS-single (AF12 loop, P10)",
   "exp": "ar8_P10_singleT1_full4k",
   "map": {
    "T1": "plain"
+  }
+ },
+ {
+  "key": "gs_single_ar",
+  "label": "GS-single (AF12 loop, P10)",
+  "exp": "ar8_P10_singleFLAIR_full4k",
+  "map": {
+   "FLAIR": "plain"
   }
  }
 ]
