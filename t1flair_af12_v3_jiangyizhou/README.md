@@ -378,3 +378,49 @@ first on PSNR, SSIM and NMSE in all three planes on both contrasts (`scripts/fig
 iterations, GS-single arms, design B, marginal variants), the scorer json, the volume npz (magnitude, GT, ZF; complex from
 2026-09-11 on) and the log, plus copies of the ledger, program, runner, record and handoff — 14 GB, see its README. The
 framework-lineage summary for collaborators is on `main` (`docs/2026-09-12-jyz-af12-mcgs-p10-summary.md`, commit a5ae1e6).
+
+## MC-GS after the phase-2 autoresearch loop — P13 (2026-09-13)
+
+The phase-2 loop (framework repo, branch `autoresearch-jyz-af12-phase2`, program `autoresearch_jyz_af12_p2.md`, record
+`docs/superpowers/records/2026-09-13-autoresearch-jyz-af12-phase2.md`) tuned **in design B** at the user's request —
+MC-GS's FLAIR on the AF 11 mask, every comparison arm at AF 12 — and changed exactly one thing in the recipe:
+
+**P13 = P10 + `gaussian.rotation_lr = 0.008`** (the shipped default is 0.0003). Everything else is P10: db4 wavelet on
+one level with T1 0.12 / FLAIR 0.10, edge-TV 0.10 / κ_q 0.85, 3.6M points, repaired cold start, 4000 iterations.
+Runner: `mcgs_af12_wt/autoresearch_jyz_af12_P13.sh`. Registered here as `gs_joint_p2` (all AF 12), `gs_joint_p2_fl11`
+(design B), `gs_single_p2` / `gs_single_p2_fl11` (single-contrast arms) and `gs_joint_p2_x2` (two seeds, design B).
+
+| arm | T1 head PSNR / SSIM / HFEN | FLAIR head PSNR / SSIM / HFEN | whole PSNR T1 / FLAIR |
+|---|---|---|---|
+| **MC-GS P13, all AF 12** | **36.969 / 0.9504 / 0.0948** | 36.310 / 0.9401 / 0.0956 | 40.286 / 39.725 |
+| **MC-GS P13, design B** (FLAIR at AF 11) | 36.968 / 0.9504 / 0.0948 | **36.683 / 0.9444 / 0.0904** | 40.286 / 40.059 |
+| MC-GS P13 ×2 seeds (design B, 2x compute) | 37.005 / 0.9507 / 0.0945 | 36.703 / 0.9446 / 0.0901 | 40.331 / 40.083 |
+| MC-GS P10, all AF 12 (previous recipe) | 36.944 / 0.9503 / 0.0947 | 36.268 / 0.9397 / 0.0958 | 40.272 / 39.692 |
+| MC-GS P10, design B | 36.945 / 0.9503 / 0.0947 | 36.637 / 0.9439 / 0.0906 | 40.274 / 40.021 |
+| L1-ESPIRiT (best λ per cell, AF 12) | 36.426 / 0.9473 / 0.1034 | 35.757 / 0.9368 / 0.1000 | 39.893 / 39.205 |
+
+- **Gain over P10: T1 +0.025 dB (all AF 12), FLAIR +0.046 dB (design B)**, every other head cell equal or better,
+  sharpness unchanged (0.858 / 0.831). Margins over the bar — the best value per cell over every non-MC-GS arm at
+  every swept λ: **+0.543 / +0.926 dB** head PSNR, +0.0031 / +0.0076 head SSIM, +0.0086 / +0.0096 head HFEN.
+- **Per slice** (`scripts/find_best_slice_v2.py --ours gs_joint_p2` and `--ours gs_joint_p2_fl11`): first on **every**
+  full-brain slice in every direction for both contrasts and both settings (T1 96/96, 121/121, 118/118; FLAIR 94/94,
+  120/120, 118/118).
+- **Joint − single**: T1 **+0.065**; FLAIR **−0.038** at AF 12 (`gs_single_p2` 36.347) and **−0.030** in design B
+  (`gs_single_p2_fl11` 36.713). P10's were +0.047 / −0.055 — the coupling still moves quality towards T1, by less
+  than before, and the sign is the same in both settings.
+- Seed floor of P13 at 4000 in design B: 0.002 / 0.005 dB (seed 43: 36.966 / 36.678).
+- Selected on this subject, like the recipe and the classical λ before it: fair, not held out. The magnitude-gauge
+  caveat of the P10 section stands unchanged.
+- **Figures** (the delivered pair, compact three-plane panels, orange in-panel slice PSNR / SSIM / NMSE, head-only
+  error maps, 174 / 110 / 47): T1 with every arm at AF 12
+  `figures/t1flair_v3_af12_T1_row3planes_compact_p2_174_110_47_headerr.png`; FLAIR in design B
+  `figures/t1flair_v3_af12_FLAIR_row3planes_compact_p2_flair_af11_174_110_47_headerr.png` (the FLAIR panel shows the
+  AF 11 mask MC-GS used and the title says so). Served from `http://localhost:8765/t1flair_v3_af12/`.
+
+### What the phase-2 loop closed
+27 experiments, 13 at the full budget. One keep out of twelve round-1 knobs; the wavelet prior's shape (per-level and
+per-sub-band weights, a new code lever) is a local optimum in both directions of both knobs; per-contrast edge-TV
+strength loses both ways; uniform k-space band weights lose by 1.7 / 2.1 dB; both explicit cross-contrast coupling
+terms lose. The rotation-learning-rate curve is monotone at 1500 iterations and flat from 0.008 on at 4000.
+`gaussian.scale_lr` is a calibrated **FLAIR dial** (0.003 / 0.005 give FLAIR +0.023 / +0.05 dB for T1's fourth
+decimal) and is not in the recipe; the record's table is its dose-response.

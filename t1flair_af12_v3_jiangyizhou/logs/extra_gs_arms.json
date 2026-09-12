@@ -41,5 +41,56 @@
    "T1": "plain",
    "FLAIR": "contrast"
   }
+ },
+ {
+  "key": "gs_joint_p2_fl11",
+  "label": "MC-GS (phase-2 P13, FLAIR mask AF 11)",
+  "exp": "p2_rotlr008_full4k",
+  "map": {
+   "T1": "plain",
+   "FLAIR": "contrast"
+  }
+ },
+ {
+  "key": "gs_joint_p2_x2",
+  "label": "MC-GS (phase-2 P13, FLAIR mask AF 11) x2 seeds",
+  "exp": "p2_P13_x2_full4k",
+  "map": {
+   "T1": "plain",
+   "FLAIR": "contrast"
+  }
+ },
+ {
+  "key": "gs_single_p2",
+  "label": "GS-single (phase-2 P13)",
+  "exp": "p2_P13_singleT1_full4k",
+  "map": {
+   "T1": "plain"
+  }
+ },
+ {
+  "key": "gs_single_p2_fl11",
+  "label": "GS-single (phase-2 P13, FLAIR mask AF 11)",
+  "exp": "p2_P13_singleFLAIR_full4k",
+  "map": {
+   "FLAIR": "plain"
+  }
+ },
+ {
+  "key": "gs_joint_p2",
+  "label": "MC-GS (phase-2 P13)",
+  "exp": "p2_P13_af12_full4k",
+  "map": {
+   "T1": "plain",
+   "FLAIR": "contrast"
+  }
+ },
+ {
+  "key": "gs_single_p2",
+  "label": "GS-single (phase-2 P13)",
+  "exp": "p2_P13_singleFLAIR_af12_full4k",
+  "map": {
+   "FLAIR": "plain"
+  }
  }
 ]

@@ -15,11 +15,14 @@ LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (35 ou
          "inr": "3D-INR", "gs_single": "GS-single, old cold start", "gs_joint": "MC-GS, old cold start",
          "gs_single_v2": "GS-single v2", "gs_joint_v2": "MC-GS v2", "gs_single_v3": "GS-single v3", "gs_joint_v3": "MC-GS v3",
          "gs_joint_v3x2": "MC-GS v3 ×2 seeds", "gs_joint_v32": "MC-GS v3.2 (hyw-selected)", "gs_joint_v32x2": "MC-GS v3.2 ×2 seeds",
-         "gs_joint_ar": "**MC-GS P10 (AF12 loop)**", "gs_single_ar": "GS-single P10", "gs_joint_ar_x2": "MC-GS P10 ×2 seeds",
-         "gs_joint_ar_fl11": "MC-GS P10, FLAIR mask AF 11 (side experiment, not AF 12)"}
+         "gs_joint_ar": "MC-GS P10 (AF12 loop)", "gs_single_ar": "GS-single P10", "gs_joint_ar_x2": "MC-GS P10 ×2 seeds",
+         "gs_joint_ar_fl11": "MC-GS P10, FLAIR mask AF 11 (design B, not AF 12)",
+         "gs_joint_p2": "**MC-GS P13 (phase-2 loop)**", "gs_single_p2": "GS-single P13",
+         "gs_joint_p2_x2": "MC-GS P13 ×2 seeds (design B)",
+         "gs_joint_p2_fl11": "MC-GS P13, FLAIR mask AF 11 (design B, not AF 12)"}
 ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "ploraks", "zsssdu", "dip", "inr",
          "gs_joint", "gs_single", "gs_joint_v2", "gs_single_v2", "gs_joint_v3", "gs_single_v3", "gs_joint_v3x2", "gs_joint_v32",
-         "gs_joint_v32x2", "gs_joint_ar", "gs_single_ar", "gs_joint_ar_x2"]
+         "gs_joint_v32x2", "gs_joint_ar", "gs_single_ar", "gs_joint_ar_x2", "gs_joint_p2", "gs_single_p2"]
 by = {(r["contrast"], r["method"]): r for r in rows}
 GS = lambda m: m.startswith("gs_")
 def best(c, key, lo=False):
