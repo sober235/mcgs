@@ -1,0 +1,7 @@
+{
+ "support_points": 34139,
+ "plane_points": 45056,
+ "support_frac": 0.7577015269886364,
+ "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/flair_support_2d.h5",
+ "rule": "any coil nonzero along the readout"
+}

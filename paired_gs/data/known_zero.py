@@ -212,6 +212,61 @@ def estimate_known_zero(kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int):
     return Z, info
 
 
+def load_support_map(path: str) -> np.ndarray:
+    """Acquired-support map on the PE plane (P0, P1) as bool, from an .npy or an h5 (dataset 'support', else
+    'mask', else the first 2-D dataset). Protocol knowledge: e.g. the vendor's elliptical shutter."""
+    path = str(path)
+    if path.endswith(".npy"):
+        arr = np.load(path)
+    else:
+        import h5py
+        with h5py.File(path, "r") as h:
+            key = "support" if "support" in h else ("mask" if "mask" in h else None)
+            if key is None:
+                key = next(k for k in h if isinstance(h[k], h5py.Dataset) and h[k].ndim == 2)
+            arr = h[key][()]
+    arr = np.asarray(arr)
+    assert arr.ndim == 2, f"support map must be 2-D (PE plane), got {arr.shape}"
+    return arr > 0.5
+
+
+def known_zero_from_support(support_pe: np.ndarray, kspace: torch.Tensor, mask: torch.Tensor, ro_axis: int):
+    """Z from an EXPLICIT acquired-support map on the PE plane instead of the sampled-line estimator: whole PE
+    lines outside the support are known zeros (the scanner never acquires them), broadcast along the readout.
+    A sampled line that carries signal is never overridden (removed from Z and counted in n_outliers). Use when
+    the sampling pattern lies inside the shutter, so the estimator has no zero lines to learn the shutter from."""
+    assert kspace.ndim == 4 and mask.ndim == 3 and tuple(kspace.shape[1:]) == tuple(mask.shape)
+    dev = kspace.device
+    amax, energy, sampled, n_ro = _pe_lines(kspace, mask, ro_axis)
+    P0, P1 = sampled.shape
+    assert tuple(support_pe.shape) == (P0, P1), f"support {support_pe.shape} vs PE plane {(P0, P1)}"
+    thr = ZERO_REL * float(amax.max())
+    sampled_np = sampled.cpu().numpy()
+    zero = (sampled & (amax < thr)).cpu().numpy()
+    nonzero = sampled_np & ~zero
+    z_pe = ~np.asarray(support_pe, dtype=bool)
+    n_conflict = int((z_pe & nonzero).sum())
+    z_pe &= ~nonzero                                                  # never override a measured nonzero line
+    flat = int(torch.argmax(energy))
+    dc0, dc1 = flat // P1, flat % P1
+    m_r = torch.movedim(mask > 0.5, ro_axis, -1)
+    e_ro = (torch.movedim((kspace.real.square() + kspace.imag.square()).sum(0), ro_axis, -1) * m_r).sum((0, 1))
+    dc2 = int(torch.argmax(e_ro))
+    Rn = int(mask.shape[ro_axis])
+    Z = torch.movedim(torch.from_numpy(z_pe).to(dev).unsqueeze(-1).expand(P0, P1, Rn), -1, ro_axis).contiguous()
+    dc = [0, 0, 0]
+    pe = [a_ for a_ in range(3) if a_ != ro_axis]
+    dc[pe[0]], dc[pe[1]], dc[ro_axis] = int(dc0), int(dc1), dc2
+    info = KnownZeroInfo(dc=tuple(dc), ro_axis=int(ro_axis), zero_threshold=float(thr),
+                         cuts={"source": "explicit_support"}, ellipse=None,
+                         n_sampled_lines=int(sampled_np.sum()), n_zero_lines=int(zero.sum()),
+                         n_zero_explained=int((zero & z_pe).sum()), n_nonzero_in_z=int((nonzero & z_pe).sum()),
+                         frac_z=float(z_pe.mean()),
+                         frac_sampled_in_z=float((z_pe & sampled_np).sum() / max(int(sampled_np.sum()), 1)),
+                         noise_level_used=None, n_outliers=n_conflict, n_significant_outliers=n_conflict)
+    return Z, info
+
+
 def estimate_noise_cov(kspace: torch.Tensor, mask: torch.Tensor, Z: torch.Tensor, info: KnownZeroInfo, *,
                        min_samples: int = MIN_NOISE_SAMPLES, end_frac: float = READOUT_END_FRAC):
     """Coil noise covariance Σ (C×C) from the readout-end samples (outer `end_frac` of the readout indices at
