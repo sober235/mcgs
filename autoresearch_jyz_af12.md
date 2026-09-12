@@ -559,3 +559,6 @@ Result (13:12, card 3, 63 min): `ar9_P10_flair_af11_full4k` T1 **36.945** / FLAI
 — T1 unchanged to 0.001 dB, FLAIR +0.369 dB, SSIM +0.0042, HFEN better by 0.0052, sharpness 0.830 (+0.007). Registered as
 `gs_joint_ar_fl11`; slice-177 row figures `t1flair_v3_af12_{T1,FLAIR}_flair_af11_axis0_177.png` (FLAIR: MC-GS 36.81 vs the
 AF-12 field: GS-single 36.59, MC-GS 36.55, L1-ESPIRiT 36.10). README section "Side experiment" in the topic.
+- 14:20 the like-for-like GS-single FLAIR at AF 11 (`ar9_P10_singleFLAIR_af11_full4k`) was started and then stopped at the
+  user's request ("先不要启动 gs-single"): runner and trainer killed, partial outputs removed, no ledger row. The config
+  variant `configs/t1flair_v3_af12_hyw_singleFLAIR_af11.yaml` and `scripts/single_flair_af11_gpu3.sh` stay for later.
