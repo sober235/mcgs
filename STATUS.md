@@ -1,8 +1,8 @@
-# STATUS — 2026-09-12 16:20（分支 `peds-tsc-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`，未推送）
+# STATUS — 2026-09-12 19:30（分支 `16yo-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`，已推送到 origin/16yo-mtp，tag `handoff/2026-09-12-16yo-mtp`）
 
-本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。课题目录 `/data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/`
+本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线（原名 peds-tsc-mtp，按用户要求改名 16yo-mtp）。会话总结：`docs/superpowers/records/2026-09-12-16yo-mtp-reference-dataset.md`。课题目录 `/data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/`
 （README 是结果的权威记录，仓库里 `peds_tsc_mtp_3d/` 是它的镜像）。设计：
-`docs/superpowers/specs/2026-09-12-peds-tsc-mtp-grappa-design.md`。
+`docs/superpowers/specs/2026-09-12-16yo-mtp-grappa-design.md`。
 
 ## 1. 已完成且已验证
 - `uih_mtp/uih_raw.py`：UIH RAWDATA-V004 读取器（头索引、按 (set, echo, u1) 选读、去读出过采样）；

@@ -1,6 +1,6 @@
 # Pediatric TSC exam, 3D MTP Cartesian: classical parallel-imaging reference (stage 1) — design
 
-Date 2026-09-12. Branch `peds-tsc-mtp`, worktree `/data0/congcong/code/GS/mcgs_peds_wt` (cut from `3a44aba`,
+Date 2026-09-12. Branch `16yo-mtp`, worktree `/data0/congcong/code/GS/mcgs_peds_wt` (cut from `3a44aba`,
 the common base of the two running autoresearch loops). Topic folder
 `/data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/`. Approved in chat by the user on 2026-09-12
 (GRAPPA as the primary reconstruction, ESPIRiT-SENSE as the cross-check, partial-Fourier region left empty,

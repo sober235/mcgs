@@ -1,8 +1,8 @@
 # Pediatric TSC exam, 3D MTP Cartesian — stage 1: classical parallel-imaging reference (GRAPPA)
 
-Opened 2026-09-12. Code: worktree `/data0/congcong/code/GS/mcgs_peds_wt`, branch `peds-tsc-mtp`
+Opened 2026-09-12. Code: worktree `/data0/congcong/code/GS/mcgs_peds_wt`, branch `16yo-mtp`
 (package `uih_mtp/`, tests `tests/test_uih_mtp_*.py`, design
-`docs/superpowers/specs/2026-09-12-peds-tsc-mtp-grappa-design.md`). Figures served at
+`docs/superpowers/specs/2026-09-12-16yo-mtp-grappa-design.md`). Figures served at
 `http://localhost:8765/peds_tsc_age16/`. **The DICOM and raw headers carry the patient's name: never copy them
 into file names, figures or documents.**
 
