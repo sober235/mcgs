@@ -28,6 +28,9 @@ ap.add_argument("--slices", type=int, nargs=3, required=True, metavar=("TRA", "C
 ap.add_argument("--gap", type=float, default=0.025, help="gap between neighbouring panels, inches")
 ap.add_argument("--ssim", choices=["uniform", "gaussian"], default="uniform", help="SSIM window: 7x7 uniform or Gaussian sigma 1.5")
 ap.add_argument("--mask_error", action="store_true", help="error maps only inside the filled head mask (the region the metrics use); file suffix _headerr")
+ap.add_argument("--mcgs_key", default="gs_joint_ar", help="which registered joint arm fills the MC-GS column")
+ap.add_argument("--single_key", default="gs_single_ar", help="which registered single arm fills the GS-single column")
+ap.add_argument("--tag", default="", help="extra suffix for the output file name, e.g. _p3")
 args = ap.parse_args()
 
 import h5py
@@ -69,8 +72,8 @@ ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
         ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy"),
         ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy"),
-        ("gs_single_ar", "GS-single", R / f"recon/gs_single_ar_{c}_mag.npy"),
-        ("gs_joint_ar", "MC-GS", R / f"recon/gs_joint_ar_{c}_mag.npy")]
+        (args.single_key, "GS-single", R / f"recon/{args.single_key}_{c}_mag.npy"),
+        (args.mcgs_key, "MC-GS", R / f"recon/{args.mcgs_key}_{c}_mag.npy")]
 missing = [lab for _, lab, p in ARMS if p is None or not Path(p).exists()]
 assert not missing, f"missing volumes for {c}: {missing}"
 
@@ -185,7 +188,7 @@ fig.suptitle(f"{c}  jiangyizhou  {AF_LABEL}  --  transverse {args.slices[0]} / c
 fig.text(0.5, 1 - 0.40 / fh, f"head-masked slice PSNR / SSIM ({'7x7 window' if args.ssim == 'uniform' else 'Gaussian window, sigma 1.5'}) / NMSE "
          f"in each panel, the best of each plane in bold;   error |recon - GT| / max(GT), jet [0, 0.1];   "
          f"left of each error row: the sampling mask in that plane" + ("   (error shown inside the head only)" if args.mask_error else ""), ha="center", va="top", fontsize=11)
-name = f"t1flair_v3_af16_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}{'_headerr' if args.mask_error else ''}.png"
+name = f"t1flair_v3_af16_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}{'_headerr' if args.mask_error else ''}{args.tag}.png"
 for d in (F, R / "figures"):
     fig.savefig(d / name, dpi=130)
 print("wrote", F / name, f"k-space centre (kx, ky, kz) = {kcen}")
@@ -193,5 +196,5 @@ for p in planes:
     msg = []
     for met, d, hi in (("PSNR", p["ps"], True), ("SSIM", p["ss"], True), ("NMSE", p["nm"], False)):
         order = sorted(d, key=(lambda k: -d[k]) if hi else (lambda k: d[k]))
-        msg.append(f"{met} MC-GS #{order.index('gs_joint_ar') + 1} (first: {order[0]})")
+        msg.append(f"{met} MC-GS #{order.index(args.mcgs_key) + 1} (first: {order[0]})")
     print(f"  {ANAT[p['axis']]} {p['idx']} (grey window {p['vmax']:.3f}): " + "; ".join(msg))
