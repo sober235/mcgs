@@ -87,7 +87,7 @@ gmax = float(gt.max())
 head = gt > 0.05 * float(np.quantile(gt, 0.999))
 vols = {key: np.abs(np.load(path)).astype(np.float32) for key, _, path in ARMS}
 
-with h5py.File(R / "data/mask_af16_3d.h5") as f:
+with h5py.File(R / "data/mask_af12_3d.h5") as f:
     mask3 = np.array(f["mask"]) > 0
 assert mask3.shape == gt.shape and np.all(mask3 == mask3[:1]), "expected a 3-D mask with the readout (axis 0) fully sampled"
 dens = uniform_filter(mask3[0].astype(float), size=9, mode="constant")     # the (ky, kz) pattern; densest = k-space centre
