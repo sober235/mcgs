@@ -514,3 +514,11 @@ rows.** This is the one place the loop's letter and its budget disagree, and it 
   +0.046 / +0.027 over single-run P10, head SSIM +0.0004 / +0.0003, head HFEN +0.0004 / +0.0004. Reported as its
   own row (the seed-average gain is smaller than on v3, consistent with the runs' error correlation rising as the
   prior gets stronger).
+
+### Caveat measured — the complex gauge at AF12 (09:05, `T1FLAIR_AF12_v3_jiangyizhou/scripts/complex_gauge.py`)
+Head-only PSNR on |rec − GT| (every table and figure uses | |rec| − |GT| |): T1 L1-ESPIRiT 33.449 > **P10 33.418** >
+converged TV 33.153 > joint TV 33.071 > ZS-SSDU 32.794; FLAIR L1-ESPIRiT 32.961 > **P10 32.887** > joint TV 32.851 >
+TV 32.829 > ZS-SSDU 32.497. P10 loses 3.53 / 3.38 dB from the magnitude to the complex gauge against 2.8–3.0 for
+the classical arms; magnitude-weighted phase agreement inside the head 0.9855 / 0.9821 against L1-ESPIRiT's 0.9862 /
+0.9833. The same picture as the AF16 line's caveat: the lead is on the magnitude gauge (the convention), not on
+the strict complex difference — the MC-GS phase is marginally less faithful. Logged in `logs/complex_gauge.json`.

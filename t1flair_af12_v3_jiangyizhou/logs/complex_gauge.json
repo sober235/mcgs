@@ -1,0 +1,114 @@
+{
+ "T1": {
+  "cgsense": {
+   "head_psnr_mag": 33.5144279628286,
+   "head_psnr_cplx": 30.589303045491487,
+   "cos_phase": 0.9750697016716003,
+   "file": "recon/cgsense_T1_complex.npy"
+  },
+  "cssense_o200": {
+   "head_psnr_mag": 36.16213488462045,
+   "head_psnr_cplx": 33.15307269855602,
+   "cos_phase": 0.9849778413772583,
+   "file": "recon/cssense_o200_lam0.0007_T1_complex.npy"
+  },
+  "jcssense": {
+   "head_psnr_mag": 36.06962962796156,
+   "head_psnr_cplx": 33.07079195705514,
+   "cos_phase": 0.9847193956375122,
+   "file": "recon/jcssense_o200_T1_complex.npy"
+  },
+  "l1espirit": {
+   "head_psnr_mag": 36.42570984528878,
+   "head_psnr_cplx": 33.44897067355822,
+   "cos_phase": 0.9862111806869507,
+   "file": "recon/l1espirit_lam0.002_T1_complex.npy"
+  },
+  "zsssdu": {
+   "head_psnr_mag": 35.72382341529332,
+   "head_psnr_cplx": 32.79355055665486,
+   "cos_phase": 0.9853920936584473,
+   "file": "recon/zsssdu_T1_complex.npy"
+  },
+  "dip": {
+   "head_psnr_mag": 31.3633774031168,
+   "head_psnr_cplx": 28.365575340124074,
+   "cos_phase": 0.9592609405517578,
+   "file": "recon/dip_T1_complex.npy"
+  },
+  "inr": {
+   "head_psnr_mag": 31.637940801821685,
+   "head_psnr_cplx": 28.9019249476355,
+   "cos_phase": 0.9635027050971985,
+   "file": "recon/inr_T1_complex.npy"
+  },
+  "ploraks": {
+   "head_psnr_mag": 31.9922166190903,
+   "head_psnr_cplx": 29.700663563914876,
+   "cos_phase": 0.9724718928337097,
+   "file": "recon/ploraks_T1_complex.npy"
+  },
+  "gs_joint_ar": {
+   "head_psnr_mag": 36.94373425824416,
+   "head_psnr_cplx": 33.41768166882019,
+   "cos_phase": 0.9854802489280701,
+   "file": "recon/gs_joint_ar_T1_complex.npy"
+  }
+ },
+ "FLAIR": {
+  "cgsense": {
+   "head_psnr_mag": 33.95747374360927,
+   "head_psnr_cplx": 31.126198392673675,
+   "cos_phase": 0.9759173393249512,
+   "file": "recon/cgsense_FLAIR_complex.npy"
+  },
+  "cssense_o200": {
+   "head_psnr_mag": 35.581175689594716,
+   "head_psnr_cplx": 32.8285269425396,
+   "cos_phase": 0.9823967814445496,
+   "file": "recon/cssense_o200_FLAIR_complex.npy"
+  },
+  "jcssense": {
+   "head_psnr_mag": 35.624218811832876,
+   "head_psnr_cplx": 32.85117222007981,
+   "cos_phase": 0.9824326038360596,
+   "file": "recon/jcssense_o200_FLAIR_complex.npy"
+  },
+  "l1espirit": {
+   "head_psnr_mag": 35.757280513077454,
+   "head_psnr_cplx": 32.96101919705394,
+   "cos_phase": 0.9833319783210754,
+   "file": "recon/l1espirit_lam0.004_FLAIR_complex.npy"
+  },
+  "zsssdu": {
+   "head_psnr_mag": 35.0342047738726,
+   "head_psnr_cplx": 32.49721165251943,
+   "cos_phase": 0.9847835302352905,
+   "file": "recon/zsssdu_FLAIR_complex.npy"
+  },
+  "dip": {
+   "head_psnr_mag": 30.810225790491263,
+   "head_psnr_cplx": 28.659782567198775,
+   "cos_phase": 0.9647327661514282,
+   "file": "recon/dip_FLAIR_complex.npy"
+  },
+  "inr": {
+   "head_psnr_mag": 31.19021113861544,
+   "head_psnr_cplx": 28.62917764747344,
+   "cos_phase": 0.9589885473251343,
+   "file": "recon/inr_FLAIR_complex.npy"
+  },
+  "ploraks": {
+   "head_psnr_mag": 31.176411067136943,
+   "head_psnr_cplx": 29.080111699979085,
+   "cos_phase": 0.9649367928504944,
+   "file": "recon/ploraks_FLAIR_complex.npy"
+  },
+  "gs_joint_ar": {
+   "head_psnr_mag": 36.26777874763434,
+   "head_psnr_cplx": 32.887146286360405,
+   "cos_phase": 0.9821460247039795,
+   "file": "recon/gs_joint_ar_FLAIR_complex.npy"
+  }
+ }
+}
