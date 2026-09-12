@@ -505,3 +505,6 @@ head PSNR, every other cell equal or better, sharpness unchanged (0.858 / 0.831)
 - `p2_P13_singleT1_full4k` (GS-single T1 at P13, rule 5; card 2, 63 min): 36.903 / SSIM 0.9495 / HFEN 0.0968, so
   **joint − single on T1 = +0.065 dB** (P10's was +0.047): the faster rotations make the shared geometry pay a little
   more, not less. The FLAIR single is running on card 3.
+- `p2_P13_singleFLAIR_full4k` (GS-single FLAIR at P13 on the AF11 mask, rule 5; card 3, 62 min): 36.713 / 0.9450 /
+  0.0893, so **joint − single on FLAIR = −0.030 dB** (P10's was −0.055). The coupling still moves quality towards T1,
+  by less than before: T1 +0.065, FLAIR −0.030, sum +0.035 (P10: +0.047 / −0.055, sum −0.008).
