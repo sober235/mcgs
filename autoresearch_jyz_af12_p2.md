@@ -323,3 +323,15 @@ rotation lr so far (0.001: +0.023 → +0.011; 0.002: +0.038 → +0.017 on T1) �
 budget. Card 2 moved on to chain E's wavelet screens (`p2_wav_lev2_w05` running); card 3 finishes `p2_rotlr008`, then
 `p2_rotlr004_slr005`. Bracket stop rule (stated now): the rotation bracket ends at the first value that does not beat
 the previous one by more than the floor at 1500; the grid's best row is then promoted at 4000 against P12.
+- 21:14 `p2_rotlr008` (rotation lr 0.008; card 3, 26 min): **36.948 / 36.600 — +0.063 / +0.081**, every cell up,
+  sharpness 0.857 / 0.829. **KEEP**, above 0.004 by 0.011 (floor 0.010 — the increments are shrinking: +0.015,
+  +0.015, +0.011 per doubling on T1).
+
+### Round 2, part 5 — pre-registered 21:20, before any of these ran
+Chain H on card 3 behind `p2_rotlr004_slr005`: `p2_rotlr016` (rotation lr 0.016, 1500) and `p2_rotlr008_slr005`
+(rotation 0.008 + scale lr 0.005, 1500); then **the promotion of the best grid row is chosen mechanically**
+(`scripts/p2_promote_best_grid.sh`: among the rotation-lr × scale-lr screens with status `keep` at 1500, the largest
+min_margin over the bar; run at 4000 with volumes through the guarded P10 runner with both values explicit, named
+`p2_best_rot<rl>_slr<sl>_full4k`), read by rule 2 against **P12** (`p2_rotlr002_full4k`) with the design-B floor. If
+0.016 does not beat 0.008 by more than the floor, the rotation bracket ends at 0.008 (stop rule above); the selector
+does not need that read to run. Card 2 continues chain E's wavelet-shape screens meanwhile.
