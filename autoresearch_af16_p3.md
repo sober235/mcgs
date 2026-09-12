@@ -36,7 +36,7 @@ prints unweighted terms): dc_p 2.0e-2, dc_c 2.1e-2, R_geo 1.0e-2 (x lambda_geo 0
 1.6e-3), R_wav 6.0e-2. So lambda_vtv 0.02 already outweighs the edge-TV term; Round 0 scans 0.005 and 0.02.
 R_edge is a normalised direction misfit in [0, 1]; Round 0 scans lambda_edge 0.001 and 0.005.
 
-## Round 0 (existing terms, no code) — launched 2026-09-12 ~16:10, 1500 it, cards 2 / 3 / 5
+## Round 0 (existing terms, no code) — queued 2026-09-12 16:10, 1500 it, empty cards only
 
 | exp | extra args | reading |
 |---|---|---|
@@ -49,7 +49,7 @@ R_edge is a normalised direction misfit in [0, 1]; Round 0 scans lambda_edge 0.0
 | p3_r0_db4l1 | `--set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10` | the AF12 wavelet shape on P6 |
 | p3_r0_ptv002 | `--lambda_ptv 0.02` | phase TV at 1/5 of phase 2's weight, for sharpness |
 
-Queues: `scripts/p3_r0_gpu2.sh`, `p3_r0_gpu3.sh`, `p3_r0_gpu5.sh` (sequential per card).
+Cards (user rule 2026-09-12 16:05, after a collision with the AF12 phase-2 chains that took cards 2/3/5 twelve seconds before this line's first launch): **empty cards only** — `scripts/p3_sched.sh scripts/p3_queue.txt` (tmux session `p3_sched`) launches the next queue item on a card with no compute process, no live `p2_chain_*.sh` claim and no trainer of this line; card 4 is shared with the probe. The three screens that had started on cards 2/3/5 were stopped and their outputs removed; the queue holds the eight items above in priority order.
 
 ## Round 1 onward
 
