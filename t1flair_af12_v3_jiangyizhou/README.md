@@ -372,3 +372,9 @@ like-for-like FLAIR comparison, labelled as such in the title.
 Three-plane compact panels for this design (MC-GS column = the FLAIR-AF11 run, every other column AF 12, 174 / 110 / 47,
 head-only error maps; the FLAIR panel shows the AF 11 mask MC-GS used, `--mask_path data/mask_af11_3d.h5`): `figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_flair_af11_174_110_47_headerr.png` — MC-GS
 first on PSNR, SSIM and NMSE in all three planes on both contrasts (`scripts/fig_three_planes_compact.py --mcgs_key gs_joint_ar_fl11`).
+
+### Raw outputs of the AF12 loop (2026-09-12)
+`runs_af12_loop/` holds, for the 20 key 4000-iteration runs (P6 reference, promotions P7–P10, seed 43, two-seed mean, 6000
+iterations, GS-single arms, design B, marginal variants), the scorer json, the volume npz (magnitude, GT, ZF; complex from
+2026-09-11 on) and the log, plus copies of the ledger, program, runner, record and handoff — 14 GB, see its README. The
+framework-lineage summary for collaborators is on `main` (`docs/2026-09-12-jyz-af12-mcgs-p10-summary.md`, commit a5ae1e6).
