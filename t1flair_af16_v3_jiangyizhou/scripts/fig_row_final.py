@@ -19,6 +19,8 @@ ap.add_argument("--index", type=int, default=168)
 ap.add_argument("--crop", action="store_true", help="butterfly region instead of the whole slice")
 ap.add_argument("--half", type=int, nargs=2, default=[52, 38])
 ap.add_argument("--tag", default=None)
+ap.add_argument("--mcgs_key", default="gs_joint_ar", help="which registered GS joint arm fills the MC-GS column")
+ap.add_argument("--mcgs_label", default="MC-GS")
 ap.add_argument("--err_complex", action="store_true",
                 help="error map and panel PSNR from the COMPLEX difference |recon - GT| instead of the magnitude one")
 args = ap.parse_args()
@@ -56,7 +58,8 @@ ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy"),
         ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy"),
         ("gs_single_ar", "GS-single", R / f"recon/gs_single_ar_{c}_{'complex' if args.err_complex else 'mag'}.npy"),
-        ("gs_joint_ar", "MC-GS", R / f"recon/gs_joint_ar_{c}_{'complex' if args.err_complex else 'mag'}.npy")]
+        (args.mcgs_key, args.mcgs_label,
+         R / f"recon/{args.mcgs_key}_{c}_{'complex' if args.err_complex else 'mag'}.npy")]
 missing = [lab for _, lab, p in ARMS if p is None or not Path(p).exists()]
 assert not missing, f"missing volumes for {c}: {missing}"
 

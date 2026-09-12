@@ -21,7 +21,14 @@ fi
 WARMUP=${WARMUP:-500}
 ROOT=$(cd "$(dirname "$0")" && pwd)
 PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
-CONFIG=configs/t1flair_v3_af16_jyz.yaml      # AF16 jyz only, deliberately not overridable
+# AF16 jyz only, deliberately not overridable by a path. SINGLE=T1|FLAIR picks that contrast's
+# single-arm config by name, so the AF12 configs stay unreachable from this line.
+case "${SINGLE:-joint}" in
+  joint) CONFIG=configs/t1flair_v3_af16_jyz.yaml ;;
+  T1)    CONFIG=configs/t1flair_v3_af16_jyz_singleT1.yaml ;;
+  FLAIR) CONFIG=configs/t1flair_v3_af16_jyz_singleFLAIR.yaml ;;
+  *)     echo "SINGLE must be T1, FLAIR or unset: ${SINGLE}" >&2; exit 2 ;;
+esac
 LOG="$ROOT/results_arc/${EXP}.log"
 for path in "$LOG" "$ROOT/results_arc/${EXP}_score.json" "$ROOT/results_arc/${EXP}"; do
   if [[ -e "$path" ]]; then echo "refusing to overwrite existing output: $path" >&2; exit 1; fi
