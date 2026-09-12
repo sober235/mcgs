@@ -360,3 +360,22 @@ does not need that read to run. Card 2 continues chain E's wavelet-shape screens
   rule.** Rotation-only curve at 1500 (T1 gain): 0.0005 +0.008, 0.001 +0.023, 0.002 +0.038, 0.004 +0.053, 0.008 +0.063,
   0.016 +0.072 — concave, flattening. `p2_rotlr008_slr005` running on card 3; the selector then promotes the best
   stacked row (0.004 + scale lr is +0.083 so far).
+
+### Round 2 read, part 4 — 22:32: the grid's best row, and a selector slip corrected
+- `p2_rotlr008_slr005` (rotation 0.008 + scale lr 0.005; card 3, 26 min): **36.972 / 36.679 — +0.087 / +0.160** over
+  P10@1500, every cell up, sharpness 0.858 / 0.831. **KEEP**, the largest min_margin of the grid (0.004 + scale lr:
+  +0.083; the two are inside one T1 floor of each other).
+- `p2_wav_ddd20` (diagonal sub-band at double strength; card 2, 26 min): 36.907 / 36.510 — T1 +0.022, FLAIR −0.009,
+  FLAIR HFEN −0.0001, sharpness 0.851 / 0.823 (−0.005 / −0.004). **reshape** (T1 bought with FLAIR and sharpness).
+  With `ddd05` losing, the diagonal band's weight is bracketed at 1.0; `p2_wav_ax05` (single-axis bands at half) is the
+  last wavelet screen, running on card 2.
+- **Selector slip.** `p2_promote_best_grid.sh` filters on ledger status `keep`, but rows are labelled by hand after
+  reading, so when it ran (22:33, seconds after `p2_rotlr008_slr005`'s row landed as `pending`) it chose
+  `p2_rotlr004_slr005` and launched `p2_best_rot004_slr005_full4k`. The pre-registered rule is "largest min_margin at
+  1500", which is 0.008 + scale lr; the mis-selected run (3 min old) was stopped (chain H's process group; partial
+  outputs removed, no ledger row) and **`p2_best_rot008_slr005_full4k`** (4000 iterations, volumes) was launched on
+  card 3 at 22:36 with the values explicit. The selector is not reused tonight (its status filter is the flaw; a
+  correct version would apply rule 1 to the score jsons itself). Because the two stacked rows are within one floor at
+  1500, **`p2_best_rot004_slr005_full4k` is also promoted at 4000 on the next free card** (pre-registered here, 22:38):
+  the better of the two at 4000 by rule 1 against P12 becomes P13; the seed-43 repeat (card 2, queued behind chain E,
+  keyed on the 0.008 promotion's log) and the GS-single arms then use P13's values.
