@@ -52,18 +52,30 @@ def main():
     ap.add_argument("--prefix", default="p2_")
     ap.add_argument("--iters", type=int, default=None, help="only rows at this budget (default: the parent's)")
     ap.add_argument("--sharp_tol", type=float, default=0.01)
+    ap.add_argument("--floor_pair", default=None, metavar="EXP_A,EXP_B",
+                    help="take the floor as |cells(EXP_A) - cells(EXP_B)| from any two rows (e.g. a seed repeat in "
+                         "another setting) instead of |parent - floor|")
     a = ap.parse_args()
     B = best_competitors()
     P, F = cells(a.parent, B), cells(a.floor, B)
     if P is None:
         sys.exit(f"parent {a.parent}: no score json")
     iters = a.iters or P["iters"]
-    fl = {k: (abs(P[k] - F[k]) if F else float("nan")) for k in CELLS + ("min",)}
+    if a.floor_pair:
+        ea, eb = a.floor_pair.split(",")
+        A_, B_ = cells(ea, B), cells(eb, B)
+        if A_ is None or B_ is None:
+            sys.exit(f"floor pair {a.floor_pair}: missing score json")
+        fl = {k: abs(A_[k] - B_[k]) for k in CELLS + ("min",)}
+        F = None
+        print(f"floor  |{ea} - {eb}|: " + "  ".join(f"{k} {fl[k]:.4f}" for k in ("min",) + CELLS))
+    else:
+        fl = {k: (abs(P[k] - F[k]) if F else float("nan")) for k in CELLS + ("min",)}
     print(f"parent {a.parent} @{P['iters']}: T1 {P['T1']:.3f} FL {P['FL']:.3f}  min {P['min']:+.3f} ({P['bind']})  "
           + "  ".join(f"{k} {P[k]:+.4f}" for k in CELLS) + f"  sharp {P['shT1']:.3f}/{P['shFL']:.3f}")
     if F:
         print(f"floor  {a.floor}: " + "  ".join(f"{k} {fl[k]:.4f}" for k in ("min",) + CELLS))
-    else:
+    elif not a.floor_pair:
         print(f"floor  {a.floor}: (no score json yet) -- verdicts below use floor 0")
         fl = {k: 0.0 for k in fl}
     hdr = f"{'exp':28s} {'it':>5s} {'T1':>7s} {'FL':>7s} {'d_min':>7s} " + " ".join(f"{'d'+k[1:]:>8s}" for k in CELLS) + f" {'shT1':>6s} {'shFL':>6s}  verdict"

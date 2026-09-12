@@ -170,3 +170,16 @@ rule 1 as above; chain `scripts/p2_chain_d.sh`, launched on the first card free 
 
 If one of the band directions keeps, the next step in that direction (0.25 / 4.0, or the two-axis bands) is a round-2
 part-2 candidate; if `p2_wav_lev2_w05` keeps, level weights 0.25 / 0.75 bracket it.
+
+### Rule-7 read — 17:38: the bundle (P10 + scale lr 0.005 at 6000 iterations, design B, volumes saved)
+`p2_bundle_slr005_i6000` (card 2, 99 min): head PSNR **36.958 / 36.699** against the parent's 36.945 / 36.637 —
+**+0.013 / +0.062 dB**; SSIM 0.9501 / 0.9446 (−0.0001 / +0.0006), HFEN 0.0948 / 0.0903 (−0.0002 / +0.0004 in margin
+terms), sharpness 0.858 / 0.830 (unchanged). Floor in use (rule 2, the AF12 seed pair `ar5_best_C10_T112_full4k` vs
+`ar5_P10_s43_full4k`): PSNR 0.002 / 0.001, SSIM 0.0000 / 0.0000, HFEN 0.0001 / 0.0001.
+**By the letter of rule 1 this is a `reshape` (T1 SSIM −0.0001 and T1 HFEN −0.0002 fall beyond floors that are
+essentially zero), the same reading the P10 loop gave scale lr 0.005 alone (keep-marginal, deferred).** The user
+asked for the bundle to be judged by the rules, so it is not folded in. Recorded before the design-B 4000-iteration
+floor exists: when `p2_P10_s43_full4k` lands (queued on card 2), the bundle is re-read once against that floor as
+rule 2 prescribes, and that verdict is final; a floor of 0.0001 on T1 SSIM or 0.0002 on T1 HFEN would turn it into a
+keep. The FLAIR gain (+0.062) is the sum of the two marginal items measured at AF12 (+0.016 for 6000 iterations,
++0.048 for scale lr 0.005); T1's (+0.013) is sub-additive (+0.009, +0.011).
