@@ -1,12 +1,10 @@
 # phase-3 queue (autoresearch_af16_p3.md): [KEY=VAL ...] EXP ITERS [extra args]; consumed by scripts/p3_sched.sh, top first
-p3_r0_control 1500
-p3_r0_nokz 1500 --set data.contrast.known_zero=false
-MASK_VARIANT=flair_c p3_probe_c_P6_kz 1500
-p3_r1_nl4_s04 1500 --set loss.lambda_nl=4 --set loss.nl_sigma_rel=0.04 --set loss.nl_refresh=500 --set loss.nl_start=500
+p3_r1b_nl1_s02 1500 --set loss.lambda_nl=1 --set loss.nl_sigma_rel=0.02 --set loss.nl_refresh=500 --set loss.nl_start=500
+p3_r1b_nl4_s02 1500 --set loss.lambda_nl=4 --set loss.nl_sigma_rel=0.02 --set loss.nl_refresh=500 --set loss.nl_start=500
 p3_r0_db4l1 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10
-p3_r1_nl16_s04 1500 --set loss.lambda_nl=16 --set loss.nl_sigma_rel=0.04 --set loss.nl_refresh=500 --set loss.nl_start=500
+p3_r1b_nl1_s01 1500 --set loss.lambda_nl=1 --set loss.nl_sigma_rel=0.01 --set loss.nl_refresh=500 --set loss.nl_start=500
+p3_r1b_nl4_s01 1500 --set loss.lambda_nl=4 --set loss.nl_sigma_rel=0.01 --set loss.nl_refresh=500 --set loss.nl_start=500
 MASK_VARIANT=flair_c p3_probe_c_P6_kz_vtv0005 1500 --lambda_vtv 0.005
-p3_r1_nl1_s04 1500 --set loss.lambda_nl=1 --set loss.nl_sigma_rel=0.04 --set loss.nl_refresh=500 --set loss.nl_start=500
 p3_r0_vtv0005 1500 --lambda_vtv 0.005
 p3_r0_ptv002 1500 --lambda_ptv 0.02
 p3_r0_edge0001 1500 --lambda_edge 0.001

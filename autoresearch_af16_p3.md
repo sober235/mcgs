@@ -99,6 +99,14 @@ suite 200 passed (`--ignore=tests/smoke_test.py --ignore=tests/test_score_edge.p
 Queue order now: control, nokz, probe_kz, nl4, db4l1, nl16, probe_kz_vtv, nl1, vtv0005, ptv002, edge0001, priv03,
 vtv002, edge0005.
 
+## Round 1b (queued 18:45) — smaller σ, the pull kept gentle
+
+The first non-local screen over-smoothed (above). Round 1b lowers the denoiser strength to the reconstruction's own
+error level and below: σ_rel ∈ {0.02, 0.01} × λ_nl ∈ {1, 4}, K0 = K = 500 (`p3_r1b_nl{1,4}_s{02,01}`). Read-out: the
+sharpness gate and head HFEN first, then PSNR. If σ_rel 0.01–0.02 still costs sharpness, the next lever class is the
+refresh policy (K 250, K0 1000: a target computed from a better-fitted volume, refreshed more often) and the denoiser's
+own sharpening option (`BM4DProfile.set_sharpen`), not a larger λ.
+
 ## Round log
 
 Head-only, 1500 it unless noted; bar L1-ESPIRiT 35.209 / 34.503 (current mask). Six cells = PSNR / SSIM / HFEN per contrast.
@@ -109,3 +117,4 @@ Head-only, 1500 it unless noted; bar L1-ESPIRiT 35.209 / 34.503 (current mask). 
 | 17:18 | p3_r0_control (P6 on this runner) | 35.515 | 34.725 | 0.9353 / 0.9198 | 0.1218 / 0.1192 | 0.829 / 0.785 | reproduces phase 1's 1500-it P6 (35.515 / 34.724) to 0.001 dB — the reference row |
 | 17:45 | p3_r0_nokz (current mask, FLAIR `known_zero=false`) | 35.525 | 34.738 | 0.9353 / 0.9184 | 0.1218 / 0.1222 | 0.829 / 0.782 | **the known-zero region is worth ~0 dB of FLAIR PSNR** (−0.013, inside noise), +0.0014 SSIM and 0.003 of HFEN with Z. The 'GS-only known zeros' asymmetry noted in the phase-1/2 records is now measured: negligible. |
 | 18:12 | p3_probe_c_P6_kz (in-shutter FLAIR mask, shutter given explicitly) | 35.513 | **35.072** | 0.9352 / 0.9246 | 0.1217 / 0.1128 | 0.830 / 0.813 | FLAIR +0.347 over the control (Z is worth +0.225 on THIS mask, against ~0 on the current one: with every sample inside the shutter nothing else tells the model the corners are empty). L1-ESPIRiT on the same mask 34.871 → FLAIR margin **+0.201 vs +0.222** on the current mask; T1 unchanged (35.513). **Probe read-out (pre-registered rule, spec §5): the margin does not grow (−0.02) and T1 does not move → route 2 is not worth a full re-run.** The in-shutter complementary mask is a better FLAIR acquisition for every arm (MC-GS +0.35, L1-ESPIRiT +0.37, both with better SSIM/HFEN/sharpness), not a differential lever. `p3_probe_c_P6_kz_vtv0005` (still queued) remains as the coupling check; unless it moves T1 by ≥ 0.15 the probe is closed. |
+| 18:43 | p3_r1_nl4_s04 (λ_nl 4, σ_rel 0.04, K0 = K = 500) | 35.343 | 34.189 | 0.9283 / 0.9047 | 0.1294 / 0.1294 | 0.670 / 0.594 | **discard — over-smoothing**: −0.17 / −0.54 dB, every structural cell worse, sharpness collapses. Dynamics: at the 500-it refresh the weighted term (4 × 5.8e-3 = 0.023) matches the two DC terms; within 50 iterations the fit snaps onto the BM4D target (R_nl → 1e-3) while dc rises 0.0170 → 0.0196 (+15 %). σ = 0.04 · P99(head) ≈ 0.031 is ~1.4× the reconstruction's own error RMS, so the target has lost real detail. `p3_r1_nl16_s04` (a foregone loss in the same direction) was stopped at iteration ~300 and removed; `p3_r1_nl1_s04` dropped from the queue. |
