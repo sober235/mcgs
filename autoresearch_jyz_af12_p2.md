@@ -132,3 +132,14 @@ value (36.637). Seed 43 (`p2_P10_i1500_s43`, card 5, 34 min): 36.875 / 36.515.
 Rule-1 threshold for a keep: `min_margin` above +0.459 by more than 0.010 (i.e. T1 head PSNR above 36.895 with FLAIR
 still non-binding), no other cell down by more than its floor, sharpness not below 0.846 / 0.817. The T1 floor is
 larger than the P10 loop's (0.006): the reads below use the measured 0.010.
+
+### Round 1 read, part 1 — 17:01: lever A (per-contrast edge-TV strength) closed in both directions
+Against the parent at 1500 (36.885 / 36.520, T1 floor 0.010):
+- `p2_geo_T113_F007` (T1 0.13 / FLAIR 0.07; card 3, 29 min): 36.875 / 36.496 — T1 −0.010 (at the floor), FLAIR −0.024,
+  T1 sharpness 0.831 (−0.025, gate fail), FLAIR sharper 0.858. **loses.**
+- `p2_geo_T107_F013` (T1 0.07 / FLAIR 0.13; card 5, 28 min): 36.828 / 36.486 — T1 −0.057, FLAIR −0.033, T1 sharpness
+  0.885 (+0.029), FLAIR 0.801. **loses.**
+Reading: 0.10 is the PSNR optimum of *each* channel, not a compromise between them; moving one channel's TV also moves
+the other channel's PSNR down (shared geometry: T1 0.13 costs FLAIR 0.024 dB). Per rule "if both directions fail,
+lever A is closed": per-contrast κ_q is not pursued. The sharpness numbers say what the knob does trade: T1 sharpness
+follows T1's TV strength (0.831 / 0.856 / 0.885 for 0.13 / 0.10 / 0.07) at a PSNR cost in both directions.
