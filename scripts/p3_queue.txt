@@ -16,3 +16,4 @@ p3_r3_e0001_ptv003 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set lo
 p3_r4_dens_q90 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_edge 0.001 --split_quantile 0.90 --max_points 5000000 --densify_until 1000
 p3_r4_dens_ee 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_edge 0.001 --split_quantile 0.90 --max_points 5000000 --densify_until 1000 --set adaptive_control.split_score=evidence_energy
 p3_r4_n48 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_edge 0.001 --set gaussian.initial_num_points=4800000
+p3_r5_control_postmerge 1500
