@@ -397,3 +397,16 @@ bands ×0.5 −0.137 (loses). **Uniform weighting of the seven detail sub-bands 
 the P10 loop arrived at — is a local optimum in both directions of both knobs.** The lever stays in the code (tested,
 default-off) but is closed for this subject. With it, every prior-shape and prior-strength direction of the wavelet
 term is now bracketed; the optimiser family is the only vein still paying.
+
+### Promotion 3 — 23:38: the best 1500-iteration grid row does NOT hold at 4000
+`p2_best_rot008_slr005_full4k` (rotation 0.008 + scale lr 0.005; card 3, 62 min, volumes): **36.958 / 36.717**.
+- Against **P12** (`p2_rotlr002_full4k` 36.962 / 36.665, floor 0.003 / 0.004): T1 **−0.005** (past the floor), FLAIR
+  **+0.052**, T1 SSIM −0.0003, T1 HFEN −0.0005. **loses** by rule 1 — the binding channel goes down.
+- Against P10: T1 +0.013, FLAIR +0.080, but T1 SSIM −0.0002 and T1 HFEN −0.0006 → **reshape**.
+This is exactly rule 8's case: the row with the largest 1500-iteration margin (+0.087 / +0.160) turns into a
+T1-for-FLAIR trade at the full budget. The scale-lr component carries the T1 cost — the P10 loop measured the same
+sign for scale lr alone (0.005 keep-marginal with T1 HFEN −0.0002 at 4000; 0.008 reshape). **P12 stands** unless
+`p2_best_rot004_slr005_full4k` (card 2, lands ~23:45) clears it.
+For the user, recorded rather than acted on: on the FLAIR channel — the one the delivered figure uses — this recipe
+is 0.052 dB above P12 and 0.080 dB above P10, at a T1 cost of 0.005 dB. The rules read the binding channel, so it is
+not promoted; overruling it would be a per-channel decision the user can make.
