@@ -1,5 +1,8 @@
 # phase-3 queue (autoresearch_af16_p3.md): [KEY=VAL ...] EXP ITERS [extra args]; consumed by scripts/p3_sched.sh, top first
 SAVE_VOLUMES=1 p3_r3_e0001_ptv003_full4k 4000 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_edge 0.001 --lambda_ptv 0.03
+p3_r3_ptv003_s43_full4k 4000 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_edge 0.001 --lambda_ptv 0.03 --set training.seed=43
+SINGLE=T1 SAVE_VOLUMES=1 p3_r3_singleT1_full4k 4000 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_edge 0.001 --lambda_ptv 0.03
+SINGLE=FLAIR SAVE_VOLUMES=1 p3_r3_singleFLAIR_full4k 4000 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_edge 0.001 --lambda_ptv 0.03
 SAVE_VOLUMES=1 p3_r0_db4l1_full4k 4000 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10
 MASK_VARIANT=flair_c p3_probe_c_P6_kz_vtv0005 1500 --lambda_vtv 0.005
 p3_r2_ptv002 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_ptv 0.02
