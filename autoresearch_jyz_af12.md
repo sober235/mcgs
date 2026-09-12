@@ -509,3 +509,8 @@ rows.** This is the one place the loop's letter and its budget disagree, and it 
 - `ar8_P10_singleT1_full4k` (GS-single, T1 alone with the P10 recipe; card 4, 63 min): head PSNR **36.897**, head
   SSIM 0.9496, head HFEN 0.0965 — the joint arm leads its own single by **+0.047 dB**, +0.0007 SSIM, 0.0018 HFEN.
   Against L1-ESPIRiT the single is +0.471 / +0.0023 / +0.0069 on its own. FLAIR single running (card 4).
+- `ar5_P10_x2_full4k` (voxelwise mean of the magnitudes of seeds 42 and 43, 2x compute; scored by `scripts/score_x2.py`,
+  whose self-check reproduces a single run's own score json — differences printed in the log): **36.990 / 36.295**,
+  +0.046 / +0.027 over single-run P10, head SSIM +0.0004 / +0.0003, head HFEN +0.0004 / +0.0004. Reported as its
+  own row (the seed-average gain is smaller than on v3, consistent with the runs' error correlation rising as the
+  prior gets stronger).
