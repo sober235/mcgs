@@ -31,6 +31,7 @@ ap.add_argument("--mcgs_key", default="gs_joint_ar", help="which registered GS j
 ap.add_argument("--mcgs_label", default="MC-GS")
 ap.add_argument("--af_note", default=None, help="override the AF text in the title")
 ap.add_argument("--tag", default=None, help="extra token in the output file name")
+ap.add_argument("--mask_path", default=None, help="3-D sampling mask h5 to show in the left cells (default data/mask_af12_3d.h5)")
 ap.add_argument("--mask_error", action="store_true", help="error maps only inside the filled head mask (the region the metrics use); file suffix _headerr")
 args = ap.parse_args()
 
@@ -91,7 +92,7 @@ gmax = float(gt.max())
 head = gt > 0.05 * float(np.quantile(gt, 0.999))
 vols = {key: np.abs(np.load(path)).astype(np.float32) for key, _, path in ARMS}
 
-with h5py.File(R / "data/mask_af12_3d.h5") as f:
+with h5py.File(Path(args.mask_path) if args.mask_path else R / "data/mask_af12_3d.h5") as f:
     mask3 = np.array(f["mask"]) > 0
 assert mask3.shape == gt.shape and np.all(mask3 == mask3[:1]), "expected a 3-D mask with the readout (axis 0) fully sampled"
 dens = uniform_filter(mask3[0].astype(float), size=9, mode="constant")     # the (ky, kz) pattern; densest = k-space centre
