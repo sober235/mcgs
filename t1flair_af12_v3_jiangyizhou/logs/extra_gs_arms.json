@@ -32,5 +32,14 @@
   "map": {
    "FLAIR": "plain"
   }
+ },
+ {
+  "key": "gs_joint_ar_fl11",
+  "label": "MC-GS (P10, FLAIR mask AF 11)",
+  "exp": "ar9_P10_flair_af11_full4k",
+  "map": {
+   "T1": "plain",
+   "FLAIR": "contrast"
+  }
  }
 ]

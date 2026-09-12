@@ -350,3 +350,22 @@ GS-single is 0.04 dB higher there — and on every transverse FLAIR slice (joint
 One common slice for both contrasts: **177** (T1 38.240 / FLAIR 36.550, each within 0.03 dB of the contrast's own best;
 max-sum), or 178 (max-min, T1 38.212 / FLAIR 36.559). Row figures (`scripts/fig_row_final.py`, GT + nine methods, error
 maps below, head mask bottom-left): `figures/t1flair_v3_af12_{T1,FLAIR}_row_axis0_{173|178|177}.png`.
+
+### Side experiment: FLAIR mask at AF 11, T1 unchanged, MC-GS only (2026-09-12)
+User request. T1 keeps `data/mask_af12_3d.h5`; FLAIR gets a fresh house vd-Poisson mask at nominal AF 11
+(`scripts/prep_02b_mask_af11.m`, `prep_04b_export_af11.py` → `data/mask_af11_3d.h5`; 4173 samples, 9.26 % of the PE plane,
+**AF 9.05x on FLAIR's own acquired support** against 9.74x for the AF12 mask; only 926 samples coincide with the AF12 mask).
+Only MC-GS (P10 recipe, `ar9_P10_flair_af11_full4k`) was re-run; every other arm stays at AF 12. Registered as
+`gs_joint_ar_fl11` ("MC-GS (P10, FLAIR mask AF 11)").
+
+| arm | T1 head PSNR / SSIM / HFEN | FLAIR head PSNR / SSIM / HFEN | whole PSNR T1 / FLAIR |
+|---|---|---|---|
+| MC-GS (P10, FLAIR at AF 11) | 36.945 / 0.9503 / 0.0947 | **36.637 / 0.9439 / 0.0906** | 40.274 / 40.021 |
+| MC-GS (P10, both at AF 12) | 36.944 / 0.9503 / 0.0947 | 36.268 / 0.9397 / 0.0958 | 40.272 / 39.692 |
+| L1-ESPIRiT (AF 12) | 36.426 / 0.9469 / 0.1036 | 35.757 / 0.9368 / 0.1000 | 39.893 / 39.205 |
+
+The T1 channel is unchanged to 0.001 dB (its mask did not change; the coupling passes nothing measurable back), the FLAIR
+channel gains **+0.369 dB** head PSNR, +0.0042 SSIM, 0.0052 HFEN and +0.007 sharpness from the 7 % denser mask. Slice 177
+(`figures/t1flair_v3_af12_{T1,FLAIR}_flair_af11_axis0_177.png`, MC-GS column = this run, every other column AF 12): T1 38.24
+(GS-single 38.19, L1-ESPIRiT 37.87); FLAIR **36.81** (AF-12 GS-single 36.59, AF-12 MC-GS 36.55, L1-ESPIRiT 36.10) — not a
+like-for-like FLAIR comparison, labelled as such in the title.

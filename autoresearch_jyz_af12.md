@@ -555,3 +555,7 @@ the AF12 mask. Config `configs/t1flair_v3_af12_hyw_flair_af11.yaml` (only the FL
 every comparison arm stays at the AF12 mask, so the FLAIR column of the slice-177 comparison is MC-GS at AF 11 against
 the field at AF 12 (labelled as such) — the T1 column is like-for-like except for the coupling. The ledger row's margins
 are against the AF12 bar and are not a loop result.
+Result (13:12, card 3, 63 min): `ar9_P10_flair_af11_full4k` T1 **36.945** / FLAIR **36.637** (P10 at AF12: 36.944 / 36.268)
+— T1 unchanged to 0.001 dB, FLAIR +0.369 dB, SSIM +0.0042, HFEN better by 0.0052, sharpness 0.830 (+0.007). Registered as
+`gs_joint_ar_fl11`; slice-177 row figures `t1flair_v3_af12_{T1,FLAIR}_flair_af11_axis0_177.png` (FLAIR: MC-GS 36.81 vs the
+AF-12 field: GS-single 36.59, MC-GS 36.55, L1-ESPIRiT 36.10). README section "Side experiment" in the topic.
