@@ -28,4 +28,6 @@ with h5py.File(args.out, "w") as f:                      # MATLAB reads v7.3/HDF
     f.create_dataset("kre", data=kdata.real); f.create_dataset("kim", data=kdata.imag)
     f.create_dataset("mask", data=mask); f.create_dataset("slices", data=np.array(idx, dtype=np.int32))
     f.create_dataset("scale", data=np.array(P.scale, dtype=np.float64))
+    S = np.ascontiguousarray(P.S[:, idx].numpy().astype(np.complex64).transpose(1, 2, 3, 0))   # maps for SENSE-LORAKS, (nx, ky, kz, coil)
+    f.create_dataset("sre", data=S.real); f.create_dataset("sim", data=S.imag)
 print("wrote", args.out, kdata.shape, "slices", len(idx))

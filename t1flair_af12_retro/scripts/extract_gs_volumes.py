@@ -24,7 +24,13 @@ JOBS = [("t1flair_af12_joint", "gs_joint", [("recT1", "T1"), ("recFL", "FLAIR")]
         ("ar5_tf_hyw_t1flair", "gs_joint_v2", [("recT1", "T1"), ("recFL", "FLAIR")], [], []),
         # single-contrast arms of the v2 recipe (ablation; the hyw T1 one is shared with the T1+T2 topic)
         ("ar6_single_T1_v2", "gs_single_v2", [("recT1", "T1")], [], []),
-        ("ar9_single_FLAIR_v2_hyw", "gs_single_v2", [("recT1", "FLAIR")], [], [])]
+        ("ar9_single_FLAIR_v2_hyw", "gs_single_v2", [("recT1", "FLAIR")], [], []),
+        # v3 = v2's cold-start fixes + 2.4M points + wavelet sparsity 0.05 (autoresearch rounds 11-14)
+        ("ar13_tf_hyw_t1flair_v3b", "gs_joint_v3", [("recT1", "T1"), ("recFL", "FLAIR")], [], []),
+        ("ar15_single_T1_n24_wav005_full4k", "gs_single_v3", [("recT1", "T1")], [], []),
+        ("ar15_single_FLAIR_hyw_v3", "gs_single_v3", [("recT1", "FLAIR")], [], []),
+        # v3.2 (framework program "## v3.2 — adopted")
+        ("ar19_tf_hyw_full_C012", "gs_joint_v32", [("recT1", "T1"), ("recFL", "FLAIR")], [], [])]
 
 
 def main():

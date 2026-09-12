@@ -176,17 +176,23 @@ metrics, so the learned arms and the classical arms are directly comparable.
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| L1-ESPIRiT | **39.823** | **0.9510** | **0.01254** | 0.5802 | **35.530** | **0.9471** | 0.0867 | 0.899 | 0.0118 | 5 min |
+| MC-GS joint v3.2 ×2 seeds (2× compute) | **40.088** | 0.9012 | **0.01180** | **0.5505** | **35.929** | **0.9492** | **0.0793** | 0.893 | 0.0114 | 115 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | 40.004 | 0.9024 | 0.01203 | 0.5550 | 35.877 | 0.9478 | 0.0825 | 0.864 | 0.0107 | 257 min |
+| **MC-GS joint v3.2** | 39.999 | 0.9007 | 0.01205 | 0.5585 | 35.827 | 0.9483 | 0.0799 | 0.897 | 0.0115 | 56 min |
+| MC-GS joint v3 | 39.912 | 0.9019 | 0.01229 | 0.5631 | 35.771 | 0.9468 | 0.0831 | 0.867 | 0.0108 | 189 min |
+| MC-GS single v3 | 39.840 | 0.9073 | 0.01250 | 0.5685 | 35.679 | 0.9455 | 0.0851 | 0.864 | 0.0107 | 55 min |
+| L1-ESPIRiT | 39.823 | **0.9510** | 0.01254 | 0.5802 | 35.530 | 0.9471 | 0.0867 | 0.899 | 0.0118 | 5 min |
 | joint CS-SENSE (JTV) | 39.669 | 0.9468 | 0.01300 | 0.5573 | 35.020 | 0.9461 | 0.1001 | 0.854 | 0.0107 | 5 min |
-| **MC-GS joint v2** | 39.249 | 0.9047 | 0.01432 | 0.6052 | 34.978 | 0.9373 | **0.0863** | 0.912 | 0.0122 | 40 min |
-| CS-SENSE (TV, converged) | 39.534 | 0.9271 | 0.01341 | **0.5549** | 34.966 | 0.9460 | 0.0993 | 0.829 | 0.0101 | 4 min |
+| MC-GS joint v2 | 39.249 | 0.9047 | 0.01432 | 0.6052 | 34.978 | 0.9373 | 0.0863 | 0.912 | 0.0122 | 40 min |
+| CS-SENSE (TV, converged) | 39.534 | 0.9271 | 0.01341 | 0.5549 | 34.966 | 0.9460 | 0.0993 | 0.829 | 0.0101 | 4 min |
 | MC-GS single v2 | 38.947 | 0.9084 | 0.01535 | 0.6195 | 34.680 | 0.9325 | 0.0923 | 0.916 | 0.0124 | 40 min |
 | CS-SENSE (TV, 35 outer, as run 09-09) | 39.243 | 0.9294 | 0.01434 | 0.5682 | 34.607 | 0.9436 | 0.1071 | 0.817 | 0.0102 | 15 min |
 | ZS-SSDU | 38.635 | 0.9412 | 0.01649 | 0.6465 | 34.134 | 0.9365 | 0.1213 | 1.012 | 0.0139 | 22 min |
 | MC-GS single (old cold start) | 36.010 | 0.8479 | 0.03018 | 0.7521 | 33.296 | 0.9164 | 0.1162 | 0.935 | 0.0147 |  |
 | MC-GS joint (old cold start) | 36.353 | 0.8682 | 0.02789 | 0.7319 | 33.294 | 0.9190 | 0.1220 | 0.874 | 0.0124 |  |
 | CG-SENSE | 34.514 | 0.7269 | 0.04259 | 0.8528 | 31.941 | 0.8981 | 0.1705 | 0.903 | 0.0162 | 11 min |
-| 3D-INR | 34.761 | 0.8182 | 0.04024 | 1.0278 | 30.838 | 0.8446 | 0.1435 | **1.218** | 0.0247 | 71 min |
+| 3D-INR | 34.761 | 0.8182 | 0.04024 | 1.0278 | 30.838 | 0.8446 | 0.1435 | 1.218 | 0.0247 | 71 min |
+| P-LORAKS | 35.512 | 0.8809 | 0.03385 | 0.9173 | 30.623 | 0.8413 | 0.1615 | **1.242** | 0.0284 |  |
 | 3D-DIP | 35.127 | 0.8409 | 0.03699 | 0.7922 | 30.106 | 0.8542 | 0.2518 | 0.686 | 0.0078 | 57 min |
 | ZF | 29.067 | 0.8309 | 0.14930 | 0.9326 | 23.703 | 0.6699 | 0.6348 | 0.310 | **0.0044** | 9 min |
 
@@ -194,17 +200,23 @@ metrics, so the learned arms and the classical arms are directly comparable.
 
 | method | PSNR | SSIM | NMSE | HFEN | head PSNR | head SSIM | head HFEN | sharp | grain | wall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| L1-ESPIRiT | **40.442** | 0.9567 | **0.01072** | 0.5146 | **35.818** | **0.9536** | **0.0656** | 0.865 | 0.0119 | 5 min |
+| MC-GS joint v3.2 ×2 seeds (2× compute) | **40.949** | 0.9297 | **0.00953** | **0.4717** | **36.313** | **0.9557** | **0.0642** | 0.852 | 0.0114 | 115 min |
+| **MC-GS joint v3.2** | 40.893 | 0.9294 | 0.00966 | 0.4756 | 36.254 | 0.9552 | 0.0646 | 0.854 | 0.0115 | 56 min |
+| MC-GS single v3 | 40.846 | 0.9286 | 0.00976 | 0.4745 | 36.227 | 0.9538 | 0.0675 | 0.827 | 0.0107 | 51 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | 40.815 | 0.9292 | 0.00983 | 0.4778 | 36.164 | 0.9535 | 0.0675 | 0.824 | 0.0107 | 257 min |
+| MC-GS joint v3 | 40.766 | 0.9290 | 0.00994 | 0.4812 | 36.112 | 0.9531 | 0.0679 | 0.826 | 0.0108 | 189 min |
+| L1-ESPIRiT | 40.442 | 0.9567 | 0.01072 | 0.5146 | 35.818 | 0.9536 | 0.0656 | 0.865 | 0.0119 | 5 min |
 | MC-GS single v2 | 40.302 | 0.9290 | 0.01106 | 0.5082 | 35.680 | 0.9480 | 0.0661 | 0.866 | 0.0117 | 38 min |
-| **MC-GS joint v2** | 40.174 | 0.9314 | 0.01140 | 0.5239 | 35.429 | 0.9474 | 0.0665 | 0.857 | 0.0117 | 40 min |
-| CS-SENSE (TV, converged) | 40.110 | 0.9509 | 0.01156 | **0.5064** | 35.168 | 0.9493 | 0.0785 | 0.783 | 0.0101 | 4 min |
+| MC-GS joint v2 | 40.174 | 0.9314 | 0.01140 | 0.5239 | 35.429 | 0.9474 | 0.0665 | 0.857 | 0.0117 | 40 min |
+| CS-SENSE (TV, converged) | 40.110 | 0.9509 | 0.01156 | 0.5064 | 35.168 | 0.9493 | 0.0785 | 0.783 | 0.0101 | 4 min |
 | joint CS-SENSE (JTV) | 40.024 | 0.9552 | 0.01180 | 0.5109 | 35.008 | 0.9487 | 0.0818 | 0.798 | 0.0108 | 7 min |
 | CS-SENSE (TV, 35 outer, as run 09-09) | 39.229 | 0.9307 | 0.01417 | 0.5440 | 34.219 | 0.9427 | 0.0916 | 0.741 | 0.0097 | 5 min |
 | ZS-SSDU | 38.991 | **0.9677** | 0.01497 | 0.5626 | 33.822 | 0.9493 | 0.1168 | 1.128 | 0.0159 | 42 min |
 | MC-GS single (old cold start) | 37.743 | 0.9162 | 0.01995 | 0.6361 | 33.497 | 0.9319 | 0.0932 | 0.866 | 0.0138 |  |
 | MC-GS joint (old cold start) | 37.833 | 0.9365 | 0.01954 | 0.6478 | 33.121 | 0.9295 | 0.1005 | 0.802 | 0.0116 |  |
 | CG-SENSE | 35.919 | 0.7829 | 0.03036 | 0.7270 | 32.509 | 0.9210 | 0.1181 | 0.812 | 0.0145 | 7 min |
-| 3D-INR | 35.622 | 0.8584 | 0.03250 | 0.9478 | 31.021 | 0.8606 | 0.1053 | **1.233** | 0.0264 | 121 min |
+| P-LORAKS | 36.462 | 0.9110 | 0.02679 | 0.8482 | 31.343 | 0.8565 | 0.0921 | **1.317** | 0.0303 |  |
+| 3D-INR | 35.622 | 0.8584 | 0.03250 | 0.9478 | 31.021 | 0.8606 | 0.1053 | 1.233 | 0.0264 | 121 min |
 | 3D-DIP | 35.071 | 0.8763 | 0.03690 | 0.8131 | 29.708 | 0.8635 | 0.1888 | 0.641 | 0.0090 | 57 min |
 | ZF | 30.548 | 0.8659 | 0.10456 | 0.9198 | 25.193 | 0.7013 | 0.6406 | 0.277 | **0.0042** | 6 min |
 
@@ -363,13 +375,119 @@ of it on hyw T2 (+0.26), behind on the FLAIR channels and on jiangyizhou. It kee
 head HFEN on hyw T1 (0.0863) and stays +1.4 to +2.3 dB above the cold-start joint arm it
 replaced. The claim that survives is the diagnosis and repair of the cold-start path, not
 "first among nine".
+A per-slice sweep against the converged and new arms (`scripts/find_best_slice_v2.py`, output in
+`logs/best_slice_v2.log`) finds v2 first on **none** of the full-brain slices (>= 20000 head
+voxels) in any plane of any topic; L1-ESPIRiT leads on the slices where v2 itself peaks as well.
+The compact figures (`scripts/fig_slice_v2.py`, `scripts/fig_planes_v2.py`) now carry the
+converged TV, joint TV and L1-ESPIRiT columns and show those ranks as they are.
 
 P-LORAKS (LORAKS v2 toolbox, per-readout-slice, S-matrix, R = 2) is the fourth arm of this
-revisit; its rank is being selected on a six-slice subset of hyw T1 at the time of writing and
-its rows enter `logs/summary.tsv` through `scripts/summarize.py` once the full runs land.
+revisit; its rank (40) was selected on a six-slice subset of hyw T1 (`logs/ploraks/ranksweep_R2.log`). The full runs
+(rank 40, R = 2, at most 50 iterations, 48 MATLAB workers per channel) took 6.7 h for T1 and 8.0 h for T2, and
+both rows are in the tables. P-LORAKS is mid-table on whole-volume PSNR (35.512 / 36.462) but near
+the bottom on head PSNR (30.623 / 31.343). Its sharpness ratio (1.24 / 1.32) and grain ratio
+(2.08 / 1.21) show far more noise inside the head than in the ground truth; the
+whole-volume gauge dilutes that with background.
 Scripts: `recon_classical.py --suffix` (sweeps), `recon_joint_cssense.py`, `recon_l1espirit.py`,
 `ploraks_export.py` / `run_ploraks.m` / `run_ploraks_ranks.m` / `ploraks_import.py`; sweep logs
 in `logs/sweeps/`, per-run json in `logs/`.
+
+## MC-GS joint v3 — wavelet sparsity and capacity (autoresearch, 2026-09-10/11)
+
+The classical revisit above left L1-wavelet ESPIRiT ahead of v2 on every channel, i.e. the strongest
+classical prior on this data is wavelet sparsity, while MC-GS was regularised with edge-TV only. v3 adds
+that prior to the MC-GS objective and, because the prior stops the extra Gaussians from overfitting
+the acquired samples, doubles the cloud:
+
+**v3 = v2 (head-support init, 3-NN scales, kappa from ZF) + 2.4M initial points + a complex
+wavelet-sparsity term λ 0.05 on top of edge-TV** (`paired_gs/losses/wavelet_l1.py`: per-voxel L1 of the
+3-D db2 detail coefficients of the rendered volume, 3 levels, periodic boundary, cycle spinning; one
+strength for both contrasts). 4000 iterations, about 32.6 GB; the other eight 2.4M wavelet runs took 51–69 min
+on an A800, the v3 run itself logged 189 min (the wavelet term costs +66 % time per iteration).
+
+```bash
+cd $F && SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar12_n24_wav005_full4k 7 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05
+```
+
+| arm (4000 iters) | head PSNR T1 / T2 | head SSIM | head HFEN | whole PSNR | sharp |
+|---|---|---|---|---|---|
+| **MC-GS joint v3** | 35.771 / 36.112 | 0.9468 / 0.9531 | 0.0831 / 0.0679 | 39.912 / 40.766 | 0.867 / 0.826 |
+| MC-GS single v3 (same recipe, one contrast) | 35.679 / 36.227 | 0.9455 / 0.9538 | 0.0851 / 0.0675 | 39.840 / 40.846 | 0.864 / 0.827 |
+| MC-GS joint v3, per-contrast wavelet (T1 0.06 / T2 0.03) | 35.856 / 36.079 | 0.9481 / 0.9521 | 0.0832 / 0.0661 | 40.006 / 40.700 | 0.862 / 0.838 |
+| L1-ESPIRiT | 35.530 / 35.818 | 0.9471 / 0.9536 | 0.0867 / 0.0656 | 39.823 / 40.442 | 0.899 / 0.865 |
+| CS-SENSE (TV, converged) | 34.966 / 35.168 | 0.9460 / 0.9493 | 0.0993 / 0.0785 | 39.534 / 40.110 | 0.829 / 0.783 |
+| MC-GS joint v2 | 34.978 / 35.429 | 0.9373 / 0.9474 | 0.0863 / 0.0665 | 39.249 / 40.174 | 0.912 / 0.857 |
+
+- **v3 is first on head PSNR on both contrasts**, +0.240 / +0.293 dB over L1-ESPIRiT and
+  +0.79 / +0.68 dB over v2; whole-volume PSNR and NMSE above every competing method on both (on T2 its own single-contrast
+  ablation is higher still); head HFEN first on T1 but not on T2 (0.0679 against L1-ESPIRiT 0.0656); head
+  SSIM 0.0003 / 0.0005 below L1-ESPIRiT.
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm including
+  L1-ESPIRiT and P-LORAKS; the single-contrast ablation is not counted as a competitor): v3 is first on
+  42 of 47 transverse, 83 of 88 coronal and 90 of 93 sagittal T1 slices, and on every full-brain T2
+  slice in all three planes.
+- **Joint versus single under v3**: T1 +0.09 dB for the joint model, T2 -0.12 dB. The single-contrast
+  v3 arm already beats L1-ESPIRiT on both contrasts on its own (35.679 / 36.227); the joint
+  coupling moves accuracy from T2 to T1, as it did under v2 (+0.30 / −0.25), with a smaller swing.
+  **The margin over L1-ESPIRiT comes from the Gaussian representation with the wavelet prior and the
+  larger cloud, not from the coupling.**
+- **Two seeds averaged** (v3 ×2, program Round 18; its own table row, at twice the compute): head PSNR 35.877 /
+  36.164, +0.347 / +0.346 dB over L1-ESPIRiT; head SSIM 0.9478 / 0.9535 against L1-ESPIRiT's 0.9471 / 0.9536, so it
+  leads on T1 and trails by 0.0001 on T2; head HFEN 0.0825 / 0.0675 (L1-ESPIRiT 0.0656 on T2); whole-volume PSNR
+  40.004 / 40.815. Single-run v3 stays the headline arm.
+- **Gate**: the pre-registered no-blur floor on T1 sharpness (0.874, the sharpness of the original
+  cold-start joint arm) is **missed by 0.007** (T1 sharpness 0.867); T2 passes. The grain ratio falls
+  from v2's 0.998 to 0.972 and the head HFEN from 0.0863 to 0.0831, which reads as noise removal
+  rather than lost detail, but the gate as written is not met.
+- **Selection**: the recipe (the wavelet strength and the point count) was selected on this subject with
+  the ground truth in the scorer — the same treatment the L1-ESPIRiT and TV lambdas received here. It was
+  then run unchanged on the two T1+FLAIR topics; see their READMEs (hyw T1+FLAIR +0.24 / +0.25 dB over
+  L1-ESPIRiT, held-out jiangyizhou tied on T1 and +0.215 dB on FLAIR).
+- The per-contrast variant scores a slightly higher minimum margin on this pair; v3 keeps one shared
+  strength because FLAIR, the other topics' second contrast, has no tuned value of its own.
+- Figures (compact panels, v3 as the proposed method): `figures/t1t2_af12_T1_best_axis0_150.png`,
+  `figures/t1t2_af12_T2_best_axis0_144.png` (v3's best transverse slices), `figures/t1t2_af12_{T1,T2}_best3planes.png`.
+
+## MC-GS joint v3.2 — T1-channel wavelet 0.06 and lighter edge-TV 0.07 (2026-09-11)
+
+v3.2 = v3 + a T1-channel wavelet strength of 0.06 (the second channel keeps 0.05) + edge-TV 0.07 instead of 0.10; on the
+T1+FLAIR topics the FLAIR channel takes 0.12. Selected on the tuning pair by the pre-registered rules of the framework
+program (Rounds 16–17, "## v3.2 — adopted"). This is the tuning pair: v3.2 was selected here.
+
+```bash
+cd $F && CONFIG=configs/t1t2_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar19_n24_T1p06_geo007 2 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05 --set loss.lambda_wav_plain=0.06 --lambda_geo 0.07
+```
+
+Standing of v3.2 against every other method in this topic's table (single run, seed 42):
+
+| metric | T1 | T2 |
+|---|---|---|
+| head PSNR | **first**, 35.827 (next: L1-ESPIRiT 35.530) | **first**, 36.254 (next: L1-ESPIRiT 35.818) |
+| head SSIM | **first**, 0.9483 (next: L1-ESPIRiT 0.9471) | **first**, 0.9552 (next: L1-ESPIRiT 0.9536) |
+| head HFEN | **first**, 0.0799 (next: L1-ESPIRiT 0.0867) | **first**, 0.0646 (next: L1-ESPIRiT 0.0656) |
+| whole-volume PSNR | **first**, 39.999 (next: L1-ESPIRiT 39.823) | **first**, 40.893 (next: L1-ESPIRiT 40.442) |
+| whole-volume NMSE | **first**, 0.01205 (next: L1-ESPIRiT 0.01254) | **first**, 0.00966 (next: L1-ESPIRiT 0.01072) |
+| whole-volume HFEN | third, 0.5585 (best: converged TV 0.5549) | **first**, 0.4756 (next: converged TV 0.5064) |
+| whole-volume SSIM | sixth, 0.9007 (best: L1-ESPIRiT 0.9510) | sixth, 0.9294 (best: ZS-SSDU 0.9677) |
+
+| arm | head PSNR T1 / T2 | head SSIM | head HFEN | whole PSNR | sharp |
+|---|---|---|---|---|---|
+| **MC-GS joint v3.2** | 35.827 / 36.254 | 0.9483 / 0.9552 | 0.0799 / 0.0646 | 39.999 / 40.893 | 0.897 / 0.854 |
+| MC-GS joint v3 | 35.771 / 36.112 | 0.9468 / 0.9531 | 0.0831 / 0.0679 | 39.912 / 40.766 | 0.867 / 0.826 |
+| L1-ESPIRiT | 35.530 / 35.818 | 0.9471 / 0.9536 | 0.0867 / 0.0656 | 39.823 / 40.442 | 0.899 / 0.865 |
+
+- **T1**: first on head PSNR, head SSIM, head HFEN, whole-volume PSNR, whole-volume NMSE; not first on whole-volume HFEN (third), whole-volume SSIM (sixth).
+- **T2**: first on head PSNR, head SSIM, head HFEN, whole-volume PSNR, whole-volume NMSE, whole-volume HFEN; not first on whole-volume SSIM (sixth).
+- **Against v3**: T1 +0.057 dB / head SSIM +0.0014, T2 +0.142 dB / head SSIM +0.0020.
+- **Gate**: T1 sharpness 0.897 passes the pre-registered 0.874 floor.
+- **Two seeds averaged** (v3.2 ×2, Round 18c; its own table row, at twice the compute): head PSNR T1 35.929 (first), T2 36.313 (first); head SSIM T1 0.9492 (first), T2 0.9557 (first); head HFEN T1 0.0793 (first), T2 0.0642 (first). Single-run v3.2 stays the headline arm.
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS included): T1 first on 47/47, 88/88, 93/93 transverse / coronal / sagittal slices; T2 first on 44/44, 83/83, 90/90 transverse / coronal / sagittal slices.
+- Whole-volume SSIM is dominated by the background noise that `ecalib -c 0.0` leaves in the air (see the gauge note above), which is why the campaign reads head-only metrics; it is reported as it stands.
+- Figures (compact panels, v3.2 as the proposed method): `figures/t1t2_af12_T1_best_axis0_150.png`, `figures/t1t2_af12_T2_best_axis0_144.png`, `figures/t1t2_af12_{T1,T2}_best3planes.png`.
 
 ## Regenerating
 

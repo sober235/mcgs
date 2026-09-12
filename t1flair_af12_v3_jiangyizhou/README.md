@@ -26,16 +26,22 @@ whole-volume SSIM misleads on this data).
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| L1-ESPIRiT | 39.497 | 0.9420 | **36.334** | 0.9443 | 5 min |
-| CS-SENSE (TV, converged) | **39.753** | 0.9522 | 36.144 | **0.9459** | 5 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | **39.847** | 0.9219 | **36.539** | 0.9449 | 118 min |
+| MC-GS joint v3.2 ×2 seeds (2× compute) | 39.838 | 0.9213 | 36.499 | 0.9445 | 116 min |
+| MC-GS joint v3 | 39.662 | 0.9206 | 36.337 | 0.9428 | 63 min |
+| L1-ESPIRiT | 39.497 | 0.9420 | 36.334 | 0.9443 | 5 min |
+| **MC-GS joint v3.2** | 39.654 | 0.9200 | 36.299 | 0.9423 | 57 min |
+| MC-GS single v3 | 39.566 | 0.9251 | 36.257 | 0.9412 | 70 min |
+| CS-SENSE (TV, converged) | 39.753 | 0.9522 | 36.144 | **0.9459** | 5 min |
 | joint CS-SENSE (JTV) | 39.648 | **0.9587** | 36.070 | 0.9442 | 5 min |
 | CS-SENSE (TV, 35 outer, as run 09-09) | 39.395 | 0.9523 | 35.762 | 0.9429 | 2 min |
 | ZS-SSDU | 39.357 | 0.9577 | 35.724 | 0.9422 | 22 min |
-| **MC-GS joint v2** | 38.949 | 0.9194 | 35.520 | 0.9321 | 42 min |
+| MC-GS joint v2 | 38.949 | 0.9194 | 35.520 | 0.9321 | 42 min |
 | MC-GS single v2 | 38.601 | 0.9205 | 35.209 | 0.9260 | 42 min |
 | MC-GS joint (old cold start) | 36.349 | 0.8703 | 34.160 | 0.9169 |  |
 | MC-GS single (old cold start) | 35.529 | 0.8297 | 33.799 | 0.9032 |  |
 | CG-SENSE | 35.082 | 0.7562 | 33.514 | 0.8981 | 2 min |
+| P-LORAKS | 35.874 | 0.8889 | 31.992 | 0.8528 |  |
 | 3D-INR | 34.668 | 0.8218 | 31.638 | 0.8373 | 57 min |
 | 3D-DIP | 35.267 | 0.8475 | 31.363 | 0.8634 | 50 min |
 | ZF | 30.240 | 0.8353 | 26.130 | 0.7009 | 2 min |
@@ -44,17 +50,23 @@ whole-volume SSIM misleads on this data).
 
 | method | PSNR | SSIM | head PSNR | head SSIM | wall |
 |---|---|---|---|---|---|
-| L1-ESPIRiT | **39.327** | 0.9525 | **35.720** | **0.9368** | 5 min |
+| MC-GS joint v3.2 ×2 seeds (2× compute) | **39.536** | 0.9032 | **36.108** | **0.9378** | 116 min |
+| MC-GS joint v3 ×2 seeds (2× compute) | 39.441 | 0.9107 | 36.049 | 0.9360 | 118 min |
+| **MC-GS joint v3.2** | 39.473 | 0.9028 | 36.039 | 0.9369 | 57 min |
+| MC-GS single v3 | 39.325 | 0.9011 | 36.009 | 0.9346 | 71 min |
+| MC-GS joint v3 | 39.334 | 0.9098 | 35.935 | 0.9346 | 63 min |
+| L1-ESPIRiT | 39.327 | 0.9525 | 35.720 | 0.9368 | 5 min |
 | joint CS-SENSE (JTV) | 39.277 | 0.9523 | 35.624 | 0.9352 | 7 min |
 | CS-SENSE (TV, converged) | 39.142 | 0.9497 | 35.581 | 0.9353 | 5 min |
 | MC-GS single v2 | 38.503 | 0.8966 | 35.101 | 0.9216 | 39 min |
 | CS-SENSE (TV, 35 outer, as run 09-09) | 38.773 | 0.9416 | 35.084 | 0.9307 | 2 min |
-| **MC-GS joint v2** | 38.584 | 0.9082 | 35.056 | 0.9238 | 42 min |
+| MC-GS joint v2 | 38.584 | 0.9082 | 35.056 | 0.9238 | 42 min |
 | ZS-SSDU | 38.807 | **0.9563** | 35.034 | 0.9353 | 36 min |
 | CG-SENSE | 35.704 | 0.7782 | 33.957 | 0.9032 | 2 min |
 | MC-GS single (old cold start) | 36.204 | 0.8749 | 33.409 | 0.9006 |  |
 | MC-GS joint (old cold start) | 36.646 | 0.9079 | 33.391 | 0.9064 |  |
 | 3D-INR | 34.637 | 0.8274 | 31.190 | 0.8277 | 57 min |
+| P-LORAKS | 35.071 | 0.8731 | 31.176 | 0.8165 |  |
 | 3D-DIP | 34.730 | 0.8131 | 30.810 | 0.8333 | 50 min |
 | ZF | 32.109 | 0.8523 | 28.193 | 0.7330 | 2 min |
 
@@ -170,13 +182,106 @@ of it on hyw T2 (+0.26), behind on the FLAIR channels and on jiangyizhou. It kee
 head HFEN on hyw T1 (0.0863) and stays +1.4 to +2.3 dB above the cold-start joint arm it
 replaced. The claim that survives is the diagnosis and repair of the cold-start path, not
 "first among nine".
+A per-slice sweep against the converged and new arms (`scripts/find_best_slice_v2.py`, output in
+`logs/best_slice_v2.log`) finds v2 first on **none** of the full-brain slices (>= 20000 head
+voxels) in any plane of any topic; L1-ESPIRiT leads on the slices where v2 itself peaks as well.
+The compact figures (`scripts/fig_slice_v2.py`, `scripts/fig_planes_v2.py`) now carry the
+converged TV, joint TV and L1-ESPIRiT columns and show those ranks as they are.
 
 P-LORAKS (LORAKS v2 toolbox, per-readout-slice, S-matrix, R = 2) is the fourth arm of this
-revisit; its rank is being selected on a six-slice subset of hyw T1 at the time of writing and
-its rows enter `logs/summary.tsv` through `scripts/summarize.py` once the full runs land.
+revisit; its rank (40) was selected on a six-slice subset of hyw T1 (`../T1T2_AF12_retro/logs/ploraks/ranksweep_R2.log`)
+and is applied unchanged here. The T1 run (rank 40, R = 2, 48 MATLAB workers) took 5.7 h and the FLAIR run
+3.6 h; both rows are in the tables.
 Scripts: `recon_classical.py --suffix` (sweeps), `recon_joint_cssense.py`, `recon_l1espirit.py`,
 `ploraks_export.py` / `run_ploraks.m` / `run_ploraks_ranks.m` / `ploraks_import.py`; sweep logs
 in `logs/sweeps/`, per-run json in `logs/`.
+
+## MC-GS joint v3 — the T1+T2 recipe with wavelet sparsity, run unchanged on the held-out subject (2026-09-10/11)
+
+v3 is defined and selected on the huangyuwei T1+T2 pair (`../T1T2_AF12_retro/README.md`, section "MC-GS joint
+v3"): v2's cold-start fixes + 2.4M initial points + a complex wavelet-sparsity term λ 0.05 on top of edge-TV,
+4000 iterations, one strength for both contrasts. Nothing was tuned on this subject; it stays out of every
+selection in the campaign (`autoresearch_t1t2.md` in the framework repo).
+
+```bash
+cd $F && CONFIG=configs/t1flair_v3_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar13_tf_jyz_t1flair_v3b 5 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05
+```
+
+| arm (4000 iters) | head PSNR T1 / FLAIR | head SSIM | head HFEN | whole PSNR | sharp |
+|---|---|---|---|---|---|
+| **MC-GS joint v3** | 36.337 / 35.935 | 0.9428 / 0.9346 | 0.0987 / 0.0994 | 39.662 / 39.334 | 0.892 / 0.847 |
+| MC-GS joint v3, seed 43 | 36.338 / 35.937 | 0.9428 / 0.9347 | 0.0987 / 0.0994 | 39.664 / 39.335 | 0.892 / 0.847 |
+| MC-GS joint v3 ×2 seeds (mean of the two runs, 2× compute) | 36.539 / 36.049 | 0.9449 / 0.9360 | 0.0974 / 0.0985 | 39.847 / 39.441 | 0.883 / 0.842 |
+| MC-GS single v3 (same recipe, one contrast) | 36.257 / 36.009 | 0.9412 / 0.9346 | 0.1019 / 0.0994 | 39.566 / 39.325 | 0.891 / 0.857 |
+| L1-ESPIRiT | 36.334 / 35.720 | 0.9443 / 0.9368 | 0.1034 / 0.1002 | 39.497 / 39.327 | 0.906 / 0.809 |
+| CS-SENSE (TV, converged) | 36.144 / 35.581 | 0.9459 / 0.9353 | 0.1107 / 0.1073 | 39.753 / 39.142 | 0.838 / 0.783 |
+| MC-GS joint v2 | 35.520 / 35.056 | 0.9321 / 0.9238 | 0.1056 / 0.1063 | 38.949 / 38.584 | 0.927 / 0.875 |
+
+- **Held out, v3 is first on head PSNR on FLAIR (+0.216 dB over L1-ESPIRiT) and ties on T1 (+0.003)**; the
+  seed-43 repeat gives +0.004 / +0.217. Head HFEN is first on both contrasts. Whole-volume PSNR and NMSE are
+  first on FLAIR and second on T1 (converged TV 39.753). Head SSIM trails: fourth on T1 and fifth on FLAIR
+  (best other arm: converged TV 0.9459 on T1, L1-ESPIRiT 0.9368 on FLAIR).
+- **Two seeds averaged** (v3 ×2, program Round 18): +0.205 / +0.329 dB over L1-ESPIRiT and first on
+  whole-volume PSNR on both contrasts, so the tie on T1 becomes a clear lead. Head SSIM rises to 0.9449 / 0.9360,
+  still below the best other arm on each channel. It is reported as its own row at twice the compute;
+  single-run v3 stays the headline arm.
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS not yet
+  in): FLAIR first on 94/94 transverse, 87/120 coronal and 118/118 sagittal slices; T1, where the volume-level
+  margin is a tie, first on 18/96, 77/121 and 56/118.
+- **Joint versus single**: the joint model is +0.080 dB on T1 and −0.074 on FLAIR. The single-contrast FLAIR is
+  by itself +0.289 above L1-ESPIRiT, the single-contrast T1 −0.077 below it. The coupling moves accuracy from
+  FLAIR to T1, and that is what brings T1 level with L1-ESPIRiT on this subject.
+- **Gate**: T1 sharpness 0.892 passes the pre-registered 0.874 floor on this subject.
+- **External arm, not held out**: the parallel AF16 loop's recipe, selected on this subject at AF16 (3.6M points,
+  wavelet T1 0.10 / FLAIR 0.07), run unchanged on this topic: head PSNR 36.753 / 36.165, head SSIM 0.9480 / 0.9374,
+  head HFEN 0.1009 / 0.1002, whole-volume PSNR 40.071 / 39.539 (`mcgs_af16_wt/results_arc/ar17_P6_tf_jyz_af12_full4k_score.json`).
+  It is first on head PSNR, head SSIM and whole-volume PSNR on both channels. Because it was selected on this
+  subject, it is cross-checked on huangyuwei (framework program, Round 20).
+- P-LORAKS for this subject has finished; both rows are in the tables (see "Classical arms revisited").
+- Figures (compact panels, v3 as the proposed method): `figures/t1flair_v3_af12_T1_best_axis0_173.png`,
+  `figures/t1flair_v3_af12_FLAIR_best_axis0_178.png` (v3's best transverse slices),
+  `figures/t1flair_v3_af12_{T1,FLAIR}_best3planes.png`.
+
+## MC-GS joint v3.2 — T1-channel wavelet 0.06 and lighter edge-TV 0.07 (2026-09-11)
+
+v3.2 = v3 + a T1-channel wavelet strength of 0.06 (the second channel keeps 0.05) + edge-TV 0.07 instead of 0.10; on the
+T1+FLAIR topics the FLAIR channel takes 0.12. Selected on the tuning pair by the pre-registered rules of the framework
+program (Rounds 16–17, "## v3.2 — adopted"). Held out: nothing in v3.2 was selected on this subject.
+
+```bash
+cd $F && CONFIG=configs/t1flair_v3_af12_hyw.yaml SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar19_tf_jyz_full_C012 1 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.12 --lambda_geo 0.07
+```
+
+Standing of v3.2 against every other method in this topic's table (single run, seed 42):
+
+| metric | T1 | FLAIR |
+|---|---|---|
+| head PSNR | second, 36.299 (best: L1-ESPIRiT 36.334) | **first**, 36.039 (next: L1-ESPIRiT 35.720) |
+| head SSIM | fifth, 0.9423 (best: converged TV 0.9459) | **first**, 0.9369 (next: L1-ESPIRiT 0.9368) |
+| head HFEN | **first**, 0.0965 (next: L1-ESPIRiT 0.1034) | second, 0.1025 (best: L1-ESPIRiT 0.1002) |
+| whole-volume PSNR | second, 39.654 (best: converged TV 39.753) | **first**, 39.473 (next: L1-ESPIRiT 39.327) |
+| whole-volume NMSE | second, 0.01411 (best: converged TV 0.01379) | **first**, 0.01325 (next: L1-ESPIRiT 0.01370) |
+| whole-volume HFEN | fourth, 0.6449 (best: converged TV 0.6154) | **first**, 0.6013 (next: joint CS-SENSE 0.6188) |
+| whole-volume SSIM | sixth, 0.9200 (best: joint CS-SENSE 0.9587) | sixth, 0.9028 (best: ZS-SSDU 0.9563) |
+
+| arm | head PSNR T1 / FLAIR | head SSIM | head HFEN | whole PSNR | sharp |
+|---|---|---|---|---|---|
+| **MC-GS joint v3.2** | 36.299 / 36.039 | 0.9423 / 0.9369 | 0.0965 / 0.1025 | 39.654 / 39.473 | 0.921 / 0.822 |
+| MC-GS joint v3 | 36.337 / 35.935 | 0.9428 / 0.9346 | 0.0987 / 0.0994 | 39.662 / 39.334 | 0.892 / 0.847 |
+| L1-ESPIRiT | 36.334 / 35.720 | 0.9443 / 0.9368 | 0.1034 / 0.1002 | 39.497 / 39.327 | 0.906 / 0.809 |
+| converged TV (best other head SSIM) | 36.144 / 35.581 | 0.9459 / 0.9353 | 0.1107 / 0.1073 | 39.753 / 39.142 | 0.838 / 0.783 |
+
+- **T1**: first on head HFEN; not first on head PSNR (second), head SSIM (fifth), whole-volume PSNR (second), whole-volume NMSE (second), whole-volume HFEN (fourth), whole-volume SSIM (sixth).
+- **FLAIR**: first on head PSNR, head SSIM, whole-volume PSNR, whole-volume NMSE, whole-volume HFEN; not first on head HFEN (second), whole-volume SSIM (sixth).
+- **Against v3**: T1 -0.038 dB / head SSIM -0.0005, FLAIR +0.104 dB / head SSIM +0.0023.
+- **Gate**: T1 sharpness 0.921 passes the pre-registered 0.874 floor.
+- **Two seeds averaged** (v3.2 ×2, Round 18c; its own table row, at twice the compute): head PSNR T1 36.499 (first), FLAIR 36.108 (first); head SSIM T1 0.9445 (second; converged TV 0.9459), FLAIR 0.9378 (first); head HFEN T1 0.0952 (first), FLAIR 0.1015 (second; L1-ESPIRiT 0.1002). Single-run v3.2 stays the headline arm.
+- **Per slice** (`scripts/find_best_slice_v2.py`, full-brain slices, against every other arm; P-LORAKS included): T1 first on 9/96, 69/121, 33/118 transverse / coronal / sagittal slices; FLAIR first on 94/94, 120/120, 118/118 transverse / coronal / sagittal slices.
+- Figures (compact panels, v3.2 as the proposed method): `figures/t1flair_v3_af12_T1_best_axis0_173.png`, `figures/t1flair_v3_af12_FLAIR_best_axis0_177.png`, `figures/t1flair_v3_af12_{T1,FLAIR}_best3planes.png`.
 
 ## Regenerating
 

@@ -29,7 +29,8 @@ Read in this order: this file → `STATUS.md` (current state, what to re-run fir
 ## Environment
 - Python: `/home/congcongliu/anaconda3/envs/GSTMI/bin/python` (torch 2.7.1+cu118), always with
   `PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID`.
-- Tests: `PYTHONNOUSERSITE=1 PYTHONPATH= $PY -m pytest tests -q --ignore=tests/smoke_test.py` (174, ~2 min, needs a GPU).
+- Tests: `PYTHONNOUSERSITE=1 PYTHONPATH= $PY -m pytest tests -q --ignore=tests/smoke_test.py` (183, ~2 min on an idle
+  host, needs a GPU; add `OMP_NUM_THREADS=4 MKL_NUM_THREADS=4` when MATLAB loads the CPU, then ~45 min).
 - Data roots: `/data0/congcong/code/GS/Results_20260908/<TOPIC>/data` (retrospective AF12 topics:
   k-space h5, ESPIRiT maps, masks); the old T1+FLAIR bundle paths are in `configs/winner_v2*.yaml`.
 - Results archive: `/data0/congcong/code/GS/Results_20260908/` — one topic per folder, README +

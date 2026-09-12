@@ -78,6 +78,7 @@ Knobs already wired (cycle.py flags, or `--set key.path=value` for anything in t
 | densification | `--use_cloning --split_quantile q --max_points N --densify_until I` | any of these enables `adaptive_control`; `--set adaptive_control.{densify_from_iter,densify_every,scale_threshold,opacity_threshold}` |
 | lrs | `--set gaussian.{position,scale,rotation,density}_lr` | schedule: `--set training.lr_scheduler.gamma` |
 | regulariser | `--lambda_geo --tv_eps --kspace_high --edge_tv_kappa_q --edge_tv_wfloor --kspace_center --kspace_mid` | |
+| wavelet sparsity (added 09-10) | `--set loss.lambda_wav=λ` (+ `loss.wav_name` db2, `wav_levels` 3, `wav_eps` 0, `wav_cycle_spin` true, `wav_on` complex/magnitude) | L1 of the 3-D wavelet detail coefficients of the render (`paired_gs/losses/wavelet_l1.py`), i.e. the L1-ESPIRiT prior; default off (bit-identical); +66 % time per iteration; `--lambda_geo 0` alongside it replaces TV instead of adding to it |
 | capacity | `--set gaussian.initial_num_points` | 600000 baseline; VRAM 32 GB at 600k joint |
 
 ## Budget and protocol
@@ -365,3 +366,588 @@ was audited. Head PSNR, hyw T1 / T2 / FLAIR and jyz T1 / FLAIR:
   Target for any further loop on hyw T1+T2: 35.53 / 35.82 (L1-ESPIRiT).
 - P-LORAKS (LORAKS v2 toolbox, per readout slice, S-matrix): R = 3 costs > 1 h per slice on a
   worker; the rank sweep runs at R = 2, 30 iterations (about 35 min per slice), results pending.
+
+**LORAKS family, probed on a six-slice hyw T1 subset (readout-decoupled 2-D problems, 26 coils,
+head-masked PSNR of the slices; CS-SENSE ≈ 35 dB and v2 ≈ 36 dB on the same slices).**
+P-LORAKS (calibrationless, S-matrix): R = 3 costs > 1 h per slice per worker and was abandoned;
+R = 2, strict DC, alg 4 converges by ~22 iterations and gives 30.2 dB at rank 40, worse at every
+larger rank (27.8 / 25.8 / 24.3 at 80 / 150 / 250) and at rank 20 (25.5). AC-LORAKS (nullspace
+from the 16×16 fully sampled centre): 27.5–28.7 dB, rising with rank to 250. SENSE-LORAKS
+(the toolbox's map-based variant): its images come out in MATLAB's 1/N FFT scale (×√N restores
+the gauge, verified: least-squares scale 209 vs √N = 212); at λ ≤ 1e-2 the penalty is inert
+(= pure SENSE, 31.7–32.0 dB ≈ CG-SENSE) and at λ = 10 the solver degenerates (image scale
+collapses, NaNs) — not pursued further. Reading: at a 2-D in-plane acceleration of 11.7 with a
+16×16 calibration region, the low-rank neighbourhood models that do not use the full-data
+ESPIRiT maps are structurally behind every map-based arm; this is a property of the
+retrospective set-up (maps from the full k-space), stated as such. The table gets the
+calibrationless P-LORAKS at rank 40 / R = 2 on all five channels (full runs, ~50 min per
+channel on 48 workers), so the row is complete and its standing is what it is.
+
+**Per-slice check against the corrected arm set (16:40).** `find_best_slice_v2.py` now takes its margin
+against an explicit list of canonical, converged arms (converged TV, joint TV, L1-ESPIRiT, ZS-SSDU,
+DIP, INR, CG-SENSE, ZF; sweep variants in recon/ are ignored). Result: MC-GS joint v2 is first on
+0 of the full-brain slices in every plane of every topic; L1-ESPIRiT leads everywhere, including
+the slices where v2 peaks (hyw T1 slice 150: L1-ESPIRiT 37.02 vs v2 36.29). The compact figures
+were regenerated with those columns and the true ranks.
+
+### Round 11 — wavelet sparsity on the render (2026-09-10, 17:50–20:30), 1500-iteration screens, single deltas from P2
+
+L1-ESPIRiT's lead says the strongest classical prior on this data is wavelet sparsity, while MC-GS
+regularises with edge-TV. Round 11 adds that prior to the MC-GS objective (`loss.lambda_wav`,
+`paired_gs/losses/wavelet_l1.py`: per-voxel L1 of the 3-D db2 detail coefficients of the rendered
+complex volumes, 3 levels, periodic boundary, cycle spinning). λ was calibrated against the TV
+term on the v2 reconstruction: 0.03 is about 1.6 times the TV term.
+
+Head PSNR T1 / T2. Parent P2 at 1500 = 35.007 / 35.022; L1-ESPIRiT at its full budget = 35.530 / 35.818.
+
+| exp | change vs P2 | T1 | T2 | head SSIM | head HFEN | sharp | verdict |
+|---|---|---|---|---|---|---|---|
+| `ar11_wav001_tv` | + wavelet 0.01 | 35.179 | 35.085 | 0.9424 / 0.9466 | 0.0824 / 0.0689 | 0.889 / 0.835 | discard (dominated by 0.03) |
+| `ar11_wav003_tv` | + wavelet 0.03 | 35.373 | 35.120 | 0.9456 / 0.9474 | 0.0813 / 0.0704 | 0.873 / 0.821 | keep, promoted (`ar12_wav003_full4k`) |
+| `ar11_wav005_tv` | + wavelet 0.05 | 35.447 | 35.082 | 0.9471 / 0.9472 | 0.0825 / 0.0732 | 0.859 / 0.809 | best T1 at 1.2M; T2 past its peak |
+| `ar11_wav01_tv` | + wavelet 0.1 | 35.350 | 34.834 | 0.9471 / 0.9446 | 0.0900 / 0.0827 | 0.830 / 0.781 | discard (over-regularised) |
+| `ar11_wav003_notv` | wavelet 0.03 replacing TV | 34.306 | 34.770 | 0.9227 / 0.9409 | 0.0816 / 0.0658 | 1.017 / 0.929 | discard (under-regularised, sharper than GT) |
+| `ar11_wav01_notv` | wavelet 0.1 replacing TV | 35.184 | 34.967 | 0.9443 / 0.9478 | 0.0831 / 0.0744 | 0.911 / 0.846 | discard (above P2 on T1, below TV + wavelet on both) |
+| `ar11_wav003_mag` | + wavelet 0.03 on the magnitude | 35.245 | 34.989 | 0.9418 / 0.9440 | 0.0875 / 0.0736 | 0.854 / 0.808 | discard (the complex modulus is better by 0.13 dB on both) |
+| `ar11_n24_wav005_tv` | **2.4M points + wavelet 0.05** | **35.746** | **35.885** | 0.9474 / 0.9521 | 0.0827 / 0.0695 | 0.867 / 0.823 | **keep, promoted (`ar12_n24_wav005_full4k`); above L1-ESPIRiT's full-budget numbers on both already at 1500** |
+| `ar11_n36_wav003_tv` | 3.6M points + wavelet 0.03 | 35.353 | 36.100 | 0.9401 / 0.9519 | 0.0882 / 0.0668 | 0.873 / 0.836 | discard (vs 2.4M: T2 +0.22, T1 −0.16 — more points need a stronger wavelet on T1); 3.6M + 0.05 queued (`ar11_n36_wav005_tv`) |
+| `ar11_n36_wav005_tv` | 3.6M points + wavelet 0.05 | 35.729 | 36.149 | 0.9457 / 0.9532 | 0.0851 / 0.0687 | 0.863 / 0.825 | keep (vs 2.4M + 0.05: T1 flat −0.02, T2 +0.26; min margin vs L1-ESPIRiT +0.07 → +0.20), promoted (`ar12_n36_wav005_full4k`) |
+| `ar11_n24_wav003_tv` | **2.4M points + wavelet 0.03** | **35.513** | **35.878** | 0.9439 / 0.9514 | 0.0834 / 0.0670 | 0.881 / 0.835 | **keep, promoted (`ar12_n24_wav003_full4k`)** |
+
+Readings.
+
+- Wavelet sparsity on top of edge-TV is the first new lever since capacity: +0.37 / +0.10 dB at
+  λ 0.03 and +0.44 / +0.06 at 0.05, with head SSIM up on both contrasts. Replacing TV by it is
+  worse, so on this data the two priors are complementary rather than substitutes.
+- **It removes the T1 capacity ceiling.** Without it, 2.4M points cost T1 0.44 dB (34.569, the
+  extra points overfit the acquired 8.5 %). With it, T1 at 2.4M is 35.513, so the point count can
+  follow T2 (35.484 → 35.878). At 1500 iterations this configuration sits 0.02 dB below
+  L1-ESPIRiT's full-budget T1 and 0.06 dB above its T2. Head HFEN is better than P2 on both
+  contrasts (0.0834 / 0.0670 vs 0.0844 / 0.0690), head SSIM is higher on both, and sharpness
+  stays above the program floor, so there is no blur trade.
+- A stronger wavelet alone (0.1, TV off) recovers most of the no-TV loss but stays below TV +
+  wavelet on both contrasts; penalising the magnitude instead of the complex coefficients loses
+  0.13 dB on both. The configuration to carry forward is complex wavelet 0.03 on top of edge-TV.
+- Code check: the full suite passes with the new module (182 tests, 45 min at 4 CPU threads under
+  the P-LORAKS load; the first attempt stalled on thread oversubscription, see STATUS §4).
+- Pending: 2.4M + wavelet 0.05, 3.6M + wavelet 0.03 (single deltas from `ar11_n24_wav003_tv`), and
+  the two 4000-iteration promotions. Nothing is claimed until the promotions land: at 1.2M, T1 was
+  flat from 1500 to 4000 and T2 gained 0.4 dB, but at 2.4M the budget effect is unmeasured.
+
+### Round 12 — the two promotions at full budget (2026-09-10, 20:00–21:10)
+
+| exp (4000 iters) | config | T1 | T2 | head SSIM | head HFEN | whole PSNR | sharp |
+|---|---|---|---|---|---|---|---|
+| `ar12_wav003_full4k` | 1.2M + wavelet 0.03 | **35.546** | 35.598 | 0.9459 / 0.9502 | 0.0805 / 0.0671 | 39.795 / 40.357 | 0.882 / 0.833 |
+| `ar12_n24_wav003_full4k` | 2.4M + wavelet 0.03 | 35.448 | **36.082** | 0.9422 / 0.9521 | 0.0852 / 0.0659 | 39.563 / 40.701 | 0.880 / 0.838 |
+| L1-ESPIRiT (reference) | BART, 100 FISTA | 35.530 | 35.818 | 0.9471 / 0.9536 | 0.0867 / 0.0656 | 39.823 / 40.442 | 0.899 / 0.865 |
+
+- Each configuration beats L1-ESPIRiT on one contrast only: 1.2M on T1 (+0.016), 2.4M on T2 (+0.264).
+  With the wavelet term T1 now keeps improving from 1500 to 4000 at 1.2M (+0.17), but at 2.4M it
+  slips back (35.513 → 35.448): over a long budget the larger cloud still overfits T1.
+- Next step, and the fair analogue of what L1-ESPIRiT has: a per-contrast regularisation strength
+  (its lambda is 0.0015 for T1 and 0.001 for T2, while MC-GS shared one lambda between the
+  contrasts). `loss.lambda_wav_plain` / `loss.lambda_wav_contrast` weight the two volumes inside
+  `wavelet_l1` (9 tests). Run directly at 4000 iterations, because the T1 overfitting only shows up
+  late: `ar14_n24_wavP006_C003_full4k` (2.4M, T1 0.06, T2 0.03). A second one with T1 0.1 was
+  prepared but not run: the 2.4M screen at a shared 0.05 (`ar11_n24_wav005_tv`) came in at
+  35.746 / 35.885, above L1-ESPIRiT on both contrasts already at 1500 iterations, so the simpler
+  shared strength was promoted instead (`ar12_n24_wav005_full4k`).
+- The jiangyizhou transfer check of the 2.4M recipe was queued speculatively and removed before it
+  trained (the promotion showed the recipe is not final); the hyw T1+FLAIR one continues, as a
+  measurement of the wavelet term on FLAIR.
+- That hyw T1+FLAIR run (`ar13_tf_hyw_t1flair_v3`, 2.4M + wavelet 0.03, 4000 iterations): T1 35.471 /
+  FLAIR 34.061 against L1-ESPIRiT 35.530 / 34.105 (−0.06 / −0.04), and +0.52 / +0.57 over v2's
+  transfer run; the wavelet term closes most of the FLAIR gap. The candidate recipe (2.4M + 0.05) is
+  now run unchanged on the same topic (`ar13_tf_hyw_t1flair_v3b`), jiangyizhou next.
+
+### Round 14 — per-contrast wavelet strength at the full budget (2026-09-10, 21:15–22:15)
+
+| exp (4000 iters) | config | T1 | T2 | head SSIM | head HFEN | whole PSNR | sharp | grain ratio N |
+|---|---|---|---|---|---|---|---|---|
+| `ar14_n24_wavP006_C003_full4k` | 2.4M, wavelet T1 0.06 / T2 0.03 | **35.856** | **36.079** | **0.9481** / 0.9521 | **0.0832** / 0.0661 | **40.006** / **40.700** | 0.862 / 0.838 | 0.969 / 0.942 |
+| L1-ESPIRiT | BART, 100 FISTA | 35.530 | 35.818 | 0.9471 / **0.9536** | 0.0867 / **0.0656** | 39.823 / 40.442 | 0.899 / 0.865 | 1.008 / 0.953 |
+| CS-SENSE (TV, converged) | 200 outer | 34.966 | 35.168 | 0.9460 / 0.9493 | 0.0993 / 0.0785 | 39.534 / 40.110 | 0.829 / 0.783 | 0.973 / 0.932 |
+| MC-GS joint v2 (P2) | 1.2M, no wavelet | 34.978 | 35.429 | 0.9373 / 0.9474 | 0.0863 / 0.0665 | 39.249 / 40.174 | 0.912 / 0.857 | 0.998 / 0.948 |
+
+- **The first configuration above every arm on head PSNR of both contrasts at the full budget**:
+  +0.33 / +0.26 dB over L1-ESPIRiT, +0.89 / +0.91 over the converged TV arm, +0.88 / +0.65 over v2.
+  Whole-volume PSNR is first on both; head SSIM and HFEN are first on T1 and second on T2
+  (−0.0015 SSIM, +0.0005 HFEN against L1-ESPIRiT).
+- Gate check against the Objective section: head SSIM and HFEN are far inside their floors;
+  **T1 sharpness 0.862 is below the 0.874 floor by 0.012** (T2 0.838 passes). The sharpness drop
+  from v2 (0.912) comes with a lower grain ratio (0.998 → 0.969 of the ground truth's own grain)
+  and a lower head HFEN (0.0863 → 0.0832), i.e. with noise going and detail error going down, not
+  up. That reading is recorded next to the gate, and the gate is reported as missed on T1.
+- The per-contrast strengths were selected on this pair. For the transfer checks the
+  contrast-agnostic shared strength (2.4M + wavelet 0.05, its promotion `ar12_n24_wav005_full4k`
+  pending) is used: FLAIR has no tuned per-contrast value of its own, and L1-ESPIRiT's own FLAIR
+  λ is five times its T2 λ, so "contrast channel 0.03" would not be a like-for-like transfer.
+
+### Transfer checks of the contrast-agnostic recipe (2.4M + shared wavelet 0.05, 4000 iterations, unchanged)
+
+| topic | channel | recipe | L1-ESPIRiT | margin | v2 (previous recipe) | head SSIM recipe / L1 | head HFEN recipe / L1 |
+|---|---|---|---|---|---|---|---|
+| hyw T1+FLAIR (`ar13_tf_hyw_t1flair_v3b`) | T1 | **35.772** | 35.530 | **+0.242** | 34.950 | 0.9470 / 0.9471 | **0.0828** / 0.0867 |
+| | FLAIR | **34.359** | 34.105 | **+0.254** | 33.492 | 0.9169 / 0.9221 | **0.1065** / 0.1096 |
+| jiangyizhou T1+FLAIR, held out (`ar13_tf_jyz_t1flair_v3b`) | T1 | 36.337 | 36.334 | +0.003 (tie) | 35.520 | 0.9428 / 0.9443 | **0.0987** / 0.1034 |
+| | FLAIR | **35.935** | 35.720 | **+0.215** | 35.056 | 0.9346 / 0.9368 | **0.0994** / 0.1002 |
+
+- The recipe transfers: first on head PSNR on three of four channels and tied on the fourth (jyz T1,
+  +0.003 dB, inside the 0.003–0.005 dB seed-repeat floor measured at P2), first on head HFEN on all
+  four, and 0.8–0.9 dB above the previous recipe everywhere. Head SSIM trails L1-ESPIRiT by 0.0001
+  to 0.005.
+- Seed 43 repeat on jiangyizhou (`ar13_tf_jyz_t1flair_v3b_s43`): T1 36.338 / FLAIR 35.937, margins
+  +0.004 / +0.217 against seed 42's +0.003 / +0.215. The seed spread is 0.001 / 0.002 dB, so the jyz T1
+  margin is reproducible but negligible: a tie with L1-ESPIRiT in any practical sense, not a win.
+  FLAIR's +0.22 dB is solid. The per-contrast T1+T2 winner gets the same repeat
+  (`ar14_n24_wavP006_C003_full4k_s43`).
+
+## v3 — the recipe (decided 2026-09-11 00:25)
+
+**v3 = the v2 cold-start fixes (head-support init, 3-NN scales, kappa from ZF) + 2.4M initial points +
+a shared complex wavelet-sparsity term λ 0.05 on top of edge-TV**, 4000 iterations. One strength for both
+contrasts, so it transfers to a contrast it was not tuned on; that is why it is chosen over the
+per-contrast variant, which scores a slightly higher minimum margin on the tuning pair (+0.261 vs +0.241).
+
+```
+./autoresearch_t1t2.sh <EXP> <GPU> 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05
+```
+
+Head PSNR against the strongest arm of each table (L1-ESPIRiT everywhere):
+
+| topic | v3 | L1-ESPIRiT | margin | v2 | head HFEN v3 / L1 | T1 sharpness (floor 0.874) |
+|---|---|---|---|---|---|---|
+| hyw T1+T2 (tuning pair, `ar12_n24_wav005_full4k`) | 35.771 / 36.112 | 35.530 / 35.818 | **+0.241 / +0.294** | 34.978 / 35.429 | 0.0831 / 0.0679 vs 0.0867 / 0.0656 | 0.867 (missed by 0.007) |
+| hyw T1+FLAIR (`ar13_tf_hyw_t1flair_v3b`) | 35.772 / 34.359 | 35.530 / 34.105 | **+0.242 / +0.254** | 34.950 / 33.492 | 0.0828 / 0.1065 vs 0.0867 / 0.1096 | 0.869 (missed by 0.005) |
+| jiangyizhou T1+FLAIR, held out (`ar13_tf_jyz_t1flair_v3b`, seed 42 / 43) | 36.337 / 35.935 | 36.334 / 35.720 | +0.003 (tie) / **+0.215** | 35.520 / 35.056 | 0.0987 / 0.0994 vs 0.1034 / 0.1002 | 0.892 (passes) |
+
+- First on head PSNR on five of six channels and tied on the sixth; first on head HFEN on five of six;
+  head SSIM within 0.005 of L1-ESPIRiT everywhere (below it by 0.0001–0.005); whole-volume PSNR
+  first on the tuning pair.
+- The pre-registered T1 sharpness floor (0.874, the sharpness of the original cold-start joint arm)
+  is missed on both huangyuwei topics, by 0.007 and 0.005. It is reported as missed. The same runs
+  have a lower grain ratio and a lower head HFEN than v2, which points at noise removal rather than
+  lost detail, but the gate as written is not met there.
+- Per-contrast variant (`ar14_n24_wavP006_C003_full4k`, T1 0.06 / T2 0.03): 35.856 / 36.079 on the
+  tuning pair; kept as a variant, seed repeat running.
+- Still running at the time of writing: the single-contrast v3 ablations (hyw T1 done: 35.679; hyw T2,
+  hyw FLAIR, jyz T1, jyz FLAIR), 3.6M + 0.05 at 4000 as a capacity variant, P-LORAKS for the tables.
+
+**T1+T2 topic, v3 per slice and joint versus single (00:45).** Against every other arm (L1-ESPIRiT and
+P-LORAKS included), v3 is first on 42/47 transverse, 83/88 coronal and 90/93 sagittal full-brain T1
+slices and on every full-brain T2 slice. Single-contrast v3: T1 35.679 / T2 36.227 — above L1-ESPIRiT on
+both by itself; joint minus single = +0.09 (T1) / −0.12 (T2). The margin comes from the representation
+with the wavelet prior and the larger cloud; the coupling redistributes accuracy between the contrasts.
+
+### Round 16 — the remaining gaps (pre-registered 2026-09-11 00:50, before any run)
+
+v3 misses one pre-registered gate: T1 sharpness 0.867 is below the 0.874 floor on the tuning pair, and
+0.869 on hyw T1+FLAIR. It also trails L1-ESPIRiT on head SSIM, by 0.0003 / 0.0005 on the tuning pair and
+by up to 0.005 on the T1+FLAIR topics. On jiangyizhou T1 its head-PSNR margin is a tie (+0.003).
+Two single deltas from v3, 4000 iterations each, on the tuning pair:
+
+| exp | change vs v3 | aimed at |
+|---|---|---|
+| `ar16_n24_wav005_T1p06` | wavelet strength on the T1 channel 0.05 → 0.06; the second channel keeps 0.05 | T1 head SSIM and the T1 margin. T1 is the plain channel in all three topics, so the value transfers without a per-topic choice (per-contrast 0.06 / 0.03 gave T1 35.856, head SSIM 0.9481) |
+| `ar16_n24_wav005_geo007` | edge-TV weight lambda_geo 0.10 → 0.07 | the T1 sharpness floor: the wavelet term now does part of the smoothing that edge-TV did alone |
+
+Decision rules, fixed now:
+- T1p06 replaces v3 (as v3.1) only if, on the tuning pair, the minimum margin over L1-ESPIRiT rises above
+  v3's +0.241 by more than 0.005 dB (the largest seed spread measured), neither channel's head PSNR falls
+  by more than 0.01 dB, and T1 head SSIM rises.
+- geo007 replaces v3 only if T1 sharpness reaches the 0.874 floor while head PSNR stays first on both
+  contrasts (margin over L1-ESPIRiT above zero on each). Otherwise it is recorded as the measured price of
+  the sharpness gate.
+- If both qualify, their combination is run once at 4000 iterations before anything is adopted.
+- Whatever replaces v3 is then run unchanged on the two T1+FLAIR topics and reported whatever they show;
+  jiangyizhou stays out of every decision above.
+
+**SSIM diagnosis, recorded before any Round 16 result (01:00).** Scorer-identical 3-D SSIM maps of v3 and
+L1-ESPIRiT on the tuning pair, split into the luminance and contrast-structure terms and binned by quintiles
+of the ground truth's gradient magnitude inside the head (`t1t2_af12_retro/scripts/ssim_breakdown.py`):
+- T1 (v3 − L1 = −0.0003): v3 wins the flattest fifth (+0.0034; less noise, local correlation 0.812 against
+  0.804) and loses the three middle fifths (−0.0005 / −0.0019 / −0.0021), all through the contrast-structure
+  term: lower local correlation (0.935 against 0.938, 0.957 against 0.960) and lower local variance (local
+  std 0.89–0.95 of the ground truth's, L1 0.94–0.97). Luminance is better everywhere.
+- T2 (v3 − L1 = −0.0005): the loss sits in the second and third fifths and is variance match only; v3's
+  local correlation is higher than L1's there, its local std is 0.86 / 0.91 of the ground truth's against
+  L1's 0.91 / 0.94. The flattest fifth adds a luminance loss. The single-contrast v3 (+0.0002 over L1) has
+  the same variance deficit but a smaller flat-region luminance loss.
+- Reading: the SSIM gap is under-represented mid-scale texture, not noise and not edges. Changes that add
+  local variance where the ground truth has moderate gradients should close it: less edge-TV (geo007) and
+  more capacity (the 3.6M promotion). The stronger T1 wavelet (T1p06) is expected to act on the T1
+  correlation part instead.
+
+**Addenda to the Round 16 pre-registration (01:03, still before any result).**
+- Precedent: lambda_geo 0.07 was discarded once, in Round 1 (`ar1_P1_lam007`: 600k points, no wavelet term,
+  1500 iterations): T1 −0.107 / T2 −0.005 dB against its parent (`ar1_P1_rerun`, 34.818 / 34.218), with
+  sharpness up 0.024 / 0.019. It is re-tested because the wavelet term now does part of the smoothing. The
+  Round 1 result predicts a T1 cost, and the decision rule prices it.
+- The 3.6M promotion (`ar12_n36_wav005_full4k`: 3.6M points + wavelet 0.05, 4000 iterations, started before
+  v3 was decided) is judged by the T1p06 margin rule: it replaces 2.4M only if the minimum margin over
+  L1-ESPIRiT rises above +0.241 by more than 0.005 dB and neither channel's head PSNR falls by more than
+  0.01 dB. Any two qualifying changes are combined once at 4000 iterations before adoption.
+
+**Second diagnosis and a prediction, before geo007 starts (01:05).** The per-contrast run
+(`ar14_n24_wavP006_C003_full4k`) against v3, same bins (`t1t2_af12_retro/scripts/ssim_pair_p006.py`):
+- T1, wavelet 0.06 against 0.05: head SSIM +0.0013, gained in every bin and entirely through local
+  correlation (+0.001 to +0.004); local variance is unchanged. This supports the T1p06 expectation.
+- T2, wavelet 0.03 against 0.05: head SSIM −0.0010, lost in every bin through local correlation (−0.001 to
+  −0.007), while local variance rises only 0.005–0.008 of the ground truth's.
+- Prediction: loosening a prior adds little variance and costs correlation, so geo007 is expected to lower
+  head SSIM even if it clears the sharpness floor. The mid-scale variance deficit reads as a representation
+  limit, and capacity (the 3.6M promotion) is the lever for it.
+
+### Round 17 — the FLAIR channel's wavelet strength (pre-registered 2026-09-11 01:13, before any run)
+
+Diagnosis on hyw T1+FLAIR (`t1t2_af12_retro/scripts/ssim_topic.py`, `bias_by_intensity.py`):
+- 74 % of v3's FLAIR head-SSIM gap to L1-ESPIRiT (0.9169 against 0.9221) sits in the flattest fifth of the
+  head, and there it is the luminance term. The loss is concentrated in the darkest intensity decile
+  (suppressed CSF). v3's local mean there is unbiased on average (−0.14 % of max against L1's −0.51 %) but
+  fluctuates, and the luminance term penalises the fluctuation (0.937 against 0.969). The wavelet strength
+  does not touch it: 0.03 gives 0.940 there, 0.05 gives 0.937.
+- The wavelet strength acts on correlation instead. From 0.03 to 0.05, FLAIR head SSIM rose 0.0058, spread
+  evenly over the five gradient bins and entirely through the contrast-structure term (local correlation
+  +0.002 to +0.020), with head PSNR +0.30 dB. On T2 the same step gave +0.0010 and +0.03 dB, so FLAIR is still
+  on the rising side at 0.05. L1-ESPIRiT's own FLAIR λ, selected on hyw, is 3.3 times its T1 λ.
+
+Two single deltas from v3 on hyw T1+FLAIR, 4000 iterations, T1 keeping 0.05: FLAIR-channel strength 0.08
+(`ar17_tf_hyw_wavC008`) and 0.12 (`ar17_tf_hyw_wavC012`), launched by `queue17.sh` on GPUs 5 and 7 as they free.
+
+Rule, fixed now: the strength with the higher FLAIR head PSNR is kept if it beats v3b's 34.359 by more than
+0.005 dB and T1 head PSNR does not fall more than 0.01 dB below 35.772; otherwise 0.05 stays. Head SSIM is
+reported alongside. The kept value then runs unchanged on jiangyizhou and is reported whatever it shows, the
+protocol L1-ESPIRiT received (a per-contrast λ selected on hyw, transferred unchanged). The dark-CSF
+luminance deficit is expected to remain.
+
+### Round 18 — two-seed averaging (pre-registered 2026-09-11 01:53, before the two new runs)
+
+Seed 42 and seed 43 reconstructions differ voxel by voxel by 25–43 % of the error norm (error correlation
+0.91–0.97), while their global scores agree to 0.002 dB. Part of the error is seed-specific, so averaging
+runs removes it. Measured on the two pairs that already have both seeds (frozen head-only scorer; HFEN through
+an FFT convolution with the same kernel, within 0.0002 of the logged values), head PSNR / head SSIM:
+
+| pair | channel | seed 42 | seed 43 | average of the two | gain |
+|---|---|---|---|---|---|
+| tuning pair, per-contrast variant | T1 | 35.856 / 0.9481 | 35.856 / 0.9481 | 35.951 / 0.9489 | +0.095 dB / +0.0008 |
+| | T2 | 36.079 / 0.9521 | 36.079 / 0.9521 | 36.148 / 0.9527 | +0.069 dB / +0.0006 |
+| jiangyizhou, v3 | T1 | 36.337 / 0.9428 | 36.338 / 0.9428 | 36.539 / 0.9449 | +0.202 dB / +0.0021 |
+| | FLAIR | 35.935 / 0.9346 | 35.937 / 0.9347 | 36.049 / 0.9360 | +0.114 dB / +0.0014 |
+
+The gains are what the error correlation ρ predicts for an average of two, −10 log10((1 + ρ)/2): +0.096 for
+ρ 0.956 and +0.202 for ρ 0.909. Head HFEN improves on all four channels. On jiangyizhou T1 the tie with
+L1-ESPIRiT (36.334) becomes +0.205 dB, and head SSIM passes L1-ESPIRiT's 0.9443.
+
+Definition, fixed now: "v3 ×2" is the voxelwise mean of the magnitudes of two v3 runs that differ only in the
+seed (42 and 43), at twice the compute of v3. It is reported as its own row next to single-run v3, which stays
+the headline arm. Two runs complete it: `ar18_n24_wav005_full4k_s43` (tuning pair) and
+`ar18_tf_hyw_t1flair_v3b_s43` (hyw T1+FLAIR), launched by `queue18.sh` as GPUs free; jiangyizhou's seed 43
+exists (`ar13_tf_jyz_t1flair_v3b_s43`). No larger ensemble is run. The same model predicts +0.15 dB (tuning
+T1) to +0.31 dB (jiangyizhou T1) for four seeds, at four times the compute. The classical arms are
+deterministic, so averaging does nothing for them. ZS-SSDU, 3D-DIP and 3D-INR also depend on a seed and would
+gain from the same averaging, which was not run for them.
+
+**3.6M promotion (`ar12_n36_wav005_full4k`, landed 01:58): not adopted.** T1 35.662 / T2 36.233 against v3's
+35.771 / 36.112. The minimum margin over L1-ESPIRiT is +0.132 (v3 +0.241) and T1 falls 0.109 dB, so it fails
+both clauses of the rule. As at 1500 iterations, the larger cloud helps T2 (+0.121 dB, head SSIM 0.9535) and
+overfits T1 (head SSIM 0.9444 against 0.9468, head HFEN 0.0864 against 0.0831, sharpness 0.860). The SSIM
+prediction recorded before it landed holds on T2 only: capacity adds T2 head SSIM (+0.0004) and costs T1
+head SSIM (−0.0024). Wall time 208 min on GPU 6, which another user's job shares.
+
+**jiangyizhou v3 ×2 scored (02:09)** with `t1t2_af12_retro/scripts/score_average.py`, which first re-scores seed 42 from its saved
+volumes and matches every logged field (whole-volume HFEN to 1e-4). Head PSNR T1 36.539 / FLAIR 36.049, +0.205 /
++0.329 dB over L1-ESPIRiT; head HFEN 0.0974 / 0.0985; whole-volume PSNR 39.847 / 39.441, first on both;
+sharpness 0.883 / 0.842. Head SSIM 0.9449 / 0.9360 is still below the best other arm on each channel
+(converged TV 0.9459 on T1, L1-ESPIRiT 0.9368 on FLAIR). Ledger row `ar13_tf_jyz_t1flair_v3b_x2`, status
+x2-average.
+
+### Round 16 results
+
+**T1p06 (`ar16_n24_wav005_T1p06`, landed 02:53): qualifies.** T1 35.855 / T2 36.110 against v3's 35.771 / 36.112. The minimum
+margin over L1-ESPIRiT is +0.292 (v3 +0.241), T2 moves −0.002 dB, and T1 head SSIM rises to 0.9481 (v3 0.9468,
+L1-ESPIRiT 0.9471). Head HFEN 0.0833 / 0.0680; sharpness 0.862 / 0.826, so T1 sits further below the 0.874 floor
+than v3 did. It is v3.1 provisionally: the combination clause waits for geo007, and a qualifying Round 17 FLAIR
+strength is combined with it once before adoption. Its pre-registered transfers run next on the first GPUs to
+free, jiangyizhou (held out) before hyw T1+FLAIR (`queue19.sh`); the Round 18 seed-43 run of v3 on hyw T1+FLAIR
+follows them. The tuning pair's seed-43 run of v3 had already started on GPU 4 (02:52) and keeps its slot.
+
+### Round 18b — two-seed averaging for v3.1 (pre-registered 2026-09-11 03:37)
+
+T1p06 qualified (provisional v3.1), so the Round 18 definition applies to it as well: "v3.1 ×2" is the voxelwise
+mean of the magnitudes of two T1p06 runs that differ only in the seed (42, 43), at twice the compute. Its seed-43
+run on the tuning pair (`ar18_n24_wav005_T1p06_s43`) takes GPU 5 when the FLAIR-strength run there finishes
+(`queue20.sh`); `x2_after.sh` scores the average with `score_average.py` when it lands (`ar16_n24_wav005_T1p06_x2`).
+Prediction from the Round 18 measurements: +0.07 to +0.10 dB and +0.0006 to +0.0008 head SSIM, which would put
+T2 head SSIM at or just above L1-ESPIRiT's 0.9536. The T1+FLAIR topics get seed-43 runs of v3.1 once its
+transfers land, if v3.1 is adopted.
+
+**Schedule change, 03:36.** The parallel session (jiangyizhou AF16 loop, worktree `mcgs_af16_wt`) released GPUs
+1–3. queue19 was stopped before it had launched anything, and its three jobs started there at once:
+`ar16_tf_jyz_T1p06` (GPU 1), `ar16_tf_hyw_T1p06` (GPU 2), `ar18_tf_hyw_t1flair_v3b_s43` (GPU 3). Its result, for
+context and not a result of this loop: on jiangyizhou T1+FLAIR at AF16, this loop's wavelet term with per-contrast
+strengths (T1 0.10 / FLAIR 0.07), 3.6M points and edge-TV back at 0.10 / quantile 0.85 put MC-GS joint first on
+head PSNR, SSIM and HFEN over L1-ESPIRiT (35.552 / 34.807 against 35.209 / 34.503). Two of its observations bear on
+this loop: a heavier edge-TV (0.16 / 0.90) over-regularises once the wavelet is strong, and the larger cloud pays
+off once T1's wavelet is strong enough, which at AF12 did not happen with the shared 0.05 (3.6M promotion above).
+
+### Round 17 results
+
+**C008 (`ar17_tf_hyw_wavC008`, FLAIR-channel wavelet 0.08, landed 03:47):** T1 35.771 / FLAIR 34.549 against
+v3b's 35.772 / 34.359: FLAIR +0.190 dB (+0.444 over L1-ESPIRiT) with T1 unchanged (−0.001). FLAIR head SSIM 0.9205
+(v3b 0.9169; L1-ESPIRiT 0.9221, ZS-SSDU 0.9235), head HFEN 0.1056 (v3b 0.1065), FLAIR sharpness 0.842 (v3b 0.869).
+It clears the rule's bar (FLAIR +0.190 against the 0.005 needed, T1 within 0.01). The rule keeps whichever of 0.08
+and 0.12 gives the higher FLAIR head PSNR, so the decision waits for C012 (GPU 7, about 04:20). FLAIR was
+under-regularised at the shared 0.05, as the Round 17 diagnosis expected.
+
+**Combination started ahead of C012 (03:48).** T1p06 and a FLAIR-channel strength both qualify, so the rule's combination run is
+needed whichever FLAIR value is kept. To use GPUs 6 and 4, which free before C012 lands, the combination with 0.08
+starts now on the first of them: `ar19_tf_hyw_T1p06_wavC008` (hyw T1+FLAIR; T1 0.06, FLAIR 0.08, everything else
+v3; `queue21.sh`). The Round 17 decision is still taken on C008 against C012 alone. If 0.12 is kept, its own
+combination follows and this run is reported as a variant.
+
+### Round 20 — cross-check of the AF16 loop's recipe on the huangyuwei subject (pre-registered 2026-09-11 03:57)
+
+The parallel AF16 loop (worktree `mcgs_af16_wt`, branch `autoresearch-jyz-af16`) selected its recipe on
+jiangyizhou at AF16: this loop's cold start and frozen edge-TV (0.10, quantile 0.85), 3.6M points, and wavelet T1
+0.10 / contrast 0.07 (`--set loss.lambda_wav=0.07 --set loss.lambda_wav_plain=0.10 --set
+gaussian.initial_num_points=3600000`). Run unchanged on this loop's jiangyizhou AF12 topic
+(`mcgs_af16_wt/results_arc/ar17_P6_tf_jyz_af12_full4k_score.json`, read and checked here) it gives head PSNR
+36.753 / 36.165, head SSIM 0.9480 / 0.9374, head HFEN 0.1009 / 0.1002 and whole-volume PSNR 40.071 / 39.539. That is
+first on head PSNR, head SSIM and whole-volume PSNR on both channels, first on T1 head HFEN among the other methods,
+and level with L1-ESPIRiT on FLAIR head HFEN (0.1002). jiangyizhou is that recipe's own subject, so this is not a
+held-out result for it; huangyuwei is.
+
+Two runs, the recipe unchanged: `ar20_xv_P6_hyw_t1flair` (hyw T1+FLAIR, the contrast pair it was selected on; GPU 0
+now) and `ar20_xv_P6_t1t2` (the tuning pair, its contrast-channel strength applied to T2; next free GPU, `queue22.sh`).
+
+Reading, fixed now: if it is first on head PSNR and head SSIM on both channels of both hyw topics, the recipe family
+(3.6M points with a strong per-contrast wavelet) has been selected on one subject and confirmed on the other in both
+directions (v3: hyw to jiangyizhou; this recipe: jiangyizhou to hyw), and it is reported that way. If it trails v3 or
+v3.1 on hyw, its jiangyizhou AF12 numbers are reported as subject-specific selection. No parameter of it is changed
+on hyw.
+
+**Tuning pair v3 ×2 (`ar12_n24_wav005_full4k_x2`, scored 04:14).** Seed 43 (`ar18_n24_wav005_full4k_s43`) reads
+35.772 / 36.111 against seed 42's 35.771 / 36.112. The average of the two: head PSNR 35.877 / 36.164 (+0.106 /
++0.052 over v3, +0.347 / +0.346 over L1-ESPIRiT), head SSIM 0.9478 / 0.9535 (L1-ESPIRiT 0.9471 / 0.9536), head HFEN
+0.0825 / 0.0675 (L1-ESPIRiT 0.0867 / 0.0656), whole-volume PSNR 40.004 / 40.815, first among the competing methods on
+both. On T1 it now leads L1-ESPIRiT on head SSIM too. On T2 it trails L1-ESPIRiT by 0.0001 on head SSIM and by 0.0019
+on head HFEN. The T2 gain is smaller than the per-contrast variant's (+0.069).
+
+**geo007 (`ar16_n24_wav005_geo007`, edge-TV 0.10 → 0.07, landed 04:21): qualifies.** T1 35.717 / T2 36.254 against
+v3's 35.771 / 36.112 (−0.054 / +0.142). The margin over L1-ESPIRiT is +0.187 / +0.436, so head PSNR stays first on
+both, and T1 sharpness is 0.906, above the 0.874 floor: the first configuration that meets every pre-registered
+gate. Head SSIM 0.9467 / 0.9552 (L1-ESPIRiT 0.9471 / 0.9536), head HFEN 0.0797 / 0.0646 (L1-ESPIRiT 0.0867 / 0.0656):
+first on T2 head SSIM and on head HFEN of both contrasts, 0.0004 short on T1 head SSIM. The prediction recorded
+before it ran (lower head SSIM) was wrong: T2 head SSIM rose by 0.0021 and T1 moved by −0.0001. Less edge-TV adds the
+local variance that the SSIM diagnosis found missing, without the correlation loss a weaker wavelet brings. This
+matches the AF16 loop's finding that a heavier edge-TV over-regularises once the wavelet is strong.
+
+**Combination rule (pre-registered before the combination runs).** T1p06 and geo007 both qualify, so they are
+combined once on the tuning pair: `ar19_n24_T1p06_geo007` (T1 wavelet 0.06, edge-TV 0.07, everything else v3;
+`queue23.sh`, first of GPUs 1/2/3/5 to free). It becomes v3.2 if it passes the T1 sharpness floor and its minimum
+margin over L1-ESPIRiT exceeds geo007's +0.187. If it misses the floor, geo007 alone becomes v3.2 (the only change
+that meets every gate) and T1p06 is reported as the higher-margin variant that misses it. On the T1+FLAIR topics
+v3.2 also takes the Round 17 FLAIR strength; that full recipe then runs on hyw T1+FLAIR and, unchanged, on
+jiangyizhou (held out).
+
+**Schedule, 04:23.** `queue22.sh` never launched the Round 20 tuning-pair run: GPUs 6 and 7 carry another user's
+696 MiB process permanently, and its "no process on the GPU" check could not pass there. It was stopped and the run
+started on GPU 6 directly (`ar20_xv_P6_t1t2`). The fast GPUs that free around 04:45 are kept for the combination runs.
+
+**Round 16 transfers of T1p06 (reported whatever they show; landed by 04:42).**
+- jiangyizhou, held out (`ar16_tf_jyz_T1p06`): T1 36.458 / FLAIR 35.936 against v3's 36.337 / 35.935, i.e. T1 +0.121 dB
+  and FLAIR unchanged; over L1-ESPIRiT +0.124 / +0.216, so the T1 tie becomes a lead in a single run. Head SSIM
+  0.9445 / 0.9346 (L1-ESPIRiT 0.9443 / 0.9368, converged TV 0.9459 on T1), head HFEN 0.0980 / 0.0995, T1 sharpness 0.884
+  (above the 0.874 floor on this subject).
+- hyw T1+FLAIR (`ar16_tf_hyw_T1p06`): T1 35.850 / FLAIR 34.359 against v3's 35.772 / 34.359 (T1 +0.078, FLAIR
+  unchanged); head SSIM 0.9482 / 0.9168 (T1 above L1-ESPIRiT's 0.9471); T1 sharpness 0.863, below the floor.
+- The T1-channel strength behaves the same on all three topics: T1 +0.08 to +0.12 dB with T1 head SSIM up, the second
+  contrast unchanged.
+- Round 18 seed 43 of v3 on hyw T1+FLAIR (`ar18_tf_hyw_t1flair_v3b_s43`): 35.772 / 34.357 against seed 42's 35.772 /
+  34.359; the two-seed average is being scored.
+
+**hyw T1+FLAIR v3 ×2 (`ar13_tf_hyw_t1flair_v3b_x2`, scored 04:50).** Seed 43 reads 35.772 / 34.357 against seed 42's
+35.772 / 34.359. The average of the two: head PSNR 35.897 / 34.417 (+0.125 / +0.058 over v3, +0.367 / +0.312 over
+L1-ESPIRiT), head SSIM 0.9481 / 0.9178 (L1-ESPIRiT 0.9471 / 0.9221, ZS-SSDU 0.9235 on FLAIR), head HFEN 0.0821 / 0.1057,
+whole-volume PSNR 40.027 / 38.645, now first on FLAIR as well (L1-ESPIRiT 38.607). T1 head SSIM passes L1-ESPIRiT;
+FLAIR head SSIM stays 0.0043 below it.
+
+**Round 17 decision (C012 landed 05:28): the FLAIR-channel wavelet 0.12 is kept.** C012 (`ar17_tf_hyw_wavC012`) reads T1
+35.771 / FLAIR 34.575 against C008's 35.771 / 34.549 and v3b's 35.772 / 34.359. The rule keeps 0.12: it has the higher
+FLAIR head PSNR (+0.216 over v3b) and T1 stays within 0.01. What 0.12 adds over 0.08 is small (+0.026 dB; FLAIR head SSIM
+0.9213 against 0.9205), and it costs FLAIR head HFEN (0.1084 against 0.1056, still better than L1-ESPIRiT's 0.1096) and
+FLAIR sharpness (0.815 against 0.842): the FLAIR strength is near its optimum. FLAIR head SSIM stays below L1-ESPIRiT's
+0.9221 and ZS-SSDU's 0.9235 at both strengths.
+- T1 0.06 + FLAIR 0.08 on hyw T1+FLAIR (`ar19_tf_hyw_T1p06_wavC008`, started early): 35.851 / 34.548. The two changes add
+  without interacting (T1 as with T1 0.06 alone, FLAIR as with 0.08 alone). Reported as a variant, since 0.12 is kept.
+- v3.1 seed 43 on the tuning pair (`ar18_n24_wav005_T1p06_s43`): 35.856 / 36.109 against seed 42's 35.855 / 36.110.
+  v3.1 ×2 (`ar16_n24_wav005_T1p06_x2`): 35.950 / 36.162, head SSIM 0.9489 / 0.9535, head HFEN 0.0827 / 0.0675; on T2 it
+  is still 0.0001 short of L1-ESPIRiT on head SSIM and 0.0019 on head HFEN.
+- Round 20 on hyw T1+FLAIR (`ar20_xv_P6_hyw_t1flair`): 35.952 / 34.557, head SSIM 0.9495 / 0.9202, head HFEN 0.0886 /
+  0.1065, whole-volume PSNR 40.131 / 38.764, T1 sharpness 0.840. It is first on head PSNR on both channels, above v3 and
+  v3.1, and first on T1 head SSIM. It is not first on FLAIR head SSIM (ZS-SSDU 0.9235, L1-ESPIRiT 0.9221), its T1 head
+  HFEN is worse than L1-ESPIRiT's (0.0886 against 0.0867), and its T1 sharpness is far below the floor. Neither
+  pre-registered reading fits: it does not trail v3, and it is not first on head SSIM of every channel. It is reported
+  as it stands; the tuning-pair half is still running.
+
+**Full recipe for the T1+FLAIR topics (v3.2 there):** T1 wavelet 0.06, FLAIR wavelet 0.12, edge-TV 0.07, everything
+else v3. `queue24.sh 0.12` runs it on jiangyizhou, held out (`ar19_tf_jyz_full_C012`), and on hyw T1+FLAIR
+(`ar19_tf_hyw_full_C012`), plus the pre-registered FLAIR-only transfer to jiangyizhou (`ar17_tf_jyz_wavC012`, GPU 7).
+
+### Round 18c — two-seed averaging for v3.2 (pre-registered 2026-09-11 05:28)
+
+Seed-43 runs of the v3.2 recipe start now on GPUs that would otherwise sit idle until the tuning-pair combination
+lands: `ar18_n24_v32_s43` (tuning pair: T1 0.06, edge-TV 0.07), `ar18_tf_hyw_full_C012_s43` and
+`ar18_tf_jyz_full_C012_s43`. Each two-seed average is scored once both of its seeds have landed (`x2_after2.sh`). If
+the combination fails its rule, these runs are reported as variants of a recipe that was not adopted.
+
+## v3.2 — adopted (combination `ar19_n24_T1p06_geo007` landed, recorded 05:39)
+
+T1 wavelet 0.06 + edge-TV 0.07 on the tuning pair: T1 35.827 / T2 36.254, margin over L1-ESPIRiT +0.297 / +0.435
+(minimum +0.297 against geo007's +0.187) and T1 sharpness 0.897 (floor 0.874), so the combination rule adopts it as
+v3.2. Checked column by column against every competing method in the T1+T2 table:
+- head PSNR, head SSIM and head HFEN: first on both contrasts (head SSIM 0.9483 / 0.9552 against L1-ESPIRiT's 0.9471 /
+  0.9536; head HFEN 0.0799 / 0.0646 against 0.0867 / 0.0656);
+- whole-volume PSNR and NMSE: first on both; whole-volume HFEN: first on T2, third on T1 (converged TV 0.5549 against
+  0.5585);
+- whole-volume SSIM: sixth on both (0.9007 / 0.9294 against L1-ESPIRiT's 0.9511 on T1 and ZS-SSDU's 0.9677 on T2). This
+  gauge is dominated by the background noise that `ecalib -c 0.0` leaves in the air, which is why the program reads
+  head-only metrics; it is reported as it stands.
+- every pre-registered gate is met: head SSIM and HFEN far inside their floors, sharpness 0.897 / 0.854 above 0.874 / 0.802.
+
+```
+SAVE_VOLUMES=1 ./autoresearch_t1t2.sh <EXP> <GPU> 4000 \
+  --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn --set loss.edge_tv_kappa_source=zf \
+  --set gaussian.initial_num_points=2400000 --set loss.lambda_wav=0.05 --set loss.lambda_wav_plain=0.06 --lambda_geo 0.07
+# T1+FLAIR topics: add --set loss.lambda_wav_contrast=0.12, with CONFIG=configs/t1flair_af12_hyw.yaml (hyw) or configs/t1flair_v3_af12_hyw.yaml (jiangyizhou)
+```
+
+The T1+FLAIR form of v3.2 (with the FLAIR-channel 0.12) runs on hyw T1+FLAIR and on jiangyizhou (held out), and the
+seed-43 runs of all three topics are in flight; they land around 06:35. The archive tables and figures switch their
+proposed arm from v3 to v3.2 once those are in.
+
+**v3.2 on the T1+FLAIR topics (landed by 06:28; reported whatever they show).**
+- jiangyizhou, held out (`ar19_tf_jyz_full_C012`): T1 36.299 / FLAIR 36.039 against L1-ESPIRiT's 36.334 / 35.720 and v3's
+  36.337 / 35.935. FLAIR +0.319 dB, and first on FLAIR head SSIM (0.9369 against 0.9368). T1 −0.035 dB: second to
+  L1-ESPIRiT on T1 head PSNR, where v3.1 (T1 wavelet 0.06 alone) was +0.124 on this subject. Head HFEN 0.0965 / 0.1025
+  (L1-ESPIRiT 0.1034 / 0.1002), T1 head SSIM 0.9423 (converged TV 0.9459, L1-ESPIRiT 0.9443), T1 sharpness 0.921.
+  v3.2 against v3.1 here: T1 −0.159 dB. The two differ by edge-TV 0.07 and the FLAIR-channel 0.12; on hyw the FLAIR
+  strength left T1 unchanged, so the edge-TV step is the likely cause. That step was selected on hyw and does not
+  carry over to this subject's T1; the T1-channel wavelet does.
+- hyw T1+FLAIR (`ar19_tf_hyw_full_C012`): T1 35.816 / FLAIR 34.561, +0.286 / +0.456 over L1-ESPIRiT; head SSIM 0.9483 /
+  0.9215 (T1 first; FLAIR below L1-ESPIRiT's 0.9221 and ZS-SSDU's 0.9235); head HFEN 0.0799 / 0.1065, first on both;
+  T1 sharpness 0.897, above the floor.
+
+**Round 18c results (v3.2 ×2, scored 06:36–06:37).** Seed 43 of v3.2 agrees with seed 42 to within 0.003 dB on every topic.
+
+| topic | v3.2 head PSNR | v3.2 ×2 head PSNR | gain | v3.2 ×2 head SSIM |
+|---|---|---|---|---|
+| tuning pair | 35.827 / 36.254 | 35.929 / 36.313 | +0.102 / +0.059 | 0.9492 / 0.9557 |
+| hyw T1+FLAIR | 35.816 / 34.561 | 35.935 / 34.596 | +0.119 / +0.035 | 0.9494 / 0.9221 |
+| jiangyizhou, held out | 36.299 / 36.039 | 36.499 / 36.108 | +0.200 / +0.069 | 0.9445 / 0.9378 |
+
+On jiangyizhou the average lifts T1 above L1-ESPIRiT (+0.165) and FLAIR head SSIM above it (0.9378 against 0.9368); T1 head
+SSIM stays below converged TV (0.9459) and FLAIR head HFEN below L1-ESPIRiT (0.1015 against 0.1002). On hyw T1+FLAIR the
+average's FLAIR head SSIM ties L1-ESPIRiT (0.9221) and stays below ZS-SSDU (0.9235). Single-run v3.2 stays the headline arm.
+
+**Round 20, tuning pair (`ar20_xv_P6_t1t2`, landed 08:43).** The AF16 loop's recipe, unchanged: T1 35.946 / T2
+36.179 (+0.416 / +0.361 over L1-ESPIRiT), head SSIM 0.94942 / 0.95355 (L1-ESPIRiT 0.94715 /
+0.95362), head HFEN 0.0887 / 0.0710 (L1-ESPIRiT 0.0867 / 0.0656), whole-volume PSNR 40.128 / 40.846,
+sharpness 0.839 / 0.815 (T1 floor 0.874). Against v3.2 on this pair it is higher on T1 head PSNR and SSIM, lower on T2
+head PSNR (36.179 against 36.254) and SSIM (0.9536 against 0.9552), and worse on head HFEN of both contrasts.
+
+Reading of Round 20. On huangyuwei, the subject it never saw, the AF16 recipe is first on head PSNR on all four channels
+and on T1 head SSIM of both topics; it is 0.00007 below L1-ESPIRiT on T2 head SSIM, not first on FLAIR head SSIM, worse than L1-ESPIRiT on head HFEN on
+three of the four channels, and far below the T1 sharpness floor. Neither pre-registered reading fits, so it is
+reported as it stands. The two-way cross-check: v3.2 (selected on huangyuwei) carries its head-PSNR lead to
+jiangyizhou on FLAIR only, losing T1 by 0.035 dB; the AF16 recipe (selected on jiangyizhou) carries it to huangyuwei on
+all four channels but pays in HFEN and sharpness. Neither recipe is first on every metric on the subject it was not
+selected on.
+
+**Round 17 transfer to jiangyizhou, held out (`ar17_tf_jyz_wavC012`: v3 + FLAIR-channel 0.12; landed 09:33).** T1 36.338 /
+FLAIR 36.030 against v3's 36.337 / 35.935: FLAIR +0.095 dB with T1 unchanged (+0.004 over L1-ESPIRiT on T1, +0.310 on
+FLAIR). FLAIR head SSIM 0.9364 (v3 0.9346, L1-ESPIRiT 0.9368), FLAIR head HFEN 0.1050 (v3 0.0994, L1-ESPIRiT 0.1002), FLAIR
+sharpness 0.795. The FLAIR-channel strength carries its head-PSNR gain to the held-out subject, at less than half the
+size seen on hyw (+0.216), and costs FLAIR head HFEN there as it did on hyw.
+
+### Round 21 — a second held-out subject: tangbing, MC_Jia vol4 (pre-registered 2026-09-11 09:44, before any of its data is read)
+
+Why: v3.2 was selected on huangyuwei and loses T1 head PSNR on jiangyizhou (−0.035 against L1-ESPIRiT), where v3.1 leads
+(+0.124). jiangyizhou has now been used to explain that result, so it can no longer settle which recipe transfers. A
+subject that none of the recipes has seen can.
+
+Topic `Results_20260908/T1FLAIR_AF12_v4_tangbing`, cloned with `setup_subject.sh vol4_tangbing tangbing v4`: same
+geometry and the same vd-Poisson AF12 mask, its own ESPIRiT maps with the house recipe. Arms, all with settings already
+fixed on the other topics and nothing tuned here: zero-filled, CG-SENSE, converged TV CS-SENSE (200 ADMM outer
+iterations), joint CS-SENSE (200 outer, λ 1e-3, μ 0.1), L1-ESPIRiT (BART, 100 iterations, λ T1 0.0015 / FLAIR 0.005 as
+selected on huangyuwei), ZS-SSDU (100 epochs), 3D-DIP (5000 iterations), 3D-INR (1500 iterations), and three MC-GS joint
+recipes, unchanged: v3 (`ar21_tf_v4_v3`), v3.1 (`ar21_tf_v4_v31`: T1 wavelet 0.06) and v3.2 (`ar21_tf_v4_v32`: T1
+wavelet 0.06, FLAIR wavelet 0.12, edge-TV 0.07). P-LORAKS is not run here (7 h of CPU per channel, last on every other
+topic).
+
+Reading, fixed now: each recipe's column-by-column standing against the other arms is reported as it stands. No recipe
+is selected on this subject and nothing about the recipes changes because of it. If v3.2 is first on head PSNR on both
+channels here, the jiangyizhou T1 result reads as subject-specific. If it trails L1-ESPIRiT on T1 again while v3.1 leads,
+the edge-TV step is recorded as not transferring for T1, and the headline question goes to the user with both held-out
+subjects in view.
+
+**Round 21 data note, recorded before any MC-GS result on tangbing (10:4x).** Every arm's head PSNR on tangbing sits
+2.7–3.4 dB below jiangyizhou's (zero-filled T1 23.28 against 26.13, CG-SENSE 30.69 against 33.51, TV 35 it. 33.06 against
+35.76). Most of that is the PSNR peak: tangbing's max/P99.9 is 1.75 / 1.77 against jiangyizhou's 2.29 / 2.27, about
+2.3 dB. The ground truth is clean and its air noise floor matches jiangyizhou's, so the subject is not noisier. L1-ESPIRiT
+at the huangyuwei λ is visibly under-regularized on tangbing's T1 (head PSNR 31.86, sharpness 1.10, below TV's 33.06); it
+keeps its fixed setting, as every arm does.
+
+**Round 21, the three MC-GS recipes on tangbing (landed by 11:14; comparison with the other arms follows when they land).**
+
+| recipe | head PSNR T1 / FLAIR | head SSIM | head HFEN | T1 sharpness |
+|---|---|---|---|---|
+| v3 (`ar21_tf_v4_v3`) | 33.825 / 32.403 | 0.9281 / 0.9005 | 0.1129 / 0.1189 | 0.876 |
+| v3.1 (`ar21_tf_v4_v31`) | 33.929 / 32.403 | 0.9301 / 0.9004 | 0.1122 / 0.1189 | 0.869 |
+| v3.2 (`ar21_tf_v4_v32`) | 33.791 / 32.591 | 0.9275 / 0.9050 | 0.1110 / 0.1191 | 0.905 |
+
+The pattern of jiangyizhou repeats on a second subject that no recipe has seen. The T1-channel wavelet (v3.1 against v3)
+gains T1 +0.104 dB and T1 head SSIM +0.0020. The edge-TV step with the FLAIR-channel 0.12 (v3.2 against v3.1) costs T1
+0.138 dB and T1 head SSIM 0.0026, gains FLAIR +0.188 dB and FLAIR head SSIM +0.0046, and lifts T1 sharpness from 0.869
+to 0.905. On both held-out subjects, then, the T1-channel wavelet transfers for T1 and the edge-TV step does not.
+
+**Round 21 reading (11:25; every arm in except 3D-INR and the FLAIR half of 3D-DIP, which rank last or near last on the other three topics).** The strongest other arm on tangbing is converged TV on T1 (head PSNR 33.580, head SSIM 0.9319) and L1-ESPIRiT on FLAIR (32.351,
+0.9081); at the huangyuwei λ, L1-ESPIRiT is far behind on T1 (31.865).
+
+| | v3 | v3.1 | v3.2 | best other arm |
+|---|---|---|---|---|
+| head PSNR T1 | 33.825 (+0.245) | 33.929 (+0.349) | 33.791 (+0.211) | converged TV 33.580 |
+| head PSNR FLAIR | 32.403 (+0.052) | 32.403 (+0.052) | 32.591 (+0.240) | L1-ESPIRiT 32.351 |
+| head SSIM T1 | 0.9281 | 0.9301 | 0.9275 | converged TV 0.9319 |
+| head SSIM FLAIR | 0.9005 | 0.9004 | 0.9050 | L1-ESPIRiT 0.9081 |
+| head HFEN T1 | 0.1129 | 0.1122 | 0.1110 | converged TV 0.1274 |
+| head HFEN FLAIR | 0.1189 | 0.1189 | 0.1191 | L1-ESPIRiT 0.1193 |
+| T1 sharpness | 0.876 | 0.869 | 0.905 | floor 0.874 |
+
+- Pre-registered reading: v3.2 is first on head PSNR on both channels here, so the jiangyizhou T1 result reads as
+  subject-specific. The T1 cost of the edge-TV step (−0.138 dB against v3.1) repeats; whether it flips a ranking depends
+  on the margin over the strongest other arm, which is 0.35 dB for v3.1 here and 0.12 dB on jiangyizhou.
+- All three recipes are first on head PSNR and head HFEN on both channels. None is first on head SSIM: converged TV leads
+  on T1 and L1-ESPIRiT on FLAIR, by 0.0018 to 0.0077.
+
+**P-LORAKS complete on every topic (11:43).** jiangyizhou FLAIR, the last channel, reads head PSNR 31.176 / head SSIM 0.8165 / sharpness 1.446; like every other P-LORAKS channel it ranks near the bottom on the head gauges, with far more noise inside the head than in the ground truth. All P-LORAKS rows are in the three topic tables and in their per-slice sweeps.
+
+**Round 21, final standings on tangbing (every arm in, 12:54).** Rank among the other arms, 1 = first:
+
+| column | v3 T1 / FLAIR | v3.1 T1 / FLAIR | v3.2 T1 / FLAIR |
+|---|---|---|---|
+| head PSNR | 1 / 1 | 1 / 1 | 1 / 1 |
+| head SSIM | 4 / 5 | 2 / 5 | 4 / 4 |
+| head HFEN | 1 / 1 | 1 / 1 | 1 / 1 |
+| whole-volume PSNR | 1 / 3 | 1 / 3 | 2 / 1 |
+| whole-volume NMSE | 1 / 3 | 1 / 3 | 2 / 1 |
+| whole-volume HFEN | 4 / 3 | 2 / 3 | 4 / 1 |
+| whole-volume SSIM | 5 / 6 | 5 / 6 | 5 / 6 |
+
+Per slice, with v3.2 as ours: T1 first on 94/129, 128/128 and 104/129 full-brain slices, FLAIR on every full-brain slice.
+v3.2's whole-volume T1 PSNR and NMSE trail converged TV by 0.003 dB and 0.00001. The held-out picture over the two held-out
+subjects: head PSNR and head HFEN hold for every recipe except v3.2 on jiangyizhou, where its T1 head PSNR is second and its FLAIR head HFEN is second (0.1025 against L1-ESPIRiT's 0.1002); head SSIM does not hold
+for any recipe on any held-out channel except v3.2's FLAIR on jiangyizhou (by 0.0001).
