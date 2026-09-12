@@ -101,4 +101,9 @@ vtv002, edge0005.
 
 ## Round log
 
-(appended as rounds land)
+Head-only, 1500 it unless noted; bar L1-ESPIRiT 35.209 / 34.503 (current mask). Six cells = PSNR / SSIM / HFEN per contrast.
+
+| time | exp | T1 | FLAIR | SSIM T1 / FL | HFEN T1 / FL | sharp | reading |
+|---|---|---|---|---|---|---|---|
+| 16:43 | p3_probe_c_P6 (in-shutter FLAIR mask, NO known zeros) | 35.526 | 34.847 | 0.9353 / 0.9208 | 0.1217 / 0.1234 | 0.829 / 0.810 | FLAIR +0.12 over the control, T1 +0.01 (no coupling transfer); L1-ESPIRiT on the same mask 34.871 (λ 0.003; 0.002 → 34.677) → FLAIR margin −0.02 vs +0.22 on the current mask. Without Z the mask helps L1 (+0.37) more than MC-GS. Await `_kz`. |
+| 17:18 | p3_r0_control (P6 on this runner) | 35.515 | 34.725 | 0.9353 / 0.9198 | 0.1218 / 0.1192 | 0.829 / 0.785 | reproduces phase 1's 1500-it P6 (35.515 / 34.724) to 0.001 dB — the reference row |
