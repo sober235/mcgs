@@ -52,3 +52,10 @@ The user marked this line's result as the current best AF 12 reconstruction on j
   v3.2 (36.299 / 36.039). No compact orange-metric figure exists at AF 12 yet.
 - Caveats carried over: recipe and classical lambda were selected on this subject (fair, not held out); all numbers are on
   the magnitude gauge — on the strict complex gauge L1-ESPIRiT ranks first (record, section 4).
+
+## jiangyizhou AF12 autoresearch line (branch `autoresearch-jyz-af12`, this worktree)
+Read `STATUS.md` first, then `autoresearch_jyz_af12.md` (program, pre-registered rules, round log) and the record
+`docs/superpowers/records/2026-09-12-autoresearch-jyz-af12.md`. Update to the section above (2026-09-12): the loop
+promoted **P10 = P6 + db4 wavelet on 1 level, T1 0.12 / FLAIR 0.10** — head PSNR 36.944 / 36.268 at 4000
+iterations (P6 36.753 / 36.165), every head cell ahead of the re-swept L1-ESPIRiT; the runner bakes P10;
+registered in the AF12 topic table as `gs_joint_ar`. The user's provisional-best note above stands as history.

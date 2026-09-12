@@ -1,45 +1,44 @@
-> This worktree is on branch `autoresearch-jyz-af16`, the jiangyizhou AF 16 line. Its current state is
-> `docs/handoff/2026-09-11-autoresearch-jyz-af16.md` and `docs/superpowers/records/2026-09-11-autoresearch-jyz-af16.md`.
-> Everything below is the 2026-09-10 T1+T2 status of the other branch, kept as it was.
-
-# STATUS — 2026-09-10 03:10（分支 `autoresearch-t1t2`，tag `handoff/2026-09-10`）
+# STATUS — 2026-09-12 09:20（分支 `autoresearch-jyz-af12`，worktree `mcgs_af12_wt`，未推送）
 
 ## 1. 已完成且已验证
-- **MC-GS joint v2 在 hyw T1+T2 八法表上头内 PSNR 第一**：T1 34.978 / T2 35.429（CS-SENSE 34.607 / 34.219），整图 PSNR、NMSE、头内 HFEN 也第一，头内 SSIM 第二（差 0.006 / 0.002）。
+- **jyz T1+FLAIR AF12 autoresearch 循环（09-11 19:40 起）**：从用户暂定的最优 12 倍结果 P6（36.753 / 36.165）出发，
+  四次晋级到 **P10 = P6 + 小波先验改形（db4 基、只罚最细一层、T1 0.12 / FLAIR 0.10）**，4000 步头内 PSNR
+  **36.944 / 36.268**（对 P6 +0.191 / +0.103），头内 SSIM 0.9503 / 0.9397，头内 HFEN 0.0947 / 0.0958，锐度 0.858 / 0.823。
+  对手 λ 已在 jyz 上重扫（L1-ESPIRiT T1 λ0.002 = 36.426、FLAIR λ0.004 = 35.757，每格取所有 λ 最好值），
+  六格余量 PSNR +0.518 / +0.511、SSIM +0.0030 / +0.0030、HFEN +0.0087 / +0.0042，全部为正。种子 43 复现到 0.002 / 0.001 dB。
   ```
-  cd /data0/congcong/code/GS/Paired_ARC_GS_general_framework
-  SAVE_VOLUMES=1 ./autoresearch_t1t2.sh ar3_P2_full4k 4 4000 \
-    --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn \
-    --set loss.edge_tv_kappa_source=zf --set gaussian.initial_num_points=1200000
-  # 原始输出（results_arc/ar3_P2_full4k.log 末尾）
-  # T1    psnr=39.249 ... head_psnr=34.978 head_ssim=0.9373 head_hfen=0.0863 ... sharp=0.912
-  # T2    psnr=40.174 ... head_psnr=35.429 head_ssim=0.9474 head_hfen=0.0665 ... sharp=0.857
+  cd /data0/congcong/code/GS/mcgs_af12_wt && SAVE_VOLUMES=1 ./autoresearch_jyz_af12.sh <EXP> <GPU> 4000
+  # results_arc/ar5_best_C10_T112_full4k_score.json: T1 head_psnr=36.944 head_ssim=0.9503 head_hfen=0.0947
+  #                                                  FLAIR head_psnr=36.268 head_ssim=0.9397 head_hfen=0.0958
   ```
-- 配方只有四项改动，逐项单独验证（见 `autoresearch_t1t2.md` Round 0–3）；默认路径逐位不变，174 测试通过。
-- 迁移检验：hyw T1+FLAIR 同配方第一（34.950 / 33.492）；jiangyizhou 第二（35.520 vs 35.762，35.056 vs 35.084），预注册密度规则失败（1.59M 点 T1 反降到 35.273）。
-- joint vs single（修复后）：T1 +0.30、T2 −0.25。三个归档课题的表、图、README 已加 v2 臂并镜像进仓库。
-- 账本 `autoresearch_t1t2.tsv` 34 行，每行有精确参数与 commit。
+- 账本 63 行（`autoresearch_jyz_af12.tsv`，`scripts/autoresearch_jyz_af12_view.py` 按当前对手线重读六格）；
+  程序与逐轮日志 `autoresearch_jyz_af12.md`；总结 `docs/superpowers/records/2026-09-12-autoresearch-jyz-af12.md`。
+- P10 已登记进课题表（`Results_20260908/T1FLAIR_AF12_v3_jiangyizhou`，行名 gs_joint_ar），README 加了 λ 重扫一节；
+  课题脚本新增 add_gs_arm.py、complex_gauge.py、fig_three_planes_compact.py（橙黄标注紧凑三面图，移植自 AF16），均已镜像。
+- 附加行：两种子平均 36.990 / 36.295（2 倍算力）；GS-single T1 36.897（joint +0.047）；sym4 ≈ db4；
+  复数口径（|rec−GT|）L1-ESPIRiT 反超 0.03 / 0.07 dB（logs/complex_gauge.json）。
 
 ## 2. 待用户拍板
-- 对外表述选哪句："调参受试者两种配对第一、留出受试者第二"（诚实版）还是只报 hyw。
-- 头内 SSIM 缺口（0.006 / 0.002）是否继续追：拟合侧平滑已证明够不着，剩下的路是评分口径或方法侧。
-- 分支：本仓库 `main` 与本线无共同祖先（CE 那条线），本次没有强行合并；是否把 `master` 快进到本分支当作本线的 main。
-- 待判视觉门：v2 的十列图（`http://localhost:8765/t1t2_af12/t1t2_af12_{T1,T2}_plane{0,1,2}.png`）。
+- 尺度学习率 0.005 是否叠上 P10：4000 步 36.955 / 36.316，最小余量 +0.529，但 T1 HFEN 滑 0.0002（超地板），按规则未采纳。
+- 课题主推行：单种子 P10 还是两种子平均。
+- 是否推分支到 origin（本地未推）；`main` 与本血脉无共同祖先，不合并。
+- 是否再跑一个留出受试者（vol2/5/6/7 或 tangbing）。
 
 ## 3. 下一步
-- 若要 jiangyizhou 也第一：不是容量（已证否），候选 = 逐受试者的 lambda_geo（jyz 头大、噪声不同）或 kappa 分位；先在 jyz 做 1500 步单旋钮筛选，别碰 hyw 的配方。
-- 其余四个 CFL 受试者（vol2/4/5/6/7）一条命令可克隆：`T1FLAIR_AF12_retro/scripts/setup_subject.sh`，然后同配方跑 `ar5_tf_*`。
-- AF16 T1+FLAIR（并行会话 claude-06，worktree `mcgs_af16_wt`，分支 `t1flair-af16-retro`）完成后，把 v2 配方也跑一遍。
+- 在跑（约 10:00 前落地）：P10@6000 步（3 号卡，1.5 倍算力行）、GS-single FLAIR@4000（4 号卡）。落地后：登记单臂、
+  刷新课题表、出紧凑三面图（`fig_three_planes_compact.py --contrast T1/FLAIR --slices 174 110 47 --mask_error`）、
+  把最终表与图写进 record 第 7 节和课题 README、更新本文件、推分支。
 
 ## 4. 已知的坑与别重做
-- 别再试：intensity 初始化、密化（fixed 尺度下 split 不触发；3NN 下被初始点数支配）、position_lr、lambda_geo 0.07、T1 高频权重 1.0/3.0、kappa 300 步刷新、分位 0.75、1.5 倍尺度、tv_eps 0.06；平滑侧三旋钮（λ0.12/分位 0.90/w_floor 0.20）= T1 换 T2 的重塑。
-- 容量：T1 在 120 万点封顶，再加就过拟合采样 k（e_unobs 单调升）；T2 到 240 万还涨；几何共享跟 T1 走。密度规则（点/支撑体素）在 jyz 证否。
-- 会话看门狗会按 MemFree 杀后台任务（主机其实有 900+ GB 可用）：长跑一律 `setsid nohup` 脱离；工具 shell 是 zsh，`$VAR` 不分词，多参数启动写成 bash 脚本。
-- GPU 与他人共卡会慢 20 倍（09-10 01:00 GPU 2/3），读时间前先看 `nvidia-smi --query-compute-apps`。
-- 密化 `scale_threshold` 必须低于初始尺度才会 split。
+- 1500 步筛选看不出容量与尺度学习率在 4000 步的 T1 过拟合（都是 T1 换 FLAIR 的 reshape）；这两类只在晋级预算判。
+- 小波强度在 3 层 db2 下上下都是 reshape；只有先改形（db4、1 层）之后 T1 才能吃到 0.12（0.14 锐度门不过）。
+- 已证否/null：λ_geo 0.07/0.13、κ_q 0.90、w_floor 0.2、eps 0.03、warm-up、密度学习率、init_head_frac、k 空间频带权重、
+  小波 4 层、db6、wav_eps。
+- 打分脚本 score_x2.py 在 CPU 上会被内存看门狗杀，须 CUDA_VISIBLE_DEVICES 指到一张卡。
+- 运行器现在烤入 P10；改配方只能靠 commit（程序规则）。别在 0–2 号卡放东西（AF16 第二阶段），6/7 与别人共享。
 
 ## 5. 关键决定的"为什么"
-- 竞技场选 hyw T1+T2：README 定的 canonical 课题，且 T2 有真值；T1+FLAIR 留作迁移检验。
-- 读数用头内 PSNR 的最小余量：整图 SSIM 被 `ecalib -c 0.0` 留下的空气噪声支配（见 T1T2 README）。
-- 平滑旋钮不晋级：预注册规则要求两对比度 SSIM/HFEN 不劣于父配置，越过它就是"重塑"，与 §18 的教训一致。
-- 密度规则先预注册再跑：迁移受试者上任何调参都会污染"留出"的含义，失败也如实记录。
+- 对手 λ 在本受试者重扫、每格取所有 λ 最好值：和循环同等特权，差距才算数。
+- 六格不倒退规则优先于最小余量：用户要的是"所有指标拉开"，平滑换 PSNR 的旋钮一律拒绝。
+- 晋级预算保持 4000：6000 步只 +0.007 / +0.014，算力 1.5 倍，留给最终配方单列一行。
+- 终配方取 db4 而非 sym4：两者在地板内等价，终配方三件套已在 db4 上跑，不值得重跑。
