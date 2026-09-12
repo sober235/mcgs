@@ -118,3 +118,7 @@ Every ledger row carries the commit and the exact args; the cfg is in the note.
 - Card 2, `scripts/p2_chain_c.sh 2`: `p2_bundle_slr005_i6000` (rule 7, volumes) → `p2_khigh20` → `p2_P10_s43_full4k`.
 - Cards 0/1 carry the user's foundation-model jobs, card 4 another user's job, 6/7 another user's light jobs (the
   AF16 phase-3 loop's smoke on card 5 had ended before launch).
+- 16:03 bit-identity check of lever A's default path passed: `p2_P10_i1500` iteration 1 prints
+  `loss=1.2281e-01 dc_p=7.1673e-02 dc_c=4.9690e-02 R_geo=6.6043e-03 R_wav=7.8832e-03`, the same digits as
+  `ar9_P10_flair_af11_full4k` (old code, same config and seed). Reader for the rules: `scripts/p2_read.py`
+  (validated on the P10 loop's rows: reproduces its keep / reshape / null / loses reads).
