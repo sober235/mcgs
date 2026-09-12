@@ -339,3 +339,11 @@ does not need that read to run. Card 2 continues chain E's wavelet-shape screens
   selector promotes (`scripts/p2_seed43_of_best.sh`, values parsed from the promotion's name, 4000 iterations with
   volumes) — the floor of the promoted recipe and one half of its two-seed row (rule 4). GS-single arms for the final
   recipe (rule 5) are queued by hand once the promotion is read.
+
+### Round 2 read, part 3 — 21:39
+- `p2_rotlr004_slr005` (rotation 0.004 + scale lr 0.005; card 3, 26 min): **36.968 / 36.669 — +0.083 / +0.149** over
+  P10@1500, +0.006 / +0.013 over rotation 0.002 + scale lr (inside the T1 floor: the stacked rows saturate on T1),
+  every cell up, sharpness 0.858 / 0.831. **KEEP**, best grid row so far.
+- `p2_wav_lev2_w05` (2 levels, coarse level at half strength; card 2, 27 min): 36.858 / 36.514 — −0.027 / −0.005,
+  HFEN −0.0024 / −0.0014, sharpness 0.850 / 0.822. **loses.** A half-weight second level still hurts: the finest level
+  alone stays the prior's shape. Running: `p2_wav_ddd05` (card 2), chain H on card 3.
