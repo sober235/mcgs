@@ -57,6 +57,22 @@ See the spec, sections 4 and 6: the non-local RED prior (`paired_gs/losses/nonlo
 `mcgs_af16_nl_wt`) on P6, then stacked on the Round-0 keeps. The acquisition probe (spec section 5, Track B, card 4)
 reports into `docs/superpowers/records/2026-09-12-af16-probe-c-readout.md`.
 
+## Probe re-plan (16:20) — the known-zero confound
+
+The first probe run (`p3_probe_c_P6`, in-shutter FLAIR mask, launched 16:14 on card 4 by Track B) printed
+`[physics:contrast] ... ellipse=None frac_z_used=0.0000 zero_lines=0/2966`: with every sample inside the shutter the
+known-zero estimator has no zero sampled line to learn the shutter from, so that run fits FLAIR WITHOUT the 24 % of the
+PE plane that the GS arms treat as measured zeros on the current mask (`frac_z_used=0.2423`, 233 zero lines). Its number
+is therefore "complementary mask minus the known-zero advantage", not the probe the spec asked for. Fix (commit e0e1058):
+`data.<x>.known_zero_support: <2-D support h5>` bypasses the estimator with the shutter as protocol knowledge
+(`known_zero_from_support`, tests in `tests/test_known_zero.py`); the topic's `data/flair_support_2d.h5` (34139 lines,
+`scripts/prep_04d_flair_support.py`) is set in `configs/t1flair_v3_af16_jyz_flair_c.yaml`. Queue now: `p3_r0_nokz`
+(P6 on the current mask with FLAIR `known_zero=false`: measures the known-zero advantage itself, never measured before),
+`p3_probe_c_P6_kz` and `p3_probe_c_P6_kz_vtv0005` (the probe with the shutter given). Read-out, updated:
+FLAIR margin of `p3_probe_c_P6_kz` over the best probe-mask L1-ESPIRiT, against P6@1500 − L1 on the current mask
+(+0.221); `p3_probe_c_P6` − `p3_r0_nokz` isolates the mask effect without Z; `p3_r0_control` − `p3_r0_nokz` is the
+worth of Z on the current mask. The vtv run answers the coupling question (T1 change).
+
 ## Round log
 
 (appended as rounds land)
