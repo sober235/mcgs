@@ -517,3 +517,9 @@ head PSNR, every other cell equal or better, sharpness unchanged (0.858 / 0.831)
 Final recipe **P13 = P10 + `gaussian.rotation_lr=0.008`**, runner `autoresearch_jyz_af12_P13.sh`. Phase-2 gain over
 P10, head PSNR: T1 **+0.025** (all-AF12 口径, 36.944 → 36.969), FLAIR **+0.046** (design B, 36.637 → 36.683), every
 other head cell equal or better, sharpness unchanged. 27 experiments, 13 of them at the full budget.
+- 05:07 tests on this branch: **194 passed** (`--ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py`; the
+  latter needs a git-ignored npz only the main checkout has, as CLAUDE.md records). The phase added 11 tests: four for
+  the per-contrast edge-TV strength, seven for the wavelet prior's level / sub-band weights.
+- 05:03 one口径 fix: the GS-single FLAIR arm was registered under `gs_single_p2` while being an AF 11 run, which put a
+  design-B number in the all-AF12 table. It was re-keyed to `gs_single_p2_fl11` and an all-AF12 FLAIR single
+  (`p2_P13_singleFLAIR_af12_full4k`) launched so the AF12 table's GS-single row is like-for-like.
