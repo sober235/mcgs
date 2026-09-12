@@ -61,3 +61,14 @@ line (`autoresearch-jyz-af12`, recipe P10) is merged or adopted here.** The AF12
 are superseded by that line's own record; they stay here as history.
 **User decision 2026-09-12 (later the same day): the recipe quoted externally is P6 (`gs_joint_ar`, magnitude gauge);
 p6ptv (`gs_joint_p2`) is reported only as the both-gauges note.**
+
+## Phase 3 (branch `autoresearch-jyz-af16-phase3`, this worktree, 2026-09-12/13)
+The user reopened this line to widen the gap to the comparison methods. Read `STATUS.md`, then
+`docs/handoff/2026-09-13-autoresearch-jyz-af16-phase3.md` and the phase-3 record. **Phase-3 recipe** = P6 + the wavelet
+prior changed to db4 on its finest level only (T1 0.12 / FLAIR 0.10) + common-edge `--lambda_edge 0.001` + phase TV
+`--lambda_ptv 0.03`, 4000 iterations: head PSNR **35.706 / 34.928**, margins over L1-ESPIRiT **+0.497 / +0.425**
+(P6: +0.343 / +0.304), head SSIM 0.9396 / 0.9261, HFEN 0.1139 / 0.1121, sharpness **0.855 / 0.804 — at or above
+L1-ESPIRiT's 0.849 / 0.789 on both contrasts, which P6 never was**. Registered as `gs_joint_p3` / `gs_single_p3`;
+figures `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_compact_174_110_47_headerr_p3.png`. The 1.0 dB target the user
+set was NOT reached (the margin roughly doubled). **Which recipe is quoted externally is still the user's call — the
+section above (P6) stands until they change it.**

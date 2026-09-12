@@ -1,26 +1,38 @@
-# STATUS — 2026-09-12（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af16-phase2`）
+# STATUS — 2026-09-13（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af16-phase3`）
 
-本工作树只承载 jiangyizhou AF16 一条线，**已定格（用户 2026-09-12 拍板）：不再跑，代码与参数和 AF12 线隔离。**
+本工作树只承载 jiangyizhou AF16 一条线。**三期已跑完**（用户 09-12 下午要求重开并"拉大"与对比方法的差距）。
+先读 `docs/handoff/2026-09-13-autoresearch-jyz-af16-phase3.md`，再读 `autoresearch_af16_p3.md`（规则与逐轮日志）
+与账本 `autoresearch_af16_p3.tsv`；英文总结在 `docs/superpowers/records/2026-09-13-autoresearch-jyz-af16-phase3.md`。
+
+## 一句话
+三期配方 = P6 + 小波改 db4 只用最细一层（T1 0.12 / FLAIR 0.10）+ common-edge 0.001 + 相位 TV 0.03，4000 步头内
+PSNR **35.706 / 34.928**，对 L1-ESPIRiT 余量 **+0.497 / +0.425**（P6 是 +0.343 / +0.304），六格全第一，
+**锐度 0.855 / 0.804 两个对比度都不低于 L1-ESPIRiT**（三期以来第一次）。课题里登记为 `gs_joint_p3` / `gs_single_p3`，
+P6 仍占 `gs_joint_ar`。
 
 ## 1. 已完成且已验证
-- 一期 P6（magnitude 口径主推）：4000 步头内 PSNR 35.552 / 34.807，对 L1-ESPIRiT +0.343 / +0.304，头内 SSIM、HFEN 也第一；
-  记录 `docs/superpowers/records/2026-09-11-autoresearch-jyz-af16.md`，交接 `docs/handoff/2026-09-11-autoresearch-jyz-af16.md`。
-- 二期 p6ptv（P6 + 相位 TV 0.05）：复数口径也第一（32.322 / 31.851 对 L1 的 32.201 / 31.718），锐度 0.876 / 0.837，
-  magnitude 35.311 / 34.740（比 P6 低 0.24 / 0.07）；记录 `docs/superpowers/records/2026-09-12-autoresearch-jyz-af16-phase2.md`，
-  交接 `docs/handoff/2026-09-12-autoresearch-jyz-af16-phase2.md`。账本 `autoresearch_af16_p2.tsv` 20 行。
-- 课题 `Results_20260908/T1FLAIR_AF16_v3_jiangyizhou`：gs_joint_ar / gs_single_ar（P6）、gs_joint_p2 / p2b（二期）已登记，图在 figures/。
+- 上面的配方与数字；种子地板 0.001 / 0.000 dB；联合减单臂 +0.148 / +0.042（一期是 +0.037 / −0.003）。
+- 紧凑三面图 174/110/47（`_p3` 后缀）：MC-GS 在两个对比度、三个方向的 PSNR/SSIM/NMSE 全部第一。
+- 采集侧探针关闭（快门内互补 FLAIR 掩膜让所有臂各涨约 0.35 dB，余量不变），单独成记录。
+- 顺带测出：快门已知零区在现掩膜上值 −0.013 dB（等于不值钱），在快门内掩膜上值 +0.225 dB。
+- 新代码默认关且有测试：非局部 RED 先验、显式快门支撑 `data.<x>.known_zero_support`。
 
 ## 2. 待用户拍板
-- 是否做留出受试者（从未跑过）。
-
-已拍板（用户 2026-09-12，晚）：对外引用 P6（magnitude 口径，课题里的 `gs_joint_ar`，头内 35.552 / 34.807）；
-p6ptv（`gs_joint_p2`）只作复数口径的附注，不当主推。
+- 对外引用哪一个配方（现在是 P6；三期配方在每一格与锐度上都更好）。
+- **1.0 dB 判据没达到**（余量约翻倍）。接受现状、改判据、还是放开学习先验（放开就得同时给对比方法也加）。
+- AF16 留出受试者（一期至今从未跑过）。
+- 以后 FLAIR 采集是否改用快门内掩膜（对所有方法都好，对余量无帮助）。
 
 ## 3. 下一步
-- 无（已定格）。若重开：不带相位 TV 的 AF12 小波改形迁移测试（用户 09-12 已拒绝）。
+- 若继续：只剩一件便宜事——用 `--from_ckpt` 给三期配方补一次复数口径打分（它带相位 TV 0.03）。
+- 本期试过并关闭的：非局部 RED、自适应密化、矢量 TV、私有残差高斯、双掩膜采集设计。
 
 ## 4. 已知的坑
-- 每卡只放一个训练；运行器只认 `p2_` 名字、无 CONFIG 覆盖（隔离设计）；两条 AF16 分支不要互相合并；引用数字必须说明口径。
+- 每卡一个训练；调度器只在完全空闲的卡上起（4/5 是本线的，2/3 归 AF12 二期会话，已与其约定）。
+- `pgrep` 模式必须锚定 python 路径，否则会匹配并杀掉自己的 shell。
+- 改 `scripts/p3_queue.txt` 要原子替换；调度器每轮重读，半行会被记成 bad queue line。
+- 单臂配置把同一对比度喂进两个通道；表与一期取 plain 通道，账本行取 contrast 通道（两通道同名所致）。
 
-## 5. 为什么定格
-- magnitude 目标一期已达，复数目标二期已达；剩下的杠杆属于 AF12 线，用户要求两线可分。
+## 5. 为什么
+- 拉开差距靠的是换先验的"形状"（db4 最细层）、加唯一对两个对比度都有益的耦合项（common-edge）、
+  以及用相位 TV 在最便宜的点买回锐度。两个大结构赌注（非局部先验、自适应密化）都有证据地关闭了。
