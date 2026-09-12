@@ -102,3 +102,10 @@ held; FLAIR now clears the incoherent-mask baseline by ~0.5 dB. Detail fidelity
 
 Winner config: `configs/ce_joint_espirit_winner_hi20.yaml`.
 Full sweep table: `results/MC_GS_sweep_summary.csv`.
+
+## 2026-09-12 — jiangyizhou AF 12, MC-GS P10 (autoresearch on the framework lineage)
+
+Head-only PSNR / SSIM / HFEN at 4000 iterations, T1 **36.944 / 0.9503 / 0.0947**, FLAIR **36.268 / 0.9397 / 0.0958** — first on
+every head cell and every full-brain slice against the λ-re-swept classical arms (L1-ESPIRiT 36.426 / 35.757), +0.191 / +0.103 dB
+over the AF16 loop's recipe. Full summary, figures and pointers: `docs/2026-09-12-jyz-af12-mcgs-p10-summary.md`; the work itself is
+on branch `autoresearch-jyz-af12` (tag `handoff/2026-09-12-jyz-af12`), which shares no history with `main`.
