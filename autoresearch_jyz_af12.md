@@ -522,3 +522,6 @@ TV 32.829 > ZS-SSDU 32.497. P10 loses 3.53 / 3.38 dB from the magnitude to the c
 the classical arms; magnitude-weighted phase agreement inside the head 0.9855 / 0.9821 against L1-ESPIRiT's 0.9862 /
 0.9833. The same picture as the AF16 line's caveat: the lead is on the magnitude gauge (the convention), not on
 the strict complex difference — the MC-GS phase is marginally less faithful. Logged in `logs/complex_gauge.json`.
+- `ar3_P10_i6000` (P10 at 6000 iterations, 1.5x compute; card 3, 90 min, volumes): **36.953 / 36.284**, +0.009 /
+  +0.016 over 4000, head SSIM level / +0.0001, head HFEN +0.0001 / +0.0002. Reported as its own row; the 4000-iteration
+  P10 stays the headline (the budget step is 4x the floor on FLAIR, at the floor on T1).
