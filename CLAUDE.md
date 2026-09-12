@@ -53,17 +53,21 @@ The user marked this line's result as the current best AF 12 reconstruction on j
 - Caveats carried over: recipe and classical lambda were selected on this subject (fair, not held out); all numbers are on
   the magnitude gauge — on the strict complex gauge L1-ESPIRiT ranks first (record, section 4).
 
-## Current AF 12 result (user decision 2026-09-12, supersedes the provisional P6 note above)
-The user fixed the current AF 12 result of this line as two figures of the P10 recipe (`autoresearch_jyz_af12.md`,
-promotion 8; topic `Results_20260908/T1FLAIR_AF12_v3_jiangyizhou`, arm `gs_joint_ar` / `gs_joint_ar_fl11`):
-- T1, every arm at AF 12: `t1flair_af12_v3_jiangyizhou/figures/t1flair_v3_af12_T1_row3planes_compact_174_110_47_headerr.png`
-  (`http://localhost:8765/t1flair_v3_af12/t1flair_v3_af12_T1_row3planes_compact_174_110_47_headerr.png`).
-- FLAIR, design B (MC-GS on the AF 11 mask, every comparison arm at AF 12; the panel shows the AF 11 mask):
-  `t1flair_af12_v3_jiangyizhou/figures/t1flair_v3_af12_FLAIR_row3planes_compact_flair_af11_174_110_47_headerr.png`
-  (`http://localhost:8765/t1flair_v3_af12/t1flair_v3_af12_FLAIR_row3planes_compact_flair_af11_174_110_47_headerr.png`).
-Numbers behind them (head PSNR / SSIM / HFEN): T1 36.944 / 0.9503 / 0.0947 (AF 12), FLAIR 36.637 / 0.9439 / 0.0906 (AF 11
-mask; 36.268 / 0.9397 / 0.0958 at AF 12). Design B is the working setting from here on: the phase-2 loop
-(`autoresearch_jyz_af12_p2.md`, branch `autoresearch-jyz-af12-phase2`, runner `autoresearch_jyz_af12_p2.sh`) tunes in it.
+## Current AF 12 result (user decision 2026-09-12, recipe updated by the phase-2 loop 2026-09-13)
+The user fixed the current AF 12 result of this line as two compact three-plane figures — T1 with every arm at AF 12,
+FLAIR in **design B** (MC-GS on the AF 11 mask `data/mask_af11_3d.h5`, every comparison arm at AF 12) — and made
+design B the setting to tune in. The phase-2 loop then raised the recipe from P10 to **P13 = P10 +
+`gaussian.rotation_lr = 0.008`** (runner `autoresearch_jyz_af12_P13.sh`; program `autoresearch_jyz_af12_p2.md`,
+record `docs/superpowers/records/2026-09-13-autoresearch-jyz-af12-phase2.md`, handoff
+`docs/handoff/2026-09-13-autoresearch-jyz-af12-phase2.md`). The current figures are P13's:
+- T1, every arm at AF 12: `t1flair_af12_v3_jiangyizhou/figures/t1flair_v3_af12_T1_row3planes_compact_p2_174_110_47_headerr.png`
+  (`http://localhost:8765/t1flair_v3_af12/t1flair_v3_af12_T1_row3planes_compact_p2_174_110_47_headerr.png`).
+- FLAIR, design B: `..._FLAIR_row3planes_compact_p2_flair_af11_174_110_47_headerr.png` (same URL prefix).
+Numbers (head PSNR / SSIM / HFEN): T1 **36.969 / 0.9504 / 0.0948** (all AF 12), FLAIR **36.683 / 0.9444 / 0.0904**
+(AF 11 mask; 36.310 / 0.9401 / 0.0956 at AF 12). Margins over the best non-MC-GS arm at every swept λ: +0.543 /
++0.926 dB. First on every full-brain slice in every direction. The P10 pair (36.944 / 36.637) is the previous
+reference and its figures are still in the topic. Everything is on the magnitude gauge (the complex-gauge caveat of
+the P10 section stands).
 
 ## jiangyizhou AF12 autoresearch line (branch `autoresearch-jyz-af12`, this worktree)
 Read `STATUS.md` first, then `autoresearch_jyz_af12.md` (program, pre-registered rules, round log) and the record
@@ -72,8 +76,9 @@ promoted **P10 = P6 + db4 wavelet on 1 level, T1 0.12 / FLAIR 0.10** — head PS
 iterations (P6 36.753 / 36.165), every head cell ahead of the re-swept L1-ESPIRiT; the runner bakes P10;
 registered in the AF12 topic table as `gs_joint_ar`. The user's provisional-best note above stands as history.
 
-## jiangyizhou AF12 autoresearch line (branch `autoresearch-jyz-af12`, this worktree)
-Read `docs/handoff/2026-09-12-autoresearch-jyz-af12.md` first, then `autoresearch_jyz_af12.md` and the ledger. Result:
-P10 (db4 wavelet on 1 level, T1 0.12 / FLAIR 0.10 on top of P6) — head PSNR 36.944 / 36.268 at 4000 iterations, first
-on every head cell and every slice of the jyz AF12 table; record `docs/superpowers/records/2026-09-12-autoresearch-jyz-af12.md`.
-The runner `autoresearch_jyz_af12.sh` bakes P10.
+## jiangyizhou AF12 autoresearch lines (branches `autoresearch-jyz-af12` and `-phase2`, this worktree)
+Phase 1 (`autoresearch_jyz_af12.md`, handoff `docs/handoff/2026-09-12-autoresearch-jyz-af12.md`) promoted **P10** =
+P6 + db4 wavelet on 1 level, T1 0.12 / FLAIR 0.10. Phase 2 (`autoresearch_jyz_af12_p2.md`, handoff
+`docs/handoff/2026-09-13-autoresearch-jyz-af12-phase2.md`) tuned in design B and promoted **P13** = P10 +
+`gaussian.rotation_lr=0.008`, the current recipe; runner `autoresearch_jyz_af12_P13.sh`. Ledger
+`autoresearch_jyz_af12.tsv` carries both phases (`p2_` prefix for phase 2); reader `scripts/p2_read.py`.
