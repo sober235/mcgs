@@ -35,10 +35,14 @@ numbers to quote. AF 12 values per arm from `../T1FLAIR_AF12_v3_jiangyizhou/logs
 
 | method | PSNR | SSIM | head PSNR | head SSIM | head HFEN | sharp | head PSNR @AF12 | AF16 − AF12 |
 |---|---|---|---|---|---|---|---|---|
-| MC-GS joint (autoresearch) | 39.016 | 0.9124 | **35.552** | **0.9351** | 0.1218 | 0.830 | -- | -- |
-| MC-GS single (autoresearch) | 38.988 | 0.9182 | 35.515 | 0.9343 | 0.1240 | 0.824 | -- | -- |
-| L1-ESPIRiT (λ 0.0015) | 38.758 | 0.9479 | 35.209 | 0.9334 | 0.1286 | 0.849 | 36.334 | -1.12 |
-| CS-SENSE (TV, converged) (λ 0.0007) | 38.646 | 0.9506 | 34.945 | 0.9317 | 0.1380 | 0.823 | 36.144 | -1.20 |
+| MC-GS (phase 3) | 39.268 | 0.9207 | **35.706** | **0.9396** | 0.1139 | 0.855 | -- | -- |
+| GS-single (phase 3) | 39.144 | 0.9273 | 35.558 | 0.9371 | 0.1186 | 0.859 | -- | -- |
+| MC-GS joint (autoresearch) | 39.016 | 0.9124 | 35.552 | 0.9351 | 0.1218 | 0.830 | 36.944 | -1.39 |
+| MC-GS single (autoresearch) | 38.988 | 0.9182 | 35.515 | 0.9343 | 0.1240 | 0.824 | 36.897 | -1.38 |
+| MC-GS (wavelet up + phase TV) | 38.968 | 0.9084 | 35.364 | 0.9362 | 0.1265 | 0.844 | -- | -- |
+| MC-GS (P6 + phase TV) | 38.927 | 0.9110 | 35.311 | 0.9353 | 0.1204 | 0.876 | -- | -- |
+| L1-ESPIRiT (λ 0.0015) | 38.758 | 0.9479 | 35.209 | 0.9334 | 0.1286 | 0.849 | 36.426 | -1.22 |
+| CS-SENSE (TV, converged) (λ 0.0007) | 38.646 | 0.9506 | 34.945 | 0.9317 | 0.1380 | 0.823 | 36.162 | -1.22 |
 | joint CS-SENSE (JTV) (λ 0.001) | 38.595 | 0.9514 | 34.831 | 0.9311 | 0.1429 | 0.811 | 36.070 | -1.24 |
 | CS-SENSE | 38.187 | 0.9393 | 34.409 | 0.9276 | 0.1531 | 0.768 | 35.762 | -1.35 |
 | ZS-SSDU | 37.823 | 0.9399 | 34.150 | 0.9216 | 0.1646 | 1.016 | 35.724 | -1.57 |
@@ -53,9 +57,13 @@ numbers to quote. AF 12 values per arm from `../T1FLAIR_AF12_v3_jiangyizhou/logs
 
 | method | PSNR | SSIM | head PSNR | head SSIM | head HFEN | sharp | head PSNR @AF12 | AF16 − AF12 |
 |---|---|---|---|---|---|---|---|---|
-| MC-GS single (autoresearch) | 38.288 | 0.8922 | **34.810** | 0.9196 | 0.1182 | 0.795 | -- | -- |
-| MC-GS joint (autoresearch) | 38.342 | 0.9045 | 34.807 | **0.9203** | 0.1188 | 0.788 | -- | -- |
-| L1-ESPIRiT (λ 0.003) | 38.027 | 0.9310 | 34.503 | 0.9201 | 0.1210 | 0.789 | 35.720 | -1.22 |
+| MC-GS (phase 3) | 38.585 | 0.9102 | **34.928** | **0.9261** | 0.1121 | 0.804 | -- | -- |
+| GS-single (phase 3) | 38.498 | 0.8959 | 34.886 | 0.9249 | 0.1137 | 0.806 | -- | -- |
+| MC-GS single (autoresearch) | 38.288 | 0.8922 | 34.810 | 0.9196 | 0.1182 | 0.795 | 36.323 | -1.51 |
+| MC-GS joint (autoresearch) | 38.342 | 0.9045 | 34.807 | 0.9203 | 0.1188 | 0.788 | 36.268 | -1.46 |
+| MC-GS (wavelet up + phase TV) | 38.432 | 0.8999 | 34.768 | 0.9234 | 0.1187 | 0.806 | -- | -- |
+| MC-GS (P6 + phase TV) | 38.415 | 0.9029 | 34.740 | 0.9231 | 0.1147 | 0.837 | -- | -- |
+| L1-ESPIRiT (λ 0.003) | 38.027 | 0.9310 | 34.503 | 0.9201 | 0.1210 | 0.789 | 35.757 | -1.25 |
 | joint CS-SENSE (JTV) (λ 0.0007) | 38.048 | 0.9408 | 34.355 | 0.9177 | 0.1302 | 0.775 | 35.624 | -1.27 |
 | CS-SENSE (TV, converged) (λ 0.0005) | 37.904 | 0.9365 | 34.302 | 0.9180 | 0.1309 | 0.751 | 35.581 | -1.28 |
 | ZS-SSDU | 37.882 | 0.9461 | 34.005 | 0.9185 | 0.1529 | 1.036 | 35.034 | -1.03 |
@@ -136,3 +144,31 @@ P6 on the magnitude gauge (phase TV costs 0.24 / 0.07 dB there). A transfer test
 SSIM 0.9382 / 0.9250, HFEN 0.1167 / 0.1140 — it is not part of any AF16 recipe. **The line is frozen (user, 2026-09-12):
 no further runs, code and parameters kept separate from the AF12 line.** Figures:
 `figures/t1flair_v3_af16_{T1,FLAIR}_row_p2_axis{0,1,2}_*.png`, `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_p2_174_110_102.png`.
+
+## Phase 3 — widening the lead (2026-09-12/13)
+
+The user reopened the line to increase the gap to the comparison methods (framework branch
+`autoresearch-jyz-af16-phase3`, programme `autoresearch_af16_p3.md`). The winner is registered here as
+`gs_joint_p3` ("MC-GS (phase 3)") with `gs_single_p3`; the phase-1 keys `gs_joint_ar` / `gs_single_ar` still hold P6.
+
+**Recipe** = P6 + the wavelet prior changed to db4 on its finest level only (T1 0.12 / FLAIR 0.10) + the symmetric
+common-edge cross-gradient prior at λ 0.001 + phase-only TV at λ 0.03. 4000 iterations, 3.6M points, everything else P6.
+
+| head-only, 4000 it | T1 | FLAIR |
+|---|---|---|
+| **MC-GS (phase 3)** | **35.706** | **34.928** |
+| MC-GS (P6) | 35.552 | 34.807 |
+| L1-ESPIRiT (best other arm) | 35.209 | 34.503 |
+| margin, phase 3 / P6 | **+0.497** / +0.343 | **+0.425** / +0.304 |
+| head SSIM, phase 3 / P6 / L1 | 0.9396 / 0.9351 / 0.9334 | 0.9261 / 0.9203 / 0.9201 |
+| head HFEN, phase 3 / P6 / L1 | 0.1139 / 0.1218 / 0.1286 | 0.1121 / 0.1188 / 0.1210 |
+| sharpness, phase 3 / P6 / L1 | **0.855** / 0.830 / 0.849 | **0.804** / 0.788 / 0.789 |
+
+Every head cell is first and, for the first time in this series, the sharpness is at or above L1-ESPIRiT's on both
+contrasts. Seed floor 0.001 / 0.000 dB; MC-GS − GS-single = +0.148 / +0.042 (phase 1: +0.037 / −0.003). Figures
+`figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_compact_174_110_47_headerr_p3.png` — MC-GS is first on PSNR, SSIM and
+NMSE in every plane of both contrasts. Closed with evidence in this phase: a non-local (BM4D / RED) prior, adaptive
+density control, vectorial TV, contrast-private residual Gaussians, and a two-mask acquisition design (see
+`scripts/prep_02c_mask_af16c.m` and the probe read-out). The known-zero region is worth −0.013 dB on this mask and
++0.225 dB on an in-shutter mask. Caveats are those of phases 1 and 2 (one subject, knobs and λ tuned on it, magnitude
+gauge, nominal AF 16).
