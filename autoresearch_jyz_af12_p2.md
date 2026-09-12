@@ -281,3 +281,6 @@ its screen beats 0.002's by more than the floor. Chain D's two bash instances we
 left alone: `p2_rotlr0005` on card 3, `p2_rotlr_slr005` on card 2) and chain E (`scripts/p2_chain_e.sh`: 0.004
 screen, 0.002 promotion, then the four wavelet-shape screens) is queued behind each of those runners
 (`p2_after_pid_then_e.sh`, kill -0 on the runner pid). Nothing launched in place; nothing edited in place.
+- 19:55 `p2_rotlr0005` (rotation lr 0.0005; card 3, 27 min): 36.893 / 36.529 — +0.008 / +0.009, inside the T1 floor:
+  **null**. The bracket so far, head PSNR gain over P10 at 1500 (T1 / FLAIR): 0.0005 +0.008 / +0.009; 0.001 +0.023 /
+  +0.025; 0.002 +0.038 / +0.045 — monotone, no cell paying. `p2_rotlr004` runs on card 3, `p2_rotlr_slr005` on card 2.
