@@ -1,6 +1,6 @@
 # autoresearch, phase 2 — MC-GS joint on jiangyizhou T1 + FLAIR in design B: widen the lead further
 
-_Opened 2026-09-12 16:10. Same Karpathy-style loop as `autoresearch_jyz_af12.md` (one change → fixed budget → one
+_Opened 2026-09-12 15:59. Same Karpathy-style loop as `autoresearch_jyz_af12.md` (one change → fixed budget → one
 number → keep or discard → record → repeat). Runner `autoresearch_jyz_af12_p2.sh` (P10 baked in, default config =
 design B), ledger `autoresearch_jyz_af12.tsv` (continued; phase-2 rows carry the `p2_` prefix and `cfg=…flair_af11`
 in the note), branch `autoresearch-jyz-af12-phase2` (from `autoresearch-jyz-af12` at 2887187), worktree
@@ -39,7 +39,7 @@ so the FLAIR bar does not move. Bar (T1 / FLAIR): PSNR 36.426 / 35.757 (L1-ESPIR
 Sharpness 0.858 / 0.830. **T1 is the binding channel** in design B (+0.519 against FLAIR's +0.880), so a keep has
 to move T1; FLAIR-only gains show up in the other five cells and are recorded as such.
 
-## Decision rules (pre-registered 2026-09-12 16:10, before the first phase-2 candidate ran)
+## Decision rules (pre-registered 2026-09-12 15:59 (commit e9c2f40), before the first phase-2 candidate ran)
 
 Rules 1–6 of `autoresearch_jyz_af12.md` apply verbatim, read against the phase-2 reference rows:
 1. *Keep* at the screening budget (1500 iterations): `min_margin` above the parent's at the same budget
@@ -111,3 +111,10 @@ runner refuses to overwrite, so a chain can be relaunched safely. Waiting: poll 
 Every ledger row carries the commit and the exact args; the cfg is in the note.
 
 ## Round log
+
+### Round 0 — 2026-09-12 15:59, three chains launched (commit e9c2f40; lever A = 30f8513)
+- Card 3, `scripts/p2_chain_a.sh 3`: `p2_P10_i1500` (parent, seed 42) → `p2_geo_T113_F007` → `p2_tvvec` → `p2_kfa_off` → `p2_vtv002`.
+- Card 5, `scripts/p2_chain_b.sh 5`: `p2_P10_i1500_s43` (floor) → `p2_geo_T107_F013` → `p2_gradnorm10` → `p2_rotlr` → `p2_edge002`.
+- Card 2, `scripts/p2_chain_c.sh 2`: `p2_bundle_slr005_i6000` (rule 7, volumes) → `p2_khigh20` → `p2_P10_s43_full4k`.
+- Cards 0/1 carry the user's foundation-model jobs, card 4 another user's job, 6/7 another user's light jobs (the
+  AF16 phase-3 loop's smoke on card 5 had ended before launch).
