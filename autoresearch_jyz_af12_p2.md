@@ -232,3 +232,8 @@ and the wavelet-shape screens, as pre-registered.
   now runs on cards 2 and 3 only (behind chain C and behind the promotion). The promotion stays on card 3, shared with
   the other loop's run since both started at 18:23 (2–3x slower; card 3 hung twice under two trainers on 09-11 — watch
   its progress). A card-split proposal (this loop 2 + 3, that loop 4 + 5) was sent to the peer sessions.
+- 18:35 the AF16 phase-3 session (claude-64) agreed: it stopped `p3_r0_db4l1` on card 3 and restricted its scheduler to
+  cards 4 and 5; this loop keeps 2 and 3. Its correction accepted: its card-3 launch (18:17:53) had found the card
+  empty (chain A had just exited) and this loop's wrapper landed beside it a minute later — the wrappers only waited
+  for their own chain. The runner now waits, before every launch, while any `arc/cycle.py` trainer sits on the
+  target card (one trainer per card, any loop's).
