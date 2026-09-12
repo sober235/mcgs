@@ -1,0 +1,11 @@
+low e0: 6813 spokes, 324 s, scaling=None
+high e0: 6813 spokes, 298 s, scaling=None
+{
+ "subject": "V07",
+ "lag_vox_high_vs_low": 0,
+ "image_end": "ambiguous",
+ "histogram_end": "high",
+ "agreed": false
+}
+http://localhost:8765/cardiac_fr/V07_polarity.png
+/home/congcongliu/figs/cardiac_fr/V07_polarity.png

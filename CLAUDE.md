@@ -1,3 +1,24 @@
+# This branch: cardiac-freerunning (cardiac line, phase 1)
+
+Read in this order: this section -> `STATUS.md` -> the spec
+`docs/superpowers/specs/2026-09-10-cardiac-freerunning-phase1-design.md` -> the plan
+`docs/superpowers/plans/2026-09-10-cardiac-freerunning-phase1.md` -> the topic README
+`/data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MEGRE/README.md`.
+
+- Code: package `cardiac_fr/` with CPU tests `tests/test_cardiac_fr_*.py`; drivers live in the topic's
+  `scripts/` and always run through `scripts/py` (GSTMI python, CPU only, nice 10, 32 BART threads).
+  The topic is mirrored without volumes in `cardiac_freerunning_megre/` (`git add -f` for logs and figures).
+- Isolation: never edit the main checkout (`Paired_ARC_GS_general_framework`) or `mcgs_af16_wt`; phase 1
+  uses no GPU. Raw data is read-only; derived data lives in `/data2/congcong/data/cardiac_3d_cine_public/derived/megre/`.
+- Tests: `cd /data0/congcong/code/GS/mcgs_cardiac_wt && /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MEGRE/scripts/py -m pytest tests/test_cardiac_fr_*.py -q` (34 tests).
+- Seven corrections to the spec were approved during the run (polarity boxes and their 1-voxel floor, REF lambda relative
+  to lambda_max, L1 lambda absolute, early-stopped FISTA, the 2x FOV grid, the self-check gate, per-subject orientation:
+  V04 is a coronal slab); the topic README lists them with their evidence. Do not revert them.
+
+The framework notes below come from `autoresearch-t1t2` and still describe the MC-GS code.
+
+---
+
 # Paired-ARC-GS / MC-GS framework — session entry
 
 Read in this order: this file → `STATUS.md` (current state, what to re-run first) →

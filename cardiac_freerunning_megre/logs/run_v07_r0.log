@@ -1,0 +1,25 @@
+{
+ "subject": "V07",
+ "n_spokes": 20439,
+ "sens_shape": [
+  112,
+  112,
+  112,
+  24
+ ],
+ "support_frac": 0.25438670166727406,
+ "sos_within_5pct_in_support": 1.0
+}
+http://localhost:8765/cardiac_fr/V07_coilmaps.png
+/home/congcongliu/figs/cardiac_fr/V07_coilmaps.png
+r0 e0: 20439 spokes, 1323 s, scaling=None
+r0 e1: 20439 spokes, 1459 s, scaling=None
+r0 e2: 20439 spokes, 816 s, scaling=None
+r0 e3: 20439 spokes, 495 s, scaling=None
+r0 e4: 20439 spokes, 427 s, scaling=None
+r0 e5: 20439 spokes, 380 s, scaling=None
+r0 e6: 20439 spokes, 374 s, scaling=None
+r0 e7: 20439 spokes, 402 s, scaling=None
+http://localhost:8765/cardiac_fr/V07_r0.png
+/home/congcongliu/figs/cardiac_fr/V07_r0.png
+V07_R0_DONE

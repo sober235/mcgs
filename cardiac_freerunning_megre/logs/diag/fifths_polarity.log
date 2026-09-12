@@ -1,0 +1,10 @@
+low5: 4087 spokes, 131 s
+high5: 4087 spokes, 132 s
+V03 thirds:;  dome NCC shift +0.67 vox (peak 0.78);  heart NCC shift +0.62 vox (peak 0.73);  dome edge (axis2) low 58.24 -> high 57.82 (-0.42 vox)
+V03 fifths:;  dome NCC shift +0.82 vox (peak 0.70);  heart NCC shift +0.89 vox (peak 0.66);  dome edge (axis2) low 58.41 -> high 57.75 (-0.65 vox)
+FIFTHS_DONE
+low5: 4087 spokes, 134 s
+high5: 4087 spokes, 135 s
+V07 thirds:;  dome NCC shift -3.80 vox (peak 0.73);  heart NCC shift -2.55 vox (peak 0.77);  dome edge (axis2) low 83.05 -> high 80.99 (-2.06 vox)
+V07 fifths:;  dome NCC shift -5.53 vox (peak 0.63);  heart NCC shift -3.17 vox (peak 0.69);  dome edge (axis2) low 84.14 -> high 75.83 (-8.31 vox)
+FIFTHS_DONE

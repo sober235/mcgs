@@ -1,0 +1,103 @@
+{
+ "l1_lambda": 0.0001,
+ "iters": 100,
+ "verdicts": [
+  {
+   "echo": 0,
+   "method": "cg",
+   "metric": "body_psnr",
+   "monotone": true
+  },
+  {
+   "echo": 0,
+   "method": "cg",
+   "metric": "body_ssim",
+   "monotone": true
+  },
+  {
+   "echo": 0,
+   "method": "cg",
+   "metric": "body_hfen",
+   "monotone": true
+  },
+  {
+   "echo": 0,
+   "method": "cg",
+   "metric": "heldout_nrmse",
+   "monotone": true
+  },
+  {
+   "echo": 0,
+   "method": "l1",
+   "metric": "body_psnr",
+   "monotone": true
+  },
+  {
+   "echo": 0,
+   "method": "l1",
+   "metric": "body_ssim",
+   "monotone": true
+  },
+  {
+   "echo": 0,
+   "method": "l1",
+   "metric": "body_hfen",
+   "monotone": false
+  },
+  {
+   "echo": 0,
+   "method": "l1",
+   "metric": "heldout_nrmse",
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "cg",
+   "metric": "body_psnr",
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "cg",
+   "metric": "body_ssim",
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "cg",
+   "metric": "body_hfen",
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "cg",
+   "metric": "heldout_nrmse",
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "l1",
+   "metric": "body_psnr",
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "l1",
+   "metric": "body_ssim",
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "l1",
+   "metric": "body_hfen",
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "l1",
+   "metric": "heldout_nrmse",
+   "monotone": true
+  }
+ ],
+ "pass": false
+}

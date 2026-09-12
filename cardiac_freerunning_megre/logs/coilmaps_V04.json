@@ -1,0 +1,12 @@
+{
+ "subject": "V04",
+ "n_spokes": 20439,
+ "sens_shape": [
+  112,
+  112,
+  112,
+  24
+ ],
+ "support_frac": 0.29402289654701164,
+ "sos_within_5pct_in_support": 1.0
+}

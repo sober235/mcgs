@@ -1,0 +1,18 @@
+{
+ "subject": "V03",
+ "n_spokes": 20439,
+ "calib_samples": [
+  54,
+  165
+ ],
+ "espirit_grid": 112,
+ "sens_shape": [
+  224,
+  224,
+  224,
+  24
+ ],
+ "support_frac": 0.40726143973214285,
+ "sos_within_5pct_in_support_before_renorm": 0.9821734422980463,
+ "renormalised": true
+}

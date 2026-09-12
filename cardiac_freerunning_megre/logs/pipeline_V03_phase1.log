@@ -1,0 +1,32 @@
+{
+ "subject": "V03",
+ "n_spokes": 20439,
+ "sens_shape": [
+  112,
+  112,
+  112,
+  24
+ ],
+ "support_frac": 0.17490433673469388,
+ "sos_within_5pct_in_support": 1.0
+}
+http://localhost:8765/cardiac_fr/V03_coilmaps.png
+/home/congcongliu/figs/cardiac_fr/V03_coilmaps.png
+r0 e0: 20439 spokes, 160 s, scaling=None
+r0 e1: 20439 spokes, 164 s, scaling=None
+r0 e2: 20439 spokes, 165 s, scaling=None
+r0 e3: 20439 spokes, 164 s, scaling=None
+r0 e4: 20439 spokes, 157 s, scaling=None
+r0 e5: 20439 spokes, 167 s, scaling=None
+r0 e6: 20439 spokes, 170 s, scaling=None
+r0 e7: 20439 spokes, 172 s, scaling=None
+http://localhost:8765/cardiac_fr/V03_r0.png
+/home/congcongliu/figs/cardiac_fr/V03_r0.png
+tissue fraction of transverse slices (|x| > 0.15 x P99.5 of the central 80^3):
+  axis2=16: 0.30  axis2=24: 0.30  axis2=32: 0.31  axis2=40: 0.39  axis2=48: 0.43  axis2=56: 0.50  axis2=64: 0.57  axis2=72: 0.62  axis2=80: 0.66  axis2=88: 0.65
+central mean |x| per echo / echo 0: [1.0, 0.767, 0.821, 0.547, 0.588, 0.478, 0.456, 0.441]
+http://localhost:8765/cardiac_fr/V03_r0_orientation.png
+/home/congcongliu/figs/cardiac_fr/V03_r0_orientation.png
+low e3: 6813 spokes, 138 s, scaling=None
+high e3: 6813 spokes, 138 s, scaling=None
+PHASE1_DONE V03

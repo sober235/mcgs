@@ -1,0 +1,5 @@
+tissue fraction of transverse slices (|x| > 0.15 x P99.5 of the central 80^3):
+  axis2=16: 0.38  axis2=24: 0.38  axis2=32: 0.34  axis2=40: 0.39  axis2=48: 0.46  axis2=56: 0.48  axis2=64: 0.50  axis2=72: 0.49  axis2=80: 0.71  axis2=88: 0.84
+central mean |x| per echo / echo 0: [1.0, 0.778, 0.822, 0.561, 0.61, 0.489, 0.488, 0.455]
+http://localhost:8765/cardiac_fr/V07_r0_orientation.png
+/home/congcongliu/figs/cardiac_fr/V07_r0_orientation.png

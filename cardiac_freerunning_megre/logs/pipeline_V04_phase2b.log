@@ -1,0 +1,21 @@
+ref e0: 6813 spokes, 1291 s, scaling=0.102114
+ref e1: 6813 spokes, 1274 s, scaling=0.044303
+ref e2: 6813 spokes, 1264 s, scaling=0.043828
+ref e3: 6813 spokes, 1253 s, scaling=0.045549
+ref e4: 6813 spokes, 1252 s, scaling=0.044095
+ref e5: 6813 spokes, 1350 s, scaling=0.031321
+ref e6: 6813 spokes, 1258 s, scaling=0.02446
+ref e7: 6813 spokes, 1466 s, scaling=0.024839
+{
+ "subject": "V04",
+ "ref_iters": 100,
+ "lam_rel": 0.001,
+ "lam": 2.4881819999999997,
+ "iter_rel_diff_60_vs_100": 0.0014491851907223463,
+ "iter_ok": true,
+ "scale_ratio_w2x_over_w1x": 1.0,
+ "scale_ok": true
+}
+http://localhost:8765/cardiac_fr/V04_ref.png
+/home/congcongliu/figs/cardiac_fr/V04_ref.png
+PHASE2b_DONE V04

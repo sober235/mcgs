@@ -1,0 +1,34 @@
+{"lam_rel": 0.001, "lam": 5.616504, "iter_rel_diff_60_vs_100": 0.0033307811245322227}
+{
+ "subject": "V07",
+ "lmax": 5616.504,
+ "candidates": [
+  {
+   "lam_rel": 0.001,
+   "lam": 5.616504,
+   "iter_rel_diff_60_vs_100": 0.0033307811245322227
+  }
+ ],
+ "lam_rel": 0.001
+}
+ref e0: 6813 spokes, 140 s, scaling=0.416985
+ref e1: 6813 spokes, 140 s, scaling=0.16056
+ref e2: 6813 spokes, 138 s, scaling=0.177283
+ref e3: 6813 spokes, 138 s, scaling=0.062425
+ref e4: 6813 spokes, 138 s, scaling=0.068796
+ref e5: 6813 spokes, 140 s, scaling=0.046212
+ref e6: 6813 spokes, 137 s, scaling=0.051865
+ref e7: 6813 spokes, 141 s, scaling=0.083452
+{
+ "subject": "V07",
+ "ref_iters": 100,
+ "lam_rel": 0.001,
+ "lam": 5.616504,
+ "iter_rel_diff_60_vs_100": 0.003479587845504284,
+ "iter_ok": true,
+ "scale_ratio_w2x_over_w1x": 1.0,
+ "scale_ok": true
+}
+http://localhost:8765/cardiac_fr/V07_ref.png
+/home/congcongliu/figs/cardiac_fr/V07_ref.png
+V07_REF_DONE

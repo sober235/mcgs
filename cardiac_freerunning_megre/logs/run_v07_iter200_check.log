@@ -1,0 +1,9 @@
+ref e0: 6813 spokes, 259 s, scaling=0.416985
+{
+ "subject": "V07",
+ "ref_iters": 200,
+ "iter_rel_diff_120_vs_200": 0.31901124119758606,
+ "iter_ok": false,
+ "scale_ratio_w2x_over_w1x": 0.998809814453125,
+ "scale_ok": true
+}

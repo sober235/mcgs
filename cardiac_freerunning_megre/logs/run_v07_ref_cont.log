@@ -1,0 +1,15 @@
+{
+ "subject": "V07",
+ "echo": 3,
+ "block": [
+  16,
+  96
+ ],
+ "ncc_peak": 0.8067800998687744,
+ "shift_vox_high_vs_low": 0.773,
+ "image_end": "low",
+ "histogram_end": "high",
+ "agreed": false
+}
+http://localhost:8765/cardiac_fr/V07_polarity.png
+/home/congcongliu/figs/cardiac_fr/V07_polarity.png

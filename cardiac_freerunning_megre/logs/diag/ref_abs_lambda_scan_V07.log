@@ -1,0 +1,3 @@
+lambda 0.01: 60 vs 100 body rel diff 0.3035 (low-pass 0.0124, high-pass 0.3001), 214 s
+lambda 0.03: 60 vs 100 body rel diff 0.3028 (low-pass 0.0124, high-pass 0.2995), 211 s
+LAMSCAN_DONE

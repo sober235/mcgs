@@ -1,0 +1,26 @@
+{
+ "subject": "V08",
+ "source": "/data2/congcong/data/cardiac_3d_cine_public/zenodo_7621356_7615780_freerunning_multiecho_GRE_5D/V8/V8/meas_MID00496_FID147175_FRFF_MEGRE_2P0MM_8XC_BW893_FA12_DTE2P05_MONO_22x1000.dat",
+ "protocol": "FRFF_MEGRE_2P0MM_8XC_BW893_FA12_DTE2P05_MONO_22x1000",
+ "ksp_shape": [
+  8,
+  22000,
+  24,
+  224
+ ],
+ "n_adc_imaging": 176000,
+ "seconds": 159.9,
+ "ascconv": {
+  "tProtocolName": "FRFF_MEGRE_2P0MM_8XC_BW893_FA12_DTE2P05_MONO_22x1000",
+  "sKSpace.lBaseResolution": "112",
+  "sKSpace.lPartitions": "112",
+  "sKSpace.lRadialViews": "22000",
+  "lContrasts": "8",
+  "alTR[0]": "374440",
+  "alTE[0]": "1250",
+  "alTE[1]": "3300",
+  "alTE[7]": "15600",
+  "adFlipAngleDegree[0]": "12.0",
+  "sRXSPEC.alDwellTime[0]": "5000"
+ }
+}

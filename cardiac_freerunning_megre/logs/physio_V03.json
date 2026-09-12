@@ -1,0 +1,17 @@
+{
+ "subject": "V03",
+ "timestamp_max_abs_diff_ms": 0.0,
+ "n_spoke": 22000,
+ "n_si": 1000,
+ "n_before_steady": 588,
+ "n_r0": 20439,
+ "n_third": 6813,
+ "expiration_end_by_histogram": "high",
+ "resp_p2_p50_p98": [
+  1.8171195550216792,
+  1.8306156635963848,
+  1.8378383795981243
+ ],
+ "rr_ms_median": 847.0,
+ "card_phase_nan": 74
+}

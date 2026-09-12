@@ -1,0 +1,14 @@
+echo 0: body 0.816, |hp(ref)|/|ref| 0.1014
+  cg af8   err lp 0.0842  hp 0.0483  |hp(x)|/|hp(ref)| 0.605  mean(x)/mean(ref) 0.9590
+  cg af12  err lp 0.1270  hp 0.0627  |hp(x)|/|hp(ref)| 0.462  mean(x)/mean(ref) 0.9358
+  cg af16  err lp 0.1547  hp 0.0699  |hp(x)|/|hp(ref)| 0.401  mean(x)/mean(ref) 0.9192
+  l1 af8   err lp 0.0645  hp 0.0541  |hp(x)|/|hp(ref)| 1.138  mean(x)/mean(ref) 1.0174
+  l1 af12  err lp 0.0528  hp 0.0562  |hp(x)|/|hp(ref)| 0.989  mean(x)/mean(ref) 1.0070
+  l1 af16  err lp 0.0525  hp 0.0596  |hp(x)|/|hp(ref)| 0.920  mean(x)/mean(ref) 1.0025
+echo 4: body 0.797, |hp(ref)|/|ref| 0.1017
+  cg af8   err lp 0.1624  hp 0.0497  |hp(x)|/|hp(ref)| 0.644  mean(x)/mean(ref) 0.8597
+  cg af12  err lp 0.2375  hp 0.0636  |hp(x)|/|hp(ref)| 0.512  mean(x)/mean(ref) 0.7913
+  cg af16  err lp 0.2990  hp 0.0708  |hp(x)|/|hp(ref)| 0.439  mean(x)/mean(ref) 0.7313
+  l1 af8   err lp 0.1633  hp 0.0673  |hp(x)|/|hp(ref)| 1.280  mean(x)/mean(ref) 1.1153
+  l1 af12  err lp 0.1429  hp 0.0681  |hp(x)|/|hp(ref)| 1.188  mean(x)/mean(ref) 1.0961
+  l1 af16  err lp 0.1289  hp 0.0695  |hp(x)|/|hp(ref)| 1.127  mean(x)/mean(ref) 1.0792

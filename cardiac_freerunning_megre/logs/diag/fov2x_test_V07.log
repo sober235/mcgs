@@ -1,0 +1,88 @@
+coil images 64^3 over 448 mm (nufft -i): {'seconds': 24.3, 'peak_rss_gb_any_bart_so_far': 1.59}
+fft: {'seconds': 0.1, 'peak_rss_gb_any_bart_so_far': 1.59}
+ecalib on 64^3 (-r 48): {'seconds': 387.8, 'peak_rss_gb_any_bart_so_far': 112.47}
+maps Fourier-interpolated to 224^3: {'seconds': 3.7, 'peak_rss_gb_any_bart_so_far': 112.47}
+lambda_max of the 2x REF operator: {'seconds': 363.6, 'peak_rss_gb_any_bart_so_far': 112.47}
+REF echo 0 on 224^3, 100 CG steps: {'seconds': 1107.5, 'peak_rss_gb_any_bart_so_far': 112.47}
+forward onto the held-out spokes: {'seconds': 7.7, 'peak_rss_gb_any_bart_so_far': 112.47}
+{
+ "subject": "V07",
+ "echo": 0,
+ "grid": 224,
+ "fov_mm": 448,
+ "lambda_max_2x": 2204.563,
+ "lambda": 2.2045630000000003,
+ "bart_scaling": 0.114672,
+ "sens_sos_within_5pct_in_support": 0.9429282012274506,
+ "in_sample_heldout_112": {
+  "nrmse": 0.45162433385849,
+  "res_over_data_k0-3": 0.3803216814994812,
+  "res_over_data_k4-11": 1.0405114889144897,
+  "res_over_data_k12-27": 1.4802830219268799,
+  "res_over_data_k28-112": 1.644792079925537,
+  "per_coil": [
+   0.22,
+   0.427,
+   0.546,
+   0.815,
+   0.406,
+   0.166,
+   0.393,
+   0.243,
+   0.333,
+   0.645,
+   0.634,
+   0.519,
+   0.651,
+   0.634,
+   0.601,
+   0.607,
+   0.417,
+   0.271,
+   0.323,
+   0.687,
+   0.337,
+   0.352,
+   0.491,
+   0.417
+  ]
+ },
+ "in_sample_heldout_224": {
+  "nrmse": 0.129745215177536,
+  "res_over_data_k0-3": 0.10795604437589645,
+  "res_over_data_k4-11": 0.2794918715953827,
+  "res_over_data_k12-27": 0.5969703793525696,
+  "res_over_data_k28-112": 0.8390182256698608,
+  "per_coil": [
+   0.094,
+   0.139,
+   0.127,
+   0.262,
+   0.134,
+   0.116,
+   0.1,
+   0.099,
+   0.09,
+   0.197,
+   0.143,
+   0.122,
+   0.135,
+   0.143,
+   0.176,
+   0.142,
+   0.12,
+   0.092,
+   0.079,
+   0.198,
+   0.085,
+   0.104,
+   0.153,
+   0.109
+  ]
+ },
+ "fov_edge_band_over_body_112": 1.8350998163223267,
+ "fov_edge_band_over_body_224_central": 0.9345220327377319
+}
+http://localhost:8765/cardiac_fr/V07_fov2x_ref_e0.png
+/home/congcongliu/figs/cardiac_fr/V07_fov2x_ref_e0.png
+FOV2X_TEST_DONE

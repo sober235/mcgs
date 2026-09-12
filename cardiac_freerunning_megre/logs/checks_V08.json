@@ -1,0 +1,10 @@
+{
+ "subject": "V08",
+ "ref_iters": 100,
+ "lam_rel": 0.001,
+ "lam": 2.265564,
+ "iter_rel_diff_60_vs_100": 0.0020873635075986385,
+ "iter_ok": true,
+ "scale_ratio_w2x_over_w1x": 1.0000001192092896,
+ "scale_ok": true
+}

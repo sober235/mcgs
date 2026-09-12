@@ -1,0 +1,7 @@
+echo 0: official l1_af12 through this held-out path 0.45204
+echo 0 af8: lambda 0.0045018 (= 0.003 x 2464/1642) body_psnr 34.775 ssim 0.9526 hfen 0.3227 heldout 0.45276 mean/ref 1.0056 (150 s)
+echo 0 af16: lambda 0.0022491 (= 0.003 x 1231/1642) body_psnr 35.720 ssim 0.9557 hfen 0.2815 heldout 0.45202 mean/ref 0.9968 (150 s)
+echo 4: official l1_af12 through this held-out path 0.57850
+echo 4 af8: lambda 0.0045018 (= 0.003 x 2464/1642) body_psnr 36.300 ssim 0.9663 hfen 0.4124 heldout 0.57966 mean/ref 1.0473 (150 s)
+echo 4 af16: lambda 0.0022491 (= 0.003 x 1231/1642) body_psnr 36.098 ssim 0.9628 hfen 0.4401 heldout 0.57838 mean/ref 1.0382 (149 s)
+L1_SCALE_N_DONE

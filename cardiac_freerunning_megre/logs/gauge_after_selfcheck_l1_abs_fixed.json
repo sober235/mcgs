@@ -1,0 +1,48 @@
+{
+ "V07": {
+  "n_ref": 6813,
+  "af_ref": 2.8921180096873624,
+  "n_heldout": 341,
+  "n_pool": 6472,
+  "seed": 0,
+  "subsets": {
+   "af8": {
+    "n": 2464,
+    "af_actual": 7.996753246753247
+   },
+   "af12": {
+    "n": 1642,
+    "af_actual": 12.0
+   },
+   "af16": {
+    "n": 1231,
+    "af_actual": 16.006498781478474
+   }
+  },
+  "heart_box": [
+   [
+    27,
+    96
+   ],
+   [
+    33,
+    96
+   ],
+   [
+    30,
+    84
+   ]
+  ],
+  "heart_box_note": "smallest box around all four chambers on REF echo 4 (TE 9.45 ms) plus 3 voxels; great vessels above axis2 30 excluded"
+ },
+ "l1_lambda": 0.003,
+ "lmax_ref": 5616.504,
+ "ref_lam_rel": 0.001,
+ "l1_lambda_sweep_body_psnr": {
+  "0.0001": 31.38,
+  "0.0003": 31.916,
+  "0.001": 33.558,
+  "0.003": 35.928,
+  "0.01": 30.735
+ }
+}

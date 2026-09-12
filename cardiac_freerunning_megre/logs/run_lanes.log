@@ -1,0 +1,8 @@
+lanes started 2026-09-12_12:39:53, iterations 100, REF lambda_rel 0.001
+OK V04 phase 2a 2026-09-12_12:49:29
+OK V08 phase 2a 2026-09-12_12:59:08
+OK V03 phase 2b 2026-09-12_16:35:25
+OK V04 phase 2b 2026-09-12_16:45:16
+OK V08 phase 2b 2026-09-12_20:16:28
+lanes ended 2026-09-12_20:16:28: lane A rc=0, lane B rc=0
+ALL_DONE phase 2

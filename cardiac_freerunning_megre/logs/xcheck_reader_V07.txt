@@ -1,0 +1,13 @@
+Software version: VD (!?)
+Reader version: 1496740358 
+ (UTC: 06-Jun-2017 09:12:38)
+Scan 1/2, read all mdhs:
+[Warning: MATLAB has disabled some advanced graphics rendering features by
+switching to software OpenGL. For more information, click <a
+href="matlab:opengl('problems')">here</a>.] 
+    25.0 MB read in    4 s
+Scan 2/2, read all mdhs:
+  8200.6 MB read in   47 s
+image NAcq = 176000, NCol = 224, NCha = 24
+saved lines [224 24 1000]
+V07: 1000 lines, ours (1000, 24, 224) vs theirs (1000, 24, 224), bitwise equal = True, max |diff| = 0

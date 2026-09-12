@@ -1,0 +1,120 @@
+{
+ "l1_lambda": 0.003,
+ "iters": 100,
+ "verdicts": [
+  {
+   "echo": 0,
+   "method": "cg",
+   "metric": "body_psnr",
+   "required": true,
+   "monotone": true
+  },
+  {
+   "echo": 0,
+   "method": "cg",
+   "metric": "body_ssim",
+   "required": true,
+   "monotone": true
+  },
+  {
+   "echo": 0,
+   "method": "cg",
+   "metric": "body_hfen",
+   "required": true,
+   "monotone": true
+  },
+  {
+   "echo": 0,
+   "method": "cg",
+   "metric": "heldout_nrmse",
+   "required": true,
+   "monotone": true
+  },
+  {
+   "echo": 0,
+   "method": "l1",
+   "metric": "body_psnr",
+   "required": false,
+   "monotone": false
+  },
+  {
+   "echo": 0,
+   "method": "l1",
+   "metric": "body_ssim",
+   "required": false,
+   "monotone": true
+  },
+  {
+   "echo": 0,
+   "method": "l1",
+   "metric": "body_hfen",
+   "required": false,
+   "monotone": false
+  },
+  {
+   "echo": 0,
+   "method": "l1",
+   "metric": "heldout_nrmse",
+   "required": true,
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "cg",
+   "metric": "body_psnr",
+   "required": true,
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "cg",
+   "metric": "body_ssim",
+   "required": true,
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "cg",
+   "metric": "body_hfen",
+   "required": true,
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "cg",
+   "metric": "heldout_nrmse",
+   "required": true,
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "l1",
+   "metric": "body_psnr",
+   "required": false,
+   "monotone": false
+  },
+  {
+   "echo": 4,
+   "method": "l1",
+   "metric": "body_ssim",
+   "required": false,
+   "monotone": true
+  },
+  {
+   "echo": 4,
+   "method": "l1",
+   "metric": "body_hfen",
+   "required": false,
+   "monotone": false
+  },
+  {
+   "echo": 4,
+   "method": "l1",
+   "metric": "heldout_nrmse",
+   "required": true,
+   "monotone": true
+  }
+ ],
+ "gate": "held-out NRMSE all arms + image metrics CG arm (correction 6)",
+ "pass": true
+}

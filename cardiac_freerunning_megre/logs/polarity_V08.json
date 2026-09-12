@@ -1,0 +1,51 @@
+{
+ "subject": "V08",
+ "echo": 3,
+ "boxes": {
+  "dome": [
+   [
+    10,
+    46
+   ],
+   [
+    40,
+    84
+   ],
+   [
+    48,
+    92
+   ]
+  ],
+  "heart": [
+   [
+    30,
+    82
+   ],
+   [
+    44,
+    90
+   ],
+   [
+    24,
+    80
+   ]
+  ]
+ },
+ "min_shift_vox": 1.0,
+ "shift_vox_high_vs_low": {
+  "dome": -2.665,
+  "heart": -1.337
+ },
+ "ncc_peak": {
+  "dome": 0.832,
+  "heart": 0.829
+ },
+ "image_end": "high",
+ "histogram_end": "high",
+ "dwell_asymmetry": 2.1,
+ "image_criterion": "determined",
+ "basis": "both",
+ "verdict": "high",
+ "agreed": true,
+ "n_ref": 6813
+}

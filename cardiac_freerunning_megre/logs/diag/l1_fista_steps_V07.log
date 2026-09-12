@@ -1,0 +1,7 @@
+CG AF12 (lambda_rel 1e-3): body_psnr 30.69 ssim 0.912 hfen 0.522
+FISTA absolute lambda 0.0001, 100 steps: body_psnr 31.38 ssim 0.938 hfen 0.468  |L1|/|CG| 1.501  (166 s)
+FISTA absolute lambda 0.001, 100 steps: body_psnr 33.56 ssim 0.961 hfen 0.368  |L1|/|CG| 1.417  (163 s)
+FISTA absolute lambda 0.01, 100 steps: body_psnr 30.74 ssim 0.856 hfen 0.540  |L1|/|CG| 1.075  (162 s)
+FISTA absolute lambda 0.001, 200 steps: body_psnr 28.07 ssim 0.920 hfen 0.603  |L1|/|CG| 1.576  (283 s)
+lambda 1e-3: 100 vs 200 steps rel diff 0.2729
+FISTA_ABS_DONE

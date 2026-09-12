@@ -1,0 +1,10 @@
+{
+ "subject": "V07",
+ "ref_iters": 100,
+ "lam_rel": 0.001,
+ "lam": 5.616504,
+ "iter_rel_diff_60_vs_100": 0.003479587845504284,
+ "iter_ok": true,
+ "scale_ratio_w2x_over_w1x": 1.0,
+ "scale_ok": true
+}

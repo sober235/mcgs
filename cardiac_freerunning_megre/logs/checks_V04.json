@@ -1,0 +1,10 @@
+{
+ "subject": "V04",
+ "ref_iters": 100,
+ "lam_rel": 0.001,
+ "lam": 2.4881819999999997,
+ "iter_rel_diff_60_vs_100": 0.0014491851907223463,
+ "iter_ok": true,
+ "scale_ratio_w2x_over_w1x": 1.0,
+ "scale_ok": true
+}

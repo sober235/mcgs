@@ -1,0 +1,64 @@
+{
+ "subject": "V07",
+ "echo": 3,
+ "boxes": {
+  "dome": [
+   [
+    16,
+    56
+   ],
+   [
+    40,
+    80
+   ],
+   [
+    56,
+    96
+   ]
+  ],
+  "heart": [
+   [
+    36,
+    80
+   ],
+   [
+    48,
+    88
+   ],
+   [
+    30,
+    80
+   ]
+  ]
+ },
+ "shift_vox_high_vs_low": {
+  "dome": -3.801,
+  "heart": -2.549
+ },
+ "ncc_peak": {
+  "dome": 0.73,
+  "heart": 0.765
+ },
+ "image_end": "high",
+ "histogram_end": "high",
+ "agreed": true,
+ "n_ref": 6813
+}
+http://localhost:8765/cardiac_fr/V07_polarity.png
+/home/congcongliu/figs/cardiac_fr/V07_polarity.png
+ref e0: 6813 spokes, 150 s, scaling=0.416985
+ref e1: 6813 spokes, 146 s, scaling=0.16056
+ref e2: 6813 spokes, 148 s, scaling=0.177283
+ref e3: 6813 spokes, 149 s, scaling=0.062425
+ref e4: 6813 spokes, 145 s, scaling=0.068796
+ref e5: 6813 spokes, 146 s, scaling=0.046212
+ref e6: 6813 spokes, 144 s, scaling=0.051865
+ref e7: 6813 spokes, 143 s, scaling=0.083452
+{
+ "subject": "V07",
+ "ref_iters": 100,
+ "iter_rel_diff_60_vs_100": 0.3116137683391571,
+ "iter_ok": false,
+ "scale_ratio_w2x_over_w1x": 1.0001013278961182,
+ "scale_ok": true
+}
