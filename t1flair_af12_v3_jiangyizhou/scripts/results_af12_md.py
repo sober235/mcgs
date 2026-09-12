@@ -99,7 +99,24 @@ L.append("- Whole-volume SSIM is sixth for every MC-GS arm (air-noise gauge).")
 L.append("- Not AF 12, kept apart: the side experiment with FLAIR's mask at nominal AF 11 (9.05x of its support, T1 unchanged), MC-GS only — "
          f"T1 {by[('T1','gs_joint_ar_fl11')]['head_psnr']:.3f} / FLAIR {by[('FLAIR','gs_joint_ar_fl11')]['head_psnr']:.3f} head PSNR; "
          "slice-177 figures `t1flair_v3_af12_{T1,FLAIR}_flair_af11_axis0_177.png` (README, \"Side experiment\").\n")
-L.append("## 7. Reproduce / refresh\n")
+L.append("## 7. Design B (user, 2026-09-12): every arm at AF 12 on T1W and on FLAIR, except the proposed MC-GS whose FLAIR mask is AF 11\n")
+L.append("T1W: every method including MC-GS on the AF12 mask (identical to section 2). FLAIR: the comparison methods on the AF12 mask (the same mask as T1), "
+         "MC-GS on the AF11 mask (`data/mask_af11_3d.h5`, 9.05x of FLAIR's acquired support against 9.74x). Run `ar9_P10_flair_af11_full4k` (P10 recipe), registered as `gs_joint_ar_fl11`.\n")
+L.append("| arm | T1 head PSNR / SSIM / HFEN | FLAIR head PSNR / SSIM / HFEN | FLAIR whole PSNR / SSIM / NMSE |")
+L.append("|---|---|---|---|")
+fl = by[("FLAIR", "gs_joint_ar_fl11")]; t1 = by[("T1", "gs_joint_ar_fl11")]
+L.append(f"| **MC-GS P10, FLAIR mask AF 11 (T1 mask AF 12)** | **{t1['head_psnr']:.3f} / {t1['head_ssim']:.4f} / {t1['head_hfen']:.4f}** | **{fl['head_psnr']:.3f} / {fl['head_ssim']:.4f} / {fl['head_hfen']:.4f}** | **{fl['psnr']:.3f}** / {fl['ssim']:.4f} / **{fl['nmse']:.5f}** |")
+for m in ("gs_joint_ar", "gs_single_ar", "l1espirit", "cssense_o200", "jcssense", "zsssdu", "cgsense"):
+    a, b = by[("T1", m)], by[("FLAIR", m)]
+    L.append(f"| {LABEL[m].strip('*')} (AF 12) | {a['head_psnr']:.3f} / {a['head_ssim']:.4f} / {a['head_hfen']:.4f} | {b['head_psnr']:.3f} / {b['head_ssim']:.4f} / {b['head_hfen']:.4f} | {b['psnr']:.3f} / {b['ssim']:.4f} / {b['nmse']:.5f} |")
+sg = by[("FLAIR", "gs_single_ar")]
+L.append(f"\nUnder this design MC-GS is first on every FLAIR head cell: over GS-single (AF 12) {fl['head_psnr']-sg['head_psnr']:+.3f} dB, SSIM {fl['head_ssim']-sg['head_ssim']:+.4f}, HFEN {sg['head_hfen']-fl['head_hfen']:+.4f}; "
+         f"over L1-ESPIRiT (AF 12) {fl['head_psnr']-by[('FLAIR','l1espirit')]['head_psnr']:+.3f} dB. T1 is unchanged to 0.001 dB. Slice 177 (`figures/t1flair_v3_af12_{{T1,FLAIR}}_flair_af11_axis0_177.png`): "
+         "FLAIR MC-GS 36.81 vs GS-single 36.59, L1-ESPIRiT 36.10; T1 MC-GS 38.24 vs GS-single 38.19, L1-ESPIRiT 37.87. The FLAIR column of MC-GS is at a 7 % denser mask than the field; "
+         "the like-for-like single at AF 11 is a separate footnote (`ar9_P10_singleFLAIR_af11_full4k`).\n")
+for n in ("t1flair_v3_af12_T1_flair_af11_axis0_177.png", "t1flair_v3_af12_FLAIR_flair_af11_axis0_177.png"):
+    L.append(f"{URL}/{n}"); L.append(f"{FIGS}/{n}\n")
+L.append("## 8. Reproduce / refresh\n")
 L.append("`scripts/summarize.py` (table), `scripts/find_best_slice_v2.py --ours gs_joint_ar` (per slice), `scripts/fig_three_planes_compact.py --contrast T1 --slices 174 110 47 --mask_error`, "
          "`scripts/fig_row_final.py --contrast FLAIR --index 178`, `scripts/complex_gauge.py`, then `scripts/results_af12_md.py` for this sheet. "
          "P10 itself: framework repo, worktree `mcgs_af12_wt`, `SAVE_VOLUMES=1 ./autoresearch_jyz_af12.sh <EXP> <GPU> 4000` (the runner bakes P10).")

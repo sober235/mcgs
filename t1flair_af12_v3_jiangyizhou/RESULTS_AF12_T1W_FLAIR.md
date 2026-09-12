@@ -126,6 +126,29 @@ http://localhost:8765/t1flair_v3_af12/t1flair_v3_af12_FLAIR_plane2.png
 - Whole-volume SSIM is sixth for every MC-GS arm (air-noise gauge).
 - Not AF 12, kept apart: the side experiment with FLAIR's mask at nominal AF 11 (9.05x of its support, T1 unchanged), MC-GS only — T1 36.945 / FLAIR 36.637 head PSNR; slice-177 figures `t1flair_v3_af12_{T1,FLAIR}_flair_af11_axis0_177.png` (README, "Side experiment").
 
-## 7. Reproduce / refresh
+## 7. Design B (user, 2026-09-12): every arm at AF 12 on T1W and on FLAIR, except the proposed MC-GS whose FLAIR mask is AF 11
+
+T1W: every method including MC-GS on the AF12 mask (identical to section 2). FLAIR: the comparison methods on the AF12 mask (the same mask as T1), MC-GS on the AF11 mask (`data/mask_af11_3d.h5`, 9.05x of FLAIR's acquired support against 9.74x). Run `ar9_P10_flair_af11_full4k` (P10 recipe), registered as `gs_joint_ar_fl11`.
+
+| arm | T1 head PSNR / SSIM / HFEN | FLAIR head PSNR / SSIM / HFEN | FLAIR whole PSNR / SSIM / NMSE |
+|---|---|---|---|
+| **MC-GS P10, FLAIR mask AF 11 (T1 mask AF 12)** | **36.945 / 0.9503 / 0.0947** | **36.637 / 0.9439 / 0.0906** | **40.021** / 0.9214 / **0.01168** |
+| MC-GS P10 (AF12 loop) (AF 12) | 36.944 / 0.9503 / 0.0947 | 36.268 / 0.9397 / 0.0958 | 39.692 / 0.9186 / 0.01260 |
+| GS-single P10 (AF 12) | 36.897 / 0.9495 / 0.0965 | 36.323 / 0.9405 / 0.0944 | 39.693 / 0.9063 / 0.01260 |
+| L1-ESPIRiT (BART, 100 FISTA, λ swept here) (AF 12) | 36.426 / 0.9469 / 0.1036 | 35.757 / 0.9368 / 0.1000 | 39.205 / 0.9452 / 0.01409 |
+| CS-SENSE (TV, 200 outer, λ swept here) (AF 12) | 36.162 / 0.9446 / 0.1102 | 35.581 / 0.9353 / 0.1073 | 39.142 / 0.9497 / 0.01430 |
+| Joint SENSE (JTV, 200 outer, λ swept here) (AF 12) | 36.070 / 0.9442 / 0.1143 | 35.624 / 0.9352 / 0.1073 | 39.277 / 0.9523 / 0.01386 |
+| ZS-SSDU (AF 12) | 35.724 / 0.9422 / 0.1330 | 35.034 / 0.9353 / 0.1297 | 38.807 / 0.9563 / 0.01545 |
+| CG-SENSE (AF 12) | 33.514 / 0.8981 / 0.1741 | 33.957 / 0.9032 / 0.1285 | 35.704 / 0.7782 / 0.03156 |
+
+Under this design MC-GS is first on every FLAIR head cell: over GS-single (AF 12) +0.314 dB, SSIM +0.0035, HFEN +0.0038; over L1-ESPIRiT (AF 12) +0.880 dB. T1 is unchanged to 0.001 dB. Slice 177 (`figures/t1flair_v3_af12_{T1,FLAIR}_flair_af11_axis0_177.png`): FLAIR MC-GS 36.81 vs GS-single 36.59, L1-ESPIRiT 36.10; T1 MC-GS 38.24 vs GS-single 38.19, L1-ESPIRiT 37.87. The FLAIR column of MC-GS is at a 7 % denser mask than the field; the like-for-like single at AF 11 is a separate footnote (`ar9_P10_singleFLAIR_af11_full4k`).
+
+http://localhost:8765/t1flair_v3_af12/t1flair_v3_af12_T1_flair_af11_axis0_177.png
+/home/congcongliu/figs/t1flair_v3_af12/t1flair_v3_af12_T1_flair_af11_axis0_177.png
+
+http://localhost:8765/t1flair_v3_af12/t1flair_v3_af12_FLAIR_flair_af11_axis0_177.png
+/home/congcongliu/figs/t1flair_v3_af12/t1flair_v3_af12_FLAIR_flair_af11_axis0_177.png
+
+## 8. Reproduce / refresh
 
 `scripts/summarize.py` (table), `scripts/find_best_slice_v2.py --ours gs_joint_ar` (per slice), `scripts/fig_three_planes_compact.py --contrast T1 --slices 174 110 47 --mask_error`, `scripts/fig_row_final.py --contrast FLAIR --index 178`, `scripts/complex_gauge.py`, then `scripts/results_af12_md.py` for this sheet. P10 itself: framework repo, worktree `mcgs_af12_wt`, `SAVE_VOLUMES=1 ./autoresearch_jyz_af12.sh <EXP> <GPU> 4000` (the runner bakes P10).
