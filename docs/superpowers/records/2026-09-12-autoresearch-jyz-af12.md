@@ -71,6 +71,11 @@ Extra rows at the final recipe (own rows, not the headline): two-seed average (s
 36.990 / 36.295; scale lr 0.005 at 4000 36.955 / 36.316 and 0.008 36.953 / 36.328 (both raise the smaller PSNR
 margin but slip T1 HFEN by 0.0002–0.0003, over its floor — recorded as marginal, not adopted); sym4 in place of db4
 36.952 / 36.272 (equivalent within the floor); GS-single T1 (same recipe, T1 alone) 36.897 (joint +0.047).
+Per slice (`scripts/find_best_slice_ar.py`, head-masked slice PSNR over every full-brain slice, the classical
+arms at their best re-swept λ, P-LORAKS included): P10 is first on **every** slice — T1 96/96 transverse, 121/121
+coronal, 118/118 sagittal; FLAIR 94/94, 120/120, 118/118 (`logs/best_slice_ar_{T1,FLAIR}.json`). Under v3.2 the T1
+count was 9/96, 69/121, 33/118.
+
 Rows still running at the time of writing are appended in section 7.
 
 ## 3. What moved and what did not

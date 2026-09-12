@@ -1,0 +1,45 @@
+[T1] ours = gs_joint_ar; margin taken against ['zf', 'cgsense', 'cssense_o200_lam0.0007', 'jcssense_o200', 'l1espirit_lam0.002', 'ploraks', 'zsssdu', 'dip', 'inr']
+
+=== T1 axis0: 96 slices with >= 20000 head voxels; gs_joint_ar first on 96 of them
+   top-5 by own head PSNR:
+      idx 173  head  24667  v2 38.266 dB  margin +0.421 vs l1espirit_lam0.002 37.845
+      idx 175  head  24543  v2 38.242 dB  margin +0.364 vs l1espirit_lam0.002 37.879
+      idx 177  head  24389  v2 38.240 dB  margin +0.372 vs l1espirit_lam0.002 37.868
+      idx 171  head  24787  v2 38.232 dB  margin +0.378 vs l1espirit_lam0.002 37.853
+      idx 178  head  24323  v2 38.212 dB  margin +0.378 vs l1espirit_lam0.002 37.834
+   top-5 by margin over the best other arm:
+      idx 109  head  20064  v2 35.400 dB  margin +0.722 vs l1espirit_lam0.002 34.679
+      idx 108  head  20032  v2 35.454 dB  margin +0.663 vs l1espirit_lam0.002 34.791
+      idx 110  head  20161  v2 35.340 dB  margin +0.662 vs l1espirit_lam0.002 34.678
+      idx 111  head  20223  v2 35.556 dB  margin +0.648 vs l1espirit_lam0.002 34.907
+      idx 113  head  20441  v2 35.660 dB  margin +0.630 vs l1espirit_lam0.002 35.030
+
+=== T1 axis1: 121 slices with >= 20000 head voxels; gs_joint_ar first on 121 of them
+   top-5 by own head PSNR:
+      idx 103  head  27182  v2 38.066 dB  margin +0.663 vs l1espirit_lam0.002 37.403
+      idx 104  head  27399  v2 38.046 dB  margin +0.500 vs l1espirit_lam0.002 37.546
+      idx 101  head  26926  v2 38.043 dB  margin +0.649 vs l1espirit_lam0.002 37.394
+      idx 108  head  28193  v2 38.042 dB  margin +0.492 vs l1espirit_lam0.002 37.550
+      idx 107  head  28012  v2 38.035 dB  margin +0.640 vs l1espirit_lam0.002 37.395
+   top-5 by margin over the best other arm:
+      idx  89  head  24707  v2 37.165 dB  margin +0.796 vs l1espirit_lam0.002 36.369
+      idx  77  head  20791  v2 36.576 dB  margin +0.771 vs l1espirit_lam0.002 35.804
+      idx  87  head  24024  v2 37.138 dB  margin +0.767 vs l1espirit_lam0.002 36.371
+      idx  83  head  22446  v2 36.874 dB  margin +0.756 vs l1espirit_lam0.002 36.118
+      idx  81  head  21929  v2 36.787 dB  margin +0.754 vs l1espirit_lam0.002 36.033
+
+=== T1 axis2: 118 slices with >= 20000 head voxels; gs_joint_ar first on 118 of them
+   top-5 by own head PSNR:
+      idx  81  head  33726  v2 38.357 dB  margin +0.626 vs l1espirit_lam0.002 37.731
+      idx  80  head  33850  v2 38.332 dB  margin +0.535 vs l1espirit_lam0.002 37.797
+      idx  82  head  33483  v2 38.303 dB  margin +0.566 vs l1espirit_lam0.002 37.737
+      idx 101  head  34397  v2 38.274 dB  margin +0.674 vs l1espirit_lam0.002 37.601
+      idx  99  head  34274  v2 38.273 dB  margin +0.650 vs l1espirit_lam0.002 37.622
+   top-5 by margin over the best other arm:
+      idx 129  head  30524  v2 36.903 dB  margin +0.728 vs l1espirit_lam0.002 36.175
+      idx 103  head  34668  v2 38.199 dB  margin +0.708 vs l1espirit_lam0.002 37.491
+      idx  77  head  34180  v2 38.017 dB  margin +0.707 vs l1espirit_lam0.002 37.311
+      idx  93  head  34433  v2 37.926 dB  margin +0.702 vs l1espirit_lam0.002 37.224
+      idx  75  head  34021  v2 37.978 dB  margin +0.696 vs l1espirit_lam0.002 37.283
+
+wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/logs/best_slice_ar_T1.json
