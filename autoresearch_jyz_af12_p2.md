@@ -383,3 +383,7 @@ does not need that read to run. Card 2 continues chain E's wavelet-shape screens
   wrapper were cancelled, and `p2_best_rot004_slr005_full4k` was launched on card 2 (its runner's guard held it until
   `p2_wav_ax05` finished). Both 4000-iteration promotions therefore land around 23:45 and P13 is decided tonight; the
   seed-43 repeat of the winner and the GS-single arms follow on the cards as they free up.
+- 22:58 noted for the delivery step: P13 is selected in design B, but the user's T1 figure is the all-AF12 one. In the
+  P10 loop the two settings' T1 agreed to 0.001 dB (`ar5_best_C10_T112_full4k` 36.944 vs `ar9_P10_flair_af11_full4k`
+  36.945), yet the winning recipe still has to be run once in the all-AF12 config (`configs/t1flair_v3_af12_hyw.yaml`,
+  `CONFIG=` on the runner) so the T1 panel is not quoted from a design-B run. Queued after the promotions.
