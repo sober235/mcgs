@@ -369,3 +369,6 @@ channel gains **+0.369 dB** head PSNR, +0.0042 SSIM, 0.0052 HFEN and +0.007 shar
 (`figures/t1flair_v3_af12_{T1,FLAIR}_flair_af11_axis0_177.png`, MC-GS column = this run, every other column AF 12): T1 38.24
 (GS-single 38.19, L1-ESPIRiT 37.87); FLAIR **36.81** (AF-12 GS-single 36.59, AF-12 MC-GS 36.55, L1-ESPIRiT 36.10) — not a
 like-for-like FLAIR comparison, labelled as such in the title.
+Three-plane compact panels for this design (MC-GS column = the FLAIR-AF11 run, every other column AF 12, 174 / 110 / 47,
+head-only error maps): `figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_flair_af11_174_110_47_headerr.png` — MC-GS
+first on PSNR, SSIM and NMSE in all three planes on both contrasts (`scripts/fig_three_planes_compact.py --mcgs_key gs_joint_ar_fl11`).
