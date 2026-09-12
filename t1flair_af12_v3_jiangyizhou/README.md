@@ -311,46 +311,6 @@ L1-ESPIRiT stays the strongest classical arm on every head cell; its best SSIM (
 (0.1034, λ 0.0015) on T1 sit at other λ than its best PSNR, and the loop's bar takes the best of every swept λ per
 cell. Volumes of every λ are in `recon/` (`*_lam<λ>_*_complex.npy`); the sweep logs in `logs/sweeps/`.
 
-## MC-GS from the AF12 autoresearch loop — P10 (2026-09-12)
-
-The jiangyizhou AF12 autoresearch loop (framework worktree `mcgs_af12_wt`, branch `autoresearch-jyz-af12`, program
-`autoresearch_jyz_af12.md`, record `docs/superpowers/records/2026-09-12-autoresearch-jyz-af12.md`) started from the
-AF16 line's P6 recipe run on this mask (36.753 / 36.165) and promoted four times, every step judged at 4000 iterations
-on all six head cells (PSNR, SSIM, HFEN × two contrasts) against the parent and against the re-swept classical arms.
-**P10 = P6 with the wavelet prior reshaped: db4 family (was db2), the L1 penalty on the finest decomposition level only
-(was 3 levels), strengths T1 0.12 / FLAIR 0.10 (were 0.10 / 0.07).** Registered here as `gs_joint_ar`
-(`scripts/add_gs_arm.py`, run `ar5_best_C10_T112_full4k`, seed 42, 4000 iterations, 63 min on one card); its
-single-contrast arms as `gs_single_ar`.
-
-| arm | head PSNR T1 / FLAIR | head SSIM | head HFEN | whole PSNR | sharp |
-|---|---|---|---|---|---|
-| **MC-GS (AF12 loop, P10)** | **36.944 / 36.268** | **0.9503 / 0.9397** | **0.0947 / 0.0958** | **40.272 / 39.692** | 0.858 / 0.823 |
-| MC-GS P6 (AF16 recipe unchanged, `ar17`, not in the table) | 36.753 / 36.165 | 0.9480 / 0.9374 | 0.1009 / 0.1002 | 40.071 / 39.539 | 0.857 / 0.832 |
-| MC-GS joint v3.2 (huangyuwei-selected, held out) | 36.299 / 36.039 | 0.9423 / 0.9369 | 0.0965 / 0.1025 | 39.654 / 39.473 | 0.921 / 0.822 |
-| L1-ESPIRiT at its best λ per cell (0.002 / 0.004; SSIM 0.0025 / 0.005; HFEN 0.0015 / 0.004) | 36.426 / 35.757 | 0.9473 / 0.9368 | 0.1034 / 0.1000 | 39.893 / 39.205 | 0.906 / 0.809 |
-| GS-single (P10 recipe, one contrast at a time) | 36.897 / see below | 0.9495 / — | 0.0965 / — | — | — |
-
-Promotion chain at 4000 iterations: P7 wavelet on 2 levels 36.765 / 36.168 → P8 db4 36.819 / 36.189 → P9 1 level +
-FLAIR 0.085 36.853 / 36.234 → P10 FLAIR 0.10 + T1 0.12 36.944 / 36.268. Seed 43 reproduces P10 to 0.002 / 0.001 dB;
-the two-seed average (own row, 2x compute) reads 36.990 / 36.295. Per slice (`scripts/find_best_slice_ar.py`, the
-classical arms at their best λ, P-LORAKS included) P10 is first on every full-brain slice: T1 96/96, 121/121, 118/118;
-FLAIR 94/94, 120/120, 118/118 (`logs/best_slice_ar_{T1,FLAIR}.json`).
-
-What did not move the recipe (ledger, 63 rows): capacity 4.2M / 4.8M / 6.0M and scale lr 0.005 / 0.008 raise the
-1500-iteration screen but at 4000 iterations trade T1 for FLAIR or slip T1 HFEN by 0.0002–0.0003; edge-TV, κ_q,
-w_floor, eps, warm-up, density lr, init support, k-space band weights, wavelet depth 4, db6, wavelet eps are null or
-losses; sym4 equals db4 within the floor.
-
-Caveat — the complex gauge (`scripts/complex_gauge.py`, `logs/complex_gauge.json`): on |rec − GT| L1-ESPIRiT is first
-on both contrasts (33.449 / 32.961 against P10's 33.418 / 32.887); MC-GS loses 3.5 dB from the magnitude to the
-complex gauge where the classical arms lose 2.8–3.0 (in-head phase agreement 0.9855 / 0.9821 vs 0.9862 / 0.9833).
-Every table and figure here is on the magnitude gauge.
-
-Figures (compact three planes, orange in-panel head-masked slice PSNR / SSIM / NMSE, error maps inside the head only,
-`scripts/fig_three_planes_compact.py --contrast T1 --slices 174 110 47 --mask_error`, mirrored to
-`/home/congcongliu/figs/t1flair_v3_af12/`): `figures/t1flair_v3_af12_T1_row3planes_compact_174_110_47_headerr.png`
-— MC-GS best on all three planes (38.18 / 37.95 / 36.59 dB, GS-single second, L1-ESPIRiT third).
-
 ## MC-GS after the AF12 autoresearch loop — P10 (2026-09-12)
 
 The jiangyizhou AF12 autoresearch loop (framework repo, branch `autoresearch-jyz-af12`, `autoresearch_jyz_af12.md`) started
