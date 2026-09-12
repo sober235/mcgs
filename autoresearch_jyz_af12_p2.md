@@ -476,3 +476,20 @@ still running (if 0.016 displaced P13 they would be re-run; the rotation curve i
 `p2_P13_singleT1_full4k` and `p2_P13_singleFLAIR_full4k` (GS-single arms, rule 5, with the design-B single configs:
 T1 on the AF12 mask, FLAIR on the AF11 one), and `p2_P13_af12_full4k` (P13 in the all-AF12 config, so the delivered
 T1 panel is quoted from an all-AF12 run rather than a design-B one). Card 2 joins the chain when 0.016 lands.
+
+### Round 5 read — 02:09: the rotation bracket closes at 0.008. **P13 is the phase-2 recipe.**
+`p2_rotlr016_full4k` (rotation lr 0.016 at 4000; card 2, 62 min): 36.969 / 36.689 — against P13 T1 +0.001 (inside the
+0.003 floor → **null**), FLAIR +0.006. Rotation-only at 4000, head PSNR over P10 (T1 / FLAIR): 0.001 +0.011 / +0.017,
+0.002 +0.017 / +0.028, 0.004 +0.022 / +0.037, 0.008 **+0.023 / +0.046**, 0.016 +0.024 / +0.052 — flat from 0.008 on,
+so 0.008 is taken as the working point (the smallest value at the plateau).
+
+**P13 = P10 + `gaussian.rotation_lr=0.008`** — the phase-2 recipe, in design B at 4000 iterations:
+
+| head cell | T1 | bar (arm) | margin | FLAIR | bar (arm) | margin |
+|---|---|---|---|---|---|---|
+| PSNR | **36.968** | 36.426 (L1-ESPIRiT) | **+0.542** | **36.683** | 35.757 (L1-ESPIRiT) | **+0.926** |
+| SSIM | **0.9504** | 0.9473 (L1-ESPIRiT) | +0.0031 | **0.9444** | 0.9368 (L1-ESPIRiT) | +0.0076 |
+| HFEN | **0.0948** | 0.1034 | +0.0086 | **0.0904** | 0.1000 | +0.0096 |
+
+Against the phase's starting point (P10 in design B, `ar9_P10_flair_af11_full4k` 36.945 / 36.637): **+0.023 / +0.046 dB**
+head PSNR, every other cell equal or better, sharpness unchanged (0.858 / 0.831). Card 2 joins the delivery chain.
