@@ -49,7 +49,7 @@ R_edge is a normalised direction misfit in [0, 1]; Round 0 scans lambda_edge 0.0
 | p3_r0_db4l1 | `--set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10` | the AF12 wavelet shape on P6 |
 | p3_r0_ptv002 | `--lambda_ptv 0.02` | phase TV at 1/5 of phase 2's weight, for sharpness |
 
-Cards (user rule 2026-09-12 16:05, after a collision with the AF12 phase-2 chains that took cards 2/3/5 twelve seconds before this line's first launch): **empty cards only** — `scripts/p3_sched.sh scripts/p3_queue.txt` (tmux session `p3_sched`) launches the next queue item on a card with no compute process, no live `p2_chain_*.sh` claim and no trainer of this line; card 4 is shared with the probe. The three screens that had started on cards 2/3/5 were stopped and their outputs removed; the queue holds the eight items above in priority order.
+Cards (user rule 2026-09-12 16:05, after a collision with the AF12 phase-2 chains that took cards 2/3/5 twelve seconds before this line's first launch): **empty cards only** — `scripts/p3_sched.sh scripts/p3_queue.txt` (tmux session `p3_sched`) launches the next queue item on a card with no compute process, no live `p2_chain_*.sh` claim and no trainer of this line; card 4 is shared with the probe. **18:27: card split agreed with the AF12 phase-2 session (claude-ad): AF12 keeps cards 2 and 3, this line keeps 4 and 5 (`ALLOWED="4 5"`); `p3_r0_db4l1`, which had started on card 3 at 18:17 beside their 18:23 launch, was stopped and re-queued.** The three screens that had started on cards 2/3/5 were stopped and their outputs removed; the queue holds the eight items above in priority order.
 
 ## Round 1 onward
 
