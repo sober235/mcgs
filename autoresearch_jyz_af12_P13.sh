@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# One PHASE-2 autoresearch experiment on the jiangyizhou T1+FLAIR pair in DESIGN B (see autoresearch_jyz_af12_p2.md).
-# PARENT = P11 = P10 + gaussian.rotation_lr 0.001 (promotion 1, 2026-09-12 19:28, p2_rotlr_full4k: 36.956 / 36.654),
-# baked in below; autoresearch_jyz_af12_p2g.sh (P10 parent, any-trainer guard) stays for the runs launched from it.
+# The PHASE-2 FINAL RECIPE, P13, on the jiangyizhou T1+FLAIR pair in DESIGN B (see autoresearch_jyz_af12_p2.md).
+# P13 = P10 + gaussian.rotation_lr 0.008 (promotion 5, 2026-09-13 01:05, p2_rotlr008_full4k: 36.968 / 36.683;
+# 0.004 and 0.016 are nulls against it). P10 = P6 + wavelet db4 on 1 level, T1 0.12 / FLAIR 0.10. Reproduce a
+# run with:  ./autoresearch_jyz_af12_P13.sh <EXP> <GPU> 4000   (SAVE_VOLUMES=1 for volumes; CONFIG= for the
+# all-AF12 or single-contrast variants). The screening runner autoresearch_jyz_af12_p2g.sh keeps the P10 parent.
 # T1 on the AF12 mask, FLAIR on the AF11 mask for MC-GS only; every comparison arm stays at AF12. Same P10 recipe
 # baked in as autoresearch_jyz_af12.sh; the only difference is the default CONFIG (the design-B variant).
 #   autoresearch_jyz_af12.sh EXP GPU ITERS [extra arc/cycle.py args...]
@@ -45,7 +47,7 @@ env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID TORCH_EXTENSIONS
   --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn \
   --set loss.edge_tv_kappa_source=zf --set gaussian.initial_num_points=3600000 \
   --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.12 --set loss.wav_levels=1 --set loss.wav_name=db4 \
-  --set gaussian.rotation_lr=0.001 \
+  --set gaussian.rotation_lr=0.008 \
   --base_cfg "$CONFIG" "${VOL[@]}" "$@" > "$LOG" 2>&1
 RC=$?
 STATUS=pending
