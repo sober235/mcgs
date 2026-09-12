@@ -69,13 +69,6 @@ Numbers (head PSNR / SSIM / HFEN): T1 **36.969 / 0.9504 / 0.0948** (all AF 12), 
 reference and its figures are still in the topic. Everything is on the magnitude gauge (the complex-gauge caveat of
 the P10 section stands).
 
-## jiangyizhou AF12 autoresearch line (branch `autoresearch-jyz-af12`, this worktree)
-Read `STATUS.md` first, then `autoresearch_jyz_af12.md` (program, pre-registered rules, round log) and the record
-`docs/superpowers/records/2026-09-12-autoresearch-jyz-af12.md`. Update to the section above (2026-09-12): the loop
-promoted **P10 = P6 + db4 wavelet on 1 level, T1 0.12 / FLAIR 0.10** — head PSNR 36.944 / 36.268 at 4000
-iterations (P6 36.753 / 36.165), every head cell ahead of the re-swept L1-ESPIRiT; the runner bakes P10;
-registered in the AF12 topic table as `gs_joint_ar`. The user's provisional-best note above stands as history.
-
 ## jiangyizhou AF12 autoresearch lines (branches `autoresearch-jyz-af12` and `-phase2`, this worktree)
 Phase 1 (`autoresearch_jyz_af12.md`, handoff `docs/handoff/2026-09-12-autoresearch-jyz-af12.md`) promoted **P10** =
 P6 + db4 wavelet on 1 level, T1 0.12 / FLAIR 0.10. Phase 2 (`autoresearch_jyz_af12_p2.md`, handoff
