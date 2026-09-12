@@ -523,3 +523,6 @@ other head cell equal or better, sharpness unchanged. 27 experiments, 13 of them
 - 05:03 one口径 fix: the GS-single FLAIR arm was registered under `gs_single_p2` while being an AF 11 run, which put a
   design-B number in the all-AF12 table. It was re-keyed to `gs_single_p2_fl11` and an all-AF12 FLAIR single
   (`p2_P13_singleFLAIR_af12_full4k`) launched so the AF12 table's GS-single row is like-for-like.
+- 06:05 `p2_P13_singleFLAIR_af12_full4k` (GS-single FLAIR at P13 on the AF 12 mask, the like-for-like row of the
+  all-AF12 table): 36.347 / 0.9408 / 0.0943, so **joint − single on FLAIR at AF 12 = −0.038** (design B: −0.030) —
+  the same sign in both settings. Registered as `gs_single_p2` (FLAIR); the AF 11 run keeps `gs_single_p2_fl11`.
