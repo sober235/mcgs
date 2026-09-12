@@ -237,3 +237,24 @@ and the wavelet-shape screens, as pre-registered.
   empty (chain A had just exited) and this loop's wrapper landed beside it a minute later — the wrappers only waited
   for their own chain. The runner now waits, before every launch, while any `arc/cycle.py` trainer sits on the
   target card (one trainer per card, any loop's).
+
+### Design-B 4000-iteration floor and the bundle's final read — 19:11
+`p2_P10_s43_full4k` (card 2, 65 min): 36.942 / 36.633 against the parent's 36.945 / 36.637 — **floor at 4000 in
+design B: PSNR 0.003 / 0.004 dB, SSIM 0.0000 / 0.0000, HFEN 0.0002 / 0.0002**. Its ledger row first carried
+`crash` and its training log was clobbered (see the incident below); the row was relabelled `floor-p2-4000`, its
+numbers come from the intact score json.
+**Bundle re-read (rule 7, final):** T1 +0.013 / FLAIR +0.062 dB, T1 HFEN −0.0002 now inside its floor, T1 SSIM
+−0.0001 against a measured floor of 0.0000 → **`reshape(dsT1)` by the letter of rule 1; not folded in.** The decision
+rests on a zero seed floor for T1 SSIM (seeds 42 and 43 agree to four decimals) — the §18 defect of a
+near-deterministic repeat making a tolerance vanish; recorded rather than retuned. The user can overrule by hand
+(P10 + scale lr 0.005 at 6000 iterations = +0.013 / +0.062 dB for a fourth-decimal SSIM change on T1).
+
+### Incident — 18:35 runner edited in place while two instances of it were executing (fixed 19:14)
+The any-trainer guard was written into `autoresearch_jyz_af12_p2.sh` in place (same inode) at 18:35 while the bash
+instances launched at 18:05 (`p2_P10_s43_full4k`) and 18:23 (`p2_rotlr_full4k`) were still running it. Bash reads a
+script by byte offset, so the 18:05 instance resumed inside the new text when its trainer finished at 19:11: it ran a
+garbage line that truncated the run's log (63 bytes, `line 40: exp: command not found`) and passed rc=127 to the row
+script (status `crash`). The score json and volumes are intact. Fix: the file was restored in place to its 18:23
+content (commit e9c2f40's) so the still-running 18:23 instance resumes correctly; the guarded runner lives under a
+new name, `autoresearch_jyz_af12_p2g.sh`, which chain D now calls; chain D on card 2 (45 s old) was stopped and
+relaunched with it. Rule from here: **never edit a launched script in place — new behaviour goes in a new file.**

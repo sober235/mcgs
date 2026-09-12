@@ -29,13 +29,6 @@ done
 VOL=()
 if [[ "${SAVE_VOLUMES:-0}" == "1" ]]; then VOL=(--save_volumes); fi
 cd "$ROOT"
-# One trainer per card, ANY loop's: wait while another arc/cycle.py trainer sits on this card (the parallel AF16
-# phase-3 loop launches into the gaps between our runs; agreed split 2026-09-12 18:35: this loop cards 2 and 3,
-# that loop 4 and 5). The pattern matches cycle.py's argv only, never this runner's.
-while pgrep -f -- "arc/cycle\.py --exp [^ ]+ --gpu ${GPU}( |\$)" >/dev/null 2>&1; do
-  echo "[runner] card ${GPU} carries another trainer; waiting 60 s before launching ${EXP}" >&2
-  sleep 60
-done
 env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID TORCH_EXTENSIONS_DIR=/data0/congcong/code/GS/mcgs_af12_wt.torch_ext \
   "$PY" -u arc/cycle.py --exp "$EXP" --gpu "$GPU" --iters "$ITERS" \
   --lambda_geo 0.10 --warmup "$WARMUP" --max_radius 20 --kspace_high 2.2 \
