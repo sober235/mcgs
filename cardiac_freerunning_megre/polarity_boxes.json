@@ -63,30 +63,30 @@
  "V04": {
   "dome": [
    [
-    12,
-    48
+    25,
+    65
    ],
    [
-    35,
+    5,
+    40
+   ],
+   [
+    40,
     80
-   ],
-   [
-    46,
-    90
    ]
   ],
   "heart": [
    [
-    34,
-    80
+    30,
+    85
+   ],
+   [
+    35,
+    85
    ],
    [
     40,
-    84
-   ],
-   [
-    28,
-    76
+    85
    ]
   ]
  },
@@ -120,5 +120,5 @@
    ]
   ]
  },
- "_placed": "V07 2026-09-11 morning; V03/V04/V08 2026-09-11 evening on <Vxx>_box_views.png (R0 echo 3, 112^3), by eye"
+ "_placed": "V07 2026-09-11 morning; V03/V08 2026-09-11 evening on <Vxx>_box_views.png (R0 echo 3, 112^3), by eye; V04 re-placed 2026-09-12 in its own (coronal-slab) frame on REF echo 3: axis0 = SI (head high), axis1 = LR, axis2 = AP"
 }

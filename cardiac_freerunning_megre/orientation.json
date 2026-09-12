@@ -1,9 +1,56 @@
 {
- "decided_from": "figures/V07_r0.png and figures/V07_r0_orientation.png (scripts/orient_views.py)",
- "si_axis": 2,
- "superior_is_high_index": false,
- "axis0": "patient right -> left (the liver lies at low axis0 in the coronal slices)",
- "axis1": "posterior -> anterior (spine at low axis1, sternum and anterior chest wall at high axis1)",
- "axis2": "superior -> inferior (great vessels leave the heart towards low axis2; liver dome and upper abdomen at high axis2)",
- "note": "Axis 2 is the SI axis, as expected from the self-navigation spoke along trajectory z, but the head is at the LOW index (the plan's template assumed high). Transverse slices (axis2 fixed) show heart, lungs, spine and descending aorta; coronal and sagittal slices show the liver above the heart in array order. The tissue fraction of transverse slices rises from 0.38 at axis2=16 to 0.84 at axis2=88 (lung -> upper abdomen). Relative to LPS only the y and z directions flip, i.e. a rotation, not a mirror."
+ "_note": "Per-subject image orientation (2026-09-12: V04 was acquired with a CORONAL slab, the other three transversal; the phyllotaxis 'SI' self-navigation spoke runs along image axis 2 = the slab normal, i.e. AP for V04). Decided from the R0/REF images (scripts/orient_views.py, figures/orient_check_4subjects.png) and the twix headers.",
+ "V07": {
+  "slab_normal": "transversal (twix sSliceArray.asSlice[0].sNormal.dTra = 1)",
+  "si_axis": 2,
+  "superior_is_high_index": false,
+  "ap_axis": 1,
+  "anterior_is_high_index": true,
+  "lr_axis": 0,
+  "patient_left_is_high_index": true,
+  "axis0": "patient right -> left (the liver lies at low axis0 in the coronal slices)",
+  "axis1": "posterior -> anterior (spine at low axis1, sternum and anterior chest wall at high axis1)",
+  "axis2": "superior -> inferior (great vessels leave the heart towards low axis2; liver dome and upper abdomen at high axis2)",
+  "decided_from": "figures/V07_r0.png and figures/V07_r0_orientation.png (scripts/orient_views.py)",
+  "note": "Axis 2 is the SI axis, as expected from the self-navigation spoke along trajectory z, but the head is at the LOW index (the plan's template assumed high). Transverse slices (axis2 fixed) show heart, lungs, spine and descending aorta; coronal and sagittal slices show the liver above the heart in array order. The tissue fraction of transverse slices rises from 0.38 at axis2=16 to 0.84 at axis2=88 (lung -> upper abdomen). Relative to LPS only the y and z directions flip, i.e. a rotation, not a mirror."
+ },
+ "V03": {
+  "slab_normal": "transversal (twix sSliceArray.asSlice[0].sNormal.dTra = 1)",
+  "si_axis": 2,
+  "superior_is_high_index": false,
+  "ap_axis": 1,
+  "anterior_is_high_index": true,
+  "lr_axis": 0,
+  "patient_left_is_high_index": true,
+  "axis0": "patient right -> left (the liver lies at low axis0 in the coronal slices)",
+  "axis1": "posterior -> anterior (spine at low axis1, sternum and anterior chest wall at high axis1)",
+  "axis2": "superior -> inferior (great vessels leave the heart towards low axis2; liver dome and upper abdomen at high axis2)",
+  "decided_from": "figures/orient_check_4subjects.png (REF echo 3): same layout as V07"
+ },
+ "V08": {
+  "slab_normal": "transversal (twix sSliceArray.asSlice[0].sNormal.dTra = 1)",
+  "si_axis": 2,
+  "superior_is_high_index": false,
+  "ap_axis": 1,
+  "anterior_is_high_index": true,
+  "lr_axis": 0,
+  "patient_left_is_high_index": true,
+  "axis0": "patient right -> left (the liver lies at low axis0 in the coronal slices)",
+  "axis1": "posterior -> anterior (spine at low axis1, sternum and anterior chest wall at high axis1)",
+  "axis2": "superior -> inferior (great vessels leave the heart towards low axis2; liver dome and upper abdomen at high axis2)",
+  "decided_from": "figures/orient_check_4subjects.png (R0 echo 3): same layout as V07"
+ },
+ "V04": {
+  "slab_normal": "coronal (twix sSliceArray.asSlice[0].sNormal.dCor = 1)",
+  "si_axis": 0,
+  "superior_is_high_index": true,
+  "ap_axis": 2,
+  "anterior_is_high_index": true,
+  "lr_axis": 1,
+  "patient_left_is_high_index": true,
+  "axis0": "inferior -> superior (liver and upper abdomen at low axis0, heart above)",
+  "axis1": "patient right -> left (the liver lies at low axis1 in the coronal slices)",
+  "axis2": "posterior -> anterior (spine at low axis2, chest wall at high axis2)",
+  "decided_from": "figures/orient_check_4subjects.png (REF echo 3) and the twix slab normal; the 2026-09-11 box placement on R0 had assumed V07's axes and was wrong"
+ }
 }

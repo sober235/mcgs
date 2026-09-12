@@ -8,7 +8,8 @@ with breathing.) The result must agree with criterion (a) (physio.json); only th
 Correction 7 (2026-09-12, user-approved): the image criterion needs |shift| >= 1 voxel (2 mm) in both boxes;
 below that it is undetermined (V03: +0.7 voxel NCC, -0.4 voxel dome edge, sub-voxel either way; V07: 2.5-3.8 voxels)
 and criterion (a) is adopted alone if its dwell asymmetry (physio.dwell_asymmetry) is >= 2 towards the high end or
-<= 0.5 towards the low end; the subject is then flagged gating = "weak" (its respiratory extremes are < 2 mm apart)."""
+<= 0.5 towards the low end; the report then says basis = "histogram" and image_criterion = "undetermined" (V03: the
+extreme fifths still move < 2 mm, i.e. weak gating; V04: the 112^3 thirds are dominated by folding streaks in the box)."""
 import json
 import sys
 
@@ -22,7 +23,7 @@ LAGS = np.arange(-8, 9)
 MIN_SHIFT = 1.0
 
 s = sys.argv[1]
-ori = json.loads((TOPIC / "orientation.json").read_text())
+ori = json.loads((TOPIC / "orientation.json").read_text())[s]      # per-subject since 2026-09-12 (V04 is coronal)
 si, sup_high = int(ori["si_axis"]), bool(ori["superior_is_high_index"])
 boxes = json.loads((TOPIC / "polarity_boxes.json").read_text()).get(s)
 if boxes is None:
@@ -59,15 +60,16 @@ sp = np.load(DERIVED_ROOT / s / "spokes.npz")
 asym = dwell_asymmetry(sp["resp"][sp["steady"] & ~sp["is_si"]])
 if image_end == "ambiguous":
     hist_strong = asym >= 2 if hist_end == "high" else asym <= 0.5
-    verdict, gating = (hist_end if hist_strong else None), "weak"
+    verdict, basis = (hist_end if hist_strong else None), "histogram (dwell asymmetry)"
 else:
-    verdict, gating = (hist_end if image_end == hist_end else None), "normal"
+    verdict, basis = (hist_end if image_end == hist_end else None), "both"
 agreed = verdict is not None
 rep = {"subject": s, "echo": ECHO, "boxes": boxes, "min_shift_vox": MIN_SHIFT,
        "shift_vox_high_vs_low": {k: round(v[0], 3) for k, v in res.items()},
        "ncc_peak": {k: round(float(v[1].max()), 3) for k, v in res.items()},
        "image_end": image_end, "histogram_end": hist_end, "dwell_asymmetry": round(asym, 2),
-       "gating": gating, "verdict": verdict, "agreed": agreed}
+       "image_criterion": "undetermined" if image_end == "ambiguous" else "determined",
+       "basis": basis, "verdict": verdict, "agreed": agreed}
 if agreed:
     np.save(DERIVED_ROOT / s / "ref_ids.npy", set_ids(s, verdict))
     rep["n_ref"] = int(set_ids(s, verdict).size)
@@ -79,7 +81,7 @@ matplotlib.use("Agg")
 from matplotlib.patches import Rectangle  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 
-cut = [k for k in range(3) if k != si][1]          # coronal-like plane that keeps the SI axis
+cut = int(ori["ap_axis"])                          # coronal plane (AP fixed) keeps the SI axis
 keep = [k for k in range(3) if k != cut]
 c = (max(boxes["dome"][cut][0], boxes["heart"][cut][0]) + min(boxes["dome"][cut][1], boxes["heart"][cut][1])) // 2
 vmax = float(np.quantile(low[16:96, 16:96, 16:96], 0.995))
@@ -99,7 +101,7 @@ for k, (v, t) in enumerate(((low, "low third"), (high, "high third"))):
     axs[k + 1].set_title(f"{t}, echo {ECHO}, axis{cut}={c}")
 fig.suptitle(f"{s}: dome {d_dome:+.2f} / heart {d_heart:+.2f} vox (superior = {'high' if sup_high else 'low'} index); "
              f"image says end-expiration = {image_end}, histogram says {hist_end} (dwell asymmetry {asym:.1f}); "
-             f"verdict {verdict}, gating {gating}")
+             f"verdict {verdict} ({basis})")
 fig.tight_layout()
 save_fig(fig, f"{s}_polarity.png")
 sys.exit(0 if agreed else 1)
