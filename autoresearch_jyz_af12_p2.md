@@ -435,3 +435,19 @@ read by rule 1 against **P12** with the design-B floor; the better keep becomes 
 - **`p2_rotlr008_full4k`** — rotation lr 0.008, 4000 iterations, volumes, card 2 (now).
 - **`p2_rotlr004_full4k`** — rotation lr 0.004, 4000 iterations, volumes, card 3 (after round 3 lands).
 If both lose, P12 (rotation lr 0.002) is the phase-2 recipe and the loop moves to the delivery runs.
+
+### Round 3 read — 00:43: a gentler scale lr is a null, and the scale-lr dose-response is now a clean curve
+`p2_rot002_slr003_full4k` (P12 + scale lr 0.003; card 3, 62 min, volumes): **36.965 / 36.688** — against P12
+T1 +0.003 (the floor is 0.0034, so **null** by rule 1), FLAIR +0.023, T1 SSIM −0.0001, T1 HFEN −0.0001.
+Scale lr on top of a faster rotation, at 4000 iterations, against P12 (T1 Δ / FLAIR Δ / T1 SSIM Δ / T1 HFEN Δ):
+
+| scale lr | rotation lr | T1 | FLAIR | T1 SSIM | T1 HFEN | verdict |
+|---|---|---|---|---|---|---|
+| 0.003 | 0.002 | +0.003 | +0.023 | −0.0001 | −0.0001 | null |
+| 0.005 | 0.004 | −0.002 | +0.047 | −0.0002 | −0.0004 | null |
+| 0.005 | 0.008 | −0.005 | +0.052 | −0.0003 | −0.0005 | loses |
+
+A monotone trade: every step of scale lr buys FLAIR and spends T1, and the binding channel is T1, so none of them
+promotes. The knob is a **FLAIR dial**, recorded as such — if the user ever wants the FLAIR figure pushed at T1's
+expense, `gaussian.scale_lr` is the lever and this table is its calibration. Round 4's two rotation-only promotions
+are running (0.008 card 2, 0.004 card 3).
