@@ -347,3 +347,8 @@ does not need that read to run. Card 2 continues chain E's wavelet-shape screens
 - `p2_wav_lev2_w05` (2 levels, coarse level at half strength; card 2, 27 min): 36.858 / 36.514 — −0.027 / −0.005,
   HFEN −0.0024 / −0.0014, sharpness 0.850 / 0.822. **loses.** A half-weight second level still hurts: the finest level
   alone stays the prior's shape. Running: `p2_wav_ddd05` (card 2), chain H on card 3.
+- 21:40 chain H started on card 3 (`p2_rotlr016` running). Note for the record: its wrapper was still inside a 60-s
+  poll when its runner exited, a second copy of chain H was launched by hand, and the runner's any-trainer guard held
+  the duplicate's first launch until the duplicate was stopped (no double trainer, no duplicate row). The kill -0
+  waiters are also exposed to PID reuse on this host (PIDs wrapped past 4194304 tonight); from here chains are launched
+  when a card is seen free, with the guard as the safety net.
