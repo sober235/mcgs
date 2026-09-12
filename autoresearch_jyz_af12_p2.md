@@ -352,3 +352,6 @@ does not need that read to run. Card 2 continues chain E's wavelet-shape screens
   the duplicate's first launch until the duplicate was stopped (no double trainer, no duplicate row). The kill -0
   waiters are also exposed to PID reuse on this host (PIDs wrapped past 4194304 tonight); from here chains are launched
   when a card is seen free, with the guard as the safety net.
+- 22:05 `p2_wav_ddd05` (diagonal sub-band at half strength; card 2, 26 min): 36.863 / 36.521 — T1 −0.022, FLAIR +0.001,
+  T1 sharper (0.859), SSIM −0.0003 / −0.0001. **loses**: weakening the all-detail band costs T1 PSNR. `p2_wav_ddd20`
+  (double) running on card 2; `p2_rotlr016` still on card 3.
