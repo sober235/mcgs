@@ -8,3 +8,5 @@ p3_r2_edge0001 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.l
 p3_r2_priv03 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --set gaussian.num_private_points=300000
 p3_r2_edge0005 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_edge 0.005
 p3_r2_ptv005 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_ptv 0.05
+p3_r3_e0001_ptv001 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_edge 0.001 --lambda_ptv 0.01
+p3_r3_e0001_ptv002 1500 --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 --lambda_edge 0.001 --lambda_ptv 0.02

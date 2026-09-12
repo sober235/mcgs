@@ -114,6 +114,12 @@ SSIM 0.9376 / 0.9222, HFEN 0.1171 / 0.1166, sharp 0.830 / 0.779). Screens `p3_r2
 vectorial TV 0.005 / 0.02, common-edge 0.001 / 0.005, FLAIR-private residual 0.3M. Read-out as before; the sharpness gate is now the
 binding constraint (B is 0.019 / 0.010 below L1-ESPIRiT's 0.849 / 0.789).
 
+## Round 3 (queued 21:30) — combinations of the Round-2 keeps
+
+`p3_r3_e0001_ptv001` and `p3_r3_e0001_ptv002` = base B + common-edge 0.001 + phase TV 0.01 / 0.02 (1500 it). If common-edge 0.005
+beats 0.001, the same pair is repeated with it. The better combination is promoted at 4000 it with volumes, then seed repeat and
+the GS-single arms.
+
 ## Round log
 
 Head-only, 1500 it unless noted; bar L1-ESPIRiT 35.209 / 34.503 (current mask). Six cells = PSNR / SSIM / HFEN per contrast.
