@@ -71,9 +71,11 @@ def nonlocal_red(vol: torch.Tensor, target: torch.Tensor, bbox: BBox, eps: float
     return (m - t).square().mean() / (t.square().mean() + eps)
 
 
-def make_denoiser(name: str, profile: str = "np", threads: int = 32) -> Denoiser:
-    """'bm4d' (the real one; profile 'np' or 'lc', `threads` CPU threads), or the test fakes 'fake_identity'
-    (returns the crop) and 'fake_blur' (1-voxel Gaussian blur, sigma ignored)."""
+def make_denoiser(name: str, profile: str = "np", threads: int = 32, sharpen: float = 1.0) -> Denoiser:
+    """'bm4d' (the real one; profile 'np' or 'lc', `threads` CPU threads, `sharpen` = BM4D's transform-domain
+    sharpening alpha, 1.0 = plain denoising, >1 boosts detail coefficients), or the test fakes 'fake_identity'
+    (returns the crop) and 'fake_blur' (1-voxel Gaussian blur, sigma ignored). The bm4d callable exposes its
+    profile as `run.profile` for inspection."""
     if name == "bm4d":
         if profile not in ("np", "lc"):
             raise ValueError(f"nl_profile must be 'np' or 'lc', got {profile!r}")
@@ -81,9 +83,12 @@ def make_denoiser(name: str, profile: str = "np", threads: int = 32) -> Denoiser
         from bm4d.profiles import BM4DProfileLC
         pro = bm4d.BM4DProfile() if profile == "np" else BM4DProfileLC()   # 4.2.5 resolves no 'lc' string
         pro.num_threads = int(threads)
+        if float(sharpen) != 1.0:
+            pro.set_sharpen(float(sharpen))
 
         def run(z: np.ndarray, sigma: float) -> np.ndarray:
             return np.asarray(bm4d.bm4d(z, float(sigma), pro), dtype=np.float32)
+        run.profile = pro
         return run
     if name == "fake_identity":
         return lambda z, sigma: z.copy()

@@ -248,3 +248,12 @@ def test_trainer_smoke_af16_with_fake_blur():
         assert re.search(r"sigma=[0-9.e+-]+ crop=\(\d+, \d+, \d+\) bm4d=[0-9.]+s$", l), l
     assert "R_nl=" in log
     assert (ROOT / "results_arc" / f"{exp}_score.json").exists()
+
+
+def test_bm4d_denoiser_sharpen_knob_reaches_the_profile():
+    from losses.nonlocal_red import make_denoiser
+    plain = make_denoiser("bm4d", "np", 4)
+    assert plain.profile.sharpen_alpha == 1 and plain.profile.sharpen_alpha_3d == 1
+    sharp = make_denoiser("bm4d", "np", 4, sharpen=1.3)
+    assert abs(sharp.profile.sharpen_alpha - 1.3) < 1e-9 and abs(sharp.profile.sharpen_alpha_3d - 1.3) < 1e-9
+    assert sharp.profile.num_threads == 4

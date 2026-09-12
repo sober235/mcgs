@@ -846,9 +846,10 @@ class JointTrainer:
             nl_denoiser = str(loss_cfg.get("nl_denoiser", "bm4d"))
             nl_profile = str(loss_cfg.get("nl_profile", "np"))
             nl_threads = int(loss_cfg.get("nl_threads", 32))
+            nl_sharpen = float(loss_cfg.get("nl_sharpen", 1.0))
             with torch.no_grad():      # the ZF head support gaussian.init_mode=head draws from, same rule
                 nl_support = head_support(union_magnitude(self.zf_p, self.zf_c), HEAD_FRAC)
-            nl_red = NonLocalRED(nl_support, make_denoiser(nl_denoiser, nl_profile, nl_threads),
+            nl_red = NonLocalRED(nl_support, make_denoiser(nl_denoiser, nl_profile, nl_threads, nl_sharpen),
                                  sigma_rel=float(loss_cfg.get("nl_sigma_rel", 0.04)),
                                  start=int(loss_cfg.get("nl_start", 500)),
                                  refresh=int(loss_cfg.get("nl_refresh", 500)))
