@@ -270,3 +270,14 @@ relaunched with it. Rule from here: **never edit a launched script in place — 
 pre-registered as single knobs on P10 and are read against `p2_P10_i1500`. Combinations of a chain-D keep with P11 go
 straight to 4000 iterations through the P11 runner (rule 2), read against `p2_rotlr_full4k` with the design-B floor.
 Card 3 went on to chain D (`p2_rotlr0005`; `p2_rotlr002` refused there because card 2 already runs it).
+
+### Round 2 read, part 1 — 19:41: rotation lr 0.002 beats 0.001 at the screening budget
+`p2_rotlr002` (card 2, 27 min): **36.923 / 36.564 — +0.038 / +0.045** over P10@1500 (0.001: +0.023 / +0.025), every
+other cell up, sharpness 0.857 / 0.828. **KEEP**, and above 0.001 by 0.015 (> floor 0.010): the bracket is still
+rising. Pre-registered next step (round 2, part 3, before any of these ran): `p2_rotlr004` (0.004, 13x the default)
+at 1500; promotion `p2_rotlr002_full4k` at 4000 with volumes, read against **P11** (`p2_rotlr_full4k`, 36.956 /
+36.654) with the design-B floor — if it clears, P12 = P10 + rotation lr 0.002 and 0.004 follows the same route if
+its screen beats 0.002's by more than the floor. Chain D's two bash instances were stopped (their running runners
+left alone: `p2_rotlr0005` on card 3, `p2_rotlr_slr005` on card 2) and chain E (`scripts/p2_chain_e.sh`: 0.004
+screen, 0.002 promotion, then the four wavelet-shape screens) is queued behind each of those runners
+(`p2_after_pid_then_e.sh`, kill -0 on the runner pid). Nothing launched in place; nothing edited in place.
