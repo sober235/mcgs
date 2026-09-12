@@ -544,3 +544,14 @@ sixth (air-noise gauge). Against the user's P6 mark: +0.191 / +0.103 dB head PSN
 sym4 (+0.008 / +0.004), 6000 iterations (+0.009 / +0.016), the two-seed average (+0.046 / +0.027). Caveats: magnitude
 gauge (L1-ESPIRiT first on |rec − GT|), one subject, recipe and λ tuned on it; GS-single beats the joint on FLAIR.
 Record `docs/superpowers/records/2026-09-12-autoresearch-jyz-af12.md`; handoff `docs/handoff/2026-09-12-autoresearch-jyz-af12.md`.
+
+## Side experiment (user request 2026-09-12 ~12:30) — FLAIR at AF 11, T1 unchanged at AF 12, MC-GS only
+The T1 channel keeps `mask_af12_3d.h5`; the FLAIR channel gets a fresh house vd-Poisson mask at nominal AF 11
+(`scripts/prep_02b_mask_af11.m`, same generator and settings; `prep_04b_export_af11.py` → `data/mask_af11_3d.h5`,
+`logs/prep_04b_export_af11.json`): 4173 samples = 9.26 % of the PE plane (AF 10.80x vs the full grid); on FLAIR's own
+acquired support **AF 9.05x** (the AF12 mask gives 9.74x). vdPoisMex redraws, so only 926 of the 4173 samples coincide with
+the AF12 mask. Config `configs/t1flair_v3_af12_hyw_flair_af11.yaml` (only the FLAIR `mask_path` and the informational
+`acceleration_factor` differ). Run `ar9_P10_flair_af11_full4k` (P10 recipe, 4000 it, volumes, card 3). Only MC-GS is re-run;
+every comparison arm stays at the AF12 mask, so the FLAIR column of the slice-177 comparison is MC-GS at AF 11 against
+the field at AF 12 (labelled as such) — the T1 column is like-for-like except for the coupling. The ledger row's margins
+are against the AF12 bar and are not a loop result.

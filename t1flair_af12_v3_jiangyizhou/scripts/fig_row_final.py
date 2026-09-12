@@ -21,6 +21,7 @@ ap.add_argument("--half", type=int, nargs=2, default=[52, 38])
 ap.add_argument("--tag", default=None)
 ap.add_argument("--mcgs_key", default="gs_joint_ar", help="which registered GS joint arm fills the MC-GS column")
 ap.add_argument("--mcgs_label", default="MC-GS")
+ap.add_argument("--af_note", default=None, help="override the AF text in the title (e.g. when the MC-GS column used another mask)")
 ap.add_argument("--err_complex", action="store_true",
                 help="error map and panel PSNR from the COMPLEX difference |recon - GT| instead of the magnitude one")
 args = ap.parse_args()
@@ -120,7 +121,7 @@ cax = fig.add_axes([axes[1, -1].get_position().x1 + 0.005, axes[1, -1].get_posit
                     0.008, axes[1, -1].get_position().height])
 cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=9)
 region = "butterfly region" if args.crop else {0: "transverse", 1: "coronal", 2: "sagittal"}[args.axis] + " slice"
-af_txt = f"AF 12, actual {af_eff:.2f}x" + (" of its acquired k-space" if c == "FLAIR" else "")
+af_txt = args.af_note if args.af_note else (f"AF 12, actual {af_eff:.2f}x" + (" of its acquired k-space" if c == "FLAIR" else ""))
 fig.suptitle(f"{c}  jiangyizhou  {af_txt} -- {region} {args.index}   "
              f"(PSNR = head-masked PSNR of this {'region' if args.crop else 'slice'};  error "
              f"{'|recon - GT| on the COMPLEX volumes' if args.err_complex else '| |recon| - |GT| |'} / max(GT), jet [0, 0.1])",

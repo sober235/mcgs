@@ -1,0 +1,15 @@
+{
+ "mask2d_samples": 4173,
+ "mask2d_frac": 0.09261807799339294,
+ "mask2d_AF_rect": 10.797028200815575,
+ "overlap_with_af12_mask": 926,
+ "af12_mask_samples": 3847,
+ "FLAIR": {
+  "support_frac": 0.7577015269886364,
+  "sampled_frac_of_plane": 0.083740234375,
+  "AF_vs_full_rect": 11.941690962099125,
+  "AF_vs_own_support": 9.048237476808906,
+  "af12_AF_vs_own_support": 9.74286572107401
+ },
+ "mask3d_path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/mask_af11_3d.h5"
+}
