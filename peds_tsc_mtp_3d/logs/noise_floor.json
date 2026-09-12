@@ -1,0 +1,27 @@
+{
+ "FA16": {
+  "all_lines": 0.11589361011268155,
+  "hidden_acs_lines": 0.06719369504190173,
+  "energy_hidden_echo0": 1.8169935735177216e+16,
+  "seconds": 77.04885864257812,
+  "hidden_acs_lines_echo1_scaled": 0.06620700388864663,
+  "hidden_acs_lines_echo2_scaled": 0.08441372682917134,
+  "hidden_acs_lines_echo3_scaled": 0.09341731404435387,
+  "hidden_acs_lines_echo4_scaled": 0.11717395104624655
+ },
+ "FA4": {
+  "all_lines": 0.17110419377095507,
+  "hidden_acs_lines": 0.09220988489637572,
+  "energy_hidden_echo0": 8260955744040000.0,
+  "seconds": 67.43368411064148,
+  "hidden_acs_lines_echo1_scaled": 0.09600816161619383,
+  "hidden_acs_lines_echo2_scaled": 0.11301028947696129,
+  "hidden_acs_lines_echo3_scaled": 0.12501605032777702,
+  "hidden_acs_lines_echo4_scaled": 0.14428465333370788
+ },
+ "acs": [
+  140,
+  164
+ ],
+ "hidden": "odd PE lines in the upper half of the ACS block"
+}

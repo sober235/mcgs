@@ -90,6 +90,12 @@ def _sources(kp: torch.Tensor, offs, xs: torch.Tensor, y: int, zs: torch.Tensor,
     return S.reshape(K * C, nx * nz).transpose(0, 1)
 
 
+def _calibration_lines(acs_lines: tuple[int, int], R: int, target_parity: int, dys) -> list[int]:
+    """Target-parity lines of the ACS block whose every PE source lies inside the block."""
+    y0, y1 = acs_lines
+    return [y for y in range(y0, y1) if y % R == target_parity and all(y0 <= y + dy < y1 for dy in dys)]
+
+
 def _pad(k: torch.Tensor, pad):
     px, py, pz = pad
     C, X, Y, Z = k.shape
@@ -112,9 +118,7 @@ def calibrate(k: torch.Tensor, m_acq: np.ndarray, acs_lines: tuple[int, int], R:
     B = torch.zeros((len(offs) * C, C), dtype=torch.complex128, device=k.device)
     n_eq = 0; lines_used = []
     m = torch.from_numpy(m_acq).to(k.device)
-    for y in range(y0, y1):
-        if y % R != target_parity or any(not (y0 <= y + dy < y1) for dy in dys):
-            continue
+    for y in _calibration_lines(acs_lines, R, target_parity, dys):
         valid = m[y].clone()
         for (dy, _, ddz) in offs:
             shifted = torch.zeros_like(valid)
@@ -205,3 +209,29 @@ def acs_holdout_check(k: torch.Tensor, m_acq: torch.Tensor | np.ndarray, acs_lin
     num = torch.linalg.vector_norm(est[:, :, t] - k[:, :, t])
     den = torch.linalg.vector_norm(k[:, :, t])
     return float(num / den)
+
+
+def acs_leave_one_out(k: torch.Tensor, m_acq: torch.Tensor | np.ndarray, acs_lines: tuple[int, int], R: int = 2,
+                      n_pe_sources: int = 4, dx: int = 2, dz: int = 2, lam_rel: float = 1e-3,
+                      device: torch.device | None = None) -> dict:
+    """Leave-one-line-out check of the GRAPPA kernel: for every calibration target line, hide it, calibrate on
+    the remaining lines, predict it from its (acquired-parity) neighbours and report the relative k-space
+    error against the measurement. Returns ``lines``, ``per_line`` and ``mean``."""
+    m_acq = np.asarray(m_acq.cpu().numpy() if isinstance(m_acq, torch.Tensor) else m_acq, dtype=bool)
+    device = device or k.device
+    k = k.to(device=device, dtype=torch.complex64)
+    parity_acq = acquired_parity(m_acq, acs_lines, R)
+    target_parity = int(np.unique(np.where(target_mask(m_acq, R).any(1))[0] % R)[0])
+    offs = _offsets(R, n_pe_sources, dx, dz, target_parity, parity_acq)
+    pad = (dx, max(abs(o[0]) for o in offs), dz)
+    lines = _calibration_lines(acs_lines, R, target_parity, sorted(set(o[0] for o in offs)))
+    errors = []
+    for y in lines:
+        m_cal = m_acq.copy(); m_cal[y] = False
+        k_cal = k * torch.from_numpy(m_cal).to(device)[None, None]
+        W, _ = calibrate(k_cal, m_cal, acs_lines, R, offs, pad, target_parity, lam_rel)
+        targets = np.zeros_like(m_acq); targets[y] = m_acq[y]
+        est = apply(k_cal, targets, W, offs, pad)
+        t = torch.from_numpy(targets).to(device)
+        errors.append(float(torch.linalg.vector_norm(est[:, :, t] - k[:, :, t]) / torch.linalg.vector_norm(k[:, :, t])))
+    return dict(lines=lines, per_line=errors, mean=float(np.mean(errors)))

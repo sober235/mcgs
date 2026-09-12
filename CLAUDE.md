@@ -30,6 +30,13 @@ Read in this order: this file → `STATUS.md` (current state, what to re-run fir
   `af12-to-af10` → `t1t2-af12-retro` → `autoresearch-t1t2` (current). `main` / `origin/main`
   are an unrelated earlier snapshot plus the CE work; never merge across the two lineages.
 
+## Pediatric TSC MTP line (branch `peds-tsc-mtp`, this worktree)
+Read `STATUS.md` first, then `docs/superpowers/specs/2026-09-12-peds-tsc-mtp-grappa-design.md` and the topic README
+`/data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/README.md` (mirrored here as `peds_tsc_mtp_3d/`). Code:
+`uih_mtp/` (UIH raw reader, 3D GRAPPA), tests `tests/test_uih_mtp_*.py` (the raw-file tests need the 22 GB raw and
+take ~45 s). GPU policy for this line: GPU 2 only, and only when `nvidia-smi --query-compute-apps` shows it empty.
+The two sections below describe the branch this worktree was cut from and are kept for reference.
+
 ## jiangyizhou AF16 autoresearch line (branch `autoresearch-jyz-af16`, this worktree)
 Read `docs/handoff/2026-09-11-autoresearch-jyz-af16.md` first, then `autoresearch_jyz_af16.md`. Results summary:
 `docs/superpowers/records/2026-09-11-autoresearch-jyz-af16.md`. Tests on this branch: 183 pass; `tests/test_score_edge.py`

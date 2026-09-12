@@ -83,3 +83,14 @@ def test_grappa_hold_out_check_reports_small_error_on_hidden_acs_lines(case):
     rel = acs_holdout_check(torch.from_numpy(k_us), torch.from_numpy(m_acq), acs_lines=(20, 44), R=2,
                             device=torch.device("cpu"), lam_rel=1e-4)
     assert 0 < rel < 0.15, rel
+
+
+def test_leave_one_out_reports_one_error_per_calibration_line(case):
+    from uih_mtp.grappa import acs_leave_one_out
+    _, k_us, m_acq = case
+    loo = acs_leave_one_out(torch.from_numpy(k_us), torch.from_numpy(m_acq), acs_lines=(20, 44), R=2,
+                            device=torch.device("cpu"), lam_rel=1e-4)
+    assert loo["lines"] == [23, 25, 27, 29, 31, 33, 35, 37, 39]           # odd ACS lines with all sources inside
+    assert len(loo["per_line"]) == 9
+    assert all(0 < e < 0.15 for e in loo["per_line"]), loo["per_line"]
+    assert 0 < loo["mean"] < 0.15

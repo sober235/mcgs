@@ -1,0 +1,24 @@
+stage 1 start 2026-09-12_12:45:37 device=cuda:0 CUDA_VISIBLE_DEVICES=2
+12:45:39 FA16_TE3.25: u1=1 echo=0 device=cuda:0
+12:45:40 index built and cached (135084 imaging lines)
+12:45:49 read 11257 lines -> k (32, 320, 304, 104), 2.59 GB, 9 s
+12:45:49 ACS block from the PPA reference flags: PE 140..163 (24 lines)
+12:45:57 GRAPPA: 8657 positions filled (284400 calibration equations, 3200 unknowns), 8 s
+12:45:58 ACS hold-out check: relative k-space error on the hidden odd lines 0.0964 (2 s)
+12:45:59 energy: acquired 9.116e+16, interpolated 1.058e+16 (10.40 % of the total)
+12:46:01 RSS images (320, 304, 104), 1 s
+12:46:04 saved to /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/data/FA16_TE3.25
+12:46:07 FA4_TE27.41: u1=0 echo=4 device=cuda:0
+12:46:07 index loaded from cache (135084 imaging lines)
+12:46:50 read 11257 lines -> k (32, 320, 304, 104), 2.59 GB, 43 s
+12:46:50 ACS block from the PPA reference flags: PE 140..163 (24 lines)
+12:46:58 GRAPPA: 8657 positions filled (284400 calibration equations, 3200 unknowns), 8 s
+12:46:59 ACS hold-out check: relative k-space error on the hidden odd lines 0.1880 (2 s)
+12:47:01 energy: acquired 1.528e+16, interpolated 1.54e+15 (9.15 % of the total)
+12:47:02 RSS images (320, 304, 104), 1 s
+12:47:06 saved to /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/data/FA4_TE27.41
+FA16_TE3.25 {"pe_offset": 2, "corr_grappa": 0.9098788459431253, "corr_zerofilled": 0.9056049398670404, "corr_grappa_per_slice_median": 0.9139958349175197, "corr_grappa_per_slice_min": 0.8715244069220079}
+figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE3.25_kspace.png /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE3.25_image.png
+FA4_TE27.41 {"pe_offset": 2, "corr_grappa": 0.9637879700820731, "corr_zerofilled": 0.9412666370425552, "corr_grappa_per_slice_median": 0.9652048880429069, "corr_grappa_per_slice_min": 0.9366204366606867}
+figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA4_TE27.41_kspace.png /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA4_TE27.41_image.png
+STAGE1_DONE 2026-09-12_12:47:26
