@@ -73,7 +73,7 @@ FLAIR margin of `p3_probe_c_P6_kz` over the best probe-mask L1-ESPIRiT, against 
 (+0.221); `p3_probe_c_P6` − `p3_r0_nokz` isolates the mask effect without Z; `p3_r0_control` − `p3_r0_nokz` is the
 worth of Z on the current mask. The vtv run answers the coupling question (T1 change).
 
-## Track A landed (16:55) — the non-local RED prior is in the trainer (merge 1419aaf)
+## Track A landed (16:29) — the non-local RED prior is in the trainer (merge 1419aaf)
 
 `paired_gs/losses/nonlocal_red.py` + wiring in `JointTrainer.train` (after the wavelet term; `loss/R_nl` in the
 components, `R_nl=` unweighted in the iteration line, one `[nl] iter= contrast= sigma= crop= bm4d=…s` line per refresh).
@@ -88,7 +88,7 @@ suite 200 passed (`--ignore=tests/smoke_test.py --ignore=tests/test_score_edge.p
   The spec's grid {0.5, 1, 2} would be almost inert, so Round 1 screens λ_nl ∈ {1, 4, 16} at σ_rel 0.04 first and reads
   `loss/R_nl` in the log before extending the grid.
 
-## Round 1 (queued 16:55, interleaved with Round 0 in `scripts/p3_queue.txt`)
+## Round 1 (queued 16:30, interleaved with Round 0 in `scripts/p3_queue.txt`)
 
 | exp | extra args | reading |
 |---|---|---|

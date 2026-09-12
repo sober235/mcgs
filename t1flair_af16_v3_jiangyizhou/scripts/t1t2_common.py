@@ -14,6 +14,7 @@ Gauge:
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -94,7 +95,12 @@ class Pair:
             y_full = torch.from_numpy(f["kspace"][:]).to(torch.complex64)
         with h5py.File(R / f"data/csm_espirit_{contrast}.h5", "r") as f:
             S = torch.from_numpy(f["map"][:]).to(torch.complex64)
-        with h5py.File(R / "data/mask_af16_3d.h5", "r") as f:
+        # phase-3 acquisition probe (mcgs_af16_wt spec 2026-09-12, section 5): T1T2_MASK_<CONTRAST>=<h5 path>
+        # swaps the mask for that contrast only. Unset (the default) reads the registered mask, unchanged.
+        self.mask_path = os.environ.get(f"T1T2_MASK_{contrast}") or str(R / "data/mask_af16_3d.h5")
+        if os.environ.get(f"T1T2_MASK_{contrast}"):
+            print(f"[Pair] {contrast}: mask override T1T2_MASK_{contrast}={self.mask_path}", flush=True)
+        with h5py.File(self.mask_path, "r") as f:
             m3 = torch.from_numpy(f["mask"][:]).to(torch.float32)
         assert y_full.shape == S.shape, (y_full.shape, S.shape)
         self.y_full = y_full.to(dev); self.S = S.to(dev)
