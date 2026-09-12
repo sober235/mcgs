@@ -73,6 +73,32 @@ FLAIR margin of `p3_probe_c_P6_kz` over the best probe-mask L1-ESPIRiT, against 
 (+0.221); `p3_probe_c_P6` − `p3_r0_nokz` isolates the mask effect without Z; `p3_r0_control` − `p3_r0_nokz` is the
 worth of Z on the current mask. The vtv run answers the coupling question (T1 change).
 
+## Track A landed (16:55) — the non-local RED prior is in the trainer (merge 1419aaf)
+
+`paired_gs/losses/nonlocal_red.py` + wiring in `JointTrainer.train` (after the wavelet term; `loss/R_nl` in the
+components, `R_nl=` unweighted in the iteration line, one `[nl] iter= contrast= sigma= crop= bm4d=…s` line per refresh).
+Keys under `loss`: `lambda_nl` 0 (`lambda_nl_plain` / `lambda_nl_contrast` default to it), `nl_refresh` 500, `nl_start`
+500, `nl_sigma_rel` 0.04, `nl_profile` np|lc, `nl_denoiser` bm4d|fake_identity|fake_blur, `nl_threads` 32. Tests: 13 new,
+suite 200 passed (`--ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py`). Two facts that change the plan:
+- **The head bounding box is the whole volume** here: the union ZF support (0.05 · P99.9 rule) is aliased edge to edge on
+  both PE axes, so BM4D runs on all 11.49M voxels: **156 s per contrast per refresh** (profile np; lc 136 s) at host load
+  ~106/112. A 1500-it screen with K0 = K = 500 pays 2 refreshes × 2 contrasts ≈ 10 min; a 4000-it promotion ≈ 36 min.
+  Tightening the box (morphological opening of the support) is a later optimisation, not done.
+- **The term is small**: R_nl(zf | BM4D(zf)) ≈ 1.0e-3 (normalised), against dc ≈ 2e-2 and λ·R_wav ≈ 6e-3 at iter 50.
+  The spec's grid {0.5, 1, 2} would be almost inert, so Round 1 screens λ_nl ∈ {1, 4, 16} at σ_rel 0.04 first and reads
+  `loss/R_nl` in the log before extending the grid.
+
+## Round 1 (queued 16:55, interleaved with Round 0 in `scripts/p3_queue.txt`)
+
+| exp | extra args | reading |
+|---|---|---|
+| p3_r1_nl4_s04 | `--set loss.lambda_nl=4 --set loss.nl_sigma_rel=0.04 --set loss.nl_refresh=500 --set loss.nl_start=500` | middle of the grid, first signal |
+| p3_r1_nl16_s04 | λ_nl 16, same σ / K | strong |
+| p3_r1_nl1_s04 | λ_nl 1, same σ / K | weak |
+
+Queue order now: control, nokz, probe_kz, nl4, db4l1, nl16, probe_kz_vtv, nl1, vtv0005, ptv002, edge0001, priv03,
+vtv002, edge0005.
+
 ## Round log
 
 (appended as rounds land)
