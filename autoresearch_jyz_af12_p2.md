@@ -465,3 +465,14 @@ cells. Margins of P13 over the bar: **+0.542 / +0.926 dB**, SSIM +0.0031 / +0.00
 rotation-only curve is still rising, so the top value gets one full-budget run: **`p2_rotlr016_full4k`** (rotation lr
 0.016, 4000 iterations, volumes, card 2), read by rule 1 against **P13**. `p2_rotlr004_full4k` (card 3) is still
 running and is read against P13 as well; the best keep of the three is the final recipe.
+- 01:45 `p2_rotlr004_full4k` (rotation lr 0.004 at 4000; card 3, 62 min): 36.967 / 36.674 — against P13 T1 −0.001
+  (**null**), FLAIR −0.009. Rotation-only at 4000 over P10: 0.001 +0.011, 0.002 +0.017, 0.004 +0.022, 0.008 +0.023 —
+  saturated between 0.004 and 0.008. **P13 (0.008) stands**; only `p2_rotlr016_full4k` (card 2) can still displace it.
+
+### Delivery chain — launched 01:47 on card 3 (`scripts/p2_chain_final.sh`), pre-registered here
+The runs the final recipe needs, all 4000 iterations with volumes, started on the standing recipe P13 while 0.016 is
+still running (if 0.016 displaced P13 they would be re-run; the rotation curve is saturated, so this is the cheap bet):
+`p2_P13_s43_full4k` (seed 43 in design B — the floor at the new working point and half the two-seed row, rule 4),
+`p2_P13_singleT1_full4k` and `p2_P13_singleFLAIR_full4k` (GS-single arms, rule 5, with the design-B single configs:
+T1 on the AF12 mask, FLAIR on the AF11 one), and `p2_P13_af12_full4k` (P13 in the all-AF12 config, so the delivered
+T1 panel is quoted from an all-AF12 run rather than a design-B one). Card 2 joins the chain when 0.016 lands.
