@@ -355,3 +355,8 @@ does not need that read to run. Card 2 continues chain E's wavelet-shape screens
 - 22:05 `p2_wav_ddd05` (diagonal sub-band at half strength; card 2, 26 min): 36.863 / 36.521 — T1 −0.022, FLAIR +0.001,
   T1 sharper (0.859), SSIM −0.0003 / −0.0001. **loses**: weakening the all-detail band costs T1 PSNR. `p2_wav_ddd20`
   (double) running on card 2; `p2_rotlr016` still on card 3.
+- 22:07 `p2_rotlr016` (rotation lr 0.016; card 3, 26 min): 36.957 / 36.613 — +0.072 / +0.094 over P10@1500 (a keep on
+  its own), but only +0.009 over 0.008 on T1, inside the floor: **the rotation bracket ends at 0.008 by the stop
+  rule.** Rotation-only curve at 1500 (T1 gain): 0.0005 +0.008, 0.001 +0.023, 0.002 +0.038, 0.004 +0.053, 0.008 +0.063,
+  0.016 +0.072 — concave, flattening. `p2_rotlr008_slr005` running on card 3; the selector then promotes the best
+  stacked row (0.004 + scale lr is +0.083 so far).
