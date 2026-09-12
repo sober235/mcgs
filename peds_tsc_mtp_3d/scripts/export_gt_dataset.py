@@ -10,7 +10,9 @@ the file layout of the retrospective AF12 topics (ksp_<c>.h5 dataset "kspace", c
     ./py export_gt_dataset.py [--root /data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT]
 
 Idempotent: a contrast is exported when its stage-1b outputs exist and the destination files are missing or
-older than the sources. No patient identifiers are written.
+older than the sources. User decision 2026-09-12 18:40: only the T1-weighted (FA16_TE3.25) and T2*-weighted
+(FA4_TE27.41) contrasts belong to the dataset; the other acquired contrasts are not exported (``--contrasts``
+overrides). No patient identifiers are written.
 """
 import argparse, hashlib, json, os, shutil, time
 
@@ -23,8 +25,10 @@ FILES = {"kspace_grappa.h5": "ksp_{c}.h5", "csm_espirit.h5": "csm_espirit_{c}.h5
 
 README = """# Peds_TSC_age16_MTP_GT — reference multi-contrast 3D dataset (UIH uMR 790, 3 T)
 
-One exam of a 16-year-old (TSC), 2022-01-24, 3D multi-echo spoiled GRE "MTP": 5 echoes (TE 3.25 / 9.29 / 15.33 /
-21.37 / 27.41 ms) x 2 flip angles (4 deg, 16 deg), TR 40.9 ms, 32 channels, 0.7 x 0.7 x 1.35 mm, FOV 224 x 210 mm.
+One exam of a 16-year-old (TSC), 2022-01-24, 3D multi-echo spoiled GRE "MTP" (5 echoes x 2 flip angles acquired,
+TR 40.9 ms, 32 channels, 0.7 x 0.7 x 1.35 mm, FOV 224 x 210 mm). **The dataset holds the two contrasts that differ
+most: T1-weighted = FA16 / TE 3.25 ms and T2*-weighted = FA4 / TE 27.41 ms** (user decision 2026-09-12); the other
+eight acquired echo / flip-angle combinations are not part of it.
 Acquired prospectively at 2x (PPA along PE, 24-line ACS block, elliptical corner cut, 0.75 partial Fourier along
 PE); there is no fully sampled acquisition. Provenance and every number: Results_20260908/Peds_TSC_MTP_3D/README.md.
 
@@ -39,7 +43,7 @@ reference therefore carries 2x parallel-imaging noise and no partial-Fourier syn
 undersampling studies should define their masks relative to the acquired support (`envelope`) and treat
 `m_zero` as known-unacquired for every method alike.
 
-## Files (per contrast c = FA{4,16}_TE{3.25,9.29,15.33,21.37,27.41})
+## Files (per contrast c in {FA16_TE3.25, FA4_TE27.41})
 
     ksp_<c>.h5            dataset "kspace"  (32, 320, 304, 104) complex64, axes (coil, RO, PE, SPE), DC at (160, 152, 52)
     csm_espirit_<c>.h5    dataset "map"     same layout, unit sum of squares over the whole FOV
@@ -63,13 +67,14 @@ def md5(path, chunk=1 << 24):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--root", default=DEFAULT_ROOT); ap.add_argument("--no-md5", action="store_true")
+    ap.add_argument("--contrasts", nargs="+", default=["FA16_TE3.25", "FA4_TE27.41"])
     args = ap.parse_args()
     os.makedirs(args.root, exist_ok=True)
     index_path = os.path.join(args.root, "index.json")
     index = json.load(open(index_path)) if os.path.exists(index_path) else {"contrasts": {}}
     for c in sorted(os.listdir(os.path.join(TOPIC, "data"))):
         src = os.path.join(TOPIC, "data", c)
-        if not c.startswith("FA") or not os.path.exists(os.path.join(src, "sense_grappa.npy")):
+        if c not in args.contrasts or not os.path.exists(os.path.join(src, "sense_grappa.npy")):
             continue
         entry = index["contrasts"].get(c, {})
         meta = json.load(open(os.path.join(src, "meta.json")))

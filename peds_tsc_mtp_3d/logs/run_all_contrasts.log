@@ -1,0 +1,96 @@
+all contrasts start 2026-09-12_17:01:03
+skip FA16_TE3.25 (done)
+== FA16_TE9.29 device=cuda:0 2026-09-12_17:01:03
+17:01:04 FA16_TE9.29: u1=1 echo=1 device=cuda:0
+17:01:04 index loaded from cache (135084 imaging lines)
+17:01:14 read 11257 lines -> k (32, 320, 304, 104), 2.59 GB, 10 s
+17:01:14 ACS block from the PPA reference flags: PE 140..163 (24 lines)
+17:02:24 GRAPPA: 8657 positions filled (284400 calibration equations, 3200 unknowns), 70 s
+17:02:36 ACS hold-out check: relative k-space error on the hidden odd lines 0.1034 (11 s)
+17:02:37 energy: acquired 8.51e+16, interpolated 8.406e+15 (8.99 % of the total)
+17:02:39 RSS images (320, 304, 104), 2 s
+17:02:43 saved to /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/data/FA16_TE9.29
+FA16_TE9.29 {"pe_offset": 2, "corr_grappa": 0.9041726932204394, "corr_zerofilled": 0.8956196156962755, "corr_grappa_per_slice_median": 0.9105469539659667, "corr_grappa_per_slice_min": 0.8719813353886633, "corr_flat_grappa": 0.881437104404357, "corr_flat_zerofilled": 0.8124206724633365, "corr_gradient_grappa": 0.7602371818532226, "corr_gradient_zerofilled": 0.5643567761259219}
+figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE9.29_kspace.png /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE9.29_image.png
+17:03:05 FA16_TE9.29: k-space (32, 320, 304, 104) loaded, device cuda:0
+17:22:07 ecalib done in 1142 s, maps (32, 320, 304, 104)
+17:22:14 maps SoS min/mean/max 1.0000/1.0000/1.0000
+17:22:18 SENSE combination of the GRAPPA k-space (320, 304, 104), 3 s
+17:22:27 CG-SENSE 40 iterations, relative residual 3.697e-04, 9 s
+17:22:44 CG-SENSE vs SENSE(GRAPPA) in the head: complex NRMSE 0.0802, magnitude NRMSE 0.0568
+17:22:44 vendor r: corr_vendor_sense_grappa=0.907, corr_vendor_flat_sense_grappa=0.874, corr_vendor_gradient_sense_grappa=0.750, corr_vendor_cgsense=0.897, corr_vendor_flat_cgsense=0.832, corr_vendor_gradient_cgsense=0.618
+17:22:45 figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE9.29_sense.png
+== FA16_TE15.33 device=cuda:0 2026-09-12_17:22:47
+17:22:48 FA16_TE15.33: u1=1 echo=2 device=cuda:0
+17:22:48 index loaded from cache (135084 imaging lines)
+17:22:59 read 11257 lines -> k (32, 320, 304, 104), 2.59 GB, 11 s
+17:22:59 ACS block from the PPA reference flags: PE 140..163 (24 lines)
+17:24:05 GRAPPA: 8657 positions filled (284400 calibration equations, 3200 unknowns), 66 s
+17:24:17 ACS hold-out check: relative k-space error on the hidden odd lines 0.1331 (12 s)
+17:24:19 energy: acquired 5.451e+16, interpolated 7.109e+15 (11.54 % of the total)
+17:24:21 RSS images (320, 304, 104), 2 s
+17:24:27 saved to /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/data/FA16_TE15.33
+FA16_TE15.33 {"pe_offset": 2, "corr_grappa": 0.9167038644909521, "corr_zerofilled": 0.9066178049603402, "corr_grappa_per_slice_median": 0.9208777313185597, "corr_grappa_per_slice_min": 0.8776763729073696, "corr_flat_grappa": 0.8803455909962444, "corr_flat_zerofilled": 0.7880802677368347, "corr_gradient_grappa": 0.7893187543776986, "corr_gradient_zerofilled": 0.578249994027428}
+figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE15.33_kspace.png /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE15.33_image.png
+17:24:47 FA16_TE15.33: k-space (32, 320, 304, 104) loaded, device cuda:0
+17:44:28 ecalib done in 1181 s, maps (32, 320, 304, 104)
+17:44:35 maps SoS min/mean/max 1.0000/1.0000/1.0000
+17:44:39 SENSE combination of the GRAPPA k-space (320, 304, 104), 3 s
+17:44:49 CG-SENSE 40 iterations, relative residual 5.043e-04, 9 s
+17:45:09 CG-SENSE vs SENSE(GRAPPA) in the head: complex NRMSE 0.1051, magnitude NRMSE 0.0743
+17:45:09 vendor r: corr_vendor_sense_grappa=0.919, corr_vendor_flat_sense_grappa=0.868, corr_vendor_gradient_sense_grappa=0.774, corr_vendor_cgsense=0.906, corr_vendor_flat_cgsense=0.812, corr_vendor_gradient_cgsense=0.607
+17:45:11 figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE15.33_sense.png
+== FA16_TE21.37 device=cuda:0 2026-09-12_17:45:12
+17:45:14 FA16_TE21.37: u1=1 echo=3 device=cuda:0
+17:45:14 index loaded from cache (135084 imaging lines)
+17:45:25 read 11257 lines -> k (32, 320, 304, 104), 2.59 GB, 11 s
+17:45:25 ACS block from the PPA reference flags: PE 140..163 (24 lines)
+17:46:41 GRAPPA: 8657 positions filled (284400 calibration equations, 3200 unknowns), 77 s
+17:46:53 ACS hold-out check: relative k-space error on the hidden odd lines 0.1531 (12 s)
+17:46:54 energy: acquired 4.473e+16, interpolated 6.641e+15 (12.93 % of the total)
+17:46:57 RSS images (320, 304, 104), 3 s
+17:47:01 saved to /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/data/FA16_TE21.37
+FA16_TE21.37 {"pe_offset": 2, "corr_grappa": 0.9096368751124476, "corr_zerofilled": 0.896401002254419, "corr_grappa_per_slice_median": 0.9122612116242654, "corr_grappa_per_slice_min": 0.8623518089105269, "corr_flat_grappa": 0.8724253325622536, "corr_flat_zerofilled": 0.7751923935302574, "corr_gradient_grappa": 0.7999132252587866, "corr_gradient_zerofilled": 0.5989370665394863}
+figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE21.37_kspace.png /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE21.37_image.png
+17:47:28 FA16_TE21.37: k-space (32, 320, 304, 104) loaded, device cuda:0
+18:06:57 ecalib done in 1168 s, maps (32, 320, 304, 104)
+18:07:03 maps SoS min/mean/max 1.0000/1.0000/1.0000
+18:07:07 SENSE combination of the GRAPPA k-space (320, 304, 104), 2 s
+18:07:24 CG-SENSE 40 iterations, relative residual 5.613e-04, 17 s
+18:07:41 CG-SENSE vs SENSE(GRAPPA) in the head: complex NRMSE 0.1209, magnitude NRMSE 0.0857
+18:07:41 vendor r: corr_vendor_sense_grappa=0.913, corr_vendor_flat_sense_grappa=0.859, corr_vendor_gradient_sense_grappa=0.783, corr_vendor_cgsense=0.896, corr_vendor_flat_cgsense=0.805, corr_vendor_gradient_cgsense=0.638
+18:07:42 figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE21.37_sense.png
+== FA16_TE27.41 device=cuda:0 2026-09-12_18:07:44
+18:07:45 FA16_TE27.41: u1=1 echo=4 device=cuda:0
+18:07:45 index loaded from cache (135084 imaging lines)
+18:08:04 read 11257 lines -> k (32, 320, 304, 104), 2.59 GB, 19 s
+18:08:04 ACS block from the PPA reference flags: PE 140..163 (24 lines)
+18:09:20 GRAPPA: 8657 positions filled (284400 calibration equations, 3200 unknowns), 76 s
+18:09:31 ACS hold-out check: relative k-space error on the hidden odd lines 0.1850 (11 s)
+18:09:33 energy: acquired 2.786e+16, interpolated 3.642e+15 (11.56 % of the total)
+18:09:36 RSS images (320, 304, 104), 3 s
+18:09:41 saved to /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/data/FA16_TE27.41
+FA16_TE27.41 {"pe_offset": 2, "corr_grappa": 0.9369121123433785, "corr_zerofilled": 0.9172852137773879, "corr_grappa_per_slice_median": 0.9386928389328981, "corr_grappa_per_slice_min": 0.8906185105802662, "corr_flat_grappa": 0.8575337394577345, "corr_flat_zerofilled": 0.7436579510763067, "corr_gradient_grappa": 0.7976805722930648, "corr_gradient_zerofilled": 0.5618994466953926}
+figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE27.41_kspace.png /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE27.41_image.png
+18:10:06 FA16_TE27.41: k-space (32, 320, 304, 104) loaded, device cuda:0
+18:31:24 ecalib done in 1278 s, maps (32, 320, 304, 104)
+18:31:32 maps SoS min/mean/max 1.0000/1.0000/1.0000
+18:31:37 SENSE combination of the GRAPPA k-space (320, 304, 104), 4 s
+18:31:47 CG-SENSE 40 iterations, relative residual 7.173e-04, 9 s
+18:32:06 CG-SENSE vs SENSE(GRAPPA) in the head: complex NRMSE 0.1699, magnitude NRMSE 0.1201
+18:32:06 vendor r: corr_vendor_sense_grappa=0.938, corr_vendor_flat_sense_grappa=0.832, corr_vendor_gradient_sense_grappa=0.767, corr_vendor_cgsense=0.913, corr_vendor_flat_cgsense=0.747, corr_vendor_gradient_cgsense=0.547
+18:32:08 figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE27.41_sense.png
+== FA4_TE3.25 device=cuda:0 2026-09-12_18:32:10
+18:32:13 FA4_TE3.25: u1=0 echo=0 device=cuda:0
+18:32:13 index loaded from cache (135084 imaging lines)
+18:32:41 read 11257 lines -> k (32, 320, 304, 104), 2.59 GB, 27 s
+18:32:41 ACS block from the PPA reference flags: PE 140..163 (24 lines)
+18:33:57 GRAPPA: 8657 positions filled (284400 calibration equations, 3200 unknowns), 77 s
+18:34:09 ACS hold-out check: relative k-space error on the hidden odd lines 0.1391 (11 s)
+18:34:10 energy: acquired 3.972e+16, interpolated 2.972e+15 (6.96 % of the total)
+18:34:13 RSS images (320, 304, 104), 3 s
+18:34:19 saved to /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/data/FA4_TE3.25
+FA4_TE3.25 {"pe_offset": 2, "corr_grappa": 0.9476135725082732, "corr_zerofilled": 0.94627816896868, "corr_grappa_per_slice_median": 0.9505671680872754, "corr_grappa_per_slice_min": 0.9137941030131931, "corr_flat_grappa": 0.8349498238501092, "corr_flat_zerofilled": 0.7694813242818841, "corr_gradient_grappa": 0.7209714696602658, "corr_gradient_zerofilled": 0.5409862384214865}
+figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA4_TE3.25_kspace.png /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA4_TE3.25_image.png
+18:34:44 FA4_TE3.25: k-space (32, 320, 304, 104) loaded, device cuda:0
+STOPPED_BY_USER 2026-09-12_18:39:16: only FA16_TE3.25 and FA4_TE27.41 are wanted

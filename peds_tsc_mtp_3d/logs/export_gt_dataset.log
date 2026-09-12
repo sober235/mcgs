@@ -1,0 +1,13 @@
+FA16_TE3.25: kspace_grappa.h5 -> ksp_FA16_TE3.25.h5 (2.59 GB, 2 s)
+FA16_TE3.25: csm_espirit.h5 -> csm_espirit_FA16_TE3.25.h5 (2.59 GB, 2 s)
+FA16_TE3.25: sense_grappa.npy -> gt_sense_FA16_TE3.25.npy (0.08 GB, 0 s)
+FA16_TE3.25: masks.npz -> masks_FA16_TE3.25.npz (0.00 GB, 0 s)
+FA16_TE3.25: meta.json -> meta_FA16_TE3.25.json (0.00 GB, 0 s)
+FA16_TE3.25: indexed (5 files)
+FA4_TE27.41: kspace_grappa.h5 -> ksp_FA4_TE27.41.h5 (2.59 GB, 2 s)
+FA4_TE27.41: csm_espirit.h5 -> csm_espirit_FA4_TE27.41.h5 (2.59 GB, 2 s)
+FA4_TE27.41: sense_grappa.npy -> gt_sense_FA4_TE27.41.npy (0.08 GB, 0 s)
+FA4_TE27.41: masks.npz -> masks_FA4_TE27.41.npz (0.00 GB, 0 s)
+FA4_TE27.41: meta.json -> meta_FA4_TE27.41.json (0.00 GB, 0 s)
+FA4_TE27.41: indexed (5 files)
+index: /data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT/index.json contrasts: ['FA16_TE3.25', 'FA4_TE27.41']

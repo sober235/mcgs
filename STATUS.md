@@ -29,8 +29,7 @@
 ## 2. 待用户拍板（第二阶段设计）
 - ✅ 已定（09-12 17:00）：GT = GRAPPA 补齐 k 空间的 ESPIRiT SENSE 合成图（`*_sense.png` 第一列）；全部 10 个对比度当作"16 岁未成年多对比度数据集"
   存到项目数据根 `/data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT/`（`export_gt_dataset.py`，布局同 AF12 课题：ksp_<c>.h5 键 kspace、
-  csm_espirit_<c>.h5 键 map、gt_sense_<c>.npy、masks_<c>.npz、meta_<c>.json、index.json、README.md）。其余 8 个对比度由
-  `run_all_contrasts.sh` 顺序补跑（17:01 起，每个约 28 分钟，日志 logs/run_all_contrasts.log），跑完再导出一次。
+  csm_espirit_<c>.h5 键 map、gt_sense_<c>.npy、masks_<c>.npz、meta_<c>.json、index.json、README.md）。**18:40 用户改口：数据集只要 T1 加权（FA16_TE3.25）与 T2* 加权（FA4_TE27.41）两个对比度**，补跑批次已停（`run_all_contrasts.sh` 跑到第 6 个时杀掉），导出脚本默认只导这两个（`--contrasts` 可改）。已经跑完的 FA16 TE 9.29/15.33/21.37/27.41 与 FA4 TE3.25 的 GRAPPA 输出仍留在课题 `data/` 下（未导出，可删）。
 - 回顾性掩膜相对什么定义：相对采集支撑（椭圆包络内的 227×104 带，AF 按支撑计，与 AF16 课题的 FLAIR 口径一致）还是相对整格 304×104。
 - 加速倍数档位（例如 4 / 8 / 12 相对支撑）、掩膜类型（vdPoisson 同 AF12/AF16 课题、calib 24）、两对比度同掩膜还是各自掩膜。
 - 部分傅里叶区与椭圆角作为已知零区：只给 GS 臂（沿用旧课题的不对称）还是所有方法都用。
@@ -39,7 +38,7 @@
 ## 3. 下一步
 - 第二阶段（回顾性欠采样 + 方法表）：用户拍板上面五条后写 spec，再执行；数据入口 = `data/<contrast>/kspace_grappa.h5` + `csm_espirit.h5` + 回顾性掩膜，
   和 CE / AF12 课题相同的 (coil, RO, PE, SPE) 布局。
-- 其余 8 个对比度一条命令补跑（`prep_mtp_grappa.py --fa F --echo E`，每个 ecalib 约 25 分钟 CPU）。
+- 其余对比度不再补跑（用户只要两个）；若日后要，`run_all_contrasts.sh` 会跳过已完成的。
 
 ## 4. 已知的坑与别重做
 - raw 的翻转角在 user index 1（u1），不在 set；set 0 是 echo 0 的重复读出；ROCenter 160 是按 320 网格计的。

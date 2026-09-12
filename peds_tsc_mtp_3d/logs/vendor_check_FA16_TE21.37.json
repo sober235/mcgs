@@ -1,0 +1,11 @@
+{
+ "pe_offset": 2,
+ "corr_grappa": 0.9096368751124476,
+ "corr_zerofilled": 0.896401002254419,
+ "corr_grappa_per_slice_median": 0.9122612116242654,
+ "corr_grappa_per_slice_min": 0.8623518089105269,
+ "corr_flat_grappa": 0.8724253325622536,
+ "corr_flat_zerofilled": 0.7751923935302574,
+ "corr_gradient_grappa": 0.7999132252587866,
+ "corr_gradient_zerofilled": 0.5989370665394863
+}
