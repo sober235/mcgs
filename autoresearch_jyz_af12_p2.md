@@ -225,3 +225,10 @@ subject; what moved is the optimiser (rotation lr, and scale lr in the P10 loop)
 and the wavelet-shape screens, as pre-registered.
 - 18:23 promotion 1 (`p2_rotlr_full4k`, card 3) and the design-B 4000-iteration floor (`p2_P10_s43_full4k`, card 2,
   since 18:05) are running; chain D starts on card 5 behind chain B.
+- 18:24 card collision with the parallel AF16 phase-3 loop (other session, `mcgs_af16_wt`): within a minute of chains A
+  and B ending it launched `p3_r0_db4l1` on card 3 and `p3_r1_nl16_s04` on card 5, next to this loop's `p2_rotlr_full4k`
+  (card 3) and `p2_rotlr002` (card 5, one minute old). Rule "never a card that already carries a trainer of any loop":
+  `p2_rotlr002` was stopped (wrapper E's process group; partial outputs removed, no ledger row) and card 5 ceded; chain D
+  now runs on cards 2 and 3 only (behind chain C and behind the promotion). The promotion stays on card 3, shared with
+  the other loop's run since both started at 18:23 (2–3x slower; card 3 hung twice under two trainers on 09-11 — watch
+  its progress). A card-split proposal (this loop 2 + 3, that loop 4 + 5) was sent to the peer sessions.
