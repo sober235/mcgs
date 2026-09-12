@@ -9,7 +9,7 @@ Restricted to slices whose head mask holds >= --min_head voxels (default 20000 =
 slice; a few thousand voxels at the vertex or skull base give large but meaningless numbers).
 
 usage: find_best_slice_v2.py --topic <topic dir> --contrasts T1,T2 [--ours gs_joint_v2] [--min_head 20000]
-Writes <topic>/logs/best_slice_ar_" + args.contrasts.replace(",", "_") + ".json and prints the top-5 of each ranking per axis.
+Writes <topic>/logs/best_slice_ar_<contrasts>.json and prints the top-5 of each ranking per axis.
 """
 import argparse, json
 from pathlib import Path
@@ -78,8 +78,9 @@ def main():
                 for r in top:
                     print(f"      idx {r['index']:3d}  head {r['n_head']:6d}  v2 {r['ours']:.3f} dB  "
                           f"margin {r['margin']:+.3f} vs {r['best_other']} {r['best_other_psnr']:.3f}")
-    (R / "logs/best_slice_ar_" + args.contrasts.replace(",", "_") + ".json").write_text(json.dumps(out, indent=1))
-    print(f"\nwrote {R / 'logs/best_slice_ar_" + args.contrasts.replace(",", "_") + ".json'}")
+    out_path = R / f"logs/best_slice_ar_{args.contrasts.replace(',', '_')}.json"
+    out_path.write_text(json.dumps(out, indent=1))
+    print(f"\nwrote {out_path}")
 
 
 if __name__ == "__main__":
