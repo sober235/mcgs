@@ -18,7 +18,9 @@
 ## 2. Decisions taken and waiting
 - **Taken 2026-09-12 (user): the AF16 line is frozen — no more runs; code and parameters stay isolated from the AF12
   line** (P10 is not brought in; the transfer test is an observation only).
-- Waiting: which recipe is quoted (P6 vs p6ptv); a held-out AF16 subject; nothing else.
+- **Taken 2026-09-12, later the same day (user): P6 is the recipe quoted externally (magnitude gauge); p6ptv is
+  reported only as the both-gauges note.**
+- Waiting: a held-out AF16 subject; nothing else.
 
 ## 3. Next steps (only if reopened)
 - A clean transfer test of the AF12 wavelet shape without phase TV (P6 + db4 + 1 level + T1 0.12 / FLAIR 0.10, 4000 it)

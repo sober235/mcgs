@@ -11,8 +11,10 @@
 - 课题 `Results_20260908/T1FLAIR_AF16_v3_jiangyizhou`：gs_joint_ar / gs_single_ar（P6）、gs_joint_p2 / p2b（二期）已登记，图在 figures/。
 
 ## 2. 待用户拍板
-- 对外引用 P6（magnitude，惯例）还是 p6ptv（双口径、更锐、T1 magnitude 低 0.24）。
 - 是否做留出受试者（从未跑过）。
+
+已拍板（用户 2026-09-12，晚）：对外引用 P6（magnitude 口径，课题里的 `gs_joint_ar`，头内 35.552 / 34.807）；
+p6ptv（`gs_joint_p2`）只作复数口径的附注，不当主推。
 
 ## 3. 下一步
 - 无（已定格）。若重开：不带相位 TV 的 AF12 小波改形迁移测试（用户 09-12 已拒绝）。

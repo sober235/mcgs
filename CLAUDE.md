@@ -59,3 +59,5 @@ the complex-gauge scorer and the phase-only TV term (`paired_gs/losses/phase_tv.
 on both gauges. **User decision 2026-09-12: this line is frozen — no further runs; no code or parameter from the AF12
 line (`autoresearch-jyz-af12`, recipe P10) is merged or adopted here.** The AF12 numbers quoted in the section above
 are superseded by that line's own record; they stay here as history.
+**User decision 2026-09-12 (later the same day): the recipe quoted externally is P6 (`gs_joint_ar`, magnitude gauge);
+p6ptv (`gs_joint_p2`) is reported only as the both-gauges note.**

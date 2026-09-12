@@ -57,6 +57,7 @@ ZS-SSDU still matches the ground-truth sharpness best.
 ## 5. Open decisions (for the user)
 
 1. Which AF16 recipe is quoted where: P6 (magnitude, the convention) or p6ptv (both gauges, sharper, −0.24 dB T1 magnitude).
+   **Decided 2026-09-12 (user): P6 is quoted externally; p6ptv is the both-gauges note only.**
 2. A held-out subject at AF16 with the recipe and λ frozen (never run).
 3. Branches: `autoresearch-jyz-af16` (phase 1, 3a44aba) and `autoresearch-jyz-af16-phase2` (this record) are both on
    origin; `main` shares no history with either and is not merged.
