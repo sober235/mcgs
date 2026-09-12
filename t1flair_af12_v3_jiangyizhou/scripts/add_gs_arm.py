@@ -44,6 +44,6 @@ else:
     print(f"(no volumes for {a.exp}: table row only)")
 p = R / "logs/extra_gs_arms.json"
 arms = json.load(open(p)) if p.exists() else []
-arms = [x for x in arms if x["key"] != a.key] + [dict(key=a.key, label=a.label, exp=a.exp, map=m)]
+arms = [x for x in arms if not (x["key"] == a.key and set(x["map"]) & set(m))] + [dict(key=a.key, label=a.label, exp=a.exp, map=m)]   # one entry per (key, contrast): the two single-contrast runs share a key
 json.dump(arms, open(p, "w"), indent=1)
 print(f"registered {a.key} ({a.label}) <- {a.exp} {m}")
