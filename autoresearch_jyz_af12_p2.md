@@ -303,3 +303,7 @@ on top of the faster rotations it adds cleanly at 1500. The optimiser grid is th
 4. The wavelet-shape screens (round 2 part 1) run after the grid on whichever card is free; a keep there is combined
    with the standing parent at 4000.
 Chain E's bash on card 3 was stopped (its `p2_rotlr004` runner left alone); chain F is queued behind that runner.
+- 20:21 `p2_rotlr004` (rotation lr 0.004; card 3, 26 min): **36.937 / 36.584 — +0.053 / +0.064**, every cell up,
+  sharpness 0.857 / 0.829. **KEEP**, above 0.002 by 0.015 (> floor). Bracket: 0.0005 +0.008, 0.001 +0.023, 0.002
+  +0.038, 0.004 +0.053 (T1); still monotone. Per item 2: `p2_rotlr008` and `p2_rotlr004_slr005` queued as chain G on
+  card 3 behind chain F's `p2_rotlr002_slr005`.
