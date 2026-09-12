@@ -451,3 +451,17 @@ A monotone trade: every step of scale lr buys FLAIR and spends T1, and the bindi
 promotes. The knob is a **FLAIR dial**, recorded as such — if the user ever wants the FLAIR figure pushed at T1's
 expense, `gaussian.scale_lr` is the lever and this table is its calibration. Round 4's two rotation-only promotions
 are running (0.008 card 2, 0.004 card 3).
+
+### Promotion 5 — 01:05: rotation lr 0.008 at 4000 — **promoted, P13**
+`p2_rotlr008_full4k` (card 2, 62 min, volumes): **36.968 / 36.683** — against P12 T1 **+0.006** (floor 0.003),
+FLAIR **+0.018**, SSIM +0.0000 / +0.0002, HFEN −0.0001 (inside the 0.0002 floor) / +0.0001, sharpness 0.858 / 0.831
+unchanged. **KEEP by rule 2. P13 = P10 + `gaussian.rotation_lr=0.008`** (the shipped default is 0.0003).
+Rotation-only at 4000, head PSNR gain over P10 (T1 / FLAIR): 0.001 +0.011 / +0.017, 0.002 +0.017 / +0.028,
+0.008 **+0.023 / +0.046** — monotone and flattening, and unlike the scale-lr rows it costs nothing on the other five
+cells. Margins of P13 over the bar: **+0.542 / +0.926 dB**, SSIM +0.0031 / +0.0076, HFEN +0.0086 / +0.0096.
+
+### Round 5 — pre-registered 01:06, before the run started: the top of the rotation bracket at the full budget
+`p2_rotlr016` was a keep at 1500 but inside 0.008's floor, which closed the *screening* bracket; at 4000 the
+rotation-only curve is still rising, so the top value gets one full-budget run: **`p2_rotlr016_full4k`** (rotation lr
+0.016, 4000 iterations, volumes, card 2), read by rule 1 against **P13**. `p2_rotlr004_full4k` (card 3) is still
+running and is read against P13 as well; the best keep of the three is the final recipe.
