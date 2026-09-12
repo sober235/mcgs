@@ -122,3 +122,13 @@ Every ledger row carries the commit and the exact args; the cfg is in the note.
   `loss=1.2281e-01 dc_p=7.1673e-02 dc_c=4.9690e-02 R_geo=6.6043e-03 R_wav=7.8832e-03`, the same digits as
   `ar9_P10_flair_af11_full4k` (old code, same config and seed). Reader for the rules: `scripts/p2_read.py`
   (validated on the P10 loop's rows: reproduces its keep / reshape / null / loses reads).
+
+### Round 0 read — 16:33 (references at 1500 iterations, design B)
+Parent P10 at 1500 (`p2_P10_i1500`, card 3, 29 min): head PSNR **36.885 / 36.520**, margins +0.459 / +0.762 (T1 binding),
+SSIM 0.9502 / 0.9430 (+0.0029 / +0.0062), HFEN margins +0.0083 / +0.0083, sharp 0.856 / 0.827. T1 reproduces the AF12
+loop's P10@1500 (36.885) to the digit, as it must (same mask); FLAIR at 1500 sits 0.117 dB under its 4000-iteration
+value (36.637). Seed 43 (`p2_P10_i1500_s43`, card 5, 34 min): 36.875 / 36.515.
+**Seed floor at the screening budget: PSNR 0.010 / 0.005 dB; SSIM 0.0001 / 0.0001; HFEN 0.0001 / 0.0000; sharp 0.000 / 0.001.**
+Rule-1 threshold for a keep: `min_margin` above +0.459 by more than 0.010 (i.e. T1 head PSNR above 36.895 with FLAIR
+still non-binding), no other cell down by more than its floor, sharpness not below 0.846 / 0.817. The T1 floor is
+larger than the P10 loop's (0.006): the reads below use the measured 0.010.
