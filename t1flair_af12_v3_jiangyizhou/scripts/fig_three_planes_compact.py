@@ -59,6 +59,14 @@ def lam_file(row_key, prefix):
         m = re.fullmatch(re.escape(prefix) + r"_lam([0-9.]+)_" + c + r"_complex\.npy", p.name)
         if m and abs(float(m.group(1)) - float(lam)) < 1e-12:
             return p
+    # the huangyuwei-selected lambda was run before the sweep and has no _lam suffix; use it when its logged
+    # lambda is the row's lambda (AF12 topic: classical_<c>_o200.json, jcssense_o200.json)
+    canon = {"cssense_o200": R / f"logs/classical_{c}_o200.json", "jcssense_o200": R / "logs/jcssense_o200.json"}.get(prefix)
+    if canon is not None and canon.exists():
+        for r in json.load(open(canon)).get("rows", []):
+            if r.get("contrast", c) == c and r.get("lam") is not None and abs(float(r["lam"]) - float(lam)) < 1e-12:
+                q = R / f"recon/{prefix}_{c}_complex.npy"
+                return q if q.exists() else None
     return None
 
 
