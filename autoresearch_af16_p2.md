@@ -196,3 +196,13 @@ phase TV (the two complex priors overlap), 5.0M points at 1500 iterations (flat)
 Caveats: one subject; the knobs were selected on this subject's ground truth, like the classical lambdas;
 ZS-SSDU still matches GT sharpness best (1.016 / 1.036) and on FLAIR 3D-INR is also closer to 1 than the GS
 recipes; the FLAIR known-zero asymmetry from the first loop is unchanged (only the GS arms use it).
+
+### Rows landed after the verdict (2026-09-12, ledger rows committed by the session that took the line over)
+- `p2_promo_p6ptv_singleT1_full4k` / `p2_promo_p6ptv_singleFLAIR_full4k` (GS-single at p6ptv, 4000 it): T1 35.132 mag /
+  32.138 cplx, FLAIR 34.769 mag / 31.880 cplx. Joint (p6ptv) minus single: T1 +0.179 mag / +0.184 cplx, FLAIR −0.029 mag /
+  −0.029 cplx — the coupling helps T1 and is neutral-to-slightly-negative on FLAIR, the same pattern as at AF12.
+- `p2_r4_db4l1_full4k` (p6ptv + the AF12 loop's wavelet shape: db4, 1 level, T1 0.12 / FLAIR 0.10; 4000 it, 139 min on a
+  shared card): magnitude 35.528 / 34.805 (P6 35.552 / 34.807: −0.024 / −0.002, inside noise on FLAIR, a small loss on T1
+  that is the phase-TV cost), complex 32.485 / 31.918 (+0.284 / +0.201 over the complex bar — the best T1 complex value
+  of any row), phase 0.9930 / 0.9932, sharpness 0.871 / 0.821. Read: the AF12 shape lever carries its complex-gauge
+  gain to AF16 but does not lift the magnitude gauge here. Not adopted into any AF16 recipe; recorded for the transfer question.
