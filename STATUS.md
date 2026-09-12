@@ -27,7 +27,10 @@
 - 核大小留一验证（`logs/grappa_kernel_loo_FA16_TE3.25.json`）：8 种设置 0.094–0.102，默认 (4, 2, 2, 1e-3) = 0.097，核不是瓶颈，不改。
 
 ## 2. 待用户拍板（第二阶段设计）
-- 参考 = GRAPPA 补齐的多线圈 k 空间 + ESPIRiT SENSE 合成图（建议），还是 CG-SENSE 图。
+- ✅ 已定（09-12 17:00）：GT = GRAPPA 补齐 k 空间的 ESPIRiT SENSE 合成图（`*_sense.png` 第一列）；全部 10 个对比度当作"16 岁未成年多对比度数据集"
+  存到项目数据根 `/data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT/`（`export_gt_dataset.py`，布局同 AF12 课题：ksp_<c>.h5 键 kspace、
+  csm_espirit_<c>.h5 键 map、gt_sense_<c>.npy、masks_<c>.npz、meta_<c>.json、index.json、README.md）。其余 8 个对比度由
+  `run_all_contrasts.sh` 顺序补跑（17:01 起，每个约 28 分钟，日志 logs/run_all_contrasts.log），跑完再导出一次。
 - 回顾性掩膜相对什么定义：相对采集支撑（椭圆包络内的 227×104 带，AF 按支撑计，与 AF16 课题的 FLAIR 口径一致）还是相对整格 304×104。
 - 加速倍数档位（例如 4 / 8 / 12 相对支撑）、掩膜类型（vdPoisson 同 AF12/AF16 课题、calib 24）、两对比度同掩膜还是各自掩膜。
 - 部分傅里叶区与椭圆角作为已知零区：只给 GS 臂（沿用旧课题的不对称）还是所有方法都用。
