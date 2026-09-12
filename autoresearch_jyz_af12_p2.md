@@ -502,3 +502,6 @@ head PSNR, every other cell equal or better, sharpness unchanged (0.858 / 0.831)
   +0.020 over the single-seed recipe, every cell up; T1 crosses 37 dB for the first time on this subject. Reported as
   its own row, never folded into the recipe. `score_x2.py`'s self-check (members A A) reproduces A's own score json
   to six decimals on both channels.
+- `p2_P13_singleT1_full4k` (GS-single T1 at P13, rule 5; card 2, 63 min): 36.903 / SSIM 0.9495 / HFEN 0.0968, so
+  **joint − single on T1 = +0.065 dB** (P10's was +0.047): the faster rotations make the shared geometry pay a little
+  more, not less. The FLAIR single is running on card 3.
