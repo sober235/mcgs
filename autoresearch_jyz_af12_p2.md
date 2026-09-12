@@ -258,3 +258,15 @@ script (status `crash`). The score json and volumes are intact. Fix: the file wa
 content (commit e9c2f40's) so the still-running 18:23 instance resumes correctly; the guarded runner lives under a
 new name, `autoresearch_jyz_af12_p2g.sh`, which chain D now calls; chain D on card 2 (45 s old) was stopped and
 relaunched with it. Rule from here: **never edit a launched script in place — new behaviour goes in a new file.**
+
+### Promotion 1 — 19:28: rotation lr 0.001 at 4000 iterations — **promoted, P11**
+`p2_rotlr_full4k` (card 3, 70 min, the first 5 min shared with the other loop's run; volumes saved): head PSNR
+**36.956 / 36.654** against the parent's 36.945 / 36.637 — **+0.011 / +0.017 dB**, SSIM +0.0000 / +0.0002, HFEN
+−0.0000 / +0.0001 (inside the 0.0002 floor), sharpness 0.858 / 0.830 unchanged; min_margin +0.011 > floor 0.003.
+**KEEP by rule 2.** The 1500-iteration gain (+0.023 / +0.025) shrank at the full budget but did not turn into a trade.
+**P11 = P10 + `gaussian.rotation_lr=0.001`** (default was 0.0003) is the parent from here: margins over the bar
++0.530 / +0.897 dB, SSIM +0.0030 / +0.0074, HFEN +0.0088 / +0.0094. Baked into a NEW runner,
+`autoresearch_jyz_af12_p2h.sh` (P11 + the any-trainer guard); `p2g` stays for chain D, whose screens were
+pre-registered as single knobs on P10 and are read against `p2_P10_i1500`. Combinations of a chain-D keep with P11 go
+straight to 4000 iterations through the P11 runner (rule 2), read against `p2_rotlr_full4k` with the design-B floor.
+Card 3 went on to chain D (`p2_rotlr0005`; `p2_rotlr002` refused there because card 2 already runs it).
