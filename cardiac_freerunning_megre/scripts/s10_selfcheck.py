@@ -1,6 +1,10 @@
 """Spec 5.7 self-check on V07: choose the L1 lambda on AF12 echo 0 (body PSNR vs REF), then CG-SENSE and
 L1 at AF 8/12/16 on echoes 0 and 4. Every metric must get monotonically worse with AF.
-CG uses the REF lambda_rel x lambda_max; the L1 lambda is absolute (BART's data scaling), see spec 5.7."""
+CG uses the REF lambda_rel x lambda_max; the L1 lambda is absolute (BART's data scaling), see spec 5.7.
+Gate (correction 6, 2026-09-12, user-approved): the primary metric (held-out NRMSE) must be monotone for every arm;
+the image metrics against REF must be monotone for the CG arm (a check of the metric implementation on an arm whose
+error grows with AF); for the L1 arm they are reported only, since against a noisy reference a denoising arm's
+error saturates (224^3 run: L1 body PSNR flat within 0.8 dB over AF 8-16). --rescore skips the reconstructions."""
 import csv
 import json
 import sys
@@ -19,13 +23,15 @@ ITERS = json.loads((LOGS / "checks_V07.json").read_text())["ref_iters"]
 gj = json.loads((TOPIC / "gauge.json").read_text())
 box = gj[S]["heart_box"]
 scal = {str(e): ref_scaling(S, e) for e in ECHOES}
+RESCORE = "--rescore" in sys.argv
 LMAX = ref_lmax(S)                                  # lambda = lambda_rel x LMAX (spec 5.6, 2026-09-11)
 REL = json.loads((recon_dir(S) / "ref_lambda.json").read_text())["lam_rel"]
 for name in (*AFS, "heldout"):
     prepare_inputs(S, name, ECHOES)
 
-run_many([dict(subject=S, name="af12", echo=0, reg="l1", lam=l, iters=ITERS, tag=f"l1sweep_{l:g}",
-               w=scal["0"]) for l in LAMS])
+if not RESCORE:
+    run_many([dict(subject=S, name="af12", echo=0, reg="l1", lam=l, iters=ITERS, tag=f"l1sweep_{l:g}",
+                   w=scal["0"]) for l in LAMS])
 sweep = {l: score(S, f"l1sweep_{l:g}", 0, box)["body_psnr"] for l in LAMS}
 best = max(LAMS, key=sweep.get)
 gj["l1_lambda"] = best                              # absolute, in BART's own data scaling
@@ -38,8 +44,9 @@ if best in (LAMS[0], LAMS[-1]):
     print("NOTE: the best lambda is at the edge of the grid", flush=True)
 
 arms = (("cg", "l2", REL * LMAX, REL), ("l1", "l1", best, None))   # CG relative to LMAX, L1 absolute (spec 5.7)
-run_many([dict(subject=S, name=a, echo=e, reg=r, lam=lam, lam_rel=rel, iters=ITERS, tag=f"{m}_{a}", w=scal[str(e)])
-          for e in ECHOES for a in AFS for (m, r, lam, rel) in arms])
+if not RESCORE:
+    run_many([dict(subject=S, name=a, echo=e, reg=r, lam=lam, lam_rel=rel, iters=ITERS, tag=f"{m}_{a}", w=scal[str(e)])
+              for e in ECHOES for a in AFS for (m, r, lam, rel) in arms])
 rows, verdicts = [], []
 for e in ECHOES:
     rows.append({"echo": e, "method": "ref_in_sample", "set": "ref", "af": round(gj[S]["af_ref"], 3),
@@ -51,14 +58,15 @@ for e in ECHOES:
             per[af_a] = score(S, f"{m}_{a}", e, box)
             rows.append({"echo": e, "method": m, "set": a, "af": round(af_a, 3), **per[af_a]})
         for k, hib in KEYS:
-            verdicts.append({"echo": e, "method": m, "metric": k,
+            verdicts.append({"echo": e, "method": m, "metric": k, "required": m == "cg" or k == "heldout_nrmse",
                              "monotone": monotone_worse({x: per[x][k] for x in per}, hib)})
 with open(LOGS / "selfcheck_V07.tsv", "w", newline="") as fh:
     wr = csv.DictWriter(fh, fieldnames=list(rows[0]), delimiter="\t")
     wr.writeheader()
     wr.writerows(rows)
-passed = all(v["monotone"] for v in verdicts)
+passed = all(v["monotone"] for v in verdicts if v["required"])      # correction 6 gate
 (LOGS / "selfcheck_V07.json").write_text(json.dumps({"l1_lambda": best, "iters": ITERS, "verdicts": verdicts,
+                                                     "gate": "held-out NRMSE all arms + image metrics CG arm (correction 6)",
                                                      "pass": passed}, indent=1))
 print((LOGS / "selfcheck_V07.tsv").read_text(), flush=True)
 

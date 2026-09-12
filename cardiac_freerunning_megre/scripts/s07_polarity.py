@@ -4,17 +4,22 @@ reconstructed at echo 3. Inside a liver-dome box and a heart box (per subject, p
 on that subject's R0 image) the SI shift is the sub-voxel peak of the normalised cross-correlation of the
 two magnitude volumes. Both boxes must agree in sign with |shift| >= 0.5 voxel, else the result is
 ambiguous. (A whole-volume block is dominated by spine, costal cartilage and chest wall, which do not move
-with breathing.) The result must agree with criterion (a) (physio.json); only then is ref_ids.npy written."""
+with breathing.) The result must agree with criterion (a) (physio.json); only then is ref_ids.npy written.
+Correction 7 (2026-09-12, user-approved): the image criterion needs |shift| >= 1 voxel (2 mm) in both boxes;
+below that it is undetermined (V03: +0.7 voxel NCC, -0.4 voxel dome edge, sub-voxel either way; V07: 2.5-3.8 voxels)
+and criterion (a) is adopted alone if its dwell asymmetry (physio.dwell_asymmetry) is >= 2 towards the high end or
+<= 0.5 towards the low end; the subject is then flagged gating = "weak" (its respiratory extremes are < 2 mm apart)."""
 import json
 import sys
 
 import numpy as np
 
 from common import DERIVED_ROOT, LOGS, TOPIC, recon_dir, save_fig, set_ids
+from cardiac_fr.physio import dwell_asymmetry
 
 ECHO = 3
 LAGS = np.arange(-8, 9)
-MIN_SHIFT = 0.5
+MIN_SHIFT = 1.0
 
 s = sys.argv[1]
 ori = json.loads((TOPIC / "orientation.json").read_text())
@@ -50,14 +55,22 @@ if min(abs(d_dome), abs(d_heart)) < MIN_SHIFT or np.sign(d_dome) != np.sign(d_he
 else:
     image_end = "high" if (d_dome > 0) == sup_high else "low"   # the more superior third is end-expiration
 hist_end = json.loads((DERIVED_ROOT / s / "physio.json").read_text())["expiration_end_by_histogram"]
-agreed = image_end == hist_end
-rep = {"subject": s, "echo": ECHO, "boxes": boxes,
+sp = np.load(DERIVED_ROOT / s / "spokes.npz")
+asym = dwell_asymmetry(sp["resp"][sp["steady"] & ~sp["is_si"]])
+if image_end == "ambiguous":
+    hist_strong = asym >= 2 if hist_end == "high" else asym <= 0.5
+    verdict, gating = (hist_end if hist_strong else None), "weak"
+else:
+    verdict, gating = (hist_end if image_end == hist_end else None), "normal"
+agreed = verdict is not None
+rep = {"subject": s, "echo": ECHO, "boxes": boxes, "min_shift_vox": MIN_SHIFT,
        "shift_vox_high_vs_low": {k: round(v[0], 3) for k, v in res.items()},
        "ncc_peak": {k: round(float(v[1].max()), 3) for k, v in res.items()},
-       "image_end": image_end, "histogram_end": hist_end, "agreed": agreed}
+       "image_end": image_end, "histogram_end": hist_end, "dwell_asymmetry": round(asym, 2),
+       "gating": gating, "verdict": verdict, "agreed": agreed}
 if agreed:
-    np.save(DERIVED_ROOT / s / "ref_ids.npy", set_ids(s, hist_end))
-    rep["n_ref"] = int(set_ids(s, hist_end).size)
+    np.save(DERIVED_ROOT / s / "ref_ids.npy", set_ids(s, verdict))
+    rep["n_ref"] = int(set_ids(s, verdict).size)
 (LOGS / f"polarity_{s}.json").write_text(json.dumps(rep, indent=1))
 print(json.dumps(rep, indent=1), flush=True)
 
@@ -85,7 +98,8 @@ for k, (v, t) in enumerate(((low, "low third"), (high, "high third"))):
         axs[k + 1].add_patch(Rectangle((x0, y0), x1 - x0, y1 - y0, fill=False, ec=col, lw=1))
     axs[k + 1].set_title(f"{t}, echo {ECHO}, axis{cut}={c}")
 fig.suptitle(f"{s}: dome {d_dome:+.2f} / heart {d_heart:+.2f} vox (superior = {'high' if sup_high else 'low'} index); "
-             f"image says end-expiration = {image_end}, histogram says {hist_end}")
+             f"image says end-expiration = {image_end}, histogram says {hist_end} (dwell asymmetry {asym:.1f}); "
+             f"verdict {verdict}, gating {gating}")
 fig.tight_layout()
 save_fig(fig, f"{s}_polarity.png")
 sys.exit(0 if agreed else 1)

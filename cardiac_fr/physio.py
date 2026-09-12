@@ -47,6 +47,18 @@ def expiration_end_by_histogram(resp: np.ndarray, bins: int = 50) -> str:
     return "high" if mode > mid else "low"
 
 
+def dwell_asymmetry(resp: np.ndarray, frac: float = 0.2) -> float:
+    """Strength of criterion (a): time spent in the top `frac` of the robust range (P2..P98) over the time spent in
+    the bottom `frac`. End-expiration is a pause, so the ratio is well above 1 when the high end is end-expiration
+    and well below 1 when the low end is. Spec 5.4 correction 7 (2026-09-12): when the image criterion (b) is
+    below its 1-voxel resolution, (a) is adopted alone only if this ratio is >= 2 (high) or <= 0.5 (low)."""
+    p2, p98 = np.percentile(resp, 2), np.percentile(resp, 98)
+    rng = p98 - p2
+    up = float(np.mean(resp > p98 - frac * rng))
+    dn = float(np.mean(resp < p2 + frac * rng))
+    return up / max(dn, 1e-12)
+
+
 def third_at_end(resp: np.ndarray, end: str, frac: float = 1 / 3) -> np.ndarray:
     n_keep = int(round(frac * resp.size))
     order = np.argsort(resp, kind="stable")

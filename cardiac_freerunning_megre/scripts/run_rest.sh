@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Spec 5.8: V03, V04, V08 one after the other with the parameters frozen on V07. Usage: run_rest.sh <1|2>.
+# Spec 5.8: V03, V04, V08 one after the other with the parameters frozen on V07. Usage: run_rest.sh <1|2|2a|2b>.
 # Phase 1 (coil maps, R0, thirds; 112^3 grid) only needs the iteration count from V07's checks; phase 2 (polarity,
 # REF, checks) reads ref_iters and ref_lam_rel from params_frozen.json. Stops at the first failure.
 set -uo pipefail
 T=/data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MEGRE
 PHASE=$1
-if [ "$PHASE" = 1 ]; then
+if [ "$PHASE" = 1 ] || [ "$PHASE" = 2a ]; then
   IT=$("$T/scripts/py" -c "import json; print(json.load(open('$T/logs/checks_V07.json'))['ref_iters'])")
   REL=0
 else

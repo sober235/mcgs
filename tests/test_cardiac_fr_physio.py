@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from cardiac_fr.physio import (cardiac_phase, expiration_end_by_histogram, per_spoke, spoke_table,
+from cardiac_fr.physio import (dwell_asymmetry, cardiac_phase, expiration_end_by_histogram, per_spoke, spoke_table,
                                third_at_end, timestamp_mismatch)
 
 
@@ -44,3 +44,12 @@ def test_spoke_table_flags():
     assert t["shot"].tolist() == [0, 0, 0, 1, 1, 1]
     np.testing.assert_allclose(t["resp"], np.arange(6.0))
     np.testing.assert_allclose(t["card_phase"], np.arange(6) * 0.05)
+
+
+def test_dwell_asymmetry_points_at_the_plateau_end():
+    t = np.linspace(0, 40, 4000)
+    # breathing with a long pause at the top of the trace (end-expiration = high end)
+    plateau_high = np.clip(np.sin(2 * np.pi * t / 4.0) * 2.0, -2.0, 0.6)
+    assert dwell_asymmetry(plateau_high) >= 2
+    assert dwell_asymmetry(-plateau_high) <= 0.5
+    assert 0.5 < dwell_asymmetry(np.sin(2 * np.pi * t / 4.0)) < 2

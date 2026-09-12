@@ -7,13 +7,16 @@ from common import LOGS, TOPIC, recon_dir
 it = json.loads((LOGS / "checks_V07.json").read_text())["ref_iters"]
 rel = json.loads((recon_dir("V07") / "ref_lambda.json").read_text())["lam_rel"]
 l1 = json.loads((TOPIC / "gauge.json").read_text())["l1_lambda"]
-p = {"frozen_on": "V07",
+p = {"frozen_on": "V07", "frozen_at": "2026-09-12 after the 224^3 self-check (spec corrections 5-7)",
+     "recon_grid": 224, "fov_mm": 448, "eval_crop": [56, 168], "look_grid": 112,
      "ref_iters": it, "ref_lam_rel": rel, "l1_lambda": l1,
      "readout_samples_kept": [3, 220], "t_steady_ms": 10000,
      "gating": "end-expiration third of the steady non-SI spokes; polarity = histogram mode (a) and the SI shift "
-               "between the two thirds in a liver-dome box and a heart box (b, polarity_boxes.json); must agree",
-     "coil_maps": "echo 0, r0 spokes: bart nufft -i -x 112:112:112 -> bart fft -u 7 -> "
-                  "bart ecalib -t 0.001 -c 0.0 -r 24 -m 1",
+               "between the two thirds in a liver-dome box and a heart box (b, polarity_boxes.json, valid at >= 1 voxel); "
+               "(a) alone if (b) is undetermined and the dwell asymmetry is >= 2 (subject flagged gating=weak)",
+     "coil_maps": "112^3 (R0, polarity): echo 0, r0 spokes: bart nufft -i -x 112:112:112 -> bart fft -u 7 -> "
+                  "bart ecalib -t 0.001 -c 0.0 -r 24 -m 1; 224^3 (REF, subsets): central |k| < 56 samples on 112^3 over "
+                  "448 mm, ecalib -r 48, Fourier-interpolated to 224^3, unit sum of squares",
      "r0": f"bart pics -t <traj> -l2 -r 1e-3 -i {it} -S (BART's automatic scaling)",
      "ref": f"bart pics -t <traj> -l2 -r <ref_lam_rel x lambda_max> -i {it} -S -d5; lambda_max = largest eigenvalue "
             "of this subject's REF operator (bart pics -e -d5), recon/<Vxx>/ref_lmax.json",
