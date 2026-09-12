@@ -183,3 +183,27 @@ floor exists: when `p2_P10_s43_full4k` lands (queued on card 2), the bundle is r
 rule 2 prescribes, and that verdict is final; a floor of 0.0001 on T1 SSIM or 0.0002 on T1 HFEN would turn it into a
 keep. The FLAIR gain (+0.062) is the sum of the two marginal items measured at AF12 (+0.016 for 6000 iterations,
 +0.048 for scale lr 0.005); T1's (+0.013) is sub-additive (+0.009, +0.011).
+
+### Round 1 read, part 3 — 17:56: first keep of phase 2
+- `p2_kfa_off` (uniform k-space band weights instead of 0.3 / 1.0 / 2.2; card 3, 27 min): 35.232 / 34.417 — **−1.65 / −2.10 dB**,
+  every cell down, sharpness 0.689 / 0.624. **loses** by a mile: the high-band emphasis is load-bearing, not a
+  fine-tuning. Settled (with `kspace_high` 2.0 / 2.2 / 3.0 and the centre / mid variants of the P10 loop, the band
+  weights are bracketed on this subject).
+- `p2_rotlr` (rotation lr 0.001, 3.3x the default 0.0003; card 5, 26 min): **36.907 / 36.545 — +0.023 / +0.025 dB**,
+  SSIM +0.0001 / +0.0002, HFEN +0.0001 / +0.0002, sharpness 0.856 / 0.828 (unchanged). **KEEP** (min_margin +0.023 >
+  floor 0.010, every other cell up). The Gaussians' orientations were learning too slowly; this is the optimiser
+  family the P10 loop found scale lr in.
+- Still running: `p2_khigh20` (card 2), `p2_vtv002` (card 3), `p2_edge002` (card 5).
+
+### Round 2, part 2 — pre-registered 18:00, before any of these ran: the optimiser family around the keep
+| exp | what | args | budget | read against |
+|---|---|---|---|---|
+| `p2_rotlr_full4k` | promotion of the keep (rule 2), volumes | `--set gaussian.rotation_lr=0.001` | 4000 | `ar9_P10_flair_af11_full4k`, floor = `p2_P10_s43_full4k` when it lands (AF12 floor until then) |
+| `p2_rotlr002` | rotation lr 0.002 (6.7x) | `--set gaussian.rotation_lr=0.002` | 1500 | parent P10@1500 (rule 1); best of 0.0005 / 0.001 / 0.002 by min_margin |
+| `p2_rotlr0005` | rotation lr 0.0005 (1.7x) | `--set gaussian.rotation_lr=0.0005` | 1500 | same |
+| `p2_rotlr_slr005` | rotation lr 0.001 + scale lr 0.005 (the two optimiser levers together) | `--set gaussian.rotation_lr=0.001 --set gaussian.scale_lr=0.005` | 1500 | `p2_rotlr` as parent (rule 1) |
+
+If a bracket value beats 0.001 by more than the floor at 1500, it is promoted instead of (or after) 0.001; the
+promoted rotation lr then becomes part of the parent (P11) by a runner commit. Chain D now carries these three
+screens first, then the wavelet-shape screens; card 3 runs the promotion first (wrapper re-armed), card 5 starts
+chain D after chain B, and card 3 joins chain D after the promotion (the runner's overwrite refusal shares the work).
