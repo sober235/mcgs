@@ -493,3 +493,12 @@ so 0.008 is taken as the working point (the smallest value at the plateau).
 
 Against the phase's starting point (P10 in design B, `ar9_P10_flair_af11_full4k` 36.945 / 36.637): **+0.023 / +0.046 dB**
 head PSNR, every other cell equal or better, sharpness unchanged (0.858 / 0.831). Card 2 joins the delivery chain.
+
+### Delivery rows — 02:49 / 02:57
+- `p2_P13_s43_full4k` (P13, seed 43, design B; card 3, 62 min): 36.966 / 36.678 — **seed floor of the final recipe at
+  4000 in design B: 0.002 / 0.005 dB PSNR, 0.0000 / 0.0001 SSIM, 0.0002 / 0.0002 HFEN**, the same size as the
+  P10-era floor the promotions were read against, so no decision of this phase rests on a mis-measured floor.
+- `p2_P13_x2_full4k` (voxelwise mean of the two seeds' magnitudes, rule 4, 2x compute): **37.005 / 36.703** — +0.037 /
+  +0.020 over the single-seed recipe, every cell up; T1 crosses 37 dB for the first time on this subject. Reported as
+  its own row, never folded into the recipe. `score_x2.py`'s self-check (members A A) reproduces A's own score json
+  to six decimals on both channels.
