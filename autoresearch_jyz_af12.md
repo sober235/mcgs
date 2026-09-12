@@ -529,3 +529,18 @@ the strict complex difference — the MC-GS phase is marginally less faithful. L
   every canonical arm at its best λ): **P10 first on every slice in every direction on both contrasts** — T1 96/96
   transverse, 121/121 coronal, 118/118 sagittal; FLAIR 94/94, 120/120, 118/118 (v3.2 was 9/96, 69/121, 33/118 on
   T1). Best own transverse slices 173 (T1, 38.266, +0.421 over L1-ESPIRiT) and 178 (FLAIR, 36.559, +0.493).
+- `ar8_P10_singleFLAIR_full4k` (GS-single, FLAIR alone; card 4, 60 min): head PSNR **36.323**, SSIM 0.9405, HFEN 0.0944 —
+  **the single beats the joint on FLAIR by 0.055 dB** (T1: joint +0.047). Coupling moves quality from FLAIR to T1 on this
+  subject, as before (v3: +0.080 / −0.074; AF16 P6: +0.037 / −0.003). Both arms registered (`gs_single_ar`).
+
+## Verdict (2026-09-12 10:00)
+
+**P10 — P6 with the L1 wavelet prior changed to db4 on its finest level, T1 0.12 / FLAIR 0.10 — is first on every
+head cell of the jiangyizhou AF12 table against every arm at its best λ**: head PSNR 36.944 / 36.268 (L1-ESPIRiT
+36.426 / 35.757, +0.518 / +0.511), head SSIM 0.9503 / 0.9397 (+0.0030 / +0.0030), head HFEN 0.0947 / 0.0958 (+0.0087 /
++0.0042), first on every full-brain slice in every direction; whole-volume PSNR 40.272 / 39.692 (first), whole SSIM
+sixth (air-noise gauge). Against the user's P6 mark: +0.191 / +0.103 dB head PSNR. Same wall time (4000 iterations,
+3.6M points, ~63 min on a free card). Left on the table, by rule: scale lr 0.005 (+0.011 / +0.048, T1 HFEN −0.0002),
+sym4 (+0.008 / +0.004), 6000 iterations (+0.009 / +0.016), the two-seed average (+0.046 / +0.027). Caveats: magnitude
+gauge (L1-ESPIRiT first on |rec − GT|), one subject, recipe and λ tuned on it; GS-single beats the joint on FLAIR.
+Record `docs/superpowers/records/2026-09-12-autoresearch-jyz-af12.md`; handoff `docs/handoff/2026-09-12-autoresearch-jyz-af12.md`.

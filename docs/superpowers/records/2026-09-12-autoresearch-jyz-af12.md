@@ -52,7 +52,8 @@ binding channel without a trade.
 dB** head PSNR, SSIM +0.0023 / +0.0024, HFEN better by 0.0062 / 0.0044, sharpness 0.858 / 0.823 vs 0.857 / 0.832.
 Whole-volume PSNR 40.272 / 39.692 (P6 40.071 / 39.539). Per slice, against every canonical arm at its best λ: **first on
 every full-brain slice in every direction on both contrasts** (T1 96/96, 121/121, 118/118; FLAIR 94/94, 120/120,
-118/118). Registered in the topic table as `gs_joint_ar` ("MC-GS (AF12 loop, P10)").
+118/118). Registered in the topic table as `gs_joint_ar` ("MC-GS (AF12 loop, P10)"), with `gs_single_ar` and `gs_joint_ar_x2`.
+Figures: `figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_174_110_47_headerr.png` (orange in-panel slice PSNR / SSIM / NMSE, head-only error maps; the layout the user chose on 2026-09-11), served at `http://localhost:8765/t1flair_v3_af12/`.
 
 Extra-compute and reference rows (own rows, not the headline):
 
@@ -62,7 +63,7 @@ Extra-compute and reference rows (own rows, not the headline):
 | P10 ×2 seeds (magnitude mean, 2x compute) | 36.990 / 36.295 | `scripts/score_x2.py`; registered as `gs_joint_ar_x2` |
 | P10 at 6000 iterations (1.5x) | 36.953 / 36.284 | budget still creeps |
 | GS-single T1 (P10 recipe, T1 alone) | 36.897 / — | joint − single **+0.047** on T1 |
-| GS-single FLAIR (P10 recipe, FLAIR alone) | — / PENDING_singleFLAIR | joint − single PENDING_singleFLAIR_delta on FLAIR |
+| GS-single FLAIR (P10 recipe, FLAIR alone) | — / 36.323 | joint − single **−0.055** on FLAIR: the single is better; coupling helps T1 and costs FLAIR on this subject, as at AF12 v3 (+0.080 / −0.074) and AF16 P6 (+0.037 / −0.003) |
 | P10 + scale lr 0.005 / 0.008 | 36.955 / 36.316, 36.953 / 36.328 | marginal: T1 head HFEN slips 0.0002 / 0.0003 (2–3x its floor); not folded in |
 | P10 with sym4 instead of db4 | 36.952 / 36.272 | equivalent within 0.008 / 0.004 |
 
