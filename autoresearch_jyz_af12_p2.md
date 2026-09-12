@@ -284,3 +284,22 @@ screen, 0.002 promotion, then the four wavelet-shape screens) is queued behind e
 - 19:55 `p2_rotlr0005` (rotation lr 0.0005; card 3, 27 min): 36.893 / 36.529 — +0.008 / +0.009, inside the T1 floor:
   **null**. The bracket so far, head PSNR gain over P10 at 1500 (T1 / FLAIR): 0.0005 +0.008 / +0.009; 0.001 +0.023 /
   +0.025; 0.002 +0.038 / +0.045 — monotone, no cell paying. `p2_rotlr004` runs on card 3, `p2_rotlr_slr005` on card 2.
+
+### Round 2 read, part 2 — 20:07: the two optimiser levers stack
+`p2_rotlr_slr005` (rotation lr 0.001 + scale lr 0.005; card 2, 27 min): **36.952 / 36.642 — +0.067 / +0.123** over
+P10@1500 and **+0.044 / +0.097 over rotation lr 0.001 alone**, SSIM +0.0002 / +0.0011, HFEN +0.0003 / +0.0008,
+sharpness 0.858 / 0.830. **KEEP.** Scale lr 0.005 alone was keep-marginal in the P10 loop (T1 HFEN cost at 4000);
+on top of the faster rotations it adds cleanly at 1500. The optimiser grid is the live vein of this phase.
+
+### Round 2, part 4 — pre-registered 20:10, before any of these ran: the optimiser grid
+1. `p2_rotlr002_slr005` (rotation 0.002 + scale 0.005, 1500; chain F on card 3 behind `p2_rotlr004`): read against
+   `p2_rotlr002` and `p2_rotlr_slr005` — is the stacking additive at 0.002 as well?
+2. When `p2_rotlr004` is read: if it keeps and beats 0.002 by more than the floor, `p2_rotlr004_slr005` (1500) and
+   `p2_rotlr008` (1500) follow; if not, the rotation bracket closes at 0.002.
+3. Promotion at 4000 with volumes of the best optimiser row at 1500 (by min_margin over the rotation-lr × scale-lr
+   grid), through the P10-parent runner with both values explicit, read against **P11** (`p2_rotlr_full4k`) with the
+   design-B floor; a keep becomes **P12**. `p2_rotlr002_full4k` (chain E, card 2, started 20:08) stays as the
+   rotation-only reference at 4000 and is read against P11 the same way.
+4. The wavelet-shape screens (round 2 part 1) run after the grid on whichever card is free; a keep there is combined
+   with the standing parent at 4000.
+Chain E's bash on card 3 was stopped (its `p2_rotlr004` runner left alone); chain F is queued behind that runner.
