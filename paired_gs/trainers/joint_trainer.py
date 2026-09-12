@@ -833,6 +833,29 @@ class JointTrainer:
             wav_gen = torch.Generator().manual_seed(int(train_cfg.get("seed", 42)) + 7919)
             print(f"[wavelet] lambda={lambda_wav} (plain {wav_lam_p}, contrast {wav_lam_c}) wavelet={wav_name} "
                   f"levels={wav_levels} eps={wav_eps} cycle_spin={wav_spin} on={wav_on}")
+        # R_nl: non-local prior -- regularisation-by-denoising with a lagged BM4D target on the rendered
+        # magnitude of each contrast (losses/nonlocal_red.py, phase 3). Default 0 => never built, nothing
+        # imported, no bounding box computed, so a run without it is bit-identical to before.
+        lambda_nl = float(loss_cfg.get("lambda_nl", 0.0))
+        nl_lam_p = float(loss_cfg.get("lambda_nl_plain", lambda_nl))
+        nl_lam_c = float(loss_cfg.get("lambda_nl_contrast", lambda_nl))
+        nl_red = None
+        if nl_lam_p > 0 or nl_lam_c > 0:
+            from losses.nonlocal_red import HEAD_FRAC, NonLocalRED, make_denoiser
+            from gaussian.init_cloud import head_support, union_magnitude
+            nl_denoiser = str(loss_cfg.get("nl_denoiser", "bm4d"))
+            nl_profile = str(loss_cfg.get("nl_profile", "np"))
+            nl_threads = int(loss_cfg.get("nl_threads", 32))
+            with torch.no_grad():      # the ZF head support gaussian.init_mode=head draws from, same rule
+                nl_support = head_support(union_magnitude(self.zf_p, self.zf_c), HEAD_FRAC)
+            nl_red = NonLocalRED(nl_support, make_denoiser(nl_denoiser, nl_profile, nl_threads),
+                                 sigma_rel=float(loss_cfg.get("nl_sigma_rel", 0.04)),
+                                 start=int(loss_cfg.get("nl_start", 500)),
+                                 refresh=int(loss_cfg.get("nl_refresh", 500)))
+            print(f"[nl] lambda_nl={lambda_nl} (plain {nl_lam_p}, contrast {nl_lam_c}) denoiser={nl_denoiser} "
+                  f"profile={nl_profile} threads={nl_threads} sigma_rel={nl_red.sigma_rel} start={nl_red.start} "
+                  f"refresh={nl_red.refresh_every} bbox={nl_red.bbox_str()} crop={nl_red.crop_shape} "
+                  f"head_voxels={int(nl_red.head_crop.sum())}")
         loss_type = loss_cfg.get("loss_type", "l2")
         del loss_type   # placeholder if l1 added later
 
@@ -967,6 +990,26 @@ class JointTrainer:
             else:
                 l_wav = torch.tensor(0.0, device=self.device)
 
+            # R_nl: lagged-target RED on the rendered magnitude (phase 3). The target is rebuilt from the
+            # current render at nl_start and every nl_refresh iterations after it (not on the last iteration,
+            # where it would serve a single step); before the first refresh the term is 0.
+            if nl_red is not None:
+                if nl_red.due(it) and it < max_iter:
+                    for _nl_name, _nl_vol in ((self.name_plain, vol_p), (self.name_contrast, vol_c)):
+                        _nl_info = nl_red.refresh(_nl_name, _nl_vol, it)
+                        _nl_msg = (f"[nl] iter={it} contrast={_nl_name} sigma={_nl_info['sigma']:.6g} "
+                                   f"crop={_nl_info['crop']} bm4d={_nl_info['seconds']:.1f}s")
+                        print(_nl_msg, flush=True)
+                        log_f.write(_nl_msg + "\n"); log_f.flush()
+                l_nl_p = nl_red(self.name_plain, vol_p)
+                l_nl_c = nl_red(self.name_contrast, vol_c)
+                l_nl_term = nl_lam_p * l_nl_p + nl_lam_c * l_nl_c      # the term actually added
+                loss = loss + l_nl_term
+                l_nl = l_nl_p + l_nl_c
+            else:
+                l_nl = torch.tensor(0.0, device=self.device)
+                l_nl_term = l_nl
+
             # R_sp: keep the contrast-private residual amplitude sparse (localized).
             if lambda_private_sp > 0 and self.model.has_private:
                 loss = loss + lambda_private_sp * self.model.get_private_density().abs().mean()
@@ -992,6 +1035,7 @@ class JointTrainer:
                 "loss/R_vtv": float((lambda_vtv * l_vtv).detach().item()),
                 "loss/R_wav": float((lambda_wav * l_wav).detach().item()),
                 "loss/R_ptv": float((lambda_ptv * l_ptv).detach().item()),
+                "loss/R_nl": float(l_nl_term.detach().item()),
             }
             total_loss_value = sum(components.values()) + 1e-12
             ratios = {k: v / total_loss_value for k, v in components.items()}
@@ -1049,7 +1093,7 @@ class JointTrainer:
                        f"dc_p={l_dc_p.item():.4e} dc_c={l_dc_c.item():.4e} "
                        f"R_geo={l_geo.item():.4e} R_dtv={l_dtv.item():.4e} "
                        f"R_edge={l_edge.item():.4e} R_vtv={l_vtv.item():.4e} "
-                       f"R_wav={l_wav.item():.4e} "
+                       f"R_wav={l_wav.item():.4e} R_nl={l_nl.item():.4e} "
                        f"balance_violation={balance_violation}")
                 print(msg)
                 log_f.write(msg + "\n"); log_f.flush()
