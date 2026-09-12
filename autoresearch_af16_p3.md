@@ -120,6 +120,20 @@ binding constraint (B is 0.019 / 0.010 below L1-ESPIRiT's 0.849 / 0.789).
 beats 0.001, the same pair is repeated with it. The better combination is promoted at 4000 it with volumes, then seed repeat and
 the GS-single arms.
 
+## Verdict (2026-09-13 04:45)
+
+**Objective partly met.** The phase-3 recipe — P6 + db4 wavelet on its finest level only (T1 0.12 / FLAIR 0.10) +
+common-edge 0.001 + phase TV 0.03, 3.6M points, 4000 it — is first on all six head cells and is the **first recipe of
+the three phases whose sharpness is at or above L1-ESPIRiT's on both contrasts**. Margins **+0.497 / +0.425** against
++0.343 / +0.304 for P6: the gap roughly doubled. **The 1.0 dB target was not reached**, and nothing this phase tried
+comes close to the missing 0.5 dB. What moved it: the AF12 wavelet shape (+0.18 / +0.08 at 4000 it), the common-edge
+coupling term (+0.06 / +0.05), phase TV as the sharpness lever (the 0.01 / 0.02 / 0.03 / 0.05 trade curve).
+Closed with evidence: non-local RED with a BM4D target (three settings, all smooth), adaptive density control (both
+split scores, null), vectorial TV (smooths), contrast-private residual Gaussians (null), and the complementary
+in-shutter FLAIR mask (lifts every arm by ~0.35 dB, leaves the margin where it was). Capacity is a documented trade:
+3.6M maximises T1 (+0.497 / +0.425), 6.0M maximises the worst-case margin (+0.465 / +0.474).
+Caveats: one subject, knobs and classical λ tuned on it, magnitude gauge, nominal AF 16.
+
 ## Round log
 
 Head-only, 1500 it unless noted; bar L1-ESPIRiT 35.209 / 34.503 (current mask). Six cells = PSNR / SSIM / HFEN per contrast.
@@ -158,3 +172,4 @@ Head-only, 1500 it unless noted; bar L1-ESPIRiT 35.209 / 34.503 (current mask). 
 | 02:24 | p3_r4_n48 (B + edge 0.001 at **4.8M points**, 1500 it) | **35.774** | **34.922** | 0.9381 / 0.9236 | 0.1168 / 0.1151 | 0.826 / 0.776 | **not null after all**: T1 +0.035, FLAIR **+0.079** over the same recipe at 3.6M, SSIM level, HFEN worse by 0.0009 / 0.0002, sharpness −0.002 / 0.000 → **keep-marginal**. This contradicts the AF12 line's finding that capacity only trades T1 for FLAIR — there the wavelet was db2 / 3 levels. Queued: the full phase-3 recipe at 4.8M for 4000 it (`p3_r6_n48_full4k`, the decisive test, since capacity decisions must be made at the promotion budget) and a 6.0M screen (`p3_r6_n60`). |
 | 03:05 | p3_r6_n60 (B + edge 0.001 at **6.0M points**, 1500 it) | 35.769 | **34.966** | 0.9375 / 0.9239 | 0.1175 / 0.1149 | 0.824 / 0.775 | the capacity curve at 1500 it: FLAIR 34.843 (3.6M) → 34.922 (4.8M) → **34.966** (6.0M), still climbing; T1 saturates at ~35.77; T1 HFEN drifts up 0.0016 and sharpness down 0.004 across the same range. FLAIR is the contrast with the thinner margin, so this is the direction worth spending on — but AF12 saw 1500-it capacity gains vanish at 4000, so both 4.8M and 6.0M are being run at 4000 it with the full recipe before anything is adopted. |
 | 04:00 | p3_r6_n48_full4k (**full phase-3 recipe at 4.8M points**, 4000 it) | 35.697 | **34.962** | 0.9394 / 0.9267 | 0.1144 / 0.1123 | 0.856 / 0.804 | vs the 3.6M promotion: T1 −0.009, FLAIR **+0.034**, SSIM −0.0002 / +0.0006, HFEN worse by 0.0005 / 0.0002, sharpness +0.001 / 0.000. The capacity gain survives the full budget here (AF12's did not), but it is a mild trade. **The two rules disagree**: the six-cell Pareto rule calls it keep-marginal (T1 PSNR is 0.009 below the parent, outside the 0.001 floor), while the ledger's stated objective `min_margin_mag` **rises from +0.425 to +0.459** because FLAIR is the thinner margin. Decision deferred to the 6.0M row. |
+| 04:45 | p3_r6_n60_full4k (**full phase-3 recipe at 6.0M points**, 4000 it) | 35.675 | **34.977** | 0.9392 / 0.9270 | 0.1145 / 0.1124 | 0.857 / 0.803 | margins **+0.465 / +0.474** — the two margins have crossed, so `min_margin_mag` is at its maximum here (0.425 at 3.6M, 0.459 at 4.8M, **0.465 at 6.0M**); more capacity would make T1 the binding side and lower it again. All three capacities are first on every head cell and clear both sharpness gates. **By the pre-registered promotion rule the recipe stays at 3.6M** (6.0M is worse than the parent on T1 PSNR by 0.031, outside the floor, and the 4000-it run does not repair it), so the capacity variants are recorded as a documented trade for the user, not adopted: 3.6M maximises T1, 6.0M maximises the worst-case margin. |
