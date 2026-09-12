@@ -307,3 +307,9 @@ Chain E's bash on card 3 was stopped (its `p2_rotlr004` runner left alone); chai
   sharpness 0.857 / 0.829. **KEEP**, above 0.002 by 0.015 (> floor). Bracket: 0.0005 +0.008, 0.001 +0.023, 0.002
   +0.038, 0.004 +0.053 (T1); still monotone. Per item 2: `p2_rotlr008` and `p2_rotlr004_slr005` queued as chain G on
   card 3 behind chain F's `p2_rotlr002_slr005`.
+- 20:47 `p2_rotlr002_slr005` (rotation 0.002 + scale lr 0.005; card 3, 26 min): **36.962 / 36.656 — +0.077 / +0.137**
+  over P10@1500; +0.039 / +0.092 over rotation 0.002 alone (additive again), +0.010 / +0.014 over rotation 0.001 +
+  scale lr (at the T1 floor). Every cell up, sharpness 0.858 / 0.830. **KEEP.** Grid at 1500 (T1 / FLAIR gain over
+  P10): rotation only 0.001 +0.023 / +0.025, 0.002 +0.038 / +0.045, 0.004 +0.053 / +0.064; with scale lr 0.005:
+  0.001 +0.067 / +0.123, 0.002 +0.077 / +0.137. Running: `p2_rotlr008` (card 3), then `p2_rotlr004_slr005`;
+  `p2_rotlr002_full4k` at 2650/4000 on card 2.
