@@ -379,3 +379,7 @@ does not need that read to run. Card 2 continues chain E's wavelet-shape screens
   1500, **`p2_best_rot004_slr005_full4k` is also promoted at 4000 on the next free card** (pre-registered here, 22:38):
   the better of the two at 4000 by rule 1 against P12 becomes P13; the seed-43 repeat (card 2, queued behind chain E,
   keyed on the 0.008 promotion's log) and the GS-single arms then use P13's values.
+- 22:53 the two promotions were made **parallel instead of serial**: the seed-43 wrapper and the file-triggered 0.004
+  wrapper were cancelled, and `p2_best_rot004_slr005_full4k` was launched on card 2 (its runner's guard held it until
+  `p2_wav_ax05` finished). Both 4000-iteration promotions therefore land around 23:45 and P13 is decided tonight; the
+  seed-43 repeat of the winner and the GS-single arms follow on the cards as they free up.
