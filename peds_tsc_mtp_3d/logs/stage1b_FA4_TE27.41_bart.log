@@ -1,0 +1,2 @@
+nice -n 10 /home/congcongliu/src/bart/bart ecalib -t 0.001 -c 0.0 -r 24 -m 1 /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/data/FA4_TE27.41/bart/ksp /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/data/FA4_TE27.41/bart/maps
+

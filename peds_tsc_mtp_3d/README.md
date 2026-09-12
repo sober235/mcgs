@@ -36,8 +36,12 @@ tissue contrast (brain-mask Pearson r = 0.57 between them): **FA16 / TE 3.25 ms*
    Filled: the 8657 missing odd-line positions inside the elliptical envelope. Acquired lines are
    bit-identical to the measurement; the partial-Fourier region and the corners (11702 positions) stay
    zero and are saved as `m_zero`.
-3. Root-sum-of-squares images for the figures. ESPIRiT maps, the SENSE combination and a CG-SENSE
-   cross-check are stage 1b (not done yet).
+3. Root-sum-of-squares images for the stage-1 figures.
+4. Stage 1b: ESPIRiT maps with the frozen house recipe `bart ecalib -t 0.001 -c 0.0 -r 24 -m 1` at full
+   resolution on the completed k-space (the 24-cube calibration region is the ACS block itself; unit sum
+   of squares over the whole FOV), the SENSE combination x = sum conj(S) . ifft(k) of the GRAPPA k-space, and
+   an unregularised CG-SENSE (40 iterations, torch on the GPU) on the acquired lines only as the independent
+   cross-check.
 
 ## Results
 
@@ -72,7 +76,32 @@ relative k-space error): 4 PE sources / dx 2 / dz 2 gives 0.0970 at lambda 1e-3 
 1e-2); 2 PE sources 0.1021; dx 1 / dz 1 0.0970; dx 3 0.0977; dz 3 0.0975; 6 PE sources 0.0944. The
 kernel is not the limiting factor (the floor is ~0.067), so the default stays.
 
+## Stage 1b: ESPIRiT maps, SENSE combination, CG-SENSE cross-check
+
+`ecalib` took 23 / 27 min per contrast (CPU, 8 threads, host load ~80). Maps: `data/<contrast>/csm_espirit.h5`,
+dataset `map` (coil, RO, PE, SPE), SoS = 1.0000 everywhere. Images: `sense_grappa.npy` (SENSE combination of
+the GRAPPA k-space) and `cgsense.npy` (CG-SENSE on the acquired lines), both complex (RO, PE, SPE).
+
+| contrast | CG-SENSE vs SENSE(GRAPPA), head, complex NRMSE | magnitude NRMSE, raw / after 1-voxel Gaussian | high-pass noise level SENSE(GRAPPA) / CG-SENSE | vendor r, SENSE(GRAPPA) / CG-SENSE |
+|---|---|---|---|---|
+| FA16 / TE 3.25 | 0.078 | 0.056 / 0.010 | 0.234 / 0.241 | 0.912 / 0.903 |
+| FA4 / TE 27.41 | 0.196 | 0.138 / 0.046 | 0.204 / 0.244 | 0.962 / 0.930 |
+
+The two classical reconstructions agree up to noise: smoothing both magnitudes with a 1-voxel Gaussian
+removes 80 % (FA16) and 67 % (FA4) of their difference, and the difference maps (`figures/*_sense.png`, last
+column, jet [0, 0.1] of P99.9) show no anatomy, only a noise texture that is stronger in the central
+overlap band where the 2x g-factor is highest. Unregularised CG-SENSE is the noisier of the two on the
+low-SNR FA4 contrast (high-pass noise 0.244 vs 0.204), which is why its vendor correlation is lower.
+
+Correction to the stage-1 note: with unit-SoS single-map ESPIRiT the SENSE combination has the same
+coil-sensitivity shading as the RSS image, so the vendor correlation does not move (0.912 vs 0.910 on FA16).
+The remaining gap to the vendor image is its intensity normalisation (PALAdvNorm prescans), partial-Fourier
+reconstruction and filtering, not the parallel-imaging step. The chosen reference for stage 2 is the GRAPPA
+k-space with the SENSE combination as its image; CG-SENSE stays a comparison arm.
+
 Figures (`figures/`, mirrored to `~/figs/peds_tsc_age16/`):
+- `FA16_TE3.25_sense.png`, `FA4_TE27.41_sense.png`: SENSE(GRAPPA) / CG-SENSE / vendor, three planes, plus the
+  normalised difference map; `*_espirit_maps.png`: eight of the 32 maps (magnitude and phase).
 - `FA16_TE3.25_kspace.png`, `FA4_TE27.41_kspace.png`: log-magnitude coil-RSS k-space before and after GRAPPA
   (PE x SPE plane at the RO centre, RO x PE plane at the SPE centre), the three masks, the PE profile.
 - `FA16_TE3.25_image.png`, `FA4_TE27.41_image.png`: zero-filled RSS / GRAPPA RSS / vendor, three planes.
@@ -92,6 +121,8 @@ scripts/run_stage1.sh                   both contrasts + figures; picks GPU 2 on
 scripts/prep_mtp_grappa.py --fa 16 --echo 0 --device cuda:0
 scripts/fig_mtp_grappa.py --contrast FA16_TE3.25
 scripts/noise_floor.py, grappa_kernel_loo.py, vendor_dicom_to_npy.py (nvgen env, pydicom)
+scripts/run_stage1b.sh, stage1b_sense.py --contrast FA16_TE3.25 --device cuda:0   (stage 1b)
+data/<contrast>/csm_espirit.h5 (dataset "map"), sense_grappa.npy, cgsense.npy; logs/stage1b_*.json, stage1b_agreement.json
 ```
 
 Rerun everything: `bash scripts/run_stage1.sh --overwrite` (about 2 minutes on a free GPU).

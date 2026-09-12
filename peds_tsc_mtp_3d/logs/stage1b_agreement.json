@@ -1,0 +1,16 @@
+{
+ "FA16_TE3.25": {
+  "mag_nrmse_head_sigma0": 0.05582667514681816,
+  "mag_nrmse_head_sigma1": 0.009987251833081245,
+  "mag_nrmse_head_sigma2": 0.008785586804151535,
+  "highpass_std_over_mean_sense": 0.23365098237991333,
+  "highpass_std_over_mean_cgsense": 0.2406674027442932
+ },
+ "FA4_TE27.41": {
+  "mag_nrmse_head_sigma0": 0.13761885464191437,
+  "mag_nrmse_head_sigma1": 0.0460345521569252,
+  "mag_nrmse_head_sigma2": 0.04330601915717125,
+  "highpass_std_over_mean_sense": 0.20403870940208435,
+  "highpass_std_over_mean_cgsense": 0.24387384951114655
+ }
+}

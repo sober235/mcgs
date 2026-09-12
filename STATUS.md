@@ -1,4 +1,4 @@
-# STATUS — 2026-09-12（分支 `peds-tsc-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`，未推送）
+# STATUS — 2026-09-12 16:20（分支 `peds-tsc-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`，未推送）
 
 本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。课题目录 `/data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/`
 （README 是结果的权威记录，仓库里 `peds_tsc_mtp_3d/` 是它的镜像）。设计：
@@ -19,18 +19,24 @@
   # 12:46:59 ACS hold-out check: relative k-space error on the hidden odd lines 0.1880 (2 s)
   # FA16_TE3.25 corr_grappa 0.9099 (zero-filled 0.9056); FA4_TE27.41 corr_grappa 0.9638 (zero-filled 0.9413)
   ```
+- 1b 跑完（16:08）：ESPIRiT 图（房规 `ecalib -t 0.001 -c 0.0 -r 24 -m 1`，全分辨率，SoS=1）存 `data/<contrast>/csm_espirit.h5`（key `map`）；
+  SENSE 合成 `sense_grappa.npy`；CG-SENSE（40 步，GPU）`cgsense.npy`。两者头内复数 NRMSE 0.078 / 0.196，幅值差在 1 体素高斯平滑后降到
+  0.010 / 0.046，差异图无解剖结构 → 两种经典重建一致到噪声量级。厂商相关 0.912 / 0.962（与 RSS 相同：单图 ESPIRiT 的 SENSE 合成保留线圈亮度分布，
+  差距来自厂商的强度归一化与部分傅里叶重建，不是并行成像步骤）。
 - 噪声地板（重复的 echo 0，`logs/noise_floor.json`）：藏线自检的地板 FA16 0.067、FA4 echo4 0.144，GRAPPA 在地板的 1.3–1.4 倍。
 - 核大小留一验证（`logs/grappa_kernel_loo_FA16_TE3.25.json`）：8 种设置 0.094–0.102，默认 (4, 2, 2, 1e-3) = 0.097，核不是瓶颈，不改。
 
-## 2. 待用户拍板
-- 第一阶段的图是否达到"观察 k 空间和 3D 图"的要求；厂商对照相关 FA16 只有 0.91（RSS 带线圈亮度分布，厂商图是归一化过的），
-  是否等 1b 的 SENSE 合成图再判。
-- 第二阶段回顾性欠采样的口径：参考 = GRAPPA 补齐 k 空间 + ESPIRiT 合成；掩膜相对采集支撑还是相对整格；部分傅里叶区与椭圆角当已知零区给谁用。
+## 2. 待用户拍板（第二阶段设计）
+- 参考 = GRAPPA 补齐的多线圈 k 空间 + ESPIRiT SENSE 合成图（建议），还是 CG-SENSE 图。
+- 回顾性掩膜相对什么定义：相对采集支撑（椭圆包络内的 227×104 带，AF 按支撑计，与 AF16 课题的 FLAIR 口径一致）还是相对整格 304×104。
+- 加速倍数档位（例如 4 / 8 / 12 相对支撑）、掩膜类型（vdPoisson 同 AF12/AF16 课题、calib 24）、两对比度同掩膜还是各自掩膜。
+- 部分傅里叶区与椭圆角作为已知零区：只给 GS 臂（沿用旧课题的不对称）还是所有方法都用。
+- 方法表范围：全套（CG-SENSE、CS-SENSE、Joint SENSE、L1-ESPIRiT、ZS-SSDU、3D-DIP、3D-INR、GS-single、MC-GS）还是先做经典 + GS。
 
 ## 3. 下一步
-- 1b：ESPIRiT 图（BART 半分辨率再插值，或 sigpy 上 GPU）、SENSE 合成、CG-SENSE 交叉验证；再和厂商图比一次。
-- 其余 8 个对比度一条命令补跑（`prep_mtp_grappa.py --fa F --echo E`）。
-- 第二阶段设计（回顾性欠采样 + 方法表）另写 spec。
+- 第二阶段（回顾性欠采样 + 方法表）：用户拍板上面五条后写 spec，再执行；数据入口 = `data/<contrast>/kspace_grappa.h5` + `csm_espirit.h5` + 回顾性掩膜，
+  和 CE / AF12 课题相同的 (coil, RO, PE, SPE) 布局。
+- 其余 8 个对比度一条命令补跑（`prep_mtp_grappa.py --fa F --echo E`，每个 ecalib 约 25 分钟 CPU）。
 
 ## 4. 已知的坑与别重做
 - raw 的翻转角在 user index 1（u1），不在 set；set 0 是 echo 0 的重复读出；ROCenter 160 是按 320 网格计的。

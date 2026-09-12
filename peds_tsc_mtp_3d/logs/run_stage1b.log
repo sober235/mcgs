@@ -1,0 +1,18 @@
+stage 1b start 2026-09-12_15:16:37 device=cuda:0
+15:16:41 FA16_TE3.25: k-space (32, 320, 304, 104) loaded, device cuda:0
+15:39:45 ecalib done in 1383 s, maps (32, 320, 304, 104)
+15:39:52 maps SoS min/mean/max 1.0000/1.0000/1.0000
+15:39:57 SENSE combination of the GRAPPA k-space (320, 304, 104), 3 s
+15:40:03 CG-SENSE 40 iterations, relative residual 3.617e-04, 6 s
+15:40:20 CG-SENSE vs SENSE(GRAPPA) in the head: complex NRMSE 0.0783, magnitude NRMSE 0.0558
+15:40:20 vendor r: corr_vendor_sense_grappa=0.912, corr_vendor_flat_sense_grappa=0.858, corr_vendor_gradient_sense_grappa=0.750, corr_vendor_cgsense=0.903, corr_vendor_flat_cgsense=0.813, corr_vendor_gradient_cgsense=0.619
+15:40:22 figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA16_TE3.25_sense.png
+15:40:28 FA4_TE27.41: k-space (32, 320, 304, 104) loaded, device cuda:0
+16:07:42 ecalib done in 1634 s, maps (32, 320, 304, 104)
+16:07:53 maps SoS min/mean/max 1.0000/1.0000/1.0000
+16:07:59 SENSE combination of the GRAPPA k-space (320, 304, 104), 4 s
+16:08:12 CG-SENSE 40 iterations, relative residual 8.992e-04, 13 s
+16:08:37 CG-SENSE vs SENSE(GRAPPA) in the head: complex NRMSE 0.1955, magnitude NRMSE 0.1376
+16:08:37 vendor r: corr_vendor_sense_grappa=0.962, corr_vendor_flat_sense_grappa=0.813, corr_vendor_gradient_sense_grappa=0.704, corr_vendor_cgsense=0.930, corr_vendor_flat_cgsense=0.674, corr_vendor_gradient_cgsense=0.378
+16:08:40 figures: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/figures/FA4_TE27.41_sense.png
+STAGE1B_DONE 2026-09-12_16:08:42
