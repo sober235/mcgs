@@ -410,3 +410,11 @@ sign for scale lr alone (0.005 keep-marginal with T1 HFEN −0.0002 at 4000; 0.0
 For the user, recorded rather than acted on: on the FLAIR channel — the one the delivered figure uses — this recipe
 is 0.052 dB above P12 and 0.080 dB above P10, at a T1 cost of 0.005 dB. The rules read the binding channel, so it is
 not promoted; overruling it would be a per-channel decision the user can make.
+
+### Round 3 — pre-registered 23:41, before the run started: a gentler scale lr on top of P12
+Promotion 3 located the cost: at 4000 iterations the scale-lr component takes T1 (SSIM and HFEN as well as PSNR)
+while the rotation component pays on both channels. Scale lr 0.003 was a keep at 1500 in the P10 loop
+(`ar6_scale_lr003`) and was never run at the full budget. Rule 2 allows the combination of two individually kept
+knobs, so: **`p2_rot002_slr003_full4k`** = P10 + rotation lr 0.002 + scale lr 0.003, 4000 iterations, volumes, card 3,
+read by rule 1 against **P12** (`p2_rotlr002_full4k` 36.962 / 36.665) with the design-B 4000 floor (0.003 / 0.004,
+SSIM 0.0000, HFEN 0.0002). A keep becomes P13; a T1 loss closes the scale-lr direction at this working point.
