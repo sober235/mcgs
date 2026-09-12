@@ -341,3 +341,12 @@ The classical arms are at their λ re-swept on this subject (section above).
 - Figures (compact three-plane panels, orange in-panel slice PSNR / SSIM / NMSE, head-only error maps):
   `figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_174_110_47_headerr.png`, served from
   `http://localhost:8765/t1flair_v3_af12/`. Script `scripts/fig_three_planes_compact.py`.
+
+### Best single slices for MC-GS (P10), transverse (2026-09-12)
+Per-slice head-masked PSNR of the P10 volumes against every arm (`logs/best_slice_v2.json`; GS-single re-checked from the
+volumes): **T1 slice 173** is MC-GS's best slice and it leads every arm there including its own single (38.266; GS-single
+38.216, L1-ESPIRiT 37.845). **FLAIR slice 178** is MC-GS's best FLAIR slice (36.559, +0.493 over L1-ESPIRiT 36.066), but
+GS-single is 0.04 dB higher there — and on every transverse FLAIR slice (joint − single < 0 on 92/92 full-brain slices).
+One common slice for both contrasts: **177** (T1 38.240 / FLAIR 36.550, each within 0.03 dB of the contrast's own best;
+max-sum), or 178 (max-min, T1 38.212 / FLAIR 36.559). Row figures (`scripts/fig_row_final.py`, GT + nine methods, error
+maps below, head mask bottom-left): `figures/t1flair_v3_af12_{T1,FLAIR}_row_axis0_{173|178|177}.png`.
