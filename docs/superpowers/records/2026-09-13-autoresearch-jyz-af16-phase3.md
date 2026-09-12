@@ -47,6 +47,20 @@ edge-TV threshold), 3.6M points, edge-TV λ_geo 0.10 / κ_q 0.85 / ε 0.04, kspa
   `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_compact_174_110_47_headerr_p3.png` — MC-GS is first on PSNR, SSIM and
   NMSE in **every plane of both contrasts** (at 174/110/47 P6 lost FLAIR coronal SSIM to CS-SENSE).
 
+**Capacity is a documented trade, not a null** (this contradicts the AF12 line, where the wavelet was db2 / 3 levels):
+under the new wavelet shape the full recipe at 4000 iterations reads
+
+| points | T1 | FLAIR | margins | min margin |
+|---|---|---|---|---|
+| **3.6M (the recipe)** | **35.706** | 34.928 | +0.497 / +0.425 | 0.425 |
+| 4.8M (`p3_r6_n48_full4k`) | 35.697 | 34.962 | +0.488 / +0.459 | 0.459 |
+| 6.0M (`p3_r6_n60_full4k`) | 35.675 | **34.977** | +0.465 / +0.474 | **0.465** |
+
+All three are first on every head cell and clear both sharpness gates; the two margins cross at 6.0M, which is where
+`min_margin_mag` peaks. **By the pre-registered promotion rule the recipe stays at 3.6M** (6.0M costs 0.031 dB of T1,
+outside the 0.001 dB seed floor, and the full budget does not repair it). 3.6M maximises T1; 6.0M maximises the
+worst-case margin and costs ~50 % more VRAM and wall time. The choice is the user's.
+
 **The 1.0 dB target was not reached.** The margin roughly doubled (T1 +45 %, FLAIR +40 %) and every quality gate is now
 met, but +1.0 dB over a comparison arm whose λ is itself tuned on this subject's ground truth is out of reach of the
 lever classes this phase was allowed to use — see §4 and §6.
@@ -116,5 +130,6 @@ sampling lies inside the shutter.
 2. **The 1.0 dB target.** Not reached and, under "no learned priors, same data, same mask", not reachable by anything
    this phase found. The options are: accept the doubled margin; re-state the target as a margin ratio; or allow a
    learned prior (and then give the comparison arms one too, which changes what the comparison means).
-3. A held-out subject at AF16 with the recipe and λ frozen — still never run, from phase 1 onward.
-4. Whether to adopt the in-shutter FLAIR mask for future acquisitions (it helps every method, not the margin).
+3. **Capacity**: 3.6M (as promoted, maximum T1) or 6.0M (maximum worst-case margin, +0.04 dB on the weaker side, ~50 % more VRAM and time). Nothing else separates them.
+4. A held-out subject at AF16 with the recipe and λ frozen — still never run, from phase 1 onward.
+5. Whether to adopt the in-shutter FLAIR mask for future acquisitions (it helps every method, not the margin).
