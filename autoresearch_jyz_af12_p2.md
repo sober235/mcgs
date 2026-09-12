@@ -143,3 +143,30 @@ Reading: 0.10 is the PSNR optimum of *each* channel, not a compromise between th
 the other channel's PSNR down (shared geometry: T1 0.13 costs FLAIR 0.024 dB). Per rule "if both directions fail,
 lever A is closed": per-contrast κ_q is not pursued. The sharpness numbers say what the knob does trade: T1 sharpness
 follows T1's TV strength (0.831 / 0.856 / 0.885 for 0.13 / 0.10 / 0.07) at a PSNR cost in both directions.
+
+### Round 1 read, part 2 — 17:28
+- `p2_tvvec` (isotropic TV; card 3, 27 min): 36.855 / 36.504 — T1 −0.030, FLAIR −0.016; SSIM +0.0001 / +0.0002, HFEN
+  +0.0014 / +0.0010, sharper (0.869 / 0.844). **loses** on the read; a sharpness/HFEN-for-PSNR trade, the same shape as
+  weaker TV (`p2_geo_T107_F013`, `ar2_geo007`). Anisotropic (per-axis) TV stays.
+- `p2_gradnorm10` (gradient clipping 10 instead of 1.0; card 5, 26 min): 36.885 / 36.520 — +0.0004 / +0.0005, every cell
+  within its floor. **null**: clipping at 1.0 does not bind at this working point. Settled.
+- Running: `p2_kfa_off` (card 3), `p2_rotlr` (card 5); the bundle at 5600/6000 on card 2 (rule 7 read when it lands,
+  against `ar9_P10_flair_af11_full4k` 36.945 / 36.637 with the AF12 4000-iteration floor 0.002 / 0.001 dB until
+  `p2_P10_s43_full4k` lands).
+
+### Round 2, part 1 — pre-registered 17:35, before any of these ran: the wavelet prior's shape, one step further
+Every P10 promotion came from the shape of the wavelet prior (levels 3 → 2 → 1, db2 → db4, per-contrast strength).
+Two shape knobs were not expressible until commit d22be4b (`loss.wav_level_weights`, finest first; `loss.wav_band_weights`
+per 3-D detail sub-band; default None keeps the old code path — pinned by `tests/test_wavelet_weights.py`, and the
+first default-path run after the commit is checked by its iteration-1 loss). Single knobs on P10, 1500 iterations,
+rule 1 as above; chain `scripts/p2_chain_d.sh`, launched on the first card free of any trainer:
+
+| exp | knob | args | why |
+|---|---|---|---|
+| `p2_wav_lev2_w05` | 2 levels, coarse level at half strength | `--set loss.wav_levels=2 --set 'loss.wav_level_weights=[1.0, 0.5]'` | the loop found 1 level > 2 levels at equal weight; a half-strength second level sits between the two |
+| `p2_wav_ddd05` | all-detail (diagonal) band at half strength | `--set 'loss.wav_band_weights={ddd: 0.5}'` | the seven sub-bands carry aliasing and anatomy in different proportions; L1-ESPIRiT weights them equally, we need not |
+| `p2_wav_ddd20` | diagonal band at double strength | `--set 'loss.wav_band_weights={ddd: 2.0}'` | the other direction |
+| `p2_wav_ax05` | the three single-axis bands at half strength | `--set 'loss.wav_band_weights={daa: 0.5, ada: 0.5, aad: 0.5}'` | the complementary split (edges along one axis) |
+
+If one of the band directions keeps, the next step in that direction (0.25 / 4.0, or the two-axis bands) is a round-2
+part-2 candidate; if `p2_wav_lev2_w05` keeps, level weights 0.25 / 0.75 bracket it.
