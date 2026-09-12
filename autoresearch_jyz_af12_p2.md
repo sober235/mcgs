@@ -207,3 +207,21 @@ If a bracket value beats 0.001 by more than the floor at 1500, it is promoted in
 promoted rotation lr then becomes part of the parent (P11) by a runner commit. Chain D now carries these three
 screens first, then the wavelet-shape screens; card 3 runs the promotion first (wrapper re-armed), card 5 starts
 chain D after chain B, and card 3 joins chain D after the promotion (the runner's overwrite refusal shares the work).
+
+### Round 1 read, part 4 — 18:23: round 1 complete
+- `p2_khigh20` (high band 2.0 instead of 2.2; card 2, 27 min): 36.912 / 36.463 — T1 +0.028 but FLAIR −0.057, FLAIR SSIM
+  −0.0004, HFEN −0.0005 / −0.0004, sharpness 0.832 / 0.800 (−0.024 / −0.027). **reshape** (T1 bought with FLAIR and
+  sharpness). With 2.2 / 3.0 the high-band weight is bracketed at 2.2 on this subject.
+- `p2_vtv002` (vectorial joint TV 0.02; card 3, 27 min): 36.794 / 36.347 — −0.091 / −0.173, every cell down, sharpness
+  0.788 / 0.758. **loses.** `p2_edge002` (common-edge cross-gradient prior 0.02; card 5, 27 min): 35.557 / 35.168 —
+  −1.33 / −1.35 dB. **loses.** Both explicit cross-contrast couplings hurt under the wavelet prior, as λ_dtv did at
+  AF16: the shared geometry is the only coupling that pays.
+
+**Round 1 tally (12 candidates + the bundle):** one keep (rotation lr 0.001, +0.023 / +0.025), one T1-for-FLAIR
+reshape (high band 2.0), one null (gradient clipping), nine losses; the bundle +0.013 / +0.062 at 6000 iterations,
+reshape by the letter at the near-zero AF12 floor (re-read pending). Every frozen structural setting of the working
+point (band weights, edge-TV strength per channel, TV shape, coupling terms) sits at a local optimum on this
+subject; what moved is the optimiser (rotation lr, and scale lr in the P10 loop). Round 2 = the optimiser bracket
+and the wavelet-shape screens, as pre-registered.
+- 18:23 promotion 1 (`p2_rotlr_full4k`, card 3) and the design-B 4000-iteration floor (`p2_P10_s43_full4k`, card 2,
+  since 18:05) are running; chain D starts on card 5 behind chain B.
