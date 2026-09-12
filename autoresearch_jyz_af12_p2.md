@@ -335,3 +335,7 @@ min_margin over the bar; run at 4000 with volumes through the guarded P10 runner
 `p2_best_rot<rl>_slr<sl>_full4k`), read by rule 2 against **P12** (`p2_rotlr002_full4k`) with the design-B floor. If
 0.016 does not beat 0.008 by more than the floor, the rotation bracket ends at 0.008 (stop rule above); the selector
 does not need that read to run. Card 2 continues chain E's wavelet-shape screens meanwhile.
+- 21:22 queued on card 2 behind chain E (`p2_after_pid_then_seed43.sh`): the seed-43 repeat of whichever recipe the
+  selector promotes (`scripts/p2_seed43_of_best.sh`, values parsed from the promotion's name, 4000 iterations with
+  volumes) — the floor of the promoted recipe and one half of its two-seed row (rule 4). GS-single arms for the final
+  recipe (rule 5) are queued by hand once the promotion is read.
