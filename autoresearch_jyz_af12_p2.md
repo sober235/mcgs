@@ -508,3 +508,12 @@ head PSNR, every other cell equal or better, sharpness unchanged (0.858 / 0.831)
 - `p2_P13_singleFLAIR_full4k` (GS-single FLAIR at P13 on the AF11 mask, rule 5; card 3, 62 min): 36.713 / 0.9450 /
   0.0893, so **joint − single on FLAIR = −0.030 dB** (P10's was −0.055). The coupling still moves quality towards T1,
   by less than before: T1 +0.065, FLAIR −0.030, sum +0.035 (P10: +0.047 / −0.055, sum −0.008).
+- `p2_P13_af12_full4k` (P13 in the all-AF12 config; card 2, 63 min): **36.969 / 36.310** — the T1 channel matches the
+  design-B run to 0.001 dB (36.968), the same agreement P10 showed, so the coupling still passes nothing measurable
+  back from FLAIR's extra 7 % of samples. This is the run the delivered **T1** panel is quoted from; the **FLAIR**
+  panel stays the design-B run (36.683). Registered as `gs_joint_p2` (all-AF12) and `gs_joint_p2_fl11` (design B).
+
+### Loop closed — 04:16
+Final recipe **P13 = P10 + `gaussian.rotation_lr=0.008`**, runner `autoresearch_jyz_af12_P13.sh`. Phase-2 gain over
+P10, head PSNR: T1 **+0.025** (all-AF12 口径, 36.944 → 36.969), FLAIR **+0.046** (design B, 36.637 → 36.683), every
+other head cell equal or better, sharpness unchanged. 27 experiments, 13 of them at the full budget.
