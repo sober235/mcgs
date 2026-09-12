@@ -387,3 +387,13 @@ does not need that read to run. Card 2 continues chain E's wavelet-shape screens
   P10 loop the two settings' T1 agreed to 0.001 dB (`ar5_best_C10_T112_full4k` 36.944 vs `ar9_P10_flair_af11_full4k`
   36.945), yet the winning recipe still has to be run once in the all-AF12 config (`configs/t1flair_v3_af12_hyw.yaml`,
   `CONFIG=` on the runner) so the T1 panel is not quoted from a design-B run. Queued after the promotions.
+
+### Round 2 read, part 5 — 22:57: the wavelet-shape lever is closed
+`p2_wav_ax05` (the three single-axis detail bands at half strength; card 2, 27 min): 36.748 / 36.447 — **−0.137 /
+−0.073**, SSIM −0.0023 / −0.0014, sharper (0.870 / 0.843). **loses**, the largest loss of the four shape screens.
+Tally of the shape lever (commit d22be4b, `loss.wav_level_weights` / `wav_band_weights`): half-weight second level
+−0.027 (loses), diagonal band ×0.5 −0.022 (loses), diagonal band ×2.0 +0.022 T1 / −0.009 FLAIR (reshape), single-axis
+bands ×0.5 −0.137 (loses). **Uniform weighting of the seven detail sub-bands on the single finest level — the shape
+the P10 loop arrived at — is a local optimum in both directions of both knobs.** The lever stays in the code (tested,
+default-off) but is closed for this subject. With it, every prior-shape and prior-strength direction of the wavelet
+term is now bracketed; the optimiser family is the only vein still paying.
