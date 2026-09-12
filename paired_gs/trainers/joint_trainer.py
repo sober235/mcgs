@@ -822,9 +822,17 @@ class JointTrainer:
             # per-contrast strengths, the way L1-ESPIRiT's lambda is chosen per contrast; both default to lambda_wav
             wav_lam_p = float(loss_cfg.get("lambda_wav_plain", lambda_wav))
             wav_lam_c = float(loss_cfg.get("lambda_wav_contrast", lambda_wav))
+            # shape levers (phase 2, 2026-09-12): per-level (finest first) and per-sub-band multipliers;
+            # both None (default) keep wavelet_l1 on its old code path bit-for-bit.
+            wav_lvl_w = loss_cfg.get("wav_level_weights")
+            wav_band_w = loss_cfg.get("wav_band_weights")
+            wav_lvl_w = None if wav_lvl_w is None else [float(v) for v in wav_lvl_w]
+            wav_band_w = None if wav_band_w is None else {str(k): float(v) for k, v in dict(wav_band_w).items()}
             wav_gen = torch.Generator().manual_seed(int(train_cfg.get("seed", 42)) + 7919)
             print(f"[wavelet] lambda={lambda_wav} (plain {wav_lam_p}, contrast {wav_lam_c}) wavelet={wav_name} "
-                  f"levels={wav_levels} eps={wav_eps} cycle_spin={wav_spin} on={wav_on}")
+                  f"levels={wav_levels} eps={wav_eps} cycle_spin={wav_spin} on={wav_on}"
+                  + (f" level_weights={wav_lvl_w}" if wav_lvl_w is not None else "")
+                  + (f" band_weights={wav_band_w}" if wav_band_w is not None else ""))
         loss_type = loss_cfg.get("loss_type", "l2")
         del loss_type   # placeholder if l1 added later
 
@@ -945,11 +953,13 @@ class JointTrainer:
             if lambda_wav > 0:
                 sh = tuple(torch.randint(0, 2 ** wav_levels, (3,), generator=wav_gen).tolist()) if wav_spin else None
                 if wav_lam_p == lambda_wav and wav_lam_c == lambda_wav:
-                    l_wav = wavelet_l1([vol_p, vol_c], wav_name, wav_levels, wav_eps, sh, wav_on)
+                    l_wav = wavelet_l1([vol_p, vol_c], wav_name, wav_levels, wav_eps, sh, wav_on,
+                                       level_weights=wav_lvl_w, band_weights=wav_band_w)
                     loss = loss + lambda_wav * l_wav
                 else:
                     l_wav_w = wavelet_l1([vol_p, vol_c], wav_name, wav_levels, wav_eps, sh, wav_on,
-                                         weights=(wav_lam_p, wav_lam_c))
+                                         weights=(wav_lam_p, wav_lam_c),
+                                         level_weights=wav_lvl_w, band_weights=wav_band_w)
                     loss = loss + l_wav_w
                     l_wav = l_wav_w / lambda_wav        # lambda_wav * l_wav is the term actually added
             else:

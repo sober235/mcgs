@@ -16,7 +16,7 @@ penalty is not tied to a single dyadic grid.
 """
 from __future__ import annotations
 
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, Mapping, Optional, Sequence
 
 import ptwt
 import torch
@@ -30,9 +30,14 @@ def _rho(mag2: torch.Tensor, eps: float) -> torch.Tensor:
     return torch.sqrt(mag2 + 1e-12)
 
 
+BANDS = ("aad", "ada", "add", "daa", "dad", "dda", "ddd")   # ptwt's 3-D detail sub-bands (a = low, d = high, per axis)
+
+
 def wavelet_l1(vols: Sequence[torch.Tensor], wavelet: str = "db2", levels: int = 3, eps: float = 0.0,
                shifts: Optional[Iterable[int]] = None, on: str = "complex",
-               weights: Optional[Sequence[float]] = None) -> torch.Tensor:
+               weights: Optional[Sequence[float]] = None,
+               level_weights: Optional[Sequence[float]] = None,
+               band_weights: Optional[Mapping[str, float]] = None) -> torch.Tensor:
     """Sum over ``vols`` (each (D, H, W), complex or real, same shape) of R_wav.
 
     on = "complex":   modulus of the complex wavelet coefficients (BART's penalty).
@@ -40,12 +45,23 @@ def wavelet_l1(vols: Sequence[torch.Tensor], wavelet: str = "db2", levels: int =
     weights: optional per-volume multipliers, giving sum_v w_v R_wav(v) -- a per-contrast strength,
              the way L1-ESPIRiT's lambda is chosen per contrast. None keeps the unweighted sum,
              computed exactly as before.
+    level_weights: optional multiplier per decomposition level, FINEST level first (length == levels).
+    band_weights:  optional multiplier per detail sub-band (keys from BANDS; missing keys mean 1.0).
+             Both None (the default) keep the old code path bit-for-bit; either given, every
+             coefficient's penalty is scaled by level_weight * band_weight (phase-2 shape levers,
+             2026-09-12).
     All volumes go through one batched transform.
     """
     if on not in ("complex", "magnitude"):
         raise ValueError(f"on must be 'complex' or 'magnitude', got {on!r}")
     if weights is not None and len(weights) != len(vols):
         raise ValueError(f"need one weight per volume, got {len(weights)} for {len(vols)}")
+    if level_weights is not None and len(level_weights) != levels:
+        raise ValueError(f"need one level weight per level (finest first), got {len(level_weights)} for {levels}")
+    if band_weights is not None:
+        bad = sorted(set(band_weights) - set(BANDS))
+        if bad:
+            raise ValueError(f"unknown detail sub-band(s) {bad}; expected keys from {BANDS}")
     parts = []
     for v in vols:
         if on == "complex":
@@ -59,6 +75,22 @@ def wavelet_l1(vols: Sequence[torch.Tensor], wavelet: str = "db2", levels: int =
     coeffs = ptwt.wavedec3(x, wavelet, level=levels, mode="periodic")
     per = 2 if on == "complex" else 1
     nv = len(vols)
+    if level_weights is not None or band_weights is not None:
+        # ptwt lists the detail levels coarsest first; level_weights are finest first.
+        lw = [1.0] * levels if level_weights is None else [float(w) for w in level_weights]
+        bw = {k: 1.0 for k in BANDS}
+        if band_weights is not None:
+            bw.update({k: float(v) for k, v in band_weights.items()})
+        per_vol = x.new_zeros(nv)
+        for li, detail in enumerate(coeffs[1:]):
+            f_level = lw[levels - 1 - li]
+            for key, band in detail.items():
+                b = band.reshape(nv, per, *band.shape[1:])
+                per_vol = per_vol + (f_level * bw[key]) * _rho((b * b).sum(1), eps).reshape(nv, -1).sum(1)
+        if weights is None:
+            return per_vol.sum() / vols[0].numel()
+        w = torch.as_tensor([float(v) for v in weights], dtype=per_vol.dtype, device=per_vol.device)
+        return (per_vol * w).sum() / vols[0].numel()
     if weights is None:
         total = x.new_zeros(())
         for detail in coeffs[1:]:                                 # coeffs[0] is the approximation band
