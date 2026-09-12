@@ -15,6 +15,10 @@ Read in this order: this section -> `STATUS.md` -> the spec
   to lambda_max, L1 lambda absolute, early-stopped FISTA, the 2x FOV grid, the self-check gate, per-subject orientation:
   V04 is a coronal slab); the topic README lists them with their evidence. Do not revert them.
 
+- Phase 2 (branch `cardiac-phase2`, from the tag above, with `autoresearch-t1t2` merged): spec
+  `docs/superpowers/specs/2026-09-12-cardiac-phase2-mcgs-design.md` (MC-GS and every comparison arm with a
+  radial NUFFT forward). The trainer's default Cartesian path must stay byte-identical (spec §1.4).
+
 The framework notes below come from `autoresearch-t1t2` and still describe the MC-GS code.
 
 ---
