@@ -38,6 +38,7 @@ ap.add_argument("--inr_nmax", type=int, default=512)
 ap.add_argument("--inr_hidden", type=int, default=64)
 ap.add_argument("--inr_layers", type=int, default=3)
 ap.add_argument("--render_chunk", type=int, default=1_500_000)
+ap.add_argument("--dry_run", action="store_true", help="print the mask and split counts, then exit")
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -57,17 +58,20 @@ P = Pair(args.contrast, dev)
 NC, G, CHUNK = P.NC, P.G, P.chunk
 S, yn, m3, m2 = P.S, P.y, P.m3, P.m2
 zfn = P.sense_adj(yn)
-log(f"[{args.contrast}] coils={NC} grid={G} AF_rect={1/m3.float().mean():.4f} scale={P.scale:.4e}")
+log(f"[{args.contrast}] coils={NC} grid={G} forward-support frac={float(m3.float().mean()):.4f} sampling AF={1/P.mask_frac_omega:.2f} scale={P.scale:.4e}")
 
-# ---- 95 / 5 held-out split at the PE-line level ----------------------------------------------
-idx = torch.nonzero(m2, as_tuple=False)
+# ---- 95 / 5 held-out split at the PE-line level, over the SAMPLING mask Omega -----------------
+# Stage-2 spec section 5: yn already carries the measured zeros of Z (y = y_full * (Omega | Z)),
+# so the forward model is unchanged; only the split is restricted to Omega, so that no held-out
+# line is a trivially zero target and the checkpoint criterion stays meaningful.
+idx = torch.nonzero(P.m2_omega, as_tuple=False)
 Nl = idx.shape[0]
 perm = torch.randperm(Nl, generator=torch.Generator().manual_seed(0))
 nho = int(round(args.holdout * Nl))
 
 
 def build(sel):
-    mm = torch.zeros_like(m2)
+    mm = torch.zeros_like(P.m2_omega)
     mm[idx[sel, 0], idx[sel, 1]] = True
     return mm.unsqueeze(0).expand(G).contiguous()
 
@@ -76,6 +80,11 @@ m_ho = build(perm[:nho])
 m_fit = build(perm[nho:])
 log(f"lines: total {Nl}  fit {Nl-nho}  held-out {nho} ({100*nho/Nl:.1f} %)  "
     f"-> fit pts {int(m_fit.sum())}  ho pts {int(m_ho.sum())}")
+log(f"[masks] union {int(P.m2.sum())} sampling {int(P.m2_omega.sum())} "
+    f"known-zero {int((P.m2 & ~P.m2_omega).sum())} fit {int(m_fit[0].sum())} held-out {int(m_ho[0].sum())} "
+    f"(fit + held-out must equal the sampling mask: {int(m_fit[0].sum()) + int(m_ho[0].sum())})")
+if args.dry_run:
+    raise SystemExit(0)
 y_fit = yn * m_fit
 nrm_fit = torch.linalg.vector_norm(y_fit)
 nrm_ho = torch.linalg.vector_norm(yn * m_ho)

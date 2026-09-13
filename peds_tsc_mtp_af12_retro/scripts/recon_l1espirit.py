@@ -50,7 +50,12 @@ torch.cuda.empty_cache()
 work = Path(tempfile.mkdtemp(prefix=f"l1espirit_{args.contrast}_", dir=str(R / "recon")))
 cfl.writecfl(str(work / "ksp"), ksp)
 cfl.writecfl(str(work / "maps"), maps)
-cmd = [args.bart, "pics", "-l1", "-r", str(args.lam), "-i", str(args.iters), "-S", str(work / "ksp"), str(work / "maps"), str(work / "out")]
+# Stage-2 spec section 5: without -p, BART infers the sampling pattern from the NONZERO k-space
+# entries and would read the measured zeros of Z as "not sampled". The pattern is Omega | Z.
+pat = str(R / "data/pattern_union")
+assert Path(pat + ".cfl").exists(), f"missing BART pattern {pat}.cfl (run scripts/prep_mask.py)"
+cmd = [args.bart, "pics", "-p", pat, "-l1", "-r", str(args.lam), "-i", str(args.iters), "-S",
+       str(work / "ksp"), str(work / "maps"), str(work / "out")]
 os.environ["OMP_NUM_THREADS"] = str(args.threads)
 log(" ".join(cmd))
 t1 = time.time()
@@ -69,5 +74,7 @@ work.rmdir()
 log(f"[{args.contrast}] l1espirit{args.suffix} psnr={row['psnr']:.3f} ssim={row['ssim']:.4f} head_psnr={row['head_psnr']:.3f} "
     f"head_ssim={row['head_ssim']:.4f} head_hfen={row['head_hfen']:.4f} sharp={row['sharp']:.3f} ({row['seconds']:.0f} s)")
 p = R / f"logs/l1espirit_{args.contrast}{args.suffix}.json"
-json.dump({"contrast": args.contrast, "lam": args.lam, "iters": args.iters, "rows": [row], "total_seconds": time.time() - t0}, open(p, "w"), indent=2)
+json.dump({"contrast": args.contrast, "lam": args.lam, "iters": args.iters, "pattern": pat,
+           "mask_frac": P.mask_frac, "mask_frac_omega": P.mask_frac_omega,
+           "rows": [row], "total_seconds": time.time() - t0}, open(p, "w"), indent=2)
 log(f"WROTE {p}")

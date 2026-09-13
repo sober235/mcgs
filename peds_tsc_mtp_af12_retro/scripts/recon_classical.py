@@ -31,7 +31,7 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
 os.environ.setdefault("PYTHONNOUSERSITE", "1")
 
-import h5py, numpy as np, torch, torch.fft as tfft
+import h5py, numpy as np, scipy.io, torch, torch.fft as tfft
 import torch.nn.functional as F
 
 ROOT = Path("/data0/congcong/code/GS/mcgs_peds_wt")
@@ -95,13 +95,26 @@ with h5py.File(R / f"data/ksp_{args.contrast}.h5", "r") as f:
     y_full = torch.from_numpy(f["kspace"][:]).to(torch.complex64)
 with h5py.File(R / f"data/csm_espirit_{args.contrast}.h5", "r") as f:
     S = torch.from_numpy(f["map"][:]).to(torch.complex64)
-with h5py.File(R / "data/mask_af12_union_3d.h5", "r") as f:
+# Stage-2 spec section 5: the forward operator is Omega | Z, where Z (the partial-Fourier block and
+# the elliptical corners) is MEASURED zero and is given to every arm alike. Omega, the sampling mask,
+# is loaded only to report its fraction: this arm draws no self-supervised split.
+# This script keeps its OWN transcription of the gauge (it does not import t1t2_common) so that
+# scripts/check_gauge.py, which re-scores one of its volumes through the shared module, stays a real
+# cross-check instead of comparing the shared module with itself.
+MASK_PATH = R / "data/mask_af12_union_3d.h5"
+OMEGA_PATH = R / "data/mask_af12_2d.mat"
+with h5py.File(MASK_PATH, "r") as f:
     m3 = torch.from_numpy(f["mask"][:]).to(torch.float32)
+m2_omega = torch.from_numpy(scipy.io.loadmat(OMEGA_PATH)["mask"]).to(torch.float32) > 0.5
 assert y_full.shape == S.shape, (y_full.shape, S.shape)
 NC = y_full.shape[0]
 y_full = y_full.to(dev); S = S.to(dev); m3 = (m3 > 0.5).to(dev)
+m2_omega = m2_omega.to(dev)
+assert bool((m2_omega & ~m3[0]).sum() == 0), "Omega must be a subset of the union mask"
+MASK_FRAC = float(m3.float().mean()); OMEGA_FRAC = float(m2_omega.float().mean())
 log(f"[{args.contrast}] coils={NC} vol={tuple(m3.shape)} "
-    f"mask frac={m3.float().mean():.5f} AF_rect={1/m3.float().mean():.3f}")
+    f"forward support (Omega|Z) frac={MASK_FRAC:.5f}; sampling mask Omega {int(m2_omega.sum())} PE "
+    f"positions, frac={OMEGA_FRAC:.5f}, AF_rect={1/OMEGA_FRAC:.3f}")
 
 CHUNK = 4
 def sense_adj(k):                       # (C,X,Y,Z) -> (X,Y,Z)
@@ -193,6 +206,7 @@ if not args.suffix:
     np.save(R / f"recon/gt_{args.contrast}_complex.npy", gt_c.cpu().numpy().astype(np.complex64))
 p = R / f"logs/classical_{args.contrast}{args.suffix}.json"
 json.dump({"contrast": args.contrast, "scale_p999": scale, "coils": int(NC),
-           "mask_frac": float(m3.float().mean()), "rows": rows,
+           "mask_frac": MASK_FRAC, "mask_frac_omega": OMEGA_FRAC,
+           "mask_path": str(MASK_PATH), "omega_path": str(OMEGA_PATH), "rows": rows,
            "total_seconds": time.time() - t0}, open(p, "w"), indent=2)
 log(f"WROTE {p}  total {time.time()-t0:.0f} s")

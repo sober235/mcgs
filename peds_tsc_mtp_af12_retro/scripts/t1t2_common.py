@@ -20,6 +20,7 @@ from pathlib import Path
 
 import h5py
 import numpy as np
+import scipy.io
 import torch
 import torch.fft as tfft
 import torch.nn.functional as F
@@ -95,13 +96,16 @@ class Pair:
             y_full = torch.from_numpy(f["kspace"][:]).to(torch.complex64)
         with h5py.File(R / f"data/csm_espirit_{contrast}.h5", "r") as f:
             S = torch.from_numpy(f["map"][:]).to(torch.complex64)
-        # phase-3 acquisition probe (mcgs_peds_wt spec 2026-09-12, section 5): T1T2_MASK_<CONTRAST>=<h5 path>
-        # swaps the mask for that contrast only. Unset (the default) reads the registered mask, unchanged.
-        self.mask_path = os.environ.get(f"T1T2_MASK_{contrast}") or str(R / "data/mask_af12_union_3d.h5")
-        if os.environ.get(f"T1T2_MASK_{contrast}"):
-            print(f"[Pair] {contrast}: mask override T1T2_MASK_{contrast}={self.mask_path}", flush=True)
+        # Stage-2 spec section 5: the forward operator uses Omega | Z (Z = the partial-Fourier block
+        # and the elliptical corners, measured zeros), while every self-supervised split is drawn
+        # from Omega alone. PEDS_MASK_<CONTRAST> overrides the union file for probes.
+        self.mask_path = os.environ.get(f"PEDS_MASK_{contrast}") or str(R / "data/mask_af12_union_3d.h5")
+        self.omega_path = str(R / "data/mask_af12_2d.mat")
+        if os.environ.get(f"PEDS_MASK_{contrast}"):
+            print(f"[Pair] {contrast}: mask override PEDS_MASK_{contrast}={self.mask_path}", flush=True)
         with h5py.File(self.mask_path, "r") as f:
             m3 = torch.from_numpy(f["mask"][:]).to(torch.float32)
+        m2_omega = torch.from_numpy(scipy.io.loadmat(self.omega_path)["mask"]).to(torch.float32) > 0.5
         assert y_full.shape == S.shape, (y_full.shape, S.shape)
         self.y_full = y_full.to(dev); self.S = S.to(dev)
         self.m3 = (m3 > 0.5).to(dev)
@@ -110,6 +114,13 @@ class Pair:
         # the mask is broadcast along the readout (axis 0); every 2-D method below relies on it
         assert bool((self.m3 == self.m3[0:1]).all()), "mask is not constant along the readout axis"
         self.m2 = self.m3[0]                                   # (PE, SPE) = (304, 104)
+        self.m2_omega = m2_omega.to(dev)
+        self.m3_omega = self.m2_omega.unsqueeze(0).expand(self.G).contiguous()
+        assert bool((self.m3_omega & ~self.m3).sum() == 0), "Omega must be a subset of the union mask"
+        self.mask_frac = float(self.m3.float().mean())
+        self.mask_frac_omega = float(self.m3_omega.float().mean())
+        print(f"[Pair] {contrast}: union {int(self.m2.sum())} / sampling {int(self.m2_omega.sum())} "
+              f"PE positions ({self.mask_frac:.4f} / {self.mask_frac_omega:.4f} of the plane)", flush=True)
 
         gt_c = self.sense_adj(self.y_full)                      # GT from the FULL k-space
         self.scale = float(np.quantile(gt_c.abs().reshape(-1).cpu().numpy(), 0.999))
@@ -139,6 +150,7 @@ class Pair:
         met = evaluate_reconstruction(x_complex, self.gt_c, compute_extended=False)
         ho = score_headonly(rec.cpu().numpy(), self.gt.cpu().numpy())
         return dict(method=method, contrast=self.contrast,
+                    mask_frac=self.mask_frac, mask_frac_omega=self.mask_frac_omega,
                     psnr=float(met["psnr"]), ssim=float(met["ssim"]), nmse=float(met["nmse"]),
                     hfen=hfen(rec, self.gt), sharp=sharp_ratio(rec, self.gt),
                     grain=grain(rec, self.gt), seconds=seconds,

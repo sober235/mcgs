@@ -29,6 +29,7 @@ ap.add_argument("--batch", type=int, default=4)
 ap.add_argument("--lr", type=float, default=5e-4)
 ap.add_argument("--mu", type=float, default=0.05)
 ap.add_argument("--patience", type=int, default=10)
+ap.add_argument("--dry_run", action="store_true", help="print the mask and split counts, then exit")
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -47,7 +48,7 @@ log = lambda *a: print(*a, flush=True)
 t0 = time.time()
 P = Pair(args.contrast, dev)
 NC, G, m2 = P.NC, P.G, P.m2
-log(f"[{args.contrast}] coils={NC} grid={G} AF_rect={1/P.m3.float().mean():.4f} scale={P.scale:.4e}")
+log(f"[{args.contrast}] coils={NC} grid={G} forward-support frac={P.mask_frac:.4f} sampling AF={1/P.mask_frac_omega:.2f} scale={P.scale:.4e}")
 
 # ---- hybrid space: the readout is fully sampled -> NX independent 2-D problems ---------------
 yh = torch.empty_like(P.y)
@@ -128,8 +129,13 @@ def unrolled(y_dc, Sr, mk):
     return x
 
 
-# ---- k-space splits over the 2-D acquired mask ----------------------------------------------
-idx = torch.nonzero(m2, as_tuple=False)
+# ---- k-space splits over the SAMPLING mask Omega (spec section 5) ----------------------------
+# Omega | Z is the forward operator, but Z carries measured zeros: training or validating on it
+# would score a trivially correct prediction, so every split is drawn from Omega alone.
+m_dc = P.m2                                    # Omega | Z: data consistency and inference
+m_z = P.m2 & ~P.m2_omega                       # Z alone: the measured zeros
+withz = lambda mm: mm | m_z                    # every DC operator sees Omega-subset | Z
+idx = torch.nonzero(P.m2_omega, as_tuple=False)
 Na = idx.shape[0]
 perm = torch.randperm(Na, generator=torch.Generator(device="cpu").manual_seed(0))
 n_val = int(0.10 * Na)
@@ -137,7 +143,7 @@ val_idx, tr_idx = perm[:n_val], perm[n_val:]
 
 
 def mk_mask(sel):
-    mm = torch.zeros_like(m2)
+    mm = torch.zeros_like(P.m2_omega)
     mm[idx[sel, 0], idx[sel, 1]] = True
     return mm
 
@@ -168,6 +174,11 @@ best, best_state, bad = 1e9, None, 0
 steps_per_ep = NX // BS
 log(f"zs-ssdu: slices={NX} bs={BS} steps/ep={steps_per_ep} epochs={args.epochs} K={K} "
     f"acquired lines={Na} gamma={int(m_val.sum())}")
+log(f"[masks] union {int(P.m2.sum())} sampling {int(P.m2_omega.sum())} known-zero {int(m_z.sum())} "
+    f"gamma {int(m_val.sum())} train {int(m_tr.sum())} (gamma + train must equal the sampling mask: "
+    f"{int(m_val.sum()) + int(m_tr.sum())})")
+if args.dry_run:
+    raise SystemExit(0)
 for ep in range(args.epochs):
     net.train()
     order = torch.randperm(NX, generator=torch.Generator().manual_seed(100 + ep))
@@ -177,7 +188,7 @@ for ep in range(args.epochs):
         Sr = S[:, sl].permute(1, 0, 2, 3).contiguous()          # (B,NC,Y,Z)
         yr = yh[:, sl].permute(1, 0, 2, 3).contiguous()
         m_th, m_lam = split_theta_lambda(ep * steps_per_ep + s)
-        x = unrolled(yr * m_th, Sr, m_th)
+        x = unrolled(yr * withz(m_th), Sr, withz(m_th))
         loss = nloss(A2(x, Sr, m_lam), yr * m_lam, m_lam)
         opt.zero_grad(set_to_none=True); loss.backward()
         torch.nn.utils.clip_grad_norm_(net.parameters(), 1.0)
@@ -188,7 +199,7 @@ for ep in range(args.epochs):
             sl = torch.arange(s, min(s + 16, NX))
             Sr = S[:, sl].permute(1, 0, 2, 3).contiguous()
             yr = yh[:, sl].permute(1, 0, 2, 3).contiguous()
-            x = unrolled(yr * m_tr, Sr, m_tr)
+            x = unrolled(yr * withz(m_tr), Sr, withz(m_tr))
             vs += nloss(A2(x, Sr, m_val), yr * m_val, m_val).item() * sl.numel(); nv += sl.numel()
     v = vs / nv
     log(f"  [ep {ep+1}/{args.epochs}] train={run/steps_per_ep:.4f} val={v:.4f} ({time.time()-t0:.0f}s)")
@@ -210,7 +221,7 @@ with torch.no_grad():
         sl = torch.arange(s, min(s + 16, NX))
         Sr = S[:, sl].permute(1, 0, 2, 3).contiguous()
         yr = yh[:, sl].permute(1, 0, 2, 3).contiguous()
-        xn[sl] = unrolled(yr * m2, Sr, m2)
+        xn[sl] = unrolled(yr * m_dc, Sr, m_dc)
 del yh
 
 row = P.score(xn, "zsssdu", seconds=time.time() - t0,
