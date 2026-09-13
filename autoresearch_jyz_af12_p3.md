@@ -161,3 +161,12 @@ not the borrowed number.
 `p3_e0001_ptv001_full4k` (4000 it, volumes) plus, at the same recipe, `p3_e0001_ptv001_singleT1_full4k` and
 `p3_e0001_ptv001_singleFLAIR_full4k`. Rule 4 of this phase: the verdict is the sign of MC-GS − GS-single on FLAIR at
 4000, which needs those two arms; the joint row alone cannot decide it.
+
+### Round 3 — pre-registered 19:15, before the run started: capacity on the new base
+The AF12 line closed capacity in phase 1 ("4.2–6.0M only trades T1 for FLAIR at 4000"), but that was measured under
+the db2 / 3-level wavelet. The AF16 line re-opened it under db4 / 1 level and found FLAIR **+0.079 at 1500 and +0.034
+at 4000** going 3.6M → 4.8M, with T1 flat — their note says this "contradicts the AF12 line's finding … there the
+wavelet was db2 / 3 levels". We now sit on db4 / 1 level plus the two new terms, so the old verdict does not carry.
+`p3_e0001_ptv001_n48` = the round-2 combination at 4.8M points, 1500 it, read by rule 2 against
+`p3_e0001_ptv001` (36.989 / 36.280). Capacity is decided only at 4000, so a keep here buys a promotion run, not a
+place in the recipe.
