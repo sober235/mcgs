@@ -57,9 +57,9 @@ T1    gs_joint_p3   head 34.832 ssim 0.9289 hfen 0.1355 sharp 0.833
 - 一个只当观察的巧合：AF20 FLAIR（对快门 15.13×）余量 +0.491 ≈ AF16 T1（15.19×）余量 +0.497。是否值得在留出受试者上验证"余量由有效加速决定"。
 
 ## 3. 下一步（正在后台跑，不需要人）
-- GS-single FLAIR（5 号卡，约 23:00）、GS-single T1（7 号卡，约 01:15）→ 联合减单臂（耦合项在 AF20 是否更值钱）。
+- GS-single FLAIR 已完成（22:35，头内 34.127，FLAIR 耦合 +0.052 dB，AF16 是 +0.042）；GS-single T1（7 号卡，约 01:15）→ T1 耦合。
   登记：`scripts/finalize_af20_jyz.sh af20_p3_joint_full4k af20_p3_singleT1_full4k af20_p3_singleFLAIR_full4k`
-- 第二段 `scripts/run_stage2_af20.sh`：6 号卡 T1、5 号卡 FLAIR 各跑 ZS-SSDU → 3D-DIP → 3D-INR，参数与 AF16 课题日志一致；
+- 第二段 `scripts/run_stage2_af20.sh` v2（22:39 起）：0 号卡 ZS-SSDU T1→INR T1，2 号卡 ZS-SSDU FLAIR→INR FLAIR，3 号卡 DIP T1→DIP FLAIR，参数与 AF16 课题日志一致；v1 放在 5/6 号卡上慢 10 倍已停（日志在 logs/stage2_aborted/）；
   约明早 8–10 点跑完。九臂齐了 finalize 才会出紧凑三面图（出图脚本断言九臂齐全）。
 - 进度：`logs/stage2_af20.log`、`results_arc/af20_runs.log`。
 

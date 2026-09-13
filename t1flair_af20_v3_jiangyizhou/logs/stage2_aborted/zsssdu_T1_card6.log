@@ -1,0 +1,5 @@
+[T1] coils=26 grid=(256, 256, 176) AF_rect=18.5645 scale=9.9251e+01
+zs-ssdu: slices=256 bs=4 steps/ep=64 epochs=100 K=10 acquired lines=2427 gamma=242
+  [ep 1/100] train=0.5918 val=0.4736 (497s)
+  [ep 2/100] train=0.5248 val=0.4531 (1068s)
+  [ep 3/100] train=0.5069 val=0.4436 (1595s)

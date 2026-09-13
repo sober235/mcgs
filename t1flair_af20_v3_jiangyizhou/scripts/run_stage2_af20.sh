@@ -2,35 +2,43 @@
 # run_stage2_af20.sh -- the three learned / network arms that complete the nine-arm AF20 table:
 # ZS-SSDU, 3D-DIP, 3D-INR, with exactly the AF16 topic's arguments (read back from its logs:
 # ZS-SSDU epochs 100; DIP lr 3e-3, 5000 it; INR lr 5e-3 default, 1500 it).
-# Two chains, one per card, each starting only when that card's MC-GS run has written its score:
-#   card 6 after MC-GS joint        -> T1:    ZS-SSDU, DIP, INR
-#   card 5 after GS-single FLAIR    -> FLAIR: ZS-SSDU, DIP, INR
-# One trainer per card at all times. Each job is skipped if its result json already exists.
+#
+# v2 (22:40): the first placement (behind the MC-GS runs on cards 6 and 5) ran ZS-SSDU T1 at ~530 s per
+# epoch, ten times the AF16 rate, next to another user's long job; cards 0, 2 and 3 had meanwhile gone
+# completely idle. Placement now, one chain per card, one trainer per card:
+#   card 0: ZS-SSDU T1    -> 3D-INR T1
+#   card 2: ZS-SSDU FLAIR -> 3D-INR FLAIR
+#   card 3: 3D-DIP T1     -> 3D-DIP FLAIR
+# Every job waits until its card has NO compute process at all before it starts (the rule the other
+# sessions' schedulers follow too), and is skipped if its result json already exists.
 set -uo pipefail
 J=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou
-ARC=/data0/congcong/code/GS/mcgs_af16_wt/results_arc
 PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
 export PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID
 cd $J
 log() { echo "[$(date +%H:%M)] $*" >> logs/stage2_af20.log; }
+card_idle() {   # true when the card with this index has no compute process
+  local bus
+  bus=$(nvidia-smi --query-gpu=index,pci.bus_id --format=csv,noheader | awk -F', ' -v i="$1" '$1==i{print $2}')
+  ! nvidia-smi --query-compute-apps=gpu_bus_id --format=csv,noheader | grep -q "$bus"
+}
 run() {   # gpu contrast name cmd...
   local g=$1 c=$2 n=$3; shift 3
   [ -f logs/${n}_${c}.json ] && { log "$n $c exists, skipped"; return; }
+  until card_idle $g; do sleep 60; done
   log "$n $c START gpu $g"
   $PY -u "$@" --contrast $c --gpu $g > logs/${n}_${c}.log 2>&1
   log "$n $c rc=$?"
 }
-chain() { # gpu contrast wait_for_score_json
-  local g=$1 c=$2 w=$3
-  until [ -f "$w" ]; do sleep 120; done
-  sleep 90                                   # let the MC-GS process release the card
-  run $g $c zsssdu scripts/recon_zsssdu.py --epochs 100
-  run $g $c dip    scripts/recon_dip_inr.py --method dip --iters 5000 --lr 3e-3 --eval_every 100
-  run $g $c inr    scripts/recon_dip_inr.py --method inr --iters 1500 --eval_every 50
-  log "CHAIN_$c DONE"
-}
-log "armed: T1 on card 6 after af20_p3_joint_full4k, FLAIR on card 5 after af20_p3_singleFLAIR_full4k"
-chain 6 T1    $ARC/af20_p3_joint_full4k_score.json &
-chain 5 FLAIR $ARC/af20_p3_singleFLAIR_full4k_score.json &
+log "v2 armed: card 0 ZS-SSDU T1 -> INR T1 | card 2 ZS-SSDU FLAIR -> INR FLAIR | card 3 DIP T1 -> DIP FLAIR"
+( run 0 T1    zsssdu scripts/recon_zsssdu.py --epochs 100
+  run 0 T1    inr    scripts/recon_dip_inr.py --method inr --iters 1500 --eval_every 50
+  log "CHAIN_card0 DONE" ) &
+( run 2 FLAIR zsssdu scripts/recon_zsssdu.py --epochs 100
+  run 2 FLAIR inr    scripts/recon_dip_inr.py --method inr --iters 1500 --eval_every 50
+  log "CHAIN_card2 DONE" ) &
+( run 3 T1    dip    scripts/recon_dip_inr.py --method dip --iters 5000 --lr 3e-3 --eval_every 100
+  run 3 FLAIR dip    scripts/recon_dip_inr.py --method dip --iters 5000 --lr 3e-3 --eval_every 100
+  log "CHAIN_card3 DONE" ) &
 wait
 log "ALL_STAGE2_AF20_DONE"

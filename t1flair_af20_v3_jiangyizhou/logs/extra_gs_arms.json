@@ -7,5 +7,13 @@
    "T1": "plain",
    "FLAIR": "contrast"
   }
+ },
+ {
+  "key": "gs_single_p3",
+  "label": "GS-single",
+  "exp": "af20_p3_singleFLAIR_full4k",
+  "map": {
+   "FLAIR": "plain"
+  }
  }
 ]

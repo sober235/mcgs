@@ -1,0 +1,2 @@
+[FLAIR] coils=26 grid=(256, 256, 176) AF_rect=18.5645 scale=9.8512e+01
+zs-ssdu: slices=256 bs=4 steps/ep=64 epochs=100 K=10 acquired lines=2427 gamma=242

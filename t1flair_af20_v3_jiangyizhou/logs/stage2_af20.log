@@ -1,1 +1,8 @@
 [22:01] armed: T1 on card 6 after af20_p3_joint_full4k, FLAIR on card 5 after af20_p3_singleFLAIR_full4k
+[22:07] zsssdu T1 START gpu 6
+[22:37] zsssdu FLAIR START gpu 5
+[22:39] stopped: ZS-SSDU T1 (card 6, epoch 3/100 after 31 min, ~10x slower than AF16) and ZS-SSDU FLAIR (card 5, 2 min in); cards 0/2/3 went idle - stage 2 moves there
+[22:39] v2 armed: card 0 ZS-SSDU T1 -> INR T1 | card 2 ZS-SSDU FLAIR -> INR FLAIR | card 3 DIP T1 -> DIP FLAIR
+[22:39] zsssdu T1 START gpu 0
+[22:39] dip T1 START gpu 3
+[22:39] zsssdu FLAIR START gpu 2
