@@ -36,3 +36,15 @@ P10 = P6 + 小波先验改为 db4、只用最细一层、T1 0.12 / FLAIR 0.10，
 这是本线第一次有留出证据。先读 `docs/handoff/2026-09-13-autoresearch-jyz-af12-phase3.md`。
 待拍板：容量 4.8M 的 4000 步验证（1500 步是 keep，FLAIR +0.051、T1 持平）；是否把对外口径从 P13 换成 P14；P14 的复数口径未测。
 ⚠️本期两次"命令没按预期执行"：pgrep 用 ERE（`\|` 不匹配）、zsh 不对 `$var` 分词——两次都用同一个坏构造去验证而误判成功。验证要换工具。
+
+## MC-INR（Niessen et al. 2025 复现）并入 AF12 课题（2026-09-13 晚，用户要求）
+论文多对比度 INR 的复现（仓库 `/data0/congcong/code/GS/mcinr_niessen2025`，结果课题 `T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou`）
+已登记为本课题的**对比方法** `mcinr`。它跑的就是本课题的 AF12 掩膜、k 空间和 ESPIRiT 图，重建体软链进 `recon/`，
+并用课题自己的 `t1t2_common.Pair.score` **重新打分**（`scripts/score_mcinr_arm.py` → `logs/mcinr_{T1,FLAIR}.json`），
+与对方自报数字九项指标最大相对偏差 **1.9e-7**。
+- 头内 PSNR/SSIM/HFEN：T1 32.192 / 0.8407 / 0.1778，FLAIR 33.042 / 0.8696 / 0.1391 —— 两个对比度都排 **8/12**，
+  高于 3D-INR、3D-DIP、P-LORAKS、ZF，低于 CG-SENSE（−1.32 / −0.92 dB）、L1-ESPIRiT（−4.23 / −2.72）、MC-GS P14（−4.82 / −3.32）。
+- **只看头内**：它往空气里填噪声，T1 整卷 PSNR 30.151 比零填充（30.240）还低。
+- **不动任何余量**：P14 六格的 binding arm 加它之前之后都是 GS-single，结论原样成立。
+- 图：交付的 P14 那对按同切片同版式重渲成十方法版（后缀 `_p14_mcinr`，九方法的 `_p14` 原样保留）；两张渲染日志与九方法版逐字节一致。
+- `summarize.py` / `results_af12_md.py` / 三个 figure 脚本都加了这一列。

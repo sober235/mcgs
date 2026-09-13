@@ -12,7 +12,7 @@ cg = json.load(open(R / "logs/complex_gauge.json"))
 LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (35 outer, 09-09, under-converged)",
          "cssense_o200": "CS-SENSE (TV, 200 outer, λ swept here)", "jcssense": "Joint SENSE (JTV, 200 outer, λ swept here)",
          "l1espirit": "L1-ESPIRiT (BART, 100 FISTA, λ swept here)", "ploraks": "P-LORAKS", "zsssdu": "ZS-SSDU", "dip": "3D-DIP",
-         "inr": "3D-INR", "gs_single": "GS-single, old cold start", "gs_joint": "MC-GS, old cold start",
+         "inr": "3D-INR", "mcinr": "MC-INR (Niessen 2025, per-slice 2-D)", "gs_single": "GS-single, old cold start", "gs_joint": "MC-GS, old cold start",
          "gs_single_v2": "GS-single v2", "gs_joint_v2": "MC-GS v2", "gs_single_v3": "GS-single v3", "gs_joint_v3": "MC-GS v3",
          "gs_joint_v3x2": "MC-GS v3 ×2 seeds", "gs_joint_v32": "MC-GS v3.2 (hyw-selected)", "gs_joint_v32x2": "MC-GS v3.2 ×2 seeds",
          "gs_joint_ar": "MC-GS P10 (AF12 loop)", "gs_single_ar": "GS-single P10", "gs_joint_ar_x2": "MC-GS P10 ×2 seeds",
@@ -20,7 +20,7 @@ LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (35 ou
          "gs_joint_p2": "**MC-GS P13 (phase-2 loop)**", "gs_single_p2": "GS-single P13",
          "gs_joint_p2_x2": "MC-GS P13 ×2 seeds (design B)",
          "gs_joint_p2_fl11": "MC-GS P13, FLAIR mask AF 11 (design B, not AF 12)"}
-ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "ploraks", "zsssdu", "dip", "inr",
+ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "ploraks", "zsssdu", "dip", "inr", "mcinr",
          "gs_joint", "gs_single", "gs_joint_v2", "gs_single_v2", "gs_joint_v3", "gs_single_v3", "gs_joint_v3x2", "gs_joint_v32",
          "gs_joint_v32x2", "gs_joint_ar", "gs_single_ar", "gs_joint_ar_x2", "gs_joint_p2", "gs_single_p2"]
 by = {(r["contrast"], r["method"]): r for r in rows}

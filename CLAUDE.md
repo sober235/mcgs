@@ -68,6 +68,10 @@ Figures (same style, slices and gauge as the AF16 finalised pair, so the two com
 `t1flair_af12_v3_jiangyizhou/figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p14.png`,
 served at `http://localhost:8765/t1flair_v3_af12/`. The P13 pair (36.969 / 36.310, `..._p2.png`) is the previous
 reference and stays in the topic. Magnitude gauge; the complex gauge has not been re-measured for P14.
+Comparison arms gained **MC-INR** on 2026-09-13 (the multi-contrast INR of Niessen et al. 2025, MICCAI RIME, reproduced
+per-slice 2-D on this topic's own mask and re-scored on its gauge to 1.9e-7 of the reproduction's own numbers): head PSNR
+32.192 / 33.042, eighth of twelve on both contrasts, below CG-SENSE; it is not the binding arm in any of P14's six cells,
+so every margin above stands. The delivered pair also exists with it as a tenth column, `..._p14_mcinr.png`.
 
 ## jiangyizhou AF12 autoresearch lines (branches `autoresearch-jyz-af12`, `-phase2`, `-phase3`, this worktree)
 Phase 1 (`autoresearch_jyz_af12.md`, handoff `docs/handoff/2026-09-12-autoresearch-jyz-af12.md`) promoted **P10** =

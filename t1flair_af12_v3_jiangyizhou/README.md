@@ -643,3 +643,46 @@ to the last bit, so slice 180/124/76 is the same anatomy in both.
 
 **Raw outputs**: `runs_p3_loop/` — score json, volume npz and log for every run of the phase, plus the ledger, the
 program, the runner, the configs and the new code (`phase_tv.py`, its test, `pair_prior.py`).
+
+## MC-INR (Niessen et al. 2025) registered as a comparison arm (2026-09-13)
+
+The multi-contrast INR of Niessen et al., *INR meets Multi-Contrast MRI Reconstruction*, MICCAI 2025 RIME workshop
+(arXiv 2509.04888), reproduced from the authors' open code at commit 08d37c5 and its config values: a 1-D inverse FFT
+along the readout, then one hash-grid + small MLP trained per transverse slice, a single network emitting both
+contrasts, weighted k-space MSE, Adam lr 0.01, 200 steps per slice, last iterate, no regulariser. Reproduction repo
+`/data0/congcong/code/GS/mcinr_niessen2025`; its own results topic `../T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou`
+(recon volumes, per-slice losses, checks, and the AF 16 topic's mask as well).
+
+It ran on **this topic's own AF 12 mask, k-space and ESPIRiT maps** — the MC-INR topic's `data/` is symlinks back to
+here — so the row is like for like. The volumes are symlinked in as `recon/mcinr_{T1,FLAIR}_complex.npy` and were
+**re-scored here through `scripts/t1t2_common.py::Pair.score`**, the identical code path every other arm of the table
+used. The re-score agrees with the reproduction's own numbers to 1.9e-7 relative on all nine metrics
+(`logs/mcinr_{T1,FLAIR}.json`). Registered in `summarize.py` as `mcinr`, and added as a column to
+`fig_row_final.py`, `fig_three_planes_compact.py` and `fig_three_planes_inset.py` (next to 3D-INR).
+
+| arm | T1 head PSNR / SSIM / HFEN | FLAIR head PSNR / SSIM / HFEN | whole PSNR T1 / FLAIR | wall |
+|---|---|---|---|---|
+| **MC-INR (Niessen 2025)** | 32.192 / 0.8407 / 0.1778 | 33.042 / 0.8696 / 0.1391 | 30.151 / 32.490 | 11.5 min, both contrasts |
+| 3D-INR (single-contrast, this topic) | 31.638 / 0.8373 / 0.1577 | 31.190 / 0.8277 / 0.1690 | 34.668 / 34.637 | 57 min |
+| CG-SENSE | 33.514 / 0.8981 / 0.1741 | 33.957 / 0.9032 / 0.1285 | 35.082 / 35.704 | 2 min |
+| L1-ESPIRiT (best λ per cell) | 36.426 / 0.9469 / 0.1036 | 35.757 / 0.9368 / 0.1000 | 39.893 / 39.205 | 5 min |
+| MC-GS (P14) | 37.015 / 0.9516 / 0.0928 | 36.360 / 0.9415 / 0.0935 | 40.361 / 39.798 | 65 min |
+
+- **Eighth of twelve on head PSNR on both contrasts**: above 3D-INR (+0.554 / +1.852 dB), 3D-DIP, P-LORAKS and ZF;
+  below CG-SENSE (−1.323 / −0.916), L1-ESPIRiT (−4.234 / −2.715) and MC-GS P14 (−4.823 / −3.318).
+- **Head-only is the only meaningful gauge for this arm.** The network fills air with noise: its whole-volume PSNR on
+  T1, 30.151, is *below zero-filled* (30.240), and on FLAIR (32.490) only zero-filled is lower (32.109). Its whole-volume SSIM, 0.5511 / 0.6260, is the lowest of every arm including ZF.
+- **It changes no margin in this topic.** The binding arm in every one of P14's six head cells is a GS-single arm
+  before and after registration; MC-INR is 4.8 / 3.3 dB away from being the bar. The P14 promotion stands as recorded.
+- Caveats carried over from the reproduction (`../T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou/SUMMARY_zh.md`): the two
+  contrasts share one mask, so the paper's complementary sampling is absent; the matrix is 256 × 176 against the
+  paper's 160 × 120 at the same step count; per-slice training leaves slice-to-slice brightness jitter, visible as
+  stripes in the coronal and sagittal planes (95th percentile of the head-mean ratio 1.9–2.3 %, against 0.9–1.1 % for
+  3D-INR and 0.4–0.5 % for L1-ESPIRiT). Only one direction of the paper agrees here: it loses less than the other arms
+  from AF 12 to AF 16 (−0.60 / −0.80 dB against −0.93 to −1.57 for every other arm), but it is below CG-SENSE at both.
+- **Figures.** The delivered P14 pair regenerated with MC-INR as a tenth method column, same slices, style and gauge
+  (`_p14_mcinr` suffix; the nine-method `_p14` pair is untouched):
+  `figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p14_mcinr.png` plus vector PDFs,
+  served from `http://localhost:8765/t1flair_v3_af12/`. The T1 render log is byte-identical to the nine-method one
+  (same grey windows, same per-panel ranks, same 48-box leads), i.e. the extra column changed nothing but the column.
+  The reproduction's own three-plane figures (MC-INR alone against the ground truth, 174 / 110 / 47) stay in its topic.

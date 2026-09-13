@@ -5,6 +5,7 @@ Sources:
   logs/classical_<c>.json   ZF / CG-SENSE / CS-SENSE      (scripts/recon_classical.py)
   logs/zsssdu_<c>.json      ZS-SSDU                        (scripts/recon_zsssdu.py)
   logs/dip_<c>.json, logs/inr_<c>.json                     (scripts/recon_dip_inr.py)
+  logs/mcinr_<c>.json       MC-INR (Niessen 2025)          (repo mcinr_niessen2025, re-scored here)
   results_arc/t1flair_v3_af12_{joint,single_T1,single_FLAIR}_score.json   (arc/cycle.py)
 
 All of them are on the one gauge (scripts/check_gauge.py proves the shared module reproduces
@@ -18,9 +19,9 @@ ARC = Path("/data0/congcong/code/GS/Paired_ARC_GS_general_framework/results_arc"
 
 COLS = ["psnr", "ssim", "nmse", "hfen", "head_psnr", "head_ssim", "head_hfen",
         "sharp", "grain", "grain_ratio"]
-ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "ploraks", "zsssdu", "dip", "inr", "gs_single", "gs_joint", "gs_single_v2", "gs_joint_v2", "gs_single_v3", "gs_joint_v3", "gs_joint_v3x2", "gs_joint_v32", "gs_joint_v32x2"]
+ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "ploraks", "zsssdu", "dip", "inr", "mcinr", "gs_single", "gs_joint", "gs_single_v2", "gs_joint_v2", "gs_single_v3", "gs_joint_v3", "gs_joint_v3x2", "gs_joint_v32", "gs_joint_v32x2"]
 LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "zsssdu": "ZS-SSDU",
-         "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
+         "dip": "3D-DIP", "inr": "3D-INR", "mcinr": "MC-INR (Niessen 2025)", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
          "gs_single_v2": "MC-GS single v2", "gs_joint_v2": "MC-GS joint v2",
          "cssense_o200": "CS-SENSE (TV, converged)", "jcssense": "joint CS-SENSE (JTV)",
          "l1espirit": "L1-ESPIRiT", "ploraks": "P-LORAKS",
@@ -30,7 +31,7 @@ LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "zsssdu": "ZS
 def main():
     rows = []
     for c in ("T1", "FLAIR"):
-        for stem in ("classical", "zsssdu", "dip", "inr"):
+        for stem in ("classical", "zsssdu", "dip", "inr", "mcinr"):
             p = R / f"logs/{stem}_{c}.json"
             if not p.exists():
                 continue
