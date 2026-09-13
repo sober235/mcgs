@@ -16,7 +16,7 @@ from scipy import ndimage
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "paired_gs"))
 from data.known_zero import (MIN_NOISE_SAMPLES, KnownZeroInfo, build_fit_tensors, estimate_known_zero,  # noqa: E402
-                             estimate_noise_cov, whitening_matrix)
+                             estimate_noise_cov, known_zero_from_support, load_support_map, whitening_matrix)
 
 C, P0, P1, R = 4, 48, 40, 24
 
@@ -281,3 +281,69 @@ def test_hard_dc_combine_is_zero_on_Z_and_keeps_measured_samples():
     k_out = fft3c(vol.unsqueeze(0) * csm) * (1 - mask_fit.unsqueeze(0)) + k_dc      # the k-space the helper combined
     assert float(k_out[:, Z].abs().max()) == 0.0
     assert torch.equal(k_out[:, (m > 0.5) & ~Z], k[:, (m > 0.5) & ~Z])
+
+
+# ---- explicit support (phase 3, 2026-09-12): the shutter as protocol knowledge --------------------------------
+
+def _inside_only(k, m, keep):
+    """Restrict the sampling to lines inside `keep`, so the estimator sees no zero line at all."""
+    m2 = (torch.movedim(m, 2, 2)[:, :, 0] > 0.5).numpy() & keep
+    mask = torch.from_numpy(np.repeat(m2[:, :, None], m.shape[2], axis=2).astype(np.float32))
+    return k * mask[None], mask
+
+
+def test_explicit_support_gives_Z_where_the_estimator_cannot():
+    k, m, dc, keep = _synth(ellipse=(18, 14))
+    k, m = _inside_only(k, m, keep)
+    Z_est, info_est = estimate_known_zero(k, m, ro_axis=2)
+    assert not bool(Z_est.any()) and info_est.n_zero_lines == 0          # nothing to learn the shutter from
+    Z, info = known_zero_from_support(keep, k, m, ro_axis=2)
+    z_pe = Z[:, :, 0].numpy()
+    assert bool((Z == Z[:, :, :1]).all())                                 # broadcast along the readout
+    assert np.array_equal(z_pe, ~keep)
+    assert info.n_nonzero_in_z == 0 and info.n_outliers == 0 and info.ellipse is None
+    assert info.cuts == {"source": "explicit_support"} and abs(info.frac_z - float((~keep).mean())) < 1e-9
+    assert info.dc[:2] == dc
+
+
+def test_explicit_support_never_overrides_a_measured_line():
+    k, m, dc, keep = _synth(ellipse=(18, 14), extra_lines=OUTSIDE, extra_amp=0.05)
+    Z, info = known_zero_from_support(keep, k, m, ro_axis=2)
+    z_pe = Z[:, :, 0].numpy()
+    for (i, j) in OUTSIDE:
+        assert not z_pe[i, j]
+    assert info.n_outliers == len(OUTSIDE) and info.n_nonzero_in_z == 0
+    assert int((~keep).sum()) - len(OUTSIDE) == int(z_pe.sum())
+
+
+def test_explicit_support_readout_axis_position_does_not_matter():
+    for ro in (0, 1, 2):
+        k, m, dc, keep = _synth(ellipse=(18, 14), ro_axis=ro)
+        Z, info = known_zero_from_support(keep, k, m, ro_axis=ro)
+        z_pe = torch.movedim(Z, ro, -1)[:, :, 0].numpy()
+        assert np.array_equal(z_pe, ~keep)
+
+
+def test_load_support_map_formats(tmp_path):
+    import h5py
+    keep = np.zeros((P0, P1), bool); keep[4:-4, 3:-3] = True
+    np.save(tmp_path / "s.npy", keep)
+    with h5py.File(tmp_path / "s.h5", "w") as h:
+        h.create_dataset("support", data=keep.astype(np.uint8))
+    with h5py.File(tmp_path / "m.h5", "w") as h:
+        h.create_dataset("mask", data=keep.astype(np.float32))
+    for f in ("s.npy", "s.h5", "m.h5"):
+        assert np.array_equal(load_support_map(tmp_path / f), keep)
+    np.save(tmp_path / "bad.npy", np.zeros((2, 3, 4)))
+    with pytest.raises(AssertionError):
+        load_support_map(str(tmp_path / "bad.npy"))
+
+
+def test_explicit_support_fit_tensors_match_estimator_path():
+    """With the ORIGINAL (rectangle) sampling the estimator finds the ellipse itself; the explicit map of the
+    same ellipse must give the same fit-side tensors up to the lines the estimator's safety expansion adds."""
+    k, m, dc, keep = _synth(ellipse=(18, 14))
+    Z_est, _ = estimate_known_zero(k, m, ro_axis=2)
+    Z_exp, _ = known_zero_from_support(keep, k, m, ro_axis=2)
+    both = Z_est & Z_exp
+    assert float(both.float().sum() / Z_exp.float().sum()) > 0.9          # the estimator recovers >90 % of the true Z

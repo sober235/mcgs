@@ -245,8 +245,19 @@ Results_20260908/Peds_TSC_MTP_AF12_retro/
 ## 11. Out of scope
 
 Tuning the GS recipe on this subject; noise prewhitening; the other eight contrasts; the 2D FSE and wave-CAIPI
-scans; acceleration levels other than 12; deleting the 23 GB of stage-1 leftovers; changes to framework code
-outside `uih_mtp/` (the GS arms run on configuration alone).
+scans; acceleration levels other than 12; deleting the 23 GB of stage-1 leftovers.
+
+*Correction 2026-09-13 during execution:* this section originally also ruled out framework changes, on the
+assumption that the GS arms would run on configuration alone. They cannot. The `data.<channel>.known_zero_support`
+key does not exist on this branch: it was added to the framework by commit `e0e1058` on the AF16 phase-3 branch,
+after `3a44aba`, the commit this worktree was cut from. Without it the trainer falls back to the sampled-line
+estimator, which finds nothing here because the sampling mask never lands outside the support — the smoke run
+reported `frac_z_used = 0.0000`, i.e. the GS arms would have received no known zeros at all while every other arm
+did, the exact asymmetry the user's decision 3 removes. The framework half of `e0e1058` (`paired_gs/data/known_zero.py`,
+`paired_gs/trainers/joint_trainer.py`) and its tests were therefore applied here. It is the same lineage, not a
+cross-lineage merge, the default code path is unchanged (the new branch is taken only when the key is set), and
+the 23 known-zero tests pass. After it, the smoke run reports `frac_z_used = 0.3701` = 11702 / 31616 with
+`nonzero_in_z = 0`.
 
 ## 12. Deliverables
 

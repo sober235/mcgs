@@ -1,0 +1,102 @@
+# ============================================================================
+# peds_af12_T1w_T2s.yaml -- 16-year-old MTP exam, retrospective AF 12, joint T1w + T2s.
+# Spec: docs/superpowers/specs/2026-09-12-16yo-mtp-stage2-af12-design.md
+#
+# Data: /data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT (reference k-space = the GRAPPA-completed
+#   prospective 2x acquisition, ESPIRiT maps, unit SoS). (coil, RO, PE, SPE) = (32, 320, 304, 104),
+#   DC at (160, 152, 52); readout axis 0 is fully sampled, phase axes [1, 2].
+# Mask: ONE vd-Poisson mask for both contrasts, 2635 points inside the acquired support
+#   (AF 12.00 of the whole 304x104 matrix with the ACS counted, 7.56x of the 19914 acquired
+#   positions). scripts/prep_mask.py of the topic; logs/prep_mask.json.
+# known_zero: the partial-Fourier block (PE 227..303) and the elliptical corners are MEASURED zeros
+#   and are given to every arm alike (user decision 2026-09-12). The support map is explicit because
+#   the sampling mask never lands outside the support, so the estimator has nothing to learn from.
+# presampled: false => the loader rebuilds the reference image from the full reference k-space with
+#   these maps and then applies the mask: that is what makes this retrospective.
+# Working point P10 (jiangyizhou AF12 line). Reproduce with exactly:
+#   --iters 4000 --lambda_geo 0.10 --warmup 500 --max_radius 20 --kspace_high 2.2 \
+#   --edge_tv --edge_tv_kappa_q 0.85 --edge_tv_wfloor 0.10 --tv_eps 0.04 \
+#   --set gaussian.init_mode=head --set gaussian.init_scale_mode=3nn \
+#   --set loss.edge_tv_kappa_source=zf --set gaussian.initial_num_points=3600000 \
+#   --set loss.wav_name=db4 --set loss.wav_levels=1 --save_volumes
+# The two wavelet weights live below, NOT on the command line: a --set would hit both channels.
+# ============================================================================
+data:
+  plain:
+    name: T1w
+    acceleration_factor: 12
+    data_path: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro/data/ksp_T1w.h5
+    csm_path:  /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro/data/csm_espirit_T1w.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro/data/mask_af12_2d.mat
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [1, 2]
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false
+    known_zero: true
+    known_zero_support: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro/data/support_2d.h5
+  contrast:
+    name: T2s
+    acceleration_factor: 12
+    data_path: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro/data/ksp_T2s.h5
+    csm_path:  /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro/data/csm_espirit_T2s.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro/data/mask_af12_2d.mat
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [1, 2]
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false
+    known_zero: true
+    known_zero_support: /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro/data/support_2d.h5
+gaussian:
+  density_lr: 0.015
+  init_scale: 0.0066               # about one voxel of the 304-point phase axis (2/304)
+  initial_num_points: 3600000
+  position_lr: 0.0003
+  rotation_lr: 0.0003
+  scale_lr: 0.002
+hardware:
+  device: cuda:0
+loss:
+  loss_type: l2
+  tv_weight: 0.10
+  tv_eps: 0.04
+  kspace_freq_adaptive: true
+  kspace_center_fraction: 0.05
+  kspace_center_weight: 0.3
+  kspace_mid_weight: 1.0
+  kspace_high_weight: 2.2
+  lambda_diff: 0.01
+  lambda_enh: 0
+  edge_tv: true
+  edge_tv_kappa_q: 0.85
+  edge_tv_wfloor: 0.1
+  wav_name: db4
+  wav_levels: 1
+  lambda_wav_plain: 0.12           # T1w channel (P10's T1 weight)
+  lambda_wav: 0.10                 # T2s channel (P10's FLAIR weight)
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+output:
+  exp_name: peds_af12_joint
+  output_dir: results_arc/peds_af12_joint
+training:
+  max_iterations: 4000
+  shared_warmup_iters: 500
+  eval_every: 1000
+  log_every: 50
+  save_every: 1000
+  seed: 42
+  max_grad_norm: 1.0
+  lr_scheduler:
+    type: exponential
+    gamma: 0.9995
+voxelizer:
+  max_radius: 20
+  tile_size: 8

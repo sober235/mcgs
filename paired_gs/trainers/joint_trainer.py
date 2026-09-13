@@ -47,7 +47,8 @@ from torch.utils.tensorboard import SummaryWriter
 from data.dataset import MRIDataset
 from data.transforms import fft3c, ifft3c
 from dataclasses import asdict
-from data.known_zero import build_fit_tensors, estimate_known_zero, estimate_noise_cov, hard_dc_combine, whitening_matrix
+from data.known_zero import (build_fit_tensors, estimate_known_zero, estimate_noise_cov, hard_dc_combine,
+                             known_zero_from_support, load_support_map, whitening_matrix)
 from losses.edge_tv import edge_preserving_tv, resolve_edge_kappa, tv_magnitude
 from gaussian.joint_gaussian_model import JointGaussianModel3D
 from gaussian.tile_voxelizer import TileVoxelizer
@@ -185,7 +186,13 @@ class JointTrainer:
                 continue
             ds = self.ds_p if tag == "p" else self.ds_c
             y, m, S = getattr(self, f"kspace_{tag}"), getattr(self, f"mask_{tag}"), getattr(self, f"csm_{tag}")
-            Z, info = estimate_known_zero(y, m, int(ds.readout_axis))
+            sup_path = data_cfg[sub].get("known_zero_support")
+            if sup_path:
+                # explicit acquired support (protocol knowledge, e.g. the vendor shutter): used when the
+                # sampling lies inside the shutter and the estimator would see no zero line (phase 3, 2026-09-12)
+                Z, info = known_zero_from_support(load_support_map(sup_path), y, m, int(ds.readout_axis))
+            else:
+                Z, info = estimate_known_zero(y, m, int(ds.readout_axis))
             W, winfo = None, {}
             if use_pw:
                 Sigma, winfo = estimate_noise_cov(y, m, Z, info)
@@ -200,7 +207,7 @@ class JointTrainer:
             rec = {"known_zero": use_kz, "prewhiten": bool(use_pw and W is not None), **asdict(info), **winfo,
                    "frac_z_used": float(Z.float().mean())}
             self.physics_info[tag] = rec
-            print(f"[physics:{sub}] known_zero={use_kz} cuts={info.cuts} ellipse={info.ellipse} "
+            print(f"[physics:{sub}] known_zero={use_kz} support={sup_path or 'estimated'} cuts={info.cuts} ellipse={info.ellipse} "
                   f"frac_z_used={rec['frac_z_used']:.4f} zero_lines={info.n_zero_lines}/{info.n_sampled_lines} "
                   f"explained={info.n_zero_explained} nonzero_in_z={info.n_nonzero_in_z} "
                   f"noise_level_used={info.noise_level_used} outliers={info.n_outliers}/{info.n_significant_outliers} "
