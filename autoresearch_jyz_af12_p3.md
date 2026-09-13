@@ -170,3 +170,7 @@ wavelet was db2 / 3 levels". We now sit on db4 / 1 level plus the two new terms,
 `p3_e0001_ptv001_n48` = the round-2 combination at 4.8M points, 1500 it, read by rule 2 against
 `p3_e0001_ptv001` (36.989 / 36.280). Capacity is decided only at 4000, so a keep here buys a promotion run, not a
 place in the recipe.
+- 19:15 `p3_edge0002` (common-edge 0.002): ΔT1 +0.043, ΔFLAIR +0.031, SSIM +0.0002 / +0.0001, sharp 0.854 / 0.817 —
+  a keep, below 0.001. **The bracket is now complete and single-peaked here: 0.0005 +0.032/+0.027, 0.001
+  +0.049/+0.041, 0.002 +0.043/+0.031, 0.005 −0.152/−0.165.** The AF16 line read 0.001 ≈ 0.002 as a plateau; on this
+  subject 0.001 is a shade above 0.002, so the optimum is the same value reached independently, not copied.
