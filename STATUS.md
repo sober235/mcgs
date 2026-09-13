@@ -1,53 +1,78 @@
-# STATUS — 2026-09-12 19:30（分支 `16yo-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`，已推送到 origin/16yo-mtp，tag `handoff/2026-09-12-16yo-mtp`）
+# STATUS — 2026-09-13（分支 `16yo-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`）
 
-本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线（原名 peds-tsc-mtp，按用户要求改名 16yo-mtp）。会话总结：`docs/superpowers/records/2026-09-12-16yo-mtp-reference-dataset.md`。课题目录 `/data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/`
-（README 是结果的权威记录，仓库里 `peds_tsc_mtp_3d/` 是它的镜像）。设计：
-`docs/superpowers/specs/2026-09-12-16yo-mtp-grappa-design.md`。
+本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。两个阶段都已完成。
+英文总结：第一阶段 `docs/superpowers/records/2026-09-12-16yo-mtp-reference-dataset.md`，
+第二阶段 `docs/superpowers/records/2026-09-13-16yo-mtp-af12.md`。
+设计与计划：`docs/superpowers/specs/2026-09-12-peds-tsc-mtp-grappa-design.md`（一期）、
+`docs/superpowers/specs/2026-09-12-16yo-mtp-stage2-af12-design.md` 与
+`docs/superpowers/plans/2026-09-12-16yo-mtp-stage2-af12.md`（二期）。
+课题目录：`Results_20260908/Peds_TSC_MTP_3D/`（参考 k 空间）与
+`Results_20260908/Peds_TSC_MTP_AF12_retro/`（回顾性九臂对比，README 是权威数字）。
 
 ## 1. 已完成且已验证
-- `uih_mtp/uih_raw.py`：UIH RAWDATA-V004 读取器（头索引、按 (set, echo, u1) 选读、去读出过采样）；
-  `uih_mtp/grappa.py`：3D GRAPPA（PE 2 倍、24 条 ACS、椭圆包络、部分傅里叶区留空）+ 藏线自检 + 留一自检。
-  测试 `tests/test_uih_mtp_raw.py`（真实文件：135084 成像行、11257 采样位置、DC 在 (152, 52)）与
-  `tests/test_uih_mtp_grappa.py`（8 线圈体模：图像 NRMSE < 5 %、采样线逐位不变）共 8 个，全过；基线 183 个测试全过。
-- 第一阶段跑完（09-12 12:47，GPU 2）：FA16/TE3.25 与 FA4/TE27.41 各得补齐 k 空间 `data/<contrast>/kspace_grappa.h5`
-  （coil, RO, PE, SPE = 32 x 320 x 304 x 104）、掩膜、RSS 图、图两张。
-  ```
-  cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/scripts && bash run_stage1.sh --overwrite
-  # logs/run_stage1.log 摘录
-  # 12:45:57 GRAPPA: 8657 positions filled (284400 calibration equations, 3200 unknowns), 8 s
-  # 12:45:58 ACS hold-out check: relative k-space error on the hidden odd lines 0.0964 (2 s)
-  # 12:46:59 ACS hold-out check: relative k-space error on the hidden odd lines 0.1880 (2 s)
-  # FA16_TE3.25 corr_grappa 0.9099 (zero-filled 0.9056); FA4_TE27.41 corr_grappa 0.9638 (zero-filled 0.9413)
-  ```
-- 1b 跑完（16:08）：ESPIRiT 图（房规 `ecalib -t 0.001 -c 0.0 -r 24 -m 1`，全分辨率，SoS=1）存 `data/<contrast>/csm_espirit.h5`（key `map`）；
-  SENSE 合成 `sense_grappa.npy`；CG-SENSE（40 步，GPU）`cgsense.npy`。两者头内复数 NRMSE 0.078 / 0.196，幅值差在 1 体素高斯平滑后降到
-  0.010 / 0.046，差异图无解剖结构 → 两种经典重建一致到噪声量级。厂商相关 0.912 / 0.962（与 RSS 相同：单图 ESPIRiT 的 SENSE 合成保留线圈亮度分布，
-  差距来自厂商的强度归一化与部分傅里叶重建，不是并行成像步骤）。
-- 噪声地板（重复的 echo 0，`logs/noise_floor.json`）：藏线自检的地板 FA16 0.067、FA4 echo4 0.144，GRAPPA 在地板的 1.3–1.4 倍。
-- 核大小留一验证（`logs/grappa_kernel_loo_FA16_TE3.25.json`）：8 种设置 0.094–0.102，默认 (4, 2, 2, 1e-3) = 0.097，核不是瓶颈，不改。
 
-## 2. 待用户拍板（第二阶段设计）
-- ✅ 已定（09-12 17:00）：GT = GRAPPA 补齐 k 空间的 ESPIRiT SENSE 合成图（`*_sense.png` 第一列）；全部 10 个对比度当作"16 岁未成年多对比度数据集"
-  存到项目数据根 `/data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT/`（`export_gt_dataset.py`，布局同 AF12 课题：ksp_<c>.h5 键 kspace、
-  csm_espirit_<c>.h5 键 map、gt_sense_<c>.npy、masks_<c>.npz、meta_<c>.json、index.json、README.md）。**18:40 用户改口：数据集只要 T1 加权（FA16_TE3.25）与 T2* 加权（FA4_TE27.41）两个对比度**，补跑批次已停（`run_all_contrasts.sh` 跑到第 6 个时杀掉），导出脚本默认只导这两个（`--contrasts` 可改）。已经跑完的 FA16 TE 9.29/15.33/21.37/27.41 与 FA4 TE3.25 的 GRAPPA 输出仍留在课题 `data/` 下（未导出，可删）。
-- 回顾性掩膜相对什么定义：相对采集支撑（椭圆包络内的 227×104 带，AF 按支撑计，与 AF16 课题的 FLAIR 口径一致）还是相对整格 304×104。
-- 加速倍数档位（例如 4 / 8 / 12 相对支撑）、掩膜类型（vdPoisson 同 AF12/AF16 课题、calib 24）、两对比度同掩膜还是各自掩膜。
-- 部分傅里叶区与椭圆角作为已知零区：只给 GS 臂（沿用旧课题的不对称）还是所有方法都用。
-- 方法表范围：全套（CG-SENSE、CS-SENSE、Joint SENSE、L1-ESPIRiT、ZS-SSDU、3D-DIP、3D-INR、GS-single、MC-GS）还是先做经典 + GS。
+### 一期：参考数据集（09-12）
+GRAPPA 补齐的多线圈 k 空间 + ESPIRiT 图 + SENSE 合成图，两个对比度（T1w = FA16/TE3.25，
+T2s = FA4/TE27.41，脑内相关 0.57，是十个里最不相似的一对），存
+`/data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT/`（9.8 GB，index.json 的 10 个 md5 于 09-13 复核全部一致）。
+藏线自检 0.096 / 0.188，噪声地板 0.067 / 0.144。
+
+### 二期：回顾性 AF 12，九臂（09-13）
+```
+cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
+./scripts/py scripts/check_gauge.py --contrast T1w --method cgsense --gpu 2 | tail -1
+# GAUGE OK -- the shared module reproduces recon_classical exactly   （九项指标差值全为 0.00e+00）
+```
+- 掩膜：2635 / 31616 点 = **AF 12.00（整格，含 ACS）**，对 19914 个有数据的位置是 **7.56 倍**；
+  一张掩膜两个对比度；已知零区 11702 点给**所有**臂（用户拍板）。`logs/prep_mask.json`。
+- 26 个排队任务返回码全为 0；六个 λ 扫描的最优**全部落在网格内部**（三个扫描为此外扩过）。
+- 主表口径（中间 80 分区）与副表（全 104 分区）一致性：18 个臂/对比度组合、90 个数值全部在 2e-4 内。
+
+**结论：MC-GS 在这套数据上不领先，且联合不如单臂。**
+
+| 头内 PSNR（中间 80 分区） | T1w | T2s |
+|---|---|---|
+| L1-ESPIRiT | **38.830** | 33.860 |
+| GS-single | 38.086 | **34.175** |
+| MC-GS | 37.855 | 34.160 |
+
+联合减单臂：T1w −0.231、T2s −0.015，SSIM/HFEN/锐度两通道也都持平或更差。
+经典联合臂独立佐证：Joint SENSE 减收敛的独立 CS-SENSE 是 T1w −0.90、T2s +0.06，方向完全一致。
+成人 T1+FLAIR 上这个差值四组全正，这里不复现——决定因素是这对对比度的相似度，不是数据稀疏度。
+
+## 2. 待用户拍板
+
+1. **是否在本受试者上开调参循环**去追 T1w 那 1.0 dB。二期按 spec 原样迁移 P10、未调任何参数；调参属另一次拍板。
+2. **是否用一对"相似"的对比度再做一次**（同翻转角相邻回波，相关 ≥ 0.94），以确认起作用的是相似度而非稀疏度。
+   这会把阴性结果变成一条明确的边界条件，是本线目前最有价值的一步。
+3. **其余八个对比度的一期输出（23 GB）是否删除**（本次未动，用户此前说先不动）。
 
 ## 3. 下一步
-- 第二阶段（回顾性欠采样 + 方法表）：用户拍板上面五条后写 spec，再执行；数据入口 = `data/<contrast>/kspace_grappa.h5` + `csm_espirit.h5` + 回顾性掩膜，
-  和 CE / AF12 课题相同的 (coil, RO, PE, SPE) 布局。
-- 其余对比度不再补跑（用户只要两个）；若日后要，`run_all_contrasts.sh` 会跳过已完成的。
+
+无进行中的计算。二期已收尾并推送。若做上面第 2 条：复用同一掩膜与同一套脚本，只改 `data/contrasts.json`
+指向的两个对比度并重跑 `prep_mask.py` 之外的全部队列。
 
 ## 4. 已知的坑与别重做
-- raw 的翻转角在 user index 1（u1），不在 set；set 0 是 echo 0 的重复读出；ROCenter 160 是按 320 网格计的。
-- raw 图像轴到厂商 DICOM：SPE 要翻转并取中间 80 层，PE 两侧各裁 2 像素，RO 不动。
-- `pydicom` 只在 nvgen 环境有；GSTMI 环境跑重建，DICOM 先用 `vendor_dicom_to_npy.py` 导成 npy。
-- 只用 GPU 2 且必须先看 `nvidia-smi --query-compute-apps`；GPU 1 是用户自己的 nnUNet 训练，0 与 3–7 是其他重建线。
-- 长任务 `setsid nohup` 脱离，等待用 `kill -0 PID`；工具 shell 是 zsh，cwd 会被重置，路径一律写绝对路径。
+
+- **方位**：本课题体积是 (RO 320, PE 304, SPE 104)，**轴 2 = 横断、轴 0 = 冠状、轴 1 = 矢状**。
+  已用厂商 DICOM 判定（`gt[:, 2:-2, 52]` 对厂商第 39 层，r = 0.899），不是猜的。从 AF16 课题复制来的脚本
+  是反的，已全部修正。体素 0.7 × 0.7 × 1.35 mm 各向异性，画图必须按物理尺寸定面板比例。
+- **房规生成器的 `calib` 不产生满采块**：旧课题掩膜也只有 472/576、482/576。本掩膜 366/576。别再为此报警。
+- **`known_zero_support` 是 e0e1058 之后才有的**：本 worktree 从 3a44aba 切出，原本没有，导致 GS 臂拿不到
+  已知零区（`frac_z_used = 0.0000`）。已移植框架部分。现在两通道都是 0.3701。
+- **别让 `recon_classical.py` 改用共享 Pair**：那会让 `check_gauge.py` 变成自己验自己。
+- **`grain_ratio` 在 T2s 上不可用**：冻结的白质掩膜只剩 664 个体素（T1w 是 220039）。口径未改，数字别引用。
+- **选层别用 `best_slice_mcgs.py` 的判据**：它按 MC-GS 领先幅度排序，而 MC-GS 在 T1w 上从不领先，那样选是自我美化。
+  图用的是解剖依据（横断 SPE 53 = 厂商第 38 层，一期病灶普查见室管膜下结节的层面）。
+- **重评分必须并行**：冻结的 15³ LoG 卷积单线程，串行两遍口径要六小时。`rescore.py --jobs 9`。
+- GPU 只用 2 号且必须先看 `nvidia-smi --query-compute-apps`；BART 走 CPU、nice 10、8 线程。
+- 测试基线 214（`--ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py`，后者需要只有主检出才有的文件）。
 
 ## 5. 关键决定的"为什么"
-- 主重建选 GRAPPA 而非 ESPIRiT-SENSE：要看的是补齐的 k 空间，采样线不改动，输出直接是第二阶段要的多线圈 k 空间。
-- 部分傅里叶区不填：参考 k 空间里只留测量值和并行成像插值，不掺合成高频。
-- 核不调：留一误差随核几乎不变，且离噪声地板只有 1.4 倍。
+
+- **AF 按整格算（2635 点）而非按支撑（1660 点）**：用户原话是"已经采集点除以整体矩阵的大小"。两个口径都在表里标出。
+- **已知零区给所有臂**：用户拍板。代价是 BART 必须显式传 `-p`，自监督划分必须与前向掩膜分开，否则会在恒为零的
+  目标上训练或验证。
+- **主表用中间 80 分区**：外侧各 12 个分区是层向过采样余量，激励剖面已衰减到 6–10%，厂商也不输出。
+  全 104 分区的副表保留作交叉核对，两者排名一致。
+- **P10 原样迁移不调参**：spec 定的做法，这样"联合是否有增益"这个问题的答案不被调参掩盖。

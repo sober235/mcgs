@@ -30,11 +30,20 @@ Read in this order: this file → `STATUS.md` (current state, what to re-run fir
   `af12-to-af10` → `t1t2-af12-retro` → `autoresearch-t1t2` (current). `main` / `origin/main`
   are an unrelated earlier snapshot plus the CE work; never merge across the two lineages.
 
-## Pediatric TSC MTP line (branch `16yo-mtp`, this worktree)
-Read `STATUS.md` first, then `docs/superpowers/specs/2026-09-12-16yo-mtp-grappa-design.md` and the topic README
-`/data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_3D/README.md` (mirrored here as `peds_tsc_mtp_3d/`). Code:
-`uih_mtp/` (UIH raw reader, 3D GRAPPA), tests `tests/test_uih_mtp_*.py` (the raw-file tests need the 22 GB raw and
-take ~45 s). GPU policy for this line: GPU 2 only, and only when `nvidia-smi --query-compute-apps` shows it empty.
+## Pediatric TSC MTP line (branch `16yo-mtp`, this worktree) — both stages complete
+Read `STATUS.md` first. Stage 1 built the reference k-space (spec `docs/superpowers/specs/2026-09-12-peds-tsc-mtp-grappa-design.md`,
+topic `Results_20260908/Peds_TSC_MTP_3D/`, dataset `/data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT/`).
+Stage 2 is the retrospective AF-12 nine-arm comparison (spec `...2026-09-12-16yo-mtp-stage2-af12-design.md`,
+plan `docs/superpowers/plans/2026-09-12-16yo-mtp-stage2-af12.md`, topic
+`Results_20260908/Peds_TSC_MTP_AF12_retro/` — its README is the authoritative numbers, mirrored here as
+`peds_tsc_mtp_af12_retro/`, record `docs/superpowers/records/2026-09-13-16yo-mtp-af12.md`).
+Result: **MC-GS does not lead this exam and joint is not better than single** (T1w head PSNR: L1-ESPIRiT 38.830 >
+GS-single 38.086 > MC-GS 37.855; T2s: GS-single 34.175 ≈ MC-GS 34.160 > L1-ESPIRiT 33.860). Joint SENSE reproduces
+the same pattern, so it is the contrast pair (r = 0.57, the least similar of the ten), not the implementation.
+Code: `uih_mtp/` (raw reader, 3D GRAPPA, `retro_mask`, `rescore`), configs `configs/peds_af12_*.yaml`, runner
+`autoresearch_peds.sh`. GPU policy for this line: GPU 2 only, and only when `nvidia-smi --query-compute-apps`
+shows it empty. **This topic's axes: axis 2 = transverse, axis 0 = coronal, axis 1 = sagittal** (adjudicated
+against the vendor DICOM; the AF16 scripts' convention is the opposite and was corrected).
 The two sections below describe the branch this worktree was cut from and are kept for reference.
 
 ## jiangyizhou AF16 autoresearch line (branch `autoresearch-jyz-af16`, this worktree)

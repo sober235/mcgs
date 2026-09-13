@@ -80,6 +80,8 @@ The completed k-space is the reference for stage 2 (retrospective undersampling,
 ## Isolation (user requirement: no interference with the other reconstruction lines)
 
 - Only GPU 1 (free at launch, re-checked with `nvidia-smi --query-compute-apps` before every launch); one
+  <!-- Corrected 2026-09-13: the line's standing rule became GPU 2 only, and only when empty, once GPU 1
+       was taken by the user's own nnUNet training. STATUS.md and CLAUDE.md carry the current rule. -->
   process at a time; nothing on GPUs 0, 3–7. CPU work is limited to figure generation and, in stage 1b,
   BART `ecalib` with `nice 10` and at most 8 threads because the cardiac line runs BART on the CPU.
 - Nothing is written outside this worktree, the topic folder, `~/figs/peds_tsc_age16/` and the scratchpad.
