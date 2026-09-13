@@ -176,9 +176,9 @@ MC-GS, 0.0280 and 0.0542 for L1-ESPIRiT, 0.0370 and 0.0807 for CG-SENSE — at a
 sits in the bottom half of the colormap and all the panels read as uniform dark blue, which is what made the methods
 look indistinguishable. 0.05, 0.08 and 0.09 were tried on the way (0.05 saturates about 1 % of head voxels, the others almost none, and all
 three separate the arms far better than 0.1); the user came back to **0.1**, the house convention, so the figures of
-record use it and `--err_vmax` is the switch for the tighter scales. The two bars are flush with the top and bottom of
-the row they belong to; the grey bar drops its lowest tick so its label cannot collide with the error bar's top label
-across the narrow gap between the rows, and the error bar's ticks are round steps that always include the ceiling.
+record use it and `--err_vmax` is the switch for the tighter scales. The outer end of each bar is flush with its row and the two
+ends that face each other are pulled in by 0.10 in (`CBTRIM`), so the grey bar's 0 and the error bar's ceiling are both
+labelled and clearly apart; the error bar's ticks are round steps that always include the ceiling.
 The scale is
 **fixed and identical for every panel**, so panels remain directly comparable; only the ceiling changed. `--err_vmax 0.1`
 restores the house convention.

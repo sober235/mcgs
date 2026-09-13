@@ -198,6 +198,7 @@ for p in planes:
 
 ncol = len(ARMS) + 1
 pw, gap = 2.6, args.gap                     # panel width and gap (in)
+CBTRIM = 0.10                                # inches pulled off the facing ends of the two colorbars
 top_in, cbpad, cbw, cbroom = 1.15, 0.06, 0.13, (0.60 if args.gray_cbar else 0.42)   # wider label room when every row has a bar
 row_h = []
 for p in planes:
@@ -285,11 +286,11 @@ for k, p in enumerate(planes):
             a.set_title(lab, fontsize=14, pad=4)
     if args.gray_cbar and ax_ in args.cbar_planes:
         x_cb = (ncol * pw + (ncol - 1) * gap + cbpad) / fw
-        # each bar is flush with the top and bottom of the row it belongs to (user 2026-09-13). The grey bar drops its
-        # lowest tick so its label cannot collide with the error bar's top label across the small gap between the rows.
-        for handle, top, tk in ((gim, y, MaxNLocator(4, prune="lower")),
-                                (im, y + h + gap, _err_ticks(args.err_vmax))):
-            cax_ = fig.add_axes([x_cb, 1 - (top + h) / fh, cbw / fw, h / fh])
+        # the outer end of each bar is flush with its row; the two ends that face each other are pulled in by CBTRIM so
+        # the grey bar's 0 and the error bar's ceiling do not sit on top of each other (user 2026-09-13)
+        for handle, top, tk in ((gim, y, MaxNLocator(5)),
+                                (im, y + h + gap + CBTRIM, _err_ticks(args.err_vmax))):
+            cax_ = fig.add_axes([x_cb, 1 - (top + h - CBTRIM) / fh, cbw / fw, (h - CBTRIM) / fh])
             cbx = fig.colorbar(handle, cax=cax_, ticks=tk)
             cbx.ax.tick_params(labelsize=9.5)
     y += 2 * h + 2 * gap
