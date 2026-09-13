@@ -196,16 +196,17 @@ def label(a, text, bold=False, line=0, fs=12, h=None, color="white"):
 
 
 ZC = METRIC_COLOR                                # zoom-box outline / inset border (user 2026-09-13: orange-yellow)
+ZLW = 2.2                                        # its line width (user 2026-09-13: thicker); the inset border is ZLW + 0.6
 
 
 def put_inset(parent, img, z, x0_in, y0_in, pw_in, h_in, **imkw):
     """draw the zoom box on `parent` and paste the magnified box in the panel's bottom-left corner"""
-    parent.add_patch(Rectangle((z["x0"], z["y0"]), z["w"], z["w"], fill=False, ec=ZC, lw=1.1))
+    parent.add_patch(Rectangle((z["x0"], z["y0"]), z["w"], z["w"], fill=False, ec=ZC, lw=ZLW))
     side = 0.38 * pw_in                                        # inset side, inches (square)
     a = fig.add_axes([(x0_in + 0.012 * pw_in) / fw, 1 - (y0_in + h_in - 0.012 * pw_in) / fh, side / fw, side / fh])
     a.set_xticks([]); a.set_yticks([])
     for sp in a.spines.values():
-        sp.set_visible(True); sp.set_edgecolor(ZC); sp.set_linewidth(1.4)
+        sp.set_visible(True); sp.set_edgecolor(ZC); sp.set_linewidth(ZLW + 0.6)
     a.imshow(img[z["y0"]:z["y0"] + z["w"], z["x0"]:z["x0"] + z["w"]], origin="lower", aspect="auto", **imkw)
     return a
 

@@ -124,7 +124,7 @@ cherry-picks. The defensible headline stays the whole-volume margin (+0.497 / +0
 --inset W` draws the three full slices through the box centre, outlines the W x W face in green on every panel, and
 pastes the magnified box in the bottom-left corner of every panel — image rows and error rows alike. **User decision
 2026-09-13: the zoom carries no numbers of its own and its outline and border are the same orange-yellow as the
-in-panel metrics**; the box's PSNR is printed to stdout by the script instead. Head-masked PSNR inside the 48 box at
+in-panel metrics, drawn at line width 2.2 (inset border 2.8)**; the box's PSNR is printed to stdout by the script instead. Head-masked PSNR inside the 48 box at
 (180, 124, 76), MC-GS against the best competing arm of that panel:
 
 | panel | MC-GS | best competing arm | lead |
