@@ -34,6 +34,11 @@ ap.add_argument("--mask_error", action="store_true", help="error maps only insid
 ap.add_argument("--mcgs_key", default="gs_joint_ar", help="which registered joint arm fills the MC-GS column")
 ap.add_argument("--single_key", default="gs_single_ar", help="which registered single arm fills the GS-single column")
 ap.add_argument("--tag", default="", help="extra suffix for the output file name, e.g. _p3")
+ap.add_argument("--no_metrics", action="store_true",
+                help="do not print the PSNR / SSIM / NMSE numbers inside the plane panels (user 2026-09-13); the\n"
+                     "ranking still goes to stdout")
+ap.add_argument("--gray_cbar", action="store_true",
+                help="add a grey-scale colorbar to the right of every image row, next to the rightmost panel")
 ap.add_argument("--inset", type=int, default=0, metavar="W",
                 help="full slices plus a WxW zoom inset in the bottom-left of every method panel, the box centred on "
                      "the point where the three slices meet (the face of the WxWxW cube of best_cube_mcgs.py); the box "
@@ -54,6 +59,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.patheffects as pe
 from matplotlib.patches import Rectangle
+from matplotlib.ticker import MaxNLocator
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening, uniform_filter
@@ -168,7 +174,7 @@ for p in planes:
 
 ncol = len(ARMS) + 1
 pw, gap = 2.6, args.gap                     # panel width and gap (in)
-top_in, cbpad, cbw, cbroom = 1.15, 0.06, 0.13, 0.42
+top_in, cbpad, cbw, cbroom = 1.15, 0.06, 0.13, (0.60 if args.gray_cbar else 0.42)   # wider label room when every row has a bar
 row_h = []
 for p in planes:
     H, W = D(p["g2"], p["axis"]).shape
@@ -219,39 +225,55 @@ for k, p in enumerate(planes):
         a = axes_at(x, y, pw, h)
         b = axes_at(x, y + h + gap, pw, h)
         if j == 0:
-            a.imshow(D(p["g2"], ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
+            gim = a.imshow(D(p["g2"], ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
             if p["zoom"]:
                 put_inset(a, D(p["g2"], ax_), p["zoom"], x, y, pw, h, cmap="gray", vmin=0, vmax=p["vmax"])
-            label(a, f"{ANAT[ax_]} {p['idx']}", bold=True)
+            label(a, ANAT[ax_] if args.no_metrics else f"{ANAT[ax_]} {p['idx']}", bold=True)
             b.imshow(D(p["kmask"], ax_), cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto", interpolation="nearest")
             if k == 0:
-                a.set_title(f"GT ({c})", fontsize=14, fontweight="bold", pad=4)
+                a.set_title(f"GT ({c})", fontsize=14, pad=4)
             continue
         key, lab, _ = ARMS[j - 1]
         v = vols[key][p["sl"]][p["cr"]]
         a.imshow(D(v, ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
         if p["zoom"]:
             put_inset(a, D(v, ax_), p["zoom"], x, y, pw, h, cmap="gray", vmin=0, vmax=p["vmax"])
-        for i, (txt, met) in enumerate(((f"{p['ps'][key]:.2f} dB", "psnr"), (f"SSIM {p['ss'][key]:.4f}", "ssim"),
-                                         (f"NMSE {p['nm'][key]:.5f}", "nmse"))):
-            label(a, txt, bold=key == p["best"][met], line=i, fs=10.5, h=h, color=METRIC_COLOR)
+        if not args.no_metrics:
+            for i, (txt, met) in enumerate(((f"{p['ps'][key]:.2f} dB", "psnr"), (f"SSIM {p['ss'][key]:.4f}", "ssim"),
+                                             (f"NMSE {p['nm'][key]:.5f}", "nmse"))):
+                label(a, txt, bold=key == p["best"][met], line=i, fs=10.5, h=h, color=METRIC_COLOR)
         emap = D(np.abs(v - p["g2"]) / gmax * (p["emask"] if args.mask_error else 1), ax_)
         im = b.imshow(emap, cmap="jet", vmin=0.0, vmax=0.1, origin="lower", aspect="auto")
         if p["zoom"]:
             put_inset(b, emap, p["zoom"], x, y + h + gap, pw, h, cmap="jet", vmin=0.0, vmax=0.1)
         if k == 0:
             a.set_title(lab, fontsize=14, pad=4)
+    if args.gray_cbar:
+        cbh, x_cb = 0.88 * h, (ncol * pw + (ncol - 1) * gap + cbpad) / fw     # shrink so neighbouring tick labels clear
+        for handle, top in ((gim, y), (im, y + h + gap)):
+            cax_ = fig.add_axes([x_cb, 1 - (top + (h + cbh) / 2) / fh, cbw / fw, cbh / fh])
+            cbx = fig.colorbar(handle, cax=cax_, ticks=MaxNLocator(4))
+            cbx.ax.tick_params(labelsize=9.5)
     y += 2 * h + 2 * gap
 last_top = top_in + sum(row_h[:-1]) + (len(row_h) - 1) * gap
-cax = fig.add_axes([(ncol * pw + (ncol - 1) * gap + cbpad) / fw, 1 - (last_top + row_h[-1]) / fh, cbw / fw, row_h[-1] / fh])
-cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=10)
+if not args.gray_cbar:                       # with --gray_cbar every row already carries its own bar
+    cax = fig.add_axes([(ncol * pw + (ncol - 1) * gap + cbpad) / fw, 1 - (last_top + row_h[-1]) / fh, cbw / fw, row_h[-1] / fh])
+    cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=10)
 _cube_txt = f"  --  {args.cube[3]}^3 box centred ({args.cube[0]}, {args.cube[1]}, {args.cube[2]})" if args.cube else ""
 fig.suptitle(f"{c}  jiangyizhou  {AF_LABEL}  --  transverse {args.slices[0]} / coronal {args.slices[1]} / sagittal {args.slices[2]}" + _cube_txt,
              fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
-fig.text(0.5, 1 - 0.40 / fh, f"head-masked slice PSNR / SSIM ({'7x7 window' if args.ssim == 'uniform' else 'Gaussian window, sigma 1.5'}) / NMSE "
-         f"in each panel, the best of each plane in bold;   error |recon - GT| / max(GT), jet [0, 0.1];   "
-         f"left of each error row: the sampling mask in that plane (k-space, never cropped)"
-         + (f"\nbottom-left of every panel: the {args.inset}x{args.inset} box outlined on the slice, magnified (no separate metrics; the in-panel numbers are the whole slice's)" if args.inset else "") + ("   (error shown inside the head only)" if args.mask_error else ""), ha="center", va="top", fontsize=11)
+_cap = []
+if not args.no_metrics:
+    _win = "7x7 window" if args.ssim == "uniform" else "Gaussian window, sigma 1.5"
+    _cap.append(f"head-masked slice PSNR / SSIM ({_win}) / NMSE in each panel, the best of each plane in bold")
+_cap.append("error |recon - GT| / max(GT), jet [0, 0.1]" + ("   (inside the head only)" if args.mask_error else ""))
+_cap.append("left of each error row: the sampling mask in that plane (k-space, never cropped)")
+if args.gray_cbar:
+    _cap.append("grey bar right of each image row: that plane's window")
+_cap2 = (f"bottom-left of every panel: the {args.inset}x{args.inset} box outlined on the slice, magnified"
+         if args.inset else "")
+fig.text(0.5, 1 - 0.40 / fh, ";   ".join(_cap) + ("\n" + _cap2 if _cap2 else ""),
+         ha="center", va="top", fontsize=11)
 name = (f"t1flair_v3_af16_{c}_cube{args.cube[3]}_{args.cube[0]}_{args.cube[1]}_{args.cube[2]}" if args.cube else
         f"t1flair_v3_af16_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}" + (f"_inset{args.inset}" if args.inset else "")) + f"{'_headerr' if args.mask_error else ''}{args.tag}.png"
 for d in (F, R / "figures"):

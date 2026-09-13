@@ -139,6 +139,13 @@ in-panel metrics, drawn at line width 2.2 (inset border 2.8)**; the box's PSNR i
 Files: `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3.png` and the 64-box
 version `..._180_124_72_inset64_...` (64 box: T1 leads +0.72 / +0.75 / +0.72, FLAIR +0.74 / +0.72 / +0.69). The cropped-only versions (`..._cube48_...`, `..._cube64_...`) stay as well.
 
+Figure conventions the user fixed on 2026-09-13, all as switches on `fig_three_planes_compact.py`: the zoom box and its
+inset border are the in-panel orange-yellow at line width 2.2 / 2.8; `--no_metrics` takes every number off the plane
+panels (the panel label keeps only the plane name, the slice indices are in the title) and the ranking still goes to
+stdout; `--gray_cbar` puts a grey bar with that plane's window right of every image row and the jet error bar right of
+every error row; no title in the header row is bold. The published four figures are made with
+`--inset 48 --mask_error --no_metrics --gray_cbar` (and the 64 variant).
+
 **The 1.0 dB target was not reached.** The margin roughly doubled (T1 +45 %, FLAIR +40 %) and every quality gate is now
 met, but +1.0 dB over a comparison arm whose λ is itself tuned on this subject's ground truth is out of reach of the
 lever classes this phase was allowed to use — see §4 and §6.
