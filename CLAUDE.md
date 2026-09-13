@@ -72,3 +72,14 @@ L1-ESPIRiT's 0.849 / 0.789 on both contrasts, which P6 never was**. Registered a
 figures of record (user decision 2026-09-13) `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3.png`: whole transverse 180 / coronal 124 / sagittal 76 with the 48-voxel box outlined and magnified in the corner, in-panel metrics kept, colorbars on the transverse row only. The 174 / 110 / 47 pair without a zoom is also there. The 1.0 dB target the user
 set was NOT reached (the margin roughly doubled). **Which recipe is quoted externally is still the user's call — the
 section above (P6) stands until they change it.**
+
+## Nominal AF20 study (branch `autoresearch-jyz-af20`, this worktree, 2026-09-13)
+The worktree directory is still called `mcgs_af16_wt`; the branch checked out here is now the AF20 study, forked from
+the phase-3 tip f0fe009. Read `STATUS.md` first, then the topic README
+`/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/README.md` (mirror `t1flair_af20_v3_jiangyizhou/`).
+**The only difference from the AF16 topic is the mask** (`vdPoisMex` accelx 5: 2427 PE points, T1 18.56x, FLAIR 15.13x
+against its shutter); the MC-GS parameters are the AF16 phase-3 recipe, frozen, in one place: `run_af20_mcgs.sh`
+(EXP must start with `af20_`). Classical λ are re-swept on the AF20 mask. First result (joint, 4000 it): head PSNR
+34.832 / 34.179, margins over L1-ESPIRiT +0.461 / +0.491 (AF16 +0.497 / +0.425), six head cells first among seven arms;
+T1 sharpness 0.833 is below L1-ESPIRiT's 0.845. GS-single and ZS-SSDU / 3D-DIP / 3D-INR were still running at the
+handoff; `scripts/finalize_af20_jyz.sh` registers them and draws the figure once all nine arms exist.
