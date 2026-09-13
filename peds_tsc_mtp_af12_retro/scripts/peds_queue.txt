@@ -20,3 +20,15 @@ dip T1w
 dip T2s
 inr T1w
 inr T2s
+
+# --- edge-rule extensions (plan Task 7 step 6, added 2026-09-13 after the first scans) ---
+# CS-SENSE T1w peaked at the smallest lambda of its grid; extend downward by the grid's own ~1.4x step.
+cssense T1w 0.0005
+cssense T1w 0.00035
+# Joint SENSE was a two-point grid and both contrasts peaked at an end; bracket the optimum both ways.
+jcssense 0.0007
+jcssense 0.002
+jcssense 0.0005
+# CS-SENSE T1w is still at the lower edge, though the curve has flattened (+0.03 dB per step);
+# one more point decides whether it is a plateau or still climbing.
+cssense T1w 0.00025

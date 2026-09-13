@@ -56,18 +56,10 @@ def main():
                              "seconds": b.get("seconds"), "lam": b.get("lam"), "n_lambda": len(cands),
                              "lams": sorted(float(r.get("lam")) for r in cands if r.get("lam") is not None)})
 
-    jp = ARC / "peds_af12_joint_score.json"
-    if jp.exists():
-        d = json.load(open(jp))
-        for ch, name in (("plain", d.get("plain_name", "T1w")), ("contrast", d.get("contrast_name", "T2s"))):
-            rows.append({"contrast": name, "method": "gs_joint",
-                         **{k: d[ch].get(k) for k in COLS}, "seconds": None})
-    for c in ("T1w", "T2s"):
-        sp = ARC / f"peds_af12_single_{c}_score.json"
-        if sp.exists():
-            d = json.load(open(sp))
-            rows.append({"contrast": c, "method": "gs_single",
-                         **{k: d["plain"].get(k) for k in COLS}, "seconds": None})
+    # The GS arms enter through logs/extra_gs_arms.json below (scripts/add_gs_arm.py), under the
+    # house names GS-single and MC-GS. The AF16 topic also read the three score jsons directly here,
+    # which on this topic would list every GS run twice under a second set of labels; that block is
+    # removed. The registration is the single source, and it names the run each contrast came from.
 
     # extra MC-GS arms from the autoresearch loop (scripts/add_gs_arm.py): metrics straight from the
     # run's own score json in the worktree, so the row is exactly what its scorer printed

@@ -16,6 +16,8 @@ ap.add_argument("--lo", type=int, default=12)
 ap.add_argument("--hi", type=int, default=92)
 ap.add_argument("--full", action="store_true", help="score all 104 partitions (the cross-check)")
 ap.add_argument("--out", default=None)
+ap.add_argument("--jobs", type=int, default=9,
+                help="arms scored in parallel; the 15^3 LoG convolution is single-threaded and dominates")
 args = ap.parse_args()
 
 R = Path(__file__).resolve().parents[1]
@@ -49,18 +51,39 @@ def arms(c):
     return a
 
 
-out = {}
-for c in CONTRASTS:
+def score_one(job):
+    """One (arm, contrast). Loads its own volumes so the work parallelises across processes: the
+    frozen LoG convolution and the two SSIM maps are single-threaded and dominate the run time."""
+    c, key, label, path, lam = job
     gt = np.load(R / f"recon/gt_{c}_complex.npy")
     region = None if args.full else partition_region(gt.shape, 2, args.lo, args.hi)
+    row = score_region(np.load(path), gt, region)
+    row.update(method=key, label=label, contrast=c, lam=lam, volume=str(Path(path).name))
+    return f"{key}|{c}", row
+
+
+jobs = []
+for c in CONTRASTS:
     for key, label, path, lam in arms(c):
         assert path is not None and Path(path).exists(), f"missing volume for {label} {c}: {path}"
-        rec = np.load(path)
-        row = score_region(rec, gt, region)
-        row.update(method=key, label=label, contrast=c, lam=lam, volume=str(Path(path).name))
-        out[f"{key}|{c}"] = row
-        print(f"{c} {label:12s} head_psnr {row['head_psnr']:7.3f} ssim {row['head_ssim']:.4f} "
-              f"hfen {row['head_hfen']:.4f} psnr {row['psnr']:7.3f} nmse {row['nmse']:.5f} sharp {row['sharp']:.3f}")
+        jobs.append((c, key, label, path, lam))
+
+out = {}
+if args.jobs > 1:
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(max_workers=args.jobs) as ex:
+        for k, row in ex.map(score_one, jobs):
+            out[k] = row
+            print(f"{row['contrast']} {row['label']:12s} head_psnr {row['head_psnr']:7.3f} "
+                  f"ssim {row['head_ssim']:.4f} hfen {row['head_hfen']:.4f} psnr {row['psnr']:7.3f} "
+                  f"nmse {row['nmse']:.5f} sharp {row['sharp']:.3f}", flush=True)
+else:
+    for job in jobs:
+        k, row = score_one(job)
+        out[k] = row
+        print(f"{row['contrast']} {row['label']:12s} head_psnr {row['head_psnr']:7.3f} "
+              f"ssim {row['head_ssim']:.4f} hfen {row['head_hfen']:.4f} psnr {row['psnr']:7.3f} "
+              f"nmse {row['nmse']:.5f} sharp {row['sharp']:.3f}", flush=True)
 
 p = Path(args.out) if args.out else (R / ("logs/rescore_full.json" if args.full else "logs/rescore.json"))
 json.dump(dict(region=("full volume" if args.full else f"head inside partitions {args.lo}..{args.hi}"),
