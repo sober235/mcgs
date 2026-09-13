@@ -275,10 +275,13 @@ for k, p in enumerate(planes):
         if k == 0:
             a.set_title(lab, fontsize=14, pad=4)
     if args.gray_cbar and ax_ in args.cbar_planes:
-        cbh, x_cb = 0.88 * h, (ncol * pw + (ncol - 1) * gap + cbpad) / fw     # shrink so neighbouring tick labels clear
-        for handle, top in ((gim, y), (im, y + h + gap)):
-            cax_ = fig.add_axes([x_cb, 1 - (top + (h + cbh) / 2) / fh, cbw / fw, cbh / fh])
-            cbx = fig.colorbar(handle, cax=cax_, ticks=MaxNLocator(4))
+        x_cb = (ncol * pw + (ncol - 1) * gap + cbpad) / fw
+        # each bar is flush with the top and bottom of the row it belongs to (user 2026-09-13). The grey bar drops its
+        # lowest tick so its label cannot collide with the error bar's top label across the small gap between the rows.
+        for handle, top, tk in ((gim, y, MaxNLocator(4, prune="lower")),
+                                (im, y + h + gap, np.linspace(0.0, args.err_vmax, 4))):
+            cax_ = fig.add_axes([x_cb, 1 - (top + h) / fh, cbw / fw, h / fh])
+            cbx = fig.colorbar(handle, cax=cax_, ticks=tk)
             cbx.ax.tick_params(labelsize=9.5)
     y += 2 * h + 2 * gap
 last_top = top_in + sum(row_h[:-1]) + (len(row_h) - 1) * gap

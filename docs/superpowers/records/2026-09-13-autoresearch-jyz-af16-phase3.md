@@ -171,12 +171,14 @@ lands correctly in any orientation, and the script asserts that the transformed 
 None of the numbers change. The label on the leftmost panel of each row is the plane name alone — `transverse`,
 `coronal`, `sagittal` — with no slice index (user 2026-09-13); the indices stay in the title.
 
-**Error-map scale (user 2026-09-13):** the panels are drawn with `--err_vmax 0.08` instead of the house-standard
+**Error-map scale (user 2026-09-13):** the panels are drawn with `--err_vmax 0.09` instead of the house-standard
 fixed [0, 0.1]. Reason, measured on this data: inside the head the error / max|GT| has P90 0.0266 and P99 0.0506 for
 MC-GS, 0.0280 and 0.0542 for L1-ESPIRiT, 0.0370 and 0.0807 for CG-SENSE — at a ceiling of 0.1 every arm but CG-SENSE
 sits in the bottom half of the colormap and all the panels read as uniform dark blue, which is what made the methods
-look indistinguishable. The user set the ceiling at 0.08 (0.05 was tried first and is a touch more aggressive: about 1 % of head voxels
-saturate there against ~0.1 % at 0.08, and both separate the arms far better than 0.1). The scale is still
+look indistinguishable. The user settled on 0.09 (0.05 and 0.08 were tried on the way; 0.05 saturates about 1 % of head voxels, 0.08 and 0.09
+almost none, and all three separate the arms far better than 0.1). The two bars are flush with the top and bottom of
+the row they belong to; the grey bar drops its lowest tick so its label cannot collide with the error bar's top label
+across the narrow gap between the rows. The scale is still
 **fixed and identical for every panel**, so panels remain directly comparable; only the ceiling changed. `--err_vmax 0.1`
 restores the house convention.
 
