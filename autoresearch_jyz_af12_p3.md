@@ -79,3 +79,16 @@ Then, on the read: `p3_edge00005` / `p3_edge0005` to bracket ours independently 
 0.01 / 0.02 / 0.03 screens. Combinations of the keeps at 1500, then one promotion at 4000, then the two GS-single arms.
 
 ## Round log
+
+### Port — phase-only TV, 2026-09-13 17:45
+`paired_gs/losses/phase_tv.py` copied verbatim from `autoresearch-jyz-af16-phase2`; trainer hook and the
+`--lambda_ptv` flag re-written here in the same shape. `tests/test_phase_tv.py` (6 tests) pins what the term is for:
+zero on a real volume, zero (to the module's own 1e-12 floor) on any constant-phase volume however rough its
+magnitude, positive on a phase ramp, invariant to a global phase rotation, linear in |x| at fixed phase, finite
+gradients. **Two test corrections, disclosed**: the first draft asserted exact zeros and 1e-5 invariance; measured,
+the term carries a float32 cancellation residue of 1.1e-4 on a constant-phase volume (against 2.3e-1 on a realistic
+phase ramp, so 2000x below the signal) and a 1e-4 relative wobble under global rotation, both of which vanish in
+float64 (1.7e-11) — the tolerances now match the measurement and a float64 assertion pins that the formula itself is
+exact. **Default path bit-identical**: with `lambda_ptv` unset the first iteration prints
+`loss=1.2371e-01 dc_p=7.1636e-02 dc_c=5.0637e-02 R_geo=6.5341e-03 R_wav=7.8751e-03`, the same digits as the
+pre-port reference run `p3_P13_i1500` launched at 17:36.
