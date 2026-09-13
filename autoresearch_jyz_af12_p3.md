@@ -117,3 +117,25 @@ Bracket the lever on our own data rather than inheriting the AF16 bracket, and o
 | `p3_ptv003` | `--lambda_ptv 0.03` | their chosen operating point |
 Read by rule 2 against `p3_P13_i1500` with the floor above. Then the combination of the keeps, one promotion at
 4000, and the two GS-single arms at that recipe.
+
+### Round 1 read — 18:31 (the common-edge bracket reproduces the AF16 one)
+Against `p3_P13_i1500` (floor T1 0.011 / FLAIR 0.005 dB):
+
+| λ_edge | ΔT1 | ΔFLAIR | ΔSSIM | ΔHFEN | sharp | verdict |
+|---|---|---|---|---|---|---|
+| 0.0005 | +0.032 | +0.027 | +0.0004 / +0.0004 | +0.0006 / +0.0008 | 0.856 / 0.821 | keep, below 0.001 |
+| **0.001** | **+0.049** | **+0.041** | +0.0005 / +0.0005 | +0.0008 / +0.0012 | 0.855 / 0.819 | **keep, the optimum** |
+| 0.005 | −0.152 | −0.165 | −0.0033 / −0.0040 | −0.0094 / −0.0106 | 0.851 / 0.810 | collapse, every cell worse |
+
+**The shape is the AF16 line's, reproduced independently on this subject and this acceleration** (0.0005 < 0.001,
+0.005 collapses). 0.002 still running to pin the right edge of the plateau.
+
+`p3_ptv001` (phase TV 0.01): 36.939 / 36.238 — T1 −0.009 (inside the floor), FLAIR +0.005 (at the floor), but
+SSIM +0.0006 / +0.0007, HFEN better by 0.0008 / 0.0009 and **sharpness +0.007 / +0.007** (0.864 / 0.829). A
+structure-and-sharpness lever rather than a PSNR one, exactly as the AF16 dose curve describes its 0.01 point.
+
+### Round 2 — queued 18:35, before the runs started
+`p3_ptv002` / `p3_ptv003` (the rest of the dose curve) and the combination `p3_e0001_ptv001`
+(common-edge 0.001 + phase TV 0.01) at 1500. The combination is the candidate for promotion; the two phase-TV points
+decide whether a stronger phase term is worth its PSNR cost here, where our sharpness (0.857 / 0.822) already sits
+above the AF16 line's starting point.
