@@ -92,3 +92,28 @@ float64 (1.7e-11) — the tolerances now match the measurement and a float64 ass
 exact. **Default path bit-identical**: with `lambda_ptv` unset the first iteration prints
 `loss=1.2371e-01 dc_p=7.1636e-02 dc_c=5.0637e-02 R_geo=6.5341e-03 R_wav=7.8751e-03`, the same digits as the
 pre-port reference run `p3_P13_i1500` launched at 17:36.
+
+### Round 0 read — 2026-09-13 18:02
+References at 1500 in this arena: `p3_P13_i1500` T1 36.948 / 0.9505 / 0.0949, FLAIR 36.233 / 0.9394 / 0.0962,
+sharp 0.857 / 0.822. Seed 43: 36.937 / 36.228. **Seed floor at 1500: PSNR 0.011 / 0.005, SSIM 0.0001 / 0.0001,
+HFEN 0.00001 / 0.00002, sharp 0.0003 / 0.0004.**
+
+`p3_edge0001` (common-edge 0.001): **36.997 / 36.275** — T1 **+0.049**, FLAIR **+0.041**, SSIM +0.0005 / +0.0005,
+HFEN better by 0.0008 / 0.0012, sharpness −0.002 / −0.003 (inside the 0.01 tolerance). **KEEP, and it lifts both
+contrasts**, the size the AF16 line reported (+0.056 / +0.051) — the term behaves the same at both accelerations.
+Phase 1's verdict on this lever ("loses by 1.33 dB") was a verdict on λ = 0.02, twenty times the optimum.
+FLAIR still has 0.037 dB to find before it passes GS-single, and full-budget gains here have been running at about
+half the screening ones, so the promotion and its own GS-single arms decide it, not this row.
+
+### Round 1 — queued 18:05, before the runs started
+Bracket the lever on our own data rather than inheriting the AF16 bracket, and open the phase-TV curve in parallel:
+
+| exp | args | why |
+|---|---|---|
+| `p3_edge00005` | `--lambda_edge 0.0005` | lower end of their plateau |
+| `p3_edge0005` | `--lambda_edge 0.005` | where theirs collapsed; confirms the optimum is ours too |
+| `p3_ptv001` | `--lambda_ptv 0.01` | phase-TV dose curve, the point that was free at AF16 |
+| `p3_ptv002` | `--lambda_ptv 0.02` | the point where FLAIR gained and T1 paid 0.03 there |
+| `p3_ptv003` | `--lambda_ptv 0.03` | their chosen operating point |
+Read by rule 2 against `p3_P13_i1500` with the floor above. Then the combination of the keeps, one promotion at
+4000, and the two GS-single arms at that recipe.
