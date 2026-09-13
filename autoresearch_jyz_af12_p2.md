@@ -557,3 +557,9 @@ the same recipe as the MC-GS column, and the three-plane pair was regenerated wi
   floor: 16 slices. Best of them by the margin over the comparison methods: **coronal 153** (T1 37.70 vs GS-single
   37.64 vs L1-ESPIRiT 37.08; FLAIR 37.07 vs 37.04 vs 36.25), with sagittal 147 a close second and sagittal 133
   excluded because its FLAIR lead over GS-single (+0.006) sits at the floor. On T1 alone: coronal 89.
+- 15:05 (user request) the AF 12 result rendered in the AF16 phase-3 figure style. That topic's
+  `fig_three_planes_compact.py` was ported into this one as `scripts/fig_three_planes_inset.py` (zoom insets, per-plane
+  grey colorbar, transverse quarter-turn, vector PDF), with `--mask_path` and `--af_note` added for design B; this
+  topic's own compact script is untouched. Rendered at two triples: **198 / 153 / 147**, where MC-GS is first on
+  PSNR, SSIM and NMSE in all three planes on BOTH contrasts (48-box leads T1 +0.27 / +0.30 / +0.32, FLAIR +1.45 /
+  +1.12 / +1.22 dB), and the standing reference 174 / 110 / 47, where the FLAIR panels put GS-single first.
