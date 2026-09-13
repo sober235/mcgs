@@ -14,8 +14,8 @@ from pathlib import Path
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--contrast", required=True, choices=["T1w", "T2s"])
-ap.add_argument("--axis", type=int, default=0)
-ap.add_argument("--index", type=int, default=168)
+ap.add_argument("--axis", type=int, default=2, help="2 transverse, 0 coronal, 1 sagittal (this topic)")
+ap.add_argument("--index", type=int, default=52)
 ap.add_argument("--crop", action="store_true", help="butterfly region instead of the whole slice")
 ap.add_argument("--half", type=int, nargs=2, default=[52, 38])
 ap.add_argument("--tag", default=None)
@@ -34,6 +34,18 @@ import numpy as np
 R = Path(__file__).resolve().parents[1]
 F = Path("/home/congcongliu/figs/peds_tsc_af12"); F.mkdir(parents=True, exist_ok=True)
 c = args.contrast
+
+# --- this topic's anatomy (verified against the vendor DICOM, 2026-09-13) ---------------------
+# volume is (RO 320, PE 304, SPE 104); SPE is the partition axis the vendor exports as its slices,
+# so axis 2 = transverse. A fixed-RO slice spans (PE, SPE) = coronal; a fixed-PE slice = sagittal.
+PLANE_NAME = {0: "coronal", 1: "sagittal", 2: "transverse"}
+PLANE_AXIS = {"transverse": 2, "coronal": 0, "sagittal": 1}
+def D(x, axis):
+    """Display orientation: the transverse plane exactly as the vendor exports it; the other two
+    transposed so the partition axis (superior-inferior) runs vertically."""
+    return x if axis == 2 else x.T
+ORIGIN = {0: "lower", 1: "lower", 2: "upper"}
+
 rows = {r["method"]: r for r in json.load(open(R / "logs/summary.json")) if r["contrast"] == c}
 af_eff = json.load(open(R / "logs/prep_04_export.json"))["contrasts"][c]["AF_vs_own_support"]   # AF 12 counts the whole matrix (user 2026-09-12)
 
@@ -96,30 +108,32 @@ for key, lab, path in ARMS:
 best = max(psnr, key=psnr.get)
 
 ncol = len(ARMS) + 1
-D = (lambda x: x.T) if args.axis == 0 else (lambda x: x)  # axis 0 as before; axes 1, 2: axis 0 (inferior-superior) upright
-H, W = D(g2).shape
+Dx = lambda x: D(x, args.axis)
+H, W = Dx(g2).shape
 pw, ws, cbw = 2.6, 0.03, 0.9                         # panel width (in), column gap (fraction of a panel), colorbar room (in)
-ph = pw * H / W                                      # panel height: every grid cell has the image's aspect, no slack
+VOXEL = (0.7, 0.7, 1.35)                             # mm along (RO, PE, SPE)
+_rows_axis, _cols_axis = ({0: (2, 1), 1: (2, 0), 2: (0, 1)})[args.axis]
+ph = pw * (H * VOXEL[_rows_axis]) / (W * VOXEL[_cols_axis])   # panel height in true anatomical proportions
 top_in, gap_in, bot_in = 0.85, 0.30, 0.05            # room above row 1 (suptitle + titles), between the rows, below
 fw, fh = pw * (ncol + (ncol - 1) * ws) + cbw, top_in + 2 * ph + gap_in + bot_in
 fig, axes = plt.subplots(2, ncol, figsize=(fw, fh))
 fig.subplots_adjust(left=0, right=1 - cbw / fw, bottom=bot_in / fh, top=1 - top_in / fh, wspace=ws, hspace=gap_in / ph)
-axes[0, 0].imshow(D(g2), cmap="gray", vmin=0, vmax=vmax, origin="lower")
+axes[0, 0].imshow(Dx(g2), cmap="gray", vmin=0, vmax=vmax, origin=ORIGIN[args.axis])
 axes[0, 0].set_title(f"GT ({c})", fontsize=13, fontweight="bold")
-axes[1, 0].imshow(D(m2), cmap="gray", origin="lower")
+axes[1, 0].imshow(Dx(m2), cmap="gray", origin=ORIGIN[args.axis])
 axes[1, 0].set_title("head mask", fontsize=11)
 for j, (key, lab, _) in enumerate(ARMS, start=1):
     v = imgs[key]
-    axes[0, j].imshow(D(v), cmap="gray", vmin=0, vmax=vmax, origin="lower")
+    axes[0, j].imshow(Dx(v), cmap="gray", vmin=0, vmax=vmax, origin=ORIGIN[args.axis])
     axes[0, j].set_title(f"{lab}\n{psnr[key]:.2f} dB", fontsize=12,
                          fontweight="bold" if key == best else "normal")
-    im = axes[1, j].imshow(D(errs[key]), cmap="jet", vmin=0.0, vmax=0.1, origin="lower")
+    im = axes[1, j].imshow(Dx(errs[key]), cmap="jet", vmin=0.0, vmax=0.1, origin=ORIGIN[args.axis])
 for a in axes.ravel():
     a.set_xticks([]); a.set_yticks([])
 cax = fig.add_axes([axes[1, -1].get_position().x1 + 0.005, axes[1, -1].get_position().y0,
                     0.008, axes[1, -1].get_position().height])
 cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=9)
-region = "butterfly region" if args.crop else {0: "transverse", 1: "coronal", 2: "sagittal"}[args.axis] + " slice"
+region = "butterfly region" if args.crop else PLANE_NAME[args.axis] + " slice"
 af_txt = f"AF 12 of the full matrix, {af_eff:.2f}x of its acquired k-space"
 fig.suptitle(f"{c}  16yo MTP  {af_txt} -- {region} {args.index}   "
              f"(PSNR = head-masked PSNR of this {'region' if args.crop else 'slice'};  error "

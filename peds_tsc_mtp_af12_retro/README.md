@@ -1,0 +1,252 @@
+# 16-year-old TSC exam, 3D MTP Cartesian — stage 2: retrospective AF 12, nine-arm comparison
+
+Opened 2026-09-13. Stage 1 (the reference k-space this study undersamples) is
+`../Peds_TSC_MTP_3D/`. Code: worktree `/data0/congcong/code/GS/mcgs_peds_wt`, branch `16yo-mtp`
+(design `docs/superpowers/specs/2026-09-12-16yo-mtp-stage2-af12-design.md`, plan
+`docs/superpowers/plans/2026-09-12-16yo-mtp-stage2-af12.md`, package `uih_mtp/`; mirrored here as
+`peds_tsc_mtp_af12_retro/`). Figures served at `http://localhost:8765/peds_tsc_af12/`.
+**The DICOM and raw headers carry the patient's name: it appears nowhere in this folder.**
+
+## Question
+
+Does MC-GS (joint reconstruction of two contrasts under a shared geometry) lead the method table on
+a pediatric 0.7 mm multi-echo GRE exam, as it does on the adult 3D T1 + FLAIR pairs? The recipe is
+transferred unchanged; nothing was tuned on this subject.
+
+**Answer: no, and joint is not better than single here.** MC-GS is third on T1w, 1.0 dB behind
+L1-ESPIRiT, and second on T2s, 0.3 dB ahead of it. Joint minus single is negative or level on every
+metric of both contrasts. The classical joint arm (Joint SENSE, vectorial TV) behaves the same way,
+which points at the data rather than at either implementation. See **Findings**.
+
+## Data
+
+One exam (UIH uMR 790, 3 T, 2022-01-24, age 16, F, head), 3D multi-echo spoiled GRE "MTP",
+0.7 x 0.7 x 1.35 mm, 32 channels. Two contrasts, the pair that differs most of the ten acquired
+(brain-mask Pearson r = 0.57):
+
+| topic name | acquisition | weighting |
+|---|---|---|
+| `T1w` | FA 16°, TE 3.25 ms | T1-weighted |
+| `T2s` | FA 4°, TE 27.41 ms | PD / T2*-weighted |
+
+Inputs are symlinks into the reference dataset `/data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT/`:
+`ksp_<c>.h5` (dataset `kspace`, (32, 320, 304, 104) complex64, axes coil / RO / PE / SPE, DC at
+(160, 152, 52)), `csm_espirit_<c>.h5` (dataset `map`, unit SoS), `gt_sense_<c>.npy`, `masks_<c>.npz`.
+
+**The reference is not a fully sampled acquisition.** It is the GRAPPA-completed prospective 2x
+k-space of stage 1 (ACS hold-out error 0.096 / 0.188 against a noise floor of 0.067 / 0.144), with
+no partial-Fourier synthesis. Every number here is relative to that reference, and absolute values
+are not comparable with the adult topics.
+
+**Anatomy of the axes** (adjudicated 2026-09-13 against the vendor DICOM, not assumed): the volume is
+(RO 320, PE 304, SPE 104); SPE is the partition axis the vendor exports as its slices, so **axis 2 is
+transverse**, a fixed-RO slice (axis 0) is coronal and a fixed-PE slice (axis 1) is sagittal.
+`gt[:, 2:-2, 52]` equals vendor DICOM slice 39 with r = 0.899. The scripts copied from the AF16 topic
+had the opposite convention and were corrected; figures drawn before that correction are wrong.
+
+## Undersampling
+
+One vd-Poisson mask for both contrasts, drawn with the house generator
+(`vdPoisMex(304, 104, 304, 104, a, a, 24, 0, 1)`, isotropic `a` swept 2.6 .. 3.6, 105 draws) and then
+restricted to the acquired support: the draw whose in-support count first reaches the budget is taken
+and trimmed from the outside in to exactly the budget (`scripts/prep_mask_draws.m`,
+`scripts/prep_mask.py`, `uih_mtp/retro_mask.py`).
+
+| item | value |
+|---|---|
+| AF convention (user, 2026-09-12) | sampled points / whole PE matrix, ACS counted |
+| budget | 2635 of 31616 (304 x 104) = **AF 12.00** |
+| against the acquired support | 19914 positions → **7.56x** |
+| chosen draw / trim | `draw_052.mat` (a = 3.1), 2664 in support, 29 trimmed (1.1 %) |
+| calibration block | 366 of the 576 positions of the 24 x 24 square |
+| known zeros Z | 11702 positions: partial Fourier (PE 227..303) and the elliptical corners |
+| forward-operator support Ω ∪ Z | 14337 positions, 45.3 % of the plane |
+
+The mask may sample GRAPPA-interpolated positions: the completed k-space is the reference as a whole
+(user decision). `calib` in this generator biases the density near DC but does **not** fully sample a
+24 x 24 block — the adult topics' own masks sample 472 and 482 of their 576, full only to 16 x 16 — and
+nothing here self-calibrates from the mask, so the count is recorded, not enforced.
+
+## Known zeros for every arm (user decision 2026-09-12)
+
+Z is handed to every method as measured zeros; the forward operator is Ω ∪ Z and the data on Z are
+zero. Self-supervised splits are drawn from Ω alone, so no method trains or validates on a trivially
+zero target.
+
+| arm family | forward / data consistency | split |
+|---|---|---|
+| ZF, CG-SENSE, CS-SENSE, Joint SENSE | `data/mask_af12_union_3d.h5` | – |
+| L1-ESPIRiT | the same k-space **plus** `bart pics -p data/pattern_union` | – |
+| ZS-SSDU | union in the DC block | Θ / Λ / Γ from Ω |
+| 3D-DIP, 3D-INR | union in the forward model | 95 / 5 from Ω |
+| GS-single, MC-GS | Ω as the mask, `known_zero_support: data/support_2d.h5` | – |
+
+Without the explicit `-p` pattern BART infers the pattern from nonzero entries and reads Z as
+unsampled; `tests/test_uih_mtp_bart_pattern.py` proves the flag is honoured. The GS arms needed a
+framework port: `known_zero_support` was added after the commit this branch was cut from, and without
+it the trainer's estimator found nothing (`frac_z_used = 0.0000`) because the mask never lands outside
+the support. After the port, both channels report `frac_z_used = 0.3701` = 11702 / 31616 with
+`nonzero_in_z = 0` and `kz_energy = 0`.
+
+## Evaluation
+
+The frozen gauge (`diag_artefact/headonly.py`, unmodified): head mask = |GT| > 0.05 · P99.9(|GT|),
+head PSNR at the volume peak of |GT|, head SSIM as the mean of the 7³ uniform-window SSIM map over the
+head, head HFEN as the LoG(σ 1.5) residual ratio, whole-volume PSNR / NMSE, sharpness.
+
+- **Primary table**: the same maps averaged over the head **inside the vendor's central 80 partitions**
+  (SPE 12..92). The outer 12 partitions at each end are the slab-oversampling margin, where the
+  excitation profile has decayed to 6–10 % and the vendor exports nothing.
+- **Secondary table**: the full 104 partitions, taken from each arm's own JSON. `scripts/rescore.py --full`
+  reproduces it — 90 values across 18 arm/contrast pairs agree to 2e-4 — which is what licenses the
+  primary table's numbers.
+- `scripts/check_gauge.py` prints `GAUGE OK`: the shared module reproduces `recon_classical.py`'s nine
+  metrics to the digit (differences 0.00e+00). `recon_classical.py` deliberately keeps its own
+  transcription of the gauge so that check is not circular.
+- **grain_ratio on T2s is not usable**: the frozen white-matter mask (strict P55–P90 band, σ 2 erosion)
+  keeps 220039 voxels on T1w but only 664 on T2s, too few to read. The gauge was not changed.
+
+Every λ was swept on this subject against the reference, the best kept per contrast, and every scan
+ends with its optimum strictly inside its grid (the edge rule of the plan; three scans had to be
+extended): CS-SENSE 11 values, L1-ESPIRiT 14, Joint SENSE 5.
+
+<!-- TABLES:BEGIN -->
+### Primary table — head inside partitions 12..92
+
+Retrospective AF 12.00 of the 31616-point phase-encode matrix (7.56x of the 19914 acquired positions), one mask for both contrasts; the partial-Fourier block and the elliptical corners (11702 positions) are measured zeros for every method alike. Best of each column in bold.
+
+**T1w** — T1-weighted (FA 16, TE 3.25 ms). head metrics inside the vendor's central 80 partitions.
+
+| method | head PSNR | head SSIM | head HFEN | PSNR | NMSE | sharp |
+|---|---|---|---|---|---|---|
+| L1-ESPIRiT (λ 0.001) | **38.830** | **0.9674** | **0.0756** | **41.503** | **0.00351** | 0.924 |
+| GS-single | 38.086 | 0.9629 | 0.0910 | 41.089 | 0.00386 | 0.818 |
+| MC-GS | 37.855 | 0.9618 | 0.0922 | 40.873 | 0.00406 | 0.813 |
+| CS-SENSE (TV, converged) (λ 0.00035) | 37.801 | 0.9611 | 0.1057 | 40.711 | 0.00421 | 0.891 |
+| Joint SENSE (JTV) (λ 0.0007) | 36.898 | 0.9546 | 0.1139 | 39.888 | 0.00509 | 0.903 |
+| ZS-SSDU | 36.721 | 0.9609 | 0.1240 | 39.782 | 0.00521 | 0.994 |
+| CG-SENSE | 34.307 | 0.9339 | 0.1505 | 36.771 | 0.01043 | 0.871 |
+| 3D-INR | 30.793 | 0.8453 | 0.1237 | 33.850 | 0.02043 | **1.393** |
+| 3D-DIP | 30.301 | 0.8678 | 0.2999 | 33.574 | 0.02178 | 0.667 |
+
+**T2s** — T2*-weighted (FA 4, TE 27.41 ms). head metrics inside the vendor's central 80 partitions.
+
+| method | head PSNR | head SSIM | head HFEN | PSNR | NMSE | sharp |
+|---|---|---|---|---|---|---|
+| GS-single | **34.175** | **0.9052** | **0.1855** | 36.991 | 0.01021 | 0.774 |
+| MC-GS | 34.160 | 0.9047 | 0.1858 | **36.995** | **0.01020** | 0.759 |
+| L1-ESPIRiT (λ 0.003) | 33.860 | 0.9050 | 0.1882 | 36.745 | 0.01080 | 0.857 |
+| ZS-SSDU | 32.846 | 0.8960 | 0.2376 | 36.056 | 0.01266 | 0.896 |
+| Joint SENSE (JTV) (λ 0.0014) | 32.821 | 0.8911 | 0.2424 | 35.949 | 0.01298 | 0.794 |
+| CS-SENSE (TV, converged) (λ 0.001) | 32.763 | 0.8898 | 0.2438 | 35.904 | 0.01311 | 0.830 |
+| CG-SENSE | 30.598 | 0.8424 | 0.3179 | 32.877 | 0.02632 | 0.861 |
+| 3D-DIP | 28.250 | 0.6997 | 0.4890 | 31.618 | 0.03518 | 0.465 |
+| 3D-INR | 28.012 | 0.6958 | 0.3080 | 29.855 | 0.05279 | **1.417** |
+
+### Secondary table — full volume, each arm's own scorer
+
+The same gauge over all 104 partitions, taken from each arm's own JSON; the cross-check that the rescorer did not move anything (`scripts/rescore.py --full`).
+
+**T1w** — T1-weighted (FA 16, TE 3.25 ms). full volume.
+
+| method | head PSNR | head SSIM | head HFEN | PSNR | NMSE |
+|---|---|---|---|---|---|
+| L1-ESPIRiT (λ 0.001) | **38.924** | **0.9692** | **0.0760** | **41.851** | **0.00390** |
+| GS-single | 38.141 | 0.9647 | 0.0912 | 41.500 | 0.00422 |
+| MC-GS | 37.915 | 0.9636 | 0.0924 | 41.293 | 0.00443 |
+| CS-SENSE (TV, converged) (λ 0.00035) | 37.881 | 0.9631 | 0.1052 | 41.093 | 0.00464 |
+| Joint SENSE (JTV) (λ 0.0007) | 36.982 | 0.9569 | 0.1138 | 40.292 | 0.00558 |
+| ZS-SSDU | 36.734 | 0.9623 | 0.1264 | 40.160 | 0.00575 |
+| CG-SENSE | 34.464 | 0.9376 | 0.1504 | 37.130 | 0.01156 |
+| 3D-INR | 30.859 | 0.8521 | 0.1247 | 34.264 | 0.02236 |
+| 3D-DIP | 30.294 | 0.8677 | 0.3047 | 33.983 | 0.02385 |
+
+**T2s** — T2*-weighted (FA 4, TE 27.41 ms). full volume.
+
+| method | head PSNR | head SSIM | head HFEN | PSNR | NMSE |
+|---|---|---|---|---|---|
+| GS-single | **34.320** | **0.9065** | **0.1891** | 37.575 | 0.01135 |
+| MC-GS | 34.312 | 0.9060 | 0.1894 | **37.583** | **0.01133** |
+| L1-ESPIRiT (λ 0.003) | 33.983 | 0.9054 | 0.1923 | 37.268 | 0.01218 |
+| Joint SENSE (JTV) (λ 0.0014) | 32.974 | 0.8920 | 0.2461 | 36.578 | 0.01428 |
+| ZS-SSDU | 32.941 | 0.8960 | 0.2430 | 36.689 | 0.01391 |
+| CS-SENSE (TV, converged) (λ 0.001) | 32.903 | 0.8908 | 0.2474 | 36.524 | 0.01445 |
+| CG-SENSE | 30.814 | 0.8421 | 0.3210 | 33.238 | 0.03080 |
+| 3D-DIP | 28.424 | 0.7053 | 0.4950 | 32.321 | 0.03805 |
+| 3D-INR | 28.126 | 0.6930 | 0.3146 | 29.993 | 0.06502 |
+
+### MC-GS minus GS-single
+
+| channel | head PSNR | head SSIM | head HFEN | PSNR |
+|---|---|---|---|---|
+| T1w | -0.231 | -0.0012 | +0.0012 | -0.216 |
+| T2s | -0.014 | -0.0006 | +0.0003 | +0.004 |
+<!-- TABLES:END -->
+
+## Findings
+
+1. **MC-GS does not lead this exam.** T1w: L1-ESPIRiT 38.830 > GS-single 38.086 > MC-GS 37.855
+   (head PSNR, central 80). T2s: GS-single 34.175 ≈ MC-GS 34.160 > L1-ESPIRiT 33.860. L1-ESPIRiT is
+   first on every T1w column; on T2s the two GS arms are first on everything except sharpness.
+2. **Joint buys nothing here, and costs on T1w.** MC-GS minus GS-single is −0.23 dB on T1w and
+   −0.01 dB on T2s, with SSIM, HFEN and sharpness all level or worse. On the adult AF16 pairs the same
+   difference was positive in all four channels, and the record of that study called the growth of the
+   joint advantage with sparser data its one qualitative finding. It does not reproduce here.
+3. **The classical joint arm agrees.** Joint SENSE (vectorial TV) minus the converged independent
+   CS-SENSE is −0.90 dB on T1w and +0.06 dB on T2s — the same pattern from a completely different
+   implementation. Two independent joint methods failing the same way points at the pair, not at the
+   code: these are the two least similar contrasts of the ten (r = 0.57), a short-TE T1-weighted image
+   against a long-TE T2*-weighted one whose susceptibility foci (the basis of the calcified-nodule
+   appearance) are by construction not edges of the T1w image. A shared-geometry prior is the wrong
+   prior for this pair.
+4. **The learned arms are unremarkable here.** ZS-SSDU early-stops at epoch 43 (29 min, against 5 h on
+   the adult AF16 data) and lands mid-table. 3D-DIP and 3D-INR are 6–8 dB behind, as in every earlier
+   topic; they are completeness, not competition.
+5. The recipe was transferred, not tuned. Whether a loop tuned on this subject closes the T1w gap is
+   open and is a separate decision.
+
+## Figures
+
+Slices are chosen on anatomy, not on which arm wins: transverse SPE 53 is vendor slice 38, the level
+at which the stage-1 lesion survey saw the subependymal nodules; coronal RO 160 and sagittal PE 152 are
+the head-area centroids. Error maps are `jet` on a fixed [0, 0.1] of the GT peak; panels are drawn at
+the true 0.7 x 0.7 x 1.35 mm proportions.
+
+| file | what |
+|---|---|
+| `mask_af12.png` | Ω, the acquired support, Z and Ω ∪ Z on the PE x SPE plane |
+| `peds_af12_<c>_row_axis2_53.png` | the nine arms in one row on the transverse slice, error maps below |
+| `peds_af12_<c>_row3planes_compact_53_160_152_headerr.png` | three planes, per-panel head PSNR / SSIM / NMSE, head-only error maps |
+
+## Files
+
+```
+data/          symlinks to the reference dataset; mask_af12_2d.mat (Ω), mask_af12_3d.h5,
+               mask_af12_union_3d.h5 (Ω ∪ Z), support_2d.h5, pattern_union.{cfl,hdr}, mask_draws/
+scripts/       prep_mask_draws.m, prep_mask.py, fig_mask.py, bootstrap.sh, peds_queue.txt,
+               peds_sched.sh, run_l1espirit{,_ext}.sh, t1t2_common.py and the arm scripts,
+               rescore.py, summarize.py, readme_tables.py, check_gauge.py, the figure scripts
+recon/         <arm>_<c>_complex.npy and the GS magnitude volumes; gt_<c>_complex.npy
+logs/          prep_mask.json, the per-arm JSONs, rescore{,_full}.json, summary.{tsv,json},
+               sched.log, sched_status.tsv, readme_tables.md
+figures/
+```
+
+Rerun: `bash scripts/peds_sched.sh scripts/peds_queue.txt` (GPU queue, skips finished jobs) and
+`bash scripts/run_l1espirit.sh` (CPU); then `scripts/rescore.py --full`, `scripts/rescore.py`,
+`scripts/summarize.py`, `scripts/readme_tables.py .`, the figure scripts.
+
+## Caveats
+
+- The reference carries 2x parallel-imaging noise on its interpolated lines and no data in the
+  partial-Fourier region; it is not a fully sampled truth.
+- One subject, one exam. Nothing here is a claim about pediatric imaging in general.
+- The GS recipe (P10) was selected on a different subject and a different contrast pair.
+- `grain_ratio` on T2s rests on 664 white-matter voxels and should not be quoted.
+- The lesion appearances noted in stage 1 are visual, not a radiological reading.
+
+## Isolation
+
+GPU 2 only and only when empty (one training per card); BART on the CPU with `nice 10` and 8 threads.
+Nothing was written outside this folder, the worktree, `~/figs/peds_tsc_af12/` and the session
+scratchpad. 26 queued jobs, all returned 0.

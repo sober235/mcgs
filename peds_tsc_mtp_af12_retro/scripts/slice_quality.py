@@ -67,7 +67,7 @@ for c in ("T1w", "T2s"):
             _, smap = structural_similarity(g, r, data_range=gmax, full=True, **kw)
             res[(c, s, lab)] = (psnr, float(smap[m].mean()))
 
-plane = {0: "transverse", 1: "coronal", 2: "sagittal"}[args.axis]
+plane = {0: "coronal", 1: "sagittal", 2: "transverse"}[args.axis]
 print(f"{plane} slices, SSIM window {args.ssim}; for each contrast: MC-GS rank of 9 and its lead over the best other method [who]")
 for s in args.slices:
     cells = []

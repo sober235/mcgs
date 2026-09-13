@@ -18,7 +18,7 @@ import numpy as np
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--min_area", type=float, default=0.5)
-ap.add_argument("--axis", type=int, default=0, choices=[0, 1, 2], help="0 transverse, 1 coronal, 2 sagittal")
+ap.add_argument("--axis", type=int, default=0, choices=[0, 1, 2], help="2 transverse, 0 coronal, 1 sagittal (this topic)")
 ap.add_argument("--ref", type=int, default=None, help="slice to report for comparison (168 on axis 0, else the middle)")
 ap.add_argument("--gap", type=int, default=6, help="minimum distance between listed candidates")
 ap.add_argument("--top", type=int, default=8)

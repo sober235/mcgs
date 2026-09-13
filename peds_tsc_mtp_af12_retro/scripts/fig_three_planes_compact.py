@@ -24,7 +24,8 @@ from pathlib import Path
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--contrast", required=True, choices=["T1w", "T2s"])
-ap.add_argument("--slices", type=int, nargs=3, required=True, metavar=("TRA", "COR", "SAG"))
+ap.add_argument("--slices", type=int, nargs=3, required=True, metavar=("TRA", "COR", "SAG"),
+                help="transverse (SPE 0..103), coronal (RO 0..319), sagittal (PE 0..303)")
 ap.add_argument("--gap", type=float, default=0.025, help="gap between neighbouring panels, inches")
 ap.add_argument("--ssim", choices=["uniform", "gaussian"], default="uniform", help="SSIM window: 7x7 uniform or Gaussian sigma 1.5")
 ap.add_argument("--mask_error", action="store_true", help="error maps only inside the filled head mask (the region the metrics use); file suffix _headerr")
@@ -45,6 +46,24 @@ from skimage.metrics import structural_similarity
 R = Path(__file__).resolve().parents[1]
 F = Path("/home/congcongliu/figs/peds_tsc_af12"); F.mkdir(parents=True, exist_ok=True)
 c = args.contrast
+
+# --- this topic's anatomy (verified against the vendor DICOM, 2026-09-13) ---------------------
+# volume is (RO 320, PE 304, SPE 104); SPE is the partition axis the vendor exports as its slices,
+# so axis 2 = transverse. A fixed-RO slice spans (PE, SPE) = coronal; a fixed-PE slice = sagittal.
+PLANE_NAME = {0: "coronal", 1: "sagittal", 2: "transverse"}
+PLANE_AXIS = {"transverse": 2, "coronal": 0, "sagittal": 1}
+def D(x, axis):
+    """Display orientation: the transverse plane exactly as the vendor exports it; the other two
+    transposed so the partition axis (superior-inferior) runs vertically."""
+    return x if axis == 2 else x.T
+ORIGIN = {0: "lower", 1: "lower", 2: "upper"}
+VOXEL = (0.7, 0.7, 1.35)                 # mm along (RO, PE, SPE): the slab is anisotropic
+def phys_shape(axis, pix_shape):
+    """Physical (height, width) in mm of the DISPLAYED panel, so a panel drawn at that aspect shows
+    true anatomy. Without this the two non-transverse planes are squashed by 1.35 / 0.7 = 1.93x."""
+    rows_axis, cols_axis = ({0: (2, 1), 1: (2, 0), 2: (0, 1)})[axis]
+    return pix_shape[0] * VOXEL[rows_axis], pix_shape[1] * VOXEL[cols_axis]
+
 METRIC_COLOR = "#FFC23D"          # orange-yellow for the in-panel metrics (user request 2026-09-11); best of each plane in bold
 SSIM_KW = (dict(win_size=7) if args.ssim == "uniform"
            else dict(gaussian_weights=True, sigma=1.5, use_sample_covariance=False))
@@ -98,9 +117,9 @@ def head_region(m):
     return binary_dilation(binary_fill_holes(binary_opening(binary_fill_holes(m), structure=DISK)), iterations=2)
 
 
-ANAT = {0: "transverse", 1: "coronal", 2: "sagittal"}
+PLANES = [(2, "transverse"), (0, "coronal"), (1, "sagittal")]     # display order, this topic's axes
 planes = []
-for axis, idx in enumerate(args.slices):
+for (axis, _pname), idx in zip(PLANES, args.slices):
     sl = [slice(None)] * 3; sl[axis] = idx; sl = tuple(sl)
     g2, m2 = gt[sl], head[sl]
     g64 = g2.astype(np.float64)
@@ -117,15 +136,14 @@ for axis, idx in enumerate(args.slices):
                        best=dict(psnr=max(ps, key=ps.get), ssim=max(ss, key=ss.get), nmse=min(nm, key=nm.get)),
                        vmax=float(np.quantile(g2, 0.999)), med=float(np.median(g2[m2])),
                        kmask=mask3.take(kcen[axis], axis=axis)))
-ratio = float(np.mean([p["med"] / p["vmax"] for p in planes if p["axis"] != 2]))
+ratio = float(np.mean([p["med"] / p["vmax"] for p in planes if p["axis"] != 1]))
 for p in planes:
     p["vmax_p999"] = p["vmax"]
-    if p["axis"] == 2:
+    if p["axis"] == 1:                  # the sagittal plane of this topic is axis 1
         p["vmax"] = p["med"] / ratio
 
 
-def D(x, axis):
-    return x.T if axis == 0 else x          # as fig_row_final.py: axis 0 transposed; axes 1, 2 with axis 0 upright
+# D, ORIGIN and PLANE_NAME come from the anatomy block above
 
 
 ncol = len(ARMS) + 1
@@ -133,7 +151,7 @@ pw, gap = 2.6, args.gap                     # panel width and gap (in)
 top_in, cbpad, cbw, cbroom = 1.15, 0.06, 0.13, 0.42
 row_h = []
 for p in planes:
-    H, W = D(p["g2"], p["axis"]).shape
+    H, W = phys_shape(p["axis"], D(p["g2"], p["axis"]).shape)     # mm, not pixels
     row_h += [pw * H / W] * 2
 fw = ncol * pw + (ncol - 1) * gap + cbpad + cbw + cbroom
 fh = top_in + sum(row_h) + (len(row_h) - 1) * gap + 0.16            # room below for the last colorbar label
@@ -164,19 +182,19 @@ for k, p in enumerate(planes):
         a = axes_at(x, y, pw, h)
         b = axes_at(x, y + h + gap, pw, h)
         if j == 0:
-            a.imshow(D(p["g2"], ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
-            label(a, f"{ANAT[ax_]} {p['idx']}", bold=True)
-            b.imshow(D(p["kmask"], ax_), cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto", interpolation="nearest")
+            a.imshow(D(p["g2"], ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin=ORIGIN[ax_], aspect="auto")
+            label(a, f"{PLANE_NAME[ax_]} {p['idx']}", bold=True)
+            b.imshow(D(p["kmask"], ax_), cmap="gray", vmin=0, vmax=1, origin=ORIGIN[ax_], aspect="auto", interpolation="nearest")
             if k == 0:
                 a.set_title(f"GT ({c})", fontsize=14, fontweight="bold", pad=4)
             continue
         key, lab, _ = ARMS[j - 1]
         v = vols[key][p["sl"]]
-        a.imshow(D(v, ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
+        a.imshow(D(v, ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin=ORIGIN[ax_], aspect="auto")
         for i, (txt, met) in enumerate(((f"{p['ps'][key]:.2f} dB", "psnr"), (f"SSIM {p['ss'][key]:.4f}", "ssim"),
                                          (f"NMSE {p['nm'][key]:.5f}", "nmse"))):
             label(a, txt, bold=key == p["best"][met], line=i, fs=10.5, h=h, color=METRIC_COLOR)
-        im = b.imshow(D(np.abs(v - p["g2"]) / gmax * (p["emask"] if args.mask_error else 1), ax_), cmap="jet", vmin=0.0, vmax=0.1, origin="lower", aspect="auto")
+        im = b.imshow(D(np.abs(v - p["g2"]) / gmax * (p["emask"] if args.mask_error else 1), ax_), cmap="jet", vmin=0.0, vmax=0.1, origin=ORIGIN[ax_], aspect="auto")
         if k == 0:
             a.set_title(lab, fontsize=14, pad=4)
     y += 2 * h + 2 * gap
@@ -197,4 +215,4 @@ for p in planes:
     for met, d, hi in (("PSNR", p["ps"], True), ("SSIM", p["ss"], True), ("NMSE", p["nm"], False)):
         order = sorted(d, key=(lambda k: -d[k]) if hi else (lambda k: d[k]))
         msg.append(f"{met} MC-GS #{order.index(args.mcgs_key) + 1} (first: {order[0]})")
-    print(f"  {ANAT[p['axis']]} {p['idx']} (grey window {p['vmax']:.3f}): " + "; ".join(msg))
+    print(f"  {PLANE_NAME[p['axis']]} {p['idx']} (grey window {p['vmax']:.3f}): " + "; ".join(msg))

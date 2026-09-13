@@ -27,7 +27,7 @@ R = Path("/data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro")
 FIGS = Path("/home/congcongliu/figs/peds_tsc_af12")
 FIGS.mkdir(parents=True, exist_ok=True)
 
-ANAT = {0: "transverse (axial)", 1: "coronal", 2: "sagittal"}   # adjudicated 2026-09-09, see README
+ANAT = {0: "coronal", 1: "sagittal", 2: "transverse"}   # adjudicated 2026-09-09, see README
 LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV)",
          "zsssdu": "ZS-SSDU", "dip": "3D-DIP", "inr": "3D-INR",
          "gs_single": "MC-GS single", "gs_joint": "MC-GS joint"}
