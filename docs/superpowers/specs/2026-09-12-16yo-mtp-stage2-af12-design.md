@@ -79,9 +79,15 @@ Grid (PE, SPE) = (304, 104), DC (152, 52). Support S and known zeros Z from `mas
      (2635 + 11702) / 31616 = 0.4535, Ω fraction 0.0833. Also the two-contrast "effective AF" in the format of
      `prep_04_export.json` so the figure scripts can read the AF label.
    - `figures/mask_af12.png` — Ω, Z, S and the union in the PE x SPE plane, with the counts in the title.
-4. **Acceptance**: exactly N points; every point inside S; the 24 x 24 calibration square fully sampled; the
-   3-D files reduce to the 2-D mask along the readout; the union equals Ω | Z bit for bit; the JSON numbers
-   reproduce from the files.
+4. **Acceptance**: exactly N points; every point inside S; every calibration point the chosen draw sampled
+   survives the trim; the 3-D files reduce to the 2-D mask along the readout; the union equals Ω | Z bit for
+   bit; the JSON numbers reproduce from the files.
+   *Corrected 2026-09-13 during execution:* `vdPoisMex`'s `calib` argument biases the sampling density near DC
+   but does **not** fully sample a `calib` x `calib` block — the adult topics' own masks sample 472 (AF16) and
+   482 (AF12) of their 576 calibration positions, full only out to 16 x 16. "Fully sampled calibration square"
+   was therefore never a property of the house generator and is not required here; this plane's mask samples
+   366 of 576. Harmless for this study: every arm reconstructs with the ESPIRiT maps computed from the complete
+   reference k-space, so no arm self-calibrates from the retrospective mask.
 
 ## 5. Known zeros for every arm
 
