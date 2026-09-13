@@ -542,3 +542,23 @@ Two triples were rendered in this style:
 Files: `figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_{198_153_147,174_110_47}_inset48_headerr_p2.png`
 (`_p2` = the phase-2 recipe P13; the FLAIR ones carry `gs_joint_p2_fl11`, i.e. design B). 48-box PSNR leads over the
 best competing arm at 198 / 153 / 147: T1 +0.272 / +0.296 / +0.324, FLAIR +1.451 / +1.122 / +1.218 dB.
+
+#### AF 12 against AF 16 on this subject, same gauge (2026-09-13)
+The delivered AF 12 pair and the AF 16 topic's phase-3 pair (`T1FLAIR_AF16_v3_jiangyizhou`, arm `gs_joint_p3`) are
+the same subject, the same ground truth pipeline and the same head-only gauge, so the rows are directly comparable.
+
+| arm | T1 head PSNR / SSIM / HFEN | FLAIR head PSNR / SSIM / HFEN |
+|---|---|---|
+| AF 16 MC-GS (p3) | 35.706 / 0.9396 / 0.1139 | 34.928 / 0.9261 / 0.1121 |
+| AF 16 L1-ESPIRiT | 35.209 / 0.9334 / 0.1286 | 34.503 / 0.9201 / 0.1210 |
+| **AF 12 MC-GS P13** (T1 all-AF12, FLAIR design B) | **36.969 / 0.9504 / 0.0948** | **36.683 / 0.9444 / 0.0904** |
+| AF 12 L1-ESPIRiT | 36.426 / 0.9469 / 0.1036 | 35.757 / 0.9368 / 0.1000 |
+
+AF 12 − AF 16, MC-GS: **T1 +1.26 dB**, **FLAIR +1.76 dB** (+1.38 with FLAIR also at AF 12, i.e. without design B).
+**That gap is the sampling, not the method**: L1-ESPIRiT moves almost exactly as much between the two topics
+(+1.22 / +1.25 dB), so about 1.2 to 1.4 dB is what 30 % fewer samples cost, and every arm pays it. Actual
+accelerations against each contrast's own acquired k-space: AF 12 topic 11.71x (T1) / 9.74x (FLAIR, 9.05x in design
+B); AF 16 topic 15.19x / 12.49x. Note that the AF 16 FLAIR (12.49x) is sampled slightly *less* than the AF 12 T1
+(11.71x) yet scores 1.8 dB lower — FLAIR is the harder contrast here, so acceleration numbers do not compare across
+contrasts. What does transfer is the method's own lead over the best comparison arm: +0.50 / +0.43 dB at AF 16,
++0.54 / +0.93 dB at AF 12.
