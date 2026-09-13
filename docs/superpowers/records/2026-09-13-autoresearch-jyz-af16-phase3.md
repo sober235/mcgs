@@ -168,7 +168,8 @@ wide as the anatomy is (about 180 mm front to back against 150 mm across) and th
 restores the orientation the topic's older figures use; `fig_row_final.py` and `fig_three_planes.py` are unchanged and
 still draw the old one. The zoom box is now derived by pushing a 3-D box mask through the same display transform, so it
 lands correctly in any orientation, and the script asserts that the transformed box is still the requested square.
-None of the numbers change.
+None of the numbers change. The label on the leftmost panel of each row is the plane name alone — `transverse`,
+`coronal`, `sagittal` — with no slice index (user 2026-09-13); the indices stay in the title.
 
 **The 1.0 dB target was not reached.** The margin roughly doubled (T1 +45 %, FLAIR +40 %) and every quality gate is now
 met, but +1.0 dB over a comparison arm whose λ is itself tuned on this subject's ground truth is out of reach of the

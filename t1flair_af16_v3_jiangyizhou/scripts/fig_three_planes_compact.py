@@ -250,7 +250,7 @@ for k, p in enumerate(planes):
             gim = a.imshow(D(p["g2"], ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
             if p["zoom"]:
                 put_inset(a, D(p["g2"], ax_), p["zoom"], x, y, pw, h, corner=args.inset_corner[ax_], cmap="gray", vmin=0, vmax=p["vmax"])
-            label(a, ANAT[ax_] if args.no_metrics else f"{ANAT[ax_]} {p['idx']}", bold=True)
+            label(a, ANAT[ax_], bold=True)          # plane name only (user 2026-09-13); the slice indices are in the title
             b.imshow(D(p["kmask"], ax_), cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto", interpolation="nearest")
             if k == 0:
                 a.set_title(f"GT ({c})", fontsize=14, pad=4)
