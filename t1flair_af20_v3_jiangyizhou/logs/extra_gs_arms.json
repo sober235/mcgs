@@ -1,0 +1,11 @@
+[
+ {
+  "key": "gs_joint_p3",
+  "label": "MC-GS",
+  "exp": "af20_p3_joint_full4k",
+  "map": {
+   "T1": "plain",
+   "FLAIR": "contrast"
+  }
+ }
+]

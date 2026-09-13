@@ -34,8 +34,15 @@ PY
 $E $PY scripts/summarize.py > logs/post_summarize.log 2>&1 || { tail -5 logs/post_summarize.log; exit 1; }
 tail -25 logs/post_summarize.log
 $E $PY scripts/readme_tables.py $J $A16 > logs/readme_tables.md 2>&1 && $E $PY scripts/refresh_readme_tables.py $J
-for c in T1 FLAIR; do
-  $E $PY scripts/fig_three_planes_compact.py --contrast $c --slices 174 110 47 --mask_error \
-      --mcgs_key gs_joint_p3 --single_key gs_single_p3 --tag _p3 | tail -3
-done
+$E $PY scripts/compare_topics.py > logs/compare_af16_af20.txt 2>&1; cat logs/compare_af16_af20.txt
+# the compact figure needs all nine arms (the script asserts it); stage 2 supplies ZS-SSDU, DIP and INR
+if ls recon/zsssdu_{T1,FLAIR}_complex.npy recon/dip_{T1,FLAIR}_complex.npy recon/inr_{T1,FLAIR}_complex.npy \
+      recon/gs_single_p3_{T1,FLAIR}_mag.npy >/dev/null 2>&1; then
+  for c in T1 FLAIR; do
+    $E $PY scripts/fig_three_planes_compact.py --contrast $c --slices 174 110 47 --mask_error \
+        --mcgs_key gs_joint_p3 --single_key gs_single_p3 --tag _p3 | tail -3
+  done
+else
+  echo "figures skipped: not all nine arms have volumes yet (stage 2 or a GS-single run is still pending)"
+fi
 echo "FINALIZE_AF20_DONE $JOINT ${ST1:-} ${SFL:-}"
