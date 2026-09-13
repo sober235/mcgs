@@ -24,7 +24,10 @@ from pathlib import Path
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--contrast", required=True, choices=["T1", "FLAIR"])
-ap.add_argument("--slices", type=int, nargs=3, required=True, metavar=("TRA", "COR", "SAG"))
+ap.add_argument("--slices", type=int, nargs=3, metavar=("TRA", "COR", "SAG"))
+ap.add_argument("--cube", type=int, nargs=4, metavar=("I", "J", "K", "W"),
+                help="one 3-D box: the three orthogonal centre planes through (I, J, K), each cropped to the W x W face "
+                     "(scripts/best_cube_mcgs.py). Sets --slices and crops every panel and every metric to the face.")
 ap.add_argument("--gap", type=float, default=0.025, help="gap between neighbouring panels, inches")
 ap.add_argument("--ssim", choices=["uniform", "gaussian"], default="uniform", help="SSIM window: 7x7 uniform or Gaussian sigma 1.5")
 ap.add_argument("--mask_error", action="store_true", help="error maps only inside the filled head mask (the region the metrics use); file suffix _headerr")
@@ -32,6 +35,15 @@ ap.add_argument("--mcgs_key", default="gs_joint_ar", help="which registered join
 ap.add_argument("--single_key", default="gs_single_ar", help="which registered single arm fills the GS-single column")
 ap.add_argument("--tag", default="", help="extra suffix for the output file name, e.g. _p3")
 args = ap.parse_args()
+if (args.slices is None) == (args.cube is None):
+    ap.error("give either --slices TRA COR SAG or --cube I J K W")
+CROP = None
+if args.cube:
+    _i, _j, _k, _w = args.cube; _h = _w // 2
+    args.slices = [_i, _j, _k]
+    CROP = {0: (slice(_j - _h, _j + _h), slice(_k - _h, _k + _h)),      # in-plane axes (1, 2)
+            1: (slice(_i - _h, _i + _h), slice(_k - _h, _k + _h)),      # in-plane axes (0, 2)
+            2: (slice(_i - _h, _i + _h), slice(_j - _h, _j + _h))}      # in-plane axes (0, 1)
 
 import h5py
 import matplotlib
@@ -102,18 +114,19 @@ ANAT = {0: "transverse", 1: "coronal", 2: "sagittal"}
 planes = []
 for axis, idx in enumerate(args.slices):
     sl = [slice(None)] * 3; sl[axis] = idx; sl = tuple(sl)
-    g2, m2 = gt[sl], head[sl]
+    cr = CROP[axis] if CROP else (slice(None), slice(None))
+    g2, m2 = gt[sl][cr], head[sl][cr]
     g64 = g2.astype(np.float64)
     g = g64[m2]
     ps, ss, nm = {}, {}, {}
     for key, _, _ in ARMS:
-        r = vols[key][sl].astype(np.float64)
+        r = vols[key][sl][cr].astype(np.float64)
         e = r[m2] - g
         ps[key] = 20 * np.log10(gmax) - 10 * np.log10(float((e * e).mean()))
         _, smap = structural_similarity(g64, r, data_range=gmax, full=True, **SSIM_KW)
         ss[key] = float(smap[m2].mean())
         nm[key] = float((e * e).sum() / (g * g).sum())
-    planes.append(dict(axis=axis, idx=idx, sl=sl, g2=g2, ps=ps, ss=ss, nm=nm, emask=head_region(m2),
+    planes.append(dict(axis=axis, idx=idx, sl=sl, cr=cr, g2=g2, ps=ps, ss=ss, nm=nm, emask=head_region(m2),
                        best=dict(psnr=max(ps, key=ps.get), ssim=max(ss, key=ss.get), nmse=min(nm, key=nm.get)),
                        vmax=float(np.quantile(g2, 0.999)), med=float(np.median(g2[m2])),
                        kmask=mask3.take(kcen[axis], axis=axis)))
@@ -171,7 +184,7 @@ for k, p in enumerate(planes):
                 a.set_title(f"GT ({c})", fontsize=14, fontweight="bold", pad=4)
             continue
         key, lab, _ = ARMS[j - 1]
-        v = vols[key][p["sl"]]
+        v = vols[key][p["sl"]][p["cr"]]
         a.imshow(D(v, ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
         for i, (txt, met) in enumerate(((f"{p['ps'][key]:.2f} dB", "psnr"), (f"SSIM {p['ss'][key]:.4f}", "ssim"),
                                          (f"NMSE {p['nm'][key]:.5f}", "nmse"))):
@@ -183,12 +196,14 @@ for k, p in enumerate(planes):
 last_top = top_in + sum(row_h[:-1]) + (len(row_h) - 1) * gap
 cax = fig.add_axes([(ncol * pw + (ncol - 1) * gap + cbpad) / fw, 1 - (last_top + row_h[-1]) / fh, cbw / fw, row_h[-1] / fh])
 cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=10)
-fig.suptitle(f"{c}  jiangyizhou  {AF_LABEL}  --  transverse {args.slices[0]} / coronal {args.slices[1]} / sagittal {args.slices[2]}",
+_cube_txt = f"  --  {args.cube[3]}^3 box centred ({args.cube[0]}, {args.cube[1]}, {args.cube[2]})" if args.cube else ""
+fig.suptitle(f"{c}  jiangyizhou  {AF_LABEL}  --  transverse {args.slices[0]} / coronal {args.slices[1]} / sagittal {args.slices[2]}" + _cube_txt,
              fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
 fig.text(0.5, 1 - 0.40 / fh, f"head-masked slice PSNR / SSIM ({'7x7 window' if args.ssim == 'uniform' else 'Gaussian window, sigma 1.5'}) / NMSE "
          f"in each panel, the best of each plane in bold;   error |recon - GT| / max(GT), jet [0, 0.1];   "
-         f"left of each error row: the sampling mask in that plane" + ("   (error shown inside the head only)" if args.mask_error else ""), ha="center", va="top", fontsize=11)
-name = f"t1flair_v3_af16_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}{'_headerr' if args.mask_error else ''}{args.tag}.png"
+         f"left of each error row: the sampling mask in that plane (k-space, never cropped)" + ("   (error shown inside the head only)" if args.mask_error else ""), ha="center", va="top", fontsize=11)
+name = (f"t1flair_v3_af16_{c}_cube{args.cube[3]}_{args.cube[0]}_{args.cube[1]}_{args.cube[2]}" if args.cube else
+        f"t1flair_v3_af16_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}") + f"{'_headerr' if args.mask_error else ''}{args.tag}.png"
 for d in (F, R / "figures"):
     fig.savefig(d / name, dpi=130)
 print("wrote", F / name, f"k-space centre (kx, ky, kz) = {kcen}")

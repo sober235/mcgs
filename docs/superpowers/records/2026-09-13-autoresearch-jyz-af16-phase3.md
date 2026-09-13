@@ -89,6 +89,37 @@ most. The gain over the existing 174 / 110 / 47 view is only about 0.1 dB on the
 should show canonical supratentorial anatomy, 174 / 110 / 47 remains the better picture and is already first on every
 metric. The full per-slice curves are in `logs/best_slice_mcgs{,_axis1,_axis2}_p3.json`.
 
+### How much bigger can the gap be made? (follow-up, 2026-09-13)
+
+**Whole slices are capped at about +0.55 dB.** Dropping the head-area gate entirely (`--min_area 0`) does not find a
+better slice on any axis: the maxima stay at transverse 135 (+0.537), coronal 69 (+0.548) and sagittal 151 (+0.560),
+and the slices below the gate only produce NaNs where the head is a few voxels. So no whole-slice view of this data
+shows more than roughly half a dB.
+
+Zooming does more, because whole-slice PSNR is diluted by the large smooth regions where every method agrees.
+`scripts/best_zoom_mcgs.py` (sliding square window, same gauge, window at least 85 % head, MC-GS still required to beat
+GS-single) and `scripts/best_cube_mcgs.py` (**one** 3-D box, its three orthogonal centre planes, six panels scored
+together) give:
+
+| what is shown | smallest lead over the best competing arm across all six panels |
+|---|---|
+| whole slices, best triple 135 / 173 / 73 | +0.508 dB |
+| one 96³ box, centre (152, 104, 72) | +0.521 dB |
+| one 64³ box, centre (180, 124, 72) | **+0.697 dB** |
+| one 48³ box, centre (180, 124, 76) | **+0.824 dB** (largest panel +1.10, FLAIR coronal) |
+| three separate 48² windows, one per plane | +1.09 / +1.04 / +0.99 dB |
+
+The 64³ and 48³ optima land on the same place, (180, 124, 72–76) — the periventricular white matter around the lateral
+ventricles, which the coronal face shows as the classic butterfly. That the two window sizes agree says this is a real
+region, not a noise spike. Figures: `figures/t1flair_v3_af16_{T1,FLAIR}_cube64_180_124_72_headerr_p3.png` and
+`..._cube48_180_124_76_headerr_p3.png`; `fig_three_planes_compact.py` grew a `--cube I J K W` option that sets the three
+centre planes and crops every panel and every metric to the box (the sampling-mask thumbnail stays whole, it is k-space).
+
+**Disclosure that belongs with any of these numbers:** the box is chosen by maximising the gap against the ground
+truth, so the smaller the box the larger the quotable number, and the choice is a selection effect. One 3-D box scored
+on all six panels at once is the honest version of a zoom — three independently placed 2-D windows are three separate
+cherry-picks. The defensible headline stays the whole-volume margin (+0.497 / +0.425 dB).
+
 **The 1.0 dB target was not reached.** The margin roughly doubled (T1 +45 %, FLAIR +40 %) and every quality gate is now
 met, but +1.0 dB over a comparison arm whose λ is itself tuned on this subject's ground truth is out of reach of the
 lever classes this phase was allowed to use — see §4 and §6.
