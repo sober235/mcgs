@@ -543,3 +543,10 @@ the same recipe as the MC-GS column, and the three-plane pair was regenerated wi
   (FLAIR). On T1 MC-GS is first on all three metrics in all three planes; on FLAIR it is first transverse and second
   to its own GS-single arm coronal and sagittal (by 0.05 / 0.07 dB, the joint − single of this subject), reported as
   it is. Files: `t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_p2_gap[_flair_af11]_113_89_103_headerr.png`.
+- 13:05 the unconstrained answer (one slice, either contrast): **FLAIR transverse 205** wins under both gauges —
+  +1.421 dB as delivered (MC-GS FLAIR at AF 11) and **+0.850 dB like-for-like** (everything at AF 12), against
+  L1-ESPIRiT both times. T1's own maximum is coronal 89 (+0.822). So about 0.57 dB of the design-B figure's +1.42
+  is the AF 11 mask's extra 7 % of samples, not the recipe — worth stating whenever that figure is quoted.
+  Sensitivity to the full-brain cut, recorded rather than exploited: at ≥ 3000 head voxels the maxima move to
+  peripheral slices with larger numbers (FLAIR transverse 219 +1.525 at 15449 voxels, T1 transverse 23 +1.048 at
+  8933) — the reason the project's convention is 20000. Runs: `logs/best_gap_slice{,_af12,_min3000}.json`.
