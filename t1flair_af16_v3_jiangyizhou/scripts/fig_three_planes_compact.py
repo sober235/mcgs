@@ -37,6 +37,9 @@ ap.add_argument("--tag", default="", help="extra suffix for the output file name
 ap.add_argument("--no_metrics", action="store_true",
                 help="do not print the PSNR / SSIM / NMSE numbers inside the plane panels (user 2026-09-13); the\n"
                      "ranking still goes to stdout")
+ap.add_argument("--tra_rot", type=int, default=1, choices=[0, 1, 2, 3],
+                help="quarter turns applied to the TRANSVERSE panel on top of the historical transpose. Default 1 puts "
+                     "the eyes up (user 2026-09-13); 0 is the orientation the older figures of this topic use.")
 ap.add_argument("--inset_corner", nargs=3, default=["bl", "bl", "bl"], choices=["bl", "br", "tl", "tr"],
                 metavar=("TRA", "COR", "SAG"),
                 help="which corner of the panel each plane's zoom inset sits in (default bottom-left everywhere); "
@@ -129,10 +132,18 @@ def head_region(m):
 
 
 def D(x, axis):
-    return x.T if axis == 0 else x          # as fig_row_final.py: axis 0 transposed; axes 1, 2 with axis 0 upright
+    """display transform: axis 0 transposed as in fig_row_final.py, then --tra_rot quarter turns (1 = eyes up);
+    axes 1 and 2 are shown with axis 0 upright."""
+    return np.rot90(x.T, args.tra_rot) if axis == 0 else x
 
 
 ANAT = {0: "transverse", 1: "coronal", 2: "sagittal"}
+BOX = None
+if args.inset:
+    _hw = args.inset // 2
+    BOX = np.zeros(gt.shape, bool)
+    _i, _j, _k = args.slices
+    BOX[_i - _hw:_i + _hw, _j - _hw:_j + _hw, _k - _hw:_k + _hw] = True
 planes = []
 for axis, idx in enumerate(args.slices):
     sl = [slice(None)] * 3; sl[axis] = idx; sl = tuple(sl)
@@ -150,11 +161,13 @@ for axis, idx in enumerate(args.slices):
         nm[key] = float((e * e).sum() / (g * g).sum())
         zoom = None
     if args.inset:
-        hw = args.inset // 2
-        i0, j0, k0 = args.slices
-        # D() transposes axis 0, so give the box directly in display (col, row) order
-        x0, y0 = {0: (j0 - hw, k0 - hw), 1: (k0 - hw, i0 - hw), 2: (j0 - hw, i0 - hw)}[axis]
-        zoom = dict(x0=int(x0), y0=int(y0), w=int(args.inset))
+        # the box is defined in volume coordinates and pushed through the same D(), so it lands correctly
+        # whatever orientation the panel is drawn in
+        bm = D(BOX[sl], axis)
+        rows, cols = np.nonzero(bm)
+        zoom = dict(x0=int(cols.min()), y0=int(rows.min()), w=int(args.inset))
+        assert cols.max() - cols.min() + 1 == args.inset and rows.max() - rows.min() + 1 == args.inset, \
+            f"box is {cols.max()-cols.min()+1} x {rows.max()-rows.min()+1}, expected {args.inset} square"
     planes.append(dict(axis=axis, idx=idx, sl=sl, cr=cr, g2=g2, zoom=zoom, ps=ps, ss=ss, nm=nm, emask=head_region(m2),
                        best=dict(psnr=max(ps, key=ps.get), ssim=max(ss, key=ss.get), nmse=min(nm, key=nm.get)),
                        vmax=float(np.quantile(g2, 0.999)), med=float(np.median(g2[m2])),
