@@ -174,3 +174,27 @@ place in the recipe.
   a keep, below 0.001. **The bracket is now complete and single-peaked here: 0.0005 +0.032/+0.027, 0.001
   +0.049/+0.041, 0.002 +0.043/+0.031, 0.005 −0.152/−0.165.** The AF16 line read 0.001 ≈ 0.002 as a plateau; on this
   subject 0.001 is a shade above 0.002, so the optimum is the same value reached independently, not copied.
+
+### Promotion 1 — 20:07: **P14, and the objective is met**
+`p3_e0001_ptv001_full4k` (P13 + common-edge 0.001 + phase TV 0.01, 4000 it, volumes) with its two GS-single arms at
+the same recipe. **All six head cells are now above every arm, GS-single included:**
+
+| head cell | T1 | margin | best other | FLAIR | margin | best other |
+|---|---|---|---|---|---|---|
+| PSNR | **37.015** | **+0.150** | GS-single 36.865 | **36.360** | **+0.036** | GS-single 36.324 |
+| SSIM | **0.9516** | **+0.0020** | GS-single 0.9496 | **0.9415** | **+0.0005** | GS-single 0.9409 |
+| HFEN | **0.0928** | **+0.0041** | GS-single 0.0969 | **0.0935** | **+0.0008** | GS-single 0.0943 |
+
+The binding arm in every cell is GS-single; every classical and learned arm is far behind (L1-ESPIRiT trails by
+**+0.589 / +0.602 dB**). **Joint − single: T1 +0.066 → +0.150, FLAIR −0.038 → +0.036** — the sign flip this phase
+existed for, 0.074 dB of movement against a FLAIR seed floor of 0.005. Against P13 itself: T1 +0.045, FLAIR +0.050,
+no cell down, sharpness up (0.864 / 0.828 against 0.857 / 0.822).
+
+**P14 = P13 + `--lambda_edge 0.001 --lambda_ptv 0.01`** = P6 + db4 wavelet on 1 level (T1 0.12 / FLAIR 0.10) +
+rotation lr 0.008 + common-edge 0.001 + phase TV 0.01, 3.6M points, 4000 iterations.
+
+**Why it works, and the caveat.** The common-edge term is a cross-contrast prior: in a single-contrast run it
+compares an image with itself and is inert, so it lifts the joint arm only — which is exactly how it flips the sign
+of joint − single, and is what the AF16 line saw (−0.003 → +0.042 there). **The FLAIR margin is thin**: +0.036 dB is
+seven times its seed floor, so it is real on this subject, but it is an order of magnitude smaller than T1's +0.150
+and nothing here says it survives on another subject. A held-out check is the honest next step, not a victory lap.
