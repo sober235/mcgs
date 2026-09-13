@@ -151,7 +151,7 @@ sagittal insets stay bottom-left and are 89 and 59 voxels clear. `--cbar_planes`
 
 ```
 scripts/fig_three_planes_compact.py --contrast T1|FLAIR --slices 180 124 76 --inset 48 --inset_corner tr bl bl \
-    --mask_error --gray_cbar --cbar_planes 0 --mcgs_key gs_joint_p3 --single_key gs_single_p3 --tag _p3
+    --mask_error --gray_cbar --cbar_planes 0 --tra_rot 1 --mcgs_key gs_joint_p3 --single_key gs_single_p3 --tag _p3
 ```
 
 i.e. the in-panel PSNR / SSIM / NMSE stay (best of each plane in bold), the zoom carries no numbers of its own, and the
@@ -160,6 +160,15 @@ same style as the alternative with the wider zoom field: it trades 0.13 dB of th
 for a larger field of view, and its sagittal slice is 72 rather than 76 because each box size was optimised separately.
 Note the side effect of `--cbar_planes 0`: the coronal and sagittal rows have their own grey windows and now show no
 bar for them.
+
+**Transverse orientation (user 2026-09-13):** the transverse panel is turned a quarter turn so the eyes point up
+(`--tra_rot`, default 1; `np.rot90(x.T, 1)`, verified on the orbit slice, transverse 120, where the two globes move
+from the left edge to the top). The anterior-posterior axis is then vertical, so the transverse panel is taller than
+wide as the anatomy is (about 180 mm front to back against 150 mm across) and that row grows accordingly. `--tra_rot 0`
+restores the orientation the topic's older figures use; `fig_row_final.py` and `fig_three_planes.py` are unchanged and
+still draw the old one. The zoom box is now derived by pushing a 3-D box mask through the same display transform, so it
+lands correctly in any orientation, and the script asserts that the transformed box is still the requested square.
+None of the numbers change.
 
 **The 1.0 dB target was not reached.** The margin roughly doubled (T1 +45 %, FLAIR +40 %) and every quality gate is now
 met, but +1.0 dB over a comparison arm whose λ is itself tuned on this subject's ground truth is out of reach of the
