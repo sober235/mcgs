@@ -16,6 +16,10 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--out", default="export/af16_phase3")
 ap.add_argument("--mcgs_key", default="gs_joint_p3")
 ap.add_argument("--single_key", default="gs_single_p3")
+ap.add_argument("--with_raw", action="store_true",
+                help="also copy the acquisition itself: the 26-coil k-space and the ESPIRiT maps of both "
+                     "contrasts (symlinks into the AF12 topic, dereferenced here) and the FLAIR shutter "
+                     "support. About 9 GiB on top.")
 ap.add_argument("--dry_run", action="store_true")
 a = ap.parse_args()
 OUT = R / a.out
@@ -50,6 +54,14 @@ jobs = []                                                  # (dest_rel, src, wha
 for c in ("T1", "FLAIR"):
     for what, src in arms(c):
         jobs.append((f"volumes/{c}/{src.name}", src, f"{c}: {what}"))
+if a.with_raw:
+    for c in ("T1", "FLAIR"):
+        jobs.append((f"raw/ksp_{c}.h5", (R / f"data/ksp_{c}.h5").resolve(),
+                     f"{c}: acquired k-space, 26 coils, complex64 (the full grid; the mask is applied retrospectively)"))
+        jobs.append((f"raw/csm_espirit_{c}.h5", (R / f"data/csm_espirit_{c}.h5").resolve(),
+                     f"{c}: ESPIRiT coil sensitivity maps used by every arm"))
+    jobs.append(("raw/flair_support_2d.h5", R / "data/flair_support_2d.h5",
+                 "FLAIR's acquired support on the PE plane (the vendor elliptical shutter)"))
 jobs.append(("mask/mask_af16_3d.h5", R / "data/mask_af16_3d.h5", "3-D sampling mask (readout-broadcast)"))
 jobs.append(("mask/mask_vdpois_256x176_af16.mat", R / "data/mask_vdpois_256x176_af16.mat", "the 2-D vd-Poisson mask"))
 for n in ("summary.json", "summary.tsv", "bar_complex_gauge.json", "prep_04_export.json", "extra_gs_arms.json"):

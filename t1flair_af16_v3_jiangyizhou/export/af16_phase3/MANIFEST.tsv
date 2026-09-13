@@ -23,6 +23,11 @@ volumes/FLAIR/gs_single_p3_FLAIR_mag.npy	FLAIR: GS-single (phase 3), magnitude	2
 volumes/FLAIR/gs_single_p3_FLAIR_complex.npy	FLAIR: GS-single (phase 3), complex	256x256x176	complex64	92274816	069fbcab977f97e8cb97d61ea9afc124
 volumes/FLAIR/gs_joint_p3_FLAIR_mag.npy	FLAIR: MC-GS (phase 3), magnitude	256x256x176	float32	46137472	20399720dab8667f0752228fb2e9d41d
 volumes/FLAIR/gs_joint_p3_FLAIR_complex.npy	FLAIR: MC-GS (phase 3), complex	256x256x176	complex64	92274816	f0b0b5e269ab26efbda2a392010a8181
+raw/ksp_T1.h5	T1: acquired k-space, 26 coils, complex64 (the full grid; the mask is applied retrospectively)			2399161584	108805b17f6f36665d9d04711810d0c4
+raw/csm_espirit_T1.h5	T1: ESPIRiT coil sensitivity maps used by every arm			2399161584	fbf78eec7fea1f604a1f29d0e2bec867
+raw/ksp_FLAIR.h5	FLAIR: acquired k-space, 26 coils, complex64 (the full grid; the mask is applied retrospectively)			2399161584	3a97e0fc7cb0a2fb672b18c60ed860af
+raw/csm_espirit_FLAIR.h5	FLAIR: ESPIRiT coil sensitivity maps used by every arm			2399161584	4d5d68ab563ca543a2c880aef2602a7c
+raw/flair_support_2d.h5	FLAIR's acquired support on the PE plane (the vendor elliptical shutter)			47104	6de28379bee6ca80321ac15d118f995c
 mask/mask_af16_3d.h5	3-D sampling mask (readout-broadcast)			1066888	d08179b8e74f35846455983dbe299294
 mask/mask_vdpois_256x176_af16.mat	the 2-D vd-Poisson mask			4976	2d7ed0001214aec2af8f6dce5d52ce70
 logs/summary.json	topic log: summary.json			16145	d6a0ad348d8e44bf173a52ce20bb9b45

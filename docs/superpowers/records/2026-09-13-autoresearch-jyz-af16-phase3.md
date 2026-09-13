@@ -149,8 +149,11 @@ the 2-D pattern it came from (`mask/`), the topic summary, the competitor bar, t
 registry and the four phase-3 scorer outputs (`logs/`), the four figures as PDF and PNG, a `MANIFEST.tsv` giving each
 file's shape, dtype, size and md5, and `checksums.md5` (43/43 verify). Its `README.md` states the acquisition, the
 recipe, the head-only table, what each figure shows and what is deliberately left out (the coil k-space and ESPIRiT
-maps, shared with the AF 12 topic, and the Gaussian checkpoints, which live in the scratch `results_arc/`). The bundle
-carries the subject's real name in its paths and stays on the server.
+maps, shared with the AF 12 topic, and the Gaussian checkpoints, which live in the scratch `results_arc/`). On the user's instruction of the same day the bundle also carries **the acquisition itself** under `raw/`:
+`ksp_{T1,FLAIR}.h5` (the 26-coil fully sampled k-space every arm is undersampled from) and `csm_espirit_{T1,FLAIR}.h5`
+(the ESPIRiT maps), dereferenced from the symlinks that point into the AF 12 topic, plus FLAIR's shutter support —
+48 files, **10.89 GiB**, `md5sum -c checksums.md5` 48/48 OK. Only the Gaussian checkpoints are left out; they sit in
+the scratch `results_arc/`. The bundle carries the subject's real name in its paths and stays on the server.
 
 Figure conventions the user fixed on 2026-09-13, all as switches on `fig_three_planes_compact.py`: the zoom box and its
 inset border are the in-panel orange-yellow at line width 2.2 / 2.8; `--no_metrics` takes every number off the plane

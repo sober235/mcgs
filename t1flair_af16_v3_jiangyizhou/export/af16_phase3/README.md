@@ -3,7 +3,7 @@
 Everything behind the jiangyizhou AF 16 phase-3 comparison figure, in one self-contained folder. Real copies, so this
 directory can be moved or tarred on its own. Written by
 `Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/scripts/export_phase3_bundle.py`; `MANIFEST.tsv` lists every file with
-its shape, dtype, size and md5, and `checksums.md5` verifies the copy (`md5sum -c checksums.md5`).
+its shape, dtype, size and md5, and `checksums.md5` verifies the copy (`md5sum -c checksums.md5`; 48/48 OK on 2026-09-13).
 
 ## What the reconstruction is
 
@@ -60,12 +60,17 @@ the 3-D sampling mask (k-space, never cropped).
 - `logs/` — the topic's `summary.{json,tsv}` (every arm, every metric), the competitor bar, the export report of the
   data preparation, the registry of the extra GS arms, and the scorer output of the four phase-3 runs.
 
+- `raw/` — **the acquisition itself** (user request 2026-09-13): `ksp_{T1,FLAIR}.h5`, the 26-coil fully sampled
+  k-space each arm is undersampled from, and `csm_espirit_{T1,FLAIR}.h5`, the ESPIRiT maps every arm uses, both
+  complex64 (26, 256, 256, 176). In the topic these two pairs are symlinks into the AF 12 topic of the same subject;
+  here they are dereferenced real copies, so the bundle stands alone. Plus `flair_support_2d.h5`, FLAIR's acquired
+  support on the phase-encode plane (the vendor elliptical shutter, 34139 of 45056 lines).
+
 ## Not in here
 
-The coil k-space and the ESPIRiT maps: they are shared with the AF 12 topic of this subject
-(`../../T1FLAIR_AF12_v3_jiangyizhou/data/ksp_{T1,FLAIR}.h5`, `csm_espirit_{T1,FLAIR}.h5`, 26 coils) and are large.
-The trained Gaussian checkpoints live with their runs in the framework worktree
-(`/data0/congcong/code/GS/mcgs_af16_wt/results_arc/<run>/`), which is scratch, not archive.
+The trained Gaussian checkpoints, which live with their runs in the framework worktree
+(`/data0/congcong/code/GS/mcgs_af16_wt/results_arc/<run>/checkpoints/`) — that directory is scratch, not archive. A
+reconstruction can be reproduced from `raw/` with the command in the phase-3 STATUS.
 
 ## Provenance
 

@@ -22,6 +22,11 @@ fdf19569ad3c10612ef114978a899e81  volumes/FLAIR/gs_single_p3_FLAIR_mag.npy
 069fbcab977f97e8cb97d61ea9afc124  volumes/FLAIR/gs_single_p3_FLAIR_complex.npy
 20399720dab8667f0752228fb2e9d41d  volumes/FLAIR/gs_joint_p3_FLAIR_mag.npy
 f0b0b5e269ab26efbda2a392010a8181  volumes/FLAIR/gs_joint_p3_FLAIR_complex.npy
+108805b17f6f36665d9d04711810d0c4  raw/ksp_T1.h5
+fbf78eec7fea1f604a1f29d0e2bec867  raw/csm_espirit_T1.h5
+3a97e0fc7cb0a2fb672b18c60ed860af  raw/ksp_FLAIR.h5
+4d5d68ab563ca543a2c880aef2602a7c  raw/csm_espirit_FLAIR.h5
+6de28379bee6ca80321ac15d118f995c  raw/flair_support_2d.h5
 d08179b8e74f35846455983dbe299294  mask/mask_af16_3d.h5
 2d7ed0001214aec2af8f6dce5d52ce70  mask/mask_vdpois_256x176_af16.mat
 d6a0ad348d8e44bf173a52ce20bb9b45  logs/summary.json
