@@ -48,6 +48,13 @@ P10 = P6 + 小波先验改为 db4、只用最细一层、T1 0.12 / FLAIR 0.10，
 - **不动任何余量**：P14 六格的 binding arm 加它之前之后都是 GS-single，结论原样成立。
 - 图：交付的 P14 那对按同切片同版式重渲成十方法版（后缀 `_p14_mcinr`，九方法的 `_p14` 原样保留）；两张渲染日志与九方法版逐字节一致。
 - `summarize.py` / `results_af12_md.py` / 三个 figure 脚本都加了这一列。
+- **数据包已落盘（2026-09-13 晚，用户要求"包含原始数据"）**：`Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/export/af12_p14_mcinr/`，
+  66 个文件 11.23 GiB，全是真拷贝没有软链，`md5sum -c checksums.md5` **66/66 OK**（`md5check.out`）。
+  含十个臂加真值的重建体、掩膜、全部 score/summary 日志、MC-INR 自己的出处（论文单位输出、逐层损失、meta、自查、保真度自审）、
+  九方法与十方法两版定稿图（PNG+PDF），以及 **raw/：26 线圈满采 k 空间与 ESPIRiT 图**（ksp/csm 各两个对比度，9.0 GB，软链已解引用）。
+  生成脚本 `scripts/export_af12_bundle.py --with_raw`，格式与 AF16 的 `export/af16_phase3/` 完全一致。
+  仓库里只进清单三件（MANIFEST.tsv / README.md / checksums.md5），数据本体留在盘上——沿用 AF16 的做法。
+  ⚠️数据未去标识（目录名带受试者真名），**不出服务器**。
 - ⚠️**这一行对 MC-INR 并不公平，README 已写明**：经典臂的 λ 和所有 MC-GS 配方都在本受试者上按真值选过，
   ZS-SSDU/3D-DIP/3D-INR 用留出 k 空间早停，而 MC-INR 用论文原配置、在这里一个参数都没选。但这解释不了它的位置——
   整轮 λ 重扫对经典臂最多值 +0.092 dB，而没有 λ 可调的 CG-SENSE 仍高它 1.323 / 0.916 dB。

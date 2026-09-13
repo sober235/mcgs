@@ -1,0 +1,67 @@
+file	what	shape	dtype	bytes	md5
+volumes/T1/gt_T1_complex.npy	T1: ground truth	256x256x176	complex64	92274816	af619da60b7ff87d1fecef06afdb4d4d
+volumes/T1/cgsense_T1_complex.npy	T1: CG-SENSE	256x256x176	complex64	92274816	5ebd36890bbf454f3ccb73bd68ac04b3
+volumes/T1/cssense_o200_lam0.0007_T1_complex.npy	T1: CS-SENSE (TV, converged, best lambda on this subject)	256x256x176	complex64	92274816	80544325850adb967e758b3fa7b2837f
+volumes/T1/jcssense_o200_lam0.001_T1_complex.npy	T1: Joint SENSE (JTV, best lambda on this subject)	256x256x176	complex64	92274816	229f96168c4ee7531c6886fbf22c1a32
+volumes/T1/l1espirit_lam0.002_T1_complex.npy	T1: L1-ESPIRiT (best lambda on this subject)	256x256x176	complex64	92274816	a26f8865b2bfee77b7772e04fed4334a
+volumes/T1/zsssdu_T1_complex.npy	T1: ZS-SSDU	256x256x176	complex64	92274816	5597520cb63ad1a9a8b3140a72fa61a0
+volumes/T1/dip_T1_complex.npy	T1: 3D-DIP	256x256x176	complex64	92274816	008bf2d84f99e7fa96410831a0c0a106
+volumes/T1/inr_T1_complex.npy	T1: 3D-INR	256x256x176	complex64	92274816	b103340d11c40201bcd800060edbd2a0
+volumes/T1/mcinr_T1_complex.npy	T1: MC-INR (Niessen 2025), topic units	256x256x176	complex64	92274816	e644338b89ebfadd00dab1392cc6f815
+volumes/T1/gs_single_p14_T1_mag.npy	T1: GS-single (gs_single_p14), magnitude	256x256x176	float32	46137472	1e0be93b65572717d83a5450d9caf36b
+volumes/T1/gs_single_p14_T1_complex.npy	T1: GS-single (gs_single_p14), complex	256x256x176	complex64	92274816	e879e701b9fc141681ba5fcebb0ed8be
+volumes/T1/gs_joint_p14_T1_mag.npy	T1: MC-GS (gs_joint_p14), magnitude	256x256x176	float32	46137472	a6ca0537fdd845bcc4a1bf2b5e628238
+volumes/T1/gs_joint_p14_T1_complex.npy	T1: MC-GS (gs_joint_p14), complex	256x256x176	complex64	92274816	413425f8b61664378797d245021019ba
+volumes/FLAIR/gt_FLAIR_complex.npy	FLAIR: ground truth	256x256x176	complex64	92274816	c302014a07805dab30ac9d65f6e9975b
+volumes/FLAIR/cgsense_FLAIR_complex.npy	FLAIR: CG-SENSE	256x256x176	complex64	92274816	d18daa39fe060aa25e5d3c1a36302d27
+volumes/FLAIR/cssense_o200_lam0.0007_FLAIR_complex.npy	FLAIR: CS-SENSE (TV, converged, best lambda on this subject)	256x256x176	complex64	92274816	ea0b70ac365a62e0842f5d72e52f08ba
+volumes/FLAIR/jcssense_o200_lam0.001_FLAIR_complex.npy	FLAIR: Joint SENSE (JTV, best lambda on this subject)	256x256x176	complex64	92274816	ab1dd223109e76075de8b76ec7b3f525
+volumes/FLAIR/l1espirit_lam0.004_FLAIR_complex.npy	FLAIR: L1-ESPIRiT (best lambda on this subject)	256x256x176	complex64	92274816	4c1fd7830912d50f4b0a4cf65a75e76d
+volumes/FLAIR/zsssdu_FLAIR_complex.npy	FLAIR: ZS-SSDU	256x256x176	complex64	92274816	428824f8752c49f24814ea16be6831b3
+volumes/FLAIR/dip_FLAIR_complex.npy	FLAIR: 3D-DIP	256x256x176	complex64	92274816	6d39ec2bd284cbfc03769bdd3de14a67
+volumes/FLAIR/inr_FLAIR_complex.npy	FLAIR: 3D-INR	256x256x176	complex64	92274816	8182811e71f4aed3853558e5964286a2
+volumes/FLAIR/mcinr_FLAIR_complex.npy	FLAIR: MC-INR (Niessen 2025), topic units	256x256x176	complex64	92274816	85e36fddc50f7b91a1f333488c54c855
+volumes/FLAIR/gs_single_p14_FLAIR_mag.npy	FLAIR: GS-single (gs_single_p14), magnitude	256x256x176	float32	46137472	ab7d574a4e3cb59f080c3b8f39004c2f
+volumes/FLAIR/gs_single_p14_FLAIR_complex.npy	FLAIR: GS-single (gs_single_p14), complex	256x256x176	complex64	92274816	989264347ffaf32ad7838229b2c41f68
+volumes/FLAIR/gs_joint_p14_FLAIR_mag.npy	FLAIR: MC-GS (gs_joint_p14), magnitude	256x256x176	float32	46137472	101ab5f0cf740991ee4eab10ea892131
+volumes/FLAIR/gs_joint_p14_FLAIR_complex.npy	FLAIR: MC-GS (gs_joint_p14), complex	256x256x176	complex64	92274816	c9f431699862180e52fac626b41918f7
+raw/ksp_T1.h5	T1: acquired k-space, 26 coils, complex64 (the full grid; the mask is applied retrospectively)			2399161584	108805b17f6f36665d9d04711810d0c4
+raw/csm_espirit_T1.h5	T1: ESPIRiT coil sensitivity maps used by every arm			2399161584	fbf78eec7fea1f604a1f29d0e2bec867
+raw/ksp_FLAIR.h5	FLAIR: acquired k-space, 26 coils, complex64 (the full grid; the mask is applied retrospectively)			2399161584	3a97e0fc7cb0a2fb672b18c60ed860af
+raw/csm_espirit_FLAIR.h5	FLAIR: ESPIRiT coil sensitivity maps used by every arm			2399161584	4d5d68ab563ca543a2c880aef2602a7c
+mask/mask_af12_3d.h5	3-D sampling mask (readout-broadcast), the arena of this result			1290640	44436ddb063cfa69588b9a759ca5a821
+mask/mask_vdpois_256x176_af12.mat	the 2-D vd-Poisson mask			5836	6af854004ba3318dd2d2873078b4a83c
+logs/summary.json	topic log: summary.json			30263	f7cf30039c89444b557eca6bbeeb92a7
+logs/summary.tsv	topic log: summary.tsv			6333	821d5dad1aa628c5eebaa4cb5020a452
+logs/mcinr_T1.json	topic log: mcinr_T1.json			857	0f69aac43acfc37c1e5217f973f70dd7
+logs/mcinr_FLAIR.json	topic log: mcinr_FLAIR.json			866	aafab83c8cc2222cfb0aaaa2b8bcb0dc
+logs/complex_gauge.json	topic log: complex_gauge.json			3299	977eb71ec2194d2c819389627e9b47c2
+logs/prep_04_export.json	topic log: prep_04_export.json			1354	f86482ba5bf473e11219a4f9fcf05177
+logs/extra_gs_arms.json	topic log: extra_gs_arms.json			2577	63e39bf7a7790d31b954f30d7a25bd03
+logs/p3_e0001_ptv001_full4k_score.json	scorer output of run p3_e0001_ptv001_full4k			3873	68413b43d4da750f09c9613c38ce70d2
+logs/p3_e0001_ptv001_s43_full4k_score.json	scorer output of run p3_e0001_ptv001_s43_full4k			3944	bbc762a34a0523f1b1cd97a75b460fc4
+logs/p3_e0001_ptv001_singleT1_full4k_score.json	scorer output of run p3_e0001_ptv001_singleT1_full4k			3162	099132be4adffc84c42684231509863b
+logs/p3_e0001_ptv001_singleFLAIR_full4k_score.json	scorer output of run p3_e0001_ptv001_singleFLAIR_full4k			4647	b645fc94b2ed29ed3920f3b1a065206a
+logs/p3_hyw_P14_full4k_score.json	scorer output of run p3_hyw_P14_full4k			3863	b9b3448739ea268a07b8b06528033f5f
+logs/p3_hyw_P14_singleFLAIR_full4k_score.json	scorer output of run p3_hyw_P14_singleFLAIR_full4k			4634	dc9eb4ca08d13052291e98a9d6a13ce4
+mcinr/mcinr_norm_T1_complex.npy	T1: MC-INR network output in the paper's normalised units (before the linear rescale to topic units)	256x256x176	complex64	92274816	3a54e79ce94d0dd2e9ef83fc4ca43a95
+mcinr/mcinr_norm_FLAIR_complex.npy	FLAIR: MC-INR network output in the paper's normalised units (before the linear rescale to topic units)	256x256x176	complex64	92274816	0a66e47014b598df57134488ef2ca477
+mcinr/losses.npy	MC-INR per-slice training loss curves	256x200	float64	409728	c2cc4addf4a6b9eff24004c30780d5ae
+mcinr/meta.json	MC-INR run metadata: mask, hyperparameters, per-slice timings			7189	d9d0a3ebb34d72c363010d016638da8c
+mcinr/score_af12.json	MC-INR reproduction log: score_af12.json			4239	08ae0561c59d7eb43d360a158edab548
+mcinr/gauge_check_af12.json	MC-INR reproduction log: gauge_check_af12.json			2905	73c7c10a943488ad033d9f7001b487e0
+mcinr/check_real_data.json	MC-INR reproduction log: check_real_data.json			1451	1d77b588f683a483f90e0fe352c7f5b4
+mcinr/slice_jitter.json	MC-INR reproduction log: slice_jitter.json			2023	759482c121d72288e7401a47fcf8a75f
+mcinr/SUMMARY_zh.md	MC-INR reproduction doc: SUMMARY_zh.md			5899	688cdcf2d1f4ed377e11dcd7197e300b
+mcinr/README.md	MC-INR reproduction doc: README.md			12911	a28bc21f72722e52929262322f563ada
+mcinr/fidelity-review.md	MC-INR reproduction doc: fidelity-review.md			8258	295e646ad8167cd2d7579d25a42cb326
+README_topic.md	this topic's full README, the section 'MC-INR ... registered as a comparison arm' describes the new column			55330	9cefee9cdad788579b268f1eeb0c531a
+RESULTS_AF12_T1W_FLAIR.md	consolidated results sheet (generated from logs/summary.json)			14361	026fef9ec45e4bdf06ce036e02a9f3a7
+figures/t1flair_v3_af12_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p14.pdf	figure of record, nine methods (as delivered before MC-INR was registered)			5605565	621af19376ec9a4018ba69e653dda975
+figures/t1flair_v3_af12_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p14.png	figure of record, nine methods (as delivered before MC-INR was registered)			10002775	fb171ca0d0f40983940836a689d4dc2d
+figures/t1flair_v3_af12_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p14_mcinr.pdf	figure of record, ten methods (MC-INR included)			6208971	4f260bb950d68548bcbd5aae2a133fca
+figures/t1flair_v3_af12_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p14_mcinr.png	figure of record, ten methods (MC-INR included)			11238308	6dbb3d6f2d8553895db79a81f5199291
+figures/t1flair_v3_af12_T1_row3planes_compact_180_124_76_inset48_headerr_p14.pdf	figure of record, nine methods (as delivered before MC-INR was registered)			5618925	52e3d8f70ece1755bc156bf044d56da0
+figures/t1flair_v3_af12_T1_row3planes_compact_180_124_76_inset48_headerr_p14.png	figure of record, nine methods (as delivered before MC-INR was registered)			9717852	6d75d5dcb5ccc6cb8ee13ed03c5020fe
+figures/t1flair_v3_af12_T1_row3planes_compact_180_124_76_inset48_headerr_p14_mcinr.pdf	figure of record, ten methods (MC-INR included)			6229129	15c19e7e9dcbfa4aede02eabfa79afc4
+figures/t1flair_v3_af12_T1_row3planes_compact_180_124_76_inset48_headerr_p14_mcinr.png	figure of record, ten methods (MC-INR included)			10994913	81dc4c4ff97b2a808bcddf38563f87ad
