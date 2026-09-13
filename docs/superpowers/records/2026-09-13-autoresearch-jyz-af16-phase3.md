@@ -171,6 +171,22 @@ lands correctly in any orientation, and the script asserts that the transformed 
 None of the numbers change. The label on the leftmost panel of each row is the plane name alone — `transverse`,
 `coronal`, `sagittal` — with no slice index (user 2026-09-13); the indices stay in the title.
 
+**Error-map scale (user 2026-09-13):** the panels are drawn with `--err_vmax 0.05` instead of the house-standard
+fixed [0, 0.1]. Reason, measured on this data: inside the head the error / max|GT| has P90 0.0266 and P99 0.0506 for
+MC-GS, 0.0280 and 0.0542 for L1-ESPIRiT, 0.0370 and 0.0807 for CG-SENSE — at a ceiling of 0.1 every arm but CG-SENSE
+sits in the bottom half of the colormap and all the panels read as uniform dark blue, which is what made the methods
+look indistinguishable. At 0.05 about 1 % of head voxels saturate and the arms separate visibly. The scale is still
+**fixed and identical for every panel**, so panels remain directly comparable; only the ceiling changed. `--err_vmax 0.1`
+restores the house convention.
+
+**Not done, on request 2026-09-13:** de-tuning GS-single to land near 36 dB so the gap would look larger. GS-single is
+the single-contrast ablation of the same recipe; weakening it on purpose would misstate what the single-contrast
+variant achieves and the comparison would no longer be like-for-like. The honest routes to a larger visible gap were
+offered instead: this error scale (taken), dropping the GS-single column (it is our arm, not a competitor), the
+existing un-tuned cold-start single arm (head 32.331 / 32.137, a 3.2 dB gap, honestly labelled), and running a higher
+acceleration where the coupling is worth more (joint − single went from +0.36 / −0.02 at AF12 to +0.56 / +0.27 at AF16
+for the cold-start pair).
+
 **The 1.0 dB target was not reached.** The margin roughly doubled (T1 +45 %, FLAIR +40 %) and every quality gate is now
 met, but +1.0 dB over a comparison arm whose λ is itself tuned on this subject's ground truth is out of reach of the
 lever classes this phase was allowed to use — see §4 and §6.

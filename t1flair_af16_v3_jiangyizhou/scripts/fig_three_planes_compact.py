@@ -37,6 +37,10 @@ ap.add_argument("--tag", default="", help="extra suffix for the output file name
 ap.add_argument("--no_metrics", action="store_true",
                 help="do not print the PSNR / SSIM / NMSE numbers inside the plane panels (user 2026-09-13); the\n"
                      "ranking still goes to stdout")
+ap.add_argument("--err_vmax", type=float, default=0.1,
+                help="top of the fixed jet scale of the error maps, as a fraction of max|GT| (default 0.1, the house "
+                     "convention). 0.05 uses the full colour range: 99 percent of the in-head error is under 0.054 for "
+                     "every arm but CG-SENSE, so at 0.1 the panels are all dark blue. Fixed for every panel either way.")
 ap.add_argument("--tra_rot", type=int, default=1, choices=[0, 1, 2, 3],
                 help="quarter turns applied to the TRANSVERSE panel on top of the historical transpose. Default 1 puts "
                      "the eyes up (user 2026-09-13); 0 is the orientation the older figures of this topic use.")
@@ -265,9 +269,9 @@ for k, p in enumerate(planes):
                                              (f"NMSE {p['nm'][key]:.5f}", "nmse"))):
                 label(a, txt, bold=key == p["best"][met], line=i, fs=10.5, h=h, color=METRIC_COLOR)
         emap = D(np.abs(v - p["g2"]) / gmax * (p["emask"] if args.mask_error else 1), ax_)
-        im = b.imshow(emap, cmap="jet", vmin=0.0, vmax=0.1, origin="lower", aspect="auto")
+        im = b.imshow(emap, cmap="jet", vmin=0.0, vmax=args.err_vmax, origin="lower", aspect="auto")
         if p["zoom"]:
-            put_inset(b, emap, p["zoom"], x, y + h + gap, pw, h, corner=args.inset_corner[ax_], cmap="jet", vmin=0.0, vmax=0.1)
+            put_inset(b, emap, p["zoom"], x, y + h + gap, pw, h, corner=args.inset_corner[ax_], cmap="jet", vmin=0.0, vmax=args.err_vmax)
         if k == 0:
             a.set_title(lab, fontsize=14, pad=4)
     if args.gray_cbar and ax_ in args.cbar_planes:
@@ -288,7 +292,7 @@ _cap = []
 if not args.no_metrics:
     _win = "7x7 window" if args.ssim == "uniform" else "Gaussian window, sigma 1.5"
     _cap.append(f"head-masked slice PSNR / SSIM ({_win}) / NMSE in each panel, the best of each plane in bold")
-_cap.append("error |recon - GT| / max(GT), jet [0, 0.1]" + ("   (inside the head only)" if args.mask_error else ""))
+_cap.append(f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]" + ("   (inside the head only)" if args.mask_error else ""))
 _cap.append("left of each error row: the sampling mask in that plane (k-space, never cropped)")
 if args.gray_cbar:
     _cap.append("grey bar right of the " + " / ".join(ANAT[a] for a in sorted(args.cbar_planes))
