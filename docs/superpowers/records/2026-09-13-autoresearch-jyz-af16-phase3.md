@@ -151,7 +151,7 @@ sagittal insets stay bottom-left and are 89 and 59 voxels clear. `--cbar_planes`
 
 ```
 scripts/fig_three_planes_compact.py --contrast T1|FLAIR --slices 180 124 76 --inset 48 --inset_corner tr bl bl \
-    --mask_error --gray_cbar --cbar_planes 0 --tra_rot 1 --mcgs_key gs_joint_p3 --single_key gs_single_p3 --tag _p3
+    --mask_error --gray_cbar --cbar_planes 0 --tra_rot 1 --err_vmax 0.1 --mcgs_key gs_joint_p3 --single_key gs_single_p3 --tag _p3
 ```
 
 i.e. the in-panel PSNR / SSIM / NMSE stay (best of each plane in bold), the zoom carries no numbers of its own, and the
@@ -171,14 +171,15 @@ lands correctly in any orientation, and the script asserts that the transformed 
 None of the numbers change. The label on the leftmost panel of each row is the plane name alone — `transverse`,
 `coronal`, `sagittal` — with no slice index (user 2026-09-13); the indices stay in the title.
 
-**Error-map scale (user 2026-09-13):** the panels are drawn with `--err_vmax 0.09` instead of the house-standard
-fixed [0, 0.1]. Reason, measured on this data: inside the head the error / max|GT| has P90 0.0266 and P99 0.0506 for
+**Error-map scale (user 2026-09-13):** the error maps are back on the house-standard fixed [0, 0.1]. Reason, measured on this data: inside the head the error / max|GT| has P90 0.0266 and P99 0.0506 for
 MC-GS, 0.0280 and 0.0542 for L1-ESPIRiT, 0.0370 and 0.0807 for CG-SENSE — at a ceiling of 0.1 every arm but CG-SENSE
 sits in the bottom half of the colormap and all the panels read as uniform dark blue, which is what made the methods
-look indistinguishable. The user settled on 0.09 (0.05 and 0.08 were tried on the way; 0.05 saturates about 1 % of head voxels, 0.08 and 0.09
-almost none, and all three separate the arms far better than 0.1). The two bars are flush with the top and bottom of
+look indistinguishable. 0.05, 0.08 and 0.09 were tried on the way (0.05 saturates about 1 % of head voxels, the others almost none, and all
+three separate the arms far better than 0.1); the user came back to **0.1**, the house convention, so the figures of
+record use it and `--err_vmax` is the switch for the tighter scales. The two bars are flush with the top and bottom of
 the row they belong to; the grey bar drops its lowest tick so its label cannot collide with the error bar's top label
-across the narrow gap between the rows. The scale is still
+across the narrow gap between the rows, and the error bar's ticks are round steps that always include the ceiling.
+The scale is
 **fixed and identical for every panel**, so panels remain directly comparable; only the ceiling changed. `--err_vmax 0.1`
 restores the house convention.
 

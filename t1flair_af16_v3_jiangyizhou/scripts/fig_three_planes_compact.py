@@ -243,6 +243,15 @@ def put_inset(parent, img, z, x0_in, y0_in, pw_in, h_in, corner="bl", **imkw):
     return a
 
 
+def _err_ticks(vmax):
+    """round tick steps for the error bar that always include vmax (0.1 -> 0, .025, .05, .075, .1; 0.09 -> 0, .03, .06, .09)"""
+    for step in (0.01, 0.02, 0.025, 0.03, 0.04, 0.05):
+        n = vmax / step
+        if abs(n - round(n)) < 1e-9 and 3 <= round(n) <= 5:
+            return np.arange(0, round(n) + 1) * step
+    return np.linspace(0.0, vmax, 4)
+
+
 y, im = top_in, None
 for k, p in enumerate(planes):
     ax_, h = p["axis"], row_h[2 * k]
@@ -279,7 +288,7 @@ for k, p in enumerate(planes):
         # each bar is flush with the top and bottom of the row it belongs to (user 2026-09-13). The grey bar drops its
         # lowest tick so its label cannot collide with the error bar's top label across the small gap between the rows.
         for handle, top, tk in ((gim, y, MaxNLocator(4, prune="lower")),
-                                (im, y + h + gap, np.linspace(0.0, args.err_vmax, 4))):
+                                (im, y + h + gap, _err_ticks(args.err_vmax))):
             cax_ = fig.add_axes([x_cb, 1 - (top + h) / fh, cbw / fw, h / fh])
             cbx = fig.colorbar(handle, cax=cax_, ticks=tk)
             cbx.ax.tick_params(labelsize=9.5)
