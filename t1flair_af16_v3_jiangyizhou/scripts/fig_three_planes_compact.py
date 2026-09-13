@@ -42,7 +42,10 @@ ap.add_argument("--inset_corner", nargs=3, default=["bl", "bl", "bl"], choices=[
                 help="which corner of the panel each plane's zoom inset sits in (default bottom-left everywhere); "
                      "put it where it cannot touch the outlined box, e.g. tr bl bl")
 ap.add_argument("--gray_cbar", action="store_true",
-                help="add a grey-scale colorbar to the right of every image row, next to the rightmost panel")
+                help="add a grey-scale colorbar right of the image row and an error colorbar right of the error row")
+ap.add_argument("--cbar_planes", type=int, nargs="+", default=[0, 1, 2], choices=[0, 1, 2],
+                help="which planes carry those colorbars (default all three; e.g. 0 = the transverse row only). Each "
+                     "plane has its own grey window, so a plane without a bar has no scale of its own on the figure.")
 ap.add_argument("--inset", type=int, default=0, metavar="W",
                 help="full slices plus a WxW zoom inset in the bottom-left of every method panel, the box centred on "
                      "the point where the three slices meet (the face of the WxWxW cube of best_cube_mcgs.py); the box "
@@ -254,7 +257,7 @@ for k, p in enumerate(planes):
             put_inset(b, emap, p["zoom"], x, y + h + gap, pw, h, corner=args.inset_corner[ax_], cmap="jet", vmin=0.0, vmax=0.1)
         if k == 0:
             a.set_title(lab, fontsize=14, pad=4)
-    if args.gray_cbar:
+    if args.gray_cbar and ax_ in args.cbar_planes:
         cbh, x_cb = 0.88 * h, (ncol * pw + (ncol - 1) * gap + cbpad) / fw     # shrink so neighbouring tick labels clear
         for handle, top in ((gim, y), (im, y + h + gap)):
             cax_ = fig.add_axes([x_cb, 1 - (top + (h + cbh) / 2) / fh, cbw / fw, cbh / fh])
@@ -275,7 +278,8 @@ if not args.no_metrics:
 _cap.append("error |recon - GT| / max(GT), jet [0, 0.1]" + ("   (inside the head only)" if args.mask_error else ""))
 _cap.append("left of each error row: the sampling mask in that plane (k-space, never cropped)")
 if args.gray_cbar:
-    _cap.append("grey bar right of each image row: that plane's window")
+    _cap.append("grey bar right of the " + " / ".join(ANAT[a] for a in sorted(args.cbar_planes))
+            + " image row: that plane's window (each plane has its own)")
 _CN = {"bl": "bottom-left", "br": "bottom-right", "tl": "top-left", "tr": "top-right"}
 _cap2 = (f"in every panel, the {args.inset}x{args.inset} box outlined on the slice, magnified into the "
          + " / ".join(f"{_CN[args.inset_corner[a]]} ({ANAT[a]})" for a in (0, 1, 2)) if args.inset else "")

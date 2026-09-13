@@ -69,6 +69,6 @@ prior changed to db4 on its finest level only (T1 0.12 / FLAIR 0.10) + common-ed
 `--lambda_ptv 0.03`, 4000 iterations: head PSNR **35.706 / 34.928**, margins over L1-ESPIRiT **+0.497 / +0.425**
 (P6: +0.343 / +0.304), head SSIM 0.9396 / 0.9261, HFEN 0.1139 / 0.1121, sharpness **0.855 / 0.804 — at or above
 L1-ESPIRiT's 0.849 / 0.789 on both contrasts, which P6 never was**. Registered as `gs_joint_p3` / `gs_single_p3`;
-figures `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_compact_174_110_47_headerr_p3.png`. The 1.0 dB target the user
+figures of record (user decision 2026-09-13) `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3.png`: whole transverse 180 / coronal 124 / sagittal 76 with the 48-voxel box outlined and magnified in the corner, in-panel metrics kept, colorbars on the transverse row only. The 174 / 110 / 47 pair without a zoom is also there. The 1.0 dB target the user
 set was NOT reached (the margin roughly doubled). **Which recipe is quoted externally is still the user's call — the
 section above (P6) stands until they change it.**

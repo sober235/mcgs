@@ -145,8 +145,21 @@ panels (the panel label keeps only the plane name, the slice indices are in the 
 stdout; `--gray_cbar` puts a grey bar with that plane's window right of every image row and the jet error bar right of
 every error row; no title in the header row is bold. `--inset_corner TRA COR SAG` places each plane's inset; the transverse one goes **top-right** because bottom-left
 leaves only 3 voxels between the inset border and the outlined box (top-right leaves 11), while the coronal and
-sagittal insets stay bottom-left and are 89 and 59 voxels clear. The published four figures are made with
-`--inset 48 --inset_corner tr bl bl --mask_error --no_metrics --gray_cbar` (and the 64 variant).
+sagittal insets stay bottom-left and are 89 and 59 voxels clear. `--cbar_planes` picks which rows carry the two bars.
+
+**User decision 2026-09-13: the AF16 figure of record is the 48 version**, made with
+
+```
+scripts/fig_three_planes_compact.py --contrast T1|FLAIR --slices 180 124 76 --inset 48 --inset_corner tr bl bl \
+    --mask_error --gray_cbar --cbar_planes 0 --mcgs_key gs_joint_p3 --single_key gs_single_p3 --tag _p3
+```
+
+i.e. the in-panel PSNR / SSIM / NMSE stay (best of each plane in bold), the zoom carries no numbers of its own, and the
+grey and error bars appear on the transverse row only. The 64 version (`--slices 180 124 72 --inset 64`) is kept in the
+same style as the alternative with the wider zoom field: it trades 0.13 dB of the smallest lead (+0.697 against +0.824)
+for a larger field of view, and its sagittal slice is 72 rather than 76 because each box size was optimised separately.
+Note the side effect of `--cbar_planes 0`: the coronal and sagittal rows have their own grey windows and now show no
+bar for them.
 
 **The 1.0 dB target was not reached.** The margin roughly doubled (T1 +45 %, FLAIR +40 %) and every quality gate is now
 met, but +1.0 dB over a comparison arm whose λ is itself tuned on this subject's ground truth is out of reach of the
