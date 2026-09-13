@@ -550,3 +550,10 @@ the same recipe as the MC-GS column, and the three-plane pair was regenerated wi
   Sensitivity to the full-brain cut, recorded rather than exploited: at ≥ 3000 head voxels the maxima move to
   peripheral slices with larger numbers (FLAIR transverse 219 +1.525 at 15449 voxels, T1 transverse 23 +1.048 at
   8933) — the reason the project's convention is 20000. Runs: `logs/best_gap_slice{,_af12,_min3000}.json`.
+- 13:30 (user's clarification: the slice where MC-GS leads **every** arm, its own GS-single included).
+  `best_gap_slice.py` gained `--single_T1 / --single_FLAIR` to count the single-contrast arm as a competitor.
+  MC-GS is first over every arm on **T1 335/335 full-brain slices (100 %)** and on **FLAIR 22/332 (7 %)** — the
+  joint − single = −0.03 dB of this subject, slice by slice. Both contrasts at once, both leads above the seed
+  floor: 16 slices. Best of them by the margin over the comparison methods: **coronal 153** (T1 37.70 vs GS-single
+  37.64 vs L1-ESPIRiT 37.08; FLAIR 37.07 vs 37.04 vs 36.25), with sagittal 147 a close second and sagittal 133
+  excluded because its FLAIR lead over GS-single (+0.006) sits at the floor. On T1 alone: coronal 89.
