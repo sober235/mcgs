@@ -61,6 +61,34 @@ All three are first on every head cell and clear both sharpness gates; the two m
 outside the 0.001 dB seed floor, and the full budget does not repair it). 3.6M maximises T1; 6.0M maximises the
 worst-case margin and costs ~50 % more VRAM and wall time. The choice is the user's.
 
+### Which single slice shows the phase-3 arm best (user request, 2026-09-13)
+
+`scripts/best_slice_mcgs.py --mcgs_key gs_joint_p3 --single_key gs_single_p3` (now takes those two keys and a `--tag`)
+was re-run for all three axes on the phase-3 arm. Gauge: head-masked slice PSNR, volume peak; a slice counts only if
+its head area is at least half the largest slice's in both contrasts; the score is
+**min over the two contrasts of [PSNR(MC-GS) − best of the seven competing arms]** (CG-SENSE, CS-SENSE, Joint SENSE,
+L1-ESPIRiT, ZS-SSDU, 3D-DIP, 3D-INR — GS-single is ours, so it is excluded from "competing" but MC-GS is still required
+to beat it). The runner-up is L1-ESPIRiT on essentially every slice.
+
+Restricted to comfortably interior slices (the 80 %-head-area range shrunk by 5 at each end, so the pick cannot be a
+head-edge artefact) the optimum is the point **transverse 135 / coronal 173 / sagittal 73**:
+
+| plane, slice | lead over the best competing arm, T1 | FLAIR | current figure's slice | its lead, T1 / FLAIR |
+|---|---|---|---|---|
+| transverse 135 | +0.537 | +0.561 | 174 | +0.504 / +0.403 |
+| coronal 173 | +0.541 | +0.577 | 110 | +0.442 / +0.444 |
+| sagittal 73 | +0.529 | +0.508 | 47 | +0.705 / +0.464 |
+
+The three planes meet at one voxel and that voxel is inside the head in both contrasts. At 135 / 173 / 73 MC-GS is
+first on PSNR, SSIM **and** NMSE in every plane of both contrasts, as it is at 174 / 110 / 47. Figures
+`figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_compact_135_173_73_headerr_p3.png`.
+
+**Caveat the user should weigh:** the optimum sits low and posterior — transverse 135 is at the level of the posterior
+fossa, coronal 173 is behind the brainstem and carries a lot of neck — which is where the competing arms struggle
+most. The gain over the existing 174 / 110 / 47 view is only about 0.1 dB on the weaker contrast, so if the figure
+should show canonical supratentorial anatomy, 174 / 110 / 47 remains the better picture and is already first on every
+metric. The full per-slice curves are in `logs/best_slice_mcgs{,_axis1,_axis2}_p3.json`.
+
 **The 1.0 dB target was not reached.** The margin roughly doubled (T1 +45 %, FLAIR +40 %) and every quality gate is now
 met, but +1.0 dB over a comparison arm whose λ is itself tuned on this subject's ground truth is out of reach of the
 lever classes this phase was allowed to use — see §4 and §6.

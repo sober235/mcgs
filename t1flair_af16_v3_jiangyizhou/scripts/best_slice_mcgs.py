@@ -22,11 +22,14 @@ ap.add_argument("--axis", type=int, default=0, choices=[0, 1, 2], help="0 transv
 ap.add_argument("--ref", type=int, default=None, help="slice to report for comparison (168 on axis 0, else the middle)")
 ap.add_argument("--gap", type=int, default=6, help="minimum distance between listed candidates")
 ap.add_argument("--top", type=int, default=8)
+ap.add_argument("--mcgs_key", default="gs_joint_ar", help="registered joint arm to score as MC-GS")
+ap.add_argument("--single_key", default="gs_single_ar", help="registered single arm to score as GS-single")
+ap.add_argument("--tag", default="", help="suffix for the output json, e.g. _p3")
 args = ap.parse_args()
 red = tuple(a for a in range(3) if a != args.axis)          # the two in-plane axes
 
 R = Path(__file__).resolve().parents[1]
-out = R / ("logs/best_slice_mcgs.json" if args.axis == 0 else f"logs/best_slice_mcgs_axis{args.axis}.json")
+out = R / (f"logs/best_slice_mcgs{args.tag}.json" if args.axis == 0 else f"logs/best_slice_mcgs_axis{args.axis}{args.tag}.json")
 summary = json.load(open(R / "logs/summary.json"))
 
 
@@ -48,8 +51,8 @@ def arms(c):
             ("ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
             ("3D-DIP", R / f"recon/dip_{c}_complex.npy"),
             ("3D-INR", R / f"recon/inr_{c}_complex.npy"),
-            ("GS-single", R / f"recon/gs_single_ar_{c}_mag.npy"),
-            ("MC-GS", R / f"recon/gs_joint_ar_{c}_mag.npy")]
+            ("GS-single", R / f"recon/{args.single_key}_{c}_mag.npy"),
+            ("MC-GS", R / f"recon/{args.mcgs_key}_{c}_mag.npy")]
 
 
 psnr, margin, runner, lead, leader, elig = {}, {}, {}, {}, {}, None
