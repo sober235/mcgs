@@ -37,6 +37,8 @@ ap.add_argument("--tag", default="", help="extra suffix for the output file name
 ap.add_argument("--no_metrics", action="store_true",
                 help="do not print the PSNR / SSIM / NMSE numbers inside the plane panels (user 2026-09-13); the\n"
                      "ranking still goes to stdout")
+ap.add_argument("--pdf", action="store_true", help="also write a vector PDF next to the PNG")
+ap.add_argument("--pdf_dpi", type=int, default=600, help="raster resolution of the image panels inside that PDF")
 ap.add_argument("--err_vmax", type=float, default=0.1,
                 help="top of the fixed jet scale of the error maps, as a fraction of max|GT| (default 0.1, the house "
                      "convention). 0.05 uses the full colour range: 99 percent of the in-head error is under 0.054 for "
@@ -74,6 +76,7 @@ matplotlib.use("Agg")
 import matplotlib.patheffects as pe
 from matplotlib.patches import Rectangle
 from matplotlib.ticker import MaxNLocator
+import matplotlib.image as mimage
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening, uniform_filter
@@ -319,6 +322,11 @@ name = (f"t1flair_v3_af16_{c}_cube{args.cube[3]}_{args.cube[0]}_{args.cube[1]}_{
         f"t1flair_v3_af16_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}" + (f"_inset{args.inset}" if args.inset else "")) + f"{'_headerr' if args.mask_error else ''}{args.tag}.png"
 for d in (F, R / "figures"):
     fig.savefig(d / name, dpi=130)
+    if args.pdf:
+        # vector PDF: text, boxes and colorbar frames stay vector; the image panels are rasterised at --pdf_dpi
+        for im_ in fig.findobj(mimage.AxesImage):
+            im_.set_rasterized(True)
+        fig.savefig(d / name.replace(".png", ".pdf"), dpi=args.pdf_dpi)
 print("wrote", F / name, f"k-space centre (kx, ky, kz) = {kcen}")
 for p in planes:
     msg = []

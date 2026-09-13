@@ -1,0 +1,44 @@
+file	what	shape	dtype	bytes	md5
+volumes/T1/gt_T1_complex.npy	T1: ground truth	256x256x176	complex64	92274816	af619da60b7ff87d1fecef06afdb4d4d
+volumes/T1/cgsense_T1_complex.npy	T1: CG-SENSE	256x256x176	complex64	92274816	0b1c4f2c6a5f89c3a879de97aa55bd00
+volumes/T1/cssense_o200_lam0.0007_T1_complex.npy	T1: CS-SENSE (TV, converged)	256x256x176	complex64	92274816	a7179c39492fb9dd8c52f8c21ac3425f
+volumes/T1/jcssense_o200_lam0.001_T1_complex.npy	T1: Joint SENSE (JTV)	256x256x176	complex64	92274816	412400e0139bf77d77ddf1baa704acd0
+volumes/T1/l1espirit_lam0.0015_T1_complex.npy	T1: L1-ESPIRiT	256x256x176	complex64	92274816	92279c5dd2111e8bf0edf2dcca25c9ea
+volumes/T1/zsssdu_T1_complex.npy	T1: ZS-SSDU	256x256x176	complex64	92274816	43e52a0a034667297eb7105135afcc71
+volumes/T1/dip_T1_complex.npy	T1: 3D-DIP	256x256x176	complex64	92274816	6b32d66cc5e52fd647ea2318884b21b1
+volumes/T1/inr_T1_complex.npy	T1: 3D-INR	256x256x176	complex64	92274816	a0eb7aee8c9111ae46e44d06c74e589b
+volumes/T1/gs_single_p3_T1_mag.npy	T1: GS-single (phase 3), magnitude	256x256x176	float32	46137472	45935c28b23825d43fe2abf8b0ee17d4
+volumes/T1/gs_single_p3_T1_complex.npy	T1: GS-single (phase 3), complex	256x256x176	complex64	92274816	ac8b6065f959b1e24004bf7800a45f3d
+volumes/T1/gs_joint_p3_T1_mag.npy	T1: MC-GS (phase 3), magnitude	256x256x176	float32	46137472	3e7a637297181ffafca75acc66cb0fd3
+volumes/T1/gs_joint_p3_T1_complex.npy	T1: MC-GS (phase 3), complex	256x256x176	complex64	92274816	943a0ad945d518299daedaa794b4e786
+volumes/FLAIR/gt_FLAIR_complex.npy	FLAIR: ground truth	256x256x176	complex64	92274816	c302014a07805dab30ac9d65f6e9975b
+volumes/FLAIR/cgsense_FLAIR_complex.npy	FLAIR: CG-SENSE	256x256x176	complex64	92274816	b62d977b940d85951c4b7e77201fb0bf
+volumes/FLAIR/cssense_o200_lam0.0005_FLAIR_complex.npy	FLAIR: CS-SENSE (TV, converged)	256x256x176	complex64	92274816	632d562f2843fef778b7e8f995d8a60b
+volumes/FLAIR/jcssense_o200_lam0.0007_FLAIR_complex.npy	FLAIR: Joint SENSE (JTV)	256x256x176	complex64	92274816	30d1baa90799c2ac92909cc067850792
+volumes/FLAIR/l1espirit_lam0.003_FLAIR_complex.npy	FLAIR: L1-ESPIRiT	256x256x176	complex64	92274816	d4ac7ab8ddcdd716c5cfe07757d92117
+volumes/FLAIR/zsssdu_FLAIR_complex.npy	FLAIR: ZS-SSDU	256x256x176	complex64	92274816	2af7529fd974f6b1df54815af2c7c7ea
+volumes/FLAIR/dip_FLAIR_complex.npy	FLAIR: 3D-DIP	256x256x176	complex64	92274816	cc034519261463dcf2f61fb7d0189a77
+volumes/FLAIR/inr_FLAIR_complex.npy	FLAIR: 3D-INR	256x256x176	complex64	92274816	db929db1b0b15bfe7da15830d90ea9a0
+volumes/FLAIR/gs_single_p3_FLAIR_mag.npy	FLAIR: GS-single (phase 3), magnitude	256x256x176	float32	46137472	fdf19569ad3c10612ef114978a899e81
+volumes/FLAIR/gs_single_p3_FLAIR_complex.npy	FLAIR: GS-single (phase 3), complex	256x256x176	complex64	92274816	069fbcab977f97e8cb97d61ea9afc124
+volumes/FLAIR/gs_joint_p3_FLAIR_mag.npy	FLAIR: MC-GS (phase 3), magnitude	256x256x176	float32	46137472	20399720dab8667f0752228fb2e9d41d
+volumes/FLAIR/gs_joint_p3_FLAIR_complex.npy	FLAIR: MC-GS (phase 3), complex	256x256x176	complex64	92274816	f0b0b5e269ab26efbda2a392010a8181
+mask/mask_af16_3d.h5	3-D sampling mask (readout-broadcast)			1066888	d08179b8e74f35846455983dbe299294
+mask/mask_vdpois_256x176_af16.mat	the 2-D vd-Poisson mask			4976	2d7ed0001214aec2af8f6dce5d52ce70
+logs/summary.json	topic log: summary.json			16145	d6a0ad348d8e44bf173a52ce20bb9b45
+logs/summary.tsv	topic log: summary.tsv			3227	58bee44c0a8d85102f7cd42ca858d077
+logs/bar_complex_gauge.json	topic log: bar_complex_gauge.json			2449	d769fa7b37b25515a85f30a2ec825ddc
+logs/prep_04_export.json	topic log: prep_04_export.json			1576	e94e606f30632599677d9059955698c8
+logs/extra_gs_arms.json	topic log: extra_gs_arms.json			1201	6d479ffbda1836284c44a71121ab04de
+logs/p3_r3_e0001_ptv003_full4k_score.json	scorer output of run p3_r3_e0001_ptv003_full4k			4104	82d47cec1dd8fdecc4f7ae4d22eef2f8
+logs/p3_r3_ptv003_s43_full4k_score.json	scorer output of run p3_r3_ptv003_s43_full4k			4140	5a0a98d973f85ff0e883a57d7a563685
+logs/p3_r3_singleT1_full4k_score.json	scorer output of run p3_r3_singleT1_full4k			3370	46e6cf35a96974fabb206bcee9ca14fe
+logs/p3_r3_singleFLAIR_full4k_score.json	scorer output of run p3_r3_singleFLAIR_full4k			4842	a40d4b36376617a70738c6e61cc9acf4
+figures/t1flair_v3_af16_FLAIR_row3planes_compact_180_124_72_inset64_headerr_p3.pdf	alternative 64-box figure			5783864	6bcd3f5224284bf5c60bc61958ca7a53
+figures/t1flair_v3_af16_FLAIR_row3planes_compact_180_124_72_inset64_headerr_p3.png	alternative 64-box figure			10344965	0543754482b6c4466c521dfd035033d5
+figures/t1flair_v3_af16_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p3.pdf	figure of record			5625467	ddc5c6bed4c0d279099aadc2d0c9816d
+figures/t1flair_v3_af16_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p3.png	figure of record			10252868	7db56695fe321f08ad46f040fa027f9a
+figures/t1flair_v3_af16_T1_row3planes_compact_180_124_72_inset64_headerr_p3.pdf	alternative 64-box figure			5755871	7962e3a90002a8e81f6523ebc68624a0
+figures/t1flair_v3_af16_T1_row3planes_compact_180_124_72_inset64_headerr_p3.png	alternative 64-box figure			9940088	bfbef87d195f367f0c622dc3ef56b6ab
+figures/t1flair_v3_af16_T1_row3planes_compact_180_124_76_inset48_headerr_p3.pdf	figure of record			5644008	d30dcc7749a2453a0cc9f3557d36ae58
+figures/t1flair_v3_af16_T1_row3planes_compact_180_124_76_inset48_headerr_p3.png	figure of record			9896991	cf1ac5316aaa90302772af21dad5e626

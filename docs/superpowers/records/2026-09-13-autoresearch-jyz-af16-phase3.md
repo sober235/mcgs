@@ -139,6 +139,19 @@ in-panel metrics, drawn at line width 2.2 (inset border 2.8)**; the box's PSNR i
 Files: `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3.png` and the 64-box
 version `..._180_124_72_inset64_...` (64 box: T1 leads +0.72 / +0.75 / +0.72, FLAIR +0.74 / +0.72 / +0.69). The cropped-only versions (`..._cube48_...`, `..._cube64_...`) stay as well.
 
+**Print output and the data bundle (2026-09-13).** `--pdf` writes a vector PDF beside each PNG: text, boxes, colorbar
+frames and tick labels stay vector (fonts embedded) and only the image panels are rasterised, at `--pdf_dpi` 600
+(`pdfimages -list` reports 600 ppi; about 5.6 MB per figure). All four figures exist as PDF and PNG.
+`scripts/export_phase3_bundle.py` collects everything behind the figure of record into
+`Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/export/af16_phase3/` — 43 files, 1.95 GiB, real copies so the folder
+travels on its own: every arm's volume for both contrasts plus the ground truth (`volumes/`), the 3-D sampling mask and
+the 2-D pattern it came from (`mask/`), the topic summary, the competitor bar, the preparation report, the extra-arm
+registry and the four phase-3 scorer outputs (`logs/`), the four figures as PDF and PNG, a `MANIFEST.tsv` giving each
+file's shape, dtype, size and md5, and `checksums.md5` (43/43 verify). Its `README.md` states the acquisition, the
+recipe, the head-only table, what each figure shows and what is deliberately left out (the coil k-space and ESPIRiT
+maps, shared with the AF 12 topic, and the Gaussian checkpoints, which live in the scratch `results_arc/`). The bundle
+carries the subject's real name in its paths and stays on the server.
+
 Figure conventions the user fixed on 2026-09-13, all as switches on `fig_three_planes_compact.py`: the zoom box and its
 inset border are the in-panel orange-yellow at line width 2.2 / 2.8; `--no_metrics` takes every number off the plane
 panels (the panel label keeps only the plane name, the slice indices are in the title) and the ranking still goes to
