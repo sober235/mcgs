@@ -139,3 +139,25 @@ structure-and-sharpness lever rather than a PSNR one, exactly as the AF16 dose c
 (common-edge 0.001 + phase TV 0.01) at 1500. The combination is the candidate for promotion; the two phase-TV points
 decide whether a stronger phase term is worth its PSNR cost here, where our sharpness (0.857 / 0.822) already sits
 above the AF16 line's starting point.
+
+### Round 2 read — 19:00: the two terms add up, and our phase-TV operating point is NOT theirs
+| arm | ΔT1 | ΔFLAIR | ΔSSIM | ΔHFEN | sharp |
+|---|---|---|---|---|---|
+| edge 0.001 | +0.049 | +0.041 | +0.0005 / +0.0005 | +0.0008 / +0.0012 | 0.855 / 0.819 |
+| ptv 0.01 | −0.009 | +0.005 | +0.0006 / +0.0007 | +0.0008 / +0.0009 | 0.864 / 0.829 |
+| ptv 0.02 | −0.040 | −0.015 | +0.0008 / +0.0010 | +0.0009 / +0.0011 | 0.869 / 0.835 |
+| ptv 0.03 | −0.085 | −0.048 | +0.0007 / +0.0010 | +0.0005 / +0.0010 | 0.875 / 0.841 |
+| **edge 0.001 + ptv 0.01** | **+0.041** | **+0.046** | **+0.0011 / +0.0012** | **+0.0017 / +0.0020** | **0.862 / 0.826** |
+
+**The combination is the best row and the two terms are complementary**: the edge term buys PSNR and costs a little
+sharpness, the phase term buys structure and sharpness and costs a little PSNR; together every one of the six cells
+is up and sharpness is up too. **KEEP, and the candidate for promotion.**
+**The phase-TV dose curve is steeper here than at AF16** (T1 cost 0.009 / 0.040 / 0.085 at 0.01 / 0.02 / 0.03,
+against their 0.005 / 0.033 / 0.05) because our sharpness starts higher (0.857 / 0.822 against their 0.830 / 0.779):
+the same push buys less and costs the same. **Our operating point is 0.01, not their 0.03** — the borrowed lever,
+not the borrowed number.
+
+### Promotion 1 and the verdict runs — queued 19:02
+`p3_e0001_ptv001_full4k` (4000 it, volumes) plus, at the same recipe, `p3_e0001_ptv001_singleT1_full4k` and
+`p3_e0001_ptv001_singleFLAIR_full4k`. Rule 4 of this phase: the verdict is the sign of MC-GS − GS-single on FLAIR at
+4000, which needs those two arms; the joint row alone cannot decide it.
