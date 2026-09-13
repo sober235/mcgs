@@ -526,3 +526,13 @@ other head cell equal or better, sharpness unchanged. 27 experiments, 13 of them
 - 06:05 `p2_P13_singleFLAIR_af12_full4k` (GS-single FLAIR at P13 on the AF 12 mask, the like-for-like row of the
   all-AF12 table): 36.347 / 0.9408 / 0.0943, so **joint − single on FLAIR at AF 12 = −0.038** (design B: −0.030) —
   the same sign in both settings. Registered as `gs_single_p2` (FLAIR); the AF 11 run keeps `gs_single_p2_fl11`.
+
+### Follow-up (user request, 2026-09-13 12:30) — the single slice with the widest gap over the comparison methods
+`T1FLAIR_AF12_v3_jiangyizhou/scripts/best_gap_slice.py` ranks every slice of every axis (≥ 20000 head voxels) by
+MC-GS's head-masked margin over the best non-GS arm, on the compact figures' gauge. **Coronal 89** is the best single
+slice for both contrasts: T1 37.191 vs L1-ESPIRiT 36.369 (**+0.822** dB, SSIM +0.0064, NMSE +0.00268), FLAIR 37.837 vs
+37.019 (**+0.818**). Coronal 77 ties it inside the seed floor (+0.821 / +0.912) with 19 % less brain in the slice.
+Per contrast the maxima are T1 coronal 89 and FLAIR transverse 205 (+1.421, a vertex slice). The delivered
+three-plane figure's slices lead by +0.30…+0.69 dB, so the widest gap is about twice the figure's.
+Row figures at 89 and 77 are in the topic; both figure scripts gained `--single_key` so the GS-single column carries
+the same recipe as the MC-GS column, and the three-plane pair was regenerated with it.
