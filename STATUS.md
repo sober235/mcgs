@@ -85,3 +85,22 @@ SAVE_VOLUMES=1 ./autoresearch_af16_p3.sh p3_repro 4 4000 \
 ## 6. 为什么
 - 拉开差距靠的是换先验的"形状"（db4 最细层）、加唯一对两个对比度都有益的耦合项（common-edge）、
   以及用相位 TV 在最便宜的点买回锐度。两个大结构赌注（非局部先验、自适应密化）都有证据地关闭了。
+
+## MC-INR（Niessen et al. 2025 复现）并入 AF16 课题（2026-09-13 晚，用户要求）
+与 AF12 课题同一套做法（那边先做，分支 `autoresearch-jyz-af12-phase3`）：MC-INR 用**本课题的 `mask_af16_3d.h5`**、
+本受试者的 k 空间与 ESPIRiT 图跑出来，重建体软链进 `recon/`，再用课题自己的 `t1t2_common.Pair.score` 重打分
+（`scripts/score_mcinr_arm.py` → `logs/mcinr_{T1,FLAIR}.json`），与对方自报数字九项指标最大相对偏差 **1.4e-7**。
+- 头内：T1 31.590 / 0.8355 / 0.2325，FLAIR 32.243 / 0.8590 / 0.1711 —— 两个对比度都排 **8/11**，与它在 AF12 的位次相同；
+  高于 3D-INR（+1.215 / +1.986 dB）、3D-DIP、ZF，低于 CG-SENSE（−0.764 / −0.584）、L1-ESPIRiT、MC-GS 三期。
+- **不动任何余量**：三期六格的 binding arm 加它前后都是 GS-single，它离成为 bar 还差 4.1 / 2.7 dB。
+- 它从 AF12 到 AF16 掉得最少（−0.60 / −0.80 dB，其余臂 −0.93 ~ −1.57）——论文方向唯一能看到的一点，但两个加速下都低于 CG-SENSE。
+- 只看头内：整卷 PSNR 两个对比度都是倒数第二（只高于零填充），整卷 SSIM 全表最低。
+- `summarize.py` / `readme_tables.py` / 两个 figure 脚本加了这一列；README 的自动表已刷新（自带 AF12 对照列）。
+- 图：三期定稿图重渲成十方法版（后缀 `_p3_mcinr`，九方法的 `_p3` 原样保留）；48 框领先与定稿记录逐项一致
+  （T1 +0.892/+0.826/+0.836，FLAIR +0.824/+1.102/+1.060），即加这一列没改到别的东西。
+- ⚠️同样的两条不对等已写进 README：对手在本受试者上按真值调过参而 MC-INR 没有（但 CG-SENSE 无参可调仍高于它）；
+  以及论文**协议**没对齐（缺互补采样等），所以只能读成"在共用掩膜、两次扫描的设置下低于 CG-SENSE"。
+  本课题其实有一张同预算的互补 FLAIR 掩膜 `data/mask_af16c_flair_3d.h5`，补救实验可以在它上面做，**没做**。
+- ⚠️`export/af16_phase3/` 数据包是 MC-INR 登记之前做的，还差这一个臂和新图；要补需重跑
+  `scripts/export_phase3_bundle.py --with_raw`（约 11 GiB 重写）。AF12 那边的新包 `export/af12_p14_mcinr/` 已含 MC-INR。
+- ⚠️本工作树 `mcgs_af16_p3_wt` 是这次新建的：`mcgs_af16_wt` 当时在 `autoresearch-jyz-af20` 上跑实验，不能动它的分支。

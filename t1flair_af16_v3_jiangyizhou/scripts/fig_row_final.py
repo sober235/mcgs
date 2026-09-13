@@ -57,6 +57,7 @@ ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
         ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy"),
         ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy"),
+        ("mcinr", "MC-INR", R / f"recon/mcinr_{c}_complex.npy"),
         ("gs_single_ar", "GS-single", R / f"recon/gs_single_ar_{c}_{'complex' if args.err_complex else 'mag'}.npy"),
         (args.mcgs_key, args.mcgs_label,
          R / f"recon/{args.mcgs_key}_{c}_{'complex' if args.err_complex else 'mag'}.npy")]

@@ -40,7 +40,7 @@ numbers to quote. AF 12 values per arm from `../T1FLAIR_AF12_v3_jiangyizhou/logs
 | MC-GS joint (autoresearch) | 39.016 | 0.9124 | 35.552 | 0.9351 | 0.1218 | 0.830 | 36.944 | -1.39 |
 | MC-GS single (autoresearch) | 38.988 | 0.9182 | 35.515 | 0.9343 | 0.1240 | 0.824 | 36.897 | -1.38 |
 | MC-GS (wavelet up + phase TV) | 38.968 | 0.9084 | 35.364 | 0.9362 | 0.1265 | 0.844 | -- | -- |
-| MC-GS (P6 + phase TV) | 38.927 | 0.9110 | 35.311 | 0.9353 | 0.1204 | 0.876 | -- | -- |
+| MC-GS (P6 + phase TV) | 38.927 | 0.9110 | 35.311 | 0.9353 | 0.1204 | 0.876 | 36.969 | -1.66 |
 | L1-ESPIRiT (λ 0.0015) | 38.758 | 0.9479 | 35.209 | 0.9334 | 0.1286 | 0.849 | 36.426 | -1.22 |
 | CS-SENSE (TV, converged) (λ 0.0007) | 38.646 | 0.9506 | 34.945 | 0.9317 | 0.1380 | 0.823 | 36.162 | -1.22 |
 | joint CS-SENSE (JTV) (λ 0.001) | 38.595 | 0.9514 | 34.831 | 0.9311 | 0.1429 | 0.811 | 36.070 | -1.24 |
@@ -49,6 +49,7 @@ numbers to quote. AF 12 values per arm from `../T1FLAIR_AF12_v3_jiangyizhou/logs
 | MC-GS joint | 34.628 | 0.8093 | 32.890 | 0.8893 | 0.1882 | 0.921 | 34.160 | -1.27 |
 | CG-SENSE | 34.559 | 0.7621 | 32.354 | 0.8825 | 0.2239 | 0.859 | 33.514 | -1.16 |
 | MC-GS single | 33.750 | 0.7608 | 32.331 | 0.8679 | 0.1875 | 1.018 | 33.799 | -1.47 |
+| MC-INR (Niessen 2025) | 30.285 | 0.5575 | 31.590 | 0.8355 | 0.2325 | 1.010 | 32.192 | -0.60 |
 | 3D-DIP | 34.938 | 0.8507 | 30.994 | 0.8549 | 0.3024 | 0.634 | 31.363 | -0.37 |
 | 3D-INR | 32.903 | 0.7131 | 30.375 | 0.7951 | 0.2125 | 1.310 | 31.638 | -1.26 |
 | ZF | 29.949 | 0.8242 | 25.841 | 0.6795 | 0.6950 | 0.276 | 26.130 | -0.29 |
@@ -62,7 +63,7 @@ numbers to quote. AF 12 values per arm from `../T1FLAIR_AF12_v3_jiangyizhou/logs
 | MC-GS single (autoresearch) | 38.288 | 0.8922 | 34.810 | 0.9196 | 0.1182 | 0.795 | 36.323 | -1.51 |
 | MC-GS joint (autoresearch) | 38.342 | 0.9045 | 34.807 | 0.9203 | 0.1188 | 0.788 | 36.268 | -1.46 |
 | MC-GS (wavelet up + phase TV) | 38.432 | 0.8999 | 34.768 | 0.9234 | 0.1187 | 0.806 | -- | -- |
-| MC-GS (P6 + phase TV) | 38.415 | 0.9029 | 34.740 | 0.9231 | 0.1147 | 0.837 | -- | -- |
+| MC-GS (P6 + phase TV) | 38.415 | 0.9029 | 34.740 | 0.9231 | 0.1147 | 0.837 | 36.310 | -1.57 |
 | L1-ESPIRiT (λ 0.003) | 38.027 | 0.9310 | 34.503 | 0.9201 | 0.1210 | 0.789 | 35.757 | -1.25 |
 | joint CS-SENSE (JTV) (λ 0.0007) | 38.048 | 0.9408 | 34.355 | 0.9177 | 0.1302 | 0.775 | 35.624 | -1.27 |
 | CS-SENSE (TV, converged) (λ 0.0005) | 37.904 | 0.9365 | 34.302 | 0.9180 | 0.1309 | 0.751 | 35.581 | -1.28 |
@@ -70,6 +71,7 @@ numbers to quote. AF 12 values per arm from `../T1FLAIR_AF12_v3_jiangyizhou/logs
 | CS-SENSE | 37.613 | 0.9248 | 33.806 | 0.9116 | 0.1360 | 0.663 | 35.084 | -1.28 |
 | CG-SENSE | 35.220 | 0.7873 | 32.826 | 0.8860 | 0.1608 | 0.783 | 33.957 | -1.13 |
 | MC-GS joint | 35.743 | 0.8923 | 32.402 | 0.8834 | 0.1724 | 0.807 | 33.391 | -0.99 |
+| MC-INR (Niessen 2025) | 32.435 | 0.6365 | 32.243 | 0.8590 | 0.1711 | 0.889 | 33.042 | -0.80 |
 | MC-GS single | 34.989 | 0.8420 | 32.137 | 0.8701 | 0.1719 | 0.922 | 33.409 | -1.27 |
 | 3D-DIP | 34.581 | 0.8188 | 30.650 | 0.8290 | 0.2769 | 0.510 | 30.810 | -0.16 |
 | 3D-INR | 33.316 | 0.7454 | 30.257 | 0.7889 | 0.1998 | 1.139 | 31.190 | -0.93 |
@@ -172,3 +174,56 @@ density control, vectorial TV, contrast-private residual Gaussians, and a two-ma
 `scripts/prep_02c_mask_af16c.m` and the probe read-out). The known-zero region is worth −0.013 dB on this mask and
 +0.225 dB on an in-shutter mask. Caveats are those of phases 1 and 2 (one subject, knobs and λ tuned on it, magnitude
 gauge, nominal AF 16).
+
+## MC-INR (Niessen et al. 2025) registered as a comparison arm (2026-09-13)
+
+Same registration as the AF 12 topic of this subject (`../T1FLAIR_AF12_v3_jiangyizhou/README.md`, section "MC-INR
+… registered as a comparison arm"), on this topic's mask. The multi-contrast INR of Niessen et al., *INR meets
+Multi-Contrast MRI Reconstruction*, MICCAI 2025 RIME workshop (arXiv 2509.04888), reproduced from the authors' open
+code at commit 08d37c5 and its config values: a 1-D inverse FFT along the readout, then one hash-grid + small MLP
+trained per transverse slice, a single network emitting both contrasts, weighted k-space MSE, Adam lr 0.01, 200 steps
+per slice, last iterate, no regulariser. Reproduction repo `/data0/congcong/code/GS/mcinr_niessen2025`; results topic
+`../T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou`.
+
+It ran on **this topic's own `data/mask_af16_3d.h5`** (2966 points) with this subject's k-space and ESPIRiT maps, so
+the row is like for like. Volumes symlinked in as `recon/mcinr_{T1,FLAIR}_complex.npy`, then **re-scored here through
+`scripts/t1t2_common.py::Pair.score`** — the same code path every other arm used — agreeing with the reproduction's
+own numbers to 1.4e-7 relative on all nine metrics (`scripts/score_mcinr_arm.py`, `logs/mcinr_{T1,FLAIR}.json`).
+Registered in `summarize.py` / `readme_tables.py` as `mcinr` and added as a column to `fig_three_planes_compact.py`
+and `fig_row_final.py`, next to 3D-INR. It is in the tables above, with its AF 12 counterpart alongside.
+
+| arm | T1 head PSNR / SSIM / HFEN | FLAIR head PSNR / SSIM / HFEN | whole PSNR T1 / FLAIR | wall |
+|---|---|---|---|---|
+| **MC-INR (Niessen 2025)** | 31.590 / 0.8355 / 0.2325 | 32.243 / 0.8590 / 0.1711 | 30.285 / 32.435 | 11.9 min, both contrasts |
+| 3D-INR (single-contrast) | 30.375 / 0.7951 / 0.2125 | 30.257 / 0.7889 / 0.1998 | 32.903 / 33.316 | |
+| CG-SENSE | 32.354 / 0.8825 / 0.2239 | 32.826 / 0.8860 / 0.1608 | 34.559 / 35.220 | |
+| L1-ESPIRiT | 35.209 / 0.9334 / 0.1286 | 34.503 / 0.9201 / 0.1210 | 38.758 / 38.027 | |
+| MC-GS (phase 3) | 35.706 / 0.9396 / 0.1139 | 34.928 / 0.9261 / 0.1121 | 39.268 / 38.585 | |
+
+- **Eighth of eleven on head PSNR on both contrasts**, the same position it takes at AF 12: above 3D-INR
+  (+1.215 / +1.986 dB), 3D-DIP and ZF; below CG-SENSE (−0.764 / −0.584), L1-ESPIRiT (−3.620 / −2.260) and MC-GS
+  phase 3 (−4.117 / −2.685).
+- **Head-only is the only meaningful gauge for this arm.** The network fills air with noise: its whole-volume PSNR is
+  second-lowest of every arm on both contrasts, above zero-filled only (30.285 vs 29.949 on T1, 32.435 vs 31.792 on
+  FLAIR), and its whole-volume SSIM (0.5575 / 0.6365) is the lowest of every arm, ZF included. At AF 12 the T1 case
+  is worse still — there it falls *below* zero-filled.
+- **It changes no margin in this topic.** The binding arm in every one of the phase-3 recipe's six head cells is
+  GS-single before and after registration; MC-INR is 4.1 / 2.7 dB away from being the bar.
+- **It falls off least from AF 12 to AF 16** — −0.60 dB on T1 and −0.80 on FLAIR, against −0.93 to −1.57 for every
+  other arm (the AF12 column of the tables above). That is the one direction in which the paper's claim is visible
+  here; it is still below CG-SENSE at both accelerations, so it does not turn into a win.
+- **Two asymmetries, stated rather than hidden.** Every classical λ was swept on this subject's ground truth and every
+  MC-GS knob was tuned on it; ZS-SSDU / 3D-DIP / 3D-INR early-stop on held-out k-space; MC-INR ran at the paper's
+  config values with nothing selected here. That does not explain its position — CG-SENSE has no λ to tune and is
+  still above it. Separately, the reproduction's own fidelity review
+  (`/data0/congcong/code/GS/mcinr_niessen2025/docs/2026-09-13-fidelity-review.md`) finds the code aligned line by
+  line but the **protocol** not: the paper's complementary per-contrast sampling is absent (both contrasts share this
+  topic's one mask), its ten contrasts come from a single acquisition with a shared coil map and correlated phase
+  while ours are two scans, and the evaluation mask and normalisation differ. So this row reads as "below CG-SENSE
+  under this topic's shared-mask, two-scan setting", not "the paper does not reproduce". Note that this topic does
+  hold a same-budget complementary FLAIR mask (`data/mask_af16c_flair_3d.h5`, `scripts/prep_02c_mask_af16c.m`) — the
+  remedy experiment the review proposes could be run on it, and has not been.
+- **Figure.** The phase-3 figure of record re-rendered with MC-INR as a tenth method column, same slices, style and
+  gauge (`_p3_mcinr` suffix; the nine-method `_p3` pair is untouched):
+  `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr.png` plus vector PDFs,
+  served from `http://localhost:8765/t1flair_v3_af16/`.

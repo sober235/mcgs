@@ -112,6 +112,7 @@ ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
         ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy"),
         ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy"),
+        ("mcinr", "MC-INR", R / f"recon/mcinr_{c}_complex.npy"),
         (args.single_key, "GS-single", R / f"recon/{args.single_key}_{c}_mag.npy"),
         (args.mcgs_key, "MC-GS", R / f"recon/{args.mcgs_key}_{c}_mag.npy")]
 missing = [lab for _, lab, p in ARMS if p is None or not Path(p).exists()]
