@@ -6,3 +6,16 @@
 [22:39] zsssdu T1 START gpu 0
 [22:39] dip T1 START gpu 3
 [22:39] zsssdu FLAIR START gpu 2
+[23:07] zsssdu FLAIR rc=0
+[23:07] inr FLAIR START gpu 2
+[23:15] zsssdu T1 rc=0
+[23:15] inr T1 START gpu 0
+[23:33] dip T1 rc=0
+[23:33] dip FLAIR START gpu 3
+[00:11] inr FLAIR rc=0
+[00:11] CHAIN_card2 DONE
+[00:18] inr T1 rc=0
+[00:18] CHAIN_card0 DONE
+[00:26] dip FLAIR rc=0
+[00:26] CHAIN_card3 DONE
+[00:26] ALL_STAGE2_AF20_DONE

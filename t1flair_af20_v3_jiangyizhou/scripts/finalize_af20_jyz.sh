@@ -39,7 +39,13 @@ $E $PY scripts/compare_topics.py > logs/compare_af16_af20.txt 2>&1; cat logs/com
 if ls recon/zsssdu_{T1,FLAIR}_complex.npy recon/dip_{T1,FLAIR}_complex.npy recon/inr_{T1,FLAIR}_complex.npy \
       recon/gs_single_p3_{T1,FLAIR}_mag.npy >/dev/null 2>&1; then
   for c in T1 FLAIR; do
+    # (a) the 174 / 110 / 47 compact view, as in the AF16 topic
     $E $PY scripts/fig_three_planes_compact.py --contrast $c --slices 174 110 47 --mask_error \
+        --mcgs_key gs_joint_p3 --single_key gs_single_p3 --tag _p3 | tail -3
+    # (b) the AF16 figure of record's exact layout (user 2026-09-13), same slices and the same 48-voxel box.
+    #     The box was chosen on the AF16 phase-3 arm; it is NOT re-optimised on AF20, so no new selection effect.
+    $E $PY scripts/fig_three_planes_compact.py --contrast $c --slices 180 124 76 --inset 48 --inset_corner tr bl bl \
+        --mask_error --gray_cbar --cbar_planes 0 --tra_rot 1 --err_vmax 0.1 --pdf \
         --mcgs_key gs_joint_p3 --single_key gs_single_p3 --tag _p3 | tail -3
   done
 else

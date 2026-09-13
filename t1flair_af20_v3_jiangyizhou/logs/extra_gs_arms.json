@@ -11,6 +11,14 @@
  {
   "key": "gs_single_p3",
   "label": "GS-single",
+  "exp": "af20_p3_singleT1_full4k",
+  "map": {
+   "T1": "plain"
+  }
+ },
+ {
+  "key": "gs_single_p3",
+  "label": "GS-single",
   "exp": "af20_p3_singleFLAIR_full4k",
   "map": {
    "FLAIR": "plain"

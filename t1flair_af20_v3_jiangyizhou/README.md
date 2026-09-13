@@ -51,11 +51,15 @@ optima (`scripts/run_classical_af20.sh`).
 | method | PSNR | SSIM | head PSNR | head SSIM | head HFEN | sharp | head PSNR @AF16 | AF20 − AF16 |
 |---|---|---|---|---|---|---|---|---|
 | MC-GS | 38.482 | 0.9144 | **34.832** | **0.9289** | 0.1355 | 0.833 | 35.706 | -0.87 |
+| GS-single | 38.335 | 0.9205 | 34.667 | 0.9257 | 0.1414 | 0.837 | 35.558 | -0.89 |
 | L1-ESPIRiT (λ 0.001) | 37.814 | 0.9279 | 34.371 | 0.9206 | 0.1518 | 0.845 | 35.209 | -0.84 |
 | CS-SENSE (TV, converged) (λ 0.0007) | 37.808 | 0.9418 | 34.003 | 0.9191 | 0.1683 | 0.781 | 34.945 | -0.94 |
 | joint CS-SENSE (JTV) (λ 0.001) | 37.736 | 0.9421 | 33.885 | 0.9183 | 0.1733 | 0.768 | 34.831 | -0.95 |
 | CS-SENSE | 37.269 | 0.9276 | 33.418 | 0.9131 | 0.1864 | 0.725 | 34.409 | -0.99 |
+| ZS-SSDU | 36.795 | 0.9440 | 32.892 | 0.9108 | 0.2241 | 1.014 | 34.150 | -1.26 |
 | CG-SENSE | 34.030 | 0.7646 | 31.425 | 0.8665 | 0.2741 | 0.791 | 32.354 | -0.93 |
+| 3D-DIP | 34.926 | 0.8541 | 30.996 | 0.8537 | 0.3034 | 0.640 | 30.994 | +0.00 |
+| 3D-INR | 31.826 | 0.6520 | 29.456 | 0.7596 | 0.2723 | 1.308 | 30.375 | -0.92 |
 | ZF | 29.744 | 0.8165 | 25.639 | 0.6636 | 0.7206 | 0.263 | 25.841 | -0.20 |
 
 **FLAIR** (sorted by head-only PSNR; AF16 column = the same arm in `T1FLAIR_AF16_v3_jiangyizhou`)
@@ -68,7 +72,10 @@ optima (`scripts/run_classical_af20.sh`).
 | joint CS-SENSE (JTV) (λ 0.0007) | 37.358 | 0.9364 | 33.544 | 0.9044 | 0.1522 | 0.726 | 34.355 | -0.81 |
 | CS-SENSE (TV, converged) (λ 0.0005) | 37.241 | 0.9328 | 33.494 | 0.9049 | 0.1523 | 0.698 | 34.302 | -0.81 |
 | CS-SENSE | 36.883 | 0.9107 | 33.027 | 0.8968 | 0.1571 | 0.616 | 33.806 | -0.78 |
+| ZS-SSDU | 36.642 | 0.9351 | 32.660 | 0.8958 | 0.1962 | 1.058 | 34.005 | -1.34 |
 | CG-SENSE | 34.868 | 0.7963 | 32.089 | 0.8717 | 0.1972 | 0.718 | 32.826 | -0.74 |
+| 3D-DIP | 34.572 | 0.8167 | 30.637 | 0.8269 | 0.2768 | 0.515 | 30.650 | -0.01 |
+| 3D-INR | 32.851 | 0.7233 | 29.809 | 0.7716 | 0.2448 | 1.040 | 30.257 | -0.45 |
 | ZF | 31.548 | 0.8329 | 27.636 | 0.6970 | 0.6874 | 0.251 | 27.879 | -0.24 |
 
 **MC-GS joint minus MC-GS single**
@@ -96,9 +103,31 @@ SINGLE=FLAIR SAVE_VOLUMES=1 ./run_af20_mcgs.sh af20_p3_singleFLAIR_full4k 7 4000
 scripts/finalize_af20_jyz.sh af20_p3_joint_full4k af20_p3_singleT1_full4k af20_p3_singleFLAIR_full4k
 ```
 
-## Status
+## Figures
 
-Stage 1 (this session, 2026-09-13): the mask, the classical arms with their λ sweeps, and MC-GS
-joint. Stage 2, if the user asks for it: ZS-SSDU, 3D-DIP and 3D-INR, which complete the nine-arm
-table; they cost about eight more GPU-hours and change nothing about the MC-GS margin over the
-strongest classical arm.
+- `figures/t1flair_v3_af20_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3.{png,pdf}` — the AF 16 figure of
+  record's layout, slices and 48-voxel box (chosen on the AF 16 phase-3 arm, not re-optimised here).
+- `figures/t1flair_v3_af20_{T1,FLAIR}_row3planes_compact_174_110_47_headerr_p3.png` — the plain compact view.
+- `figures/t1flair_v3_af20_mask_T1_vs_FLAIR.png` — the mask against each contrast's acquired region.
+
+MC-GS is first on PSNR, SSIM and NMSE in every plane of both contrasts in both layouts. The 48-box leads are smaller
+than at AF 16 (T1 +0.571 / +0.487 / +0.653, FLAIR +0.448 / +0.900 / +0.703): the box was picked for the largest gap on
+the AF 16 mask and regresses toward the whole-volume margin on this one. Quote the whole-volume margin.
+
+## Findings
+
+- Margin over L1-ESPIRiT (the strongest competing arm) **+0.461 / +0.491** against +0.497 / +0.425 at AF 16: it holds,
+  it does not grow. The SSIM and HFEN leads widen on both contrasts.
+- T1 sharpness 0.833 is below L1-ESPIRiT's 0.845 (it was above at AF 16); FLAIR stays above (0.776 against 0.732).
+- MC-GS − GS-single: +0.165 / +0.052 dB (AF 16 +0.148 / +0.042).
+- ZS-SSDU pays the most for the extra acceleration (−1.26 / −1.34 dB); 3D-DIP does not move because it is budget-limited
+  (best held-out residual at the last iterations at both accelerations).
+- The comparison is conservative for MC-GS (classical λ re-swept at AF 20, MC-GS parameters frozen at AF 16).
+
+## Status and caveats
+
+Complete (2026-09-14 00:42). One subject. One mask draw per acceleration, and the house masks are independent draws
+(698 of the 2427 AF 20 points are in the AF 16 mask), so the draw-to-draw spread of the margin is unmeasured.
+`vdPoisMex` seeds from `time(0)`: **do not re-run `prep_02_mask.m` into this `data/`** — the mask (md5
+1c90baf850a8c1e64b43f6c64146e2c9) cannot be regenerated. MC-INR, added to the AF 16 topic by a parallel session on
+2026-09-13, was not run here. Details: the record `docs/superpowers/records/2026-09-14-af20-jyz.md` in the worktree.

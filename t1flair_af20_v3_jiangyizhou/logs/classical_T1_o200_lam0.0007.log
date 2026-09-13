@@ -1,0 +1,4 @@
+[T1] coils=26 vol=(256, 256, 176) mask frac=0.05387 AF_rect=18.564
+[T1] P99.9 |GT| scale = 9.925055e+01; |GT| max = 2.2873
+[T1] cssense  psnr=37.808 ssim=0.9418 nmse=0.02158 hfen=0.7220 head_psnr=34.003 head_ssim=0.9191 sharp=0.781 grain=0.00890 (917 s)
+WROTE /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/logs/classical_T1_o200_lam0.0007.json  total 923 s

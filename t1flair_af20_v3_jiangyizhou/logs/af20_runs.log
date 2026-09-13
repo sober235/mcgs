@@ -1,0 +1,5 @@
+[16:09] af20_smoke rc=0  head_psnr_cplx": 30.14035415649414 head_psnr": 33.34446760716911 
+[22:05] af20_p3_joint_full4k rc=0  head_psnr_cplx": 31.598678588867188 head_psnr": 34.831831540020715 
+[22:35] af20_p3_singleFLAIR_full4k rc=0  head_psnr_cplx": 31.182600021362305 head_psnr": 34.126693322593304 
+[00:41] af20_p3_singleT1_full4k rc=0  head_psnr_cplx": 31.491600036621094 head_psnr": 34.6668833018655 
+[00:41] AF20 SINGLES DONE

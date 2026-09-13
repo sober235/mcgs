@@ -73,13 +73,14 @@ figures of record (user decision 2026-09-13) `figures/t1flair_v3_af16_{T1,FLAIR}
 set was NOT reached (the margin roughly doubled). **Which recipe is quoted externally is still the user's call — the
 section above (P6) stands until they change it.**
 
-## Nominal AF20 study (branch `autoresearch-jyz-af20`, this worktree, 2026-09-13)
-The worktree directory is still called `mcgs_af16_wt`; the branch checked out here is now the AF20 study, forked from
-the phase-3 tip f0fe009. Read `STATUS.md` first, then the topic README
-`/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/README.md` (mirror `t1flair_af20_v3_jiangyizhou/`).
-**The only difference from the AF16 topic is the mask** (`vdPoisMex` accelx 5: 2427 PE points, T1 18.56x, FLAIR 15.13x
-against its shutter); the MC-GS parameters are the AF16 phase-3 recipe, frozen, in one place: `run_af20_mcgs.sh`
-(EXP must start with `af20_`). Classical λ are re-swept on the AF20 mask. First result (joint, 4000 it): head PSNR
-34.832 / 34.179, margins over L1-ESPIRiT +0.461 / +0.491 (AF16 +0.497 / +0.425), six head cells first among seven arms;
-T1 sharpness 0.833 is below L1-ESPIRiT's 0.845. GS-single and ZS-SSDU / 3D-DIP / 3D-INR were still running at the
-handoff; `scripts/finalize_af20_jyz.sh` registers them and draws the figure once all nine arms exist.
+## Nominal AF20 study (branch `autoresearch-jyz-af20`, this worktree, 2026-09-13/14) — complete
+The worktree directory is still called `mcgs_af16_wt`; the branch checked out here is the AF20 study, forked from the
+phase-3 tip f0fe009. Read `STATUS.md`, then `docs/handoff/2026-09-14-af20-jyz.md` and the record
+`docs/superpowers/records/2026-09-14-af20-jyz.md`; topic `/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/`
+(mirror `t1flair_af20_v3_jiangyizhou/`). **The only difference from the AF16 topic is the mask** (`vdPoisMex` accelx 5:
+2427 PE points, T1 18.56x, FLAIR 15.13x against its shutter; time-seeded, cannot be regenerated). MC-GS = the AF16
+phase-3 recipe frozen in `run_af20_mcgs.sh`; classical λ re-swept at AF20. Result, nine arms: head PSNR
+**34.832 / 34.179**, margins over L1-ESPIRiT **+0.461 / +0.491** (AF16 +0.497 / +0.425), first on all six head cells;
+coupling +0.165 / +0.052; T1 sharpness 0.833 below L1-ESPIRiT's 0.845. The margin does not grow with acceleration.
+Figures `t1flair_af20_v3_jiangyizhou/figures/t1flair_v3_af20_*_p3.*` (AF16 figure-of-record layout, same 48 box; the box
+leads shrink at AF20 — selection effect, quote the whole-volume margin).

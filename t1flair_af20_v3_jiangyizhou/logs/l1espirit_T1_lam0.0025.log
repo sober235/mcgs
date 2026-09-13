@@ -1,0 +1,11 @@
+[T1] coils=26 vol=(256, 256, 176) scale=9.9251e+01
+/home/congcongliu/src/bart/bart pics -l1 -r 0.0025 -i 100 -S /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/recon/l1espirit_T1_3lvkrnhj/ksp /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/recon/l1espirit_T1_3lvkrnhj/maps /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/recon/l1espirit_T1_3lvkrnhj/out
+
+Size: 11534336 Samples: 621311 Acc: 18.56
+l1-wavelet regularization: 0.002500
+Regularization terms: 1, Supporting variables: 0
+FISTA
+Total Time: 495.225269
+
+[T1] l1espirit_lam0.0025 psnr=37.916 ssim=0.9373 head_psnr=34.087 head_ssim=0.9207 head_hfen=0.1605 sharp=0.766 (495 s)
+WROTE /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/logs/l1espirit_T1_lam0.0025.json
