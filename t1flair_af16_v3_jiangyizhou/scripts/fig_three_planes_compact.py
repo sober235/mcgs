@@ -195,7 +195,7 @@ def label(a, text, bold=False, line=0, fs=12, h=None, color="white"):
 
 
 
-ZC = "#39ff14"                                   # zoom-box outline / inset border
+ZC = METRIC_COLOR                                # zoom-box outline / inset border (user 2026-09-13: orange-yellow)
 
 
 def put_inset(parent, img, z, x0_in, y0_in, pw_in, h_in, **imkw):
@@ -230,11 +230,7 @@ for k, p in enumerate(planes):
         v = vols[key][p["sl"]][p["cr"]]
         a.imshow(D(v, ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
         if p["zoom"]:
-            z = p["zoom"]
-            ia = put_inset(a, D(v, ax_), z, x, y, pw, h, cmap="gray", vmin=0, vmax=p["vmax"])
-            t = ia.text(0.04, 0.96, f"{z['psnr'][key]:.2f}", transform=ia.transAxes, ha="left", va="top",
-                        color=METRIC_COLOR, fontsize=9.5, fontweight="bold" if key == z["best"] else "normal")
-            t.set_path_effects([pe.withStroke(linewidth=2.2, foreground="black")])
+            put_inset(a, D(v, ax_), p["zoom"], x, y, pw, h, cmap="gray", vmin=0, vmax=p["vmax"])
         for i, (txt, met) in enumerate(((f"{p['ps'][key]:.2f} dB", "psnr"), (f"SSIM {p['ss'][key]:.4f}", "ssim"),
                                          (f"NMSE {p['nm'][key]:.5f}", "nmse"))):
             label(a, txt, bold=key == p["best"][met], line=i, fs=10.5, h=h, color=METRIC_COLOR)
@@ -254,7 +250,7 @@ fig.suptitle(f"{c}  jiangyizhou  {AF_LABEL}  --  transverse {args.slices[0]} / c
 fig.text(0.5, 1 - 0.40 / fh, f"head-masked slice PSNR / SSIM ({'7x7 window' if args.ssim == 'uniform' else 'Gaussian window, sigma 1.5'}) / NMSE "
          f"in each panel, the best of each plane in bold;   error |recon - GT| / max(GT), jet [0, 0.1];   "
          f"left of each error row: the sampling mask in that plane (k-space, never cropped)"
-         + (f"\nbottom-left of every panel: the {args.inset}x{args.inset} box outlined in green on the slice, magnified; the orange number in each image inset is that box's own head-masked PSNR" if args.inset else "") + ("   (error shown inside the head only)" if args.mask_error else ""), ha="center", va="top", fontsize=11)
+         + (f"\nbottom-left of every panel: the {args.inset}x{args.inset} box outlined on the slice, magnified (no separate metrics; the in-panel numbers are the whole slice's)" if args.inset else "") + ("   (error shown inside the head only)" if args.mask_error else ""), ha="center", va="top", fontsize=11)
 name = (f"t1flair_v3_af16_{c}_cube{args.cube[3]}_{args.cube[0]}_{args.cube[1]}_{args.cube[2]}" if args.cube else
         f"t1flair_v3_af16_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}" + (f"_inset{args.inset}" if args.inset else "")) + f"{'_headerr' if args.mask_error else ''}{args.tag}.png"
 for d in (F, R / "figures"):
@@ -265,4 +261,11 @@ for p in planes:
     for met, d, hi in (("PSNR", p["ps"], True), ("SSIM", p["ss"], True), ("NMSE", p["nm"], False)):
         order = sorted(d, key=(lambda k: -d[k]) if hi else (lambda k: d[k]))
         msg.append(f"{met} MC-GS #{order.index(args.mcgs_key) + 1} (first: {order[0]})")
-    print(f"  {ANAT[p['axis']]} {p['idx']} (grey window {p['vmax']:.3f}): " + "; ".join(msg))
+    line = f"  {ANAT[p['axis']]} {p['idx']} (grey window {p['vmax']:.3f}): " + "; ".join(msg)
+    if p["zoom"]:
+        zp = p["zoom"]["psnr"]
+        comp = {k: v for k, v in zp.items() if k not in (args.mcgs_key, args.single_key)}
+        bc = max(comp, key=comp.get)
+        line += (f"  |  {args.inset}-box PSNR: MC-GS {zp[args.mcgs_key]:.2f}, best competing {comp[bc]:.2f} "
+                 f"[{bc}], lead {zp[args.mcgs_key] - comp[bc]:+.3f} dB (printed only, not on the figure)")
+    print(line)
