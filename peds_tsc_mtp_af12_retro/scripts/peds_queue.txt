@@ -1,0 +1,22 @@
+# 16yo MTP AF12 job queue (scripts/peds_sched.sh). One job at a time on an empty allowed card.
+classical T1w
+classical T2s
+gs joint
+gs single_T1w
+gs single_T2s
+jcssense 0.001
+jcssense 0.0014
+cssense T1w 0.0007
+cssense T1w 0.001
+cssense T1w 0.0014
+cssense T1w 0.002
+cssense T2s 0.0005
+cssense T2s 0.0007
+cssense T2s 0.001
+cssense T2s 0.0014
+zsssdu T1w
+zsssdu T2s
+dip T1w
+dip T2s
+inr T1w
+inr T2s
