@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
-"""compare_topics.py -- AF20 against AF12, both subjects, every method, one gauge.
+"""compare_topics.py -- jiangyizhou at AF16 against AF20, every arm, one gauge.
 
-Reads each topic's logs/summary.json (written by that topic's summarize.py; the AF12 and AF20
-topics share data, maps, GT and the scoring module, so the rows are directly comparable) and prints
-(a) head-only PSNR of every method at AF12 and AF20 side by side with the AF20 - AF12 drop,
-(b) the joint-minus-single table at AF20 for every channel-pairing, next to its AF12 value.
+The two topics share the subject, the k-space, the ESPIRiT maps, the ground truth and the scoring
+module, and the MC-GS recipe is identical; only the mask differs (2966 -> 2427 PE points, T1 15.19x
+-> 18.56x, FLAIR 12.49x -> 15.13x against its own shutter). So every AF20 - AF16 difference below
+is the price of the extra acceleration for that arm.
+
+usage: compare_topics.py            (both topics' logs/summary.json must exist)
 """
 import json
 from pathlib import Path
 
 ROOT = Path("/data0/congcong/code/GS/Results_20260908")
-PAIRS = [("huangyuwei",  "T1FLAIR_AF12_retro",          "T1FLAIR_AF20_retro"),
-         ("jiangyizhou", "T1FLAIR_AF12_v3_jiangyizhou", "T1FLAIR_AF20_v3_jiangyizhou")]
-ORDER = [("zf", "ZF"), ("cgsense", "CG-SENSE"), ("cssense", "CS-SENSE"), ("zsssdu", "ZS-SSDU"),
-         ("dip", "3D-DIP"), ("inr", "3D-INR"), ("gs_single", "MC-GS single"), ("gs_joint", "MC-GS joint")]
+A16, A20 = "T1FLAIR_AF16_v3_jiangyizhou", "T1FLAIR_AF20_v3_jiangyizhou"
+ORDER = [("zf", "ZF"), ("cgsense", "CG-SENSE"), ("cssense", "CS-SENSE"),
+         ("cssense_o200", "CS-SENSE (TV, converged)"), ("jcssense", "joint CS-SENSE (JTV)"),
+         ("l1espirit", "L1-ESPIRiT"), ("zsssdu", "ZS-SSDU"), ("dip", "3D-DIP"), ("inr", "3D-INR"),
+         ("gs_single_p3", "GS-single"), ("gs_joint_p3", "MC-GS")]
+COMPETING = {"zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "zsssdu", "dip", "inr"}
 
 
 def load(topic):
@@ -26,47 +30,42 @@ def row(rows, c, key, label):
 
 
 def main():
-    for subj, t12, t16 in PAIRS:
-        r12, r16 = load(t12), load(t16)
+    r16, r20 = load(A16), load(A20)
+    for c in ("T1", "FLAIR"):
+        print(f"\n=== jiangyizhou {c}: head-only PSNR and SSIM   (AF16 | AF20 | AF20-AF16)")
+        print(f"{'method':26s} {'hPSNR16':>8s} {'hPSNR20':>8s} {'dPSNR':>7s}   {'hSSIM16':>8s} {'hSSIM20':>8s} {'dSSIM':>8s}   {'sharp20':>7s}")
+        for key, label in ORDER:
+            a, b = row(r16, c, key, label), row(r20, c, key, label)
+            if not b:
+                print(f"{label:26s} {'--':>8s}"); continue
+            if a:
+                print(f"{label:26s} {a['head_psnr']:8.3f} {b['head_psnr']:8.3f} {b['head_psnr']-a['head_psnr']:+7.3f}   "
+                      f"{a['head_ssim']:8.4f} {b['head_ssim']:8.4f} {b['head_ssim']-a['head_ssim']:+8.4f}   {b['sharp']:7.3f}")
+            else:
+                print(f"{label:26s} {'--':>8s} {b['head_psnr']:8.3f} {'':7s}   {'--':>8s} {b['head_ssim']:8.4f} {'':8s}   {b['sharp']:7.3f}")
+
+    print("\n=== MC-GS margin over the strongest COMPETING arm (ours excluded), head-only PSNR")
+    for tag, rows in (("AF16", r16), ("AF20", r20)):
         for c in ("T1", "FLAIR"):
-            print(f"\n=== {subj} {c}: head-only PSNR / head-only SSIM   (AF12 | AF20 | AF20-AF12)")
-            print(f"{'method':14s} {'hPSNR12':>8s} {'hPSNR16':>8s} {'dPSNR':>7s}   {'hSSIM12':>8s} {'hSSIM16':>8s} {'dSSIM':>7s}   {'PSNR16':>7s} {'SSIM16':>7s}")
-            for key, label in ORDER:
-                a, b = row(r12, c, key, label), row(r16, c, key, label)
-                if not b:
-                    print(f"{label:14s} {'--':>8s}"); continue
-                if a:
-                    print(f"{label:14s} {a['head_psnr']:8.3f} {b['head_psnr']:8.3f} {b['head_psnr']-a['head_psnr']:+7.3f}   "
-                          f"{a['head_ssim']:8.4f} {b['head_ssim']:8.4f} {b['head_ssim']-a['head_ssim']:+7.4f}   "
-                          f"{b['psnr']:7.3f} {b['ssim']:7.4f}")
-                else:
-                    print(f"{label:14s} {'--':>8s} {b['head_psnr']:8.3f} {'':7s}   {'--':>8s} {b['head_ssim']:8.4f}")
-    print("\n=== MC-GS joint minus single, dB (whole | head-only | head-only SSIM x1000): AF12 -> AF20")
-    print(f"{'subject':12s} {'channel':7s} {'AF12 whole':>11s} {'AF12 head':>10s} {'AF12 hSSIM':>11s} {'AF20 whole':>11s} {'AF20 head':>10s} {'AF20 hSSIM':>11s}")
-    for subj, t12, t16 in PAIRS:
+            mine = row(rows, c, "gs_joint_p3", "MC-GS")
+            comp = [(r["head_psnr"], r["method"]) for r in rows if r["contrast"] == c and r["method"] in COMPETING]
+            if mine and comp:
+                h, m = max(comp)
+                print(f"  {tag} {c:5s}  MC-GS {mine['head_psnr']:.3f}  best other {h:.3f} ({m})  margin {mine['head_psnr']-h:+.3f}")
+
+    print("\n=== MC-GS minus GS-single (the coupling), head-only PSNR / SSIM")
+    for tag, rows in (("AF16", r16), ("AF20", r20)):
         for c in ("T1", "FLAIR"):
-            out = [subj, c]
-            for rows in (load(t12), load(t16)):
-                j, s = row(rows, c, "gs_joint", "MC-GS joint"), row(rows, c, "gs_single", "MC-GS single")
-                if j and s:
-                    out += [f"{j['psnr']-s['psnr']:+11.3f}", f"{j['head_psnr']-s['head_psnr']:+10.3f}", f"{1000*(j['head_ssim']-s['head_ssim']):+11.1f}"]
-                else:
-                    out += [f"{'--':>11s}", f"{'--':>10s}", f"{'--':>11s}"]
-            print(f"{out[0]:12s} {out[1]:7s} " + " ".join(out[2:]))
-    print("\n=== rank of MC-GS joint among the eight arms, head-only PSNR (1 = best)")
-    for subj, t12, t16 in PAIRS:
+            j, s = row(rows, c, "gs_joint_p3", "MC-GS"), row(rows, c, "gs_single_p3", "GS-single")
+            if j and s:
+                print(f"  {tag} {c:5s}  {j['head_psnr']-s['head_psnr']:+.3f} dB  {1000*(j['head_ssim']-s['head_ssim']):+.1f} mSSIM")
+
+    print("\n=== rank of MC-GS among all arms, head-only PSNR (1 = best)")
+    for tag, rows in (("AF16", r16), ("AF20", r20)):
         for c in ("T1", "FLAIR"):
-            line = f"{subj:12s} {c:7s}"
-            for tag, rows in (("AF12", load(t12)), ("AF20", load(t16))):
-                canon = {k for k, _ in ORDER} | {m for _, m in ORDER}   # the eight arms only: AF12 summaries may carry extra autoresearch rows
-                vals = [(r["head_psnr"], r["method"]) for r in rows if r["contrast"] == c and r["method"] in canon]
-                if not vals:
-                    line += f"   {tag}: --"; continue
-                vals.sort(reverse=True)
-                rank = next((i + 1 for i, (_, m) in enumerate(vals) if m in ("gs_joint", "MC-GS joint")), None)
-                gap = vals[0][0] - next(v for v, m in vals if m in ("gs_joint", "MC-GS joint")) if rank else float("nan")
-                line += f"   {tag}: rank {rank}/{len(vals)}, {gap:.2f} dB behind {vals[0][1]}"
-            print(line)
+            vals = sorted(((r["head_psnr"], r["method"]) for r in rows if r["contrast"] == c), reverse=True)
+            rank = next((i + 1 for i, (_, m) in enumerate(vals) if m in ("gs_joint_p3", "MC-GS")), None)
+            print(f"  {tag} {c:5s}  rank {rank}/{len(vals)}   (top: {vals[0][1]} {vals[0][0]:.3f})" if rank else f"  {tag} {c:5s}  --")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,33 @@
+[16:11] START (tv gpu 7, jtv gpu 5, l1 gpu 7, bart threads 12)
+[16:20] base T1 rc=0
+[16:21] l1 FLAIR lam=0.005 rc=0
+[16:21] l1 T1 lam=0.0025 rc=0
+[16:21] l1 FLAIR lam=0.002 rc=0
+[16:21] l1 T1 lam=0.001 rc=0
+[16:28] base FLAIR rc=0
+[16:31] l1 FLAIR lam=0.007 rc=0
+[16:31] CHAIN_L1_FLb_DONE
+[16:31] l1 FLAIR lam=0.003 rc=0
+[16:31] CHAIN_L1_FLa_DONE
+[16:31] l1 T1 lam=0.004 rc=0
+[16:31] CHAIN_L1_T1b_DONE
+[16:31] l1 T1 lam=0.0015 rc=0
+[16:31] CHAIN_L1_T1a_DONE
+[16:43] tv T1 lam=0.0005 rc=0
+[16:48] jtv lam=0.0007 rc=0
+[16:59] tv T1 lam=0.0007 rc=0
+[17:02] jtv lam=0.001 rc=0
+[17:14] tv T1 lam=0.001 rc=0
+[17:24] l1 EXT T1 lam=0.0005 rc=0
+[17:24] l1 EXT T1 lam=0.0007 rc=0
+[17:29] tv T1 lam=0.0014 rc=0
+[17:32] jtv lam=0.0014 rc=0
+[17:32] CHAIN_JTV_DONE
+[17:45] tv FLAIR lam=0.00035 rc=0
+[18:00] jtv EXT lam=0.0005 rc=0
+[18:00] ALL_CLASSICAL_EXT_DONE
+[18:01] tv FLAIR lam=0.0005 rc=0
+[18:17] tv FLAIR lam=0.0007 rc=0
+[18:33] tv FLAIR lam=0.001 rc=0
+[18:33] CHAIN_TV_DONE
+[18:33] ALL_CLASSICAL_AF20_DONE
