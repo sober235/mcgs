@@ -143,8 +143,10 @@ Figure conventions the user fixed on 2026-09-13, all as switches on `fig_three_p
 inset border are the in-panel orange-yellow at line width 2.2 / 2.8; `--no_metrics` takes every number off the plane
 panels (the panel label keeps only the plane name, the slice indices are in the title) and the ranking still goes to
 stdout; `--gray_cbar` puts a grey bar with that plane's window right of every image row and the jet error bar right of
-every error row; no title in the header row is bold. The published four figures are made with
-`--inset 48 --mask_error --no_metrics --gray_cbar` (and the 64 variant).
+every error row; no title in the header row is bold. `--inset_corner TRA COR SAG` places each plane's inset; the transverse one goes **top-right** because bottom-left
+leaves only 3 voxels between the inset border and the outlined box (top-right leaves 11), while the coronal and
+sagittal insets stay bottom-left and are 89 and 59 voxels clear. The published four figures are made with
+`--inset 48 --inset_corner tr bl bl --mask_error --no_metrics --gray_cbar` (and the 64 variant).
 
 **The 1.0 dB target was not reached.** The margin roughly doubled (T1 +45 %, FLAIR +40 %) and every quality gate is now
 met, but +1.0 dB over a comparison arm whose λ is itself tuned on this subject's ground truth is out of reach of the

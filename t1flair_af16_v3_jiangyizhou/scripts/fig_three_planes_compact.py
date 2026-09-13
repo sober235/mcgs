@@ -37,6 +37,10 @@ ap.add_argument("--tag", default="", help="extra suffix for the output file name
 ap.add_argument("--no_metrics", action="store_true",
                 help="do not print the PSNR / SSIM / NMSE numbers inside the plane panels (user 2026-09-13); the\n"
                      "ranking still goes to stdout")
+ap.add_argument("--inset_corner", nargs=3, default=["bl", "bl", "bl"], choices=["bl", "br", "tl", "tr"],
+                metavar=("TRA", "COR", "SAG"),
+                help="which corner of the panel each plane's zoom inset sits in (default bottom-left everywhere); "
+                     "put it where it cannot touch the outlined box, e.g. tr bl bl")
 ap.add_argument("--gray_cbar", action="store_true",
                 help="add a grey-scale colorbar to the right of every image row, next to the rightmost panel")
 ap.add_argument("--inset", type=int, default=0, metavar="W",
@@ -205,11 +209,13 @@ ZC = METRIC_COLOR                                # zoom-box outline / inset bord
 ZLW = 2.2                                        # its line width (user 2026-09-13: thicker); the inset border is ZLW + 0.6
 
 
-def put_inset(parent, img, z, x0_in, y0_in, pw_in, h_in, **imkw):
-    """draw the zoom box on `parent` and paste the magnified box in the panel's bottom-left corner"""
+def put_inset(parent, img, z, x0_in, y0_in, pw_in, h_in, corner="bl", **imkw):
+    """draw the zoom box on `parent` and paste the magnified box in the given corner of the panel"""
     parent.add_patch(Rectangle((z["x0"], z["y0"]), z["w"], z["w"], fill=False, ec=ZC, lw=ZLW))
-    side = 0.38 * pw_in                                        # inset side, inches (square)
-    a = fig.add_axes([(x0_in + 0.012 * pw_in) / fw, 1 - (y0_in + h_in - 0.012 * pw_in) / fh, side / fw, side / fh])
+    side, pad = 0.38 * pw_in, 0.012 * pw_in                    # inset side and margin, inches (square inset)
+    left = x0_in + (pad if corner in ("bl", "tl") else pw_in - pad - side)
+    top = y0_in + (pad if corner in ("tl", "tr") else h_in - pad - side)
+    a = fig.add_axes([left / fw, 1 - (top + side) / fh, side / fw, side / fh])
     a.set_xticks([]); a.set_yticks([])
     for sp in a.spines.values():
         sp.set_visible(True); sp.set_edgecolor(ZC); sp.set_linewidth(ZLW + 0.6)
@@ -227,7 +233,7 @@ for k, p in enumerate(planes):
         if j == 0:
             gim = a.imshow(D(p["g2"], ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
             if p["zoom"]:
-                put_inset(a, D(p["g2"], ax_), p["zoom"], x, y, pw, h, cmap="gray", vmin=0, vmax=p["vmax"])
+                put_inset(a, D(p["g2"], ax_), p["zoom"], x, y, pw, h, corner=args.inset_corner[ax_], cmap="gray", vmin=0, vmax=p["vmax"])
             label(a, ANAT[ax_] if args.no_metrics else f"{ANAT[ax_]} {p['idx']}", bold=True)
             b.imshow(D(p["kmask"], ax_), cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto", interpolation="nearest")
             if k == 0:
@@ -237,7 +243,7 @@ for k, p in enumerate(planes):
         v = vols[key][p["sl"]][p["cr"]]
         a.imshow(D(v, ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
         if p["zoom"]:
-            put_inset(a, D(v, ax_), p["zoom"], x, y, pw, h, cmap="gray", vmin=0, vmax=p["vmax"])
+            put_inset(a, D(v, ax_), p["zoom"], x, y, pw, h, corner=args.inset_corner[ax_], cmap="gray", vmin=0, vmax=p["vmax"])
         if not args.no_metrics:
             for i, (txt, met) in enumerate(((f"{p['ps'][key]:.2f} dB", "psnr"), (f"SSIM {p['ss'][key]:.4f}", "ssim"),
                                              (f"NMSE {p['nm'][key]:.5f}", "nmse"))):
@@ -245,7 +251,7 @@ for k, p in enumerate(planes):
         emap = D(np.abs(v - p["g2"]) / gmax * (p["emask"] if args.mask_error else 1), ax_)
         im = b.imshow(emap, cmap="jet", vmin=0.0, vmax=0.1, origin="lower", aspect="auto")
         if p["zoom"]:
-            put_inset(b, emap, p["zoom"], x, y + h + gap, pw, h, cmap="jet", vmin=0.0, vmax=0.1)
+            put_inset(b, emap, p["zoom"], x, y + h + gap, pw, h, corner=args.inset_corner[ax_], cmap="jet", vmin=0.0, vmax=0.1)
         if k == 0:
             a.set_title(lab, fontsize=14, pad=4)
     if args.gray_cbar:
@@ -270,8 +276,9 @@ _cap.append("error |recon - GT| / max(GT), jet [0, 0.1]" + ("   (inside the head
 _cap.append("left of each error row: the sampling mask in that plane (k-space, never cropped)")
 if args.gray_cbar:
     _cap.append("grey bar right of each image row: that plane's window")
-_cap2 = (f"bottom-left of every panel: the {args.inset}x{args.inset} box outlined on the slice, magnified"
-         if args.inset else "")
+_CN = {"bl": "bottom-left", "br": "bottom-right", "tl": "top-left", "tr": "top-right"}
+_cap2 = (f"in every panel, the {args.inset}x{args.inset} box outlined on the slice, magnified into the "
+         + " / ".join(f"{_CN[args.inset_corner[a]]} ({ANAT[a]})" for a in (0, 1, 2)) if args.inset else "")
 fig.text(0.5, 1 - 0.40 / fh, ";   ".join(_cap) + ("\n" + _cap2 if _cap2 else ""),
          ha="center", va="top", fontsize=11)
 name = (f"t1flair_v3_af16_{c}_cube{args.cube[3]}_{args.cube[0]}_{args.cube[1]}_{args.cube[2]}" if args.cube else
