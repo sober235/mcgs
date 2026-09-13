@@ -209,3 +209,10 @@ Nothing about P14 is re-tuned for this subject — that is the point of the chec
 positive FLAIR joint − single on huangyuwei confirms the mechanism transfers; a negative one means the phase-3 result
 is a jiangyizhou result and must be reported as such.** The seed repeat of P14 on jiangyizhou
 (`p3_e0001_ptv001_s43_full4k`) runs alongside as the floor of the promotion itself.
+
+### Round 3 read — 21:10: capacity helps FLAIR here too, on the new base
+`p3_e0001_ptv001_n48` (the combination at 4.8M, 1500 it): T1 36.990 (+0.001, flat), **FLAIR 36.331 (+0.051**, ten
+times its floor), SSIM +0.0006 on FLAIR, HFEN flat, sharpness unchanged. The AF16 line's shape exactly (FLAIR +0.079
+at 1500 there), and FLAIR is our thin channel, so this is the direction worth spending on. **Capacity is only decided
+at 4000** — phase 1 of this line saw 1500-iteration capacity gains vanish at the full budget, the AF16 line saw
+theirs survive (+0.034) — so `p3_e0001_ptv001_n48_full4k` is queued, read by rule 2 against the P14 promotion.
