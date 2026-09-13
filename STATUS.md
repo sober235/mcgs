@@ -1,87 +1,78 @@
-# STATUS — 2026-09-13（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af16-phase3`）
+# STATUS — 2026-09-13 22:15（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af20`）
 
-本工作树只承载 jiangyizhou AF16 一条线。**三期已跑完**（用户 09-12 下午要求重开并"拉大"与对比方法的差距）。
-先读 `docs/handoff/2026-09-13-autoresearch-jyz-af16-phase3.md`，再读 `autoresearch_af16_p3.md`（规则与逐轮日志）
-与账本 `autoresearch_af16_p3.tsv`；英文总结在 `docs/superpowers/records/2026-09-13-autoresearch-jyz-af16-phase3.md`。
+本分支从 `autoresearch-jyz-af16-phase3` 尖端 f0fe009 切出，承载 jiangyizhou 的**标称 AF20** 研究。
+AF16 三期的 STATUS 留在它自己的分支与 tag `handoff/2026-09-13-jyz-af16-phase3` 上，这里不再重复。
+课题目录 `/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/`（仓库镜像 `t1flair_af20_v3_jiangyizhou/`），先读它的 README。
 
 ## 一句话
-三期配方 = P6 + 小波改 db4 只用最细一层（T1 0.12 / FLAIR 0.10）+ common-edge 0.001 + 相位 TV 0.03，4000 步头内
-PSNR **35.706 / 34.928**，对 L1-ESPIRiT 余量 **+0.497 / +0.425**（P6 是 +0.343 / +0.304），六格全第一，
-**锐度 0.855 / 0.804 两个对比度都不低于 L1-ESPIRiT**（三期以来第一次）。课题里登记为 `gs_joint_p3` / `gs_single_p3`，
-P6 仍占 `gs_joint_ar`。
+AF16 三期配方**原样不调**跑在 AF20 掩膜上：头内 PSNR **34.832 / 34.179**，对最强对手 L1-ESPIRiT（λ 在 AF20 上重扫）
+余量 **+0.461 / +0.491**（AF16 是 +0.497 / +0.425），头内 PSNR/SSIM/HFEN 六格全第一（目前 7 臂）；
+**T1 锐度 0.833 低于 L1-ESPIRiT 的 0.845**（AF16 时高于），FLAIR 锐度仍高于。余量基本持平，没有随加速变大。
 
 ## 1. 已完成且已验证
 
-重跑核对（原始输出，2026-09-13）：
+唯一变量是掩膜。`vdPoisMex(256,176,256,176, 5, 4, 24, 0, 1)`（accelx 5，其余房子惯例不变）：
 
 ```
-$ cd /data0/congcong/code/GS/mcgs_af16_wt
-$ cut -f1,7,8 autoresearch_af16_p3.tsv | grep -E "ptv003_full4k|s43_full4k"
-p3_r3_e0001_ptv003_full4k	35.706	34.928
-p3_r3_ptv003_s43_full4k	35.707	34.928
-
 $ PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
 $ PYTHONNOUSERSITE=1 PYTHONPATH= $PY -c "
-import json;R='/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/logs/summary.json'
+import json;d=json.load(open('/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/logs/prep_04_export.json'))
+print('mask', d['mask2d_samples'], 'samples, AF_rect', round(d['mask2d_AF_rect'],3))
+for c,v in d['contrasts'].items(): print(c, 'support', round(v['support_frac'],4), 'AF_own', round(v['AF_vs_own_support'],2), 'acs24_kept', round(v['acs24_kept'],3))"
+mask 2427 samples, AF_rect 18.564
+T1 support 1.0 AF_own 18.56 acs24_kept 0.823
+FLAIR support 0.7577 AF_own 15.13 acs24_kept 0.823
+```
+
+结果（重跑核对，2026-09-13 22:15）：
+
+```
+$ PYTHONNOUSERSITE=1 PYTHONPATH= $PY -c "
+import json;R='/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/logs/summary.json'
 for r in json.load(open(R)):
-    if r['method'] in ('gs_joint_p3','gs_single_p3','l1espirit'):
-        print(f\"{r['contrast']:5s} {r['method']:13s} head {r['head_psnr']:.3f} ssim {r['head_ssim']:.4f} hfen {r['head_hfen']:.4f} sharp {r['sharp']:.3f}\")"
-FLAIR l1espirit     head 34.503 ssim 0.9201 hfen 0.1210 sharp 0.789
-FLAIR gs_joint_p3   head 34.928 ssim 0.9261 hfen 0.1121 sharp 0.804
-FLAIR gs_single_p3  head 34.886 ssim 0.9249 hfen 0.1137 sharp 0.806
-T1    l1espirit     head 35.209 ssim 0.9334 hfen 0.1286 sharp 0.849
-T1    gs_joint_p3   head 35.706 ssim 0.9396 hfen 0.1139 sharp 0.855
-T1    gs_single_p3  head 35.558 ssim 0.9371 hfen 0.1186 sharp 0.859
+    if r['method'] in ('gs_joint_p3','gs_single_p3','l1espirit','cssense_o200','jcssense'):
+        lam=f\" lam {r['lam']:g}\" if r.get('lam') else ''
+        print(f\"{r['contrast']:5s} {r['method']:13s} head {r['head_psnr']:.3f} ssim {r['head_ssim']:.4f} hfen {r['head_hfen']:.4f} sharp {r['sharp']:.3f}{lam}\")"
+FLAIR cssense_o200  head 33.494 ssim 0.9049 hfen 0.1523 sharp 0.698 lam 0.0005
+FLAIR jcssense      head 33.544 ssim 0.9044 hfen 0.1522 sharp 0.726 lam 0.0007
+FLAIR l1espirit     head 33.688 ssim 0.9076 hfen 0.1406 sharp 0.732 lam 0.003
+FLAIR gs_joint_p3   head 34.179 ssim 0.9142 hfen 0.1290 sharp 0.776
+T1    cssense_o200  head 34.003 ssim 0.9191 hfen 0.1683 sharp 0.781 lam 0.0007
+T1    jcssense      head 33.885 ssim 0.9183 hfen 0.1733 sharp 0.768 lam 0.001
+T1    l1espirit     head 34.371 ssim 0.9206 hfen 0.1518 sharp 0.845 lam 0.001
+T1    gs_joint_p3   head 34.832 ssim 0.9289 hfen 0.1355 sharp 0.833
 ```
 
-复现终配方（4000 步，约 1 小时一张空卡）：
-
-```
-cd /data0/congcong/code/GS/mcgs_af16_wt
-SAVE_VOLUMES=1 ./autoresearch_af16_p3.sh p3_repro 4 4000 \
-    --set loss.wav_name=db4 --set loss.wav_levels=1 --set loss.lambda_wav_plain=0.12 --set loss.lambda_wav=0.10 \
-    --lambda_edge 0.001 --lambda_ptv 0.03
-```
-
-- 上面的配方与数字；种子地板 0.001 / 0.000 dB；联合减单臂 +0.148 / +0.042（一期是 +0.037 / −0.003）。
-- 紧凑三面图 174/110/47（`_p3` 后缀）：MC-GS 在两个对比度、三个方向的 PSNR/SSIM/NMSE 全部第一。
-- **AF16 定稿图（用户 09-13 拍板以 48 为准）**：`..._row3planes_compact_180_124_76_inset48_headerr_p3.png`，
-  整层 180/124/76 + 48 体素放大框（横断放右上、其余左下），面板指标保留，色条只在横断行，横断位转到眼睛朝上（`--tra_rot 1`），误差图色标固定 [0, 0.1]（全局约定；`--err_vmax` 可切 0.05/0.08/0.09 等更紧的上限）；
-  框内 MC-GS 对最强竞争方法领先 T1 +0.89/+0.83/+0.84、FLAIR +0.82/+1.10/+1.06。64 框版同风格保留为备选。四张图均有 600 dpi 矢量 PDF（`--pdf`，文字线条矢量、图像面板 600 ppi）。
-- **数据导出（含原始数据，用户 09-13 要求）**：`Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/export/af16_phase3/`，
-  48 文件约 10.9 GiB，全部是真实拷贝（可整目录搬走）：`volumes/` 九个臂两对比度的重建体加真值、
-  `raw/` 26 线圈全采 k 空间与 ESPIRiT 灵敏度图（原本是指向 AF12 课题的符号链接，这里已展开）加 FLAIR 快门支撑、
-  `mask/` 三维掩膜与二维 vd-Poisson 图案、`logs/` 课题 summary 与四个三期运行的打分、`figures/` 四张图的 PDF 与 PNG、
-  `MANIFEST.tsv`（形状/类型/字节/md5）与 `checksums.md5`。脚本 `scripts/export_phase3_bundle.py [--with_raw]`。
-  校验：`cd export/af16_phase3 && md5sum -c checksums.md5`。⚠️路径与 README 带受试者真实姓名，未去标识，只留服务器。
-- 采集侧探针关闭（快门内互补 FLAIR 掩膜让所有臂各涨约 0.35 dB，余量不变），单独成记录。
-- 顺带测出：快门已知零区在现掩膜上值 −0.013 dB（等于不值钱），在快门内掩膜上值 +0.225 dB。
-- 新代码默认关且有测试：非局部 RED 先验、显式快门支撑 `data.<x>.known_zero_support`。
+- 配方逐项核对过：AF20 运行日志的 `[phase-tv] 0.03`、`[wavelet] db4 levels=1 plain 0.12 contrast 0.1`、`[tv_shape] eps 0.04`、
+  `[edge_tv] kappa_q 0.85 source zf`、`[init_cloud] head 3600000 3nn` 与 AF16 三期 `p3_r3_e0001_ptv003_full4k` 逐行相同。
+- 经典臂 21 个运行，六条 λ 曲线全是内部极值（T1 的 L1-ESPIRiT 和 jointTV 首轮贴下边界，已往下扩）。
+- AF16→AF20 掉幅：MC-GS −0.874 / −0.749，L1-ESPIRiT −0.838 / −0.815。SSIM 领先 +0.0083 / +0.0066、HFEN 领先 0.0163 / 0.0116，都比 AF16 大。
+- 对比脚本：`scripts/compare_topics.py`（AF16 对 AF20，余量、耦合项、名次），输出在 `logs/compare_af16_af20.txt`。
+- 复现：见课题 README 的 Regenerating 节；MC-GS 配方只在 `run_af20_mcgs.sh` 一处。
 
 ## 2. 待用户拍板
-- 对外引用哪一个配方（现在是 P6；三期配方在每一格与锐度上都更好）。
-- **1.0 dB 判据没达到**（余量约翻倍）。接受现状、改判据、还是放开学习先验（放开就得同时给对比方法也加）。
-- **容量**：配方按预注册规则定在 3.6M（T1 最大）；6.0M 让最小余量最大（+0.465 / +0.474 对 +0.497 / +0.425），
-  代价是 T1 少 0.031 dB、显存与时间多约一半。两者六格都第一、锐度门都过。
-- AF16 留出受试者（一期至今从未跑过）。
-- 以后 FLAIR 采集是否改用快门内掩膜（对所有方法都好，对余量无帮助）。
+- AF20 上 T1 锐度门失守（0.833 对 0.845）。接受，还是在 AF20 上单独调（例如相位 TV 往上买锐度）——后者就不再是"同参数"实验。
+- 余量没有随加速变大（平均 0.461→0.476）。1.0 dB 目标这条路（靠提高加速拉开差距）是否就此放弃。
+- 留出受试者（huangyuwei 数据现成）：AF16 一期至今、AF20 都没做。
+- 一个只当观察的巧合：AF20 FLAIR（对快门 15.13×）余量 +0.491 ≈ AF16 T1（15.19×）余量 +0.497。是否值得在留出受试者上验证"余量由有效加速决定"。
 
-## 3. 下一步
-- 若继续：只剩一件便宜事——用 `--from_ckpt` 给三期配方补一次复数口径打分（它带相位 TV 0.03）。
-- 本期试过并关闭的：非局部 RED、自适应密化、矢量 TV、私有残差高斯、双掩膜采集设计。
+## 3. 下一步（正在后台跑，不需要人）
+- GS-single FLAIR（5 号卡，约 23:00）、GS-single T1（7 号卡，约 01:15）→ 联合减单臂（耦合项在 AF20 是否更值钱）。
+  登记：`scripts/finalize_af20_jyz.sh af20_p3_joint_full4k af20_p3_singleT1_full4k af20_p3_singleFLAIR_full4k`
+- 第二段 `scripts/run_stage2_af20.sh`：6 号卡 T1、5 号卡 FLAIR 各跑 ZS-SSDU → 3D-DIP → 3D-INR，参数与 AF16 课题日志一致；
+  约明早 8–10 点跑完。九臂齐了 finalize 才会出紧凑三面图（出图脚本断言九臂齐全）。
+- 进度：`logs/stage2_af20.log`、`results_arc/af20_runs.log`。
 
 ## 4. 已知的坑
-- 每卡一个训练；调度器只在完全空闲的卡上起（4/5 是本线的，2/3 归 AF12 二期会话，已与其约定）。
-- `pgrep` 模式必须锚定 python 路径，否则会匹配并杀掉自己的 shell。
-- 改 `scripts/p3_queue.txt` 要原子替换；调度器每轮重读，半行会被记成 bad queue line。
-- 单臂配置把同一对比度喂进两个通道；表与一期取 plain 通道，账本行取 contrast 通道（两通道同名所致）。
+- 分数 json 先于体积 npz 落地（npz 约 750 MB，要写一分半钟）；登记臂之前等进程退出，否则 `BadZipFile`。
+- 6/7 号卡邻居是别人高算力小显存作业：MC-GS 实测 4.6–5.9 s/步（AF16 独占卡是 1.0 s/步），墙上时间不可比。
+- FLAIR 已知零先验在 AF20 上弱一些：零线 170 条只解释 144 条（AF16 233/233）。代码保证不会把实测非零线标成零（`nonzero_in_z=0`）；三期测过该先验约值 −0.013 dB。
+- `setup_af20_jyz.sh` 首版把自己删了（在 rm 清单里），已补回并修正；若重跑 setup 用现版本。
+- 本工作树目录名是 `mcgs_af16_wt` 但分支是 AF20；所有脚本里的这个路径是有意保留的。
 
 ## 5. 会话边界
-- 本分支 `autoresearch-jyz-af16-phase3` 已推 origin（私有仓库 sober235/mcgs）并打 tag。
-- **不合 main**：本仓库 CLAUDE.md 明令禁止跨血脉合并，`main` 与三条 AF16 分支没有共同祖先。
-  交接协议里"合回 main"这一条在本仓库不适用，最新状态就在本分支尖端。
-- 三条 AF16 分支互不合并：`autoresearch-jyz-af16`（一期）、`-phase2`（二期）、`-phase3`（本期，从 phase2 尖端起）。
+- 本分支不合 main（跨血脉禁止合并，同 AF16 三条分支）。最新状态在分支尖端。
 
 ## 6. 为什么
-- 拉开差距靠的是换先验的"形状"（db4 最细层）、加唯一对两个对比度都有益的耦合项（common-edge）、
-  以及用相位 TV 在最便宜的点买回锐度。两个大结构赌注（非局部先验、自适应密化）都有证据地关闭了。
+- 冻结 MC-GS 参数、只换掩膜，是为了让 AF16→AF20 的每一个差值都只归因于加速。代价是比较对 MC-GS 偏保守：经典臂在 AF20 重扫了 λ，MC-GS 没调。
+- 经典臂 λ 必须重扫：它们在 AF16 就是在本受试者真值上选的 λ，AF20 不重扫就等于人为削弱对手。
