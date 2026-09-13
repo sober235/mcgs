@@ -563,3 +563,29 @@ the same recipe as the MC-GS column, and the three-plane pair was regenerated wi
   topic's own compact script is untouched. Rendered at two triples: **198 / 153 / 147**, where MC-GS is first on
   PSNR, SSIM and NMSE in all three planes on BOTH contrasts (48-box leads T1 +0.27 / +0.30 / +0.32, FLAIR +1.45 /
   +1.12 / +1.22 dB), and the standing reference 174 / 110 / 47, where the FLAIR panels put GS-single first.
+
+### FLAIR at an actual AF of 10.56 (user request 2026-09-13) — the coupling does NOT flip
+Hypothesis under test: at AF 12 the joint arm is 0.038 dB behind its own single arm on FLAIR while at AF 16 it is
+0.042 dB ahead, so giving FLAIR less data should make the shared geometry pay. A fresh house vd-Poisson mask was
+generated for the FLAIR channel only (`scripts/prep_02c_mask_flair_af105.m` sweeps the nominal AF because the
+variable density overlaps FLAIR's 75.77 % elliptical support unevenly; `prep_04c_export_flair_af105.py` measures the
+actual one and exports `data/mask_flair_af105_3d.h5`): nominal 13.08, 3538 PE points, **actual AF 10.556 against
+FLAIR's own support** (the AF12 mask gives 9.743, design B's AF11 mask 9.048, the AF16 topic 12.49); 883 points
+shared with the AF12 mask, so an independent realisation. T1 keeps `mask_af12_3d.h5`. Both arms re-run at P13,
+4000 iterations, volumes (`p2_P13_flair_af105_full4k`, `p2_P13_singleFLAIR_af105_full4k`).
+
+| FLAIR sampling | MC-GS joint | GS-single | joint − single |
+|---|---|---|---|
+| 9.048x (design B) | 36.683 | 36.713 | −0.030 |
+| 9.743x (the AF12 mask) | 36.310 | 36.347 | −0.038 |
+| **10.556x (this run)** | **35.841** | **35.876** | **−0.035** |
+| 12.49x (the AF16 topic) | 34.928 | 34.886 | **+0.042** |
+
+**The hypothesis fails.** Across a 9.05 → 10.56 range of FLAIR sampling on this subject the gap is flat at
+−0.030…−0.038 dB, with no drift towards zero; the sign change at AF 16 is therefore not a sampling effect within
+this subject but belongs to the AF16 topic's own mask and recipe (its T1 is at 15.19x, so the shared geometry there
+is constrained by a much hungrier T1 channel — a different regime, not a point on this curve). T1 is unchanged at
+36.966 (mask untouched, and the 8 % fewer FLAIR samples pass nothing measurable back, as design B showed in the
+other direction).
+Still true at this sampling: MC-GS at 10.556x beats **L1-ESPIRiT at 9.743x by +0.084 dB** — the competitors keep 8 %
+more FLAIR data than MC-GS here — and beats the AF16 MC-GS by +0.913 dB.
