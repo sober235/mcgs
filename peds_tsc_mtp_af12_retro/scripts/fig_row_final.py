@@ -44,7 +44,10 @@ def D(x, axis):
     """Display orientation: the transverse plane exactly as the vendor exports it; the other two
     transposed so the partition axis (superior-inferior) runs vertically."""
     return x if axis == 2 else x.T
-ORIGIN = {0: "lower", 1: "lower", 2: "upper"}
+# Vertex up in every plane (user 2026-09-13). SPE increases inferiorly, so with SPE as the
+# display rows the coronal and sagittal panels need origin "upper" like the transverse one,
+# which was already verified slice-for-slice against the vendor DICOM.
+ORIGIN = {0: "upper", 1: "upper", 2: "upper"}
 
 rows = {r["method"]: r for r in json.load(open(R / "logs/summary.json")) if r["contrast"] == c}
 af_eff = json.load(open(R / "logs/prep_04_export.json"))["contrasts"][c]["AF_vs_own_support"]   # AF 12 counts the whole matrix (user 2026-09-12)

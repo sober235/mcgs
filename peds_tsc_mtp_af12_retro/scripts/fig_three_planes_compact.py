@@ -56,7 +56,10 @@ def D(x, axis):
     """Display orientation: the transverse plane exactly as the vendor exports it; the other two
     transposed so the partition axis (superior-inferior) runs vertically."""
     return x if axis == 2 else x.T
-ORIGIN = {0: "lower", 1: "lower", 2: "upper"}
+# Vertex up in every plane (user 2026-09-13). SPE increases inferiorly, so with SPE as the
+# display rows the coronal and sagittal panels need origin "upper" like the transverse one,
+# which was already verified slice-for-slice against the vendor DICOM.
+ORIGIN = {0: "upper", 1: "upper", 2: "upper"}
 VOXEL = (0.7, 0.7, 1.35)                 # mm along (RO, PE, SPE): the slab is anisotropic
 def phys_shape(axis, pix_shape):
     """Physical (height, width) in mm of the DISPLAYED panel, so a panel drawn at that aspect shows

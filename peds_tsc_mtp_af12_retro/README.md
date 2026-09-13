@@ -210,7 +210,9 @@ The same gauge over all 104 partitions, taken from each arm's own JSON; the cros
 Slices are chosen on anatomy, not on which arm wins: transverse SPE 53 is vendor slice 38, the level
 at which the stage-1 lesion survey saw the subependymal nodules; coronal RO 160 and sagittal PE 152 are
 the head-area centroids. Error maps are `jet` on a fixed [0, 0.1] of the GT peak; panels are drawn at
-the true 0.7 x 0.7 x 1.35 mm proportions.
+the true 0.7 x 0.7 x 1.35 mm proportions, and every plane is displayed vertex-up (user 2026-09-13:
+SPE increases inferiorly, so the coronal and sagittal panels take the same `origin` as the transverse
+one, which was verified slice-for-slice against the vendor DICOM).
 
 | file | what |
 |---|---|
