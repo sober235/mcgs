@@ -1,0 +1,82 @@
+
+# VARIANT 2026-09-13 (user request): T1 keeps the AF12 mask, FLAIR uses the mask whose ACTUAL acceleration
+#   against its own elliptical support is 10.56x (data/mask_flair_af105_3d.h5, 3538 PE points; the AF12 mask
+#   gives FLAIR 9.74x and design B's AF11 mask 9.05x). Generator + measurement: scripts/prep_02c_mask_flair_af105.m
+#   and prep_04c_export_flair_af105.py. Everything else identical.
+data:
+  plain:
+    name: FLAIR
+    acceleration_factor: 13
+    data_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/ksp_FLAIR.h5
+    csm_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/csm_espirit_FLAIR.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/mask_flair_af105_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes:
+    - 1
+    - 2
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false
+    known_zero: true
+  contrast:
+    name: FLAIR
+    acceleration_factor: 13
+    data_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/ksp_FLAIR.h5
+    csm_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/csm_espirit_FLAIR.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/mask_flair_af105_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes:
+    - 1
+    - 2
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false
+    known_zero: true
+gaussian:
+  density_lr: 0.015
+  init_scale: 0.008
+  initial_num_points: 600000
+  position_lr: 0.0003
+  rotation_lr: 0.0003
+  scale_lr: 0.002
+hardware:
+  device: cuda:0
+loss:
+  loss_type: l2
+  tv_weight: 0.1
+  tv_eps: 0.04
+  kspace_freq_adaptive: true
+  kspace_center_fraction: 0.05
+  kspace_center_weight: 0.3
+  kspace_mid_weight: 1.0
+  kspace_high_weight: 2.2
+  lambda_diff: 0.01
+  lambda_enh: 0
+  edge_tv: true
+  edge_tv_kappa_q: 0.85
+  edge_tv_wfloor: 0.1
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+output:
+  exp_name: t1flair_v3_af12_single_FLAIR
+  output_dir: results_arc/t1flair_v3_af12_single_FLAIR
+training:
+  max_iterations: 4000
+  shared_warmup_iters: 500
+  eval_every: 1000
+  log_every: 50
+  save_every: 1000
+  seed: 42
+  max_grad_norm: 1.0
+  lr_scheduler:
+    type: exponential
+    gamma: 0.9995
+voxelizer:
+  max_radius: 20
+  tile_size: 8

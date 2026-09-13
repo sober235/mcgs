@@ -594,3 +594,52 @@ with acceleration on this subject, a per-slice restatement of the volume numbers
 +0.029 at AF 16). It does not touch the AF 12 vs AF 16 comparison: every AF 12 panel is 1.0 to 1.8 dB above its AF 16
 counterpart.
 48-box PSNR leads over the best competing arm at 180 / 124 / 76: T1 +1.095 / +0.841 / +0.842 dB, FLAIR +1.162 / +1.272 / +0.683 dB. Vector PDFs sit next to each PNG.
+
+## MC-GS after the phase-3 autoresearch loop — P14 (2026-09-13)
+
+Phase 3 (framework repo, branch `autoresearch-jyz-af12-phase3`, program `autoresearch_jyz_af12_p3.md`) ran under a
+gauge the user fixed that day: **GS-single counts as a comparison arm**, not as our own ablation. Under that rule
+phase 2 left T1 done and **FLAIR open** — MC-GS trailed its own single arm by 0.037 dB. Two levers were borrowed
+from the parallel AF16 line (`T1FLAIR_AF16_v3_jiangyizhou`, its `autoresearch_af16_p3.md`) and re-calibrated here:
+
+**P14 = P13 + `--lambda_edge 0.001 --lambda_ptv 0.01`** = P6 + db4 wavelet on one level (T1 0.12 / FLAIR 0.10) +
+rotation lr 0.008 + **common-edge prior 0.001** + **phase-only TV 0.01**, 3.6M points, 4000 iterations, all at AF 12.
+Runner `mcgs_af12_wt/autoresearch_jyz_af12_p3.sh`. Registered here as `gs_joint_p14` and `gs_single_p14`.
+
+| head cell | T1 | margin over the best other arm | FLAIR | margin |
+|---|---|---|---|---|
+| PSNR | **37.015** | **+0.150** (GS-single 36.865) | **36.360** | **+0.036** (GS-single 36.324) |
+| SSIM | **0.9516** | **+0.0020** | **0.9415** | **+0.0005** |
+| HFEN | **0.0928** | **+0.0041** | **0.0935** | **+0.0008** |
+
+**All six head cells are above every arm, GS-single included — the first recipe of this line that does so.** The
+binding arm in every cell is GS-single; L1-ESPIRiT trails by **+0.589 / +0.602 dB**. Joint − single moved from
+**+0.066 / −0.038** (P13) to **+0.150 / +0.036**. Against P13: T1 +0.045, FLAIR +0.050, no cell down, sharpness up
+(0.864 / 0.828 against 0.857 / 0.822). Seed floor of P14 here: **0.0037 / 0.0026 dB**, fourteen times smaller than
+the FLAIR margin that decides it.
+
+**Held-out check (the first this line has had).** P14 unchanged on **huangyuwei** (`T1FLAIR_AF12_retro`), with its
+own GS-single FLAIR arm: FLAIR **34.773 vs 34.743, joint − single +0.030** (SSIM +0.0006, HFEN +0.0005) — the same
+sign and nearly the same size as on the tuning subject, and **+0.670 / +0.668 dB** over that topic's strongest
+classical arm (L1-ESPIRiT on both contrasts). The reading rule was written before the run.
+
+**Why it works.** The common-edge term is a symmetric cross-contrast gradient-direction prior: in a single-contrast
+run it compares an image with itself and is inert, so it lifts only the joint arm — which is how it flips the sign of
+joint − single. Phase-only TV supplies structure and sharpness at a small PSNR cost. The two are complementary: the
+edge term buys PSNR and costs a little sharpness, the phase term the reverse.
+
+**Borrowed lever, re-measured number.** The common-edge optimum was bracketed independently here (0.0005 +0.032/+0.027,
+0.001 +0.049/+0.041, 0.002 +0.043/+0.031, 0.005 −0.152/−0.165 at 1500) and peaks at the same 0.001 the AF16 line
+found. The phase-TV operating point is **not** theirs: our dose curve is steeper (T1 cost 0.009 / 0.040 / 0.085 at
+0.01 / 0.02 / 0.03 against their 0.005 / 0.033 / 0.05) because our sharpness starts 0.03 higher, so we take 0.01
+where they take 0.03. Phase 1 of this line had recorded the common-edge term as "loses by 1.33 dB" — that was λ 0.02,
+twenty times the optimum, and is the reason the lever was missed for two phases.
+
+**Figures** (same style, slices and gauge as the AF16 finalised pair, so the two are comparable panel by panel):
+`figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p14.png` plus vector PDFs.
+FLAIR panel by panel against the AF16 figure: transverse 36.53 vs 35.04, coronal 37.48 vs 36.23, sagittal 37.07 vs
+35.70. The two topics share the same k-space and ESPIRiT maps by symlink; their ground-truth volumes are identical
+to the last bit, so slice 180/124/76 is the same anatomy in both.
+
+**Raw outputs**: `runs_p3_loop/` — score json, volume npz and log for every run of the phase, plus the ledger, the
+program, the runner, the configs and the new code (`phase_tv.py`, its test, `pair_prior.py`).

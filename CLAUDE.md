@@ -53,25 +53,28 @@ The user marked this line's result as the current best AF 12 reconstruction on j
 - Caveats carried over: recipe and classical lambda were selected on this subject (fair, not held out); all numbers are on
   the magnitude gauge — on the strict complex gauge L1-ESPIRiT ranks first (record, section 4).
 
-## Current AF 12 result (user decision 2026-09-12, recipe updated by the phase-2 loop 2026-09-13)
-The user fixed the current AF 12 result of this line as two compact three-plane figures — T1 with every arm at AF 12,
-FLAIR in **design B** (MC-GS on the AF 11 mask `data/mask_af11_3d.h5`, every comparison arm at AF 12) — and made
-design B the setting to tune in. The phase-2 loop then raised the recipe from P10 to **P13 = P10 +
-`gaussian.rotation_lr = 0.008`** (runner `autoresearch_jyz_af12_P13.sh`; program `autoresearch_jyz_af12_p2.md`,
-record `docs/superpowers/records/2026-09-13-autoresearch-jyz-af12-phase2.md`, handoff
-`docs/handoff/2026-09-13-autoresearch-jyz-af12-phase2.md`). The current figures are P13's:
-- T1, every arm at AF 12: `t1flair_af12_v3_jiangyizhou/figures/t1flair_v3_af12_T1_row3planes_compact_p2_174_110_47_headerr.png`
-  (`http://localhost:8765/t1flair_v3_af12/t1flair_v3_af12_T1_row3planes_compact_p2_174_110_47_headerr.png`).
-- FLAIR, design B: `..._FLAIR_row3planes_compact_p2_flair_af11_174_110_47_headerr.png` (same URL prefix).
-Numbers (head PSNR / SSIM / HFEN): T1 **36.969 / 0.9504 / 0.0948** (all AF 12), FLAIR **36.683 / 0.9444 / 0.0904**
-(AF 11 mask; 36.310 / 0.9401 / 0.0956 at AF 12). Margins over the best non-MC-GS arm at every swept λ: +0.543 /
-+0.926 dB. First on every full-brain slice in every direction. The P10 pair (36.944 / 36.637) is the previous
-reference and its figures are still in the topic. Everything is on the magnitude gauge (the complex-gauge caveat of
-the P10 section stands).
+## Current AF 12 result — P14 (phase 3, 2026-09-13)
+**P14 = P13 + `--lambda_edge 0.001 --lambda_ptv 0.01`** (P13 = P10 + rotation lr 0.008; P10 = P6 + db4 wavelet on one
+level, T1 0.12 / FLAIR 0.10). Runner `autoresearch_jyz_af12_p3.sh`; program `autoresearch_jyz_af12_p3.md`; record
+`docs/superpowers/records/2026-09-13-autoresearch-jyz-af12-phase3.md`; handoff
+`docs/handoff/2026-09-13-autoresearch-jyz-af12-phase3.md`; archive
+`Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/runs_p3_loop/`.
+Under the user's 2026-09-13 gauge (**GS-single counts as a comparison arm**) this is the first recipe of the line
+whose six head cells are all above every arm: T1 **37.015 / 0.9516 / 0.0928**, FLAIR **36.360 / 0.9415 / 0.0935**,
+margins +0.150 / +0.036 over the binding arm (GS-single) and +0.589 / +0.602 dB over L1-ESPIRiT. Joint − single went
+from +0.066 / −0.038 to **+0.150 / +0.036**. Seed floor 0.0037 / 0.0026 dB. **Held out**: unchanged on huangyuwei it
+gives FLAIR joint − single +0.030 and +0.670 / +0.668 dB over that topic's best classical arm.
+Figures (same style, slices and gauge as the AF16 finalised pair, so the two compare panel by panel):
+`t1flair_af12_v3_jiangyizhou/figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p14.png`,
+served at `http://localhost:8765/t1flair_v3_af12/`. The P13 pair (36.969 / 36.310, `..._p2.png`) is the previous
+reference and stays in the topic. Magnitude gauge; the complex gauge has not been re-measured for P14.
 
-## jiangyizhou AF12 autoresearch lines (branches `autoresearch-jyz-af12` and `-phase2`, this worktree)
+## jiangyizhou AF12 autoresearch lines (branches `autoresearch-jyz-af12`, `-phase2`, `-phase3`, this worktree)
 Phase 1 (`autoresearch_jyz_af12.md`, handoff `docs/handoff/2026-09-12-autoresearch-jyz-af12.md`) promoted **P10** =
 P6 + db4 wavelet on 1 level, T1 0.12 / FLAIR 0.10. Phase 2 (`autoresearch_jyz_af12_p2.md`, handoff
 `docs/handoff/2026-09-13-autoresearch-jyz-af12-phase2.md`) tuned in design B and promoted **P13** = P10 +
-`gaussian.rotation_lr=0.008`, the current recipe; runner `autoresearch_jyz_af12_P13.sh`. Ledger
-`autoresearch_jyz_af12.tsv` carries both phases (`p2_` prefix for phase 2); reader `scripts/p2_read.py`.
+`gaussian.rotation_lr=0.008`. Phase 3 (`autoresearch_jyz_af12_p3.md`, handoff
+`docs/handoff/2026-09-13-autoresearch-jyz-af12-phase3.md`) promoted **P14** = P13 + common-edge 0.001 + phase TV
+0.01 — the current recipe, and the first with all six head cells above every arm including GS-single; runner
+`autoresearch_jyz_af12_p3.sh`. Ledger `autoresearch_jyz_af12.tsv` carries all three phases (`p2_` / `p3_` prefixes);
+reader `scripts/p2_read.py`.

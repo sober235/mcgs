@@ -92,5 +92,47 @@
   "map": {
    "FLAIR": "plain"
   }
+ },
+ {
+  "key": "gs_joint_p2_af105",
+  "label": "MC-GS (P13, FLAIR mask actual AF 10.56)",
+  "exp": "p2_P13_flair_af105_full4k",
+  "map": {
+   "T1": "plain",
+   "FLAIR": "contrast"
+  }
+ },
+ {
+  "key": "gs_single_p2_af105",
+  "label": "GS-single (P13, FLAIR mask actual AF 10.56)",
+  "exp": "p2_P13_singleFLAIR_af105_full4k",
+  "map": {
+   "FLAIR": "plain"
+  }
+ },
+ {
+  "key": "gs_joint_p14",
+  "label": "MC-GS (P14: +common-edge 0.001 +phase TV 0.01)",
+  "exp": "p3_e0001_ptv001_full4k",
+  "map": {
+   "T1": "plain",
+   "FLAIR": "contrast"
+  }
+ },
+ {
+  "key": "gs_single_p14",
+  "label": "GS-single (P14)",
+  "exp": "p3_e0001_ptv001_singleT1_full4k",
+  "map": {
+   "T1": "plain"
+  }
+ },
+ {
+  "key": "gs_single_p14",
+  "label": "GS-single (P14)",
+  "exp": "p3_e0001_ptv001_singleFLAIR_full4k",
+  "map": {
+   "FLAIR": "plain"
+  }
  }
 ]
