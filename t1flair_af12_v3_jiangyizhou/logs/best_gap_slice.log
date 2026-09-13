@@ -1,0 +1,51 @@
+[T1] ours = gs_joint_p2; competitors = ['cgsense', 'cssense_o200', 'dip', 'inr', 'jcssense', 'l1espirit', 'ploraks', 'zsssdu']
+
+[T1] top 5 by PSNR margin, per axis (gauge = the figure's):
+  --- transverse ---
+   idx 109  head  20064  MC-GS  35.419 dB  margin PSNR +0.741 (vs l1espirit)  SSIM +0.0067 (vs l1espirit)  NMSE +0.00293 (vs l1espirit)
+   idx 108  head  20032  MC-GS  35.471 dB  margin PSNR +0.680 (vs l1espirit)  SSIM +0.0059 (vs l1espirit)  NMSE +0.00276 (vs l1espirit)
+   idx 111  head  20223  MC-GS  35.582 dB  margin PSNR +0.675 (vs l1espirit)  SSIM +0.0057 (vs l1espirit)  NMSE +0.00238 (vs l1espirit)
+   idx 110  head  20161  MC-GS  35.343 dB  margin PSNR +0.665 (vs l1espirit)  SSIM +0.0060 (vs l1espirit)  NMSE +0.00255 (vs l1espirit)
+   idx 113  head  20441  MC-GS  35.665 dB  margin PSNR +0.634 (vs l1espirit)  SSIM +0.0058 (vs l1espirit)  NMSE +0.00208 (vs l1espirit)
+  --- coronal ---
+   idx  89  head  24707  MC-GS  37.191 dB  margin PSNR +0.822 (vs l1espirit)  SSIM +0.0064 (vs l1espirit)  NMSE +0.00268 (vs l1espirit)
+   idx  77  head  20791  MC-GS  36.626 dB  margin PSNR +0.821 (vs l1espirit)  SSIM +0.0065 (vs l1espirit)  NMSE +0.00255 (vs l1espirit)
+   idx  87  head  24024  MC-GS  37.179 dB  margin PSNR +0.808 (vs l1espirit)  SSIM +0.0053 (vs l1espirit)  NMSE +0.00256 (vs l1espirit)
+   idx  81  head  21929  MC-GS  36.820 dB  margin PSNR +0.787 (vs l1espirit)  SSIM +0.0057 (vs l1espirit)  NMSE +0.00245 (vs l1espirit)
+   idx  83  head  22446  MC-GS  36.895 dB  margin PSNR +0.777 (vs l1espirit)  SSIM +0.0051 (vs l1espirit)  NMSE +0.00242 (vs l1espirit)
+  --- sagittal ---
+   idx 131  head  29670  MC-GS  36.696 dB  margin PSNR +0.744 (vs l1espirit)  SSIM +0.0051 (vs l1espirit)  NMSE +0.00191 (vs l1espirit)
+   idx 129  head  30524  MC-GS  36.918 dB  margin PSNR +0.743 (vs l1espirit)  SSIM +0.0049 (vs l1espirit)  NMSE +0.00186 (vs l1espirit)
+   idx 103  head  34668  MC-GS  38.233 dB  margin PSNR +0.742 (vs l1espirit)  SSIM +0.0060 (vs l1espirit)  NMSE +0.00165 (vs l1espirit)
+   idx  93  head  34433  MC-GS  37.953 dB  margin PSNR +0.730 (vs l1espirit)  SSIM +0.0059 (vs l1espirit)  NMSE +0.00215 (vs l1espirit)
+   idx  77  head  34180  MC-GS  38.028 dB  margin PSNR +0.718 (vs l1espirit)  SSIM +0.0057 (vs l1espirit)  NMSE +0.00174 (vs l1espirit)
+[FLAIR] ours = gs_joint_p2_fl11; competitors = ['cgsense', 'cssense_o200', 'dip', 'inr', 'jcssense', 'l1espirit', 'ploraks', 'zsssdu']
+
+[FLAIR] top 5 by PSNR margin, per axis (gauge = the figure's):
+  --- transverse ---
+   idx 205  head  20292  MC-GS  35.709 dB  margin PSNR +1.421 (vs l1espirit)  SSIM +0.0095 (vs zsssdu)  NMSE +0.00253 (vs l1espirit)
+   idx 198  head  21979  MC-GS  35.820 dB  margin PSNR +1.313 (vs l1espirit)  SSIM +0.0119 (vs l1espirit)  NMSE +0.00219 (vs l1espirit)
+   idx 196  head  22471  MC-GS  35.758 dB  margin PSNR +1.279 (vs l1espirit)  SSIM +0.0115 (vs l1espirit)  NMSE +0.00215 (vs l1espirit)
+   idx 202  head  21348  MC-GS  35.542 dB  margin PSNR +1.269 (vs l1espirit)  SSIM +0.0100 (vs l1espirit)  NMSE +0.00233 (vs l1espirit)
+   idx 195  head  22615  MC-GS  35.946 dB  margin PSNR +1.256 (vs l1espirit)  SSIM +0.0115 (vs l1espirit)  NMSE +0.00202 (vs l1espirit)
+  --- coronal ---
+   idx 195  head  20885  MC-GS  34.491 dB  margin PSNR +1.189 (vs l1espirit)  SSIM +0.0067 (vs zsssdu)  NMSE +0.00270 (vs l1espirit)
+   idx 194  head  21514  MC-GS  34.602 dB  margin PSNR +1.149 (vs l1espirit)  SSIM +0.0095 (vs zsssdu)  NMSE +0.00253 (vs l1espirit)
+   idx 193  head  22076  MC-GS  34.690 dB  margin PSNR +1.146 (vs l1espirit)  SSIM +0.0095 (vs zsssdu)  NMSE +0.00246 (vs l1espirit)
+   idx 191  head  23185  MC-GS  34.928 dB  margin PSNR +1.086 (vs l1espirit)  SSIM +0.0073 (vs zsssdu)  NMSE +0.00222 (vs l1espirit)
+   idx 185  head  26375  MC-GS  35.403 dB  margin PSNR +1.046 (vs l1espirit)  SSIM +0.0066 (vs zsssdu)  NMSE +0.00198 (vs l1espirit)
+  --- sagittal ---
+   idx  73  head  33029  MC-GS  37.321 dB  margin PSNR +1.244 (vs l1espirit)  SSIM +0.0114 (vs zsssdu)  NMSE +0.00317 (vs l1espirit)
+   idx  49  head  29278  MC-GS  36.980 dB  margin PSNR +1.165 (vs l1espirit)  SSIM +0.0090 (vs zsssdu)  NMSE +0.00259 (vs l1espirit)
+   idx  89  head  32390  MC-GS  36.585 dB  margin PSNR +1.162 (vs l1espirit)  SSIM +0.0096 (vs zsssdu)  NMSE +0.00505 (vs l1espirit)
+   idx 145  head  21866  MC-GS  36.386 dB  margin PSNR +1.161 (vs jcssense)  SSIM +0.0116 (vs jcssense)  NMSE +0.00224 (vs jcssense)
+   idx  69  head  32891  MC-GS  37.466 dB  margin PSNR +1.158 (vs l1espirit)  SSIM +0.0109 (vs l1espirit)  NMSE +0.00271 (vs l1espirit)
+
+best slice common to BOTH contrasts (ranked by the smaller of the two PSNR margins):
+  coronal  77: min margin +0.821  T1 +0.821 (MC-GS 36.626 vs l1espirit), FLAIR +0.912 (MC-GS 37.198 vs l1espirit)
+  coronal  89: min margin +0.818  T1 +0.822 (MC-GS 37.191 vs l1espirit), FLAIR +0.818 (MC-GS 37.837 vs l1espirit)
+  coronal  81: min margin +0.787  T1 +0.787 (MC-GS 36.820 vs l1espirit), FLAIR +0.793 (MC-GS 37.355 vs l1espirit)
+  coronal  79: min margin +0.748  T1 +0.748 (MC-GS 36.732 vs l1espirit), FLAIR +0.844 (MC-GS 37.351 vs l1espirit)
+  sagittal 131: min margin +0.744  T1 +0.744 (MC-GS 36.696 vs l1espirit), FLAIR +0.967 (MC-GS 36.621 vs l1espirit)
+
+wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/logs/best_gap_slice.json

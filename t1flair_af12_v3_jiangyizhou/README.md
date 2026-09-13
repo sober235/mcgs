@@ -424,3 +424,29 @@ strength loses both ways; uniform k-space band weights lose by 1.7 / 2.1 dB; bot
 terms lose. The rotation-learning-rate curve is monotone at 1500 iterations and flat from 0.008 on at 4000.
 `gaussian.scale_lr` is a calibrated **FLAIR dial** (0.003 / 0.005 give FLAIR +0.023 / +0.05 dB for T1's fourth
 decimal) and is not in the recipe; the record's table is its dose-response.
+
+### The slice where MC-GS leads the comparison methods by the most (2026-09-13)
+
+`scripts/best_gap_slice.py` ranks every slice of every axis with ≥ 20000 head voxels by MC-GS's head-masked margin
+over the best **non-GS** arm, on the same gauge the compact figures use (`logs/best_gap_slice.json`, log
+`logs/best_gap_slice.log`). T1 is read on the all-AF12 arm `gs_joint_p2`, FLAIR on the design-B arm
+`gs_joint_p2_fl11`. The delivered three-plane figure's slices (174 / 110 / 47) lead by +0.30 to +0.69 dB; the widest
+gaps are about twice that, and they are coronal:
+
+| slice | T1: MC-GS / best other | margin | FLAIR: MC-GS / best other | margin |
+|---|---|---|---|---|
+| **coronal 89** (24707 head voxels) | **37.191** / 36.369 (L1-ESPIRiT) | **+0.822** | **37.837** / 37.019 (L1-ESPIRiT) | **+0.818** |
+| coronal 77 (20791) | 36.626 / 35.804 | +0.821 | 37.198 / 36.286 | +0.912 |
+| coronal 81 (21929) | 36.820 / 36.033 | +0.787 | 37.355 / 36.562 | +0.793 |
+| transverse 109 (20064) | 35.419 / 34.679 | +0.741 | — | — |
+| transverse 205 (20292) | — | — | 35.709 / 34.288 | **+1.421** |
+
+Per-contrast maxima: T1 coronal 89 (+0.822), FLAIR transverse 205 (+1.421, a vertex slice). **The best single slice
+for both contrasts at once is coronal 89** (smaller of the two margins +0.818; coronal 77 is +0.821 / +0.912, tied
+with it inside the seed floor but carrying 19 % less brain). At coronal 89 the other two metrics agree: head SSIM
++0.0064 and NMSE +0.00268 over L1-ESPIRiT on T1.
+Row figures (GT + nine methods, error maps below, head mask bottom left; `scripts/fig_row_final.py --axis 1
+--index 89 --mcgs_key gs_joint_p2 --single_key gs_single_p2`):
+`figures/t1flair_v3_af12_T1_p2_gap_axis1_89.png` and `figures/t1flair_v3_af12_FLAIR_p2_gap_flair_af11_axis1_89.png`
+(slice 77 in the same naming). Both figure scripts gained `--single_key` so the GS-single column carries the same
+recipe as the MC-GS column; the delivered three-plane pair was regenerated with `gs_single_p2` / `gs_single_p2_fl11`.
