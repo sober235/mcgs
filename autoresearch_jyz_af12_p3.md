@@ -216,3 +216,25 @@ times its floor), SSIM +0.0006 on FLAIR, HFEN flat, sharpness unchanged. The AF1
 at 1500 there), and FLAIR is our thin channel, so this is the direction worth spending on. **Capacity is only decided
 at 4000** — phase 1 of this line saw 1500-iteration capacity gains vanish at the full budget, the AF16 line saw
 theirs survive (+0.034) — so `p3_e0001_ptv001_n48_full4k` is queued, read by rule 2 against the P14 promotion.
+
+### Held-out check — 21:15: **it transfers**
+P14 unchanged on **huangyuwei** (`T1FLAIR_AF12_retro`), with its own GS-single FLAIR arm at the same recipe:
+
+| | MC-GS joint | GS-single | joint − single |
+|---|---|---|---|
+| FLAIR head PSNR | **34.773** | 34.743 | **+0.030** |
+| head SSIM | 0.9260 | 0.9254 | +0.0006 |
+| head HFEN | 0.0997 | 0.1002 | +0.0005 |
+
+**The FLAIR sign is positive on the held-out subject too, and about the same size as on the tuning subject
+(+0.030 against +0.036), on all three cells.** The pre-registered reading (written before the run) was that a
+positive sign here confirms the mechanism transfers — it does. Against that topic's strongest classical/learned arm
+(L1-ESPIRiT on both contrasts): **T1 +0.670, FLAIR +0.668 dB**, wider than on jiangyizhou (+0.589 / +0.602).
+This is the first held-out evidence this line has ever had; every earlier phase carried "tuned on one subject, not
+held out" as an open caveat.
+
+**Seed floor of P14 on jiangyizhou** (`p3_e0001_ptv001_s43_full4k`): T1 37.015 / 37.011, FLAIR 36.360 / 36.357 —
+**0.0037 / 0.0026 dB**. The FLAIR margin that decides the phase (+0.036) is fourteen times it.
+
+Caveats that stand: two subjects, not a cohort; the classical λ on both topics were themselves selected on
+huangyuwei, so the comparison arms are not disadvantaged there; magnitude gauge throughout.
