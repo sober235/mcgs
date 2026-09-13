@@ -584,3 +584,12 @@ Same-slice comparison, MC-GS in both topics (AF 16 arm `gs_joint_p3`, AF 12 arm 
 **Rule for any AF 12 / AF 16 comparison figure: render both at the same slice triple.** The AF 12 pair was therefore
 also rendered at the AF 16 triple 180 / 124 / 76 in the same style (`..._180_124_76_inset48_headerr_p2.png`), and
 that is the pair to show next to the AF 16 figure; 198 / 153 / 147 stays the stand-alone AF 12 figure.
+
+The AF 12 pair at the AF 16 triple (`..._180_124_76_inset48_headerr_p2.png`) is the one to put next to the AF 16
+figure. Panel by panel, MC-GS: T1 38.21 / 37.37 / 38.04 against AF 16's 37.13 / 36.22 / 36.79; FLAIR 36.84 / 37.77 /
+37.41 against 35.04 / 36.23 / 35.70. On T1 MC-GS is first on all three metrics in all three planes in both topics.
+On FLAIR the bold goes to GS-single on the coronal and sagittal panels of the AF 12 figure (joint − single −0.040 /
+−0.052) while in the AF 16 figure the joint arm keeps them (+0.038 / +0.058) — the coupling's sign on FLAIR flips
+with acceleration on this subject, a per-slice restatement of the volume numbers (joint − single −0.030 at AF 12,
++0.029 at AF 16). It does not touch the AF 12 vs AF 16 comparison: every AF 12 panel is 1.0 to 1.8 dB above its AF 16
+counterpart.
