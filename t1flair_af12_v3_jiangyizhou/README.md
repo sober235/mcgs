@@ -562,3 +562,25 @@ B); AF 16 topic 15.19x / 12.49x. Note that the AF 16 FLAIR (12.49x) is sampled s
 (11.71x) yet scores 1.8 dB lower — FLAIR is the harder contrast here, so acceleration numbers do not compare across
 contrasts. What does transfer is the method's own lead over the best comparison arm: +0.50 / +0.43 dB at AF 16,
 +0.54 / +0.93 dB at AF 12.
+
+#### Side by side with the AF 16 figure: use the SAME slices (2026-09-13)
+AF 12 beats AF 16 on **every** slice of this subject, but the two topics' finished figures were rendered on
+different slices (AF 12 at 198 / 153 / 147, chosen so MC-GS leads every arm; AF 16 at 180 / 124 / 76), and the
+in-panel numbers of different slices are not comparable. The trap is concrete: the AF 16 figure prints T1
+transverse **180 = 37.13** dB and the AF 12 figure prints T1 transverse **198 = 37.14** dB, which reads as a tie,
+while on slice 180 itself AF 12 is **38.21**, a 1.07 dB lead. Slice 198 is simply a harder slice.
+
+Same-slice comparison, MC-GS in both topics (AF 16 arm `gs_joint_p3`, AF 12 arm `gs_joint_p2` / `gs_joint_p2_fl11`):
+
+| slice | T1: AF 16 → AF 12 | FLAIR: AF 16 → AF 12 |
+|---|---|---|
+| transverse 180 | 37.134 → **38.207** (+1.073) | 35.039 → **36.842** (+1.802) |
+| coronal 124 | 36.225 → **37.375** (+1.150) | 36.230 → **37.767** (+1.537) |
+| sagittal 76 | 36.792 → **38.035** (+1.244) | 35.703 → **37.412** (+1.710) |
+| transverse 198 | 35.794 → **37.139** (+1.345) | 33.653 → **35.820** (+2.167) |
+| coronal 153 | 36.510 → **37.700** (+1.191) | 35.406 → **37.067** (+1.661) |
+| sagittal 147 | 34.831 → **36.183** (+1.353) | 34.422 → **36.074** (+1.652) |
+
+**Rule for any AF 12 / AF 16 comparison figure: render both at the same slice triple.** The AF 12 pair was therefore
+also rendered at the AF 16 triple 180 / 124 / 76 in the same style (`..._180_124_76_inset48_headerr_p2.png`), and
+that is the pair to show next to the AF 16 figure; 198 / 153 / 147 stays the stand-alone AF 12 figure.
