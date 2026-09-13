@@ -680,6 +680,18 @@ used. The re-score agrees with the reproduction's own numbers to 1.9e-7 relative
   stripes in the coronal and sagittal planes (95th percentile of the head-mean ratio 1.9–2.3 %, against 0.9–1.1 % for
   3D-INR and 0.4–0.5 % for L1-ESPIRiT). Only one direction of the paper agrees here: it loses less than the other arms
   from AF 12 to AF 16 (−0.60 / −0.80 dB against −0.93 to −1.57 for every other arm), but it is below CG-SENSE at both.
+- **Parameter-selection asymmetry, stated plainly.** The classical arms' λ were swept on this subject against the
+  ground truth and every MC-GS recipe was selected on it; ZS-SSDU / 3D-DIP / 3D-INR early-stop on held-out k-space;
+  MC-INR ran at the paper's config values with nothing selected here at all. The asymmetry does not explain where it
+  lands: the whole λ re-sweep on this subject was worth at most +0.092 dB to any classical arm (section "Classical λ
+  re-swept on this subject"), and CG-SENSE, which has no λ to tune, is still 1.323 / 0.916 dB above it.
+- **The paper's protocol is not tested here, only its method.** The reproduction's own fidelity review
+  (`../../mcinr_niessen2025/docs/2026-09-13-fidelity-review.md`, 2026-09-13) finds the code aligned line by line but
+  the protocol not: the paper's complementary per-contrast sampling is absent (one shared mask), its ten contrasts
+  come from one acquisition with a shared coil map and correlated phase while ours are two scans (T1/FLAIR phase
+  circular coherence 0.22), and the evaluation mask and normalisation differ. So the honest reading of this row is
+  "below CG-SENSE under this topic's shared-mask, two-scan setting", not "the paper does not reproduce". The remedy
+  experiments that review proposes have not been run.
 - **Figures.** The delivered P14 pair regenerated with MC-INR as a tenth method column, same slices, style and gauge
   (`_p14_mcinr` suffix; the nine-method `_p14` pair is untouched):
   `figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p14_mcinr.png` plus vector PDFs,
