@@ -593,3 +593,4 @@ On FLAIR the bold goes to GS-single on the coronal and sagittal panels of the AF
 with acceleration on this subject, a per-slice restatement of the volume numbers (joint − single −0.030 at AF 12,
 +0.029 at AF 16). It does not touch the AF 12 vs AF 16 comparison: every AF 12 panel is 1.0 to 1.8 dB above its AF 16
 counterpart.
+48-box PSNR leads over the best competing arm at 180 / 124 / 76: T1 +1.095 / +0.841 / +0.842 dB, FLAIR +1.162 / +1.272 / +0.683 dB. Vector PDFs sit next to each PNG.
