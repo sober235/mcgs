@@ -491,3 +491,25 @@ level, and GS-single ties MC-GS (35.712 vs 35.709) — our own single-contrast a
 **Below the full-brain cut the numbers get larger and less meaningful**: at ≥ 3000 head voxels the maxima are FLAIR
 transverse 219 (+1.525, 15449 voxels) and T1 transverse 23 (+1.048, 8933 voxels), peripheral slices the project's
 20000-voxel convention excludes for exactly that reason.
+
+#### The slice where MC-GS leads EVERY arm, its own GS-single included (2026-09-13)
+`scripts/best_gap_slice.py --single_T1 gs_single_p2 --single_FLAIR gs_single_p2_fl11` counts the single-contrast
+arm as a competitor too (`logs/best_gap_slice_vs_all.json`), so MC-GS has to be first in every column of the figure.
+How often that happens, over full-brain slices: **T1 335 / 335 (100 %)**, **FLAIR 22 / 332 (7 %)** — on FLAIR the
+joint arm is behind its own single almost everywhere (joint − single = −0.03 dB). Both contrasts at once, with both
+leads above the 4000-iteration seed floor (0.003 / 0.005 dB): **16 slices**. Ranked by the margin over the
+comparison methods (the smaller of the two contrasts):
+
+| slice | head | T1: vs every arm / vs comparison | FLAIR: vs every arm / vs comparison |
+|---|---|---|---|
+| sagittal 133 | 28783 | +0.053 / +0.650 | +0.006 / +1.116 (lead over GS-single is at the floor) |
+| sagittal 147 | 20901 | +0.079 / +0.643 | +0.028 / +0.872 |
+| **coronal 153** | **32556** | **+0.062 / +0.618** | **+0.023 / +0.815** |
+| coronal 155 | 32772 | +0.058 / +0.565 | +0.016 / +0.892 |
+
+**Recommended: coronal 153** — MC-GS first in every column on both contrasts by several times the seed floor, the
+largest brain area of the group, and +0.6 to +0.8 dB over the best comparison method. T1 37.70 (GS-single 37.64,
+L1-ESPIRiT 37.08); FLAIR 37.07 (GS-single 37.04, L1-ESPIRiT 36.25). Figures:
+`figures/t1flair_v3_af12_T1_p2_lead_axis1_153.png`, `figures/t1flair_v3_af12_FLAIR_p2_lead_flair_af11_axis1_153.png`
+(sagittal 147 in the same naming).
+On T1 alone the best such slice is coronal 89 (MC-GS 37.191, GS-single 37.087, L1-ESPIRiT 36.369).

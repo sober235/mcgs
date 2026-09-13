@@ -1,0 +1,57 @@
+[T1] ours = gs_joint_p2; competitors = ['cgsense', 'cssense_o200', 'dip', 'gs_single_p2', 'inr', 'jcssense', 'l1espirit', 'ploraks', 'zsssdu']
+
+[T1] top 6 by PSNR margin, per axis (gauge = the figure's):
+  --- transverse ---
+   idx 111  head  20223  MC-GS  35.582 dB  margin PSNR +0.156 (vs gs_single_p2)  SSIM +0.0026 (vs gs_single_p2)  NMSE +0.00052 (vs gs_single_p2)
+   idx 108  head  20032  MC-GS  35.471 dB  margin PSNR +0.152 (vs gs_single_p2)  SSIM +0.0023 (vs gs_single_p2)  NMSE +0.00058 (vs gs_single_p2)
+   idx 115  head  20674  MC-GS  35.711 dB  margin PSNR +0.142 (vs gs_single_p2)  SSIM +0.0023 (vs gs_single_p2)  NMSE +0.00045 (vs gs_single_p2)
+   idx 110  head  20161  MC-GS  35.343 dB  margin PSNR +0.139 (vs gs_single_p2)  SSIM +0.0026 (vs gs_single_p2)  NMSE +0.00050 (vs gs_single_p2)
+   idx 113  head  20441  MC-GS  35.665 dB  margin PSNR +0.136 (vs gs_single_p2)  SSIM +0.0019 (vs gs_single_p2)  NMSE +0.00042 (vs gs_single_p2)
+   idx 109  head  20064  MC-GS  35.419 dB  margin PSNR +0.126 (vs gs_single_p2)  SSIM +0.0025 (vs gs_single_p2)  NMSE +0.00046 (vs gs_single_p2)
+  --- coronal ---
+   idx  82  head  22174  MC-GS  36.868 dB  margin PSNR +0.145 (vs gs_single_p2)  SSIM +0.0019 (vs gs_single_p2)  NMSE +0.00042 (vs gs_single_p2)
+   idx  78  head  21097  MC-GS  36.758 dB  margin PSNR +0.129 (vs gs_single_p2)  SSIM +0.0020 (vs gs_single_p2)  NMSE +0.00037 (vs gs_single_p2)
+   idx  77  head  20791  MC-GS  36.626 dB  margin PSNR +0.113 (vs gs_single_p2)  SSIM +0.0017 (vs gs_single_p2)  NMSE +0.00032 (vs gs_single_p2)
+   idx  88  head  24347  MC-GS  37.107 dB  margin PSNR +0.113 (vs gs_single_p2)  SSIM +0.0014 (vs gs_single_p2)  NMSE +0.00034 (vs gs_single_p2)
+   idx  84  head  22732  MC-GS  37.048 dB  margin PSNR +0.110 (vs gs_single_p2)  SSIM +0.0014 (vs gs_single_p2)  NMSE +0.00031 (vs gs_single_p2)
+   idx  89  head  24707  MC-GS  37.191 dB  margin PSNR +0.104 (vs gs_single_p2)  SSIM +0.0014 (vs gs_single_p2)  NMSE +0.00031 (vs gs_single_p2)
+  --- sagittal ---
+   idx 104  head  34934  MC-GS  38.045 dB  margin PSNR +0.132 (vs gs_single_p2)  SSIM +0.0014 (vs gs_single_p2)  NMSE +0.00028 (vs gs_single_p2)
+   idx  99  head  34274  MC-GS  38.306 dB  margin PSNR +0.122 (vs gs_single_p2)  SSIM +0.0011 (vs gs_single_p2)  NMSE +0.00026 (vs gs_single_p2)
+   idx 105  head  34957  MC-GS  37.938 dB  margin PSNR +0.117 (vs gs_single_p2)  SSIM +0.0013 (vs gs_single_p2)  NMSE +0.00025 (vs gs_single_p2)
+   idx  80  head  33850  MC-GS  38.368 dB  margin PSNR +0.113 (vs gs_single_p2)  SSIM +0.0013 (vs gs_single_p2)  NMSE +0.00025 (vs gs_single_p2)
+   idx 102  head  34567  MC-GS  38.167 dB  margin PSNR +0.112 (vs gs_single_p2)  SSIM +0.0012 (vs gs_single_p2)  NMSE +0.00024 (vs gs_single_p2)
+   idx  86  head  33849  MC-GS  37.910 dB  margin PSNR +0.106 (vs gs_single_p2)  SSIM +0.0014 (vs gs_single_p2)  NMSE +0.00030 (vs gs_single_p2)
+[FLAIR] ours = gs_joint_p2_fl11; competitors = ['cgsense', 'cssense_o200', 'dip', 'gs_single_p2_fl11', 'inr', 'jcssense', 'l1espirit', 'ploraks', 'zsssdu']
+
+[FLAIR] top 6 by PSNR margin, per axis (gauge = the figure's):
+  --- transverse ---
+   idx 183  head  24678  MC-GS  36.762 dB  margin PSNR +0.022 (vs gs_single_p2_fl11)  SSIM +0.0006 (vs gs_single_p2_fl11)  NMSE +0.00003 (vs gs_single_p2_fl11)
+   idx 204  head  20778  MC-GS  35.567 dB  margin PSNR +0.018 (vs gs_single_p2_fl11)  SSIM +0.0002 (vs gs_single_p2_fl11)  NMSE +0.00003 (vs gs_single_p2_fl11)
+   idx 197  head  22301  MC-GS  35.668 dB  margin PSNR +0.018 (vs gs_single_p2_fl11)  SSIM +0.0001 (vs gs_single_p2_fl11)  NMSE +0.00003 (vs gs_single_p2_fl11)
+   idx 198  head  21979  MC-GS  35.820 dB  margin PSNR +0.014 (vs gs_single_p2_fl11)  SSIM +0.0004 (vs gs_single_p2_fl11)  NMSE +0.00002 (vs gs_single_p2_fl11)
+   idx 195  head  22615  MC-GS  35.946 dB  margin PSNR +0.012 (vs gs_single_p2_fl11)  SSIM +0.0005 (vs gs_single_p2_fl11)  NMSE +0.00002 (vs gs_single_p2_fl11)
+   idx 202  head  21348  MC-GS  35.542 dB  margin PSNR +0.007 (vs gs_single_p2_fl11)  SSIM +0.0001 (vs gs_single_p2_fl11)  NMSE +0.00001 (vs gs_single_p2_fl11)
+  --- coronal ---
+   idx 158  head  30914  MC-GS  37.125 dB  margin PSNR +0.030 (vs gs_single_p2_fl11)  SSIM +0.0001 (vs gs_single_p2_fl11)  NMSE +0.00005 (vs gs_single_p2_fl11)
+   idx 153  head  30919  MC-GS  37.067 dB  margin PSNR +0.023 (vs gs_single_p2_fl11)  SSIM +0.0003 (vs gs_single_p2_fl11)  NMSE +0.00004 (vs gs_single_p2_fl11)
+   idx 155  head  30968  MC-GS  37.085 dB  margin PSNR +0.016 (vs gs_single_p2_fl11)  SSIM +0.0001 (vs gs_single_p2_fl11)  NMSE +0.00003 (vs gs_single_p2_fl11)
+   idx 195  head  20885  MC-GS  34.491 dB  margin PSNR +0.015 (vs gs_single_p2_fl11)  SSIM +0.0002 (vs gs_single_p2_fl11)  NMSE +0.00003 (vs gs_single_p2_fl11)
+   idx 159  head  30808  MC-GS  37.164 dB  margin PSNR +0.012 (vs gs_single_p2_fl11)  SSIM -0.0001 (vs gs_single_p2_fl11)  NMSE +0.00002 (vs gs_single_p2_fl11)
+   idx 152  head  30727  MC-GS  37.051 dB  margin PSNR +0.002 (vs gs_single_p2_fl11)  SSIM +0.0003 (vs gs_single_p2_fl11)  NMSE +0.00000 (vs gs_single_p2_fl11)
+  --- sagittal ---
+   idx 147  head  20761  MC-GS  36.074 dB  margin PSNR +0.028 (vs gs_single_p2_fl11)  SSIM +0.0012 (vs gs_single_p2_fl11)  NMSE +0.00005 (vs gs_single_p2_fl11)
+   idx 148  head  20308  MC-GS  35.937 dB  margin PSNR +0.014 (vs gs_single_p2_fl11)  SSIM +0.0010 (vs gs_single_p2_fl11)  NMSE +0.00002 (vs gs_single_p2_fl11)
+   idx 146  head  21334  MC-GS  36.255 dB  margin PSNR +0.008 (vs gs_single_p2_fl11)  SSIM +0.0009 (vs gs_single_p2_fl11)  NMSE +0.00001 (vs gs_single_p2_fl11)
+   idx 133  head  28752  MC-GS  36.538 dB  margin PSNR +0.006 (vs gs_single_p2_fl11)  SSIM +0.0002 (vs gs_single_p2_fl11)  NMSE +0.00001 (vs gs_single_p2_fl11)
+   idx 132  head  29194  MC-GS  36.476 dB  margin PSNR +0.005 (vs gs_single_p2_fl11)  SSIM +0.0001 (vs gs_single_p2_fl11)  NMSE +0.00001 (vs gs_single_p2_fl11)
+   idx 145  head  21866  MC-GS  36.386 dB  margin PSNR -0.001 (vs gs_single_p2_fl11)  SSIM +0.0006 (vs gs_single_p2_fl11)  NMSE -0.00000 (vs gs_single_p2_fl11)
+
+best slice common to BOTH contrasts (ranked by the smaller of the two PSNR margins):
+  coronal 158: min margin +0.030  T1 +0.058 (MC-GS 37.706 vs gs_single_p2), FLAIR +0.030 (MC-GS 37.125 vs gs_single_p2_fl11)
+  sagittal 147: min margin +0.028  T1 +0.079 (MC-GS 36.183 vs gs_single_p2), FLAIR +0.028 (MC-GS 36.074 vs gs_single_p2_fl11)
+  coronal 153: min margin +0.023  T1 +0.062 (MC-GS 37.700 vs gs_single_p2), FLAIR +0.023 (MC-GS 37.067 vs gs_single_p2_fl11)
+  transverse 183: min margin +0.022  T1 +0.038 (MC-GS 38.034 vs gs_single_p2), FLAIR +0.022 (MC-GS 36.762 vs gs_single_p2_fl11)
+  transverse 197: min margin +0.018  T1 +0.047 (MC-GS 37.146 vs gs_single_p2), FLAIR +0.018 (MC-GS 35.668 vs gs_single_p2_fl11)
+
+wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/logs/best_gap_slice_vs_all.json

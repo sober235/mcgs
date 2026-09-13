@@ -29,6 +29,9 @@ ap.add_argument("--mcgs_FLAIR", default="gs_joint_p2_fl11", help="MC-GS arm for 
 ap.add_argument("--min_head", type=int, default=20000)
 ap.add_argument("--top", type=int, default=5)
 ap.add_argument("--out", default="best_gap_slice", help="logs/<out>.json")
+ap.add_argument("--single_T1", default=None, help="GS-single arm to COUNT AS A COMPETITOR for T1 "
+                "(default: not counted, the project convention); pass gs_single_p2 to require MC-GS to lead every arm")
+ap.add_argument("--single_FLAIR", default=None, help="same for FLAIR (gs_single_p2 at AF12, gs_single_p2_fl11 in design B)")
 a = ap.parse_args()
 
 rows_all = json.load(open(R / "logs/summary.json"))
@@ -65,6 +68,9 @@ for c, mcgs in (("T1", a.mcgs_T1), ("FLAIR", a.mcgs_FLAIR)):
             "dip": R / f"recon/dip_{c}_complex.npy",
             "inr": R / f"recon/inr_{c}_complex.npy",
             "ploraks": R / f"recon/ploraks_{c}_complex.npy"}
+    sgl = {"T1": a.single_T1, "FLAIR": a.single_FLAIR}[c]
+    if sgl:
+        comp[sgl] = R / f"recon/{sgl}_{c}_mag.npy"
     comp = {k: v for k, v in comp.items() if v is not None and Path(v).exists()}
     gt = np.abs(np.load(R / f"recon/gt_{c}_complex.npy")).astype(np.float32)
     gmax = float(gt.max())
