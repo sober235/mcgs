@@ -450,3 +450,21 @@ Row figures (GT + nine methods, error maps below, head mask bottom left; `script
 `figures/t1flair_v3_af12_T1_p2_gap_axis1_89.png` and `figures/t1flair_v3_af12_FLAIR_p2_gap_flair_af11_axis1_89.png`
 (slice 77 in the same naming). Both figure scripts gained `--single_key` so the GS-single column carries the same
 recipe as the MC-GS column; the delivered three-plane pair was regenerated with `gs_single_p2` / `gs_single_p2_fl11`.
+
+#### Three-plane panel at the widest-gap slices (2026-09-13)
+Same compact layout as the delivered pair, with the slice of each axis on which MC-GS leads the comparison methods
+by the most **with both contrasts read on the same slice** (ties inside the 4000-iteration seed floor broken on
+brain area): **transverse 113 / coronal 89 / sagittal 103**.
+
+| plane | T1: MC-GS / best other | margin | FLAIR: MC-GS / best other | margin |
+|---|---|---|---|---|
+| transverse 113 | 35.665 / 35.031 (L1-ESPIRiT) | +0.634 | 35.948 / 35.111 (L1-ESPIRiT) | +0.837 |
+| coronal 89 | 37.191 / 36.369 (L1-ESPIRiT) | +0.822 | 37.837 / 37.019 (L1-ESPIRiT) | +0.818 |
+| sagittal 103 | 38.233 / 37.491 (L1-ESPIRiT) | +0.742 | 37.340 / 36.376 (L1-ESPIRiT) | +0.964 |
+
+Figures: `figures/t1flair_v3_af12_T1_row3planes_compact_p2_gap_113_89_103_headerr.png` and
+`figures/t1flair_v3_af12_FLAIR_row3planes_compact_p2_gap_flair_af11_113_89_103_headerr.png`.
+On T1 MC-GS is first on PSNR, SSIM and NMSE in all three planes. **On FLAIR it is first in the transverse plane and
+second to its own single-contrast arm (GS-single) in the coronal and sagittal ones**, by 0.05 and 0.07 dB — the
+joint − single = −0.03 dB of this subject, shown as it is; against the comparison methods MC-GS leads by +0.82 and
++0.96 dB there. The delivered 174 / 110 / 47 pair stays the reference figure; this one is the widest-gap view.
