@@ -34,6 +34,10 @@ ap.add_argument("--mask_error", action="store_true", help="error maps only insid
 ap.add_argument("--mcgs_key", default="gs_joint_ar", help="which registered joint arm fills the MC-GS column")
 ap.add_argument("--single_key", default="gs_single_ar", help="which registered single arm fills the GS-single column")
 ap.add_argument("--tag", default="", help="extra suffix for the output file name, e.g. _p3")
+ap.add_argument("--inset", type=int, default=0, metavar="W",
+                help="full slices plus a WxW zoom inset in the bottom-left of every method panel, the box centred on "
+                     "the point where the three slices meet (the face of the WxWxW cube of best_cube_mcgs.py); the box "
+                     "is outlined on the slice and its own PSNR is printed in the inset")
 args = ap.parse_args()
 if (args.slices is None) == (args.cube is None):
     ap.error("give either --slices TRA COR SAG or --cube I J K W")
@@ -49,6 +53,7 @@ import h5py
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.patheffects as pe
+from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening, uniform_filter
@@ -110,6 +115,10 @@ def head_region(m):
     return binary_dilation(binary_fill_holes(binary_opening(binary_fill_holes(m), structure=DISK)), iterations=2)
 
 
+def D(x, axis):
+    return x.T if axis == 0 else x          # as fig_row_final.py: axis 0 transposed; axes 1, 2 with axis 0 upright
+
+
 ANAT = {0: "transverse", 1: "coronal", 2: "sagittal"}
 planes = []
 for axis, idx in enumerate(args.slices):
@@ -126,19 +135,35 @@ for axis, idx in enumerate(args.slices):
         _, smap = structural_similarity(g64, r, data_range=gmax, full=True, **SSIM_KW)
         ss[key] = float(smap[m2].mean())
         nm[key] = float((e * e).sum() / (g * g).sum())
-    planes.append(dict(axis=axis, idx=idx, sl=sl, cr=cr, g2=g2, ps=ps, ss=ss, nm=nm, emask=head_region(m2),
+        zoom = None
+    if args.inset:
+        hw = args.inset // 2
+        i0, j0, k0 = args.slices
+        # D() transposes axis 0, so give the box directly in display (col, row) order
+        x0, y0 = {0: (j0 - hw, k0 - hw), 1: (k0 - hw, i0 - hw), 2: (j0 - hw, i0 - hw)}[axis]
+        zoom = dict(x0=int(x0), y0=int(y0), w=int(args.inset))
+    planes.append(dict(axis=axis, idx=idx, sl=sl, cr=cr, g2=g2, zoom=zoom, ps=ps, ss=ss, nm=nm, emask=head_region(m2),
                        best=dict(psnr=max(ps, key=ps.get), ssim=max(ss, key=ss.get), nmse=min(nm, key=nm.get)),
                        vmax=float(np.quantile(g2, 0.999)), med=float(np.median(g2[m2])),
                        kmask=mask3.take(kcen[axis], axis=axis)))
+if args.inset:
+    for p in planes:
+        z, ax_ = p["zoom"], p["axis"]
+        cut = (slice(z["y0"], z["y0"] + z["w"]), slice(z["x0"], z["x0"] + z["w"]))
+        gz = D(gt[p["sl"]], ax_)[cut].astype(np.float64)
+        mz = D(head[p["sl"]], ax_)[cut]
+        zp = {}
+        for key, _, _ in ARMS:
+            e = D(vols[key][p["sl"]], ax_)[cut].astype(np.float64)[mz] - gz[mz]
+            zp[key] = 20 * np.log10(gmax) - 10 * np.log10(float((e * e).mean()))
+        p["zoom"]["psnr"] = zp
+        p["zoom"]["best"] = max(zp, key=zp.get)
+        p["zoom"]["head_frac"] = float(mz.mean())
 ratio = float(np.mean([p["med"] / p["vmax"] for p in planes if p["axis"] != 2]))
 for p in planes:
     p["vmax_p999"] = p["vmax"]
     if p["axis"] == 2:
         p["vmax"] = p["med"] / ratio
-
-
-def D(x, axis):
-    return x.T if axis == 0 else x          # as fig_row_final.py: axis 0 transposed; axes 1, 2 with axis 0 upright
 
 
 ncol = len(ARMS) + 1
@@ -169,6 +194,22 @@ def label(a, text, bold=False, line=0, fs=12, h=None, color="white"):
     t.set_path_effects([pe.withStroke(linewidth=2.5, foreground="black")])
 
 
+
+ZC = "#39ff14"                                   # zoom-box outline / inset border
+
+
+def put_inset(parent, img, z, x0_in, y0_in, pw_in, h_in, **imkw):
+    """draw the zoom box on `parent` and paste the magnified box in the panel's bottom-left corner"""
+    parent.add_patch(Rectangle((z["x0"], z["y0"]), z["w"], z["w"], fill=False, ec=ZC, lw=1.1))
+    side = 0.38 * pw_in                                        # inset side, inches (square)
+    a = fig.add_axes([(x0_in + 0.012 * pw_in) / fw, 1 - (y0_in + h_in - 0.012 * pw_in) / fh, side / fw, side / fh])
+    a.set_xticks([]); a.set_yticks([])
+    for sp in a.spines.values():
+        sp.set_visible(True); sp.set_edgecolor(ZC); sp.set_linewidth(1.4)
+    a.imshow(img[z["y0"]:z["y0"] + z["w"], z["x0"]:z["x0"] + z["w"]], origin="lower", aspect="auto", **imkw)
+    return a
+
+
 y, im = top_in, None
 for k, p in enumerate(planes):
     ax_, h = p["axis"], row_h[2 * k]
@@ -178,6 +219,8 @@ for k, p in enumerate(planes):
         b = axes_at(x, y + h + gap, pw, h)
         if j == 0:
             a.imshow(D(p["g2"], ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
+            if p["zoom"]:
+                put_inset(a, D(p["g2"], ax_), p["zoom"], x, y, pw, h, cmap="gray", vmin=0, vmax=p["vmax"])
             label(a, f"{ANAT[ax_]} {p['idx']}", bold=True)
             b.imshow(D(p["kmask"], ax_), cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto", interpolation="nearest")
             if k == 0:
@@ -186,10 +229,19 @@ for k, p in enumerate(planes):
         key, lab, _ = ARMS[j - 1]
         v = vols[key][p["sl"]][p["cr"]]
         a.imshow(D(v, ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
+        if p["zoom"]:
+            z = p["zoom"]
+            ia = put_inset(a, D(v, ax_), z, x, y, pw, h, cmap="gray", vmin=0, vmax=p["vmax"])
+            t = ia.text(0.04, 0.96, f"{z['psnr'][key]:.2f}", transform=ia.transAxes, ha="left", va="top",
+                        color=METRIC_COLOR, fontsize=9.5, fontweight="bold" if key == z["best"] else "normal")
+            t.set_path_effects([pe.withStroke(linewidth=2.2, foreground="black")])
         for i, (txt, met) in enumerate(((f"{p['ps'][key]:.2f} dB", "psnr"), (f"SSIM {p['ss'][key]:.4f}", "ssim"),
                                          (f"NMSE {p['nm'][key]:.5f}", "nmse"))):
             label(a, txt, bold=key == p["best"][met], line=i, fs=10.5, h=h, color=METRIC_COLOR)
-        im = b.imshow(D(np.abs(v - p["g2"]) / gmax * (p["emask"] if args.mask_error else 1), ax_), cmap="jet", vmin=0.0, vmax=0.1, origin="lower", aspect="auto")
+        emap = D(np.abs(v - p["g2"]) / gmax * (p["emask"] if args.mask_error else 1), ax_)
+        im = b.imshow(emap, cmap="jet", vmin=0.0, vmax=0.1, origin="lower", aspect="auto")
+        if p["zoom"]:
+            put_inset(b, emap, p["zoom"], x, y + h + gap, pw, h, cmap="jet", vmin=0.0, vmax=0.1)
         if k == 0:
             a.set_title(lab, fontsize=14, pad=4)
     y += 2 * h + 2 * gap
@@ -201,9 +253,10 @@ fig.suptitle(f"{c}  jiangyizhou  {AF_LABEL}  --  transverse {args.slices[0]} / c
              fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
 fig.text(0.5, 1 - 0.40 / fh, f"head-masked slice PSNR / SSIM ({'7x7 window' if args.ssim == 'uniform' else 'Gaussian window, sigma 1.5'}) / NMSE "
          f"in each panel, the best of each plane in bold;   error |recon - GT| / max(GT), jet [0, 0.1];   "
-         f"left of each error row: the sampling mask in that plane (k-space, never cropped)" + ("   (error shown inside the head only)" if args.mask_error else ""), ha="center", va="top", fontsize=11)
+         f"left of each error row: the sampling mask in that plane (k-space, never cropped)"
+         + (f"\nbottom-left of every panel: the {args.inset}x{args.inset} box outlined in green on the slice, magnified; the orange number in each image inset is that box's own head-masked PSNR" if args.inset else "") + ("   (error shown inside the head only)" if args.mask_error else ""), ha="center", va="top", fontsize=11)
 name = (f"t1flair_v3_af16_{c}_cube{args.cube[3]}_{args.cube[0]}_{args.cube[1]}_{args.cube[2]}" if args.cube else
-        f"t1flair_v3_af16_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}") + f"{'_headerr' if args.mask_error else ''}{args.tag}.png"
+        f"t1flair_v3_af16_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}" + (f"_inset{args.inset}" if args.inset else "")) + f"{'_headerr' if args.mask_error else ''}{args.tag}.png"
 for d in (F, R / "figures"):
     fig.savefig(d / name, dpi=130)
 print("wrote", F / name, f"k-space centre (kx, ky, kz) = {kcen}")

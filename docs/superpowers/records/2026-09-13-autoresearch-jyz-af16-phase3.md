@@ -120,6 +120,24 @@ truth, so the smaller the box the larger the quotable number, and the choice is 
 on all six panels at once is the honest version of a zoom — three independently placed 2-D windows are three separate
 cherry-picks. The defensible headline stays the whole-volume margin (+0.497 / +0.425 dB).
 
+**The figure the user asked for** (whole slices with the zoom pasted in): `fig_three_planes_compact.py --slices I J K
+--inset W` draws the three full slices through the box centre, outlines the W x W face in green on every panel, and
+pastes the magnified box in the bottom-left corner of every panel — image rows and error rows alike — with the box's
+own head-masked PSNR in orange inside each image inset. Head-masked PSNR inside the 48 box at (180, 124, 76),
+MC-GS against the best competing arm of that panel:
+
+| panel | MC-GS | best competing arm | lead |
+|---|---|---|---|
+| T1 transverse 180 | 42.30 | 41.41 (Joint SENSE) | +0.892 |
+| T1 coronal 124 | 41.94 | 41.11 (CS-SENSE) | +0.826 |
+| T1 sagittal 76 | 42.37 | 41.53 (Joint SENSE) | +0.836 |
+| FLAIR transverse 180 | 40.26 | 39.43 (L1-ESPIRiT) | +0.824 |
+| FLAIR coronal 124 | 39.47 | 38.37 (L1-ESPIRiT) | **+1.102** |
+| FLAIR sagittal 76 | 39.57 | 38.51 (Joint SENSE) | **+1.060** |
+
+Files: `figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3.png` and the 64-box
+version `..._180_124_72_inset64_...`. The cropped-only versions (`..._cube48_...`, `..._cube64_...`) stay as well.
+
 **The 1.0 dB target was not reached.** The margin roughly doubled (T1 +45 %, FLAIR +40 %) and every quality gate is now
 met, but +1.0 dB over a comparison arm whose λ is itself tuned on this subject's ground truth is out of reach of the
 lever classes this phase was allowed to use — see §4 and §6.
