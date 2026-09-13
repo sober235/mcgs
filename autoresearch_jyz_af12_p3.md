@@ -198,3 +198,14 @@ compares an image with itself and is inert, so it lifts the joint arm only — w
 of joint − single, and is what the AF16 line saw (−0.003 → +0.042 there). **The FLAIR margin is thin**: +0.036 dB is
 seven times its seed floor, so it is real on this subject, but it is an order of magnitude smaller than T1's +0.150
 and nothing here says it survives on another subject. A held-out check is the honest next step, not a victory lap.
+
+### Held-out check — pre-registered 20:12, before the runs started
+Everything on this line was tuned on jiangyizhou, and the FLAIR margin that decides the phase is +0.036 dB. So P14
+goes unchanged onto **huangyuwei** (`T1FLAIR_AF12_retro`, the canonical topic of the earlier phases, same AF12 mask
+and gauge), with its own two GS-single arms, and the question is the sign of joint − single on FLAIR there.
+`configs/t1flair_af12_hyw_singleT1.yaml` was created for this (from the existing singleFLAIR config, both channels
+swapped to T1, `known_zero` off because T1 has no vendor shutter); the joint and singleFLAIR configs already existed.
+Nothing about P14 is re-tuned for this subject — that is the point of the check. **Reading rule, fixed now: a
+positive FLAIR joint − single on huangyuwei confirms the mechanism transfers; a negative one means the phase-3 result
+is a jiangyizhou result and must be reported as such.** The seed repeat of P14 on jiangyizhou
+(`p3_e0001_ptv001_s43_full4k`) runs alongside as the floor of the promotion itself.
