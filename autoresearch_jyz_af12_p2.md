@@ -536,3 +536,10 @@ Per contrast the maxima are T1 coronal 89 and FLAIR transverse 205 (+1.421, a ve
 three-plane figure's slices lead by +0.30…+0.69 dB, so the widest gap is about twice the figure's.
 Row figures at 89 and 77 are in the topic; both figure scripts gained `--single_key` so the GS-single column carries
 the same recipe as the MC-GS column, and the three-plane pair was regenerated with it.
+- 12:45 three-plane panel at the widest-gap slices, both contrasts on the same triple (the user's 09-11 convention),
+  ties inside the 4000-iteration seed floor broken on brain area: **transverse 113 / coronal 89 / sagittal 103**.
+  Margins over the best comparison arm (always L1-ESPIRiT) — T1 +0.634 / +0.822 / +0.742, FLAIR +0.837 / +0.818 /
+  +0.964; the delivered 174 / 110 / 47 triple leads by +0.376 / +0.516 / +0.690 (T1) and +0.931 / +0.722 / +0.916
+  (FLAIR). On T1 MC-GS is first on all three metrics in all three planes; on FLAIR it is first transverse and second
+  to its own GS-single arm coronal and sagittal (by 0.05 / 0.07 dB, the joint − single of this subject), reported as
+  it is. Files: `t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_p2_gap[_flair_af11]_113_89_103_headerr.png`.
