@@ -513,3 +513,32 @@ L1-ESPIRiT 37.08); FLAIR 37.07 (GS-single 37.04, L1-ESPIRiT 36.25). Figures:
 `figures/t1flair_v3_af12_T1_p2_lead_axis1_153.png`, `figures/t1flair_v3_af12_FLAIR_p2_lead_flair_af11_axis1_153.png`
 (sagittal 147 in the same naming).
 On T1 alone the best such slice is coronal 89 (MC-GS 37.191, GS-single 37.087, L1-ESPIRiT 36.369).
+
+#### AF16-phase-3 figure style ported here (2026-09-13)
+`scripts/fig_three_planes_inset.py` is the AF16 topic's phase-3 figure script
+(`T1FLAIR_AF16_v3_jiangyizhou/scripts/fig_three_planes_compact.py`) ported to this topic, plus `--mask_path` and
+`--af_note`, which design B needs. What it adds over this topic's older `fig_three_planes_compact.py`: a WxW zoom
+inset outlined on every panel and magnified into a corner (top-right transverse, bottom-left coronal and sagittal),
+a per-plane grey colorbar right of the image row, the transverse quarter-turn, a vector PDF, and the 48-box PSNR
+lead printed to stdout. The older script is untouched and still reproduces the 174 / 110 / 47 pair.
+
+```
+$PY scripts/fig_three_planes_inset.py --contrast T1 --slices 198 153 147 \
+    --inset 48 --inset_corner tr bl bl --gray_cbar --cbar_planes 0 --mask_error --tag _p2 --pdf \
+    --mcgs_key gs_joint_p2 --single_key gs_single_p2
+$PY scripts/fig_three_planes_inset.py --contrast FLAIR --slices 198 153 147 \
+    --inset 48 --inset_corner tr bl bl --gray_cbar --cbar_planes 0 --mask_error --tag _p2 --pdf \
+    --mcgs_key gs_joint_p2_fl11 --single_key gs_single_p2_fl11 --mask_path data/mask_af11_3d.h5 \
+    --af_note "AF 12 (MC-GS and GS-single FLAIR at AF 11)"
+```
+
+Two triples were rendered in this style:
+
+| triple | T1 | FLAIR |
+|---|---|---|
+| **198 / 153 / 147** (MC-GS leads **every** arm) | first on PSNR, SSIM, NMSE in all three planes | first on all three in all three planes |
+| 174 / 110 / 47 (the standing reference) | first on all three in all three planes | second to GS-single on all three (joint − single = −0.03 dB) |
+
+Files: `figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_{198_153_147,174_110_47}_inset48_headerr_p2.png`
+(`_p2` = the phase-2 recipe P13; the FLAIR ones carry `gs_joint_p2_fl11`, i.e. design B). 48-box PSNR leads over the
+best competing arm at 198 / 153 / 147: T1 +0.272 / +0.296 / +0.324, FLAIR +1.451 / +1.122 / +1.218 dB.
