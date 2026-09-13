@@ -468,3 +468,26 @@ On T1 MC-GS is first on PSNR, SSIM and NMSE in all three planes. **On FLAIR it i
 second to its own single-contrast arm (GS-single) in the coronal and sagittal ones**, by 0.05 and 0.07 dB — the
 joint − single = −0.03 dB of this subject, shown as it is; against the comparison methods MC-GS leads by +0.82 and
 +0.96 dB there. The delivered 174 / 110 / 47 pair stays the reference figure; this one is the widest-gap view.
+
+#### The single slice with the largest margin over the comparison methods (2026-09-13)
+Unconstrained search (no "same slice for both contrasts" requirement), `scripts/best_gap_slice.py`; the run with
+FLAIR read on the all-AF12 arm is `logs/best_gap_slice_af12.json`, the one with the head-voxel cut lowered to 3000 is
+`logs/best_gap_slice_min3000.json`.
+
+**FLAIR, transverse 205** (20292 head voxels) — the maximum under both gauges:
+
+| gauge | MC-GS | best comparison arm | margin |
+|---|---|---|---|
+| as delivered (MC-GS FLAIR at AF 11, others AF 12) | 35.709 | 34.287 (L1-ESPIRiT) | **+1.421** |
+| like-for-like (everything at AF 12) | 35.137 | 34.287 (L1-ESPIRiT) | **+0.850** |
+
+Next best per contrast: T1 coronal 89 (+0.822, like-for-like by construction — the T1 channel is the same in both
+settings). So the widest like-for-like gap in the volume is +0.85 dB on FLAIR and +0.82 dB on T1, and about 0.57 dB
+of the design-B FLAIR figure's +1.42 comes from the AF 11 mask's extra 7 % of samples, not from the recipe.
+Row figures: `figures/t1flair_v3_af12_FLAIR_p2_max_flair_af11_axis0_205.png` (design B) and
+`..._FLAIR_p2_max_axis0_205.png` (all AF 12).
+Two caveats on this slice, both visible in the figure: the ground truth carries horizontal streaks at this vertex
+level, and GS-single ties MC-GS (35.712 vs 35.709) — our own single-contrast ablation, not a comparison method.
+**Below the full-brain cut the numbers get larger and less meaningful**: at ≥ 3000 head voxels the maxima are FLAIR
+transverse 219 (+1.525, 15449 voxels) and T1 transverse 23 (+1.048, 8933 voxels), peripheral slices the project's
+20000-voxel convention excludes for exactly that reason.

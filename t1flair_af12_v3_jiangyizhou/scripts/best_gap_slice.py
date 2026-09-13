@@ -28,6 +28,7 @@ ap.add_argument("--mcgs_T1", default="gs_joint_p2", help="MC-GS arm for T1 (the 
 ap.add_argument("--mcgs_FLAIR", default="gs_joint_p2_fl11", help="MC-GS arm for FLAIR (the design-B figure)")
 ap.add_argument("--min_head", type=int, default=20000)
 ap.add_argument("--top", type=int, default=5)
+ap.add_argument("--out", default="best_gap_slice", help="logs/<out>.json")
 a = ap.parse_args()
 
 rows_all = json.load(open(R / "logs/summary.json"))
@@ -141,5 +142,5 @@ for m, (axis, idx), v in both[:5]:
           f"FLAIR {v['FLAIR']['margin_psnr']:+.3f} (MC-GS {v['FLAIR']['ours_psnr']:.3f} vs {v['FLAIR']['best_other']})")
 out["common_both_contrasts"] = [dict(axis=k[0], index=k[1], min_margin_psnr=m,
                                      T1=v["T1"], FLAIR=v["FLAIR"]) for m, k, v in both[:20]]
-json.dump(out, open(R / "logs/best_gap_slice.json", "w"), indent=1)
-print("\nwrote", R / "logs/best_gap_slice.json")
+json.dump(out, open(R / f"logs/{a.out}.json", "w"), indent=1)
+print("\nwrote", R / f"logs/{a.out}.json")
