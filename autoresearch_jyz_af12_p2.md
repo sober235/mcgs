@@ -589,3 +589,19 @@ is constrained by a much hungrier T1 channel — a different regime, not a point
 other direction).
 Still true at this sampling: MC-GS at 10.556x beats **L1-ESPIRiT at 9.743x by +0.084 dB** — the competitors keep 8 %
 more FLAIR data than MC-GS here — and beats the AF16 MC-GS by +0.913 dB.
+
+### Gauge decision (user, 2026-09-13): **GS-single counts as a comparison method**
+The single-contrast GS arm is no longer read as our own ablation but as one of the arms MC-GS has to beat. Under
+that rule the standing on this subject at AF 12 is:
+
+| contrast | MC-GS beats every arm? | evidence |
+|---|---|---|
+| T1 | **yes** | first on PSNR, SSIM and NMSE on **335 / 335** full-brain slices, all three planes; +0.066 dB over GS-single and +0.54 dB over L1-ESPIRiT volume-wide |
+| FLAIR | **no** | behind GS-single by 0.030–0.038 dB volume-wide at every sampling tested (9.05x, 9.74x, 10.56x); first over every arm on only **22 / 332** slices (7 %) |
+
+FLAIR is therefore an open item, not a presentational one: the loss is 6–8x the seed floor, flat in sampling, and
+reproduced by every recipe generation of this line (v2 −0.045, v3 −0.074, P10 −0.055, P13 −0.038). Phase 2 exhausted
+the knob space, and the scale-lr "FLAIR dial" buys at most +0.05 dB at T1's expense — not enough and not free.
+The remaining lever is structural, not a hyper-parameter: let the geometry stop being fully shared (a private
+position offset per contrast, or a per-contrast weight on the geometry gradient) so FLAIR is not constrained by a
+T1-dominated cloud. That is a code change plus its own loop, not a tuning round.
