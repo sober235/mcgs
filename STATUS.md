@@ -1,7 +1,7 @@
-# STATUS — 2026-09-14 12:20（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af20`）
+# STATUS — 2026-09-14 13:00（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af20`）
 
 本分支从 `autoresearch-jyz-af16-phase3` 尖端 f0fe009 切出，承载 jiangyizhou 的**标称 AF20** 研究，**已全部跑完**。
-先读 `docs/handoff/2026-09-14-af20-jyz.md`，英文记录 `docs/superpowers/records/2026-09-14-af20-jyz.md`；
+先读中文总结 `docs/2026-09-14-af20-jyz-summary.md`，再读 `docs/handoff/2026-09-14-af20-jyz.md`，英文记录 `docs/superpowers/records/2026-09-14-af20-jyz.md`；
 课题目录 `/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/`（仓库镜像 `t1flair_af20_v3_jiangyizhou/`）。
 AF16 三期的 STATUS 在它自己的分支与 tag `handoff/2026-09-13-jyz-af16-phase3` 上。
 
@@ -56,12 +56,14 @@ $ PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/compare_topics.py | sed -n '/MC-GS 
 ## 2. 待用户拍板
 - AF20 上 T1 锐度门失守（0.833 对 0.845）：接受，还是为 AF20 单独调（例如相位 TV 加大）——后者就不再是同参数实验。
 - 余量不随加速变大（平均 0.461→0.476）：靠提高加速逼近 1.0 dB 这条路，这份证据不支持。
+- **标签（09-14 review 新增）**：所有 AF20 结果都是标称 20 倍，实际 T1 18.56×、FLAIR 15.13×（对快门内数据），逐项核过（记录 §10）。
+  保留标称标签（同 AF16），还是重做真 20 倍（共用掩膜 T1 恰 20×，或两对比度各自 20×，后者破共用掩膜惯例）；都要全部重跑。
 
 **用户已拍板（09-14）**：huangyuwei 数据不考虑（不做留出受试者）；掩膜 `.mat` 暂不进 git（仍只在磁盘上，四张都无法重生成，别覆盖）；
-MC-INR 已跑过、不补跑（只做了登记）。**剩下唯一待定的是 T1 锐度门。**
+MC-INR 已跑过、不补跑（只做了登记）。**剩下待定的是 T1 锐度门和加速标签（见上）。**
 
 ## 3. 下一步
-- 没有不需要拍板的事了。唯一开放项是 T1 锐度门（接受，或为 AF20 调参——后者结束同参数设计）。
+- 没有不需要拍板的事了。开放项两个：T1 锐度门；标称 AF20 标签还是重做真 20 倍。中文总结 `docs/2026-09-14-af20-jyz-summary.md`。
 
 ## 4. 已知的坑
 - **不要在本课题 `data/` 里重跑 `prep_02_mask.m`**：会悄悄换掉所有结果依赖的掩膜（md5 1c90baf850a8c1e64b43f6c64146e2c9）。
