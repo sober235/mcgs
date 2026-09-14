@@ -103,16 +103,38 @@ trainer:
 | capacity 3.6M → 4.8M | FLAIR +0.051, T1 flat |
 | frequency shaping | bounded at ≈ 0.08 dB here by round 0 |
 
-Those are tenths of a tenth, not tenths. Round 1 bought +0.40 dB on T1w and round 1c may add ~0.1;
-the bar is 0.975 above the start. **On this evidence the six-cell target is unlikely to be reached on
-T1w, and the campaign's likely outcome is the stronger negative result the spec's stopping rule
-anticipates** — MC-GS tuned on this subject, with the prior weights it actually wants, still behind
-L1-ESPIRiT by a few tenths. The levers are worth running anyway: they are cheap, they are what the
-stopping rule requires, and the coupling one is the only one aimed at the joint-vs-single question
-that made this line interesting.
+Those are tenths of a tenth, not tenths, and on 2026-09-14 that reading led to a projection — that
+the six-cell target was out of reach on T1w — which round 1c then falsified: splitting the geometry
+weight bought 0.66 dB from the baseline, not the 0.5 the separate knobs predicted. The lesson is that
+a lever's size on another line bounds nothing here; these numbers stay as a floor for what the
+*remaining* levers are likely to add (order 0.1–0.2 dB in total), not as a prediction of the outcome.
 
 `--lambda_edge` already exists on this branch; phase TV does not and would be a cherry-pick of
 `paired_gs/losses/phase_tv.py` from the phase-3 branch (same lineage, so no cross-lineage merge).
+
+### Round 1c — one weight per contrast, and the gap collapses (2026-09-14)
+
+`p3_c1_wav006_gp003`: wavelet T1w 0.06 / T2s 0.10, geometry **T1w 0.03 / T2s 0.10**.
+
+| head cell | baseline | shared 0.03 | **c1 split** | bar | margin |
+|---|---|---|---|---|---|
+| T1w PSNR | 37.855 | 38.251 | **38.516** | 38.830 | −0.314 |
+| T1w SSIM | 0.9618 | 0.9660 | **0.9668** | 0.9674 | −0.0006 |
+| T1w HFEN | 0.0922 | 0.0813 | **0.0774** | 0.0756 | −0.0018 |
+| T2s PSNR | 34.160 | 33.927 | **34.163** | 34.175 | −0.0117 |
+| T2s SSIM | 0.9047 | 0.9028 | **0.9047** | 0.9052 | −0.0005 |
+| T2s HFEN | 0.1858 | 0.1894 | **0.1857** | 0.1855 | −0.0002 |
+
+min_margin −0.9744 → **−0.3140**. Two things worth keeping:
+
+- **The split is worth more than the sum of its parts.** Wavelet 0.06 alone gave +0.136 and shared
+  geometry 0.03 gave +0.396; together with T2s protected they give **+0.661**, and they give it
+  without the T2s cost that the shared knob had (T2s is back at its baseline on all three cells).
+  Letting the noisier contrast keep its smoothing evidently also cleans the geometry the two channels
+  share, which is the one mechanism a joint reconstruction has.
+- **Five of the six cells are now within a whisker**: −0.0006 and −0.0018 on T1w SSIM and HFEN,
+  −0.012, −0.0005 and −0.0002 on the three T2s cells. Only T1w head PSNR is still a real gap at
+  −0.314, and the T2s bars will move once the single arm is re-run at this recipe.
 
 ### Round 1 verdict — the two contrasts want different smoothing, so the knob was split
 
