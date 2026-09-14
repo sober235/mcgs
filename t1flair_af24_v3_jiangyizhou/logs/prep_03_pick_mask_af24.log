@@ -1,0 +1,5 @@
+[pool] 134 draws, 0 duplicates, nnz 1832-1991, exactly 1877: 2
+[pick] draw_025.mat stage B accelx 6.8656 -> exact draw, untrimmed
+[mask] 1877 of 45056 points, 24x24 centre 463/576; T1 AF 24.004; FLAIR 1766 points on data, 111 outside the shutter, AF 25.513; md5 c3688d6182ba20df7404519e560dd9b4
+[pool] FLAIR points on data across the 2 exact draws: 1766-1776 (AF 25.37-25.51)
+wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/data/mask_vdpois_256x176_af24.mat /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/prep_03_pick_mask_af24.json

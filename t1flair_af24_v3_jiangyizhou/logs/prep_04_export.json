@@ -1,0 +1,44 @@
+{
+  "mask2d_shape": [
+    256,
+    176
+  ],
+  "mask2d_samples": 1877,
+  "mask2d_frac": 0.041659269481897354,
+  "mask2d_AF_rect": 24.004261534987805,
+  "contrasts": {
+    "T1": {
+      "src": "/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/t1_fsp_train_jiangyizhou_cc",
+      "dims": [
+        256,
+        256,
+        176,
+        26
+      ],
+      "support_frac": 1.0,
+      "sampled_frac_of_plane": 0.04165926846590909,
+      "AF_vs_full_rect": 24.004262120404903,
+      "AF_vs_own_support": 24.004262120404903,
+      "acs24_kept": 0.8038194444444444,
+      "ksp_h5": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/data/ksp_T1.h5",
+      "ksp_h5_target": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/ksp_T1.h5"
+    },
+    "FLAIR": {
+      "src": "/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/flair_train_jiangyizhou_cc",
+      "dims": [
+        256,
+        256,
+        176,
+        26
+      ],
+      "support_frac": 0.7577015269886364,
+      "sampled_frac_of_plane": 0.03919566761363636,
+      "AF_vs_full_rect": 25.513023782559458,
+      "AF_vs_own_support": 19.331257078142695,
+      "acs24_kept": 0.8038194444444444,
+      "ksp_h5": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/data/ksp_FLAIR.h5",
+      "ksp_h5_target": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/ksp_FLAIR.h5"
+    }
+  },
+  "mask3d_path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/data/mask_af24_3d.h5"
+}

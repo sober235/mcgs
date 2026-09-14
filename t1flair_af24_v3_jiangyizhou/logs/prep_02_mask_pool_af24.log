@@ -1,0 +1,270 @@
+Actual acceleration is 22.732594
+draw 001 stage A accelx 6.4000 nnz 1982 AF_T1 22.733
+Actual acceleration is 22.629835
+draw 002 stage A accelx 6.4000 nnz 1991 AF_T1 22.630
+Actual acceleration is 23.260712
+draw 003 stage A accelx 6.5000 nnz 1937 AF_T1 23.261
+Actual acceleration is 22.847870
+draw 004 stage A accelx 6.5000 nnz 1972 AF_T1 22.848
+Actual acceleration is 23.308846
+draw 005 stage A accelx 6.6000 nnz 1933 AF_T1 23.309
+Actual acceleration is 23.188883
+draw 006 stage A accelx 6.6000 nnz 1943 AF_T1 23.189
+Actual acceleration is 23.639034
+draw 007 stage A accelx 6.7000 nnz 1906 AF_T1 23.639
+Actual acceleration is 23.839153
+draw 008 stage A accelx 6.7000 nnz 1890 AF_T1 23.839
+Actual acceleration is 23.751186
+draw 009 stage A accelx 6.8000 nnz 1897 AF_T1 23.751
+Actual acceleration is 23.927774
+draw 010 stage A accelx 6.8000 nnz 1883 AF_T1 23.928
+Actual acceleration is 24.158712
+draw 011 stage A accelx 6.9000 nnz 1865 AF_T1 24.159
+Actual acceleration is 24.210640
+draw 012 stage A accelx 6.9000 nnz 1861 AF_T1 24.211
+Actual acceleration is 24.158712
+draw 013 stage A accelx 7.0000 nnz 1865 AF_T1 24.159
+Actual acceleration is 24.593887
+draw 014 stage A accelx 7.0000 nnz 1832 AF_T1 24.594
+stage A fit: n = 366.4 + 10341.3 / accelx  ->  accelx* = 6.8456 for 1877 points
+Actual acceleration is 23.889713
+draw 015 stage B accelx 6.8156 nnz 1886 AF_T1 23.890
+Actual acceleration is 24.171675
+draw 016 stage B accelx 6.8206 nnz 1864 AF_T1 24.172
+Actual acceleration is 23.927774
+draw 017 stage B accelx 6.8256 nnz 1883 AF_T1 23.928
+Actual acceleration is 23.763714
+draw 018 stage B accelx 6.8306 nnz 1896 AF_T1 23.764
+Actual acceleration is 23.978712
+draw 019 stage B accelx 6.8356 nnz 1879 AF_T1 23.979
+Actual acceleration is 24.132833
+draw 020 stage B accelx 6.8406 nnz 1867 AF_T1 24.133
+Actual acceleration is 23.902388
+draw 021 stage B accelx 6.8456 nnz 1885 AF_T1 23.902
+Actual acceleration is 23.902388
+draw 022 stage B accelx 6.8506 nnz 1885 AF_T1 23.902
+Actual acceleration is 24.094118
+draw 023 stage B accelx 6.8556 nnz 1870 AF_T1 24.094
+Actual acceleration is 23.713684
+draw 024 stage B accelx 6.8606 nnz 1900 AF_T1 23.714
+Actual acceleration is 24.004263
+draw 025 stage B accelx 6.8656 nnz 1877 AF_T1 24.004  <- exactly the target
+Actual acceleration is 24.197638
+draw 026 stage B accelx 6.8706 nnz 1862 AF_T1 24.198
+Actual acceleration is 24.158712
+draw 027 stage B accelx 6.8756 nnz 1865 AF_T1 24.159
+Actual acceleration is 24.236687
+draw 028 stage B accelx 6.8156 nnz 1859 AF_T1 24.237
+Actual acceleration is 23.965958
+draw 029 stage B accelx 6.8206 nnz 1880 AF_T1 23.966
+Actual acceleration is 23.940489
+draw 030 stage B accelx 6.8256 nnz 1882 AF_T1 23.940
+Actual acceleration is 24.158712
+draw 031 stage B accelx 6.8306 nnz 1865 AF_T1 24.159
+Actual acceleration is 24.068377
+draw 032 stage B accelx 6.8356 nnz 1872 AF_T1 24.068
+Actual acceleration is 23.726171
+draw 033 stage B accelx 6.8406 nnz 1899 AF_T1 23.726
+Actual acceleration is 24.119915
+draw 034 stage B accelx 6.8456 nnz 1868 AF_T1 24.120
+Actual acceleration is 23.927774
+draw 035 stage B accelx 6.8506 nnz 1883 AF_T1 23.928
+Actual acceleration is 24.107010
+draw 036 stage B accelx 6.8556 nnz 1869 AF_T1 24.107
+Actual acceleration is 24.094118
+draw 037 stage B accelx 6.8606 nnz 1870 AF_T1 24.094
+Actual acceleration is 24.042690
+draw 038 stage B accelx 6.8656 nnz 1874 AF_T1 24.043
+Actual acceleration is 23.915073
+draw 039 stage B accelx 6.8706 nnz 1884 AF_T1 23.915
+Actual acceleration is 23.877054
+draw 040 stage B accelx 6.8756 nnz 1887 AF_T1 23.877
+Actual acceleration is 23.978712
+draw 041 stage B accelx 6.8156 nnz 1879 AF_T1 23.979
+Actual acceleration is 23.940489
+draw 042 stage B accelx 6.8206 nnz 1882 AF_T1 23.940
+Actual acceleration is 23.991480
+draw 043 stage B accelx 6.8256 nnz 1878 AF_T1 23.991
+Actual acceleration is 23.940489
+draw 044 stage B accelx 6.8306 nnz 1882 AF_T1 23.940
+Actual acceleration is 24.081240
+draw 045 stage B accelx 6.8356 nnz 1871 AF_T1 24.081
+Actual acceleration is 23.864407
+draw 046 stage B accelx 6.8406 nnz 1888 AF_T1 23.864
+Actual acceleration is 24.081240
+draw 047 stage B accelx 6.8456 nnz 1871 AF_T1 24.081
+Actual acceleration is 23.991480
+draw 048 stage B accelx 6.8506 nnz 1878 AF_T1 23.991
+Actual acceleration is 24.184649
+draw 049 stage B accelx 6.8556 nnz 1863 AF_T1 24.185
+Actual acceleration is 24.158712
+draw 050 stage B accelx 6.8606 nnz 1865 AF_T1 24.159
+Actual acceleration is 23.889713
+draw 051 stage B accelx 6.8656 nnz 1886 AF_T1 23.890
+Actual acceleration is 24.145767
+draw 052 stage B accelx 6.8706 nnz 1866 AF_T1 24.146
+Actual acceleration is 23.965958
+draw 053 stage B accelx 6.8756 nnz 1880 AF_T1 23.966
+Actual acceleration is 23.651443
+draw 054 stage B accelx 6.8156 nnz 1905 AF_T1 23.651
+Actual acceleration is 23.826548
+draw 055 stage B accelx 6.8206 nnz 1891 AF_T1 23.827
+Actual acceleration is 23.826548
+draw 056 stage B accelx 6.8256 nnz 1891 AF_T1 23.827
+Actual acceleration is 23.864407
+draw 057 stage B accelx 6.8306 nnz 1888 AF_T1 23.864
+Actual acceleration is 24.094118
+draw 058 stage B accelx 6.8356 nnz 1870 AF_T1 24.094
+Actual acceleration is 23.940489
+draw 059 stage B accelx 6.8406 nnz 1882 AF_T1 23.940
+Actual acceleration is 23.978712
+draw 060 stage B accelx 6.8456 nnz 1879 AF_T1 23.979
+Actual acceleration is 23.713684
+draw 061 stage B accelx 6.8506 nnz 1900 AF_T1 23.714
+Actual acceleration is 23.713684
+draw 062 stage B accelx 6.8556 nnz 1900 AF_T1 23.714
+Actual acceleration is 24.029867
+draw 063 stage B accelx 6.8606 nnz 1875 AF_T1 24.030
+Actual acceleration is 24.367765
+draw 064 stage B accelx 6.8656 nnz 1849 AF_T1 24.368
+Actual acceleration is 24.158712
+draw 065 stage B accelx 6.8706 nnz 1865 AF_T1 24.159
+Actual acceleration is 24.223656
+draw 066 stage B accelx 6.8756 nnz 1860 AF_T1 24.224
+Actual acceleration is 23.927774
+draw 067 stage B accelx 6.8156 nnz 1883 AF_T1 23.928
+Actual acceleration is 23.688749
+draw 068 stage B accelx 6.8206 nnz 1902 AF_T1 23.689
+Actual acceleration is 23.515657
+draw 069 stage B accelx 6.8256 nnz 1916 AF_T1 23.516
+Actual acceleration is 24.081240
+draw 070 stage B accelx 6.8306 nnz 1871 AF_T1 24.081
+Actual acceleration is 24.315165
+draw 071 stage B accelx 6.8356 nnz 1853 AF_T1 24.315
+Actual acceleration is 23.965958
+draw 072 stage B accelx 6.8406 nnz 1880 AF_T1 23.966
+Actual acceleration is 23.801373
+draw 073 stage B accelx 6.8456 nnz 1893 AF_T1 23.801
+Actual acceleration is 23.940489
+draw 074 stage B accelx 6.8506 nnz 1882 AF_T1 23.940
+Actual acceleration is 23.851774
+draw 075 stage B accelx 6.8556 nnz 1889 AF_T1 23.852
+Actual acceleration is 23.927774
+draw 076 stage B accelx 6.8606 nnz 1883 AF_T1 23.928
+Actual acceleration is 24.171675
+draw 077 stage B accelx 6.8656 nnz 1864 AF_T1 24.172
+Actual acceleration is 24.068377
+draw 078 stage B accelx 6.8706 nnz 1872 AF_T1 24.068
+Actual acceleration is 24.004263
+draw 079 stage B accelx 6.8756 nnz 1877 AF_T1 24.004  <- exactly the target
+Actual acceleration is 23.776253
+draw 080 stage B accelx 6.8156 nnz 1895 AF_T1 23.776
+Actual acceleration is 23.738672
+draw 081 stage B accelx 6.8206 nnz 1898 AF_T1 23.739
+Actual acceleration is 23.839153
+draw 082 stage B accelx 6.8256 nnz 1890 AF_T1 23.839
+Actual acceleration is 23.915073
+draw 083 stage B accelx 6.8306 nnz 1884 AF_T1 23.915
+Actual acceleration is 23.889713
+draw 084 stage B accelx 6.8356 nnz 1886 AF_T1 23.890
+Actual acceleration is 24.171675
+draw 085 stage B accelx 6.8406 nnz 1864 AF_T1 24.172
+Actual acceleration is 24.094118
+draw 086 stage B accelx 6.8456 nnz 1870 AF_T1 24.094
+Actual acceleration is 24.119915
+draw 087 stage B accelx 6.8506 nnz 1868 AF_T1 24.120
+Actual acceleration is 23.991480
+draw 088 stage B accelx 6.8556 nnz 1878 AF_T1 23.991
+Actual acceleration is 23.978712
+draw 089 stage B accelx 6.8606 nnz 1879 AF_T1 23.979
+Actual acceleration is 23.940489
+draw 090 stage B accelx 6.8656 nnz 1882 AF_T1 23.940
+Actual acceleration is 23.738672
+draw 091 stage B accelx 6.8706 nnz 1898 AF_T1 23.739
+Actual acceleration is 23.978712
+draw 092 stage B accelx 6.8756 nnz 1879 AF_T1 23.979
+Actual acceleration is 23.953217
+draw 093 stage B accelx 6.8156 nnz 1881 AF_T1 23.953
+Actual acceleration is 24.017057
+draw 094 stage B accelx 6.8206 nnz 1876 AF_T1 24.017
+Actual acceleration is 24.081240
+draw 095 stage B accelx 6.8256 nnz 1871 AF_T1 24.081
+Actual acceleration is 23.927774
+draw 096 stage B accelx 6.8306 nnz 1883 AF_T1 23.928
+Actual acceleration is 23.417879
+draw 097 stage B accelx 6.8356 nnz 1924 AF_T1 23.418
+Actual acceleration is 23.927774
+draw 098 stage B accelx 6.8406 nnz 1883 AF_T1 23.928
+Actual acceleration is 24.042690
+draw 099 stage B accelx 6.8456 nnz 1874 AF_T1 24.043
+Actual acceleration is 24.223656
+draw 100 stage B accelx 6.8506 nnz 1860 AF_T1 24.224
+Actual acceleration is 24.081240
+draw 101 stage B accelx 6.8556 nnz 1871 AF_T1 24.081
+Actual acceleration is 24.094118
+draw 102 stage B accelx 6.8606 nnz 1870 AF_T1 24.094
+Actual acceleration is 23.688749
+draw 103 stage B accelx 6.8656 nnz 1902 AF_T1 23.689
+Actual acceleration is 24.184649
+draw 104 stage B accelx 6.8706 nnz 1863 AF_T1 24.185
+Actual acceleration is 23.864407
+draw 105 stage B accelx 6.8756 nnz 1888 AF_T1 23.864
+Actual acceleration is 23.826548
+draw 106 stage B accelx 6.8156 nnz 1891 AF_T1 23.827
+Actual acceleration is 23.763714
+draw 107 stage B accelx 6.8206 nnz 1896 AF_T1 23.764
+Actual acceleration is 24.029867
+draw 108 stage B accelx 6.8256 nnz 1875 AF_T1 24.030
+Actual acceleration is 24.158712
+draw 109 stage B accelx 6.8306 nnz 1865 AF_T1 24.159
+Actual acceleration is 23.688749
+draw 110 stage B accelx 6.8356 nnz 1902 AF_T1 23.689
+Actual acceleration is 23.688749
+draw 111 stage B accelx 6.8406 nnz 1902 AF_T1 23.689
+Actual acceleration is 23.751186
+draw 112 stage B accelx 6.8456 nnz 1897 AF_T1 23.751
+Actual acceleration is 24.119915
+draw 113 stage B accelx 6.8506 nnz 1868 AF_T1 24.120
+Actual acceleration is 23.738672
+draw 114 stage B accelx 6.8556 nnz 1898 AF_T1 23.739
+Actual acceleration is 23.839153
+draw 115 stage B accelx 6.8606 nnz 1890 AF_T1 23.839
+Actual acceleration is 24.107010
+draw 116 stage B accelx 6.8656 nnz 1869 AF_T1 24.107
+Actual acceleration is 24.107010
+draw 117 stage B accelx 6.8706 nnz 1869 AF_T1 24.107
+Actual acceleration is 24.029867
+draw 118 stage B accelx 6.8756 nnz 1875 AF_T1 24.030
+Actual acceleration is 24.107010
+draw 119 stage B accelx 6.8156 nnz 1869 AF_T1 24.107
+Actual acceleration is 23.877054
+draw 120 stage B accelx 6.8206 nnz 1887 AF_T1 23.877
+Actual acceleration is 23.965958
+draw 121 stage B accelx 6.8256 nnz 1880 AF_T1 23.966
+Actual acceleration is 23.915073
+draw 122 stage B accelx 6.8306 nnz 1884 AF_T1 23.915
+Actual acceleration is 23.889713
+draw 123 stage B accelx 6.8356 nnz 1886 AF_T1 23.890
+Actual acceleration is 23.915073
+draw 124 stage B accelx 6.8406 nnz 1884 AF_T1 23.915
+Actual acceleration is 24.184649
+draw 125 stage B accelx 6.8456 nnz 1863 AF_T1 24.185
+Actual acceleration is 24.055527
+draw 126 stage B accelx 6.8506 nnz 1873 AF_T1 24.056
+Actual acceleration is 24.171675
+draw 127 stage B accelx 6.8556 nnz 1864 AF_T1 24.172
+Actual acceleration is 23.877054
+draw 128 stage B accelx 6.8606 nnz 1887 AF_T1 23.877
+Actual acceleration is 24.042690
+draw 129 stage B accelx 6.8656 nnz 1874 AF_T1 24.043
+Actual acceleration is 24.328293
+draw 130 stage B accelx 6.8706 nnz 1852 AF_T1 24.328
+Actual acceleration is 24.171675
+draw 131 stage B accelx 6.8756 nnz 1864 AF_T1 24.172
+Actual acceleration is 23.877054
+draw 132 stage B accelx 6.8156 nnz 1887 AF_T1 23.877
+Actual acceleration is 23.826548
+draw 133 stage B accelx 6.8206 nnz 1891 AF_T1 23.827
+Actual acceleration is 23.839153
+draw 134 stage B accelx 6.8256 nnz 1890 AF_T1 23.839
+POOL_DONE 134 draws in /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/data/mask_pool_af24
