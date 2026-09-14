@@ -932,8 +932,9 @@ class JointTrainer:
         # the contrast channel's edge-TV weights also drop at the plain render's edges (never raised):
         # T1w's edges may sharpen T2s, T2s keeps its own. Default off => unchanged.
         self._edge_union_c = bool(_loss_cfg.get("edge_tv_union_guide", False))
+        self._edge_union_kscale = float(_loss_cfg.get("edge_tv_union_kappa_scale", 1.0))
         if self._edge_union_c:
-            print("[edge_tv] contrast weights = min(own, plain-render edges)")
+            print(f"[edge_tv] contrast weights = min(own, plain-render edges), guide kappa x {self._edge_union_kscale}")
         if self._tv_eps > 0 or self._tv_vector:
             print(f"[tv_shape] eps={self._tv_eps} vector={self._tv_vector}")
         _kappa_refresh = 0
@@ -999,7 +1000,7 @@ class JointTrainer:
                     tv_c = edge_preserving_tv(vol_c_reg, self._edge_kappa_c, self._edge_tv_wfloor,
                                               self._tv_eps, self._tv_vector,
                                               guide=vol_p if self._edge_union_c else None,
-                                              guide_kappa=self._edge_kappa_p)
+                                              guide_kappa=self._edge_kappa_p * self._edge_union_kscale)
                 else:
                     tv_p, tv_c = self._tv_loss(vol_p), self._tv_loss(vol_c_reg)
                 added_geo, l_geo = geo_term(tv_p, tv_c, geo_lam_p, geo_lam_c, lambda_geo)

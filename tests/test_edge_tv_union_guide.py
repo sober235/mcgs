@@ -59,3 +59,13 @@ def test_no_gradient_reaches_the_guide():
     v = vol(3, 1).requires_grad_(True)
     edge_preserving_tv(u, 0.1, 0.1, 0.04, False, guide=v, guide_kappa=0.1).backward()
     assert v.grad is None and torch.isfinite(u.grad).all()
+
+
+def test_lower_guide_kappa_relaxes_more():
+    """loss.edge_tv_union_kappa_scale < 1 hands a smaller guide kappa: more guide gradients count as edges,
+    so the penalty can only go down."""
+    u = vol(1, 0) + 0.2 * (torch.arange(N, dtype=torch.float64) / N).view(1, N, 1)
+    v = vol(2, 1)
+    a = float(edge_preserving_tv(u, 0.1, 0.1, 0.04, False, guide=v, guide_kappa=0.1))
+    b = float(edge_preserving_tv(u, 0.1, 0.1, 0.04, False, guide=v, guide_kappa=0.05))
+    assert b <= a

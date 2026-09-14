@@ -212,3 +212,16 @@ The queue keeps running while the user decides.
 
 `p3_single_T1w_n96` (stage-3 session): T1w 38.993, so T1w joint − single at matched capacity is −0.332 (3.6M), −0.198
 (6.0M), −0.057 (9.6M): on T1w the joint deficit is mostly capacity starvation. T2s, the lesion contrast, does not share it.
+
+### Round 1 winner: union-of-edges TV for T2s (`p4_union`, 2026-09-15 03:05)
+
+| | T1w primary | T2s primary | best lesion slice, all arms | best lesion slice, non-GS arms |
+|---|---|---|---|---|
+| c1 (base) | 38.516 / 0.9668 / 0.0774 | 34.163 / 0.9047 / 0.1857 | transverse 69 +0.064 | coronal 136 +0.471 |
+| **`p4_union`** | 38.517 / 0.9668 / 0.0774 | **34.195 / 0.9054 / 0.1842** | **transverse 69 +0.104** | sagittal 171 +0.505 |
+| GS-single bars | 38.848 (tuned) | 34.175 / 0.9052 / 0.1855 | | |
+
+The first lever that moves T2s without costing T1w: all three T2s cells now lead GS-single at volume level (+0.020 dB,
++0.0002, −0.0013 HFEN) and T1w is unchanged. Small, but it is the right direction: T1w's structure only ever removes
+smoothing from T2s. KEPT; round 2 stacks everything on it (group wavelet, common edge 0.001 / 0.002 / 0.0005, a lower
+guide kappa via the new `loss.edge_tv_union_kappa_scale`, T2s's own weights, geometry split, frozen regularisers).
