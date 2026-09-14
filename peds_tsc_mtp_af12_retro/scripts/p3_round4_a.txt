@@ -1,0 +1,4 @@
+# Stage 3 round 4, half A: capacity and iterations together. 6.0M points bought +0.275 dB on T1w and
+# 6000 iterations bought +0.072 at 3.6M; if they add, the remaining 0.057 to the tuned single's bar
+# is covered. Joint arm.
+p3 p3_n60_i6000 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=6000000

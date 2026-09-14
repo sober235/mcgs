@@ -3,6 +3,14 @@
 # Only a cross-contrast mechanism can open a margin over GS-single, so these come first.
 # The scheduler takes the first line without a results_arc/<exp>.log, so order = priority.
 #
+# Round 2 (moved to the top 20:25): capacity. p3_n60 (6.0M points, c1 weights) scored T1w 38.791 /
+# T2s 34.195 in the primary region against c1's 38.516 / 34.163 at 3.6M: +0.275 dB on T1w for 0.5 GB of
+# VRAM (the stage-3 record's "+0.001" was wrong). One cloud carries two contrasts in the joint arm, so
+# capacity may help it more than the single arm; the singles at the same capacity decide that.
+p4_single_T1w_n60 configs/peds_af12_single_T1w.yaml --lambda_geo 0.03 --set loss.lambda_wav=0.06 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.06 --set gaussian.initial_num_points=6000000
+p4_n100 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=10000000
+p4_single_T2s_n60 configs/peds_af12_single_T2s.yaml --set gaussian.initial_num_points=6000000
+#
 # Round 1c: who drives the shared geometry. At the end of a c1 run the T2s data term is ~5x the T1w
 # one, so the shared cloud is pulled mostly by the noisier contrast. dc_weight_contrast w scales T2s's
 # data term; T2s's own regularisers are scaled by the same w, so T2s's internal balance (and, under
