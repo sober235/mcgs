@@ -1,0 +1,4 @@
+[FLAIR] coils=26 vol=(256, 256, 176) mask frac=0.04166 AF_rect=24.004
+[FLAIR] P99.9 |GT| scale = 9.851180e+01; |GT| max = 2.2738
+[FLAIR] cssense  psnr=36.441 ssim=0.9146 nmse=0.02664 hfen=0.7957 head_psnr=32.547 head_ssim=0.8844 sharp=0.610 grain=0.00827 (699 s)
+WROTE /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.0007.json  total 705 s

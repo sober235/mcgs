@@ -5,3 +5,75 @@
 [09-14 21:45:50] START l1_T1_0.0005 gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_lam0.0005.log
 [09-14 21:45:50] START l1_T1_0.0007 gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_lam0.0007.log
 [09-14 21:45:50] START l1_T1_0.001 gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_lam0.001.log
+[09-14 21:57:00] DONE l1_T1_0.0005 gpu6 rc=0 result=yes 11.2 min
+[09-14 21:57:00] DONE l1_T1_0.0007 gpu6 rc=0 result=yes 11.2 min
+[09-14 21:57:00] DONE l1_T1_0.001 gpu6 rc=0 result=yes 11.2 min
+[09-14 21:57:01] START l1_T1_0.0015 gpu1 (free 66 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_lam0.0015.log
+[09-14 21:57:01] START l1_T1_0.0025 gpu1 (free 66 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_lam0.0025.log
+[09-14 21:57:01] START l1_T1_0.004 gpu1 (free 66 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_lam0.004.log
+[09-14 21:57:31] DONE l1_T1_0.00035 gpu6 rc=0 result=yes 11.7 min
+[09-14 21:57:31] START l1_FLAIR_0.0014 gpu1 (free 50 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_lam0.0014.log
+[09-14 22:07:10] DONE l1_FLAIR_0.0014 gpu1 rc=0 result=yes 9.6 min
+[09-14 22:07:10] START l1_FLAIR_0.002 gpu1 (free 50 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_lam0.002.log
+[09-14 22:08:11] DONE l1_T1_0.0015 gpu1 rc=0 result=yes 11.2 min
+[09-14 22:08:11] DONE l1_T1_0.0025 gpu1 rc=0 result=yes 11.2 min
+[09-14 22:08:11] DONE l1_T1_0.004 gpu1 rc=0 result=yes 11.2 min
+[09-14 22:08:11] START l1_FLAIR_0.003 gpu1 (free 61 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_lam0.003.log
+[09-14 22:08:11] START l1_FLAIR_0.005 gpu1 (free 61 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_lam0.005.log
+[09-14 22:08:11] START l1_FLAIR_0.007 gpu1 (free 61 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_lam0.007.log
+[09-14 22:16:49] DONE l1_FLAIR_0.002 gpu1 rc=0 result=yes 9.6 min
+[09-14 22:17:50] DONE l1_FLAIR_0.003 gpu1 rc=0 result=yes 9.6 min
+[09-14 22:17:50] DONE l1_FLAIR_0.005 gpu1 rc=0 result=yes 9.6 min
+[09-14 22:17:50] DONE l1_FLAIR_0.007 gpu1 rc=0 result=yes 9.6 min
+[09-14 22:27:29] START base_T1 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_T1.log
+[09-14 22:33:33] DONE base_T1 gpu1 rc=0 result=yes 6.1 min
+[09-14 22:33:34] START base_FLAIR gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_FLAIR.log
+[09-14 22:37:37] START gs_singleT1 gpu3 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/sched_gs_singleT1.log
+[09-14 22:39:39] DONE base_FLAIR gpu5 rc=0 result=yes 6.1 min
+[09-14 22:39:39] START tv_T1_0.00035 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_T1_o200_lam0.00035.log
+[09-14 22:44:13] DONE tv_T1_0.00035 gpu5 rc=0 result=yes 4.6 min
+[09-14 22:44:13] START tv_T1_0.0005 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_T1_o200_lam0.0005.log
+[09-14 22:48:47] DONE tv_T1_0.0005 gpu5 rc=0 result=yes 4.6 min
+[09-14 22:48:47] START tv_T1_0.0007 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_T1_o200_lam0.0007.log
+[09-14 22:53:21] DONE tv_T1_0.0007 gpu5 rc=0 result=yes 4.6 min
+[09-14 22:53:21] START tv_T1_0.001 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_T1_o200_lam0.001.log
+[09-14 22:57:55] DONE tv_T1_0.001 gpu5 rc=0 result=yes 4.6 min
+[09-14 22:57:56] START tv_T1_0.0014 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_T1_o200_lam0.0014.log
+[09-14 23:06:33] DONE tv_T1_0.0014 gpu5 rc=0 result=yes 8.6 min
+[09-14 23:32:26] START tv_FLAIR_0.00025 gpu4 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.00025.log
+[09-14 23:39:02] DONE tv_FLAIR_0.00025 gpu4 rc=0 result=yes 6.6 min
+[09-15 00:34:22] START tv_FLAIR_0.00035 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.00035.log
+[09-15 00:41:28] DONE tv_FLAIR_0.00035 gpu1 rc=0 result=yes 7.1 min
+[09-15 00:50:36] START tv_FLAIR_0.0005 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.0005.log
+[09-15 01:02:15] DONE tv_FLAIR_0.0005 gpu5 rc=0 result=yes 11.7 min
+[09-15 01:13:56] START tv_FLAIR_0.0007 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.0007.log
+[09-15 01:26:06] DONE tv_FLAIR_0.0007 gpu5 rc=0 result=yes 12.2 min
+[09-15 01:37:16] START tv_FLAIR_0.001 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.001.log
+[09-15 01:41:49] DONE tv_FLAIR_0.001 gpu5 rc=0 result=yes 4.6 min
+[09-15 01:43:52] START jtv_0.00035 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/jcssense_o200_lam0.00035.log
+[09-15 01:52:29] DONE jtv_0.00035 gpu2 rc=0 result=yes 8.6 min
+[09-15 01:52:29] START jtv_0.0005 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/jcssense_o200_lam0.0005.log
+[09-15 02:00:35] DONE jtv_0.0005 gpu2 rc=0 result=yes 8.1 min
+[09-15 02:00:36] START jtv_0.0007 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/jcssense_o200_lam0.0007.log
+[09-15 02:08:42] DONE jtv_0.0007 gpu2 rc=0 result=yes 8.1 min
+[09-15 02:08:43] START jtv_0.001 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/jcssense_o200_lam0.001.log
+[09-15 02:16:49] DONE jtv_0.001 gpu2 rc=0 result=yes 8.1 min
+[09-15 02:16:49] START jtv_0.0014 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/jcssense_o200_lam0.0014.log
+[09-15 02:21:23] DONE gs_singleT1 gpu3 rc=0 result=yes 223.8 min
+[09-15 02:22:24] START zsssdu_T1 gpu3 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/zsssdu_T1.log
+[09-15 02:24:56] DONE jtv_0.0014 gpu2 rc=0 result=yes 8.1 min
+[09-15 02:24:56] START zsssdu_FLAIR gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/zsssdu_FLAIR.log
+[09-15 03:04:29] DONE zsssdu_T1 gpu3 rc=0 result=yes 42.1 min
+[09-15 03:04:29] START inr_T1 gpu3 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/inr_T1.log
+[09-15 03:11:34] DONE zsssdu_FLAIR gpu2 rc=0 result=yes 46.6 min
+[09-15 03:11:35] START inr_FLAIR gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/inr_FLAIR.log
+[09-15 04:04:18] DONE inr_T1 gpu3 rc=0 result=yes 59.8 min
+[09-15 04:04:19] START dip_T1 gpu3 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/dip_T1.log
+[09-15 04:11:24] DONE inr_FLAIR gpu2 rc=0 result=yes 59.8 min
+[09-15 04:11:25] START dip_FLAIR gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/dip_FLAIR.log
+[09-15 04:56:32] DONE dip_T1 gpu3 rc=0 result=yes 52.2 min
+[09-15 05:16:49] DONE dip_FLAIR gpu2 rc=0 result=yes 65.4 min
+[09-15 05:19:51] DONE gs_joint gpu6 rc=0 result=yes 454.0 min
+[09-15 05:22:23] DONE gs_singleFLAIR gpu7 rc=0 result=yes 456.6 min
+[09-15 05:22:23] QUEUE EMPTY. failures: {}. finalize ...
+[09-15 05:30:36] FINALIZE rc=0

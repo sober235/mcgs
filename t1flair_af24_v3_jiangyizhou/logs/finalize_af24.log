@@ -1,0 +1,96 @@
+wrote recon/gs_joint_p3_T1_mag.npy
+wrote recon/gs_joint_p3_T1_complex.npy
+wrote recon/gs_joint_p3_FLAIR_mag.npy
+wrote recon/gs_joint_p3_FLAIR_complex.npy
+registered gs_joint_p3 (MC-GS) <- af24_p3_joint_full4k {'T1': 'plain', 'FLAIR': 'contrast'}
+wrote recon/gs_single_p3_T1_mag.npy
+wrote recon/gs_single_p3_T1_complex.npy
+registered gs_single_p3 (GS-single) <- af24_p3_singleT1_full4k {'T1': 'plain'}
+registered single-FLAIR af24_p3_singleFLAIR_full4k
+CS-SENSE        36.154  0.9140  0.03158  0.7884    32.231    0.8913    0.2349  0.671  0.00786
+CS-SENSE (TV, converged)  36.711  0.9291  0.02778  0.7707    32.820    0.8991    0.2158  0.730  0.00838
+joint CS-SENSE (JTV)  36.656  0.9291  0.02813  0.7679    32.730    0.8986    0.2186  0.715  0.00815
+L1-ESPIRiT      37.118  0.9331  0.02530  0.7744    33.401    0.9069    0.1869  0.787  0.00942
+ZS-SSDU         36.519  0.9386  0.02904  0.8089    32.578    0.8989    0.2398  0.948  0.01131
+3D-DIP          34.442  0.8476  0.04684  0.8881    30.500    0.8378    0.3450  0.612  0.00622
+3D-INR          30.364  0.5637  0.11980  1.5560    28.444    0.7108    0.3473  1.339  0.02897
+MC-GS           37.499  0.9046  0.02317  0.7554    33.767    0.9131    0.1692  0.803  0.00931
+GS-single       37.331  0.9100  0.02408  0.7650    33.588    0.9090    0.1772  0.806  0.00949
+
+=== FLAIR   (retrospective AF 24)
+method            PSNR    SSIM     NMSE    HFEN  headPSNR  headSSIM  headHFEN  sharp    grain
+ZF              31.208  0.8212  0.08887  0.9689    27.301    0.6748    0.7271  0.237  0.00305
+CG-SENSE        34.405  0.8071  0.04257  0.9330    31.259    0.8510    0.2551  0.644  0.01165
+CS-SENSE        36.061  0.8941  0.02907  0.8138    32.165    0.8762    0.1937  0.561  0.00769
+CS-SENSE (TV, converged)  36.421  0.9237  0.02676  0.8015    32.573    0.8858    0.1886  0.639  0.00890
+joint CS-SENSE (JTV)  36.496  0.9262  0.02630  0.7944    32.605    0.8849    0.1903  0.668  0.00933
+L1-ESPIRiT      36.434  0.9121  0.02668  0.8136    32.782    0.8893    0.1724  0.704  0.01031
+ZS-SSDU         36.145  0.9315  0.02851  0.8415    32.107    0.8849    0.2256  0.989  0.01572
+3D-DIP          34.298  0.8094  0.04362  0.9225    30.360    0.8144    0.3023  0.485  0.00671
+3D-INR          31.767  0.6444  0.07814  1.3021    29.146    0.7352    0.3034  1.071  0.02659
+MC-GS           36.962  0.8925  0.02363  0.7738    33.182    0.8966    0.1579  0.738  0.01036
+GS-single       36.861  0.8762  0.02418  0.7732    33.110    0.8943    0.1620  0.741  0.01046
+
+wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/summary.tsv  (22 rows)
+refreshed /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/README.md
+
+=== jiangyizhou T1: head-only PSNR and SSIM   (AF20 | AF24 | AF24-AF20)
+method                      hPSNR20  hPSNR24   dPSNR    hSSIM20  hSSIM24    dSSIM   sharp24
+ZF                           25.639   25.333  -0.307     0.6636   0.6390  -0.0246     0.246
+CG-SENSE                     31.425   30.340  -1.085     0.8665   0.8434  -0.0231     0.707
+CS-SENSE                     33.418   32.231  -1.186     0.9131   0.8913  -0.0218     0.671
+CS-SENSE (TV, converged)     34.003   32.820  -1.183     0.9191   0.8991  -0.0200     0.730
+joint CS-SENSE (JTV)         33.885   32.730  -1.155     0.9183   0.8986  -0.0197     0.715
+L1-ESPIRiT                   34.371   33.401  -0.970     0.9206   0.9069  -0.0137     0.787
+ZS-SSDU                      32.892   32.578  -0.314     0.9108   0.8989  -0.0119     0.948
+3D-DIP                       30.996   30.500  -0.496     0.8537   0.8378  -0.0159     0.612
+3D-INR                       29.456   28.444  -1.012     0.7596   0.7108  -0.0488     1.339
+MC-INR (Niessen 2025)            --
+GS-single                    34.667   33.588  -1.079     0.9257   0.9090  -0.0167     0.806
+MC-GS                        34.832   33.767  -1.065     0.9289   0.9131  -0.0158     0.803
+
+=== jiangyizhou FLAIR: head-only PSNR and SSIM   (AF20 | AF24 | AF24-AF20)
+method                      hPSNR20  hPSNR24   dPSNR    hSSIM20  hSSIM24    dSSIM   sharp24
+ZF                           27.636   27.301  -0.335     0.6970   0.6748  -0.0221     0.237
+CG-SENSE                     32.089   31.259  -0.830     0.8717   0.8510  -0.0208     0.644
+CS-SENSE                     33.027   32.165  -0.862     0.8968   0.8762  -0.0206     0.561
+CS-SENSE (TV, converged)     33.494   32.573  -0.921     0.9049   0.8858  -0.0191     0.639
+joint CS-SENSE (JTV)         33.544   32.605  -0.939     0.9044   0.8849  -0.0195     0.668
+L1-ESPIRiT                   33.688   32.782  -0.906     0.9076   0.8893  -0.0183     0.704
+ZS-SSDU                      32.660   32.107  -0.553     0.8958   0.8849  -0.0109     0.989
+3D-DIP                       30.637   30.360  -0.277     0.8269   0.8144  -0.0125     0.485
+3D-INR                       29.809   29.146  -0.664     0.7716   0.7352  -0.0364     1.071
+MC-INR (Niessen 2025)            --
+GS-single                    34.127   33.110  -1.016     0.9127   0.8943  -0.0184     0.741
+MC-GS                        34.179   33.182  -0.997     0.9142   0.8966  -0.0176     0.738
+
+=== MC-GS margin over the strongest COMPETING arm (ours excluded), head-only PSNR
+  AF20 T1     MC-GS 34.832  best other 34.371 (l1espirit)  margin +0.461
+  AF20 FLAIR  MC-GS 34.179  best other 33.688 (l1espirit)  margin +0.491
+  AF24 T1     MC-GS 33.767  best other 33.401 (l1espirit)  margin +0.366
+  AF24 FLAIR  MC-GS 33.182  best other 32.782 (l1espirit)  margin +0.400
+
+=== MC-GS minus GS-single (the coupling), head-only PSNR / SSIM
+  AF20 T1     +0.165 dB  +3.2 mSSIM
+  AF20 FLAIR  +0.052 dB  +1.6 mSSIM
+  AF24 T1     +0.179 dB  +4.1 mSSIM
+  AF24 FLAIR  +0.071 dB  +2.3 mSSIM
+
+=== rank of MC-GS among all arms, head-only PSNR (1 = best)
+  AF20 T1     rank 1/12   (top: gs_joint_p3 34.832)
+  AF20 FLAIR  rank 1/12   (top: gs_joint_p3 34.179)
+  AF24 T1     rank 1/11   (top: gs_joint_p3 33.767)
+  AF24 FLAIR  rank 1/11   (top: gs_joint_p3 33.182)
+  transverse 174 (grey window 0.805): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)
+  coronal 110 (grey window 0.739): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)
+  sagittal 47 (grey window 0.761): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)
+  transverse 180 (grey window 0.841): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 41.61, best competing 41.24 [jcssense], lead +0.371 dB (printed only, not on the figure)
+  coronal 124 (grey window 0.877): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 40.79, best competing 40.46 [cssense_o200], lead +0.330 dB (printed only, not on the figure)
+  sagittal 76 (grey window 0.671): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 40.88, best competing 40.90 [jcssense], lead -0.019 dB (printed only, not on the figure)
+  transverse 174 (grey window 0.940): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)
+  coronal 110 (grey window 0.673): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)
+  sagittal 47 (grey window 0.657): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)
+  transverse 180 (grey window 0.984): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 39.17, best competing 38.98 [cssense_o200], lead +0.190 dB (printed only, not on the figure)
+  coronal 124 (grey window 0.780): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 37.40, best competing 36.49 [l1espirit], lead +0.903 dB (printed only, not on the figure)
+  sagittal 76 (grey window 0.648): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 38.73, best competing 37.97 [jcssense], lead +0.755 dB (printed only, not on the figure)
+FINALIZE_AF24_DONE af24_p3_joint_full4k af24_p3_singleT1_full4k af24_p3_singleFLAIR_full4k

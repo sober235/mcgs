@@ -1,0 +1,46 @@
+[T1] coils=26 vol=(256, 256, 176) scale=9.9251e+01
+[FLAIR] coils=26 vol=(256, 256, 176) scale=9.8512e+01
+  iter 1/200  13 s
+  iter 6/200  20 s
+  iter 11/200  27 s
+  iter 16/200  34 s
+  iter 21/200  41 s
+  iter 26/200  48 s
+  iter 31/200  55 s
+  iter 36/200  62 s
+  iter 41/200  69 s
+  iter 46/200  76 s
+  iter 51/200  83 s
+  iter 56/200  90 s
+  iter 61/200  97 s
+  iter 66/200  104 s
+  iter 71/200  111 s
+  iter 76/200  118 s
+  iter 81/200  125 s
+  iter 86/200  132 s
+  iter 91/200  139 s
+  iter 96/200  146 s
+  iter 101/200  153 s
+  iter 106/200  160 s
+  iter 111/200  167 s
+  iter 116/200  174 s
+  iter 121/200  181 s
+  iter 126/200  188 s
+  iter 131/200  195 s
+  iter 136/200  202 s
+  iter 141/200  210 s
+  iter 146/200  217 s
+  iter 151/200  224 s
+  iter 156/200  231 s
+  iter 161/200  238 s
+  iter 166/200  245 s
+  iter 171/200  252 s
+  iter 176/200  259 s
+  iter 181/200  266 s
+  iter 186/200  273 s
+  iter 191/200  280 s
+  iter 196/200  287 s
+  iter 200/200  293 s
+[T1] jcssense_o200_lam0.00035 psnr=35.129 ssim=0.8605 head_psnr=31.929 head_ssim=0.8746 head_hfen=0.2836 sharp=0.837
+[FLAIR] jcssense_o200_lam0.00035 psnr=35.624 ssim=0.8843 head_psnr=32.149 head_ssim=0.8728 head_hfen=0.2258 sharp=0.742
+WROTE /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/jcssense_o200_lam0.00035.json  total 487 s

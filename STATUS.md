@@ -1,36 +1,70 @@
-# STATUS — 2026-09-14 晚（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af24`，从 `jyz-af20-results` 4d13197 切出）
+# STATUS — 2026-09-15 早（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af24`，从 `jyz-af20-results` 4d13197 切出）
 
-## AF24（本分支，09-14 21:00 起）：用户已确认掩膜，21:45 全部作业已启动（跑完自动 finalize）
-- 用户要求：在 mcgs 仓库开 AF=24 分支，执行完整的 AF24 实验，开跑前先看准备用的掩膜图。
-- 口径按用户 09-14 的定义（整平面点数 ÷ 该对比度带数据的采样点数）。本课题让 T1 正好 24×（1877 点），FLAIR 因快门外 111 点落空为 25.51×。用户没有在"T1 正好 / FLAIR 正好 / 照旧 accelx=6"里明确选，按我推荐的"T1 正好"做了；掩膜图发给用户后，**用户 09-14 回复"没问题"（确认掩膜、同意开跑）**。
-- 掩膜：同一生成器、同一设置，只改 accelx。134 张抽样池里按事先定的规则取编号最小的恰好 1877 点那张（draw_025，accelx 6.8656，未裁剪），md5 c3688d6182ba20df7404519e560dd9b4；另一张恰好 1877 点的 FLAIR 为 25.37×。挑选脚本、prep_04_export、按两份配置读回的 fig_mask_reinspect 三处独立核对一致。
-- 课题 `Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/`（仓库镜像 `t1flair_af24_v3_jiangyizhou/`，README 有掩膜表）；配置 `configs/t1flair_v3_af24_jyz{,_singleT1,_singleFLAIR}.yaml`（非注释行只改路径、acceleration_factor、实验名；acceleration_factor 只用于阈值 10 的策略分支，16/20/24 同一分支）；MC-GS `run_af24_mcgs.sh`（配方块与 AF20 逐字相同）；全部作业 `scripts/run_all_af24.py`（38 个作业按优先级排队，哪张卡空出来就放哪张：卡上没有本用户任何计算进程、显存够，最多同时 4 个 GPU 作业；12 个 L1-ESPIRiT 占 4 个 CPU 槽；全部结束后自动跑 finalize）。改用排队是因为 21:40 时 8 张卡里 5 张挂着你别的会话的作业（心脏径向、儿童 MC-GS、检测器），固定 6 卡方案会有链一直等；38 个作业的签名匹配已单测，互不误认。
-- 经典臂 λ 网格 = AF20 最终网格各往下加一个点（AF16→AF20 唯一移动的最优 L1 T1 是往下移）。
-- 基线测试 206 passed（`--ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py`，后者要主检出才有的 npz）。
-- 验证（原始输出）：
+## AF24（本分支）：已全部跑完（09-14 21:45 启动，09-15 05:30 finalize 完成）
+
+先读英文记录 `docs/superpowers/records/2026-09-15-af24-jyz.md`，交接 `docs/handoff/2026-09-15-af24-jyz.md`；
+课题 `/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/`（仓库镜像 `t1flair_af24_v3_jiangyizhou/`，README 有完整表）。
+
+### 一句话
+AF16 三期配方原样不调，跑在"T1 正好 24×"的掩膜上（1877 点，FLAIR 25.51×）：头内 PSNR **33.767 / 33.182**，对最强对手 L1-ESPIRiT 余量 **+0.366 / +0.400**（AF20 +0.461 / +0.491），九臂里头内 PSNR/SSIM/HFEN 六格全第一；**余量比 AF20 缩小约 0.1 dB**；T1 锐度 0.803 高于 L1-ESPIRiT 的 0.787（AF20 时低于）。
+
+### 1. 已完成且已验证
+
+从归档位置重跑（2026-09-15 05:40，与 finalize 写的 logs/compare_af20_af24.txt 逐字相同）：
 
 ```
+$ PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
 $ cd /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou
-$ PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/fig_mask_reinspect.py | head -3
-T1 mask /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/data/mask_af24_3d.h5 md5 3e354e2a: 1877 lines
-FLAIR mask /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/data/mask_af24_3d.h5 md5 3e354e2a: 1877 lines; lines differing from the T1 mask 0
-T1 sampled lines with signal 1877 -> AF 24.00; FLAIR sampled lines with signal 1766 -> AF 25.51, without 111; FLAIR acquired region 34139
+$ PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/compare_topics.py | sed -n '/MC-GS margin/,$p'
+=== MC-GS margin over the strongest COMPETING arm (ours excluded), head-only PSNR
+  AF20 T1     MC-GS 34.832  best other 34.371 (l1espirit)  margin +0.461
+  AF20 FLAIR  MC-GS 34.179  best other 33.688 (l1espirit)  margin +0.491
+  AF24 T1     MC-GS 33.767  best other 33.401 (l1espirit)  margin +0.366
+  AF24 FLAIR  MC-GS 33.182  best other 32.782 (l1espirit)  margin +0.400
+
+=== MC-GS minus GS-single (the coupling), head-only PSNR / SSIM
+  AF20 T1     +0.165 dB  +3.2 mSSIM
+  AF20 FLAIR  +0.052 dB  +1.6 mSSIM
+  AF24 T1     +0.179 dB  +4.1 mSSIM
+  AF24 FLAIR  +0.071 dB  +2.3 mSSIM
+
+=== rank of MC-GS among all arms, head-only PSNR (1 = best)
+  AF20 T1     rank 1/12   (top: gs_joint_p3 34.832)
+  AF20 FLAIR  rank 1/12   (top: gs_joint_p3 34.179)
+  AF24 T1     rank 1/11   (top: gs_joint_p3 33.767)
+  AF24 FLAIR  rank 1/11   (top: gs_joint_p3 33.182)
 ```
 
-- 冒烟（21:35–21:45，卡 6，60 步，warmup 20；数字只证明流程通，NOT_EVIDENCE）：
+九臂头内 PSNR（T1 / FLAIR）：MC-GS 33.767 / 33.182，GS-single 33.588 / 33.110，L1-ESPIRiT 33.401 / 32.782，收敛 TV 32.820 / 32.573，
+Joint SENSE 32.730 / 32.605，ZS-SSDU 32.578 / 32.107，3D-DIP 30.500 / 30.360，CG-SENSE 30.340 / 31.259，3D-INR 28.444 / 29.146。
+头内 HFEN MC-GS 0.1692 / 0.1579 也是两对比度最低；锐度 MC-GS 0.803 / 0.738，L1-ESPIRiT 0.787 / 0.704。
 
-```
-$ WARMUP=20 ./run_af24_mcgs.sh af24_smoke 6 60        # results_arc/af24_smoke.log
-Using external mask with actual acceleration: 24.00x   (T1、FLAIR 各一行)
-[physics:contrast] known_zero=True ... zero_lines=111/1877 explained=98 ...
-[21:45] af24_smoke rc=0  head_psnr_cplx": 29.176 head_psnr": 32.380
-SCORE combined=21.474 both_beat_zf=True N=3600000 vram_gb=32.9 elapsed_s=597
-```
+- 掩膜：vdPoisMex 老规矩只改 accelx（6.8656），134 张池子里按事先定的规则取编号最小的恰好 1877 点那张（draw_025，未裁剪）；T1 24.00×，FLAIR 25.51×（快门外 111 点）；md5 c3688d6182ba20df7404519e560dd9b4；三处独立核对一致，训练器日志 `actual acceleration: 24.00x`、`zero_lines=111/1877`。
+- 用户 09-14 看过掩膜图回复"没问题"后才上 GPU；冒烟 60 步 rc=0（数字 NOT_EVIDENCE）。
+- 经典臂 λ 六条曲线最优全在网格内部：L1-ESPIRiT T1 0.001 / FLAIR 0.002（AF20 为 0.003，往下移，新加的低端 0.0014 才把它夹住），收敛 TV 0.0007 / 0.0005，JTV 0.001 / 0.0007（其余五个与 AF20 相同）。
+- 图（九臂，MC-GS 在两对比度、两种版式、三个方向 PSNR/SSIM/NMSE 全第一，标题按用户口径 `AF 24.00` / `AF 25.51`）：
+  `figures/t1flair_v3_af24_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3.{png,pdf}`、`..._174_110_47_headerr_p3.png`、三张掩膜图；`http://localhost:8765/t1flair_v3_af24/`。
+- 48 框领先（只打印不上图）：T1 +0.371 / +0.330 / **−0.019**（矢状框 JTV 领先 0.019 dB），FLAIR +0.190 / +0.903 / +0.755。框是 AF16 上挑的，不能跨掩膜用，对外只引全体积余量。
+- 38 个作业由 `scripts/run_all_af24.py` 排队跑完，无失败无重试；MC-GS joint 454 分钟（卡 6，挨着别人的作业）。
 
-- **启动（21:45:49）**：`cd <课题> && setsid nohup env PYTHONNOUSERSITE=1 PYTHONPATH= $PY -u scripts/run_all_af24.py > /dev/null 2>&1 < /dev/null &`，调度器 pid 1098113。首批：gs_joint 卡 6、gs_singleFLAIR 卡 7、L1 T1 四个 λ（数据放在卡 6，每个 5.4 GB：当时还没有经典臂在跑，按规则退到空闲显存最多的卡；峰值估 61/80 GB，没有重启调度器）。其余作业等卡，0–5 号卡上是用户别的会话的作业。
-- 看进度：`tail logs/run_all_af24.log`、`logs/run_all_af24_status.json`；全部结束会写 `logs/RUN_ALL_AF24_DONE` 和 `logs/finalize_af24.log`。调度器可以安全重启：结果文件在的跳过，正在跑的按签名等待，不会重复起。
-- 提交 cd7b28b 的说明写的是启动记录，但当时 STATUS 的改写没写进去（替换断言失败，后面的 git 命令照样执行），实际只含调度日志；启动记录在它之后的提交里。
-- 坑：`prep_02_mask_pool_af24.m` 与 `prep_03_pick_mask_af24.py` 都拒绝覆盖，别删池子或掩膜（按秒级 time(0) 取种子，无法重生成）；克隆来的旧调度器 `sched_af24.py` 已删（会用 09-09 的旧 GS 参数和 hyw 课题）；`compare_topics.py` 首次改写把两个课题都写成了 AF24，已修正并核对。
+### 2. 待用户拍板
+- 没有阻塞项。可选：① 把 AF24 并进跨加速倍数复核课题 `T1FLAIR_AF12_16_20_trend_v3_jiangyizhou`；② AF24 掩膜抽样方差（余量缩小 0.1 dB 的显著性目前借用 AF20 四张掩膜的 SD 0.002/0.004）；③ AF24 的 MC-INR（没跑）；④ 09-14 遗留：AF16/AF20 图与文档是否按新口径改标签。
+
+### 3. 下一步
+- 等用户对第 2 节的选择；没有在跑的作业。
+
+### 4. 已知的坑与别重做什么
+- 掩膜按秒级 time(0) 取种子、不进 git：别删 `data/mask_pool_af24/`、`data/mask_vdpois_256x176_af24.mat`、`data/mask_af24_3d.h5`；池子与挑选脚本都拒绝覆盖。
+- 启动器只有 `scripts/run_all_af24.py`（克隆来的 `sched_af24.py`、`run_classical_af24.sh`、`run_stage2_af24.sh` 已删；前者会用 09-09 的旧 GS 参数和 hyw 课题）。它可以安全重启。
+- zsh 里别用 `$E` 装环境变量前缀（不分词），直接写 `PYTHONNOUSERSITE=1 PYTHONPATH= $PY …`。
+- Python 改文件失败后同一段命令里的 git 仍会执行：提交一律用 `&&` 串起来。提交 cd7b28b 的说明写的是启动记录，实际只含调度日志，启动记录在下一个提交 779579f。
+- README 底部"joint 减 single"小表是空的：`readme_tables.py` 按 `gs_joint` 找，登记键是 `gs_joint_p3`（AF20 同样），耦合看 `compare_topics.py` 输出。
+- 工作树目录名 `mcgs_af16_wt` 但检出 AF24 分支；脚本里的这个路径是有意的。
+
+### 5. 为什么
+- 冻结 MC-GS 参数、只换掩膜，AF20→AF24 的每个差值才能归因于掩膜；经典臂 λ 重扫，保证对手在网格最优点，比较对 MC-GS 偏保守（仅受网格间距限制，见记录 §6）。
+- 让 T1 正好 24×（整平面口径），两个对比度都不低于 24×，不再出现 AF20"标称 20、实际 18.56"要加注释的问题。
+- 用排队启动器而不是固定分卡：09-14 21:40 时 8 张卡里 5 张是用户别的会话的作业，固定分卡会饿死。
 
 ---
 
