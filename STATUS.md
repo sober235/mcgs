@@ -73,6 +73,13 @@ tail -5 autoresearch_peds.tsv | cut -f1,2,7,8,9,10,11     # 账本：min_margin 
 - `p3_single_T1w_n60` 单臂 6.0M —— 公平对照：若单臂也涨 0.275，门槛随之上移、差距不变；若涨得少，容量就是联合追上来的地方。
 
 队列 `scripts/p3_round4_{a,b}.txt`，调度器 TAG=r4a / r4b。原样重跑即可续（已有结果的行会跳过）。
+**r4b 已于 20:29 主动停掉**：另一个会话的 stage 4 也在这条线上跑训练，两边加起来会超过“同时最多两个训练”的上限。
+`p3_single_T1w_n60`（单臂 6.0M，公平对照）因此只是排着、没有调度；本会话的 `p3_single_T1w_i6000` 跑完后
+用同一条命令把 r4b 拉起来即可：
+```
+cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
+ALLOWED="1 4 7 5" TAG=r4b setsid nohup bash scripts/peds_sched.sh scripts/p3_round4_b.txt >> logs/sched_r4b_boot.log 2>&1 &
+```
 ```
 cd /data0/congcong/code/GS/mcgs_peds_wt
 grep -E "^\[iter" results_arc/p3_single_T1w_i6000.log | tail -1          # 进度
