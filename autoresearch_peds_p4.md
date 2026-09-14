@@ -231,3 +231,8 @@ guide kappa via the new `loss.edge_tv_union_kappa_scale`, T2s's own weights, geo
 | run | lever | T1w primary | T2s primary | best lesion slice, all arms | non-GS arms | verdict |
 |---|---|---|---|---|---|---|
 | `p4_u_gwav` | + group wavelet | 38.303 / 0.9652 / 0.0783 | 34.164 / 0.9040 / 0.1856 | sagittal 170 +0.060 | coronal 136 +0.478 | discard: −0.21 T1w, −0.03 T2s against the base; T2s's noisy coefficients relax T1w's shrinkage |
+| `p3_n192_union` (stage-3 session) | 19.2M points + union | 38.924 / 0.9685 / 0.0768 | 34.203 / 0.9043 / 0.1854 | transverse 69 +0.073 | coronal 136 +0.522 | capacity still costs T2s SSIM; below the 3.6M union on the lesion bar |
+| **`p4_u_edge0010`** | + common edge 0.001 | 38.382 / 0.9659 / 0.0804 | **34.223 / 0.9060 / 0.1826** | **sagittal 172 +0.124** (transverse 69 +0.117) | sagittal 171 +0.531 | **KEEP** for the T2s lesion target: best T2s so far, the two levers stack; T1w −0.135 is irrelevant to this target |
+
+The remaining non-scan probes now carry `--lambda_edge 0.001` as well (`p4_ue_*`). Sagittal 172 runs through the
+right-sided subependymal nodule (PE 172 on SPE 45).
