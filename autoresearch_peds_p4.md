@@ -199,3 +199,13 @@ other lines at the moment.
 T1w keeps gaining with points; T2s peaks at 6.0M and then loses SSIM and HFEN (the long-TE contrast has no detail left
 for extra Gaussians to carry, so they fit noise). One cloud serves both contrasts, so capacity cannot be spent on T1w
 alone. The lesion-slice campaign stays on the 3.6M c1 base.
+
+### The bound, put to the user (2026-09-15 00:50)
+
+Whole-head T2s joint minus single at every setting run on this line: −0.015 (P10), −0.012 (c1), +0.020 (6.0M), +0.001
+(9.6M). Best lesion-slice margins over GS-single: +0.096 (common edge 0.001), +0.070 (6.0M), +0.045 (9.6M). A 1 dB margin
+over GS-single on one T2s slice would have to be a slice-local effect about thirty times the volume-level difference;
+T2s is SNR-limited and the shared-geometry prior adds little information to it (claude-e7 reached the same reading from
+the six-cell side). Options given to the user: keep the bar (the queue continues, expected best a few tenths at most);
+count GS-single as an ablation (current +0.513 over the other eight arms, coronal 136); or state a smaller margin.
+The queue keeps running while the user decides.
