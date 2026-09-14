@@ -49,6 +49,7 @@ from data.transforms import fft3c, ifft3c
 from dataclasses import asdict
 from data.known_zero import (build_fit_tensors, estimate_known_zero, estimate_noise_cov, hard_dc_combine,
                              known_zero_from_support, load_support_map, whitening_matrix)
+from losses.balance import data_term
 from losses.edge_tv import edge_preserving_tv, geo_term, resolve_edge_kappa, tv_magnitude
 from gaussian.joint_gaussian_model import JointGaussianModel3D
 from gaussian.tile_voxelizer import TileVoxelizer
@@ -805,6 +806,11 @@ class JointTrainer:
         # R_sp: L1 sparsity on the contrast-private residual amplitude (PDF §1.5),
         # keeping the residual localized to genuine contrast-specific deviations.
         lambda_private_sp = float(loss_cfg.get("lambda_private_sp", 0.0))
+        # weight of the contrast channel's data term (losses/balance.py): decides which contrast drives the
+        # shared geometry. Default 1.0 => the historical plain sum, bit-identical.
+        dc_w_c = float(loss_cfg.get("dc_weight_contrast", 1.0))
+        if dc_w_c != 1.0:
+            print(f"[dc] contrast data-term weight {dc_w_c}")
         # R_dtv: plain-guided directional TV on contrast (this work). Default 0 => no-op.
         lambda_dtv = float(loss_cfg.get("lambda_dtv", 0.0))
         dtv_eta_scale = float(loss_cfg.get("dtv_eta_scale", 1.0))
@@ -910,7 +916,7 @@ class JointTrainer:
             freq_w_p = self._static_freq_w_plain if self._static_freq_w_plain is not None else freq_w
             l_dc_p = self._kspace_loss(vol_p, self.csm_fit_p, self.kspace_fit_p, self.mask_fit_p, freq_w_p, norm=self._dc_norm_p)
             l_dc_c = self._kspace_loss(vol_c, self.csm_fit_c, self.kspace_fit_c, self.mask_fit_c, freq_w, norm=self._dc_norm_c)
-            loss = l_dc_p + l_dc_c
+            loss, l_dc_c_added = data_term(l_dc_p, l_dc_c, dc_w_c)
 
             # R_geo (renamed from v1 L_tv per INF-05 / A-LOSS-DROP; PDF §1.5
             # casts this term as a geometry regularizer in the ELBO).
@@ -988,7 +994,7 @@ class JointTrainer:
             # float32 6-component sum rounding error (~5e-7).
             components = {
                 "loss/dc_p":  float(l_dc_p.detach().item()),
-                "loss/dc_c":  float(l_dc_c.detach().item()),
+                "loss/dc_c":  float(l_dc_c_added.detach().item()),
                 "loss/R_geo": float((lambda_geo * l_geo).detach().item()),
                 "loss/R_dtv": float((lambda_dtv * l_dtv).detach().item()),
                 "loss/R_edge": float((lambda_edge * l_edge).detach().item()),

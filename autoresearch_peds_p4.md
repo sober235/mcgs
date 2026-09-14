@@ -43,4 +43,38 @@ in-support positions caps head PSNR near **54.6 dB (T1w) and 52.4 dB (T2s)**; th
 and the finest Haar band sits on the measured-zero corners.)
 Scripts and numbers: `peds_tsc_mtp_af12_retro/analysis_p4/ceiling_bg.{py,json}`, `ceiling_noise.{py,json}`.
 
+## Round 0b — can T1w carry T2s's detail through a smooth ratio? No (CPU, 2026-09-14)
+
+The one cross-contrast mechanism that could give T2s's unsampled high frequencies real information
+from T1w is a signal model: both come from one MTP exam, so T2s = T1w · ρ with ρ a smooth map of the
+T1 and T2* weighting. Tested on the ground truth before writing any code: ρ restricted to a low-pass
+band on every axis, fitted by CG in the head, and T1w·ρ scored against T2s in the primary region.
+
+| model | band per axis | head PSNR of the approximation |
+|---|---|---|
+| complex ρ | 1/16 | 20.29 |
+| complex ρ | 1/8 | 21.89 |
+| complex ρ | 1/4 | 24.52 (24.60 with 120 CG iterations: converged) |
+| magnitude ratio, real r | 1/8 | 25.08 |
+| magnitude ratio, real r | 1/4 | 26.96 |
+| one global scalar | — | 19.09 |
+| (current T2s reconstruction from its own data) | | 34.16 |
+
+Even with the ground-truth T1w and a ρ that keeps a quarter of the band, the product explains T2s
+10 dB worse than T2s's own undersampled data already do; the reverse direction is worse still
+(T1w from T2s: 18.8 / 20.2 / 22.0). The two contrasts differ in fine detail far beyond any smooth
+modulation, so the ratio coupling is dropped without a GPU run. What a joint prior can still use
+here is where edges sit, not what the intensities are. Script and numbers:
+`peds_tsc_mtp_af12_retro/analysis_p4/ratio_fast.{py,json}`, `ratio_check.{py,json}`.
+
+## Levers queued (priority order, `scripts/p4_queue.txt`)
+
+1. `p4_dcw02` — **who drives the shared geometry.** At the end of a c1 run the T2s data term is ~5x
+   the T1w one, so the cloud is pulled mostly by the noisier contrast. `loss.dc_weight_contrast` (new,
+   `losses/balance.py`, 2 tests, default bit-identical) scales T2s's data term; T2s's own regularisers
+   get the same factor, so under Adam T2s's densities see no change and only the geometry split moves.
+2. `p4_gwav` — joint (group) wavelet sparsity across the contrasts (new `loss.wav_group`, 6 tests).
+3. `p4_dtvswap` — half of T2s's own edge-TV replaced by T1w-guided directional TV.
+4. `p4_dcw05`, `p4_dtv005`, `p4_gwav_x14` — the second points of those three scans.
+
 ## Round log
