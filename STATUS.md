@@ -1,4 +1,4 @@
-# STATUS — 2026-09-14 01:10（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af20`）
+# STATUS — 2026-09-14 11:55（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af20`）
 
 本分支从 `autoresearch-jyz-af16-phase3` 尖端 f0fe009 切出，承载 jiangyizhou 的**标称 AF20** 研究，**已全部跑完**。
 先读 `docs/handoff/2026-09-14-af20-jyz.md`，英文记录 `docs/superpowers/records/2026-09-14-af20-jyz.md`；
@@ -43,22 +43,30 @@ $ PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/compare_topics.py | sed -n '/MC-GS 
 - **48 框领先在 AF20 缩小**（T1 +0.571/+0.487/+0.653，AF16 +0.892/+0.826/+0.836；FLAIR +0.448/+0.900/+0.703，
   AF16 +0.824/+1.102/+1.060）：框是在 AF16 上按差距最大挑的，换掩膜往全体积余量回落。框内数字不能跨掩膜用。
 
+- **掩膜抽样方差已测（09-14 追加，记录 §8）**：再抽 3 张 AF20 掩膜（b/c/d），每张只跑 MC-GS joint 与 L1-ESPIRiT（3 个 λ）。
+  四张的余量 T1 **+0.459 ± 0.002**、FLAIR **+0.488 ± 0.004**；两臂绝对 PSNR 随抽样的 SD 是 0.009/0.007（T1）、0.040/0.040（FLAIR），
+  两者同涨同跌（相关 +0.97/+0.99），所以配对余量稳 4–10 倍。AF16→AF20 的余量变化（−0.038 / +0.063）是抽样 SD 的 16 / 15 倍，
+  是真变化（前提：AF16 那张掩膜的抽样 SD 与 AF20 相当）。**T1 锐度门 4/4 张都没过，FLAIR 4/4 张都过**：不是某张掩膜的偶然。
+  复核：`cd <课题> && PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/score_mask_draws.py`
+
 ## 2. 待用户拍板
 - AF20 上 T1 锐度门失守（0.833 对 0.845）：接受，还是为 AF20 单独调（例如相位 TV 加大）——后者就不再是同参数实验。
 - 余量不随加速变大（平均 0.461→0.476）：靠提高加速逼近 1.0 dB 这条路，这份证据不支持。
 - 留出受试者（huangyuwei 数据现成），AF16、AF20 都没做。
-- 掩膜抽样方差：每个 AF 只抽了一张掩膜，且 AF16/AF20 掩膜不嵌套（只重合 698/2427 点）；±0.05 dB 的余量变化是否有意义没法判断。
 - `vdPoisMex` 按 `time(0)` 取种子，AF20 掩膜**无法重新生成**，而 `*.mat` 被 gitignore：是否 `git add -f` 这个 4.4 KB 文件。
 - 另一个会话 09-13 23:19 给 AF16 课题加了 MC-INR（Niessen 2025，AF16 头内 31.590 / 32.243）；AF20 没跑它。
 
 ## 3. 下一步
-- 若继续：最便宜且最有信息量的是再抽 2–3 张 AF20 掩膜，只跑 MC-GS joint 和 L1-ESPIRiT（λ 固定在 AF20 最优），量余量的抽样方差。
+- 掩膜抽样方差已做完（见 §1）。剩下能不靠拍板就做的事没有了：留出受试者、为 AF20 调参、掩膜入 git、MC-INR@AF20 都等用户定。
 
 ## 4. 已知的坑
 - **不要在本课题 `data/` 里重跑 `prep_02_mask.m`**：会悄悄换掉所有结果依赖的掩膜（md5 1c90baf850a8c1e64b43f6c64146e2c9）。
 - 分数 json 先于 ~750 MB 的体积 npz 落地：等 MC-GS 进程退出再登记臂，否则 `BadZipFile`。
 - 卡的选择决定墙上时间：ZS-SSDU 挨着别人的长作业慢 10 倍，损失逐位相同；起跑前看 `nvidia-smi --query-compute-apps`，挑没有计算进程的卡。
 - 监视脚本里 `pgrep -f` 会匹配到监视器自己，用 `kill -0 <pid>` 判断存活。
+- **空卡检测别写成 `nvidia-smi | grep -q` 再取反**：在 `set -o pipefail` 下 grep 提前退出令 nvidia-smi 收 SIGPIPE，忙卡被判成空卡（09-14 三个训练挤上 5 号卡、一个 OOM）。先存变量再 grep。
+- `echo "[$(date)] rc=$?"` 里 `$(date)` 先执行、把 `$?` 冲成 0；先 `rc=$?` 再写日志。
+- 别的会话的调度器会在卡空出后几十秒内抢卡；自己的下一个作业要接同一张卡，就在上一个进程退出时直接交接（`handoff_draw_d_af20.sh`），别靠 120 秒轮询。
 - `setup_af20_jyz.sh` 首版把自己删了（在自己的 rm 清单里），已补回修正。
 - 工作树目录名 `mcgs_af16_wt` 但分支是 AF20；所有脚本里这个路径是有意保留的。
 

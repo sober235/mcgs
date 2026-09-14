@@ -83,4 +83,5 @@ phase-3 recipe frozen in `run_af20_mcgs.sh`; classical λ re-swept at AF20. Resu
 **34.832 / 34.179**, margins over L1-ESPIRiT **+0.461 / +0.491** (AF16 +0.497 / +0.425), first on all six head cells;
 coupling +0.165 / +0.052; T1 sharpness 0.833 below L1-ESPIRiT's 0.845. The margin does not grow with acceleration.
 Figures `t1flair_af20_v3_jiangyizhou/figures/t1flair_v3_af20_*_p3.*` (AF16 figure-of-record layout, same 48 box; the box
-leads shrink at AF20 — selection effect, quote the whole-volume margin).
+leads shrink at AF20 — selection effect, quote the whole-volume margin). Mask-draw variance (four draws, record §8): margins
++0.459 ± 0.002 / +0.488 ± 0.004 dB, so the AF16→AF20 shifts are real; T1 sharpness gate fails on 4/4 draws.

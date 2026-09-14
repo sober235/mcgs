@@ -8,3 +8,33 @@
 [09:18] l1 draw d T1 lam=0.0007 rc=0
 [09:18] l1 draw c T1 lam=0.0007 rc=0
 [09:19] draws c and d landed on card 5 next to draw b: card_idle() misread a busy card as idle under pipefail (grep -q closes the pipe, nvidia-smi gets SIGPIPE). Draw d died of CUDA OOM (logged rc=0: $(date) ran before $? in the echo); draw c stopped at 7 min. Both requeued with the fixed check.
+[09:30] requeue: mcgs draw c START card 3
+[09:31] l1 draw b T1 lam=0.001 rc=0
+[09:31] requeue: draw c confirmed on card 3 (pid 2777732)
+[09:31] l1 draw c T1 lam=0.001 rc=0
+[09:31] l1 draw d T1 lam=0.001 rc=0
+[09:43] l1 draw b T1 lam=0.0015 rc=0
+[09:44] l1 draw c T1 lam=0.0015 rc=0
+[09:44] l1 draw d T1 lam=0.0015 rc=0
+[09:57] l1 draw b FLAIR lam=0.002 rc=0
+[09:57] l1 draw c FLAIR lam=0.002 rc=0
+[09:57] l1 draw d FLAIR lam=0.002 rc=0
+[10:08] l1 draw d FLAIR lam=0.003 rc=0
+[10:08] l1 draw b FLAIR lam=0.003 rc=0
+[10:09] l1 draw c FLAIR lam=0.003 rc=0
+[10:19] mcgs draw b rc=0
+[10:19] MCGS_DRAWS_DONE
+[10:19] l1 draw d FLAIR lam=0.005 rc=0
+[10:19] L1_dd_DONE
+[10:20] l1 draw b FLAIR lam=0.005 rc=0
+[10:20] L1_db_DONE
+[10:20] l1 draw c FLAIR lam=0.005 rc=0
+[10:20] L1_dc_DONE
+[10:20] ALL_MASK_DRAWS_DONE
+[10:22] requeue: the peds session took card 5 ~30 s after draw b exited, before this queue's 120 s poll; waiter stopped (draw c untouched), draw d handed off to card 3 when draw c exits
+[10:31] NOTE: the ALL_MASK_DRAWS_DONE line at 10:20 comes from the first orchestrator, which only waited for MC-GS draw b and the L1 chains; MC-GS draws c and d are tracked by the requeue: and handoff: lines
+[10:38] requeue: mcgs draw c rc=0
+[10:38] handoff: mcgs draw d START card 3
+[10:39] handoff: draw d confirmed on card 3 (pid 3106462)
+[11:45] handoff: mcgs draw d rc=0
+[11:45] handoff: DONE

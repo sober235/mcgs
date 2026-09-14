@@ -126,8 +126,16 @@ the AF 16 mask and regresses toward the whole-volume margin on this one. Quote t
 
 ## Status and caveats
 
-Complete (2026-09-14 00:42). One subject. One mask draw per acceleration, and the house masks are independent draws
-(698 of the 2427 AF 20 points are in the AF 16 mask), so the draw-to-draw spread of the margin is unmeasured.
+Complete (2026-09-14 00:42). One subject. The house masks are independent draws (698 of the 2427 AF 20 points are in
+the AF 16 mask).
+
+**Mask-draw variance (2026-09-14, three more AF 20 draws b / c / d, MC-GS joint and L1-ESPIRiT only;
+`scripts/score_mask_draws.py`, `logs/mask_draws_summary.json`):** the margin over L1-ESPIRiT is **+0.459 ± 0.002** (T1)
+and **+0.488 ± 0.004** (FLAIR) over the four draws. Each arm's absolute head PSNR moves far more with the draw
+(SD 0.009 / 0.007 on T1, 0.040 / 0.040 on FLAIR) but the two move together (correlation +0.97 / +0.99), so the paired
+margin is 4–10x steadier. The AF 16 → AF 20 margin shifts (−0.038 / +0.063) are 16 / 15 draw SDs. T1 sharpness is below
+L1-ESPIRiT's on all four draws; FLAIR's is above on all four. Draw masks: `data/mask_vdpois_256x176_af20_d{b,c,d}.mat`
+(+ `mask_af20_d{b,c,d}_3d.h5`), configs `configs/t1flair_v3_af20_jyz_d{b,c,d}.yaml` in the worktree.
 `vdPoisMex` seeds from `time(0)`: **do not re-run `prep_02_mask.m` into this `data/`** — the mask (md5
 1c90baf850a8c1e64b43f6c64146e2c9) cannot be regenerated. MC-INR, added to the AF 16 topic by a parallel session on
 2026-09-13, was not run here. Details: the record `docs/superpowers/records/2026-09-14-af20-jyz.md` in the worktree.
