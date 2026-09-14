@@ -225,3 +225,9 @@ The first lever that moves T2s without costing T1w: all three T2s cells now lead
 +0.0002, −0.0013 HFEN) and T1w is unchanged. Small, but it is the right direction: T1w's structure only ever removes
 smoothing from T2s. KEPT; round 2 stacks everything on it (group wavelet, common edge 0.001 / 0.002 / 0.0005, a lower
 guide kappa via the new `loss.edge_tv_union_kappa_scale`, T2s's own weights, geometry split, frozen regularisers).
+
+### Round 2 results (all on the union base: c1 + edge_tv_union_guide)
+
+| run | lever | T1w primary | T2s primary | best lesion slice, all arms | non-GS arms | verdict |
+|---|---|---|---|---|---|---|
+| `p4_u_gwav` | + group wavelet | 38.303 / 0.9652 / 0.0783 | 34.164 / 0.9040 / 0.1856 | sagittal 170 +0.060 | coronal 136 +0.478 | discard: −0.21 T1w, −0.03 T2s against the base; T2s's noisy coefficients relax T1w's shrinkage |
