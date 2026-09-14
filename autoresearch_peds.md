@@ -72,7 +72,7 @@ card lists (`ALLOWED="1 0 2" TAG=r1a`, `ALLOWED="3 4 5 7" TAG=r1b`), one trainin
 | `p3_wavT1_006` | T1w wavelet 0.12 → 0.06 (T2s pinned at 0.10) | **T1w +0.136 dB** (37.855 → 37.991), HFEN 0.0922 → 0.0903, sharp 0.813 → 0.819, SSIM flat; T2s unmoved as designed. min_margin −0.9744 → −0.8389 |
 | `p3_wavT1_003` | T1w wavelet 0.12 → 0.03 | back to baseline: T1w 37.855 (HFEN 0.0912, sharp 0.821). min_margin −0.9751 — the wavelet optimum is **interior, near 0.06** |
 | `p3_geo_006` | edge-TV λ_geo 0.10 → 0.06 (shared by both channels) | **T1w +0.260 dB** (→ 38.116), SSIM +0.0027, HFEN 0.0922 → 0.0852, sharp 0.813 → 0.836; T2s PSNR −0.047 but SSIM +0.0010, HFEN −0.0011, sharp 0.759 → 0.809. min_margin −0.7139 |
-| `p3_geo_003` | edge-TV λ_geo 0.10 → 0.03 | pending |
+| `p3_geo_003` | edge-TV λ_geo 0.10 → 0.03 | **T1w +0.396 dB** (→ 38.251), SSIM 0.9660, HFEN 0.0813, sharp 0.858 — best of the round; but T2s PSNR −0.233 (→ 33.927), SSIM 0.9028 and HFEN 0.1894 both now *below* their bars. min_margin −0.5786. The knob is still improving T1w at the edge of the grid |
 
 λ_geo is the stronger of the two knobs — 0.260 dB against the wavelet's 0.136 — and it is the one
 that moves HFEN (0.0922 → 0.0852 against a 0.0756 bar). On T2s it trades 0.047 dB of PSNR for better
@@ -85,6 +85,26 @@ right direction on PSNR, HFEN and sharpness at once. But halving the weight boug
 
 The run log's `[wavelet] lambda=... (plain ..., contrast ...)` line is the proof the per-contrast
 override reached the trainer: `p3_wavT1_006` printed `lambda=0.1 (plain 0.06, contrast 0.1)`.
+
+### Round 1 verdict — the two contrasts want different smoothing, so the knob was split
+
+| | baseline | wav 0.06 | geo 0.06 | geo 0.03 | bar |
+|---|---|---|---|---|---|
+| T1w head PSNR | 37.855 | 37.991 | 38.116 | **38.251** | 38.830 |
+| T1w head HFEN | 0.0922 | 0.0903 | 0.0852 | **0.0813** | 0.0756 |
+| T2s head PSNR | 34.160 | 34.161 | 34.114 | 33.927 | 34.175 |
+| T2s head SSIM | 0.9047 | 0.9047 | **0.9057** | 0.9028 | 0.9052 |
+| min_margin | −0.974 | −0.839 | −0.714 | **−0.579** | |
+
+The wavelet weight has an interior optimum near 0.06. The geometry weight does not: T1w improves all
+the way down to 0.03, the edge of the grid, while T2s degrades monotonically — the long-TE, low-flip
+contrast is noisier and wants the smoothing the short-TE one does not. A single shared weight cannot
+serve both, and that is the whole T2s cost of round 1.
+
+So the geometry weight was given a strength per contrast, `lambda_geo_plain` / `lambda_geo_contrast`,
+exactly mirroring `lambda_wav_plain` / `lambda_wav_contrast` (`paired_gs/losses/edge_tv.py::geo_term`,
+four unit tests; both default to `lambda_geo`, so any earlier run is bit-identical). Round 1c scans
+T1w's own weight below 0.03 with T2s held at 0.10.
 
 ### Planned for round 2 — the representation ceiling
 

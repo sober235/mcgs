@@ -92,3 +92,19 @@ def resolve_edge_kappa(vol: torch.Tensor, q: float, brain_frac: float = 0.05) ->
     if g.size == 0:
         return max(thr, 1e-8)
     return max(float(np.quantile(g, q)), 1e-8)
+
+
+def geo_term(tv_plain, tv_contrast, lam_plain, lam_contrast, lam_base):
+    """The geometry term with a strength per contrast, and the value the trainer reports as R_geo.
+
+    Both strengths default to lam_base at the call site; when they are equal this is the old
+    lam_base * (tv_p + tv_c). When they differ, each channel carries its own -- the two contrasts of
+    one exam do not want the same amount of smoothing, the way L1-ESPIRiT's lambda is chosen per
+    contrast. The second return value is defined so that lam_base * reported stays the term that was
+    actually added, which is what the log line and the ledger's R_geo column mean.
+    """
+    if lam_plain == lam_base and lam_contrast == lam_base:
+        total = tv_plain + tv_contrast
+        return lam_base * total, total
+    added = lam_plain * tv_plain + lam_contrast * tv_contrast
+    return added, added / lam_base

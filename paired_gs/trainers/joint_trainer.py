@@ -49,7 +49,7 @@ from data.transforms import fft3c, ifft3c
 from dataclasses import asdict
 from data.known_zero import (build_fit_tensors, estimate_known_zero, estimate_noise_cov, hard_dc_combine,
                              known_zero_from_support, load_support_map, whitening_matrix)
-from losses.edge_tv import edge_preserving_tv, resolve_edge_kappa, tv_magnitude
+from losses.edge_tv import edge_preserving_tv, geo_term, resolve_edge_kappa, tv_magnitude
 from gaussian.joint_gaussian_model import JointGaussianModel3D
 from gaussian.tile_voxelizer import TileVoxelizer
 from gaussian.voxelizer import Voxelizer
@@ -789,6 +789,12 @@ class JointTrainer:
             lambda_geo = float(loss_cfg["tv_weight"])
         else:
             lambda_geo = float(loss_cfg.get("lambda_geo", 5e-4))
+        # per-contrast strengths, the way lambda_wav_plain / lambda_wav_contrast work; both default
+        # to lambda_geo, so a run that does not set them is bit-identical to before
+        geo_lam_p = float(loss_cfg.get("lambda_geo_plain", lambda_geo))
+        geo_lam_c = float(loss_cfg.get("lambda_geo_contrast", lambda_geo))
+        if geo_lam_p != lambda_geo or geo_lam_c != lambda_geo:
+            print(f"[geo] lambda_geo={lambda_geo} (plain {geo_lam_p}, contrast {geo_lam_c})")
         if "lambda_diff" in loss_cfg or "lambda_enh" in loss_cfg:
             warnings.warn(
                 "loss.lambda_diff / loss.lambda_enh are silently ignored "
@@ -904,13 +910,14 @@ class JointTrainer:
             # casts this term as a geometry regularizer in the ELBO).
             if lambda_geo > 0:
                 if self._edge_tv:
-                    l_geo = (edge_preserving_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor,
-                                                self._tv_eps, self._tv_vector)
-                             + edge_preserving_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor,
-                                                  self._tv_eps, self._tv_vector))
+                    tv_p = edge_preserving_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor,
+                                              self._tv_eps, self._tv_vector)
+                    tv_c = edge_preserving_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor,
+                                              self._tv_eps, self._tv_vector)
                 else:
-                    l_geo = self._tv_loss(vol_p) + self._tv_loss(vol_c)
-                loss = loss + lambda_geo * l_geo
+                    tv_p, tv_c = self._tv_loss(vol_p), self._tv_loss(vol_c)
+                added_geo, l_geo = geo_term(tv_p, tv_c, geo_lam_p, geo_lam_c, lambda_geo)
+                loss = loss + added_geo
             else:
                 l_geo = torch.tensor(0.0, device=self.device)
 
