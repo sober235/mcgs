@@ -90,6 +90,30 @@ right direction on PSNR, HFEN and sharpness at once. But halving the weight boug
 The run log's `[wavelet] lambda=... (plain ..., contrast ...)` line is the proof the per-contrast
 override reached the trainer: `p3_wavT1_006` printed `lambda=0.1 (plain 0.06, contrast 0.1)`.
 
+### What the remaining levers are worth, from the line that already used them
+
+The jiangyizhou AF 12 handoff of 2026-09-13 (`docs/handoff/2026-09-13-autoresearch-jyz-af12-phase3.md`
+on branch `autoresearch-jyz-af12-phase3`) measured the levers this campaign has left, on the same
+trainer:
+
+| lever | what it moved there |
+|---|---|
+| common edge 0.001 + phase TV 0.01 (P13 → P14) | joint − single +0.066 → +0.150 (T1), −0.038 → +0.036 (FLAIR) — about +0.08 dB |
+| optimiser, rotation lr 0.008 (P10 → P13) | +0.025 (T1), +0.046 (FLAIR) |
+| capacity 3.6M → 4.8M | FLAIR +0.051, T1 flat |
+| frequency shaping | bounded at ≈ 0.08 dB here by round 0 |
+
+Those are tenths of a tenth, not tenths. Round 1 bought +0.40 dB on T1w and round 1c may add ~0.1;
+the bar is 0.975 above the start. **On this evidence the six-cell target is unlikely to be reached on
+T1w, and the campaign's likely outcome is the stronger negative result the spec's stopping rule
+anticipates** — MC-GS tuned on this subject, with the prior weights it actually wants, still behind
+L1-ESPIRiT by a few tenths. The levers are worth running anyway: they are cheap, they are what the
+stopping rule requires, and the coupling one is the only one aimed at the joint-vs-single question
+that made this line interesting.
+
+`--lambda_edge` already exists on this branch; phase TV does not and would be a cherry-pick of
+`paired_gs/losses/phase_tv.py` from the phase-3 branch (same lineage, so no cross-lineage merge).
+
 ### Round 1 verdict — the two contrasts want different smoothing, so the knob was split
 
 | | baseline | wav 0.06 | geo 0.06 | geo 0.03 | bar |
