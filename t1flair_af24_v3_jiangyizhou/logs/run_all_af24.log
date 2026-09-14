@@ -1,0 +1,7 @@
+[09-14 21:45:49] armed: 38 jobs, cards [0, 1, 2, 3, 4, 5, 6, 7], max 4 GPU / 4 CPU jobs
+[09-14 21:45:50] START gs_joint gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/sched_gs_joint.log
+[09-14 21:45:50] START gs_singleFLAIR gpu7 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/sched_gs_singleFLAIR.log
+[09-14 21:45:50] START l1_T1_0.00035 gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_lam0.00035.log
+[09-14 21:45:50] START l1_T1_0.0005 gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_lam0.0005.log
+[09-14 21:45:50] START l1_T1_0.0007 gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_lam0.0007.log
+[09-14 21:45:50] START l1_T1_0.001 gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_lam0.001.log
