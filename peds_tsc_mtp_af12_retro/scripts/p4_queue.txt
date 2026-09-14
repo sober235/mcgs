@@ -12,6 +12,10 @@ p4_sgtv005add configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set lo
 #
 # Common-edge coupling: 0.001 gave the best lesion-slice margin so far (+0.096 dB, T2s transverse 69) at a T1w cost.
 p4_edge0020 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.002
+# T2s's own weights were never scanned (stage 3 tuned T1w's); p4_dtv005 says T2s does not want more smoothing.
+# Generic levers: a candidate built on them needs the single T2s re-run at the same weights before it counts.
+p4_T2s_geo007 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.07
+p4_T2s_wav006 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.06 --set loss.lambda_geo_contrast=0.10
 # T1w drives the shared geometry, so T2s inherits the sharper contrast's cloud.
 p4_dcw02 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.02 --set loss.lambda_geo_contrast=0.02 --set loss.dc_weight_contrast=0.2
 # Joint (group) wavelet sparsity.
