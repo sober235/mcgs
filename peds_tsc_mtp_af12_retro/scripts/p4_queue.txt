@@ -3,7 +3,12 @@
 # slices 38/46 = SPE 53/45; calcified focus at RO 166, PE 196, SPE 68-70). On every lesion slice the arm to beat
 # is GS-single, within +-0.1 dB of MC-GS, so the queue now leads with cross-contrast levers that can move T2s.
 # All lines start from the stage-3 working point c1. Order = priority.
-ITERS=60 p4_smoke_newlevers configs/peds_af12_T1w_T2s.yaml --warmup 20 --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.05 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.05 --set loss.dc_weight_contrast=0.5 --set loss.wav_group=true --set loss.contrast_reg_frozen_geometry=true --set gaussian.contrast_scale_offset=true
+ITERS=60 p4_smoke_newlevers configs/peds_af12_T1w_T2s.yaml --warmup 20 --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.05 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.05 --set loss.dc_weight_contrast=0.5 --set loss.wav_group=true --set loss.contrast_reg_frozen_geometry=true --set gaussian.contrast_scale_offset=true --set loss.lambda_sgtv=0.05
+#
+# Structure-guided directional TV (new loss.lambda_sgtv, Ehrhardt & Betcke 2016): 47-51 % of GS-single's T2s error
+# sits on edges T1w shares. Swap T2s's own edge-TV for it at the same strength, and add it on top.
+p4_sgtv010 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.0 --set loss.lambda_sgtv=0.10
+p4_sgtv005add configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.lambda_sgtv=0.05
 #
 # Common-edge coupling: 0.001 gave the best lesion-slice margin so far (+0.096 dB, T2s transverse 69) at a T1w cost.
 p4_edge0020 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.002

@@ -873,6 +873,14 @@ class JointTrainer:
         lambda_dtv = float(loss_cfg.get("lambda_dtv", 0.0))
         dtv_eta_scale = float(loss_cfg.get("dtv_eta_scale", 1.0))
         dtv_w_floor = float(loss_cfg.get("dtv_w_floor", 0.1))
+        # R_sgtv: structure-guided directional TV on the contrast, guided by the plain render (losses/sgtv.py,
+        # Ehrhardt & Betcke 2016). Default 0 => no-op, nothing imported.
+        lambda_sgtv = float(loss_cfg.get("lambda_sgtv", 0.0))
+        if lambda_sgtv > 0:
+            from losses.sgtv import structure_guided_tv
+            sgtv_gamma = float(loss_cfg.get("sgtv_gamma", 0.995))
+            sgtv_eta = float(loss_cfg.get("sgtv_eta_scale", 1.0))
+            print(f"[sgtv] lambda={lambda_sgtv} gamma={sgtv_gamma} eta_scale={sgtv_eta} eps={float(loss_cfg.get('tv_eps', 0.0))}")
         # R_edge: symmetric common-edge cross-gradient prior (this work). Default 0 => no-op.
         lambda_edge = float(loss_cfg.get("lambda_edge", 0.0))
         edge_p = float(loss_cfg.get("edge_p", 0.75))
@@ -1001,6 +1009,10 @@ class JointTrainer:
             else:
                 l_dtv = torch.tensor(0.0, device=self.device)
 
+            # R_sgtv: contrast smoothed except along the plain render's edges (guide detached).
+            if lambda_sgtv > 0:
+                l_sgtv = structure_guided_tv(vol_c_reg, vol_p, sgtv_gamma, sgtv_eta, self._tv_eps)
+                loss = loss + lambda_sgtv * l_sgtv
             # R_edge: symmetric common-edge cross-gradient prior — couples BOTH contrasts'
             # edge directions (helps T1 and FLAIR, vs dtv's one-way plain->contrast relax).
             if lambda_edge > 0:
@@ -1060,6 +1072,8 @@ class JointTrainer:
                 "loss/R_vtv": float((lambda_vtv * l_vtv).detach().item()),
                 "loss/R_wav": float((lambda_wav * l_wav).detach().item()),
             }
+            if lambda_sgtv > 0:
+                components["loss/R_sgtv"] = float((lambda_sgtv * l_sgtv).detach().item())
             total_loss_value = sum(components.values()) + 1e-12
             ratios = {k: v / total_loss_value for k, v in components.items()}
             sum_ratios = sum(ratios.values())
