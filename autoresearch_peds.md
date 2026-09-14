@@ -70,7 +70,7 @@ card lists (`ALLOWED="1 0 2" TAG=r1a`, `ALLOWED="3 4 5 7" TAG=r1b`), one trainin
 | run | change | verdict |
 |---|---|---|
 | `p3_wavT1_006` | T1w wavelet 0.12 → 0.06 (T2s pinned at 0.10) | **T1w +0.136 dB** (37.855 → 37.991), HFEN 0.0922 → 0.0903, sharp 0.813 → 0.819, SSIM flat; T2s unmoved as designed. min_margin −0.9744 → −0.8389 |
-| `p3_wavT1_003` | T1w wavelet 0.12 → 0.03 | pending |
+| `p3_wavT1_003` | T1w wavelet 0.12 → 0.03 | back to baseline: T1w 37.855 (HFEN 0.0912, sharp 0.821). min_margin −0.9751 — the wavelet optimum is **interior, near 0.06** |
 | `p3_geo_006` | edge-TV λ_geo 0.10 → 0.06 (shared by both channels) | **T1w +0.260 dB** (→ 38.116), SSIM +0.0027, HFEN 0.0922 → 0.0852, sharp 0.813 → 0.836; T2s PSNR −0.047 but SSIM +0.0010, HFEN −0.0011, sharp 0.759 → 0.809. min_margin −0.7139 |
 | `p3_geo_003` | edge-TV λ_geo 0.10 → 0.03 | pending |
 
