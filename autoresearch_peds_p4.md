@@ -78,3 +78,21 @@ here is where edges sit, not what the intensities are. Script and numbers:
 4. `p4_dcw05`, `p4_dtv005`, `p4_gwav_x14` — the second points of those three scans.
 
 ## Round log
+
+### Capacity binds for the joint arm (2026-09-14 20:21, inherited run `p3_n60`)
+
+The stage-3 capacity run finished after that session's handoff. Primary region, head PSNR / SSIM / HFEN:
+
+| run | points | iters | T1w | T2s |
+|---|---|---|---|---|
+| `p3_c1_wav006_gp003` | 3.6M | 4000 | 38.516 / 0.9668 / 0.0774 | 34.163 / 0.9047 / 0.1857 |
+| `p3_i6000` | 3.6M | 6000 | 38.588 / 0.9671 / 0.0771 | 34.176 / 0.9049 / 0.1855 |
+| `p3_n60` | 6.0M | 4000 | **38.791** / 0.9680 / 0.0770 | **34.195** / 0.9048 / 0.1863 |
+| `p3_single_T1w_c1` (single) | 3.6M | 4000 | 38.848 / 0.9681 / 0.0761 | — |
+
++0.275 dB on T1w for 0.5 GB more VRAM (38.4 GB) and 79 instead of 67 minutes. The stage-3 record had
+written "+0.001" for this lever before the run had finished; corrected in place. One cloud carries both
+contrasts in the joint arm, so capacity may relieve exactly the sharing conflict that costs T1w; the
+test is whether the single arms gain less at the same capacity (`p4_single_T1w_n60`,
+`p4_single_T2s_n60`) and whether the joint keeps gaining (`p4_n100`, 10M). Those three went to the
+head of the queue.
