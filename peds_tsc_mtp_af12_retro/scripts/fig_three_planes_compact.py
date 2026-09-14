@@ -3,7 +3,7 @@
 
   python scripts/fig_three_planes_compact.py --contrast T1w --slices <TRA> <COR> <SAG>
 
-Layout (user request 2026-09-11): per plane an image row (GT + the nine methods of fig_row_final.py) and an error
+Layout (user request 2026-09-11): per plane an image row (GT + the ten methods of fig_row_final.py) and an error
 row (|recon - GT| / max(GT), jet, fixed [0, 0.1]). The left cell of each error row is the sampling mask in that
 plane: the plane of the 3-D mask through the k-space centre, in the same orientation as the images (the readout,
 axis 0, is fully sampled, so the coronal and sagittal cuts are lines). Method names only above the top row; each
@@ -94,6 +94,7 @@ ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
         ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy"),
         ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy"),
+        ("mcinr", "MC-INR", R / f"recon/mcinr_{c}_complex.npy"),
         (args.single_key, "GS-single", R / f"recon/{args.single_key}_{c}_mag.npy"),
         (args.mcgs_key, "MC-GS", R / f"recon/{args.mcgs_key}_{c}_mag.npy")]
 missing = [lab for _, lab, p in ARMS if p is None or not Path(p).exists()]

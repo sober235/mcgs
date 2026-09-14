@@ -1,4 +1,4 @@
-# 16-year-old TSC exam, 3D MTP Cartesian — stage 2: retrospective AF 12, nine-arm comparison
+# 16-year-old TSC exam, 3D MTP Cartesian — stage 2: retrospective AF 12, ten-arm comparison
 
 Opened 2026-09-13. Stage 1 (the reference k-space this study undersamples) is
 `../Peds_TSC_MTP_3D/`. Code: worktree `/data0/congcong/code/GS/mcgs_peds_wt`, branch `16yo-mtp`
@@ -79,6 +79,7 @@ zero target.
 | L1-ESPIRiT | the same k-space **plus** `bart pics -p data/pattern_union` | – |
 | ZS-SSDU | union in the DC block | Θ / Λ / Γ from Ω |
 | 3D-DIP, 3D-INR | union in the forward model | 95 / 5 from Ω |
+| MC-INR | union as the per-slice sampling plane, so Z enters as measured zeros | – |
 | GS-single, MC-GS | Ω as the mask, `known_zero_support: data/support_2d.h5` | – |
 
 Without the explicit `-p` pattern BART infers the pattern from nonzero entries and reads Z as
@@ -87,6 +88,26 @@ framework port: `known_zero_support` was added after the commit this branch was 
 it the trainer's estimator found nothing (`frac_z_used = 0.0000`) because the mask never lands outside
 the support. After the port, both channels report `frac_z_used = 0.3701` = 11702 / 31616 with
 `nonzero_in_z = 0` and `kz_energy = 0`.
+
+## The MC-INR arm (added 2026-09-14)
+
+The multi-contrast INR of Niessen et al. 2025 (MICCAI; reproduction repo
+`/data0/congcong/code/GS/mcinr_peds_wt`, branch `peds-mtp`), the same reproduction that ran on the
+adult T1+FLAIR topics, pointed at this line's data: one hash-grid network per readout position
+jointly outputs both contrasts, 200 epochs a slice, the paper's hyper-parameters unchanged, each
+contrast keeping its own ESPIRiT maps. It sees this topic's union mask, so the measured zeros reach
+it the way they reach every other arm. Nothing was tuned for this exam.
+
+Checks before the run: the repo's single-precision hybrid path (readout inverse FFT, then per-slice
+SENSE synthesis) reproduces this topic's ground truth to a maximum relative error of 2.0e-7 (T1w)
+and 2.5e-7 (T2s), and the peak of the acquired samples equals the peak of the fully sampled data, so
+the paper's normalisation and this topic's coincide (`mcinr/logs/check_real_data.json`). The run is
+320 slices in 945 s on a free A800; it is scored by the reproduction through **this topic's own**
+`t1t2_common.Pair`, after that gauge is re-checked against the recorded CG-SENSE row (`GAUGE OK`,
+`mcinr/logs/score_af12.json`), and registered by `scripts/register_mcinr_arm.py`.
+
+It lands eighth of ten on both contrasts — above 3D-DIP and 3D-INR, below CG-SENSE — which is where
+it landed on the adult topics too (eighth of eleven there).
 
 ## Evaluation
 
@@ -98,7 +119,7 @@ head, head HFEN as the LoG(σ 1.5) residual ratio, whole-volume PSNR / NMSE, sha
   (SPE 12..92). The outer 12 partitions at each end are the slab-oversampling margin, where the
   excitation profile has decayed to 6–10 % and the vendor exports nothing.
 - **Secondary table**: the full 104 partitions, taken from each arm's own JSON. `scripts/rescore.py --full`
-  reproduces it — 90 values across 18 arm/contrast pairs agree to 2e-4 — which is what licenses the
+  reproduces it — 100 values across 20 arm/contrast pairs agree to 7e-6 — which is what licenses the
   primary table's numbers.
 - `scripts/check_gauge.py` prints `GAUGE OK`: the shared module reproduces `recon_classical.py`'s nine
   metrics to the digit (differences 0.00e+00). `recon_classical.py` deliberately keeps its own
@@ -126,6 +147,7 @@ Retrospective AF 12.00 of the 31616-point phase-encode matrix (7.56x of the 1991
 | Joint SENSE (JTV) (λ 0.0007) | 36.898 | 0.9546 | 0.1139 | 39.888 | 0.00509 | 0.903 |
 | ZS-SSDU | 36.721 | 0.9609 | 0.1240 | 39.782 | 0.00521 | 0.994 |
 | CG-SENSE | 34.307 | 0.9339 | 0.1505 | 36.771 | 0.01043 | 0.871 |
+| MC-INR (Niessen 2025) | 33.948 | 0.9027 | 0.1576 | 35.905 | 0.01273 | 1.034 |
 | 3D-INR | 30.793 | 0.8453 | 0.1237 | 33.850 | 0.02043 | **1.393** |
 | 3D-DIP | 30.301 | 0.8678 | 0.2999 | 33.574 | 0.02178 | 0.667 |
 
@@ -140,6 +162,7 @@ Retrospective AF 12.00 of the 31616-point phase-encode matrix (7.56x of the 1991
 | Joint SENSE (JTV) (λ 0.0014) | 32.821 | 0.8911 | 0.2424 | 35.949 | 0.01298 | 0.794 |
 | CS-SENSE (TV, converged) (λ 0.001) | 32.763 | 0.8898 | 0.2438 | 35.904 | 0.01311 | 0.830 |
 | CG-SENSE | 30.598 | 0.8424 | 0.3179 | 32.877 | 0.02632 | 0.861 |
+| MC-INR (Niessen 2025) | 29.710 | 0.7981 | 0.3479 | 31.604 | 0.03529 | 1.017 |
 | 3D-DIP | 28.250 | 0.6997 | 0.4890 | 31.618 | 0.03518 | 0.465 |
 | 3D-INR | 28.012 | 0.6958 | 0.3080 | 29.855 | 0.05279 | **1.417** |
 
@@ -158,6 +181,7 @@ The same gauge over all 104 partitions, taken from each arm's own JSON; the cros
 | Joint SENSE (JTV) (λ 0.0007) | 36.982 | 0.9569 | 0.1138 | 40.292 | 0.00558 |
 | ZS-SSDU | 36.734 | 0.9623 | 0.1264 | 40.160 | 0.00575 |
 | CG-SENSE | 34.464 | 0.9376 | 0.1504 | 37.130 | 0.01156 |
+| MC-INR (Niessen 2025) | 34.174 | 0.9102 | 0.1555 | 36.249 | 0.01416 |
 | 3D-INR | 30.859 | 0.8521 | 0.1247 | 34.264 | 0.02236 |
 | 3D-DIP | 30.294 | 0.8677 | 0.3047 | 33.983 | 0.02385 |
 
@@ -172,6 +196,7 @@ The same gauge over all 104 partitions, taken from each arm's own JSON; the cros
 | ZS-SSDU | 32.941 | 0.8960 | 0.2430 | 36.689 | 0.01391 |
 | CS-SENSE (TV, converged) (λ 0.001) | 32.903 | 0.8908 | 0.2474 | 36.524 | 0.01445 |
 | CG-SENSE | 30.814 | 0.8421 | 0.3210 | 33.238 | 0.03080 |
+| MC-INR (Niessen 2025) | 29.930 | 0.7999 | 0.3519 | 31.984 | 0.04112 |
 | 3D-DIP | 28.424 | 0.7053 | 0.4950 | 32.321 | 0.03805 |
 | 3D-INR | 28.126 | 0.6930 | 0.3146 | 29.993 | 0.06502 |
 
@@ -201,7 +226,10 @@ The same gauge over all 104 partitions, taken from each arm's own JSON; the cros
    prior for this pair.
 4. **The learned arms are unremarkable here.** ZS-SSDU early-stops at epoch 43 (29 min, against 5 h on
    the adult AF16 data) and lands mid-table. 3D-DIP and 3D-INR are 6–8 dB behind, as in every earlier
-   topic; they are completeness, not competition.
+   topic, and MC-INR sits between them and CG-SENSE; they are completeness, not competition. MC-INR
+   is the only other arm here with a joint prior, and it is 3.9 dB (T1w) and 4.5 dB (T2s) behind
+   MC-GS, so nothing in this table argues that joint reconstruction as such fails on this pair —
+   only that a shared-geometry prior buys nothing over the same method run per contrast.
 5. The recipe was transferred, not tuned. Whether a loop tuned on this subject closes the T1w gap is
    open and is a separate decision.
 
@@ -217,12 +245,14 @@ one, which was verified slice-for-slice against the vendor DICOM).
 | file | what |
 |---|---|
 | `mask_af12.png` | Ω, the acquired support, Z and Ω ∪ Z on the PE x SPE plane |
-| `peds_af12_<c>_row_axis2_53.png` | the nine arms in one row on the transverse slice, error maps below |
+| `peds_af12_<c>_row_axis2_53.png` | the ten arms in one row on the transverse slice, error maps below |
 | `peds_af12_<c>_row3planes_compact_53_160_152_headerr.png` | three planes, per-panel head PSNR / SSIM / NMSE, head-only error maps |
 
 ## Files
 
 ```
+mcinr/         the MC-INR reproduction's own outputs: recon/af12/ (the network images and the
+               gauge-unit volumes), logs/ (the real-data check, the score and its gauge re-check)
 data/          symlinks to the reference dataset; mask_af12_2d.mat (Ω), mask_af12_3d.h5,
                mask_af12_union_3d.h5 (Ω ∪ Z), support_2d.h5, pattern_union.{cfl,hdr}, mask_draws/
 scripts/       prep_mask_draws.m, prep_mask.py, fig_mask.py, bootstrap.sh, peds_queue.txt,
