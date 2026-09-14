@@ -117,3 +117,29 @@ that T2s does not share being smoothed away: the shared cloud also answers to T2
 heavier smoothing, and where T2s is flat that pressure merges what T1w needs separate. Levers that
 follow: less T2s pull on the geometry (`p4_dcw02`, moved to second place), more and smaller Gaussians
 (`p4_n100`), and, if those confirm the mechanism, keeping T2s's regularisers off the geometry.
+
+## Target revised by the user (2026-09-14, ~20:40): one lesion slice, +1 dB
+
+"只需要一张包含病灶的 slice 超过所有对比方法 1 dB 即可." The whole-volume bar above is dropped. New bar:
+**one slice that contains a lesion, on which MC-GS's head PSNR is at least 1.00 dB above every other arm**,
+per-slice PSNR exactly as the row figure computes it (`fig_row_final.py`: head = |GT| > 0.05·P99.9 of the volume,
+peak = volume max |GT|). GS-single stays a competitor (user, 2026-09-14), and every GS-single volume available
+counts toward the bar on a slice. Tool: `scripts/p4_lesion_margin.py --exp <run>` (writes `<run>_lesion.json`).
+
+Lesion slices (T2*w, where the lesions are visible; from the 2026-09-14 lesion check): subependymal nodules on vendor
+slices 38 / 46 = transverse SPE 53 / 45 (±1); the calcified-looking focus at RO 166, PE 196, SPE 68–70 = transverse
+68–70, coronal 163–169, sagittal 193–199. T1w shows no focal change at the nodules.
+
+Where the existing MC-GS volumes stand (`analysis_p4/lesion_slice_margins.{py,json}`): on **every** lesion slice the
+arm to beat is GS-single, and every joint run is within ±0.1 dB of it. Best so far:
+
+| run | best lesion slice | MC-GS | best other | margin | margin over the non-GS arms |
+|---|---|---|---|---|---|
+| `p3_edge0010` (common edge 0.001) | T2s transverse 69 | 33.545 | 33.450 GS-single | +0.096 | +0.457 |
+| `p3_n60` (6.0M points) | T2s transverse 69 | 33.520 | 33.450 GS-single | +0.070 | +0.432 |
+| `p3_c1_wav006_gp003` (c1) | T2s transverse 69 | 33.514 | 33.450 GS-single | +0.064 | +0.425 |
+
+On T1w the joint runs trail the tuned single on all lesion slices (−0.03 to −1.1 dB). The queue was rebuilt around
+cross-contrast levers that can move T2s: common edge 0.002 / 0.004, T1w-driven geometry (`dc_weight_contrast` 0.2),
+group wavelet, T1w-guided directional TV (swap 0.05, strong 0.20), frozen-geometry T2s regularisers, T2s scale offset.
+The capacity-fairness and T1w-side runs are parked in the queue file.

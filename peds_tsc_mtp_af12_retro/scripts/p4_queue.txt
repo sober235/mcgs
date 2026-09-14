@@ -1,39 +1,28 @@
-# Smoke (20:50): the three new switches together for 60 iterations, before any 4000-iteration slot uses them.
+# Stage 4, REVISED TARGET (user 2026-09-14 ~20:40): one slice that contains a lesion, on which MC-GS beats every
+# other arm by >= 1 dB (per-slice head PSNR as in the figures). Lesions are visible on T2*w only (nodules on vendor
+# slices 38/46 = SPE 53/45; calcified focus at RO 166, PE 196, SPE 68-70). On every lesion slice the arm to beat
+# is GS-single, within +-0.1 dB of MC-GS, so the queue now leads with cross-contrast levers that can move T2s.
+# All lines start from the stage-3 working point c1. Order = priority.
 ITERS=60 p4_smoke_newlevers configs/peds_af12_T1w_T2s.yaml --warmup 20 --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.05 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.05 --set loss.dc_weight_contrast=0.5 --set loss.wav_group=true --set loss.contrast_reg_frozen_geometry=true --set gaussian.contrast_scale_offset=true
-# Stage 4 (+1 dB over every other arm, GS-single included). Every line starts from the stage-3 working
-# point c1 (wavelet T1w 0.06 / T2s 0.10, geometry T1w 0.03 / T2s 0.10) unless it says otherwise.
-# Only a cross-contrast mechanism can open a margin over GS-single, so these come first.
-# The scheduler takes the first line without a results_arc/<exp>.log, so order = priority.
 #
-# Round 2 (moved to the top 20:25): capacity. p3_n60 (6.0M points, c1 weights) scored T1w 38.791 /
-# T2s 34.195 in the primary region against c1's 38.516 / 34.163 at 3.6M: +0.275 dB on T1w for 0.5 GB of
-# VRAM (the stage-3 record's "+0.001" was wrong). One cloud carries two contrasts in the joint arm, so
-# capacity may help it more than the single arm; the singles at the same capacity decide that.
-p4_single_T1w_n60 configs/peds_af12_single_T1w.yaml --lambda_geo 0.03 --set loss.lambda_wav=0.06 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.06 --set gaussian.initial_num_points=6000000
+# Common-edge coupling: 0.001 gave the best lesion-slice margin so far (+0.096 dB, T2s transverse 69) at a T1w cost.
+p4_edge0020 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.002
+# T1w drives the shared geometry, so T2s inherits the sharper contrast's cloud.
 p4_dcw02 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.02 --set loss.lambda_geo_contrast=0.02 --set loss.dc_weight_contrast=0.2
-# Round 1d (20:45): T2s's regularisers on a geometry-frozen render (new loss.contrast_reg_frozen_geometry):
-# they shape T2s's densities only; the shared cloud answers to both data terms and to T1w's priors.
-p4_regfrz configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.contrast_reg_frozen_geometry=true
-# Round 1e (21:00): per-Gaussian log-scale offset for T2s (new gaussian.contrast_scale_offset): T2s may
-# widen its own copy of each Gaussian instead of merging the geometry T1w needs.
-p4_scaleoff configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set gaussian.contrast_scale_offset=true
-p4_n100 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=10000000
-p4_single_T2s_n60 configs/peds_af12_single_T2s.yaml --set gaussian.initial_num_points=6000000
-#
-# Round 1c: who drives the shared geometry. At the end of a c1 run the T2s data term is ~5x the T1w
-# one, so the shared cloud is pulled mostly by the noisier contrast. dc_weight_contrast w scales T2s's
-# data term; T2s's own regularisers are scaled by the same w, so T2s's internal balance (and, under
-# Adam, its own densities) is unchanged and only the geometry split moves.
-# (p4_dcw02 moved up to second place at 20:35: the joint arm loses T1w at T1w-only edges)
-#
-# Round 1b: joint (group) wavelet sparsity, sqrt(w_p^2|Wx_p|^2 + w_c^2|Wx_c|^2) per coefficient (new,
-# loss.wav_group). At equal weights the group norm is never above the separate sum, so the x1.4 line
-# keeps the overall shrinkage comparable.
+# Joint (group) wavelet sparsity.
 p4_gwav configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.wav_group=true
-#
-# Round 1a: T1w-guided smoothing of T2s (plain-guided directional TV). T1w is the high-SNR contrast;
-# the guide relaxes T2s's smoothing across T1w edges and enforces it where T1w is flat.
+# Half of T2s's own edge-TV replaced by T1w-guided directional TV; and a stronger guide.
 p4_dtvswap configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.05 --lambda_dtv 0.05
-p4_dcw05 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.05 --set loss.lambda_geo_contrast=0.05 --set loss.dc_weight_contrast=0.5
-p4_dtv005 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_dtv 0.05
+p4_dtv020 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.05 --lambda_dtv 0.20
+# T2s's regularisers kept off the shared geometry; T2s's own scale offset.
+p4_regfrz configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.contrast_reg_frozen_geometry=true
+p4_scaleoff configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set gaussian.contrast_scale_offset=true
+p4_edge0040 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.004
 p4_gwav_x14 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_plain=0.084 --set loss.lambda_wav_contrast=0.14 --set loss.lambda_geo_contrast=0.10 --set loss.wav_group=true
+#
+# Parked (whole-volume target, dropped): capacity fairness and T1w-side runs. p4_single_T2s_n60 comes back if a 6.0M
+# candidate is ever the pick.
+#p4_single_T1w_n60 configs/peds_af12_single_T1w.yaml --lambda_geo 0.03 --set loss.lambda_wav=0.06 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.06 --set gaussian.initial_num_points=6000000
+#p4_n100 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=10000000
+#p4_single_T2s_n60 configs/peds_af12_single_T2s.yaml --set gaussian.initial_num_points=6000000
+#p4_dcw05 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.05 --set loss.lambda_geo_contrast=0.05 --set loss.dc_weight_contrast=0.5
