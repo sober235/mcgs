@@ -62,20 +62,37 @@ def tv_magnitude(vol: torch.Tensor, eps: float = 0.0, vector: bool = False) -> t
 
 
 def edge_preserving_tv(vol: torch.Tensor, kappa: float, w_floor: float,
-                       eps: float = 0.0, vector: bool = False) -> torch.Tensor:
+                       eps: float = 0.0, vector: bool = False,
+                       guide: torch.Tensor = None, guide_kappa: float = None) -> torch.Tensor:
     """Edge-weighted TV of |vol|. Per-axis finite differences (matches
     JointTrainer._tv_loss), each down-weighted at its own sharp gradients -> smoothing
     stays ON along an edge but ~OFF across it. eps/vector as in tv_magnitude; the defaults
-    reproduce the shipped penalty exactly."""
+    reproduce the shipped penalty exactly.
+
+    guide (detached) with guide_kappa: the weight becomes min(w(own gradient), w(guide gradient)),
+    so smoothing is also relaxed where the guide has an edge and never increased anywhere. With a
+    flat guide, or none, the penalty is the plain one."""
     m = vol.abs()
+    gm = guide.detach().abs() if guide is not None else None
+    gk = kappa if guide_kappa is None else guide_kappa
+
+    def weight(g, gg):
+        w = _edge_weight(g, kappa, w_floor)
+        return w if gg is None else torch.minimum(w, _edge_weight(gg, gk, w_floor))
+
     if not vector:
         gx, gy, gz = _axis_grads(m)
-        return ((_edge_weight(gx, kappa, w_floor) * charbonnier(gx, eps)).mean()
-                + (_edge_weight(gy, kappa, w_floor) * charbonnier(gy, eps)).mean()
-                + (_edge_weight(gz, kappa, w_floor) * charbonnier(gz, eps)).mean())
+        hx, hy, hz = _axis_grads(gm) if gm is not None else (None, None, None)
+        return ((weight(gx, hx) * charbonnier(gx, eps)).mean()
+                + (weight(gy, hy) * charbonnier(gy, eps)).mean()
+                + (weight(gz, hz) * charbonnier(gz, eps)).mean())
     gx, gy, gz = _colocated_grads(m)
     gn = torch.sqrt(gx * gx + gy * gy + gz * gz)
-    return _VECTOR_SCALE * (_edge_weight(gn, kappa, w_floor) * charbonnier(gn, eps)).mean()
+    hn = None
+    if gm is not None:
+        hx, hy, hz = _colocated_grads(gm)
+        hn = torch.sqrt(hx * hx + hy * hy + hz * hz)
+    return _VECTOR_SCALE * (weight(gn, hn) * charbonnier(gn, eps)).mean()
 
 
 def resolve_edge_kappa(vol: torch.Tensor, q: float, brain_frac: float = 0.05) -> float:

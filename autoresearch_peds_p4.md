@@ -150,6 +150,12 @@ The capacity-fairness and T1w-side runs are parked in the queue file.
 |---|---|---|---|---|---|---|---|
 | `p4_smoke_newlevers` | all new switches, 60 iters | (smoke) | (smoke) | — | — | — | every switch logs, loss terms add up, volumes and scores written |
 | `p4_dtv005` | weighted dTV 0.05 on top of c1 | 38.510 / 0.9668 / 0.0774 | 34.013 / 0.8965 / 0.1965 | coronal 183 | −0.014 | +0.235 | discard: T2s over-smoothed on all three cells |
+| `p4_sgtv010` | structure-guided TV 0.10 replacing T2s's edge-TV | 38.520 / 0.9669 / 0.0774 | 33.162 / 0.8754 / 0.2329 | coronal 179 | −0.654 | −0.308 | discard: −1.0 dB on T2s; T2s-only edges (veins, lesions) get the full penalty |
+
+Both guided-smoothing runs say the same thing: T2s loses whenever smoothing is added, including smoothing that spares
+T1w's edges. The additive structure-guided run was dropped. What is left of "use T1w's structure" is the opposite
+direction: `loss.edge_tv_union_guide` (new, 4 tests) lowers T2s's edge-TV weight also at T1w's edges and never raises
+it, so T1w's structure can only remove smoothing from T2s (`p4_union`, now first in the queue).
 
 `p3_single_T1w_i6000` (another session's fairness run): T1w 38.889 / 0.9683 / 0.0760, so iterations give the joint
 +0.072 and the single +0.041 (joint − single −0.332 → −0.301); not a T2s lever.
@@ -158,3 +164,6 @@ The capacity-fairness and T1w-side runs are parked in the queue file.
 `p3_single_T1w_n60`). To stay inside the two-training cap without starving it, `scripts/p4_sched2.sh` replaces
 `p4_sched.sh`: the line cap of two still counts every session's runs, and this campaign keeps at most one of its own.
 This campaign no longer edits `STATUS.md`, `CLAUDE.md` or the stage-3 record; its notes stay in this file.
+
+`p3_single_T1w_n60` (stage-3 session's fairness run, 22:3x): T1w 38.989 in the primary region, so capacity 3.6M → 6.0M
+gives the single +0.141 and the joint +0.275; joint − single at 6.0M is −0.198. T1w context only.
