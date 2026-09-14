@@ -44,9 +44,13 @@ plane (`logs/diag_kspace_error.log`). Energies are relative to the ground truth'
 
 Three things follow, and they set the order of the levers.
 
-1. **MC-GS is not underfitting the data.** On the sampled positions its error is 0.161 against
-   L1-ESPIRiT's 0.166 — it fits what it was given slightly *better*. Nothing is to be won by pushing
-   the data term.
+1. **Nothing is to be won by pushing the data term.** The GS arms' saved volume is the model's
+   k-space with the measured data hard-inserted (`arc/cycle.py`: `x_dc = ifft3(mf·y + (1−mf)·k_model)`),
+   so at the sampled positions they agree with the reference by construction; the 0.161 that shows up
+   there is spectral leakage from the coil combination, not a fitting residual. Either way the sampled
+   positions carry 1.8 % of the error and there is no room in them. *(Corrected 2026-09-14: the first
+   version of this line read the 0.161 against L1-ESPIRiT's 0.166 as evidence that MC-GS fits the data
+   better. With hard data consistency that comparison is not meaningful.)*
 2. **The whole gap is unsampled high spatial frequency.** Of the 0.81 total gap to L1-ESPIRiT, 0.71
    sits in the 0.50–1.00 radius band and 0.13 in 0.25–0.50; below 0.25 MC-GS is the better arm
    (0.013 + 0.247 against 0.015 + 0.268). This is the signature of a prior that is too smooth, or of
@@ -106,11 +110,17 @@ exactly mirroring `lambda_wav_plain` / `lambda_wav_contrast` (`paired_gs/losses/
 four unit tests; both default to `lambda_geo`, so any earlier run is bit-identical). Round 1c scans
 T1w's own weight below 0.03 with T2s held at 0.10.
 
-### Planned for round 2 — the representation ceiling
+### The ceiling run was void, and why it matters (2026-09-14)
 
-Round 0 says the contest is whether the cloud can carry the 0.50–1.00 band at all. Before sweeping
-capacity blindly, fit the **fully sampled** ground truth with the same 3.6M-point cloud (no
-undersampling, same iterations): its head PSNR is the ceiling that no amount of λ tuning can pass at
-that capacity. If the ceiling is near 38.8 dB, capacity is the binding constraint and round 2 is the
-whole campaign; if it is far above, the prior weights are, and round 1's direction is the right one.
-One GPU run, and it settles which of the two round-0 explanations is the operative one.
+`p3_ceiling` gave every acquirable position to the trainer and came back at head PSNR 150.3 / 149.3,
+SSIM exactly 1.0, HFEN 0.0. That is not a capacity measurement: the saved volume is
+`ifft3(mf·y + (1−mf)·k_model)`, so when `mf` covers the whole support the measured data reproduce the
+reference and the Gaussian cloud never enters the number. The run is void as a ceiling; its ledger
+row is kept with this note so nobody re-runs it.
+
+To measure the cloud's own limit the pure render has to be scored instead of the data-consistent
+volume — `--save_render` now writes it (`recT1_render` / `recFL_render` in the npz), so a ceiling run
+is one run away when it is wanted. But the question it was meant to settle is answered more directly
+by a candidate that can also win: round 2 raises the capacity on the real task (3.6M → 6.0M points)
+and its ledger row says whether capacity binds. The ceiling is the explanation, the capacity run is
+the experiment; the experiment goes first.
