@@ -209,3 +209,6 @@ T2s is SNR-limited and the shared-geometry prior adds little information to it (
 the six-cell side). Options given to the user: keep the bar (the queue continues, expected best a few tenths at most);
 count GS-single as an ablation (current +0.513 over the other eight arms, coronal 136); or state a smaller margin.
 The queue keeps running while the user decides.
+
+`p3_single_T1w_n96` (stage-3 session): T1w 38.993, so T1w joint − single at matched capacity is −0.332 (3.6M), −0.198
+(6.0M), −0.057 (9.6M): on T1w the joint deficit is mostly capacity starvation. T2s, the lesion contrast, does not share it.
