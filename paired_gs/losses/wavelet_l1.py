@@ -73,3 +73,45 @@ def wavelet_l1(vols: Sequence[torch.Tensor], wavelet: str = "db2", levels: int =
             per_vol = per_vol + _rho((b * b).sum(1), eps).reshape(nv, -1).sum(1)
     w = torch.as_tensor([float(v) for v in weights], dtype=per_vol.dtype, device=per_vol.device)
     return (per_vol * w).sum() / vols[0].numel()
+
+
+def wavelet_l21(vols: Sequence[torch.Tensor], wavelet: str = "db2", levels: int = 3, eps: float = 0.0,
+                shifts: Optional[Iterable[int]] = None, on: str = "complex",
+                weights: Optional[Sequence[float]] = None) -> torch.Tensor:
+    """Joint (group) sparsity of several co-registered volumes -- the multi-contrast CS prior:
+
+        R = (1 / N) * sum over detail coefficients of rho( sum_v w_v^2 |W x_v|^2 )
+
+    i.e. an L2 norm across the volumes at each wavelet coefficient and an L1 norm over coefficients.
+    A coefficient that is large in one contrast makes the same coefficient cheap in the other, so
+    edges both contrasts share are kept together while isolated coefficients (noise, aliasing) are
+    shrunk as before. With one volume zero it is that weight times the plain L1 of the other
+    (eps = 0), and it never exceeds the separate weighted sum of ``wavelet_l1``.
+    Arguments as in ``wavelet_l1``; weights default to one per volume.
+    """
+    if on not in ("complex", "magnitude"):
+        raise ValueError(f"on must be 'complex' or 'magnitude', got {on!r}")
+    if weights is None:
+        weights = [1.0] * len(vols)
+    if len(weights) != len(vols):
+        raise ValueError(f"need one weight per volume, got {len(weights)} for {len(vols)}")
+    parts = []
+    for v in vols:
+        if on == "complex":
+            vc = v if torch.is_complex(v) else torch.complex(v, torch.zeros_like(v))
+            parts += [vc.real, vc.imag]
+        else:
+            parts.append(v.abs())
+    x = torch.stack(parts, 0)
+    if shifts is not None:
+        x = torch.roll(x, shifts=tuple(int(s) for s in shifts), dims=(1, 2, 3))
+    coeffs = ptwt.wavedec3(x, wavelet, level=levels, mode="periodic")
+    per = 2 if on == "complex" else 1
+    nv = len(vols)
+    w2 = torch.as_tensor([float(w) ** 2 for w in weights], dtype=x.dtype, device=x.device).view(nv, 1, 1, 1)
+    total = x.new_zeros(())
+    for detail in coeffs[1:]:
+        for band in detail.values():
+            b = band.reshape(nv, per, *band.shape[1:])
+            total = total + _rho(((b * b).sum(1) * w2).sum(0), eps).sum()
+    return total / vols[0].numel()

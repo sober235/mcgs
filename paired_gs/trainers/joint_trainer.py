@@ -830,6 +830,12 @@ class JointTrainer:
             wav_lam_p = float(loss_cfg.get("lambda_wav_plain", lambda_wav))
             wav_lam_c = float(loss_cfg.get("lambda_wav_contrast", lambda_wav))
             wav_gen = torch.Generator().manual_seed(int(train_cfg.get("seed", 42)) + 7919)
+            # joint (group) sparsity across the two contrasts: sqrt(w_p^2|Wx_p|^2 + w_c^2|Wx_c|^2) per
+            # coefficient instead of w_p|Wx_p| + w_c|Wx_c|. Default off => the separate penalty, unchanged.
+            wav_group = bool(loss_cfg.get("wav_group", False))
+            if wav_group:
+                from losses.wavelet_l1 import wavelet_l21
+                print(f"[wavelet] group (L2,1 across contrasts) with weights plain {wav_lam_p}, contrast {wav_lam_c}")
             print(f"[wavelet] lambda={lambda_wav} (plain {wav_lam_p}, contrast {wav_lam_c}) wavelet={wav_name} "
                   f"levels={wav_levels} eps={wav_eps} cycle_spin={wav_spin} on={wav_on}")
         loss_type = loss_cfg.get("loss_type", "l2")
@@ -948,7 +954,12 @@ class JointTrainer:
             # R_wav: wavelet sparsity of both rendered volumes, cycle-spun (BART pics -l1 analogue).
             if lambda_wav > 0:
                 sh = tuple(torch.randint(0, 2 ** wav_levels, (3,), generator=wav_gen).tolist()) if wav_spin else None
-                if wav_lam_p == lambda_wav and wav_lam_c == lambda_wav:
+                if wav_group:
+                    l_wav_w = wavelet_l21([vol_p, vol_c], wav_name, wav_levels, wav_eps, sh, wav_on,
+                                          weights=(wav_lam_p, wav_lam_c))
+                    loss = loss + l_wav_w
+                    l_wav = l_wav_w / lambda_wav        # lambda_wav * l_wav is the term actually added
+                elif wav_lam_p == lambda_wav and wav_lam_c == lambda_wav:
                     l_wav = wavelet_l1([vol_p, vol_c], wav_name, wav_levels, wav_eps, sh, wav_on)
                     loss = loss + lambda_wav * l_wav
                 else:

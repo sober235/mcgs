@@ -1,0 +1,14 @@
+# Stage 4 (+1 dB over every other arm, GS-single included). Every line starts from the stage-3 working
+# point c1 (wavelet T1w 0.06 / T2s 0.10, geometry T1w 0.03 / T2s 0.10) unless it says otherwise.
+# Only a cross-contrast mechanism can open a margin over GS-single, so these come first.
+#
+# Round 1a: T1w-guided smoothing of T2s (plain-guided directional TV). T1w is the high-SNR contrast;
+# the guide relaxes T2s's smoothing across T1w edges and enforces it where T1w is flat.
+p4_dtv005 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --lambda_dtv 0.05
+p4_dtvswap configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.05 --lambda_dtv 0.05
+#
+# Round 1b: joint (group) wavelet sparsity, sqrt(w_p^2|Wx_p|^2 + w_c^2|Wx_c|^2) per coefficient (new,
+# loss.wav_group). At equal weights the group norm is never above the separate sum, so the second line
+# scales both weights by 1.4 to keep the overall shrinkage comparable.
+p4_gwav configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.wav_group=true
+p4_gwav_x14 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set loss.lambda_wav_plain=0.084 --set loss.lambda_wav_contrast=0.14 --set loss.wav_group=true
