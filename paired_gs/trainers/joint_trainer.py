@@ -500,6 +500,30 @@ class JointTrainer:
             vol = vol + pv
         return vol
 
+    def _render_geometry_frozen(self, channel: str) -> torch.Tensor:
+        """The same render with the shared geometry detached. A loss evaluated on it moves this
+        channel's densities (and a contrast-private residual set, if any) but not the shared positions,
+        scales or rotations, which are then shaped by the data terms and the other channel only."""
+        vol = self.voxelizer(
+            positions=self.model.positions.detach(),
+            scales=self.model.get_scale_values().detach(),
+            rotations=self.model.rotations.detach(),
+            density=self.model.get_density(channel),
+        )
+        if isinstance(vol, tuple):
+            vol = torch.complex(vol[0], vol[1])
+        if channel == "contrast" and self.model.has_private:
+            pv = self.voxelizer(
+                positions=self.model.private_positions,
+                scales=self.model.get_private_scale_values(),
+                rotations=self.model.private_rotations,
+                density=self.model.get_private_density(),
+            )
+            if isinstance(pv, tuple):
+                pv = torch.complex(pv[0], pv[1])
+            vol = vol + pv
+        return vol
+
     # -- losses --------------------------------------------------------
     def _kspace_loss(self, vol: torch.Tensor, csm: torch.Tensor, ksp_meas: torch.Tensor,
                      mask: torch.Tensor, freq_weight: torch.Tensor | None,
@@ -811,6 +835,11 @@ class JointTrainer:
         dc_w_c = float(loss_cfg.get("dc_weight_contrast", 1.0))
         if dc_w_c != 1.0:
             print(f"[dc] contrast data-term weight {dc_w_c}")
+        # the contrast channel's regularisers on a geometry-frozen render: they shape T2s's densities, the
+        # shared cloud answers only to the data terms and the plain channel. Default off => unchanged.
+        reg_frozen_c = bool(loss_cfg.get("contrast_reg_frozen_geometry", False))
+        if reg_frozen_c:
+            print("[reg] contrast regularisers act on a geometry-frozen render")
         # R_dtv: plain-guided directional TV on contrast (this work). Default 0 => no-op.
         lambda_dtv = float(loss_cfg.get("lambda_dtv", 0.0))
         dtv_eta_scale = float(loss_cfg.get("dtv_eta_scale", 1.0))
@@ -917,6 +946,7 @@ class JointTrainer:
             l_dc_p = self._kspace_loss(vol_p, self.csm_fit_p, self.kspace_fit_p, self.mask_fit_p, freq_w_p, norm=self._dc_norm_p)
             l_dc_c = self._kspace_loss(vol_c, self.csm_fit_c, self.kspace_fit_c, self.mask_fit_c, freq_w, norm=self._dc_norm_c)
             loss, l_dc_c_added = data_term(l_dc_p, l_dc_c, dc_w_c)
+            vol_c_reg = self._render_geometry_frozen("contrast") if reg_frozen_c else vol_c
 
             # R_geo (renamed from v1 L_tv per INF-05 / A-LOSS-DROP; PDF §1.5
             # casts this term as a geometry regularizer in the ELBO).
@@ -924,10 +954,10 @@ class JointTrainer:
                 if self._edge_tv:
                     tv_p = edge_preserving_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor,
                                               self._tv_eps, self._tv_vector)
-                    tv_c = edge_preserving_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor,
+                    tv_c = edge_preserving_tv(vol_c_reg, self._edge_kappa_c, self._edge_tv_wfloor,
                                               self._tv_eps, self._tv_vector)
                 else:
-                    tv_p, tv_c = self._tv_loss(vol_p), self._tv_loss(vol_c)
+                    tv_p, tv_c = self._tv_loss(vol_p), self._tv_loss(vol_c_reg)
                 added_geo, l_geo = geo_term(tv_p, tv_c, geo_lam_p, geo_lam_c, lambda_geo)
                 loss = loss + added_geo
             else:
@@ -937,7 +967,7 @@ class JointTrainer:
             # edge geometry into the contrast's zero-space and suppresses non-anatomical
             # aliasing/grain in plain-flat regions.
             if lambda_dtv > 0:
-                l_dtv = self._dtv_loss_directional(vol_c, vol_p, dtv_eta_scale, dtv_w_floor)
+                l_dtv = self._dtv_loss_directional(vol_c_reg, vol_p, dtv_eta_scale, dtv_w_floor)
                 loss = loss + lambda_dtv * l_dtv
             else:
                 l_dtv = torch.tensor(0.0, device=self.device)
@@ -945,14 +975,14 @@ class JointTrainer:
             # R_edge: symmetric common-edge cross-gradient prior — couples BOTH contrasts'
             # edge directions (helps T1 and FLAIR, vs dtv's one-way plain->contrast relax).
             if lambda_edge > 0:
-                l_edge = self._edge_align_loss(vol_p, vol_c, edge_p, edge_kappa)
+                l_edge = self._edge_align_loss(vol_p, vol_c_reg, edge_p, edge_kappa)
                 loss = loss + lambda_edge * l_edge
             else:
                 l_edge = torch.tensor(0.0, device=self.device)
 
             # R_vtv: vectorial (joint) TV — symmetric edge-location coupling (stable).
             if lambda_vtv > 0:
-                l_vtv = self._joint_vtv_loss(vol_p, vol_c)
+                l_vtv = self._joint_vtv_loss(vol_p, vol_c_reg)
                 loss = loss + lambda_vtv * l_vtv
             else:
                 l_vtv = torch.tensor(0.0, device=self.device)
@@ -961,15 +991,15 @@ class JointTrainer:
             if lambda_wav > 0:
                 sh = tuple(torch.randint(0, 2 ** wav_levels, (3,), generator=wav_gen).tolist()) if wav_spin else None
                 if wav_group:
-                    l_wav_w = wavelet_l21([vol_p, vol_c], wav_name, wav_levels, wav_eps, sh, wav_on,
+                    l_wav_w = wavelet_l21([vol_p, vol_c_reg], wav_name, wav_levels, wav_eps, sh, wav_on,
                                           weights=(wav_lam_p, wav_lam_c))
                     loss = loss + l_wav_w
                     l_wav = l_wav_w / lambda_wav        # lambda_wav * l_wav is the term actually added
                 elif wav_lam_p == lambda_wav and wav_lam_c == lambda_wav:
-                    l_wav = wavelet_l1([vol_p, vol_c], wav_name, wav_levels, wav_eps, sh, wav_on)
+                    l_wav = wavelet_l1([vol_p, vol_c_reg], wav_name, wav_levels, wav_eps, sh, wav_on)
                     loss = loss + lambda_wav * l_wav
                 else:
-                    l_wav_w = wavelet_l1([vol_p, vol_c], wav_name, wav_levels, wav_eps, sh, wav_on,
+                    l_wav_w = wavelet_l1([vol_p, vol_c_reg], wav_name, wav_levels, wav_eps, sh, wav_on,
                                          weights=(wav_lam_p, wav_lam_c))
                     loss = loss + l_wav_w
                     l_wav = l_wav_w / lambda_wav        # lambda_wav * l_wav is the term actually added

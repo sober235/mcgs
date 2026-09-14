@@ -96,3 +96,24 @@ contrasts in the joint arm, so capacity may relieve exactly the sharing conflict
 test is whether the single arms gain less at the same capacity (`p4_single_T1w_n60`,
 `p4_single_T2s_n60`) and whether the joint keeps gaining (`p4_n100`, 10M). Those three went to the
 head of the queue.
+
+### Where the joint arm loses T1w: at T1w's own edges where T2s is flat (CPU, 20:33)
+
+`analysis_p4/where_joint_loses.py`: voxels of the primary head region binned by ground-truth edge
+strength of each contrast (Gaussian-derivative gradient, normalised by its head 99th percentile;
+flat < 0.1 ≤ mid < 0.3 ≤ edge), stage-3 tuned arms at 3.6M. Joint MSE 6.80e-4 against single 6.30e-4.
+
+| T1w | T2s | voxels | share of the excess | joint vs single in the bin |
+|---|---|---|---|---|
+| edge | flat | 7.3 % | 13.7 % | +0.50 dB |
+| edge | mid | 11.0 % | 22.2 % | +0.50 dB |
+| mid | flat | 11.0 % | 17.5 % | +0.42 dB |
+| edge | edge | 8.1 % | 11.8 % | +0.37 dB |
+| flat | edge | 1.8 % | 0.9 % | +0.17 dB |
+| flat | flat | 22.7 % | 8.7 % | +0.20 dB |
+
+The deficit is not T2s-only structure taking T1w's capacity (flat|edge costs least). It is T1w detail
+that T2s does not share being smoothed away: the shared cloud also answers to T2s's noisier data and
+heavier smoothing, and where T2s is flat that pressure merges what T1w needs separate. Levers that
+follow: less T2s pull on the geometry (`p4_dcw02`, moved to second place), more and smaller Gaussians
+(`p4_n100`), and, if those confirm the mechanism, keeping T2s's regularisers off the geometry.

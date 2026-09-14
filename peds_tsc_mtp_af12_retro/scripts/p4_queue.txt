@@ -8,6 +8,10 @@
 # VRAM (the stage-3 record's "+0.001" was wrong). One cloud carries two contrasts in the joint arm, so
 # capacity may help it more than the single arm; the singles at the same capacity decide that.
 p4_single_T1w_n60 configs/peds_af12_single_T1w.yaml --lambda_geo 0.03 --set loss.lambda_wav=0.06 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.06 --set gaussian.initial_num_points=6000000
+p4_dcw02 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.02 --set loss.lambda_geo_contrast=0.02 --set loss.dc_weight_contrast=0.2
+# Round 1d (20:45): T2s's regularisers on a geometry-frozen render (new loss.contrast_reg_frozen_geometry):
+# they shape T2s's densities only; the shared cloud answers to both data terms and to T1w's priors.
+p4_regfrz configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.contrast_reg_frozen_geometry=true
 p4_n100 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=10000000
 p4_single_T2s_n60 configs/peds_af12_single_T2s.yaml --set gaussian.initial_num_points=6000000
 #
@@ -15,7 +19,7 @@ p4_single_T2s_n60 configs/peds_af12_single_T2s.yaml --set gaussian.initial_num_p
 # one, so the shared cloud is pulled mostly by the noisier contrast. dc_weight_contrast w scales T2s's
 # data term; T2s's own regularisers are scaled by the same w, so T2s's internal balance (and, under
 # Adam, its own densities) is unchanged and only the geometry split moves.
-p4_dcw02 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.02 --set loss.lambda_geo_contrast=0.02 --set loss.dc_weight_contrast=0.2
+# (p4_dcw02 moved up to second place at 20:35: the joint arm loses T1w at T1w-only edges)
 #
 # Round 1b: joint (group) wavelet sparsity, sqrt(w_p^2|Wx_p|^2 + w_c^2|Wx_c|^2) per coefficient (new,
 # loss.wav_group). At equal weights the group norm is never above the separate sum, so the x1.4 line
