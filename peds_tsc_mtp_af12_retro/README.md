@@ -109,6 +109,34 @@ the paper's normalisation and this topic's coincide (`mcinr/logs/check_real_data
 It lands eighth of ten on both contrasts — above 3D-DIP and 3D-INR, below CG-SENSE — which is where
 it landed on the adult topics too (eighth of eleven there).
 
+## Stage 3 — tuned on this subject (opened 2026-09-14, running)
+
+Stage 2 transferred the GS working point unchanged while L1-ESPIRiT's λ was swept here over 14 values
+and CS-SENSE's over 11. Stage 3 removes that asymmetry: the GS arms are tuned on this subject, the
+single arm alongside the joint one, and the table keeps both the transferred and the tuned rows
+(`gs_joint_ar` / `gs_single_ar` and `gs_joint_p3` / `gs_single_p3`). Design
+`docs/superpowers/specs/2026-09-14-peds-af12-mcgs-autoresearch-design.md`, round log
+`autoresearch_peds.md` (both in the worktree). **The campaign is still running; these two rows are
+its state on 2026-09-14, not a final answer.**
+
+Working point so far: wavelet T1w 0.06 / T2s 0.10, edge-TV geometry **T1w 0.03 / T2s 0.10**, everything
+else at P10. The per-contrast geometry weight is new (`lambda_geo_plain` / `lambda_geo_contrast`); a
+single shared weight cannot serve both contrasts here, because T1w keeps improving as it falls while
+T2s degrades. T2s's own weights are unchanged by the tuning, so `gs_single_ar` is already its tuned
+single arm and only T1w's single was re-run.
+
+What it changes:
+
+- **The best T1w reconstruction in this table is now a GS arm.** GS-single (tuned) reaches head PSNR
+  38.848 and SSIM 0.9681, ahead of L1-ESPIRiT's 38.830 / 0.9674; L1-ESPIRiT keeps head HFEN
+  (0.0756 against 0.0761). Tuning moved the single arm 0.762 dB.
+- **The joint arm does not follow.** MC-GS (tuned) reaches 38.516, so joint − single on T1w went from
+  −0.230 at the transferred point to **−0.332** at the tuned one. The deficit grows as the prior gets
+  lighter, which is the opposite of a tuning artefact.
+- **The cross-contrast coupling trades one contrast for the other.** Adding the common-edge term
+  (λ 0.001) moves T2s above all three of its bars (34.197 / 0.9054 / 0.1837) and costs T1w 0.133 dB.
+  On this pair the short-TE contrast is the donor and the long-TE one the beneficiary.
+
 ## Evaluation
 
 The frozen gauge (`diag_artefact/headonly.py`, unmodified): head mask = |GT| > 0.05 · P99.9(|GT|),
@@ -140,7 +168,9 @@ Retrospective AF 12.00 of the 31616-point phase-encode matrix (7.56x of the 1991
 
 | method | head PSNR | head SSIM | head HFEN | PSNR | NMSE | sharp |
 |---|---|---|---|---|---|---|
-| L1-ESPIRiT (λ 0.001) | **38.830** | **0.9674** | **0.0756** | **41.503** | **0.00351** | 0.924 |
+| GS-single (tuned) | **38.848** | **0.9681** | 0.0761 | **41.721** | **0.00334** | 0.885 |
+| L1-ESPIRiT (λ 0.001) | 38.830 | 0.9674 | **0.0756** | 41.503 | 0.00351 | 0.924 |
+| MC-GS (tuned) | 38.516 | 0.9668 | 0.0774 | 41.404 | 0.00359 | 0.876 |
 | GS-single | 38.086 | 0.9629 | 0.0910 | 41.089 | 0.00386 | 0.818 |
 | MC-GS | 37.855 | 0.9618 | 0.0922 | 40.873 | 0.00406 | 0.813 |
 | CS-SENSE (TV, converged) (λ 0.00035) | 37.801 | 0.9611 | 0.1057 | 40.711 | 0.00421 | 0.891 |
@@ -156,7 +186,8 @@ Retrospective AF 12.00 of the 31616-point phase-encode matrix (7.56x of the 1991
 | method | head PSNR | head SSIM | head HFEN | PSNR | NMSE | sharp |
 |---|---|---|---|---|---|---|
 | GS-single | **34.175** | **0.9052** | **0.1855** | 36.991 | 0.01021 | 0.774 |
-| MC-GS | 34.160 | 0.9047 | 0.1858 | **36.995** | **0.01020** | 0.759 |
+| MC-GS (tuned) | 34.163 | 0.9047 | 0.1857 | **36.999** | **0.01019** | 0.760 |
+| MC-GS | 34.160 | 0.9047 | 0.1858 | 36.995 | 0.01020 | 0.759 |
 | L1-ESPIRiT (λ 0.003) | 33.860 | 0.9050 | 0.1882 | 36.745 | 0.01080 | 0.857 |
 | ZS-SSDU | 32.846 | 0.8960 | 0.2376 | 36.056 | 0.01266 | 0.896 |
 | Joint SENSE (JTV) (λ 0.0014) | 32.821 | 0.8911 | 0.2424 | 35.949 | 0.01298 | 0.794 |
@@ -174,7 +205,9 @@ The same gauge over all 104 partitions, taken from each arm's own JSON; the cros
 
 | method | head PSNR | head SSIM | head HFEN | PSNR | NMSE |
 |---|---|---|---|---|---|
-| L1-ESPIRiT (λ 0.001) | **38.924** | **0.9692** | **0.0760** | **41.851** | **0.00390** |
+| GS-single (tuned) | **38.928** | **0.9699** | 0.0764 | **42.132** | **0.00365** |
+| L1-ESPIRiT (λ 0.001) | 38.924 | 0.9692 | **0.0760** | 41.851 | 0.00390 |
+| MC-GS (tuned) | 38.602 | 0.9686 | 0.0777 | 41.825 | 0.00392 |
 | GS-single | 38.141 | 0.9647 | 0.0912 | 41.500 | 0.00422 |
 | MC-GS | 37.915 | 0.9636 | 0.0924 | 41.293 | 0.00443 |
 | CS-SENSE (TV, converged) (λ 0.00035) | 37.881 | 0.9631 | 0.1052 | 41.093 | 0.00464 |
@@ -190,7 +223,8 @@ The same gauge over all 104 partitions, taken from each arm's own JSON; the cros
 | method | head PSNR | head SSIM | head HFEN | PSNR | NMSE |
 |---|---|---|---|---|---|
 | GS-single | **34.320** | **0.9065** | **0.1891** | 37.575 | 0.01135 |
-| MC-GS | 34.312 | 0.9060 | 0.1894 | **37.583** | **0.01133** |
+| MC-GS (tuned) | 34.315 | 0.9061 | 0.1893 | **37.588** | **0.01131** |
+| MC-GS | 34.312 | 0.9060 | 0.1894 | 37.583 | 0.01133 |
 | L1-ESPIRiT (λ 0.003) | 33.983 | 0.9054 | 0.1923 | 37.268 | 0.01218 |
 | Joint SENSE (JTV) (λ 0.0014) | 32.974 | 0.8920 | 0.2461 | 36.578 | 0.01428 |
 | ZS-SSDU | 32.941 | 0.8960 | 0.2430 | 36.689 | 0.01391 |

@@ -1,0 +1,5 @@
+# Stage 3 round 2, half A: the single-contrast T1w arm at the round-1c working point. The joint arm
+# trailed it by 0.231 dB at P10; this says what that difference is now that both would run at the
+# weights T1w actually wants. The T2s single needs no re-run: its own weights (wavelet 0.10,
+# geometry 0.10) are unchanged by round 1c, so the registered gs_single_ar row still stands for it.
+p3 p3_single_T1w_c1 configs/peds_af12_single_T1w.yaml --lambda_geo 0.03 --set loss.lambda_wav=0.06 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.06

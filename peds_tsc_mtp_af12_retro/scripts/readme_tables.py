@@ -17,7 +17,8 @@ WEIGHT = {"T1w": "T1-weighted (FA 16, TE 3.25 ms)", "T2s": "T2*-weighted (FA 4, 
 LABEL = {"cgsense": "CG-SENSE", "cssense_o200": "CS-SENSE (TV, converged)", "jcssense": "Joint SENSE (JTV)",
          "l1espirit": "L1-ESPIRiT", "zsssdu": "ZS-SSDU", "dip": "3D-DIP", "inr": "3D-INR",
          "mcinr": "MC-INR (Niessen 2025)",
-         "gs_single_ar": "GS-single", "gs_joint_ar": "MC-GS"}
+         "gs_single_ar": "GS-single", "gs_joint_ar": "MC-GS",
+         "gs_single_p3": "GS-single (tuned)", "gs_joint_p3": "MC-GS (tuned)"}
 ORDER = list(LABEL)
 AF = json.load(open(T / "logs/prep_mask.json"))
 prim = json.load(open(T / "logs/rescore.json"))

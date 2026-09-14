@@ -49,6 +49,12 @@ def arms(c):
           ("mcinr", "MC-INR (Niessen 2025)", R / f"recon/mcinr_{c}_complex.npy", None),
           ("gs_single_ar", "GS-single", R / f"recon/gs_single_ar_{c}_complex.npy", None),
           ("gs_joint_ar", "MC-GS", R / f"recon/gs_joint_ar_{c}_complex.npy", None)]
+    # stage 3 (tuned on this subject): the joint arm on both contrasts, the single arm on T1w only --
+    # T2s's own weights were not changed by the tuning, so gs_single_ar is already its tuned single
+    for key, label in (("gs_joint_p3", "MC-GS (tuned)"), ("gs_single_p3", "GS-single (tuned)")):
+        v = R / f"recon/{key}_{c}_complex.npy"
+        if v.exists():
+            a.append((key, label, v, None))
     return a
 
 
