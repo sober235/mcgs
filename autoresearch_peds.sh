@@ -30,5 +30,13 @@ env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID \
 RC=$?
 STATUS=pending
 if [[ $RC -ne 0 ]]; then STATUS=crash; fi
+# The table is judged in the primary region (head inside the central 80 partitions), so score the run
+# there before the ledger row is written; without this the row's margins stay blank.
+TOPIC=/data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
+MAP="T1w:plain,T2s:contrast"
+case "$CONFIG" in *single_T1w*) MAP="T1w:plain" ;; *single_T2s*) MAP="T2s:plain" ;; esac
+if [[ $RC -eq 0 && -f "$ROOT/results_arc/${EXP}_volumes.npz" ]]; then
+  "$TOPIC/scripts/py" "$TOPIC/scripts/score_candidate.py" --exp "$EXP" --map "$MAP" >> "$LOG" 2>&1
+fi
 env PYTHONNOUSERSITE=1 PYTHONPATH= "$PY" scripts/autoresearch_peds_row.py --exp "$EXP" --status "$STATUS" --note "rc=$RC cfg=$CONFIG"
 exit $RC
