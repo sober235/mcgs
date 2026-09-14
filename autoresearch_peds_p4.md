@@ -167,3 +167,23 @@ This campaign no longer edits `STATUS.md`, `CLAUDE.md` or the stage-3 record; it
 
 `p3_single_T1w_n60` (stage-3 session's fairness run, 22:3x): T1w 38.989 in the primary region, so capacity 3.6M → 6.0M
 gives the single +0.141 and the joint +0.275; joint − single at 6.0M is −0.198. T1w context only.
+
+### How far each reading of "every comparison method" is (23:05, all joint volumes so far)
+
+| run | best lesion slice, GS-single counted | margin | best lesion slice, GS-single left out | margin |
+|---|---|---|---|---|
+| `p3_edge0010` | transverse 69 | +0.096 | coronal 136 | +0.513 |
+| `p3_n60` | transverse 69 | +0.070 | coronal 136 | +0.508 |
+| `p3_i6000` | transverse 69 | +0.076 | coronal 136 | +0.471 |
+| `p3_c1_wav006_gp003` | transverse 69 | +0.064 | coronal 136 | +0.471 |
+| `p4_dtv005` | coronal 183 | −0.014 | coronal 136 | +0.367 |
+| `p4_sgtv010` | coronal 179 | −0.654 | coronal 179 | −0.308 |
+
+With GS-single counted the gap to +1 dB is 0.9 dB and only a joint-specific T2s gain can close it; without it the gap
+is 0.49 dB and generic T2s tuning (its own weights were never scanned), capacity and iterations also count.
+The user's words were "所有对比方法" and GS-single has been a comparison method since 2026-09-14, so the campaign keeps
+it; the second column is reported so the choice can be revisited.
+
+**GPU state 23:01.** The stage-3 session now runs two trainings on this line (`p3_n96` joint 9.6M, `p3_single_T1w_n96`),
+which fills the two-training cap; `p4_union` waits for one of them. Cards 3, 6 and 7 each carry two trainings from
+other lines at the moment.
