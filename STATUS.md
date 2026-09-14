@@ -1,9 +1,31 @@
-# STATUS — 2026-09-14 13:00（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af20`）
+# STATUS — 2026-09-14 晚（worktree `mcgs_af16_wt`，分支 `jyz-af20-results`，从 `autoresearch-jyz-af20` 1cc612a 切出）
 
 本分支从 `autoresearch-jyz-af16-phase3` 尖端 f0fe009 切出，承载 jiangyizhou 的**标称 AF20** 研究，**已全部跑完**。
 先读中文总结 `docs/2026-09-14-af20-jyz-summary.md`，再读 `docs/handoff/2026-09-14-af20-jyz.md`，英文记录 `docs/superpowers/records/2026-09-14-af20-jyz.md`；
 课题目录 `/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/`（仓库镜像 `t1flair_af20_v3_jiangyizhou/`）。
 AF16 三期的 STATUS 在它自己的分支与 tag `handoff/2026-09-13-jyz-af16-phase3` 上。
+
+## 0. 09-14 下午追加（分支 `jyz-af20-results` 的新提交）
+- **加速倍数口径（用户 09-14 定）**：整平面线数 ÷ 该对比度带数据的采样线数（即 BART `pics` 打印的 `Acc`）。AF20 掩膜 T1 18.56×、FLAIR 19.96×；AF16 为 15.19 / 16.49；AF12 为 11.71 / 12.86。下文与旧文档、图标题里的“标称 AF20，实际 FLAIR 15.13×”是旧口径，未改。
+- **跨加速倍数复核**：新课题 `Results_20260908/T1FLAIR_AF12_16_20_trend_v3_jiangyizhou/`（仓库镜像 `t1flair_af12_16_20_trend_v3_jiangyizhou/`，README 中文）。三个课题 GT 逐位相同、打分代码 md5 相同；72 个存盘体积用同一套代码重打分，原表复现。除 3D-DIP 在 AF16→AF20 持平外，所有方法头内 PSNR/SSIM/HFEN 两步都变差；展示层 180/124/76、174/110/47 与几乎全部层上同样成立；MC-GS 各加速第一，对 L1-ESPIRiT 余量 T1 +0.59/+0.50/+0.46、FLAIR +0.60/+0.43/+0.49。AF12 的 MC-GS 是 P14 配方（AF16/20 为三期配方），P6 同配方核对 AF12→16 同样下降。
+- **AF20 掩膜复查**：`scripts/fig_mask_reinspect.py` → `figures/t1flair_v3_af20_mask_T1_FLAIR_reinspect.png`。T1、FLAIR 两个通道读同一文件、逐线相同；所有 AF20 主表结果与图都来自这张掩膜（抽样方差 b/c/d 除外）。定稿图按 finalize 命令重出与原图逐像素相同。
+- 验证（从归档位置重跑，原始输出节选）：
+
+```
+$ T=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_16_20_trend_v3_jiangyizhou; PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
+$ bash $T/scripts/run_rescore.sh      # 六个脱离会话的 CPU 作业，约 25 分钟
+$ PYTHONNOUSERSITE=1 $PY $T/scripts/analyze_af_trend.py | head -n 2
+rows rescored: 72  missing: []
+worst |rescore - recorded|: {'head_psnr': '3.11e-05', 'head_ssim': '2.38e-07', 'head_hfen': '3.91e-07'}
+$ bash $T/scripts/run_slice_trend.sh; PYTHONNOUSERSITE=1 $PY $T/scripts/slice_summary.py | grep -E "^=+ |^\[figure slices"
+==================== T1
+[figure slices 180/124/76] worse at both steps in 97/108 (method x plane x metric) cells; exceptions:
+[figure slices 174/110/47] worse at both steps in 99/108 (method x plane x metric) cells; exceptions:
+==================== FLAIR
+[figure slices 180/124/76] worse at both steps in 105/108 (method x plane x metric) cells; exceptions:
+[figure slices 174/110/47] worse at both steps in 108/108 (method x plane x metric) cells; exceptions:
+# 2026-09-14 从归档位置重跑 = 会话内首跑：216 个重打分值最大差 0.0，表、判定 json、逐层 json 相同，两张图逐像素相同
+```
 
 ## 一句话
 AF16 三期配方**原样不调**跑在 AF20 掩膜上：头内 PSNR **34.832 / 34.179**，对最强对手 L1-ESPIRiT（λ 在 AF20 重扫）余量
@@ -56,14 +78,13 @@ $ PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/compare_topics.py | sed -n '/MC-GS 
 ## 2. 待用户拍板
 - AF20 上 T1 锐度门失守（0.833 对 0.845）：接受，还是为 AF20 单独调（例如相位 TV 加大）——后者就不再是同参数实验。
 - 余量不随加速变大（平均 0.461→0.476）：靠提高加速逼近 1.0 dB 这条路，这份证据不支持。
-- **标签（09-14 review 新增）**：所有 AF20 结果都是标称 20 倍，实际 T1 18.56×、FLAIR 15.13×（对快门内数据），逐项核过（记录 §10）。
-  保留标称标签（同 AF16），还是重做真 20 倍（共用掩膜 T1 恰 20×，或两对比度各自 20×，后者破共用掩膜惯例）；都要全部重跑。
+- **标签**：口径已由用户定（第 0 节），不再需要重做真 20 倍。待定的是：是否把 AF20 文档与图标题里的旧标签改成“同一张掩膜，T1 18.56× / FLAIR 19.96×”（只改文字和重出图，不跑 GPU），以及 AF16 的图（09-11 按旧口径写的 nominal / actual）是否一并改。
 
 **用户已拍板（09-14）**：huangyuwei 数据不考虑（不做留出受试者）；掩膜 `.mat` 暂不进 git（仍只在磁盘上，四张都无法重生成，别覆盖）；
-MC-INR 已跑过、不补跑（只做了登记）。**剩下待定的是 T1 锐度门和加速标签（见上）。**
+MC-INR 已跑过、不补跑（只做了登记）；加速倍数按整平面口径（第 0 节）；本次新分析放新分支 `jyz-af20-results`（内容 = AF20 现有结果 + 新分析，重建体不进 git）。**剩下待定的是 T1 锐度门和是否按新口径改旧标签（见上）。**
 
 ## 3. 下一步
-- 没有不需要拍板的事了。开放项两个：T1 锐度门；标称 AF20 标签还是重做真 20 倍。中文总结 `docs/2026-09-14-af20-jyz-summary.md`。
+- 没有不需要拍板的事了。开放项两个：T1 锐度门；是否按新口径改旧标签。中文总结 `docs/2026-09-14-af20-jyz-summary.md`，跨加速倍数复核见新课题 README。
 
 ## 4. 已知的坑
 - **不要在本课题 `data/` 里重跑 `prep_02_mask.m`**：会悄悄换掉所有结果依赖的掩膜（md5 1c90baf850a8c1e64b43f6c64146e2c9）。
@@ -77,7 +98,8 @@ MC-INR 已跑过、不补跑（只做了登记）。**剩下待定的是 T1 锐�
 - 工作树目录名 `mcgs_af16_wt` 但分支是 AF20；所有脚本里这个路径是有意保留的。
 
 ## 5. 会话边界
-- 本分支已推 origin（私有仓库 sober235/mcgs）并打 tag `handoff/2026-09-14-af20-jyz`。不合 main（跨血脉禁止合并）。
+- `autoresearch-jyz-af20` 已推 origin（私有仓库 sober235/mcgs）并打 tag `handoff/2026-09-14-af20-jyz`。不合 main（跨血脉禁止合并）。
+- 09-14 晚：用户要求把 AF20 结果放到新分支 `jyz-af20-results`（1cc612a 切出 + 一次提交），已推 origin，未打 tag；本工作树现在检出这个分支。
 
 ## 6. 为什么
 - 冻结 MC-GS 参数、只换掩膜，AF16→AF20 的每个差值才能归因于掩膜；经典臂 λ 重扫，保证对手在最佳点。比较对 MC-GS 偏保守。

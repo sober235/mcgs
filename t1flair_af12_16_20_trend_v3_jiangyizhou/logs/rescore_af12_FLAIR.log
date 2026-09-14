@@ -1,0 +1,14 @@
+[AF12 FLAIR] GT LoG 46s
+[AF12 FLAIR] ZF                       zf_FLAIR_complex.npy                     PSNR 28.1931 (rec 28.1931)  SSIM 0.73299 (rec 0.73299)  HFEN 0.62665 (rec 0.62665)  47s
+[AF12 FLAIR] CG-SENSE                 cgsense_FLAIR_complex.npy                PSNR 33.9575 (rec 33.9575)  SSIM 0.90315 (rec 0.90315)  HFEN 0.12851 (rec 0.12851)  47s
+[AF12 FLAIR] CS-SENSE (35 it)         cssense_FLAIR_complex.npy                PSNR 35.0845 (rec 35.0845)  SSIM 0.93069 (rec 0.93069)  HFEN 0.11391 (rec 0.11391)  47s
+[AF12 FLAIR] CS-SENSE (converged TV)  cssense_o200_lam0.0007_FLAIR_complex.npy PSNR 35.5812 (rec 35.5812)  SSIM 0.93529 (rec 0.93529)  HFEN 0.10731 (rec 0.10731)  48s
+[AF12 FLAIR] Joint SENSE              jcssense_o200_lam0.001_FLAIR_complex.npy PSNR 35.6242 (rec 35.6242)  SSIM 0.93519 (rec 0.93519)  HFEN 0.10728 (rec 0.10728)  47s
+[AF12 FLAIR] L1-ESPIRiT               l1espirit_lam0.004_FLAIR_complex.npy     PSNR 35.7573 (rec 35.7573)  SSIM 0.93676 (rec 0.93676)  HFEN 0.09996 (rec 0.09996)  57s
+[AF12 FLAIR] ZS-SSDU                  zsssdu_FLAIR_complex.npy                 PSNR 35.0342 (rec 35.0342)  SSIM 0.93526 (rec 0.93526)  HFEN 0.12974 (rec 0.12974)  50s
+[AF12 FLAIR] 3D-DIP                   dip_FLAIR_complex.npy                    PSNR 30.8102 (rec 30.8102)  SSIM 0.83329 (rec 0.83329)  HFEN 0.26558 (rec 0.26558)  56s
+[AF12 FLAIR] 3D-INR                   inr_FLAIR_complex.npy                    PSNR 31.1902 (rec 31.1902)  SSIM 0.82771 (rec 0.82771)  HFEN 0.16902 (rec 0.16902)  50s
+[AF12 FLAIR] MC-INR                   mcinr_FLAIR_complex.npy                  PSNR 33.0420 (rec 33.0420)  SSIM 0.86962 (rec 0.86962)  HFEN 0.13914 (rec 0.13914)  50s
+[AF12 FLAIR] GS-single                gs_single_p14_FLAIR_mag.npy              PSNR 36.3238 (rec 36.3239)  SSIM 0.94094 (rec 0.94094)  HFEN 0.09432 (rec 0.09432)  50s
+[AF12 FLAIR] MC-GS                    gs_joint_p14_FLAIR_mag.npy               PSNR 36.3596 (rec 36.3597)  SSIM 0.94148 (rec 0.94148)  HFEN 0.09348 (rec 0.09348)  50s
+[AF12 FLAIR] DONE

@@ -1,0 +1,13 @@
+[FLAIR] MC-GS done 35s
+[FLAIR] GS-single done 70s
+[FLAIR] L1-ESPIRiT done 108s
+[FLAIR] CS-SENSE (converged TV) done 141s
+[FLAIR] Joint SENSE done 174s
+[FLAIR] CS-SENSE (35 it) done 205s
+[FLAIR] ZS-SSDU done 239s
+[FLAIR] CG-SENSE done 275s
+[FLAIR] MC-INR done 310s
+[FLAIR] 3D-DIP done 346s
+[FLAIR] 3D-INR done 381s
+[FLAIR] ZF done 420s
+[FLAIR] DONE; worst figure-vs-vectorised: {'dpsnr': 7.247535904753022e-13, 'dssim': 7.327471962526033e-15, 'dnmse': 3.354955202539145e-15}

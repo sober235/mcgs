@@ -111,6 +111,12 @@ scripts/finalize_af20_jyz.sh af20_p3_joint_full4k af20_p3_singleT1_full4k af20_p
   record's layout, slices and 48-voxel box (chosen on the AF 16 phase-3 arm, not re-optimised here).
 - `figures/t1flair_v3_af20_{T1,FLAIR}_row3planes_compact_174_110_47_headerr_p3.png` — the plain compact view.
 - `figures/t1flair_v3_af20_mask_T1_vs_FLAIR.png` — the mask against each contrast's acquired region.
+- `figures/t1flair_v3_af20_mask_T1_FLAIR_reinspect.png` (2026-09-14, `scripts/fig_mask_reinspect.py`) — the mask as each channel
+  loads it: T1 and FLAIR read the same file (0 lines differ); T1 has data on all 2427 lines (AF 18.56), FLAIR on 2257, with 170
+  lines in its unacquired corners (AF 19.96). AF here = PE-plane lines / sampled lines carrying that contrast's data (user
+  decision 2026-09-14); the "nominal AF 20, actual T1 18.56x / FLAIR 15.13x" labels elsewhere in this topic are the older
+  convention and have not been relabelled. The cross-AF review of this subject (AF 12 / 16 / 20, every arm re-scored with one
+  scorer, same-slice trends) is the topic `T1FLAIR_AF12_16_20_trend_v3_jiangyizhou/`.
 - `figures/t1flair_v3_af20_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr.{png,pdf}` — the same layout
   with the MC-INR (Niessen 2025) column added (`fig_three_planes_compact.py --with_mcinr`), as in the AF 16 topic.
 

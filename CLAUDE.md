@@ -88,3 +88,17 @@ leads shrink at AF20 — selection effect, quote the whole-volume margin). Mask-
 (Niessen 2025, parallel session, same mask) registered: 30.969 / 31.666. User 2026-09-14: no huangyuwei, masks not in git,
 MC-INR not rerun. Every result is at the NOMINAL AF20 (actual T1 18.56x, FLAIR 15.13x; record §10); open items: the T1
 sharpness gate, and nominal label vs an exact-20x rerun. Chinese summary: `docs/2026-09-14-af20-jyz-summary.md`.
+
+## Branch `jyz-af20-results` (2026-09-14, this worktree)
+Cut from the AF20 tip 1cc612a at the user's request and now checked out here; it carries everything above plus one commit of
+the afternoon's review. Read `STATUS.md` first.
+- **AF definition (user decision 2026-09-14):** AF = PE-plane lines / sampled lines that carry that contrast's data (what BART
+  `pics` prints as `Acc`). For the jiangyizhou masks: AF12 topic T1 11.71 / FLAIR 12.86, AF16 topic 15.19 / 16.49, AF20 topic
+  18.56 / 19.96. The "nominal AF 20 (actual T1 18.56x, FLAIR 15.13x)" labels in the AF20 docs and figure titles are the older
+  convention; relabelling them (and the AF16 figures) waits for the user's go.
+- Cross-AF review topic `/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_16_20_trend_v3_jiangyizhou/` (mirror
+  `t1flair_af12_16_20_trend_v3_jiangyizhou/`, README in Chinese): all 72 saved volumes of the three topics re-scored with one
+  scorer; every arm's head PSNR / SSIM / HFEN worsens at both acceleration steps except 3D-DIP's flat AF16->AF20; the same holds
+  on the figure slices and on (almost) every slice.
+- AF20 topic additions: `scripts/fig_mask_reinspect.py` and `figures/t1flair_v3_af20_mask_T1_FLAIR_reinspect.png` (T1 and FLAIR
+  read the same mask file; 170 of its lines fall in FLAIR's unacquired corners).

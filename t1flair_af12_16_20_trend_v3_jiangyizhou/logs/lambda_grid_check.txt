@@ -1,0 +1,18 @@
+AF12 T1    CS-SENSE converged TV  best 0.0007 interior | table: lam 0.0007 36.162 | 0.0005:35.970  0.0007:36.162  0.001:36.144  0.0014:35.931  0.002:35.501
+AF12 FLAIR CS-SENSE converged TV  best 0.0007 interior | table: lam 0.0007 35.581 | 0.0004:35.462  0.0005:35.575  0.0007:35.581  0.001:35.400  0.0014:35.075
+AF12 T1    Joint SENSE            best 0.001 interior | table: lam 0.001 36.070 | 0.0005:35.584  0.0007:35.936  0.001:36.070  0.0014:35.986  0.002:35.691
+AF12 FLAIR Joint SENSE            best 0.001 interior | table: lam 0.001 35.624 | 0.0005:35.383  0.0007:35.606  0.001:35.624  0.0014:35.464  0.002:35.132
+AF12 T1    L1-ESPIRiT             best 0.002 interior | table: lam 0.002 36.426 | 0.0007:35.226  0.001:35.917  0.0015:36.334  0.002:36.426  0.0025:36.374  0.003:36.255  0.004:35.934
+AF12 FLAIR L1-ESPIRiT             best 0.004 interior | table: lam 0.004 35.757 | 0.003:35.689  0.004:35.757  0.005:35.720  0.006:35.630  0.007:35.513  0.01:35.095
+AF16 T1    CS-SENSE converged TV  best 0.0007 interior | table: lam 0.0007 34.945 | 0.00035:34.504  0.0005:34.834  0.0007:34.945  0.001:34.867  0.0014:34.631
+AF16 FLAIR CS-SENSE converged TV  best 0.0005 interior | table: lam 0.0005 34.302 | 0.00025:33.843  0.00035:34.158  0.0005:34.302  0.0007:34.278  0.001:34.110
+AF16 T1    Joint SENSE            best 0.001 EDGE | table: lam 0.001 34.831 | 0.0007:34.782  0.001:34.831
+AF16 FLAIR Joint SENSE            best 0.0007 EDGE | table: lam 0.0007 34.355 | 0.0007:34.355  0.001:34.339
+AF16 T1    L1-ESPIRiT             best 0.0015 interior | table: lam 0.0015 35.209 | 0.001:35.081  0.0015:35.209  0.0025:35.060
+AF16 FLAIR L1-ESPIRiT             best 0.003 interior | table: lam 0.003 34.503 | 0.002:34.377  0.003:34.503  0.005:34.365
+AF20 T1    CS-SENSE converged TV  best 0.0007 interior | table: lam 0.0007 34.003 | 0.0005:33.919  0.0007:34.003  0.001:33.909  0.0014:33.678
+AF20 FLAIR CS-SENSE converged TV  best 0.0005 interior | table: lam 0.0005 33.494 | 0.00035:33.377  0.0005:33.494  0.0007:33.463  0.001:33.311
+AF20 T1    Joint SENSE            best 0.001 interior | table: lam 0.001 33.885 | 0.0005:33.657  0.0007:33.864  0.001:33.885  0.0014:33.742
+AF20 FLAIR Joint SENSE            best 0.0007 interior | table: lam 0.0007 33.544 | 0.0005:33.420  0.0007:33.544  0.001:33.519  0.0014:33.378
+AF20 T1    L1-ESPIRiT             best 0.001 interior | table: lam 0.001 34.371 | 0.0005:33.613  0.0007:34.134  0.001:34.371  0.0015:34.341  0.0025:34.087  0.004:33.550
+AF20 FLAIR L1-ESPIRiT             best 0.003 interior | table: lam 0.003 33.688 | 0.002:33.664  0.003:33.688  0.005:33.491  0.007:33.262
