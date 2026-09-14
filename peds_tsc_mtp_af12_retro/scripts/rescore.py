@@ -16,7 +16,7 @@ ap.add_argument("--lo", type=int, default=12)
 ap.add_argument("--hi", type=int, default=92)
 ap.add_argument("--full", action="store_true", help="score all 104 partitions (the cross-check)")
 ap.add_argument("--out", default=None)
-ap.add_argument("--jobs", type=int, default=9,
+ap.add_argument("--jobs", type=int, default=10,
                 help="arms scored in parallel; the 15^3 LoG convolution is single-threaded and dominates")
 args = ap.parse_args()
 
@@ -46,6 +46,7 @@ def arms(c):
     a += [("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy", None),
           ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy", None),
           ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy", None),
+          ("mcinr", "MC-INR (Niessen 2025)", R / f"recon/mcinr_{c}_complex.npy", None),
           ("gs_single_ar", "GS-single", R / f"recon/gs_single_ar_{c}_complex.npy", None),
           ("gs_joint_ar", "MC-GS", R / f"recon/gs_joint_ar_{c}_complex.npy", None)]
     return a
