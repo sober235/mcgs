@@ -19,6 +19,8 @@ p4_union configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.la
 # group wavelet at unchanged weights only ever lowers T2s's shrinkage (where T1w's coefficient is large): moved up 23:35
 p4_gwav configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.wav_group=true
 p4_edge0020 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.002
+# common edge below 0.001 too (claude-e7, 23:45: on the jyz AF12 line the useful value sat 20x below the one declared dead)
+p4_edge0005 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.0005
 # T2s's own weights were never scanned (stage 3 tuned T1w's); p4_dtv005 says T2s does not want more smoothing.
 # Generic levers: a candidate built on them needs the single T2s re-run at the same weights before it counts.
 p4_T2s_geo007 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.07
