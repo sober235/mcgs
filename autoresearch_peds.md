@@ -31,6 +31,34 @@ is an over-smoothed reconstruction. The GS arms ran at a working point (P10) cho
 MPRAGE + FLAIR pair, while L1-ESPIRiT's λ was swept on this subject over 14 values and CS-SENSE's
 over 11. Round 1 removes that asymmetry before anything more interesting is tried.
 
+## Round 0 — where the T1w gap actually is (2026-09-14, diagnostic)
+
+`scripts/diag_kspace_error.py` of the topic splits each arm's error energy over the phase-encode
+plane (`logs/diag_kspace_error.log`). Energies are relative to the ground truth's, x1e3:
+
+| T1w | total | on the sampled 2635 | unsampled, in support | on the measured zeros | radius 0.25–0.50 | radius 0.50–1.00 |
+|---|---|---|---|---|---|---|
+| MC-GS | 8.74 | 0.161 | 8.542 | 0.039 | 1.513 | 6.877 |
+| GS-single | 8.34 | 0.155 | 8.144 | 0.039 | 1.474 | 6.510 |
+| L1-ESPIRiT | 7.93 | 0.166 | 7.724 | 0.041 | 1.381 | 6.169 |
+
+Three things follow, and they set the order of the levers.
+
+1. **MC-GS is not underfitting the data.** On the sampled positions its error is 0.161 against
+   L1-ESPIRiT's 0.166 — it fits what it was given slightly *better*. Nothing is to be won by pushing
+   the data term.
+2. **The whole gap is unsampled high spatial frequency.** Of the 0.81 total gap to L1-ESPIRiT, 0.71
+   sits in the 0.50–1.00 radius band and 0.13 in 0.25–0.50; below 0.25 MC-GS is the better arm
+   (0.013 + 0.247 against 0.015 + 0.268). This is the signature of a prior that is too smooth, or of
+   a representation that cannot carry that band — which is what rounds 1 and 2 test, in that order.
+3. **A bound on the frequency-shaping lever.** The sampled positions carry 1.8 % of the error and the
+   measured zeros 0.45 %, so `kspace_high_weight`, `kspace_center_weight` and anything else that only
+   reweights the fit to sampled data cannot buy more than about 0.08 dB. That lever moves from
+   "round 5" to "not worth a run on its own".
+
+T2s shows the same structure (98 % of the error unsampled); there the three arms are within 1.5 % of
+each other in every band, which is why those three cells are near-ties.
+
 ## Round log
 
 ### Round 1 — λ recalibration on this subject (2026-09-14)
