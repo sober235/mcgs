@@ -69,10 +69,14 @@ card lists (`ALLOWED="1 0 2" TAG=r1a`, `ALLOWED="3 4 5 7" TAG=r1b`), one trainin
 
 | run | change | verdict |
 |---|---|---|
-| `p3_wavT1_006` | T1w wavelet 0.12 → 0.06 (T2s pinned at 0.10) | pending |
+| `p3_wavT1_006` | T1w wavelet 0.12 → 0.06 (T2s pinned at 0.10) | **T1w +0.136 dB** (37.855 → 37.991), HFEN 0.0922 → 0.0903, sharp 0.813 → 0.819, SSIM flat; T2s unmoved as designed. min_margin −0.9744 → −0.8389 |
 | `p3_wavT1_003` | T1w wavelet 0.12 → 0.03 | pending |
 | `p3_geo_006` | edge-TV λ_geo 0.10 → 0.06 (shared by both channels) | pending |
 | `p3_geo_003` | edge-TV λ_geo 0.10 → 0.03 | pending |
+
+Round 0's reading holds: the prior *is* too heavy for this exam, and unloading it moves T1w in the
+right direction on PSNR, HFEN and sharpness at once. But halving the weight bought 0.136 dB of the
+0.975 needed, so λ alone is not going to close the gap — which is why the ceiling run is queued.
 
 The run log's `[wavelet] lambda=... (plain ..., contrast ...)` line is the proof the per-contrast
 override reached the trainer: `p3_wavT1_006` printed `lambda=0.1 (plain 0.06, contrast 0.1)`.
