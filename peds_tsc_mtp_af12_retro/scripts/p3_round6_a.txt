@@ -1,0 +1,5 @@
+# Stage 3 round 6: the joint arm at 19.2M points. The matched-capacity series is 38.516 / 38.791 /
+# 38.936 for the joint and 38.848 / 38.989 / 38.993 for the single at 3.6M / 6.0M / 9.6M: the single
+# saturated after 6.0M while the joint is still climbing, so the -0.332 deficit is down to -0.057.
+# VRAM barely moves with point count (37.9 -> 39.3 GB over that range); the cost is wall clock.
+p3 p3_n192 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=19200000
