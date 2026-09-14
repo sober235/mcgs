@@ -17,10 +17,14 @@ PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
 export PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID
 cd $J
 log() { echo "[$(date +%H:%M)] $*" >> logs/stage2_af20.log; }
-card_idle() {   # true when the card with this index has no compute process
-  local bus
+card_idle() {   # true only when the card with this index has no compute process
+  # The listing goes into a variable first: under pipefail, `nvidia-smi | grep -q` fails whenever grep exits before
+  # nvidia-smi has written everything (SIGPIPE), and the negation then reported busy cards as idle (2026-09-14).
+  local bus apps
   bus=$(nvidia-smi --query-gpu=index,pci.bus_id --format=csv,noheader | awk -F', ' -v i="$1" '$1==i{print $2}')
-  ! nvidia-smi --query-compute-apps=gpu_bus_id --format=csv,noheader | grep -q "$bus"
+  [ -n "$bus" ] || return 1
+  apps=$(nvidia-smi --query-compute-apps=gpu_bus_id --format=csv,noheader) || return 1
+  ! grep -qF "$bus" <<< "$apps"
 }
 run() {   # gpu contrast name cmd...
   local g=$1 c=$2 n=$3; shift 3

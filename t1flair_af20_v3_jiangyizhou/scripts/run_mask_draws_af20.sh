@@ -14,10 +14,14 @@ export PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID
 CARDS=${CARDS:-"5 0 2 3 4"}; GPU_L1=${GPU_L1:-7}; THREADS=${THREADS:-12}
 cd $J
 log() { echo "[$(date +%H:%M)] $*" >> logs/mask_draws_af20.log; }
-card_idle() {
-  local bus
+card_idle() {   # true only when the card with this index has no compute process
+  # The listing goes into a variable first: under pipefail, `nvidia-smi | grep -q` fails whenever grep exits before
+  # nvidia-smi has written everything (SIGPIPE), and the negation then reported busy cards as idle (2026-09-14).
+  local bus apps
   bus=$(nvidia-smi --query-gpu=index,pci.bus_id --format=csv,noheader | awk -F', ' -v i="$1" '$1==i{print $2}')
-  ! nvidia-smi --query-compute-apps=gpu_bus_id --format=csv,noheader | grep -q "$bus"
+  [ -n "$bus" ] || return 1
+  apps=$(nvidia-smi --query-compute-apps=gpu_bus_id --format=csv,noheader) || return 1
+  ! grep -qF "$bus" <<< "$apps"
 }
 l1() {  # draw contrast lambda
   local d=$1 c=$2 L=$3
@@ -46,7 +50,7 @@ done
       [ -z "$card" ] && sleep 120
     done
     log "mcgs draw $d START card $card"
-    ( cd $W && MASK_DRAW=$d ./run_af20_mcgs.sh $exp $card 4000; echo "[$(date +%H:%M)] mcgs draw $d rc=$?" >> $J/logs/mask_draws_af20.log ) &
+    ( cd $W && MASK_DRAW=$d ./run_af20_mcgs.sh $exp $card 4000; rc=$?; echo "[$(date +%H:%M)] mcgs draw $d rc=$rc" >> $J/logs/mask_draws_af20.log ) &
     sleep 300        # the trainer holds its card (and so shows as busy) well within five minutes of its start
   done
   wait

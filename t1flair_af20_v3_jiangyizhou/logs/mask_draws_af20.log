@@ -1,0 +1,10 @@
+[09:05] START (MC-GS candidate cards: 5 0 2 3 4; L1 scoring card 7; BART threads 12)
+[09:05] mcgs draw b START card 5
+[09:10] mcgs draw c START card 5
+[09:15] mcgs draw d START card 5
+[09:16] mcgs draw d rc=0
+[09:17] mcgs draw c rc=0
+[09:18] l1 draw b T1 lam=0.0007 rc=0
+[09:18] l1 draw d T1 lam=0.0007 rc=0
+[09:18] l1 draw c T1 lam=0.0007 rc=0
+[09:19] draws c and d landed on card 5 next to draw b: card_idle() misread a busy card as idle under pipefail (grep -q closes the pipe, nvidia-smi gets SIGPIPE). Draw d died of CUDA OOM (logged rc=0: $(date) ran before $? in the echo); draw c stopped at 7 min. Both requeued with the fixed check.
