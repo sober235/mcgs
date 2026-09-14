@@ -1,8 +1,8 @@
 # STATUS — 2026-09-14 晚（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af24`，从 `jyz-af20-results` 4d13197 切出）
 
-## AF24（本分支，09-14 21:00 起）：已准备好，等用户看过掩膜再上 GPU
+## AF24（本分支，09-14 21:00 起）：用户已确认掩膜，21:45 全部作业已启动（跑完自动 finalize）
 - 用户要求：在 mcgs 仓库开 AF=24 分支，执行完整的 AF24 实验，开跑前先看准备用的掩膜图。
-- 口径按用户 09-14 的定义（整平面点数 ÷ 该对比度带数据的采样点数）。本课题让 T1 正好 24×（1877 点），FLAIR 因快门外 111 点落空为 25.51×。用户没有在"T1 正好 / FLAIR 正好 / 照旧 accelx=6"里明确选，按我推荐的"T1 正好"做了，掩膜图已发给用户，**待确认**。
+- 口径按用户 09-14 的定义（整平面点数 ÷ 该对比度带数据的采样点数）。本课题让 T1 正好 24×（1877 点），FLAIR 因快门外 111 点落空为 25.51×。用户没有在"T1 正好 / FLAIR 正好 / 照旧 accelx=6"里明确选，按我推荐的"T1 正好"做了；掩膜图发给用户后，**用户 09-14 回复"没问题"（确认掩膜、同意开跑）**。
 - 掩膜：同一生成器、同一设置，只改 accelx。134 张抽样池里按事先定的规则取编号最小的恰好 1877 点那张（draw_025，accelx 6.8656，未裁剪），md5 c3688d6182ba20df7404519e560dd9b4；另一张恰好 1877 点的 FLAIR 为 25.37×。挑选脚本、prep_04_export、按两份配置读回的 fig_mask_reinspect 三处独立核对一致。
 - 课题 `Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/`（仓库镜像 `t1flair_af24_v3_jiangyizhou/`，README 有掩膜表）；配置 `configs/t1flair_v3_af24_jyz{,_singleT1,_singleFLAIR}.yaml`（非注释行只改路径、acceleration_factor、实验名；acceleration_factor 只用于阈值 10 的策略分支，16/20/24 同一分支）；MC-GS `run_af24_mcgs.sh`（配方块与 AF20 逐字相同）；全部作业 `scripts/run_all_af24.py`（38 个作业按优先级排队，哪张卡空出来就放哪张：卡上没有本用户任何计算进程、显存够，最多同时 4 个 GPU 作业；12 个 L1-ESPIRiT 占 4 个 CPU 槽；全部结束后自动跑 finalize）。改用排队是因为 21:40 时 8 张卡里 5 张挂着你别的会话的作业（心脏径向、儿童 MC-GS、检测器），固定 6 卡方案会有链一直等；38 个作业的签名匹配已单测，互不误认。
 - 经典臂 λ 网格 = AF20 最终网格各往下加一个点（AF16→AF20 唯一移动的最优 L1 T1 是往下移）。
@@ -17,7 +17,19 @@ FLAIR mask /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/
 T1 sampled lines with signal 1877 -> AF 24.00; FLAIR sampled lines with signal 1766 -> AF 25.51, without 111; FLAIR acquired region 34139
 ```
 
-- 下一步（用户点头后）：MC-GS 短冒烟（看日志 zero_lines=111/1877），`--dry_run` 看一眼队列和卡，再 `setsid nohup` 启动 `run_all_af24.py`。
+- 冒烟（21:35–21:45，卡 6，60 步，warmup 20；数字只证明流程通，NOT_EVIDENCE）：
+
+```
+$ WARMUP=20 ./run_af24_mcgs.sh af24_smoke 6 60        # results_arc/af24_smoke.log
+Using external mask with actual acceleration: 24.00x   (T1、FLAIR 各一行)
+[physics:contrast] known_zero=True ... zero_lines=111/1877 explained=98 ...
+[21:45] af24_smoke rc=0  head_psnr_cplx": 29.176 head_psnr": 32.380
+SCORE combined=21.474 both_beat_zf=True N=3600000 vram_gb=32.9 elapsed_s=597
+```
+
+- **启动（21:45:49）**：`cd <课题> && setsid nohup env PYTHONNOUSERSITE=1 PYTHONPATH= $PY -u scripts/run_all_af24.py > /dev/null 2>&1 < /dev/null &`，调度器 pid 1098113。首批：gs_joint 卡 6、gs_singleFLAIR 卡 7、L1 T1 四个 λ（数据放在卡 6，每个 5.4 GB：当时还没有经典臂在跑，按规则退到空闲显存最多的卡；峰值估 61/80 GB，没有重启调度器）。其余作业等卡，0–5 号卡上是用户别的会话的作业。
+- 看进度：`tail logs/run_all_af24.log`、`logs/run_all_af24_status.json`；全部结束会写 `logs/RUN_ALL_AF24_DONE` 和 `logs/finalize_af24.log`。调度器可以安全重启：结果文件在的跳过，正在跑的按签名等待，不会重复起。
+- 提交 cd7b28b 的说明写的是启动记录，但当时 STATUS 的改写没写进去（替换断言失败，后面的 git 命令照样执行），实际只含调度日志；启动记录在它之后的提交里。
 - 坑：`prep_02_mask_pool_af24.m` 与 `prep_03_pick_mask_af24.py` 都拒绝覆盖，别删池子或掩膜（按秒级 time(0) 取种子，无法重生成）；克隆来的旧调度器 `sched_af24.py` 已删（会用 09-09 的旧 GS 参数和 hyw 课题）；`compare_topics.py` 首次改写把两个课题都写成了 AF24，已修正并核对。
 
 ---

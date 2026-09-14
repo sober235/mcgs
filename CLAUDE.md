@@ -103,9 +103,9 @@ the afternoon's review. Read `STATUS.md` first.
 - AF20 topic additions: `scripts/fig_mask_reinspect.py` and `figures/t1flair_v3_af20_mask_T1_FLAIR_reinspect.png` (T1 and FLAIR
   read the same mask file; 170 of its lines fall in FLAIR's unacquired corners).
 
-## AF24 study (branch `autoresearch-jyz-af24`, this worktree, 2026-09-14) — prepared, not yet run
+## AF24 study (branch `autoresearch-jyz-af24`, this worktree, 2026-09-14) — running since 21:45 (user approved the mask)
 Cut from `jyz-af20-results` 4d13197; read `STATUS.md` first. Topic `/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/`
 (mirror `t1flair_af24_v3_jiangyizhou/`, README). One variable again, the mask: T1 at exactly 24x under the user's AF definition
 (1877 points; FLAIR 25.51x), the house generator with accelx 6.8656, draw_025 of a 134-draw pool, untrimmed (md5 c3688d61...).
 MC-GS = the AF16 phase-3 recipe frozen in `run_af24_mcgs.sh`; every arm is queued by `scripts/run_all_af24.py` (priority queue,
-one GPU job of this user per card, at most four at once, then finalize). The run waits for the user's approval of the mask (`figures/t1flair_v3_af24_mask_*.png`).
+one GPU job of this user per card, at most four at once, then finalize). The user approved the mask (`figures/t1flair_v3_af24_mask_*.png`) on 2026-09-14; the queue started 21:45 and finalizes itself.
