@@ -2,10 +2,10 @@
 """Stage-4 target (user 2026-09-14): one slice containing a lesion on which MC-GS beats every other arm by >= 1 dB.
 
 Per-slice PSNR exactly as the topic's row figure (fig_row_final.py): head = |GT| > 0.05 * P99.9 of the whole volume,
-magnitude error over the head pixels of the slice, peak = max |GT| of the volume. Lesion slices, from the 2026-09-14
-lesion check (analysis_2026-09-14_mcgs_best_slice_lesions), T2*w where they are visible:
-  subependymal nodules, vendor slices 38 / 46      -> transverse SPE 53 / 45 (and +-1)
-  calcified-looking focus at RO 166, PE 196         -> transverse SPE 68..70, coronal RO 163..169, sagittal PE 193..199
+magnitude error over the head pixels of the slice, peak = max |GT| of the volume. Lesion slices (T2*w, where the lesions are visible), see SLICES below:
+  subependymal nodules, vendor slices 38 / 46 = SPE 53 / 45, centres read off the GT zoom -> transverse +-1 partition,
+    coronal / sagittal slices +-2 voxels through each centre
+  calcified-looking focus at RO 166, PE 196, SPE 68..70 -> transverse 68..70, coronal 163..169, sagittal 193..199
 Competitors: the table's other arms at their table lambda and EVERY GS-single volume available (stage 2, tuned, and
 any results_arc single run of the same contrast), so the bar on a slice is the best any of them reaches there.
 
@@ -18,9 +18,12 @@ import numpy as np
 
 R = Path("/data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro")
 ARC = Path(__file__).resolve().parents[1] / "results_arc"
+# nodule centres read off the GT T2s zoom (2026-09-14 21:05): SPE 53 at (RO, PE) (138, 140), (147, 139), (181, 128);
+# SPE 45 at (148, 172), (166, 172). Calcified focus at (166, 196), SPE 68..70. In-plane slices are taken +-2 voxels
+# around each centre, transverse ones +-1 partition.
 SLICES = {"transverse": (2, [44, 45, 46, 52, 53, 54, 68, 69, 70]),
-          "coronal": (0, list(range(163, 170))),
-          "sagittal": (1, list(range(193, 200)))}
+          "coronal": (0, sorted(set(range(136, 141)) | set(range(145, 151)) | set(range(163, 170)) | set(range(179, 184)))),
+          "sagittal": (1, sorted(set(range(126, 131)) | set(range(137, 143)) | set(range(170, 175)) | set(range(193, 200))))}
 ap = argparse.ArgumentParser()
 ap.add_argument("--exp", action="append", default=[])
 ap.add_argument("--contrast", default="T2s", choices=["T2s", "T1w"])
@@ -71,7 +74,7 @@ if (R / f"recon/gs_single_p3_{c}_complex.npy").exists():
 for sj in ARC.glob(f"*single_{c}*_volumes.npz"):
     comp[f"GS-single run {sj.name[:-len('_volumes.npz')]}"] = (sj, "recT1_complex")
 cache = ARC / f"lesion_competitors_{c}.json"
-key = sorted(str(v) for v in comp.values())
+key = sorted(str(v) for v in comp.values()) + [json.dumps(SLICES)]
 if cache.exists() and json.load(open(cache)).get("key") == key:
     comp_p = json.load(open(cache))["psnr"]
 else:
