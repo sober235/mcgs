@@ -76,3 +76,12 @@ card lists (`ALLOWED="1 0 2" TAG=r1a`, `ALLOWED="3 4 5 7" TAG=r1b`), one trainin
 
 The run log's `[wavelet] lambda=... (plain ..., contrast ...)` line is the proof the per-contrast
 override reached the trainer: `p3_wavT1_006` printed `lambda=0.1 (plain 0.06, contrast 0.1)`.
+
+### Planned for round 2 — the representation ceiling
+
+Round 0 says the contest is whether the cloud can carry the 0.50–1.00 band at all. Before sweeping
+capacity blindly, fit the **fully sampled** ground truth with the same 3.6M-point cloud (no
+undersampling, same iterations): its head PSNR is the ceiling that no amount of λ tuning can pass at
+that capacity. If the ceiling is near 38.8 dB, capacity is the binding constraint and round 2 is the
+whole campaign; if it is far above, the prior weights are, and round 1's direction is the right one.
+One GPU run, and it settles which of the two round-0 explanations is the operative one.
