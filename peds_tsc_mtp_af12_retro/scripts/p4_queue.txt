@@ -1,3 +1,5 @@
+# Smoke (20:50): the three new switches together for 60 iterations, before any 4000-iteration slot uses them.
+ITERS=60 p4_smoke_newlevers configs/peds_af12_T1w_T2s.yaml --warmup 20 --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.05 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.05 --set loss.dc_weight_contrast=0.5 --set loss.wav_group=true --set loss.contrast_reg_frozen_geometry=true --set gaussian.contrast_scale_offset=true
 # Stage 4 (+1 dB over every other arm, GS-single included). Every line starts from the stage-3 working
 # point c1 (wavelet T1w 0.06 / T2s 0.10, geometry T1w 0.03 / T2s 0.10) unless it says otherwise.
 # Only a cross-contrast mechanism can open a margin over GS-single, so these come first.
@@ -12,6 +14,9 @@ p4_dcw02 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.la
 # Round 1d (20:45): T2s's regularisers on a geometry-frozen render (new loss.contrast_reg_frozen_geometry):
 # they shape T2s's densities only; the shared cloud answers to both data terms and to T1w's priors.
 p4_regfrz configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.contrast_reg_frozen_geometry=true
+# Round 1e (21:00): per-Gaussian log-scale offset for T2s (new gaussian.contrast_scale_offset): T2s may
+# widen its own copy of each Gaussian instead of merging the geometry T1w needs.
+p4_scaleoff configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set gaussian.contrast_scale_offset=true
 p4_n100 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=10000000
 p4_single_T2s_n60 configs/peds_af12_single_T2s.yaml --set gaussian.initial_num_points=6000000
 #

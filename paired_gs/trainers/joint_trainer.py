@@ -78,6 +78,24 @@ def _load_dataset(data_cfg: Dict[str, Any]) -> MRIDataset:
 
 
 # ----------------------------------------------------------------------
+def attach_contrast_scale_offset(model, config) -> bool:
+    """gaussian.contrast_scale_offset: give the contrast channel its own per-Gaussian log-scale offset.
+
+    Positions and rotations stay shared; the contrast render uses exp(log_scale + offset), so one
+    contrast can be smoother than the other without merging Gaussians the other still needs. The
+    offset starts at zero (the render is unchanged at iteration 0). It is not carried through
+    densification or pruning, so it refuses to run with adaptive_control enabled. Returns whether it
+    was attached.
+    """
+    if not bool(config.get("gaussian", {}).get("contrast_scale_offset", False)):
+        return False
+    if config.get("adaptive_control", {}).get("enable", False):
+        raise ValueError("gaussian.contrast_scale_offset is not carried through densification/pruning; "
+                         "disable adaptive_control to use it")
+    model.scale_offset_contrast = torch.nn.Parameter(torch.zeros_like(model.scales.data))
+    return True
+
+
 class JointTrainer:
     """Shared-geometry plain+contrast joint reconstructor."""
 
@@ -340,6 +358,10 @@ class JointTrainer:
             print(f"[{self.name_contrast}-private] attached {self.model.num_private} private residual Gaussians "
                   f"(init {src}, factor {fac}); summary {self.model.parameters_summary()}")
 
+        if attach_contrast_scale_offset(self.model, self.config):
+            print(f"[{self.name_contrast}-scale] per-Gaussian log-scale offset for the contrast channel "
+                  f"({tuple(self.model.scale_offset_contrast.shape)}, zero init)")
+
         # voxelizer (one instance, called twice)
         vcfg = self.config.get("voxelizer", {})
         vtype = vcfg.get("type", "tile_cuda")
@@ -364,7 +386,7 @@ class JointTrainer:
     # -- optimizer -----------------------------------------------------
     def _optimizer_param_groups(self):
         gcfg = self.config["gaussian"]
-        return self.model.get_optimizable_params(
+        groups = self.model.get_optimizable_params(
             lr_position=gcfg.get("position_lr", 1.5e-3),
             lr_density=gcfg.get("density_lr", 1.5e-2),
             lr_scale=gcfg.get("scale_lr", 8e-3),
@@ -374,6 +396,10 @@ class JointTrainer:
             lr_private_scale=gcfg.get("private_scale_lr"),
             lr_private_rotation=gcfg.get("private_rotation_lr"),
         )
+        off = getattr(self.model, "scale_offset_contrast", None)
+        if off is not None:
+            groups.append({"params": [off], "lr": float(gcfg.get("contrast_scale_offset_lr", gcfg.get("scale_lr", 8e-3)))})
+        return groups
 
     def _setup_optimizer(self):
         self.optimizer = torch.optim.Adam(self._optimizer_param_groups())
@@ -477,7 +503,8 @@ class JointTrainer:
     # -- rendering -----------------------------------------------------
     def _render(self, channel: str) -> torch.Tensor:
         density = self.model.get_density(channel)
-        scales = self.model.get_scale_values()
+        off = getattr(self.model, "scale_offset_contrast", None) if channel == "contrast" else None
+        scales = self.model.get_scale_values() if off is None else torch.exp(self.model.scales + off)
         vol = self.voxelizer(
             positions=self.model.positions,
             scales=scales,
@@ -504,9 +531,11 @@ class JointTrainer:
         """The same render with the shared geometry detached. A loss evaluated on it moves this
         channel's densities (and a contrast-private residual set, if any) but not the shared positions,
         scales or rotations, which are then shaped by the data terms and the other channel only."""
+        off = getattr(self.model, "scale_offset_contrast", None) if channel == "contrast" else None
+        scales = self.model.get_scale_values().detach() if off is None else torch.exp(self.model.scales.detach() + off)
         vol = self.voxelizer(
             positions=self.model.positions.detach(),
-            scales=self.model.get_scale_values().detach(),
+            scales=scales,
             rotations=self.model.rotations.detach(),
             density=self.model.get_density(channel),
         )
