@@ -42,8 +42,11 @@ GS-single 38.086 > MC-GS 37.855; T2s: GS-single 34.175 ≈ MC-GS 34.160 > L1-ESP
 the same pattern, so it is the contrast pair (r = 0.57, the least similar of the ten), not the implementation.
 MC-INR (Niessen 2025) was added as a tenth arm on 2026-09-14 and lands eighth on both contrasts; its reproduction
 lives in the worktree `/data0/congcong/code/GS/mcinr_peds_wt` (branch `peds-mtp`, no remote).
-Stage 3 (running, spec `...2026-09-14-peds-af12-mcgs-autoresearch-design.md`, program `autoresearch_peds.md`) tunes
-on this subject until MC-GS leads all six head cells against every other arm, GS-single counted as a competitor.
+Stage 3 (running, spec `...2026-09-14-peds-af12-mcgs-autoresearch-design.md`, program `autoresearch_peds.md`,
+record `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md`) tunes on this subject until MC-GS leads all six head
+cells against every other arm, GS-single counted as a competitor. Where it stands: tuning moved the single arm 0.762 dB
+and it now leads the table on T1w (38.848, ahead of L1-ESPIRiT's 38.830), while the joint arm reaches 38.588 and the
+joint-minus-single deficit **grew** from -0.230 to -0.332. `STATUS.md` has the running job and the two open decisions.
 Code: `uih_mtp/` (raw reader, 3D GRAPPA, `retro_mask`, `rescore`), configs `configs/peds_af12_*.yaml`, runner
 `autoresearch_peds.sh`. GPU policy for this line (user, 2026-09-14): any card with no compute process and utilisation
 at most 10 %, at most two of this line's trainings at once (two scheduler instances with disjoint `ALLOWED` lists);

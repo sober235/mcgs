@@ -1,102 +1,102 @@
 # STATUS — 2026-09-14（分支 `16yo-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`）
 
-本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。一期、二期已完成，**三期（调参）进行中**。
-英文总结：第一阶段 `docs/superpowers/records/2026-09-12-16yo-mtp-reference-dataset.md`，
-第二阶段 `docs/superpowers/records/2026-09-13-16yo-mtp-af12.md`。
-设计与计划：`docs/superpowers/specs/2026-09-12-peds-tsc-mtp-grappa-design.md`（一期）、
-`docs/superpowers/specs/2026-09-12-16yo-mtp-stage2-af12-design.md` 与
-`docs/superpowers/plans/2026-09-12-16yo-mtp-stage2-af12.md`（二期）。
-课题目录：`Results_20260908/Peds_TSC_MTP_3D/`（参考 k 空间）与
-`Results_20260908/Peds_TSC_MTP_AF12_retro/`（回顾性十臂对比，README 是权威数字）。
-三期设计：`docs/superpowers/specs/2026-09-14-peds-af12-mcgs-autoresearch-design.md`，
-程序与回合日志 `autoresearch_peds.md`，账本 `autoresearch_peds.tsv`。
+本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。一期、二期已完成；**三期（在本受试者上调参）进行中，有一个运行在跑**。
+
+英文总结：一期 `docs/superpowers/records/2026-09-12-16yo-mtp-reference-dataset.md`，
+二期 `docs/superpowers/records/2026-09-13-16yo-mtp-af12.md`，
+**三期 `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md`（先读这份）**。
+设计：一期 `.../specs/2026-09-12-peds-tsc-mtp-grappa-design.md`，二期 `.../specs/2026-09-12-16yo-mtp-stage2-af12-design.md`
+与 `.../plans/2026-09-12-16yo-mtp-stage2-af12.md`，**三期 `.../specs/2026-09-14-peds-af12-mcgs-autoresearch-design.md`**。
+回合日志 `autoresearch_peds.md`，账本 `autoresearch_peds.tsv`。
+课题目录：`Results_20260908/Peds_TSC_MTP_3D/`（参考 k 空间）与 `Results_20260908/Peds_TSC_MTP_AF12_retro/`（十二臂对比表，README 是权威数字）。
 
 ## 1. 已完成且已验证
 
 ### 一期：参考数据集（09-12）
-GRAPPA 补齐的多线圈 k 空间 + ESPIRiT 图 + SENSE 合成图，两个对比度（T1w = FA16/TE3.25，
-T2s = FA4/TE27.41，脑内相关 0.57，是十个里最不相似的一对），存
-`/data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT/`（9.8 GB，index.json 的 10 个 md5 于 09-13 复核全部一致）。
-藏线自检 0.096 / 0.188，噪声地板 0.067 / 0.144。
+GRAPPA 补齐的多线圈 k 空间 + ESPIRiT 图 + SENSE 合成图，两个对比度（T1w = FA16/TE3.25，T2s = FA4/TE27.41，
+脑内相关 0.57，是十个里最不相似的一对），存 `/data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT/`（9.8 GB，
+index.json 的 10 个 md5 于 09-13 复核一致）。藏线自检 0.096 / 0.188，噪声地板 0.067 / 0.144。
 
-### 二期：回顾性 AF 12，十臂（09-13，MC-INR 于 09-14 补入）
+### 二期：回顾性 AF 12（09-13），十臂（MC-INR 于 09-14 补入）
 ```
 cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
-./scripts/py scripts/check_gauge.py --contrast T1w --method cgsense --gpu 2 | tail -1
+./scripts/py scripts/check_gauge.py --contrast T1w --method cgsense --gpu <空卡> | tail -1
 # GAUGE OK -- the shared module reproduces recon_classical exactly   （九项指标差值全为 0.00e+00）
 ```
-- 掩膜：2635 / 31616 点 = **AF 12.00（整格，含 ACS）**，对 19914 个有数据的位置是 **7.56 倍**；
-  一张掩膜两个对比度；已知零区 11702 点给**所有**臂（用户拍板）。`logs/prep_mask.json`。
-- 26 个排队任务返回码全为 0；六个 λ 扫描的最优**全部落在网格内部**（三个扫描为此外扩过）。
-- 主表口径（中间 80 分区）与副表（全 104 分区）一致性：**20 个臂/对比度组合、100 个数值最大差 7e-6**
-  （09-14 加入 MC-INR 后两个口径重跑全部十个臂，二期记录的是 18 组 90 个数值、2e-4）。
-- **MC-INR（Niessen 2025 复现）09-14 补入**：主表头内 PSNR T1w 33.948 / T2s 29.710，两个对比度都第 8 / 10
-  （高于 3D-INR 与 3D-DIP、低于 CG-SENSE）。它不改变任何门槛。跑法与检查见 README 的 "The MC-INR arm" 一节；
-  代码在 MC-INR 仓库的 worktree `/data0/congcong/code/GS/mcinr_peds_wt`（分支 `peds-mtp`，未推远端）。
+- 掩膜 2635 / 31616 = **AF 12.00**（整格含 ACS），对 19914 个实采位置是 7.56 倍；一张掩膜两个对比度；
+  已知零区 11702 点给**所有**臂。
+- 两个口径一致性：**20 组、100 个数值最大差 7e-6**（09-14 加入 MC-INR 后两个口径重跑了全部臂）。
+- 结论未变：按原样迁移的 P10 配方，MC-GS 不领先且联合不如单臂；Joint SENSE 独立佐证。
 
-**结论：MC-GS 在这套数据上不领先，且联合不如单臂。**
+### MC-INR 臂（09-14 完成）
+主表头内 T1w 33.948 / 0.9027 / 0.1576，T2s 29.710 / 0.7981 / 0.3479，两个对比度都第 8 / 10。
+跑法与检查见课题 README 的 “The MC-INR arm”。代码在 MC-INR 仓库的 worktree
+`/data0/congcong/code/GS/mcinr_peds_wt`（分支 `peds-mtp`，**无远端、未推**，运行记录 `docs/2026-09-14-peds-mtp-run.md`）。
+重跑：`$PY scripts/run_volume.py --topic peds --af 12 --gpu <空卡> --resume --yield_to_others`，再 `$PY scripts/score.py --topic peds --af 12`
+（环境 `GR_pt1.10`，本机唯一装 tinycudann 的）。
 
-| 头内 PSNR（中间 80 分区） | T1w | T2s |
-|---|---|---|
-| L1-ESPIRiT | **38.830** | 33.860 |
-| GS-single | 38.086 | **34.175** |
-| MC-GS | 37.855 | 34.160 |
-
-联合减单臂：T1w −0.231、T2s −0.015，SSIM/HFEN/锐度两通道也都持平或更差。
-经典联合臂独立佐证：Joint SENSE 减收敛的独立 CS-SENSE 是 T1w −0.90、T2s +0.06，方向完全一致。
-成人 T1+FLAIR 上这个差值四组全正，这里不复现——决定因素是这对对比度的相似度，不是数据稀疏度。
-
-### 三期：在本受试者上调参（09-14 起，进行中）
-
-目标（用户 09-14 拍板）：MC-GS 在主表六格——头内 PSNR / SSIM / HFEN × T1w / T2s——对**所有**其他臂第一，
-**GS-single 算对比方法**。起点门槛：T1w 38.830 / 0.9674 / 0.0756（L1-ESPIRiT），T2s 34.175 / 0.9052 / 0.1855
-（GS-single）。基线 `peds_af12_joint` 的 `min_margin = −0.9744`（由 T1w 头内 PSNR 定）。
-判分：`scripts/score_candidate.py`（课题），与主表同一函数、同一真值、同一区域；在二期的 joint 运行上逐位复现
-已发表行，两分钟一次。停止规则：达标，或杠杆用尽（最后两轮 T1w 头内 PSNR 各自不到 +0.05 dB）。
+### 三期到目前为止（09-14）
+判据（用户拍板）：MC-GS 在主表六格对**所有**其他臂第一，**GS-single 算对比方法**。判分用
+`scripts/score_candidate.py`（与主表同函数、同真值、同区域；在二期 joint 运行上逐位复现已发表行）。
+```
+cd /data0/congcong/code/GS/mcgs_peds_wt
+tail -5 autoresearch_peds.tsv | cut -f1,2,7,8,9,10,11     # 账本：min_margin 为正即达标
+```
+- 工作点：小波 T1w 0.06 / T2s 0.10，edge-TV 几何 **T1w 0.03 / T2s 0.10**，其余同 P10。
+- **逐对比度几何权重是新加的**（`lambda_geo_plain` / `lambda_geo_contrast`，`paired_gs/losses/edge_tv.py::geo_term`，
+  4 个测试；默认回退使旧运行逐位不变；全量 **225 测试通过**）。
+- T1w 头内 PSNR：37.855（基线）→ **38.516**（拆权重）→ **38.588**（6000 步）。门槛 38.848。
+- **调参后的单臂 38.848 / 0.9681 / 0.0761，已超过 L1-ESPIRiT（38.830 / 0.9674 / 0.0756，HFEN 仍是 L1 最好）。**
+- **联合减单臂 T1w 从 −0.230 扩大到 −0.332**；共同边缘 0.001 让 T2s 三格全部过线，代价是 T1w −0.133。
+- 容量 6.0M：+0.001（无效）。两个调参臂已登记为 `gs_joint_p3` / `gs_single_p3` 并进表。
 
 ## 2. 待用户拍板
-2. ~~是否用一对"相似"的对比度做对照~~ —— **用户 2026-09-13 拍板：暂时不碰。** 本线的范围守住 T1w 与 T2s
-   两个对比度。代价是阴性结论保持为"在这对对比度上联合无益"，不升级成"相似度低于某个水平就无益"的边界条件；
-   要升级必须引入第三个对比度（候选 FA16/TE9.29，与 T1w 相关 0.900，一期产出已在 `Peds_TSC_MTP_3D/data/` 里，
-   采集支撑与本课题逐位相同 md5 c4624874e099，掩膜可原样复用，约三小时单卡）。想做时不需要重新准备数据。
-3. **其余八个对比度的一期输出（23 GB）是否删除**（本次未动，用户此前说先不动）。
+
+1. **是否按停止规则收尾**。spec 的“杠杆用尽”还差一步（见第 3 节的在跑运行）。剩余杠杆只有优化器
+   （`rotation_lr 0.008`，jyz 线上值 +0.025 / +0.046）和相位 TV（本分支没有，需从 `autoresearch-jyz-af12-phase3`
+   cherry-pick `paired_gs/losses/phase_tv.py`，同血脉不涉及跨血脉合并）。
+2. **阴性结论怎么写**。当前证据支持的说法是：在每个对比度各自最合适的权重下，GS 单臂是全表最好的 T1w 重建
+   （超过 L1-ESPIRiT），而同一方法的联合版落后 0.33 dB，且先验越轻差距越大；耦合项只是把代价从一个对比度挪到另一个。
+3. 其余八个对比度的一期输出（23 GB）是否删除（一直未动）。
 
 ## 3. 下一步
 
-三期第一轮（λ 在本受试者上重标定）正在跑：四个运行，每个只动一个旋钮，只跑联合臂
-（单臂等决出候选后再跑）。队列 `scripts/p3_round1_{a,b}.txt`，两个调度器实例卡不重叠：
+**在跑（09-14 19:34 起，GPU 5，约 1.5 小时）**：`p3_single_T1w_i6000` —— 单臂的 6000 步。联合臂从这个杠杆拿到 +0.072，
+公平起见单臂也要跑；若单臂拿到同等增益，这条杠杆对目标即中性、门槛随之上移。
+```
+cd /data0/congcong/code/GS/mcgs_peds_wt
+grep -E "^\[iter" results_arc/p3_single_T1w_i6000.log | tail -1          # 进度
+tail -1 autoresearch_peds.tsv | cut -f1,2,7,9,11                          # 完成后的行
+```
+进程没了而 `results_arc/p3_single_T1w_i6000_score.json` 也没有，就原样重跑：
 ```
 cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
-ALLOWED="1 0 2"   TAG=r1a setsid nohup bash scripts/peds_sched.sh scripts/p3_round1_a.txt >> logs/sched_r1a_boot.log 2>&1 &
-ALLOWED="3 4 5 7" TAG=r1b setsid nohup bash scripts/peds_sched.sh scripts/p3_round1_b.txt >> logs/sched_r1b_boot.log 2>&1 &
+ITERS=6000 ALLOWED="5 1 4 7" TAG=r3c setsid nohup bash scripts/peds_sched.sh scripts/p3_round3_c.txt >> logs/sched_r3c_boot.log 2>&1 &
 ```
-会话中断后原样重跑这两条即可续跑：已有结果的队列行会被跳过。进度看 `logs/sched_r1{a,b}.log`
-与账本 `autoresearch_peds.tsv` 的 `min_margin` 列。
+之后按第 2 条的拍板走：要么跑优化器那一轮，要么直接收尾（收尾要做的：最终臂重登记、两个口径重算、
+`summarize.py` / `readme_tables.py` / `refresh_readme_tables.py`、重出十二臂的横排与三面图、写记录）。
 
 ## 4. 已知的坑与别重做
 
-- **方位**：本课题体积是 (RO 320, PE 304, SPE 104)，**轴 2 = 横断、轴 0 = 冠状、轴 1 = 矢状**。
-  已用厂商 DICOM 判定（`gt[:, 2:-2, 52]` 对厂商第 39 层，r = 0.899），不是猜的。从 AF16 课题复制来的脚本
-  是反的，已全部修正。体素 0.7 × 0.7 × 1.35 mm 各向异性，画图必须按物理尺寸定面板比例。
-- **房规生成器的 `calib` 不产生满采块**：旧课题掩膜也只有 472/576、482/576。本掩膜 366/576。别再为此报警。
-- **`known_zero_support` 是 e0e1058 之后才有的**：本 worktree 从 3a44aba 切出，原本没有，导致 GS 臂拿不到
-  已知零区（`frac_z_used = 0.0000`）。已移植框架部分。现在两通道都是 0.3701。
-- **别让 `recon_classical.py` 改用共享 Pair**：那会让 `check_gauge.py` 变成自己验自己。
-- **`grain_ratio` 在 T2s 上不可用**：冻结的白质掩膜只剩 664 个体素（T1w 是 220039）。口径未改，数字别引用。
-- **选层别用 `best_slice_mcgs.py` 的判据**：它按 MC-GS 领先幅度排序，而 MC-GS 在 T1w 上从不领先，那样选是自我美化。
-  图用的是解剖依据（横断 SPE 53 = 厂商第 38 层，一期病灶普查见室管膜下结节的层面）。
-- **重评分必须并行**：冻结的 15³ LoG 卷积单线程，串行两遍口径要六小时。`rescore.py --jobs 9`。
-- **GPU 政策 09-14 放宽**（用户拍板）：任意"完全没有计算进程且利用率 ≤10%"的卡，本线同时最多两个训练，
-  靠两个 `ALLOWED` 不重叠的调度器实例保证。二期的"只用 2 号卡"已作废。BART 仍走 CPU、nice 10、8 线程。
-- **`peds_sched.sh` 的作业日志名曾把 config 路径里的 `/` 原样带入**，导致每次启动立刻 rc=1 并空转；已修
-  （`tr ' ./' '___'`）。看到调度器秒退秒启就是这个。
-- 测试基线 221（`--ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py`，后者需要只有主检出才有的文件）。
+- **保存/打分的重建体带硬数据一致性**：`x_dc = ifft3(mf·y + (1−mf)·k_model)`。所以（a）给它全部可采数据就会原样
+  返回真值（`p3_ceiling` 就是这么废掉的，头内 PSNR 150.3、SSIM 1.0，**别再跑**）；（b）“某臂更好地拟合了已采样数据”
+  这种话不成立。要问容量用 `--save_render`（新加），它另存纯渲染体 `recT1_render` / `recFL_render`。
+- **`peds_sched.sh` 的作业日志名曾把 config 路径里的 `/` 带入**，导致每次启动秒退 rc=1 并空转；已修（`tr ' ./' '___'`）。
+- **加给联合臂的杠杆必须同样加给单臂**，否则“联合赢单臂”是靠不等设置赢的。T2s 单臂例外：三期没动过它自己的权重，
+  `gs_single_ar` 就是它的调参版本（`rescore.py` 里有注释）。
+- **方位**：体积 (RO 320, PE 304, SPE 104)，**轴 2 = 横断、轴 0 = 冠状、轴 1 = 矢状**（厂商 DICOM 判定）。体素各向异性 0.7×0.7×1.35 mm。
+- **`grain_ratio` 在 T2s 上不可用**（白质掩膜只剩 664 体素）。
+- **选层别用 `best_slice_mcgs.py` 的判据**（按 MC-GS 领先幅度排序 = 自我美化）。
+- **重评分必须并行**（`rescore.py --jobs 11`，15³ LoG 单线程）；两个口径各约 40 分钟 CPU。
+- GPU：任意“无计算进程且利用率 ≤10%”的卡，本线同时最多两个训练（两个 `ALLOWED` 不重叠的调度器实例）。
+- 测试基线 **225**（`--ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py`）。
 
-## 5. 关键决定的"为什么"
+## 5. 关键决定的“为什么”
 
-- **AF 按整格算（2635 点）而非按支撑（1660 点）**：用户原话是"已经采集点除以整体矩阵的大小"。两个口径都在表里标出。
-- **已知零区给所有臂**：用户拍板。代价是 BART 必须显式传 `-p`，自监督划分必须与前向掩膜分开，否则会在恒为零的
-  目标上训练或验证。
-- **主表用中间 80 分区**：外侧各 12 个分区是层向过采样余量，激励剖面已衰减到 6–10%，厂商也不输出。
-  全 104 分区的副表保留作交叉核对，两者排名一致。
-- **P10 原样迁移不调参**：spec 定的做法，这样"联合是否有增益"这个问题的答案不被调参掩盖。
+- **GS-single 算对比方法**（用户 09-14）：否则“联合最优”可以靠不跟自家单臂比而成立。代价是门槛会随单臂调参上移——
+  事实也确实如此（T1w 门槛从 L1 的 38.830 变成调参单臂的 38.848）。
+- **逐对比度几何权重**：共享权重下 T1w 越低越好、T2s 越低越差，一个数伺候不了两个对比度；拆开后 T1w +0.661 且 T2s 零代价。
+- **MC-INR 用并集掩膜**：本课题规矩是已知零区给所有臂，否则它是唯一可以在部分傅里叶区和椭圆角上凭空造信号的臂。
+- **两个调参臂另起 key 进表**（`*_p3`），不覆盖二期的行：二期回答的是“原样迁移的配方能否领先”，三期回答的是
+  “在本受试者上调到最优能否领先”，两个问题都要留在表里。
+- **AF 按整格算（2635 点）**、**已知零区给所有臂**、**主表用中间 80 分区**：见二期记录，未改动。
