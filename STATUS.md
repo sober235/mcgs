@@ -101,6 +101,11 @@ SAVE_VOLUMES=1 ./autoresearch_af16_p3.sh p3_repro 4 4000 \
 - ⚠️同样的两条不对等已写进 README：对手在本受试者上按真值调过参而 MC-INR 没有（但 CG-SENSE 无参可调仍高于它）；
   以及论文**协议**没对齐（缺互补采样等），所以只能读成"在共用掩膜、两次扫描的设置下低于 CG-SENSE"。
   本课题其实有一张同预算的互补 FLAIR 掩膜 `data/mask_af16c_flair_3d.h5`，补救实验可以在它上面做，**没做**。
-- ⚠️`export/af16_phase3/` 数据包是 MC-INR 登记之前做的，还差这一个臂和新图；要补需重跑
-  `scripts/export_phase3_bundle.py --with_raw`（约 11 GiB 重写）。AF12 那边的新包 `export/af12_p14_mcinr/` 已含 MC-INR。
+- **数据包已补齐（2026-09-14，用户要求）**：`export/af16_phase3/` 原地重建，48 文件 10.89 GiB → **68 文件 11.27 GiB**，
+  `md5sum -c` **68/68 OK**（`md5check.out`），零软链，旧包没留下游离文件（比对 MANIFEST 与实际文件，只差 README/清单/校验本身）。
+  新增：MC-INR 的重建体（两个对比度）、本课题给它打的两行分、`mcinr/` 出处目录（论文单位输出、逐层损失、meta、自查、
+  口径复核、层间抖动、三份文档含保真度自审）、十方法版定稿图 PNG+PDF，以及 `README_topic.md`。
+  `raw/` 仍是 26 线圈满采 k 空间与 ESPIRiT 图（9.0 GB，解引用）。生成脚本 `scripts/export_phase3_bundle.py --with_raw` 已同步更新。
+  与 AF12 的 `export/af12_p14_mcinr/`（66 文件 11.23 GiB）同结构同清单格式，可并排读。
+  仓库只进清单三件，数据留盘上；⚠️未去标识，不出服务器。
 - ⚠️本工作树 `mcgs_af16_p3_wt` 是这次新建的：`mcgs_af16_wt` 当时在 `autoresearch-jyz-af20` 上跑实验，不能动它的分支。

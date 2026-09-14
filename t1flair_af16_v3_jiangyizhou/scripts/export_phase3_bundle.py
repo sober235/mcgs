@@ -12,6 +12,7 @@ from pathlib import Path
 import numpy as np
 
 R = Path(__file__).resolve().parents[1]
+MC = Path("/data0/congcong/code/GS/Results_20260908/T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou")
 ap = argparse.ArgumentParser()
 ap.add_argument("--out", default="export/af16_phase3")
 ap.add_argument("--mcgs_key", default="gs_joint_p3")
@@ -44,6 +45,7 @@ def arms(c):
             ("ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
             ("3D-DIP", R / f"recon/dip_{c}_complex.npy"),
             ("3D-INR", R / f"recon/inr_{c}_complex.npy"),
+            ("MC-INR (Niessen 2025), topic units", MC / f"recon/af16/mcinr_{c}_complex.npy"),
             ("GS-single (phase 3), magnitude", R / f"recon/{a.single_key}_{c}_mag.npy"),
             ("GS-single (phase 3), complex", R / f"recon/{a.single_key}_{c}_complex.npy"),
             ("MC-GS (phase 3), magnitude", R / f"recon/{a.mcgs_key}_{c}_mag.npy"),
@@ -64,7 +66,8 @@ if a.with_raw:
                  "FLAIR's acquired support on the PE plane (the vendor elliptical shutter)"))
 jobs.append(("mask/mask_af16_3d.h5", R / "data/mask_af16_3d.h5", "3-D sampling mask (readout-broadcast)"))
 jobs.append(("mask/mask_vdpois_256x176_af16.mat", R / "data/mask_vdpois_256x176_af16.mat", "the 2-D vd-Poisson mask"))
-for n in ("summary.json", "summary.tsv", "bar_complex_gauge.json", "prep_04_export.json", "extra_gs_arms.json"):
+for n in ("summary.json", "summary.tsv", "bar_complex_gauge.json", "prep_04_export.json", "extra_gs_arms.json",
+          "mcinr_T1.json", "mcinr_FLAIR.json"):
     p = R / "logs" / n
     if p.exists():
         jobs.append((f"logs/{n}", p, f"topic log: {n}"))
@@ -73,8 +76,26 @@ for e in ("p3_r3_e0001_ptv003_full4k", "p3_r3_ptv003_s43_full4k", "p3_r3_singleT
     p = ARC / f"{e}_score.json"
     if p.exists():
         jobs.append((f"logs/{e}_score.json", p, f"scorer output of run {e}"))
-for p in sorted((R / "figures").glob("*180_124_7*_inset*_p3.*")):
-    jobs.append((f"figures/{p.name}", p, "figure of record" if "inset48" in p.name else "alternative 64-box figure"))
+# the MC-INR arm's own provenance, as in the AF12 bundle
+for c in ("T1", "FLAIR"):
+    jobs.append((f"mcinr/mcinr_norm_{c}_complex.npy", MC / f"recon/af16/mcinr_norm_{c}_complex.npy",
+                 f"{c}: MC-INR network output in the paper's normalised units (before the linear rescale to topic units)"))
+jobs.append(("mcinr/losses.npy", MC / "recon/af16/losses.npy", "MC-INR per-slice training loss curves"))
+jobs.append(("mcinr/meta.json", MC / "recon/af16/meta.json", "MC-INR run metadata: mask, hyperparameters, per-slice timings"))
+for n in ("score_af16.json", "gauge_check_af16.json", "check_real_data.json", "slice_jitter.json"):
+    q = MC / "logs" / n
+    if q.exists():
+        jobs.append((f"mcinr/{n}", q, f"MC-INR reproduction log: {n}"))
+for n, src in (("SUMMARY_zh.md", MC / "SUMMARY_zh.md"), ("README.md", MC / "README.md"),
+               ("fidelity-review.md", Path("/data0/congcong/code/GS/mcinr_niessen2025/docs/2026-09-13-fidelity-review.md"))):
+    if src.exists():
+        jobs.append((f"mcinr/{n}", src, f"MC-INR reproduction doc: {n}"))
+jobs.append(("README_topic.md", R / "README.md", "this topic's full README at the time of export"))
+for p in sorted((R / "figures").glob("*180_124_7*_inset*_p3*.*")):
+    what = ("figure of record, ten methods (MC-INR included)" if "_p3_mcinr" in p.name else
+            "figure of record, nine methods (as delivered before MC-INR was registered)" if "inset48" in p.name else
+            "alternative 64-box figure, nine methods")
+    jobs.append((f"figures/{p.name}", p, what))
 
 missing = [str(s) for _, s, _ in jobs if not s.exists()]
 if missing:

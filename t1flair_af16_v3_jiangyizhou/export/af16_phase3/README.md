@@ -3,7 +3,13 @@
 Everything behind the jiangyizhou AF 16 phase-3 comparison figure, in one self-contained folder. Real copies, so this
 directory can be moved or tarred on its own. Written by
 `Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/scripts/export_phase3_bundle.py`; `MANIFEST.tsv` lists every file with
-its shape, dtype, size and md5, and `checksums.md5` verifies the copy (`md5sum -c checksums.md5`; 48/48 OK on 2026-09-13).
+its shape, dtype, size and md5, and `checksums.md5` verifies the copy (`md5sum -c checksums.md5`).
+
+**Refreshed 2026-09-14**: MC-INR (Niessen et al. 2025) was registered as a comparison arm of this topic, so the
+bundle was rebuilt in place to carry it — 48 files / 10.89 GiB became **68 files / 11.27 GiB**. `md5sum -c` gives **68/68 OK**
+(log kept as `md5check.out`), and no file of the old bundle was left behind unlisted. Same layout and
+manifest format as `../../T1FLAIR_AF12_v3_jiangyizhou/export/af12_p14_mcinr/`, the AF 12 bundle of the same
+subject, so the two can be read side by side.
 
 ## What the reconstruction is
 
@@ -19,6 +25,13 @@ eps 0.04, k-space high-band weight 2.2, wavelet sparsity db4 on its finest level
 symmetric common-edge prior 0.001, phase-only TV 0.03, 4000 iterations. `gs_single_p3` is the same recipe with one
 contrast, i.e. the single-contrast ablation.
 
+**MC-INR** (`mcinr`) is the multi-contrast INR of Niessen et al. 2025 (MICCAI RIME, arXiv 2509.04888), reproduced
+per-slice in 2-D from the authors' code at commit 08d37c5, run on this topic's own `mask_af16_3d.h5` with the same
+k-space and ESPIRiT maps and re-scored through this topic's own scorer (agreeing with the reproduction's own
+numbers to 1.4e-7 relative on all nine metrics). It is a comparison arm, not ours, and it was registered on
+2026-09-14 — after the phase-3 promotion, which it does not affect: it is 4.1 / 2.7 dB away from being the bar in
+any cell. Its `mcinr/` folder here carries everything needed to trace it.
+
 ## Head-only numbers (the gauge of the tables; head = |GT| > 0.05 x P99.9(|GT|), PSNR peak = max|GT|)
 
 | arm | T1 PSNR / SSIM / HFEN | FLAIR PSNR / SSIM / HFEN |
@@ -32,6 +45,7 @@ contrast, i.e. the single-contrast ablation.
 | 3D-DIP | 30.994 / 0.8549 / 0.3024 | 30.650 / 0.8290 / 0.2769 |
 | 3D-INR | 30.375 / 0.7951 / 0.2125 | 30.257 / 0.7889 / 0.1998 |
 | CG-SENSE | 32.354 / 0.8825 / 0.2239 | 32.826 / 0.8860 / 0.1608 |
+| MC-INR (Niessen 2025) | 31.590 / 0.8355 / 0.2325 | 32.243 / 0.8590 / 0.1711 |
 
 Margin of MC-GS over the strongest comparison arm: **+0.497 dB (T1) and +0.425 dB (FLAIR)**; seed-to-seed spread of
 the recipe is 0.001 / 0.000 dB. Every classical lambda was swept on this subject's ground truth, the same privilege
@@ -42,7 +56,11 @@ the MC-GS knobs had — a fair comparison, not a held-out one.
 `figures/` holds the figure of record and its alternative, each as 600-dpi PDF (vector text and lines, image panels
 rasterised at 600 ppi) and as PNG:
 
-- `..._180_124_76_inset48_headerr_p3.*` — **the figure of record**: whole transverse 180 / coronal 124 / sagittal 76,
+- `..._180_124_76_inset48_headerr_p3_mcinr.*` — **the current figure of record**, ten methods, MC-INR included.
+  Same slices, style and gauge as the nine-method pair below; the two render logs print identical grey windows,
+  per-panel ranks and 48-box leads, so the extra column changed nothing else on the figure.
+- `..._180_124_76_inset48_headerr_p3.*` — the nine-method version, as delivered before MC-INR was registered:
+  whole transverse 180 / coronal 124 / sagittal 76,
   each panel carrying head-masked slice PSNR / SSIM / NMSE, with a 48-voxel box outlined and magnified in a corner.
   Inside that box MC-GS leads the best competing arm by +0.892 / +0.826 / +0.836 dB (T1, the three planes) and
   +0.824 / +1.102 / +1.060 dB (FLAIR).
@@ -57,6 +75,15 @@ the 3-D sampling mask (k-space, never cropped).
 - `volumes/T1/`, `volumes/FLAIR/` — one array per arm, plus the ground truth. Complex arrays are the reconstruction
   itself; `_mag` files are its magnitude (what the tables and the error maps use). numpy `.npy`, 256 x 256 x 176.
 - `mask/` — the 3-D sampling mask actually applied and the 2-D vd-Poisson pattern it came from.
+- `mcinr/` — the MC-INR arm's own provenance: its network output in the paper's normalised units before the linear
+  rescale to topic units, the per-slice loss curves, the run metadata (mask, hyperparameters, per-slice timings),
+  its self-scoring and gauge re-check, the real-data synthesis check, the slice-jitter measurement, and three
+  documents — the reproduction's README and Chinese summary, and its fidelity review against the paper. That review
+  is what the AF 12 and AF 16 topic READMEs cite for the two asymmetries that belong next to this arm's row: the
+  other arms had their parameters selected on this subject and MC-INR did not (CG-SENSE has none to tune and is
+  still above it), and the paper's protocol — complementary per-contrast sampling, one acquisition, a shared coil
+  map — is not what was tested here.
+- `README_topic.md` — this topic's full README at the time of export.
 - `logs/` — the topic's `summary.{json,tsv}` (every arm, every metric), the competitor bar, the export report of the
   data preparation, the registry of the extra GS arms, and the scorer output of the four phase-3 runs.
 
@@ -76,5 +103,8 @@ reconstruction can be reproduced from `raw/` with the command in the phase-3 STA
 
 Framework branch `autoresearch-jyz-af16-phase3` (github.com/sober235/mcgs), phase-3 record
 `docs/superpowers/records/2026-09-13-autoresearch-jyz-af16-phase3.md`, programme and round log
-`autoresearch_af16_p3.md`, ledger `autoresearch_af16_p3.tsv`. Subject data is not de-identified — the directory names
+`autoresearch_af16_p3.md`, ledger `autoresearch_af16_p3.tsv`. The MC-INR arm comes from
+`/data0/congcong/code/GS/mcinr_niessen2025` (local git) and its results topic
+`../../T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou`; its registration here is commit `2b9acfb` on the same branch.
+Subject data is not de-identified — the directory names
 carry the subject's real name, so this bundle stays on the server.
