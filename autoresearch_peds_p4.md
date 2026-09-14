@@ -143,3 +143,18 @@ On T1w the joint runs trail the tuned single on all lesion slices (−0.03 to �
 cross-contrast levers that can move T2s: common edge 0.002 / 0.004, T1w-driven geometry (`dc_weight_contrast` 0.2),
 group wavelet, T1w-guided directional TV (swap 0.05, strong 0.20), frozen-geometry T2s regularisers, T2s scale offset.
 The capacity-fairness and T1w-side runs are parked in the queue file.
+
+### Results against the lesion-slice bar (primary region numbers are volume-level, head PSNR / SSIM / HFEN)
+
+| run | lever | T1w primary | T2s primary | best lesion slice | margin | over non-GS arms | verdict |
+|---|---|---|---|---|---|---|---|
+| `p4_smoke_newlevers` | all new switches, 60 iters | (smoke) | (smoke) | — | — | — | every switch logs, loss terms add up, volumes and scores written |
+| `p4_dtv005` | weighted dTV 0.05 on top of c1 | 38.510 / 0.9668 / 0.0774 | 34.013 / 0.8965 / 0.1965 | coronal 183 | −0.014 | +0.235 | discard: T2s over-smoothed on all three cells |
+
+`p3_single_T1w_i6000` (another session's fairness run): T1w 38.889 / 0.9683 / 0.0760, so iterations give the joint
++0.072 and the single +0.041 (joint − single −0.332 → −0.301); not a T2s lever.
+
+**Coordination (21:30).** The stage-3 session came back to this line and runs one training at a time (its fairness run
+`p3_single_T1w_n60`). To stay inside the two-training cap without starving it, `scripts/p4_sched2.sh` replaces
+`p4_sched.sh`: the line cap of two still counts every session's runs, and this campaign keeps at most one of its own.
+This campaign no longer edits `STATUS.md`, `CLAUDE.md` or the stage-3 record; its notes stay in this file.

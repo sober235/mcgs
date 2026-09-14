@@ -17,13 +17,16 @@ p4_dcw02 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.la
 # Joint (group) wavelet sparsity.
 p4_gwav configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.wav_group=true
 # Half of T2s's own edge-TV replaced by T1w-guided directional TV; and a stronger guide.
-p4_dtvswap configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.05 --lambda_dtv 0.05
-p4_dtv020 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.05 --lambda_dtv 0.20
+# dropped 21:32: p4_dtv005 (weighted dTV 0.05 on top) lost T2s 0.15 dB volume-wide, best lesion margin -0.014
+#p4_dtv020 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.05 --lambda_dtv 0.20
 # T2s's regularisers kept off the shared geometry; T2s's own scale offset.
 p4_regfrz configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.contrast_reg_frozen_geometry=true
 p4_scaleoff configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set gaussian.contrast_scale_offset=true
 p4_edge0040 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.004
 p4_gwav_x14 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_plain=0.084 --set loss.lambda_wav_contrast=0.14 --set loss.lambda_geo_contrast=0.10 --set loss.wav_group=true
+#
+# weighted dTV swap, demoted 21:32
+p4_dtvswap configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.05 --lambda_dtv 0.05
 #
 # Parked (whole-volume target, dropped): capacity fairness and T1w-side runs. p4_single_T2s_n60 comes back if a 6.0M
 # candidate is ever the pick.
