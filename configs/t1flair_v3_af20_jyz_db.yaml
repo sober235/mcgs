@@ -1,0 +1,122 @@
+# DRAW b of the AF20 mask (mask-draw variance study, 2026-09-14): identical to t1flair_v3_af20_jyz.yaml except the two
+# mask_path lines and the output names. The mask numbers quoted in the header below describe draw a (the registered mask).
+# ============================================================================
+# t1flair_v3_af20_jyz.yaml — jiangyizhou T1+FLAIR, retrospective nominal AF=20 (2026-09-13).
+# Cloned from t1flair_v3_af16_jyz.yaml; the ONLY difference is the mask (accelx 5 instead of 4).
+# ----------------------------------------------------------------------------
+# Source: /data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou
+#   BART CFL, dims (256, 256, 176, 26) = (readout x, ky, kz, coil), complex64.
+#   t1_fsp_train_jiangyizhou_cc  -> T1  (3D FSP-GRE, sagittal 1 mm)  FULLY SAMPLED PE plane
+#   flair_train_jiangyizhou_cc      -> FLAIR  (3D MX3D)                    elliptical vendor shutter,
+#                                                                   77.71 % of the PE plane
+#   Same subject and same exam as the frozen T1+FLAIR AF12/AF16 work, but a DIFFERENT reconstruction
+#   grid (256,256,176 vs 256,220,256) and 26 coils vs 12 — the old warm-start cloud does NOT
+#   register to this volume, so this config trains from a fresh cloud (see gaussian:).
+#
+# Geometry (verified, scripts/prep_01_inspect.py + logs/prep_01_inspect.json):
+#   readout_axis = 0 (x) — the ONLY axis on which every PE line is all-or-nothing
+#     (partial-line fraction 0.0000 vs 1.0000 for axis 1 and 0.7500 for axis 2 on FLAIR).
+#   phase_axes = [1, 2] = (ky, kz) = (256, 176).
+#   k-space DC sits exactly on the array centre of both PE axes, (128, 88) — this data does NOT
+#   have the ACS/DC misregistration that cost the old bundle ~1 dB. No roll is applied.
+#
+# Undersampling: retrospective, house-convention vd-Poisson on the (ky,kz) plane, ONE mask for
+#   both contrasts (scripts/prep_02_mask.m -> data/mask_vdpois_256x176_af20.mat, then broadcast
+#   along the readout in scripts/prep_04_export.py -> data/mask_af20_3d.h5).
+#   accely 4 / accelx 5 / calib 24 / ellipse 0 / pp 1 (nominal AF 20, same generator as AF12/AF16).
+#   2427 / 45056 PE points = 5.387 %, AF 18.564 over the full PE rectangle; the 24x24 calibration
+#   block keeps 82.3 % of its points (measured, logs/prep_04_export.json).
+#   Effective per contrast (mask AND that contrast's own acquired support):
+#     T1  sampled 5.387 % of the plane -> AF 18.56 vs the full grid, 18.56 vs its own support.
+#     FLAIR sampled 5.009 % of the plane -> AF 19.96 vs the full grid, 15.13 vs its own (elliptical)
+#         support -- the variable-density mask is denser where the shutter keeps data.
+#   k-space h5 and ESPIRiT maps are symlinks into T1FLAIR_AF12_v3_jiangyizhou/data (mask-independent).
+#   presampled: false => the loader builds the ground truth from the FULL k-space with this CSM
+#   and then applies the mask, which is what makes this a retrospective experiment.
+#
+# known_zero is set on FLAIR ONLY: the elliptical shutter is a MEASURED zero there, and T1 has no
+#   shutter at all (support 1.0000), so the estimator would be a no-op on it.
+#   prewhiten is deliberately NOT set: its per-contrast choice in the af12_kz_pwc base1 was tuned
+#   on the old bundle and is not validated here.
+#
+# Working point = the frozen "OUR METHOD" edge-TV + Charbonnier eps 0.04. arc/cycle.py OVERWRITES
+# loss.tv_weight / tv_eps / kspace_high_weight / training.shared_warmup_iters from the CLI, so
+# reproduce with exactly:
+#   --iters 4000 --lambda_geo 0.10 --warmup 500 --max_radius 20 --kspace_high 2.2 \
+#   --edge_tv --edge_tv_kappa_q 0.85 --edge_tv_wfloor 0.10 --tv_eps 0.04 \
+#   --base_cfg configs/t1flair_v3_af20_jyz.yaml --save_volumes
+# The AF20 study runs the AF16 phase-3 recipe on top of that working point; the full argument list
+# lives in ONE place, run_af20_mcgs.sh, and is not repeated here.
+# ============================================================================
+data:
+  plain:
+    name: T1
+    acceleration_factor: 20
+    data_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/data/ksp_T1.h5
+    csm_path:  /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/data/csm_espirit_T1.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/data/mask_af20_db_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [1, 2]
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false        # the mask IS readout-separable here; let the check prove it
+  contrast:
+    name: FLAIR
+    acceleration_factor: 20
+    data_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/data/ksp_FLAIR.h5
+    csm_path:  /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/data/csm_espirit_FLAIR.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/data/mask_af20_db_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [1, 2]
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false
+    known_zero: true                 # elliptical vendor shutter = measured zeros (FLAIR only)
+gaussian:
+  density_lr: 0.015
+  init_scale: 0.008                  # ~1 voxel at the 256 in-plane matrix (2/256)
+  initial_num_points: 600000         # fresh cloud; the 576902 dual-warm checkpoint is a different FOV
+  position_lr: 0.0003
+  rotation_lr: 0.0003
+  scale_lr: 0.002
+hardware:
+  device: cuda:0
+loss:
+  loss_type: l2
+  tv_weight: 0.10
+  tv_eps: 0.04
+  kspace_freq_adaptive: true
+  kspace_center_fraction: 0.05
+  kspace_center_weight: 0.3
+  kspace_mid_weight: 1.0
+  kspace_high_weight: 2.2
+  lambda_diff: 0.01                  # ignored by the v2 trainer
+  lambda_enh: 0                      # ignored by the v2 trainer
+  edge_tv: true
+  edge_tv_kappa_q: 0.85
+  edge_tv_wfloor: 0.1
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+output:
+  exp_name: t1flair_v3_af20_joint_db
+  output_dir: results_arc/t1flair_v3_af20_joint_db
+training:
+  max_iterations: 4000
+  shared_warmup_iters: 500
+  eval_every: 1000
+  log_every: 50
+  save_every: 1000
+  seed: 42
+  max_grad_norm: 1.0
+  lr_scheduler:
+    type: exponential
+    gamma: 0.9995
+voxelizer:
+  max_radius: 20
+  tile_size: 8
