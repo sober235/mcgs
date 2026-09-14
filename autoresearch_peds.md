@@ -71,8 +71,13 @@ card lists (`ALLOWED="1 0 2" TAG=r1a`, `ALLOWED="3 4 5 7" TAG=r1b`), one trainin
 |---|---|---|
 | `p3_wavT1_006` | T1w wavelet 0.12 → 0.06 (T2s pinned at 0.10) | **T1w +0.136 dB** (37.855 → 37.991), HFEN 0.0922 → 0.0903, sharp 0.813 → 0.819, SSIM flat; T2s unmoved as designed. min_margin −0.9744 → −0.8389 |
 | `p3_wavT1_003` | T1w wavelet 0.12 → 0.03 | pending |
-| `p3_geo_006` | edge-TV λ_geo 0.10 → 0.06 (shared by both channels) | pending |
+| `p3_geo_006` | edge-TV λ_geo 0.10 → 0.06 (shared by both channels) | **T1w +0.260 dB** (→ 38.116), SSIM +0.0027, HFEN 0.0922 → 0.0852, sharp 0.813 → 0.836; T2s PSNR −0.047 but SSIM +0.0010, HFEN −0.0011, sharp 0.759 → 0.809. min_margin −0.7139 |
 | `p3_geo_003` | edge-TV λ_geo 0.10 → 0.03 | pending |
+
+λ_geo is the stronger of the two knobs — 0.260 dB against the wavelet's 0.136 — and it is the one
+that moves HFEN (0.0922 → 0.0852 against a 0.0756 bar). On T2s it trades 0.047 dB of PSNR for better
+SSIM, HFEN and sharpness, which is the shared-knob cost the queue comment predicted; whether that
+trade is acceptable depends on where the re-tuned GS-single lands, since it sets all three T2s bars.
 
 Round 0's reading holds: the prior *is* too heavy for this exam, and unloading it moves T1w in the
 right direction on PSNR, HFEN and sharpness at once. But halving the weight bought 0.136 dB of the
