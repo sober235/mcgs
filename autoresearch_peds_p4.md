@@ -187,3 +187,15 @@ it; the second column is reported so the choice can be revisited.
 **GPU state 23:01.** The stage-3 session now runs two trainings on this line (`p3_n96` joint 9.6M, `p3_single_T1w_n96`),
 which fills the two-training cap; `p4_union` waits for one of them. Cards 3, 6 and 7 each carry two trainings from
 other lines at the moment.
+
+### Capacity is not a T2s lever (2026-09-15 00:45, stage-3 session's `p3_n96`, joint at 9.6M points)
+
+| points | T1w primary | T2s primary | best lesion slice, all arms | best lesion slice, non-GS arms |
+|---|---|---|---|---|
+| 3.6M (c1) | 38.516 | 34.163 / 0.9047 / 0.1857 | transverse 69 +0.064 | coronal 136 +0.471 |
+| 6.0M | 38.791 | 34.195 / 0.9048 / 0.1863 | transverse 69 +0.070 | coronal 136 +0.508 |
+| 9.6M | 38.936 | 34.176 / 0.9037 / 0.1871 | coronal 163 / transverse 69 +0.045 | coronal 136 +0.513 |
+
+T1w keeps gaining with points; T2s peaks at 6.0M and then loses SSIM and HFEN (the long-TE contrast has no detail left
+for extra Gaussians to carry, so they fit noise). One cloud serves both contrasts, so capacity cannot be spent on T1w
+alone. The lesion-slice campaign stays on the 3.6M c1 base.
