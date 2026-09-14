@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-# peds_sched.sh QUEUE -- run the queue one job at a time on an EMPTY allowed card (line rule: card 2 only).
+# peds_sched.sh QUEUE -- run the queue one job at a time on an EMPTY allowed card.
+# ALLOWED="0 1 3" picks the cards (stage 2 rule was card 2 only; stage 3 allows any empty card, at most
+# two of this line's trainings at once, which is two instances with disjoint ALLOWED lists).
+# TAG=r1a keeps two instances' logs and done-markers apart.
 # Queue lines: "classical <c>" | "cssense <c> <lam>" | "jcssense <lam>" | "zsssdu <c>" | "dip <c>" |
-#              "inr <c>" | "gs <joint|single_T1w|single_T2s>".  Blank lines and # comments are ignored.
+#              "inr <c>" | "gs <joint|single_T1w|single_T2s>" | "p3 <exp> <config> [extra cycle.py args]".
+# Blank lines and # comments are ignored.
 # A line whose result file exists is skipped, so the scheduler can be killed and restarted at any time.
 # Touch logs/.sched_pause to hold further launches. Exits when every queue line has its result.
 set -uo pipefail
@@ -9,7 +13,9 @@ T=/data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
 W=/data0/congcong/code/GS/mcgs_peds_wt
 Q=${1:?queue file}
 ALLOWED=${ALLOWED:-"2"}
-log() { echo "$(date '+%F %T') $*" | tee -a "$T/logs/sched.log"; }
+TAG=${TAG:-}
+SUF=${TAG:+_$TAG}
+log() { echo "$(date '+%F %T') $*" | tee -a "$T/logs/sched$SUF.log"; }
 
 free_card() {
   for g in $ALLOWED; do
@@ -30,6 +36,7 @@ done_file() {                      # done_file <job words...> -> the file that m
     dip)       echo "$T/logs/dip_$2.json" ;;
     inr)       echo "$T/logs/inr_$2.json" ;;
     gs)        echo "$W/results_arc/peds_af12_$2_score.json" ;;
+    p3)        echo "$W/results_arc/$2_score.json" ;;
     *)         echo "" ;;
   esac
 }
@@ -47,6 +54,8 @@ command_for() {                    # command_for <card> <job words...>
                [[ "$2" == single_T1w ]] && cfg=configs/peds_af12_single_T1w.yaml
                [[ "$2" == single_T2s ]] && cfg=configs/peds_af12_single_T2s.yaml
                echo "cd $W && CONFIG=$cfg SAVE_VOLUMES=1 ./autoresearch_peds.sh peds_af12_$2 $g 4000" ;;
+    p3)        local exp=$2 cfg=$3; shift 3
+               echo "cd $W && CONFIG=$cfg SAVE_VOLUMES=1 ./autoresearch_peds.sh $exp $g ${ITERS:-4000} $*" ;;
   esac
 }
 
@@ -63,16 +72,16 @@ while true; do
     [[ -e "$T/logs/.sched_pause" ]] && { log "paused"; break; }
     card=$(free_card) || break
     cmd=$(command_for "$card" "$@")
-    jl="$T/logs/job_$(echo "$*" | tr ' .' '__').log"
+    jl="$T/logs/job_$(echo "$*" | tr ' ./' '___' | cut -c1-120).log"
     log "launch [$*] on card $card -> $jl"
     bash -c "$cmd" >> "$jl" 2>&1
     rc=$?
     st=MISSING; [[ -e "$df" ]] && st=present
     log "done [$*] rc=$rc result $st"
-    printf '%s\t%s\t%s\t%s\n' "$(date '+%F %T')" "$*" "$rc" "$st" >> "$T/logs/sched_status.tsv"
+    printf '%s\t%s\t%s\t%s\n' "$(date '+%F %T')" "$*" "$rc" "$st" >> "$T/logs/sched_status$SUF.tsv"
     ran=1
     break                          # re-read the queue from the top after every job
   done < "$Q"
-  if [[ "$pending" -eq 0 ]]; then log "ALL DONE"; touch "$T/logs/DONE_SCHED"; break; fi
+  if [[ "$pending" -eq 0 ]]; then log "ALL DONE"; touch "$T/logs/DONE_SCHED$SUF"; break; fi
   [[ "$ran" -eq 0 ]] && sleep 60
 done

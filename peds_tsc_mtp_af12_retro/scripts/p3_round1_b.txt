@@ -1,0 +1,5 @@
+# Stage 3 round 1, half B (spec 2026-09-14): the edge-TV geometry weight, swept down from P10's 0.10.
+# It is shared by both channels, so these two runs are also the test of whether T2s tolerates less
+# smoothing than T1w needs.
+p3 p3_geo_006 configs/peds_af12_T1w_T2s.yaml --lambda_geo 0.06
+p3 p3_geo_003 configs/peds_af12_T1w_T2s.yaml --lambda_geo 0.03
