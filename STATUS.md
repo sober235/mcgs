@@ -50,6 +50,12 @@ tail -5 autoresearch_peds.tsv | cut -f1,2,7,8,9,10,11     # 账本：min_margin 
 - **联合减单臂 T1w 从 −0.230 扩大到 −0.332**；共同边缘 0.001 让 T2s 三格全部过线，代价是 T1w −0.133。
 - 容量 6.0M：+0.001（无效）。两个调参臂已登记为 `gs_joint_p3` / `gs_single_p3` 并进表。
 
+### ⚠️ 同一分支上还有另一个会话
+提交 `cb7fd40`（09-14 19:38）不是本会话做的：另一个会话在同一个 worktree 上做病灶可见性与选层
+（`peds_tsc_mtp_af12_retro/scripts/peds_*.py`、`lesion_zoom_af12.py`、`selection_notes.txt`）。
+它没动 `STATUS.md` / `CLAUDE.md`。动这个 worktree 前先 `git log --oneline -5` 看有没有新提交，
+别假设工作区只有你自己。
+
 ## 2. 待用户拍板
 
 1. **是否按停止规则收尾**。spec 的“杠杆用尽”还差一步（见第 3 节的在跑运行）。剩余杠杆只有优化器
