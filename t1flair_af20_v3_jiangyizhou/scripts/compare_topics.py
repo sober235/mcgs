@@ -15,9 +15,9 @@ ROOT = Path("/data0/congcong/code/GS/Results_20260908")
 A16, A20 = "T1FLAIR_AF16_v3_jiangyizhou", "T1FLAIR_AF20_v3_jiangyizhou"
 ORDER = [("zf", "ZF"), ("cgsense", "CG-SENSE"), ("cssense", "CS-SENSE"),
          ("cssense_o200", "CS-SENSE (TV, converged)"), ("jcssense", "joint CS-SENSE (JTV)"),
-         ("l1espirit", "L1-ESPIRiT"), ("zsssdu", "ZS-SSDU"), ("dip", "3D-DIP"), ("inr", "3D-INR"),
+         ("l1espirit", "L1-ESPIRiT"), ("zsssdu", "ZS-SSDU"), ("dip", "3D-DIP"), ("inr", "3D-INR"), ("mcinr", "MC-INR (Niessen 2025)"),
          ("gs_single_p3", "GS-single"), ("gs_joint_p3", "MC-GS")]
-COMPETING = {"zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "zsssdu", "dip", "inr"}
+COMPETING = {"zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "zsssdu", "dip", "inr", "mcinr"}
 
 
 def load(topic):

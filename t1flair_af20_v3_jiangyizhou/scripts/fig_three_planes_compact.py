@@ -55,6 +55,7 @@ ap.add_argument("--gray_cbar", action="store_true",
 ap.add_argument("--cbar_planes", type=int, nargs="+", default=[0, 1, 2], choices=[0, 1, 2],
                 help="which planes carry those colorbars (default all three; e.g. 0 = the transverse row only). Each "
                      "plane has its own grey window, so a plane without a bar has no scale of its own on the figure.")
+ap.add_argument("--with_mcinr", action="store_true", help="add the MC-INR (Niessen 2025) column after 3D-INR (recon/mcinr_<c>_complex.npy); off reproduces the nine-arm figures of 2026-09-13")
 ap.add_argument("--inset", type=int, default=0, metavar="W",
                 help="full slices plus a WxW zoom inset in the bottom-left of every method panel, the box centred on "
                      "the point where the three slices meet (the face of the WxWxW cube of best_cube_mcgs.py); the box "
@@ -112,6 +113,7 @@ ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
         ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy"),
         ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy"),
+        *([("mcinr", "MC-INR", R / f"recon/mcinr_{c}_complex.npy")] if args.with_mcinr else []),
         (args.single_key, "GS-single", R / f"recon/{args.single_key}_{c}_mag.npy"),
         (args.mcgs_key, "MC-GS", R / f"recon/{args.mcgs_key}_{c}_mag.npy")]
 missing = [lab for _, lab, p in ARMS if p is None or not Path(p).exists()]

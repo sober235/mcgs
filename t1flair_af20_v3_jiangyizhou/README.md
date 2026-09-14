@@ -59,6 +59,7 @@ optima (`scripts/run_classical_af20.sh`).
 | ZS-SSDU | 36.795 | 0.9440 | 32.892 | 0.9108 | 0.2241 | 1.014 | 34.150 | -1.26 |
 | CG-SENSE | 34.030 | 0.7646 | 31.425 | 0.8665 | 0.2741 | 0.791 | 32.354 | -0.93 |
 | 3D-DIP | 34.926 | 0.8541 | 30.996 | 0.8537 | 0.3034 | 0.640 | 30.994 | +0.00 |
+| MC-INR (Niessen 2025) | 30.432 | 0.5642 | 30.969 | 0.8272 | 0.2893 | 0.913 | 31.590 | -0.62 |
 | 3D-INR | 31.826 | 0.6520 | 29.456 | 0.7596 | 0.2723 | 1.308 | 30.375 | -0.92 |
 | ZF | 29.744 | 0.8165 | 25.639 | 0.6636 | 0.7206 | 0.263 | 25.841 | -0.20 |
 
@@ -74,6 +75,7 @@ optima (`scripts/run_classical_af20.sh`).
 | CS-SENSE | 36.883 | 0.9107 | 33.027 | 0.8968 | 0.1571 | 0.616 | 33.806 | -0.78 |
 | ZS-SSDU | 36.642 | 0.9351 | 32.660 | 0.8958 | 0.1962 | 1.058 | 34.005 | -1.34 |
 | CG-SENSE | 34.868 | 0.7963 | 32.089 | 0.8717 | 0.1972 | 0.718 | 32.826 | -0.74 |
+| MC-INR (Niessen 2025) | 32.459 | 0.6481 | 31.666 | 0.8486 | 0.2079 | 0.808 | 32.243 | -0.58 |
 | 3D-DIP | 34.572 | 0.8167 | 30.637 | 0.8269 | 0.2768 | 0.515 | 30.650 | -0.01 |
 | 3D-INR | 32.851 | 0.7233 | 29.809 | 0.7716 | 0.2448 | 1.040 | 30.257 | -0.45 |
 | ZF | 31.548 | 0.8329 | 27.636 | 0.6970 | 0.6874 | 0.251 | 27.879 | -0.24 |
@@ -109,6 +111,8 @@ scripts/finalize_af20_jyz.sh af20_p3_joint_full4k af20_p3_singleT1_full4k af20_p
   record's layout, slices and 48-voxel box (chosen on the AF 16 phase-3 arm, not re-optimised here).
 - `figures/t1flair_v3_af20_{T1,FLAIR}_row3planes_compact_174_110_47_headerr_p3.png` — the plain compact view.
 - `figures/t1flair_v3_af20_mask_T1_vs_FLAIR.png` — the mask against each contrast's acquired region.
+- `figures/t1flair_v3_af20_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr.{png,pdf}` — the same layout
+  with the MC-INR (Niessen 2025) column added (`fig_three_planes_compact.py --with_mcinr`), as in the AF 16 topic.
 
 MC-GS is first on PSNR, SSIM and NMSE in every plane of both contrasts in both layouts. The 48-box leads are smaller
 than at AF 16 (T1 +0.571 / +0.487 / +0.653, FLAIR +0.448 / +0.900 / +0.703): the box was picked for the largest gap on
@@ -137,5 +141,8 @@ margin is 4–10x steadier. The AF 16 → AF 20 margin shifts (−0.038 / +0.063
 L1-ESPIRiT's on all four draws; FLAIR's is above on all four. Draw masks: `data/mask_vdpois_256x176_af20_d{b,c,d}.mat`
 (+ `mask_af20_d{b,c,d}_3d.h5`), configs `configs/t1flair_v3_af20_jyz_d{b,c,d}.yaml` in the worktree.
 `vdPoisMex` seeds from `time(0)`: **do not re-run `prep_02_mask.m` into this `data/`** — the mask (md5
-1c90baf850a8c1e64b43f6c64146e2c9) cannot be regenerated. MC-INR, added to the AF 16 topic by a parallel session on
-2026-09-13, was not run here. Details: the record `docs/superpowers/records/2026-09-14-af20-jyz.md` in the worktree.
+1c90baf850a8c1e64b43f6c64146e2c9) cannot be regenerated. MC-INR (Niessen 2025) was run by a parallel session on this
+topic's own AF 20 mask (`../T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou/`) and is registered here through
+`scripts/score_mcinr_arm.py` (re-scored on this topic's gauge, worst relative disagreement 2.2e-7): head PSNR 30.969 /
+31.666, eighth / seventh of the ten comparison arms. User decisions 2026-09-14: no held-out subject (huangyuwei not
+considered); the masks stay out of git for now. Details: the record `docs/superpowers/records/2026-09-14-af20-jyz.md` in the worktree.

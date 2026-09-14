@@ -1,4 +1,4 @@
-# STATUS — 2026-09-14 11:55（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af20`）
+# STATUS — 2026-09-14 12:20（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af20`）
 
 本分支从 `autoresearch-jyz-af16-phase3` 尖端 f0fe009 切出，承载 jiangyizhou 的**标称 AF20** 研究，**已全部跑完**。
 先读 `docs/handoff/2026-09-14-af20-jyz.md`，英文记录 `docs/superpowers/records/2026-09-14-af20-jyz.md`；
@@ -49,15 +49,19 @@ $ PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/compare_topics.py | sed -n '/MC-GS 
   是真变化（前提：AF16 那张掩膜的抽样 SD 与 AF20 相当）。**T1 锐度门 4/4 张都没过，FLAIR 4/4 张都过**：不是某张掩膜的偶然。
   复核：`cd <课题> && PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/score_mask_draws.py`
 
+- **MC-INR（Niessen 2025）已登记进 AF20 表（09-14）**：它由另一个会话在 `Results_20260908/T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou/` 跑过，
+  AF20 用的正是本课题 `mask_af20_3d.h5`（软链）。用本课题打分代码重打分，与其仓库报的数最大相对差 2.2e-7；头内 PSNR T1 30.969 / FLAIR 31.666
+  （AF16 31.590 / 32.243），落后 L1-ESPIRiT 3.4 / 2.0 dB，不改变最强对手与余量。十列图 `..._inset48_headerr_p3_mcinr.{png,pdf}`，九列定稿图保留（出图加 `--with_mcinr` 才有这一列）。
+
 ## 2. 待用户拍板
 - AF20 上 T1 锐度门失守（0.833 对 0.845）：接受，还是为 AF20 单独调（例如相位 TV 加大）——后者就不再是同参数实验。
 - 余量不随加速变大（平均 0.461→0.476）：靠提高加速逼近 1.0 dB 这条路，这份证据不支持。
-- 留出受试者（huangyuwei 数据现成），AF16、AF20 都没做。
-- `vdPoisMex` 按 `time(0)` 取种子，AF20 掩膜**无法重新生成**，而 `*.mat` 被 gitignore：是否 `git add -f` 这个 4.4 KB 文件。
-- 另一个会话 09-13 23:19 给 AF16 课题加了 MC-INR（Niessen 2025，AF16 头内 31.590 / 32.243）；AF20 没跑它。
+
+**用户已拍板（09-14）**：huangyuwei 数据不考虑（不做留出受试者）；掩膜 `.mat` 暂不进 git（仍只在磁盘上，四张都无法重生成，别覆盖）；
+MC-INR 已跑过、不补跑（只做了登记）。**剩下唯一待定的是 T1 锐度门。**
 
 ## 3. 下一步
-- 掩膜抽样方差已做完（见 §1）。剩下能不靠拍板就做的事没有了：留出受试者、为 AF20 调参、掩膜入 git、MC-INR@AF20 都等用户定。
+- 没有不需要拍板的事了。唯一开放项是 T1 锐度门（接受，或为 AF20 调参——后者结束同参数设计）。
 
 ## 4. 已知的坑
 - **不要在本课题 `data/` 里重跑 `prep_02_mask.m`**：会悄悄换掉所有结果依赖的掩膜（md5 1c90baf850a8c1e64b43f6c64146e2c9）。

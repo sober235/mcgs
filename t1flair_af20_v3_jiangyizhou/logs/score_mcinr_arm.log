@@ -1,0 +1,26 @@
+[T1] volume (256, 256, 176) complex64
+  metric         topic rescore       mcinr repo     |diff|
+  psnr             30.43192000      30.43191973   2.69e-07
+  ssim              0.56415634       0.56415633   8.04e-09
+  nmse              0.11792812       0.11792790   2.22e-07
+  hfen              1.28245890       1.28245897   7.04e-08
+  head_psnr        30.96887708      30.96887735   2.71e-07
+  head_ssim         0.82721007       0.82721007   0.00e+00
+  head_hfen         0.28929130       0.28929130   2.23e-09
+  sharp             0.91281903       0.91281902   3.28e-09
+  grain             0.01662539       0.01662540   8.31e-09
+  wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/logs/mcinr_T1.json
+[FLAIR] volume (256, 256, 176) complex64
+  metric         topic rescore       mcinr repo     |diff|
+  psnr             32.45913068      32.45913090   2.13e-07
+  ssim              0.64813789       0.64813790   1.64e-08
+  nmse              0.06662419       0.06662419   5.26e-09
+  hfen              1.10238004       1.10238004   8.43e-10
+  head_psnr        31.66578868      31.66578805   6.21e-07
+  head_ssim         0.84862453       0.84862453   0.00e+00
+  head_hfen         0.20789017       0.20789017   2.00e-09
+  sharp             0.80836529       0.80836516   1.30e-07
+  grain             0.01557630       0.01557628   1.70e-08
+  wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/logs/mcinr_FLAIR.json
+
+worst relative disagreement across both contrasts: 2.22e-07
