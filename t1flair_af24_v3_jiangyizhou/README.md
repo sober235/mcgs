@@ -49,7 +49,8 @@ phase-only TV λ 0.03, 4000 iterations. The argument list lives in one place, `m
 (recipe block byte-identical to `run_af20_mcgs.sh`).
 
 The classical arms are re-swept on this subject against the ground truth, grids = the AF 20 topic's final grids plus
-one point below each (`scripts/run_classical_af24.sh`). ZS-SSDU / 3D-DIP / 3D-INR use the AF 16 topic's arguments.
+one point below each. ZS-SSDU / 3D-DIP / 3D-INR use the AF 16 topic's arguments. Every job and grid is defined once, in
+`scripts/run_all_af24.py`.
 
 ## Results
 
@@ -65,9 +66,9 @@ matlab -batch "run('scripts/prep_02_mask_pool_af24.m')"
 PYTHONNOUSERSITE=1 PYTHONPATH= python scripts/prep_03_pick_mask_af24.py
 PYTHONNOUSERSITE=1 PYTHONPATH= python scripts/prep_04_export.py      # 3-D mask + the AF read-out
 
-# everything else, one chain per card, detached (cards distinct; each GPU job waits for card_ok)
-CARD_JOINT=.. CARD_SINGLE=.. CARD_TV=.. CARD_JTV=.. CARD_ZT1=.. CARD_ZFL=.. \
-  setsid nohup bash scripts/run_all_af24.sh > /dev/null 2>&1 < /dev/null &
+# everything else: 38 jobs queued by priority onto free cards (one GPU job of this user per card, at most 4 at once;
+# 12 L1-ESPIRiT runs in 4 CPU slots), then finalize_af24_jyz.sh; --dry_run shows the queue and the cards
+setsid nohup python -u scripts/run_all_af24.py > /dev/null 2>&1 < /dev/null &
 ```
 
 ## Status

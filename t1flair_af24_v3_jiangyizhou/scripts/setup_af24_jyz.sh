@@ -19,9 +19,12 @@ cd "$OUT/scripts"
 # not cloned: this script's AF20 twin; the AF20 mask generator (its accelx = AF/4 rule is replaced by the pool and the
 # pick); the AF20 mask-draw variance study; the MC-INR registration (no MC-INR run at AF24); postprocess.sh and
 # sched_af20.py, which point at the retrospective 2026-09-09 topics (huangyuwei, the pre-phase-3 MC-GS arguments) and
-# would launch the wrong recipe (sched_af24.py was removed by hand after the first run of this script)
+# would launch the wrong recipe; run_classical_af20.sh and run_stage2_af20.sh, whose jobs and lambda grids now live in
+# scripts/run_all_af24.py, the one launcher of this topic (sched_af24.py and the two cloned launchers were removed by
+# hand after the first run of this script)
 SKIP="setup_af20_jyz.sh prep_02_mask.m prep_02b_mask_draws.m prep_04b_export_draws.py run_mask_draws_af20.sh
-      requeue_mcgs_draws_af20.sh handoff_draw_d_af20.sh score_mask_draws.py score_mcinr_arm.py postprocess.sh sched_af20.py"
+      requeue_mcgs_draws_af20.sh handoff_draw_d_af20.sh score_mask_draws.py score_mcinr_arm.py postprocess.sh sched_af20.py
+      run_classical_af20.sh run_stage2_af20.sh"
 CLONED=""
 for f in "$SRC"/scripts/*.py "$SRC"/scripts/*.m "$SRC"/scripts/*.sh; do
   b=$(basename "$f")

@@ -107,5 +107,5 @@ the afternoon's review. Read `STATUS.md` first.
 Cut from `jyz-af20-results` 4d13197; read `STATUS.md` first. Topic `/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/`
 (mirror `t1flair_af24_v3_jiangyizhou/`, README). One variable again, the mask: T1 at exactly 24x under the user's AF definition
 (1877 points; FLAIR 25.51x), the house generator with accelx 6.8656, draw_025 of a 134-draw pool, untrimmed (md5 c3688d61...).
-MC-GS = the AF16 phase-3 recipe frozen in `run_af24_mcgs.sh`; every arm is launched by `scripts/run_all_af24.sh` (six distinct
-cards). The run waits for the user's approval of the mask (`figures/t1flair_v3_af24_mask_*.png`).
+MC-GS = the AF16 phase-3 recipe frozen in `run_af24_mcgs.sh`; every arm is queued by `scripts/run_all_af24.py` (priority queue,
+one GPU job of this user per card, at most four at once, then finalize). The run waits for the user's approval of the mask (`figures/t1flair_v3_af24_mask_*.png`).
