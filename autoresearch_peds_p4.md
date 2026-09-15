@@ -283,3 +283,11 @@ L1-SPIRiT arm, so it is being built:
   README: best point per contrast, L1-ESPIRiT kept in the table and marked as not counted (jyz convention).
 - For this campaign the bar changes nowhere that matters: with GS-single counted, GS-single sets the bar on every
   lesion slice. `p4_lesion_margin.py` and `p4_fig_lesion_slice.py` will swap L1-ESPIRiT for the registered L1-SPIRiT.
+
+## Closed (user, 2026-09-15 16:30, recorded by claude-e7 in STATUS.md section 2)
+
+Stage 4 is closed at **+0.15 dB** on one lesion slice (sagittal 172; `p4_ue_k05` +0.153, `p4_r3_edge0005` +0.150), GS-single
+counted. The remaining probes are not run; the scheduler is stopped (`logs/.p4_stop`). Direction for the line: MC-GS is
+to beat every comparison method including GS-single; the user reviews the figures before anything new trains. The
+L1-SPIRiT sweeps finish and claude-e7 registers the arm; the lesion figures are then re-rendered with L1-SPIRiT in the
+L1 column.
