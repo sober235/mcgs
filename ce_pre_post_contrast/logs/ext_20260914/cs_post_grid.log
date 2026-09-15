@@ -1,0 +1,54 @@
+
+===== launch 2026-09-15 01:13:55 gpu 5 =====
+[post] coils 42 plane fit 7280 lines  scale 1.6715e+02  (6s)
+  [cssense lam 0.00025 fit] outer 1/200  post|x|max=2.6894  4s
+  [cssense lam 0.00025 fit] outer 25/200  post|x|max=2.6918  49s
+  [cssense lam 0.00025 fit] outer 50/200  post|x|max=2.6946  96s
+  [cssense lam 0.00025 fit] outer 75/200  post|x|max=2.6962  143s
+  [cssense lam 0.00025 fit] outer 100/200  post|x|max=2.6972  190s
+  [cssense lam 0.00025 fit] outer 125/200  post|x|max=2.6979  237s
+  [cssense lam 0.00025 fit] outer 150/200  post|x|max=2.6984  284s
+  [cssense lam 0.00025 fit] outer 175/200  post|x|max=2.6987  331s
+  [cssense lam 0.00025 fit] outer 200/200  post|x|max=2.6989  378s
+[cssense_o200_lam0.00025_fit_post] kres full 0.14813 fit 0.14420 held-out 0.27576  |alpha| 1.0141  379s
+  [cssense lam 0.0005 fit] outer 1/200  post|x|max=2.6894  4s
+  [cssense lam 0.0005 fit] outer 25/200  post|x|max=2.6913  49s
+  [cssense lam 0.0005 fit] outer 50/200  post|x|max=2.6959  96s
+  [cssense lam 0.0005 fit] outer 75/200  post|x|max=2.6985  143s
+  [cssense lam 0.0005 fit] outer 100/200  post|x|max=2.7000  190s
+  [cssense lam 0.0005 fit] outer 125/200  post|x|max=2.7010  232s
+  [cssense lam 0.0005 fit] outer 150/200  post|x|max=2.7016  261s
+  [cssense lam 0.0005 fit] outer 175/200  post|x|max=2.7020  290s
+  [cssense lam 0.0005 fit] outer 200/200  post|x|max=2.7023  318s
+[cssense_o200_lam0.0005_fit_post] kres full 0.14835 fit 0.14454 held-out 0.27290  |alpha| 1.0147  318s
+  [cssense lam 0.001 fit] outer 1/200  post|x|max=2.6894  2s
+  [cssense lam 0.001 fit] outer 25/200  post|x|max=2.6891  30s
+  [cssense lam 0.001 fit] outer 50/200  post|x|max=2.6957  58s
+  [cssense lam 0.001 fit] outer 75/200  post|x|max=2.6990  87s
+  [cssense lam 0.001 fit] outer 100/200  post|x|max=2.7008  116s
+  [cssense lam 0.001 fit] outer 125/200  post|x|max=2.7019  144s
+  [cssense lam 0.001 fit] outer 150/200  post|x|max=2.7025  173s
+  [cssense lam 0.001 fit] outer 175/200  post|x|max=2.7029  201s
+  [cssense lam 0.001 fit] outer 200/200  post|x|max=2.7031  230s
+[cssense_o200_lam0.001_fit_post] kres full 0.14907 fit 0.14538 held-out 0.27041  |alpha| 1.0156  230s
+  [cssense lam 0.002 fit] outer 1/200  post|x|max=2.6894  2s
+  [cssense lam 0.002 fit] outer 25/200  post|x|max=2.6814  30s
+  [cssense lam 0.002 fit] outer 50/200  post|x|max=2.6889  58s
+  [cssense lam 0.002 fit] outer 75/200  post|x|max=2.6921  87s
+  [cssense lam 0.002 fit] outer 100/200  post|x|max=2.6937  116s
+  [cssense lam 0.002 fit] outer 125/200  post|x|max=2.6945  144s
+  [cssense lam 0.002 fit] outer 150/200  post|x|max=2.6950  173s
+  [cssense lam 0.002 fit] outer 175/200  post|x|max=2.6952  202s
+  [cssense lam 0.002 fit] outer 200/200  post|x|max=2.6953  230s
+[cssense_o200_lam0.002_fit_post] kres full 0.15105 fit 0.14748 held-out 0.26974  |alpha| 1.0173  231s
+  [cssense lam 0.004 fit] outer 1/200  post|x|max=2.6894  2s
+  [cssense lam 0.004 fit] outer 25/200  post|x|max=2.6579  30s
+  [cssense lam 0.004 fit] outer 50/200  post|x|max=2.6645  58s
+  [cssense lam 0.004 fit] outer 75/200  post|x|max=2.6667  87s
+  [cssense lam 0.004 fit] outer 100/200  post|x|max=2.6676  116s
+  [cssense lam 0.004 fit] outer 125/200  post|x|max=2.6679  144s
+  [cssense lam 0.004 fit] outer 150/200  post|x|max=2.6681  173s
+  [cssense lam 0.004 fit] outer 175/200  post|x|max=2.6681  202s
+  [cssense lam 0.004 fit] outer 200/200  post|x|max=2.6681  230s
+[cssense_o200_lam0.004_fit_post] kres full 0.15559 fit 0.15206 held-out 0.27368  |alpha| 1.0201  231s
+DONE 1395s

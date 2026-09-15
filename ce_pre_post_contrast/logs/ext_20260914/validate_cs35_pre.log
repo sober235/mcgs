@@ -1,0 +1,7 @@
+
+===== launch 2026-09-15 00:34:27 gpu 1 =====
+[pre] coils 42 plane full 7663 lines  scale 1.4000e+02  (5s)
+  [cssense lam 0.001 full] outer 1/35  pre|x|max=1.9454  4s
+  [cssense lam 0.001 full] outer 25/35  pre|x|max=1.9304  53s
+[cssense_o35_lam0.001_full_pre] kres full 0.18295 fit 0.18028 held-out 0.28163  |alpha| 1.0148  75s
+DONE 80s

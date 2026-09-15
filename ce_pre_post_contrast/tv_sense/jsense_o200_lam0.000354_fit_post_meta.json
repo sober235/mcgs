@@ -1,0 +1,26 @@
+{
+  "method": "jsense",
+  "mode": "joint",
+  "scan": "post",
+  "mask": "fit",
+  "lam": 0.000354,
+  "outer": 200,
+  "cg": 8,
+  "mu": 0.1,
+  "tik": 0.01,
+  "scale": 167.1511993408203,
+  "alpha_re": 1.0141708118840052,
+  "alpha_im": -1.2663852078271373e-05,
+  "kres": 0.14815468508917107,
+  "kres_fit": 0.14421947983370104,
+  "kres_heldout": 0.2758175612683371,
+  "heldout_is_unseen": true,
+  "shape": [
+    256,
+    232,
+    176
+  ],
+  "seconds": 449.05231761932373,
+  "torch": "2.7.1+cu118",
+  "gpu": "NVIDIA A800 80GB PCIe"
+}

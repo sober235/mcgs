@@ -1,0 +1,60 @@
+
+===== launch 2026-09-15 00:41:47 gpu 2 =====
+[pre] coils 42 plane fit 7280 lines  scale 1.4000e+02  (6s)
+[post] coils 42 plane fit 7280 lines  scale 1.6715e+02  (12s)
+  [jsense lam 0.000354 fit] outer 1/200  pre|x|max=1.9354 post|x|max=2.6894  4s
+  [jsense lam 0.000354 fit] outer 25/200  pre|x|max=1.9382 post|x|max=2.6905  58s
+  [jsense lam 0.000354 fit] outer 50/200  pre|x|max=1.9371 post|x|max=2.6933  114s
+  [jsense lam 0.000354 fit] outer 75/200  pre|x|max=1.9361 post|x|max=2.6948  169s
+  [jsense lam 0.000354 fit] outer 100/200  pre|x|max=1.9354 post|x|max=2.6957  225s
+  [jsense lam 0.000354 fit] outer 125/200  pre|x|max=1.9349 post|x|max=2.6962  281s
+  [jsense lam 0.000354 fit] outer 150/200  pre|x|max=1.9346 post|x|max=2.6966  337s
+  [jsense lam 0.000354 fit] outer 175/200  pre|x|max=1.9343 post|x|max=2.6968  393s
+  [jsense lam 0.000354 fit] outer 200/200  pre|x|max=1.9342 post|x|max=2.6970  449s
+[jsense_o200_lam0.000354_fit_pre] kres full 0.18310 fit 0.17901 held-out 0.32199  |alpha| 1.0137  449s
+[jsense_o200_lam0.000354_fit_post] kres full 0.14815 fit 0.14422 held-out 0.27582  |alpha| 1.0142  449s
+  [jsense lam 0.000707 fit] outer 1/200  pre|x|max=1.9354 post|x|max=2.6894  4s
+  [jsense lam 0.000707 fit] outer 25/200  pre|x|max=1.9336 post|x|max=2.6886  58s
+  [jsense lam 0.000707 fit] outer 50/200  pre|x|max=1.9313 post|x|max=2.6930  114s
+  [jsense lam 0.000707 fit] outer 75/200  pre|x|max=1.9294 post|x|max=2.6952  169s
+  [jsense lam 0.000707 fit] outer 100/200  pre|x|max=1.9281 post|x|max=2.6965  225s
+  [jsense lam 0.000707 fit] outer 125/200  pre|x|max=1.9273 post|x|max=2.6972  281s
+  [jsense lam 0.000707 fit] outer 150/200  pre|x|max=1.9268 post|x|max=2.6977  336s
+  [jsense lam 0.000707 fit] outer 175/200  pre|x|max=1.9264 post|x|max=2.6980  392s
+  [jsense lam 0.000707 fit] outer 200/200  pre|x|max=1.9262 post|x|max=2.6982  448s
+[jsense_o200_lam0.000707_fit_pre] kres full 0.18329 fit 0.17934 held-out 0.31834  |alpha| 1.0143  448s
+[jsense_o200_lam0.000707_fit_post] kres full 0.14840 fit 0.14459 held-out 0.27307  |alpha| 1.0147  448s
+  [jsense lam 0.00141 fit] outer 1/200  pre|x|max=1.9354 post|x|max=2.6894  4s
+  [jsense lam 0.00141 fit] outer 25/200  pre|x|max=1.9250 post|x|max=2.6832  58s
+  [jsense lam 0.00141 fit] outer 50/200  pre|x|max=1.9205 post|x|max=2.6891  114s
+  [jsense lam 0.00141 fit] outer 75/200  pre|x|max=1.9173 post|x|max=2.6918  170s
+  [jsense lam 0.00141 fit] outer 100/200  pre|x|max=1.9154 post|x|max=2.6931  225s
+  [jsense lam 0.00141 fit] outer 125/200  pre|x|max=1.9143 post|x|max=2.6939  281s
+  [jsense lam 0.00141 fit] outer 150/200  pre|x|max=1.9136 post|x|max=2.6943  337s
+  [jsense lam 0.00141 fit] outer 175/200  pre|x|max=1.9132 post|x|max=2.6945  392s
+  [jsense lam 0.00141 fit] outer 200/200  pre|x|max=1.9130 post|x|max=2.6946  448s
+[jsense_o200_lam0.00141_fit_pre] kres full 0.18396 fit 0.18015 held-out 0.31505  |alpha| 1.0153  448s
+[jsense_o200_lam0.00141_fit_post] kres full 0.14920 fit 0.14550 held-out 0.27082  |alpha| 1.0158  449s
+  [jsense lam 0.00283 fit] outer 1/200  pre|x|max=1.9354 post|x|max=2.6894  4s
+  [jsense lam 0.00283 fit] outer 25/200  pre|x|max=1.9086 post|x|max=2.6691  58s
+  [jsense lam 0.00283 fit] outer 50/200  pre|x|max=1.9009 post|x|max=2.6753  114s
+  [jsense lam 0.00283 fit] outer 75/200  pre|x|max=1.8968 post|x|max=2.6776  169s
+  [jsense lam 0.00283 fit] outer 100/200  pre|x|max=1.8949 post|x|max=2.6785  225s
+  [jsense lam 0.00283 fit] outer 125/200  pre|x|max=1.8940 post|x|max=2.6788  281s
+  [jsense lam 0.00283 fit] outer 150/200  pre|x|max=1.8936 post|x|max=2.6790  337s
+  [jsense lam 0.00283 fit] outer 175/200  pre|x|max=1.8934 post|x|max=2.6791  392s
+  [jsense lam 0.00283 fit] outer 200/200  pre|x|max=1.8934 post|x|max=2.6791  448s
+[jsense_o200_lam0.00283_fit_pre] kres full 0.18582 fit 0.18214 held-out 0.31367  |alpha| 1.0169  448s
+[jsense_o200_lam0.00283_fit_post] kres full 0.15140 fit 0.14780 held-out 0.27052  |alpha| 1.0176  449s
+  [jsense lam 0.00566 fit] outer 1/200  pre|x|max=1.9354 post|x|max=2.6894  4s
+  [jsense lam 0.00566 fit] outer 25/200  pre|x|max=1.8754 post|x|max=2.6329  58s
+  [jsense lam 0.00566 fit] outer 50/200  pre|x|max=1.8664 post|x|max=2.6372  114s
+  [jsense lam 0.00566 fit] outer 75/200  pre|x|max=1.8635 post|x|max=2.6381  170s
+  [jsense lam 0.00566 fit] outer 100/200  pre|x|max=1.8627 post|x|max=2.6386  225s
+  [jsense lam 0.00566 fit] outer 125/200  pre|x|max=1.8624 post|x|max=2.6405  281s
+  [jsense lam 0.00566 fit] outer 150/200  pre|x|max=1.8623 post|x|max=2.6413  337s
+  [jsense lam 0.00566 fit] outer 175/200  pre|x|max=1.8623 post|x|max=2.6416  392s
+  [jsense lam 0.00566 fit] outer 200/200  pre|x|max=1.8623 post|x|max=2.6417  448s
+[jsense_o200_lam0.00566_fit_pre] kres full 0.18988 fit 0.18624 held-out 0.31675  |alpha| 1.0196  448s
+[jsense_o200_lam0.00566_fit_post] kres full 0.15645 fit 0.15289 held-out 0.27527  |alpha| 1.0206  449s
+DONE 2256s

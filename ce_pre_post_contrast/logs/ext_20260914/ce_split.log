@@ -1,0 +1,9 @@
+[pre] lines 7663 fit 7280 held-out 383  (load 3s)
+  CG-SENSE  full recomputed 0.181661 archived 0.181661 diff +2.5e-09   (full 0.18166 fit 0.17901 ho 0.27971)  11s
+  3D-DIP    ho   recomputed 0.358911 archived 0.358911 diff -9.6e-09   (full 0.22686 fit 0.22322 ho 0.35891)  20s
+  3D-INR    ho   recomputed 0.322261 archived 0.322261 diff -1.1e-08   (full 0.18573 fit 0.18172 ho 0.32226)  27s
+[post] lines 7663 fit 7280 held-out 383  (load 41s)
+  CG-SENSE  full recomputed 0.146402 archived 0.146402 diff +8.8e-10   (full 0.14640 fit 0.14421 ho 0.22688)  49s
+  3D-DIP    ho   recomputed 0.338446 archived 0.338446 diff -1.2e-09   (full 0.20722 fit 0.20353 ho 0.33845)  57s
+  3D-INR    ho   recomputed 0.275850 archived 0.275850 diff +7.0e-09   (full 0.15176 fit 0.14801 ho 0.27585)  66s
+max |diff| 1.13e-08  -> PASS

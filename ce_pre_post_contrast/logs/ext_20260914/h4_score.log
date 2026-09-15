@@ -1,0 +1,11 @@
+
+===== launch 2026-09-15 13:14:09 gpu -1 =====
+CG-SENSE   pre  full 0.18311 fit 0.17873 held-out 0.32946
+ZS-SSDU    pre  full 0.18386 fit 0.18034 held-out 0.30698
+GS-single  pre  full 0.19307 fit 0.18933 held-out 0.32376
+MC-GS      pre  full 0.19813 fit 0.19453 held-out 0.32558
+CG-SENSE   post full 0.14809 fit 0.14392 held-out 0.28164
+ZS-SSDU    post full 0.14888 fit 0.14551 held-out 0.26254
+GS-single  post full 0.15947 fit 0.15579 held-out 0.28309
+MC-GS      post full 0.16386 fit 0.16032 held-out 0.28462
+DONE

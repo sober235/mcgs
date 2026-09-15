@@ -1,0 +1,44 @@
+{
+  "method": "mcinr",
+  "scan": "pre",
+  "mask": "full",
+  "M": 1627.12744140625,
+  "hparams": {
+    "encoding": {
+      "otype": "Grid",
+      "type": "Hash",
+      "n_levels": 16,
+      "n_features_per_level": 2,
+      "log2_hashmap_size": 20,
+      "base_resolution": 16,
+      "per_level_scale": 1.26,
+      "interpolation": "linear"
+    },
+    "in_dim": 2,
+    "hidden_dims": [
+      64,
+      64
+    ],
+    "optimizer": "adam",
+    "lr": 0.01,
+    "n_epochs": 200,
+    "batch_size": 1,
+    "loss": "weighted_k_mse"
+  },
+  "seed": "slice index",
+  "alpha_re": 16.26861625870154,
+  "alpha_im": -0.0012669181085464473,
+  "kres": 0.1816809577836572,
+  "kres_fit": 0.17903706296859753,
+  "kres_heldout": 0.279512889933225,
+  "heldout_is_unseen": false,
+  "shape": [
+    256,
+    232,
+    176
+  ],
+  "seconds_loop": 681.8587212562561,
+  "seconds_per_slice_median": 2.665194034576416,
+  "torch": "1.13.1+cu117",
+  "gpu": "NVIDIA A100 80GB PCIe"
+}

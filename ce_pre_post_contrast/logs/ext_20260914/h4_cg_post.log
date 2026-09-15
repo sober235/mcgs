@@ -1,0 +1,8 @@
+
+===== launch 2026-09-15 10:39:34 gpu 2 =====
+loading /data0/congcong/code/NV-Generate-CTMR/recon_real/work_ce_t1_16887049370060 ...
+--fit: restricted to 7280 of the acquired lines
+coils=42 grid=(256, 232, 176) AF=5.6088
+scale (P99.9 of |ZF|) = 1.6250e+02
+[cgsense_post_fit] kres=0.14392 |alpha|=1.0133 in 8s -> /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/classical_fit/cgsense_post_fit_complex.npy
+DONE

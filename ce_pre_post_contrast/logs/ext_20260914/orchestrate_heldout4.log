@@ -1,0 +1,28 @@
+09-15 10:23:37 queued h4_make_fit_kspace (cpu, prio 0)
+09-15 10:23:37 queued h4_cg_pre (gpu, prio 1)
+09-15 10:23:37 queued h4_cg_post (gpu, prio 2)
+09-15 10:23:37 queued h4_gs_single_pre (gpu, prio 3)
+09-15 10:23:37 queued h4_gs_single_post (gpu, prio 4)
+09-15 10:23:37 queued h4_gs_joint (gpu, prio 5)
+09-15 10:23:37 queued h4_zs_pre (gpu, prio 6)
+09-15 10:23:37 queued h4_zs_post (gpu, prio 7)
+09-15 10:23:37 queued h4_score (cpu, prio 9)
+09-15 10:23:37 launched h4_make_fit_kspace on cpu pid 2804792
+09-15 10:25:08 done h4_make_fit_kspace (gpu -1)
+09-15 10:39:04 launched h4_cg_pre on gpu 2 pid 2867883
+09-15 10:39:34 done h4_cg_pre (gpu 2)
+09-15 10:39:34 launched h4_cg_post on gpu 2 pid 2870004
+09-15 10:40:04 done h4_cg_post (gpu 2)
+09-15 10:40:04 launched h4_gs_single_pre on gpu 2 pid 2872123
+09-15 10:48:56 launched h4_gs_single_post on gpu 1 pid 2906741
+09-15 11:18:32 done h4_gs_single_pre (gpu 2)
+09-15 11:18:33 launched h4_gs_joint on gpu 2 pid 3024570
+09-15 11:26:38 done h4_gs_single_post (gpu 1)
+09-15 11:26:39 launched h4_zs_pre on gpu 1 pid 3055751
+09-15 12:12:56 done h4_zs_pre (gpu 1)
+09-15 12:12:56 launched h4_zs_post on gpu 1 pid 3180966
+09-15 12:53:09 done h4_zs_post (gpu 1)
+09-15 13:14:09 done h4_gs_joint (gpu 2)
+09-15 13:14:09 launched h4_score on cpu pid 3339534
+09-15 13:15:40 done h4_score (gpu -1)
+09-15 13:15:40 ALL DONE

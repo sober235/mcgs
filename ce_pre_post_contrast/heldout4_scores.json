@@ -1,0 +1,58 @@
+{
+  "CG-SENSE": {
+    "pre": {
+      "path": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/classical_fit/cgsense_pre_fit_complex.npy",
+      "kres_full": 0.18311139781798125,
+      "kres_fit": 0.17872996629332044,
+      "kres_heldout": 0.32945670808495514
+    },
+    "post": {
+      "path": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/classical_fit/cgsense_post_fit_complex.npy",
+      "kres_full": 0.1480909654564759,
+      "kres_fit": 0.1439230929710558,
+      "kres_heldout": 0.2816433413264121
+    }
+  },
+  "ZS-SSDU": {
+    "pre": {
+      "path": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/classical_fit/zsssdu_pre_fit_complex.npy",
+      "kres_full": 0.18385938201062696,
+      "kres_fit": 0.18034303539090996,
+      "kres_heldout": 0.30697834147683917
+    },
+    "post": {
+      "path": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/classical_fit/zsssdu_post_fit_complex.npy",
+      "kres_full": 0.14887565071178596,
+      "kres_fit": 0.14551057498491402,
+      "kres_heldout": 0.26253556806647466
+    }
+  },
+  "GS-single": {
+    "pre": {
+      "path": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/gs_fit/single_pre/gs_single_pre_raw_complex.npy",
+      "kres_full": 0.19306988310357873,
+      "kres_fit": 0.18933164673860572,
+      "kres_heldout": 0.32376158813936573
+    },
+    "post": {
+      "path": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/gs_fit/single_post/gs_single_post_raw_complex.npy",
+      "kres_full": 0.15946505970696387,
+      "kres_fit": 0.15578947807185878,
+      "kres_heldout": 0.28309407113318424
+    }
+  },
+  "MC-GS": {
+    "pre": {
+      "path": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/gs_fit/joint/gs_joint_pre_raw_complex.npy",
+      "kres_full": 0.19812925357987807,
+      "kres_fit": 0.19453229417292417,
+      "kres_heldout": 0.3255768025536682
+    },
+    "post": {
+      "path": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/gs_fit/joint/gs_joint_post_raw_complex.npy",
+      "kres_full": 0.16385603491493905,
+      "kres_fit": 0.16031835814699189,
+      "kres_heldout": 0.2846226368377244
+    }
+  }
+}

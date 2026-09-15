@@ -1,0 +1,23 @@
+
+===== launch 2026-09-15 01:31:22 gpu 2 =====
+MC-INR on CE, mask fit: 7280 lines, M 1627.127441, slices 256/256, load 15s, gpu NVIDIA A800 80GB PCIe, hparams {'encoding': {'otype': 'Grid', 'type': 'Hash', 'n_levels': 16, 'n_features_per_level': 2, 'log2_hashmap_size': 20, 'base_resolution': 16, 'per_level_scale': 1.26, 'interpolation': 'linear'}, 'in_dim': 2, 'hidden_dims': [64, 64], 'optimizer': 'adam', 'lr': 0.01, 'n_epochs': 200, 'batch_size': 1, 'loss': 'weighted_k_mse'}
+slice   0  loss 2.8259e-02 -> 3.9948e-03  4.05s  elapsed 4s
+slice  16  loss 2.9662e-02 -> 2.5884e-03  2.61s  elapsed 46s
+slice  32  loss 4.3603e-02 -> 2.9425e-03  2.75s  elapsed 91s
+slice  48  loss 6.2808e-02 -> 3.2788e-03  2.63s  elapsed 134s
+slice  64  loss 8.3373e-02 -> 3.3859e-03  2.56s  elapsed 176s
+slice  80  loss 9.5423e-02 -> 3.5278e-03  2.80s  elapsed 220s
+slice  96  loss 8.9756e-02 -> 3.6841e-03  2.65s  elapsed 264s
+slice 112  loss 7.7256e-02 -> 3.7072e-03  2.88s  elapsed 307s
+slice 128  loss 8.9100e-02 -> 3.7393e-03  2.73s  elapsed 350s
+slice 144  loss 7.9615e-02 -> 3.6604e-03  2.69s  elapsed 394s
+slice 160  loss 8.0078e-02 -> 3.5204e-03  2.53s  elapsed 438s
+slice 176  loss 7.7911e-02 -> 3.3809e-03  3.03s  elapsed 481s
+slice 192  loss 6.8134e-02 -> 3.2342e-03  2.47s  elapsed 525s
+slice 208  loss 4.6993e-02 -> 2.9255e-03  2.50s  elapsed 569s
+slice 224  loss 3.3961e-02 -> 2.7425e-03  2.64s  elapsed 611s
+slice 240  loss 1.5436e-02 -> 2.6572e-03  2.65s  elapsed 656s
+slice 255  loss 2.1384e-03 -> 2.0300e-03  2.85s  elapsed 695s
+[mcinr_fit_pre] kres full 0.18327 fit 0.17872 held-out 0.33333  |alpha| 16.2645
+[mcinr_fit_post] kres full 0.14796 fit 0.14362 held-out 0.28555  |alpha| 16.2663
+DONE 722s

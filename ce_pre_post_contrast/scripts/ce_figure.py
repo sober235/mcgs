@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """ce_figure.py -- horizontal comparison on the UIH prospective CE pair.
 
-Columns : ZF(reference anchor) | CG-SENSE | CS-SENSE | ZS-SSDU | GS single | GS joint
+Columns : ZF | CG-SENSE | CS-SENSE | Joint SENSE | L1-ESPIRiT | ZS-SSDU | 3D-DIP | 3D-INR | MC-INR | GS-single | MC-GS
+          (11 columns since 2026-09-15; the 09-08 8-column version is kept as *_8col_20260908.png)
 Rows    : PRE image / PRE error-vs-y  /  POST image / POST error-vs-y
 
 There is NO fully sampled ground truth for this prospectively undersampled acquisition,
@@ -19,12 +20,12 @@ import os, sys, json, argparse
 from pathlib import Path
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--gpu", type=int, default=7)
+ap.add_argument("--gpu", type=int, default=7, help="-1 = CPU")
 ap.add_argument("--slice", type=int, default=170)   # mid-brain axial level (basal ganglia / ventricles)
 ap.add_argument("--out", default="/home/congcongliu/figs/ce_pair")
 args = ap.parse_args()
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu) if args.gpu >= 0 else ""
 os.environ.setdefault("PYTHONNOUSERSITE", "1")
 
 import numpy as np, torch, torch.fft as tfft
@@ -37,7 +38,9 @@ for _f in ("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",):
 plt.rcParams["font.sans-serif"] = ["Noto Sans CJK JP", "Noto Sans CJK SC", "DejaVu Sans"]
 plt.rcParams["axes.unicode_minus"] = False
 
-dev = torch.device("cuda:0")
+dev = torch.device("cuda:0" if args.gpu >= 0 else "cpu")
+if args.gpu < 0:
+    torch.set_num_threads(16)
 W = Path("/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast")
 RR = Path("/data0/congcong/code/NV-Generate-CTMR/recon_real")
 WORK = {"pre": RR / "work_ce_t1_16887049370010", "post": RR / "work_ce_t1_16887049370060"}
@@ -48,17 +51,32 @@ def _c(fn, x, d): return tfft.fftshift(fn(tfft.ifftshift(x, dim=d), dim=d, norm=
 def fft3c(x):  return _c(tfft.fftn,  x, (-3, -2, -1))
 def ifft3c(x): return _c(tfft.ifftn, x, (-3, -2, -1))
 
-# column spec: (label, path-template or None for ZF)
+# column spec: (label, path-template). Lambdas of the 09-14 arms come from the held-out selection.
+SEL = {fam: json.load(open(W / "logs/ext_20260914" / f"selection_{fam}.json"))["best"]
+       for fam in ("cs_pre", "cs_post", "joint", "l1_pre", "l1_post")}
 COLS = [
-    ("ZF\n(reference anchor)",      lambda s: W / f"classical/zf_{s}_complex.npy"),
+    ("ZF",                          lambda s: W / f"classical/zf_{s}_complex.npy"),
     ("CG-SENSE",                    lambda s: W / f"classical/cgsense_{s}_complex.npy"),
-    ("CS-SENSE\n(ADMM-TV)",         lambda s: W / f"classical/cssense_{s}_complex.npy"),
+    ("CS-SENSE",                    lambda s: W / f"tv_sense/cssense_o200_lam{SEL['cs_' + s]:g}_full_{s}_complex.npy"),
+    ("Joint SENSE",                 lambda s: W / f"tv_sense/jsense_o200_lam{SEL['joint']:g}_full_{s}_complex.npy"),
+    ("L1-ESPIRiT",                  lambda s: W / f"l1espirit/l1espirit_i100_lam{SEL['l1_' + s]:g}_full_{s}_complex.npy"),
     ("ZS-SSDU",                     lambda s: W / f"classical/zsssdu_{s}_complex.npy"),
-    ("3D-DIP\n(ConvDecoder)",       lambda s: W / f"dipinr/dip_{s}_complex.npy"),
-    ("3D-INR\n(hash coord-MLP)",    lambda s: W / f"dipinr/inr_{s}_complex.npy"),
-    ("GS single\n(each scan alone)", lambda s: W / f"gs_single_{s}/gs_single_{s}_raw_complex.npy"),
-    ("GS joint\n(shared geometry)", lambda s: W / f"gs_joint/gs_joint_{s}_raw_complex.npy"),
+    ("3D-DIP",                      lambda s: W / f"dipinr/dip_{s}_complex.npy"),
+    ("3D-INR",                      lambda s: W / f"dipinr/inr_{s}_complex.npy"),
+    ("MC-INR",                      lambda s: W / f"mcinr/mcinr_full_{s}_complex.npy"),
+    ("GS-single",                   lambda s: W / f"gs_single_{s}/gs_single_{s}_raw_complex.npy"),
+    ("MC-GS",                       lambda s: W / f"gs_joint/gs_joint_{s}_raw_complex.npy"),
 ]
+# held-out kres shown under each error map: only numbers whose fit never saw the 383 held-out lines
+# (kres_summary_20260914.json; heldout4_scores.json once the 95% runs of the other four columns exist)
+HO = {}
+for r in json.load(open(W / "kres_summary_20260914.json"))["rows"]:
+    if r["heldout_pre"] is not None:
+        HO[("pre", r["method"])], HO[("post", r["method"])] = r["heldout_pre"], r["heldout_post"]
+if (W / "heldout4_scores.json").exists():
+    for label, per in json.load(open(W / "heldout4_scores.json")).items():
+        for sc, v in per.items():
+            HO[(sc, label)] = v["kres_heldout"]
 CHUNK = 6
 res = {}
 for scan in ("pre", "post"):
@@ -86,25 +104,23 @@ for scan in ("pre", "post"):
         if tuple(x.shape) != G:                       # GS renders in (X, Z, Y)
             assert tuple(x.shape) == (G[0], G[2], G[1]), f"{p}: shape {tuple(x.shape)} vs {G}"
             x = x.permute(0, 2, 1).contiguous()
-        num = torch.zeros((), dtype=torch.complex64, device=dev)
-        den = torch.zeros((), device=dev)
+        # sums in float64 (float32 accumulation over ~4e8 samples shifts kres by ~2e-4 on CPU; 2026-09-15)
+        num = 0j; den = 0.0
         for i in range(0, NC, CHUNK):
-            km = fft3c(S[i:i+CHUNK] * x) * m3
-            num = num + (km.conj() * y[i:i+CHUNK]).sum(); den = den + km.abs().square().sum()
-        alpha = num / den.clamp_min(1e-30)
+            km = (fft3c(S[i:i+CHUNK] * x) * m3).to(torch.complex128)
+            yy = y[i:i+CHUNK].to(torch.complex128)
+            num += complex((km.conj() * yy).sum().item()); den += float(km.abs().square().sum().item())
+        alpha = torch.tensor(num / max(den, 1e-30), dtype=torch.complex64, device=dev)
         e = torch.zeros(G, dtype=torch.complex64, device=dev)
         nr = 0.0; dr = 0.0
         for i in range(0, NC, CHUNK):
             km = fft3c(S[i:i+CHUNK] * x) * m3
             r = (alpha * km - y[i:i+CHUNK]) * m3
             e += (S[i:i+CHUNK].conj() * ifft3c(r)).sum(0)
-            nr += float(torch.linalg.vector_norm(r).item() ** 2)
-            dr += float(torch.linalg.vector_norm(y[i:i+CHUNK]).item() ** 2)
+            nr += float(r.to(torch.complex128).abs().square().sum().item())
+            dr += float(y[i:i+CHUNK].to(torch.complex128).abs().square().sum().item())
         kres = (nr / dr) ** 0.5
-        kho = None
-        mp = p.with_name(p.name.replace("_complex.npy", "_meta.json"))
-        if mp.exists():
-            kho = json.load(open(mp)).get("kres_heldout")
+        kho = HO.get((scan, label))
         res[(scan, label)] = dict(
             img=((alpha * x).abs() / ref_peak).cpu().numpy(),
             err=(e.abs() / ref_peak).cpu().numpy(),
@@ -114,7 +130,7 @@ for scan in ("pre", "post"):
     torch.cuda.empty_cache()
 
 json.dump({f"{s}|{l.splitlines()[0]}": v["kres"] for (s, l), v in res.items()},
-          open(W / "kres_summary.json", "w"), indent=2)
+          open(W / "kres_summary_errormap_11col.json", "w"), indent=2)   # kres_summary.json keeps the 09-08 values
 
 # ---------------- slice pick ----------------------------------------------------------
 have = [l for l, _ in COLS if ("pre", l) in res and ("post", l) in res]

@@ -1,0 +1,15 @@
+
+===== launch 2026-09-14 23:29:46 gpu -1 =====
+[pre] cfl inputs ready in /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre  (126s)
+[pre] BART inverse data scaling (full data, frozen): 1.08268
+/home/congcongliu/src/bart/bart pics -l1 -r 0.00025 -i 100 -p /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/pat_fit -w 1.082685 -S /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/ksp_fit /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/maps /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/out_l1espirit_i100_lam0.00025_fit_pre
+[l1espirit_i100_lam0.00025_fit_pre] kres full 0.18281 fit 0.17828 held-out 0.33166  |alpha| 0.9997  bart 384s
+/home/congcongliu/src/bart/bart pics -l1 -r 0.0005 -i 100 -p /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/pat_fit -w 1.082685 -S /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/ksp_fit /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/maps /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/out_l1espirit_i100_lam0.0005_fit_pre
+[l1espirit_i100_lam0.0005_fit_pre] kres full 0.18257 fit 0.17839 held-out 0.32292  |alpha| 1.0002  bart 377s
+/home/congcongliu/src/bart/bart pics -l1 -r 0.001 -i 100 -p /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/pat_fit -w 1.082685 -S /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/ksp_fit /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/maps /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/out_l1espirit_i100_lam0.001_fit_pre
+[l1espirit_i100_lam0.001_fit_pre] kres full 0.18251 fit 0.17866 held-out 0.31472  |alpha| 1.0010  bart 379s
+/home/congcongliu/src/bart/bart pics -l1 -r 0.002 -i 100 -p /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/pat_fit -w 1.082685 -S /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/ksp_fit /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/maps /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/out_l1espirit_i100_lam0.002_fit_pre
+[l1espirit_i100_lam0.002_fit_pre] kres full 0.18299 fit 0.17937 held-out 0.30902  |alpha| 1.0023  bart 378s
+/home/congcongliu/src/bart/bart pics -l1 -r 0.004 -i 100 -p /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/pat_fit -w 1.082685 -S /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/ksp_fit /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/maps /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_pre/out_l1espirit_i100_lam0.004_fit_pre
+[l1espirit_i100_lam0.004_fit_pre] kres full 0.18489 fit 0.18139 held-out 0.30797  |alpha| 1.0042  bart 372s
+DONE 2090s

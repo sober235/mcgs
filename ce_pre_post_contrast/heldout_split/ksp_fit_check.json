@@ -1,0 +1,28 @@
+{
+  "pre": {
+    "path": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/heldout_split/ksp_fit_pre.h5",
+    "shape": [
+      42,
+      256,
+      176,
+      232
+    ],
+    "readback_rel_diff": 0.0,
+    "nonzero_lines_one_readout": 7280,
+    "fit_lines": 7280,
+    "seconds": 56.80874991416931
+  },
+  "post": {
+    "path": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/heldout_split/ksp_fit_post.h5",
+    "shape": [
+      42,
+      256,
+      176,
+      232
+    ],
+    "readback_rel_diff": 0.0,
+    "nonzero_lines_one_readout": 7280,
+    "fit_lines": 7280,
+    "seconds": 30.784462451934814
+  }
+}

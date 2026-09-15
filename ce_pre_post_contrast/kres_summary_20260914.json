@@ -1,0 +1,124 @@
+{
+  "rows": [
+    {
+      "method": "ZF",
+      "kres_pre": 0.2844909657712684,
+      "kres_post": 0.271930413040519,
+      "heldout_pre": null,
+      "heldout_post": null,
+      "lam": null,
+      "note": ""
+    },
+    {
+      "method": "CG-SENSE",
+      "kres_pre": 0.18166107975698062,
+      "kres_post": 0.14640220177044133,
+      "heldout_pre": 0.32945670808495514,
+      "heldout_post": 0.2816433413264121,
+      "lam": null,
+      "note": "tik 0.01, 60 CG; held-out from a separate 95%-line run (heldout4_scores.json, 2026-09-15)"
+    },
+    {
+      "method": "CS-SENSE",
+      "kres_pre": 0.18486797703622518,
+      "kres_post": 0.14968995557237483,
+      "heldout_pre": 0.31343802800903386,
+      "heldout_post": 0.26974422529474446,
+      "lam": {
+        "pre": 0.002,
+        "post": 0.002
+      },
+      "note": "ADMM-TV 200 outer x 8 CG, lambda on held-out"
+    },
+    {
+      "method": "Joint SENSE",
+      "kres_pre": 0.1847994658111243,
+      "kres_post": 0.14999308751612747,
+      "heldout_pre": 0.31366940904245666,
+      "heldout_post": 0.2705221330933268,
+      "lam": 0.00283,
+      "note": "vectorial TV over pre+post, 200 outer x 8 CG, one lambda on mean held-out"
+    },
+    {
+      "method": "L1-ESPIRiT",
+      "kres_pre": 0.1841240491569886,
+      "kres_post": 0.14727891588946776,
+      "heldout_pre": 0.30796601404724816,
+      "heldout_post": 0.26127133467922353,
+      "lam": {
+        "pre": 0.004,
+        "post": 0.002
+      },
+      "note": "BART pics -l1, 100 FISTA, topic coil maps, lambda on held-out"
+    },
+    {
+      "method": "ZS-SSDU",
+      "kres_pre": 0.18311965541920588,
+      "kres_post": 0.14797110867556598,
+      "heldout_pre": 0.30697834147683917,
+      "heldout_post": 0.26253556806647466,
+      "lam": null,
+      "note": "held-out from a separate 95%-line run (heldout4_scores.json, 2026-09-15)"
+    },
+    {
+      "method": "3D-DIP",
+      "kres_pre": 0.22685938394032457,
+      "kres_post": 0.2072219754597896,
+      "heldout_pre": 0.35891051509310945,
+      "heldout_post": 0.33844591208453106,
+      "lam": null,
+      "note": "best held-out checkpoint"
+    },
+    {
+      "method": "3D-INR",
+      "kres_pre": 0.18572929656737333,
+      "kres_post": 0.15175878911566135,
+      "heldout_pre": 0.32226098173499035,
+      "heldout_post": 0.27584981045493623,
+      "lam": null,
+      "note": "best held-out checkpoint"
+    },
+    {
+      "method": "MC-INR",
+      "kres_pre": 0.1816809577836572,
+      "kres_post": 0.14619775587039635,
+      "heldout_pre": 0.333326476805133,
+      "heldout_post": 0.2855459461512576,
+      "lam": null,
+      "note": "paper protocol, 200 steps/slice, no selection"
+    },
+    {
+      "method": "GS-single",
+      "kres_pre": 0.19243249219539824,
+      "kres_post": 0.1585560090069461,
+      "heldout_pre": 0.32376158813936573,
+      "heldout_post": 0.28309407113318424,
+      "lam": null,
+      "note": "held-out from a separate 95%-line run (heldout4_scores.json, 2026-09-15)"
+    },
+    {
+      "method": "MC-GS",
+      "kres_pre": 0.19761089883335525,
+      "kres_post": 0.16306750846096005,
+      "heldout_pre": 0.3255768025536682,
+      "heldout_post": 0.2846226368377244,
+      "lam": null,
+      "note": "held-out from a separate 95%-line run (heldout4_scores.json, 2026-09-15)"
+    }
+  ],
+  "superseded": [
+    {
+      "method": "CS-SENSE (35 outer, lambda 1e-3; superseded)",
+      "kres_pre": 0.18295207361636578,
+      "kres_post": 0.14772272490697835
+    }
+  ],
+  "lambda_selection": {
+    "cs_pre": 0.002,
+    "cs_post": 0.002,
+    "joint": 0.00283,
+    "l1_pre": 0.004,
+    "l1_post": 0.002
+  },
+  "heldout_definition": "kres on the 5% held-out PE lines of heldout_split/split_95_5_seed0.npz, alpha refit on those lines (ce_dip_inr.py kres_on)"
+}

@@ -1,0 +1,98 @@
+
+===== launch 2026-09-15 11:18:33 gpu 2 =====
+[set_seed] deterministic=False (seed=42, cuDNN fast, TF32 on)
+[JointTrainer] re-seed: seed=42, deterministic=False
+>>> loading PLAIN
+Loading data from /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/heldout_split/ksp_fit_pre.h5
+Using H5 key: ksp
+Detected coil axis at dim 0: (42, 256, 176, 232)
+Loaded k-space data with shape: torch.Size([42, 256, 176, 232])
+Number of coils: 42
+Volume shape: (256, 176, 232)
+Readout axis: 0, Phase axes: (1, 2)
+[Presampled] Input k-space is already undersampled (real clinical data).
+Loading external CSM from /data1/data1_congcong/data/3D/CE_Data/t1_3D_gre_fsp_sag_iso_ACS_16887049370010/csm.mat
+MATLAB v7.3 / .h5 CSM file detected, using h5py reader.
+Using H5 CSM key: csm
+[CSM] Loaded from: /data1/data1_congcong/data/3D/CE_Data/t1_3D_gre_fsp_sag_iso_ACS_16887049370010/csm.mat, key: csm, shape: torch.Size([42, 256, 176, 232])
+[Presampled] Using external CSM for reconstruction.
+[Presampled] Inferred mask from k-space. Actual acceleration: 5.61x
+[Presampled] Normalized by P99.9 magnitude = 136.386230
+[Presampled] Zero-filled shape: torch.Size([2, 256, 176, 232])
+[Presampled] Undersampled k-space shape: torch.Size([84, 256, 176, 232])
+>>> loading CONTRAST
+Loading data from /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/heldout_split/ksp_fit_post.h5
+Using H5 key: ksp
+Detected coil axis at dim 0: (42, 256, 176, 232)
+Loaded k-space data with shape: torch.Size([42, 256, 176, 232])
+Number of coils: 42
+Volume shape: (256, 176, 232)
+Readout axis: 0, Phase axes: (1, 2)
+[Presampled] Input k-space is already undersampled (real clinical data).
+Loading external CSM from /data1/data1_congcong/data/3D/CE_Data/t1_3D_gre_fsp_sag_iso_ACS_16887049370060/csm2.mat
+MATLAB v7.3 / .h5 CSM file detected, using h5py reader.
+Using H5 CSM key: csm
+[CSM] Loaded from: /data1/data1_congcong/data/3D/CE_Data/t1_3D_gre_fsp_sag_iso_ACS_16887049370060/csm2.mat, key: csm, shape: torch.Size([42, 256, 176, 232])
+[Presampled] Using external CSM for reconstruction.
+[Presampled] Inferred mask from k-space. Actual acceleration: 5.61x
+[Presampled] Normalized by P99.9 magnitude = 163.266434
+[Presampled] Zero-filled shape: torch.Size([2, 256, 176, 232])
+[Presampled] Undersampled k-space shape: torch.Size([84, 256, 176, 232])
+shared volume_shape = (256, 176, 232)
+|zf_p| max 1.2554, |zf_c| max 1.7650
+JointGaussianModel3D init: {'positions': 1800000, 'scales': 1800000, 'rotations': 2400000, 'density_plain': 1200000, 'density_contrast': 1200000, 'num_points': 600000}
+/home/congcongliu/anaconda3/envs/GSTMI/lib/python3.11/site-packages/torch/utils/cpp_extension.py:2356: UserWarning: TORCH_CUDA_ARCH_LIST is not set, all archs for visible cards are included for compilation. 
+If this is not desired, please set os.environ['TORCH_CUDA_ARCH_LIST'].
+  warnings.warn(
+[TileVoxelizer] volume=(256, 176, 232), tile_size=8, max_radius=20 (accepted for config compatibility; the bbox is the exact mahal<=9 extent and is never clamped), backend=tile_cuda
+output dir: /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/gs_fit/joint/joint
+[INF-05] TensorBoard writer: /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/gs_fit/joint/joint/logs
+/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/scripts/ce_gs.py:97: DeprecationWarning: loss.tv_weight is deprecated (INF-05 / A-LOSS-DROP); use loss.lambda_geo instead. Reading tv_weight as lambda_geo for backward compat with v1 configs.
+  tr.train()
+[tv_shape] eps=0.04 vector=False
+[edge_tv] kappa_q=0.85 -> kappa_plain=0.02118 kappa_contrast=0.02230 w_floor=0.1
+[iter     1/4000] loss=3.5916e-01 dc_p=1.6681e-01 dc_c=1.9216e-01 R_geo=1.8727e-03 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter   100/4000] loss=1.0737e-01 dc_p=5.5434e-02 dc_c=5.0312e-02 R_geo=1.6218e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter   200/4000] loss=9.4504e-02 dc_p=5.0100e-02 dc_c=4.2899e-02 R_geo=1.5040e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter   300/4000] loss=8.8717e-02 dc_p=4.7625e-02 dc_c=3.9624e-02 R_geo=1.4685e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter   400/4000] loss=8.5104e-02 dc_p=4.6028e-02 dc_c=3.7619e-02 R_geo=1.4575e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter   500/4000] loss=8.2664e-02 dc_p=4.4923e-02 dc_c=3.6286e-02 R_geo=1.4543e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter   600/4000] loss=8.0913e-02 dc_p=4.4118e-02 dc_c=3.5340e-02 R_geo=1.4547e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter   700/4000] loss=7.9602e-02 dc_p=4.3511e-02 dc_c=3.4634e-02 R_geo=1.4565e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter   800/4000] loss=7.8592e-02 dc_p=4.3044e-02 dc_c=3.4089e-02 R_geo=1.4588e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter   900/4000] loss=7.7789e-02 dc_p=4.2671e-02 dc_c=3.3656e-02 R_geo=1.4612e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  1000/4000] loss=7.7136e-02 dc_p=4.2368e-02 dc_c=3.3305e-02 R_geo=1.4636e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  1100/4000] loss=7.6598e-02 dc_p=4.2117e-02 dc_c=3.3015e-02 R_geo=1.4659e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  1200/4000] loss=7.6141e-02 dc_p=4.1902e-02 dc_c=3.2770e-02 R_geo=1.4682e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  1300/4000] loss=7.5748e-02 dc_p=4.1716e-02 dc_c=3.2561e-02 R_geo=1.4705e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  1400/4000] loss=7.5406e-02 dc_p=4.1555e-02 dc_c=3.2379e-02 R_geo=1.4725e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  1500/4000] loss=7.5107e-02 dc_p=4.1413e-02 dc_c=3.2219e-02 R_geo=1.4745e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  1600/4000] loss=7.4843e-02 dc_p=4.1288e-02 dc_c=3.2079e-02 R_geo=1.4763e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  1700/4000] loss=7.4607e-02 dc_p=4.1176e-02 dc_c=3.1953e-02 R_geo=1.4781e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  1800/4000] loss=7.4395e-02 dc_p=4.1075e-02 dc_c=3.1840e-02 R_geo=1.4797e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  1900/4000] loss=7.4203e-02 dc_p=4.0984e-02 dc_c=3.1738e-02 R_geo=1.4812e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  2000/4000] loss=7.4031e-02 dc_p=4.0902e-02 dc_c=3.1646e-02 R_geo=1.4826e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  2100/4000] loss=7.3873e-02 dc_p=4.0826e-02 dc_c=3.1563e-02 R_geo=1.4839e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  2200/4000] loss=7.3729e-02 dc_p=4.0758e-02 dc_c=3.1486e-02 R_geo=1.4852e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  2300/4000] loss=7.3599e-02 dc_p=4.0695e-02 dc_c=3.1417e-02 R_geo=1.4864e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  2400/4000] loss=7.3478e-02 dc_p=4.0638e-02 dc_c=3.1352e-02 R_geo=1.4875e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  2500/4000] loss=7.3367e-02 dc_p=4.0585e-02 dc_c=3.1293e-02 R_geo=1.4885e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  2600/4000] loss=7.3265e-02 dc_p=4.0537e-02 dc_c=3.1239e-02 R_geo=1.4894e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  2700/4000] loss=7.3170e-02 dc_p=4.0492e-02 dc_c=3.1188e-02 R_geo=1.4903e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  2800/4000] loss=7.3082e-02 dc_p=4.0450e-02 dc_c=3.1141e-02 R_geo=1.4911e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  2900/4000] loss=7.3000e-02 dc_p=4.0411e-02 dc_c=3.1098e-02 R_geo=1.4919e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  3000/4000] loss=7.2924e-02 dc_p=4.0375e-02 dc_c=3.1057e-02 R_geo=1.4927e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  3100/4000] loss=7.2852e-02 dc_p=4.0341e-02 dc_c=3.1018e-02 R_geo=1.4934e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  3200/4000] loss=7.2786e-02 dc_p=4.0309e-02 dc_c=3.0983e-02 R_geo=1.4940e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  3300/4000] loss=7.2724e-02 dc_p=4.0279e-02 dc_c=3.0950e-02 R_geo=1.4947e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  3400/4000] loss=7.2666e-02 dc_p=4.0251e-02 dc_c=3.0919e-02 R_geo=1.4953e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  3500/4000] loss=7.2611e-02 dc_p=4.0225e-02 dc_c=3.0890e-02 R_geo=1.4959e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  3600/4000] loss=7.2560e-02 dc_p=4.0201e-02 dc_c=3.0862e-02 R_geo=1.4964e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  3700/4000] loss=7.2512e-02 dc_p=4.0178e-02 dc_c=3.0837e-02 R_geo=1.4969e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  3800/4000] loss=7.2467e-02 dc_p=4.0157e-02 dc_c=3.0813e-02 R_geo=1.4974e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  3900/4000] loss=7.2425e-02 dc_p=4.0136e-02 dc_c=3.0790e-02 R_geo=1.4979e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+[iter  4000/4000] loss=7.2385e-02 dc_p=4.0117e-02 dc_c=3.0769e-02 R_geo=1.4984e-02 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 balance_violation=False
+joint training done in 6811.9s
+[export] gs_joint_pre: shape=(256, 176, 232) |alpha|=1.0017 kres=0.19453
+[export] gs_joint_post: shape=(256, 176, 232) |alpha|=1.0004 kres=0.16032
+DONE

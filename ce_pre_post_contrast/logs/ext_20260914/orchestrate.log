@@ -1,0 +1,79 @@
+09-14 23:29:46 queued validate_cs35_pre (gpu, prio 0)
+09-14 23:29:46 queued mcinr_full (gpu, prio 1)
+09-14 23:29:46 queued joint_grid (gpu, prio 2)
+09-14 23:29:46 queued cs_pre_grid (gpu, prio 3)
+09-14 23:29:46 queued cs_post_grid (gpu, prio 4)
+09-14 23:29:46 queued mcinr_fit (gpu, prio 9)
+09-14 23:29:46 queued l1_pre_grid (cpu, prio 2)
+09-14 23:29:46 queued l1_post_grid (cpu, prio 3)
+09-14 23:29:46 launched l1_pre_grid on cpu pid 1749596
+09-14 23:29:46 launched l1_post_grid on cpu pid 1749597
+09-15 00:04:52 done l1_pre_grid (gpu -1)
+09-15 00:04:52 l1_pre: held-out minimum at the high edge (0.004); extending to 0.008
+09-15 00:04:52 queued l1_pre_ext_0.008 (cpu, prio 5)
+09-15 00:04:52 launched l1_pre_ext_0.008 on cpu pid 1904419
+09-15 00:05:52 done l1_post_grid (gpu -1)
+09-15 00:05:52 l1_post: selected lambda 0.002 (edge flag None); queueing the 100% refit
+09-15 00:05:52 queued l1_post_final (cpu, prio 6)
+09-15 00:05:52 launched l1_post_final on cpu pid 1907309
+09-15 00:11:53 done l1_pre_ext_0.008 (gpu -1)
+09-15 00:11:53 l1_pre: selected lambda 0.004 (edge flag None); queueing the 100% refit
+09-15 00:11:53 queued l1_pre_final (cpu, prio 6)
+09-15 00:11:53 launched l1_pre_final on cpu pid 1933371
+09-15 00:12:53 done l1_post_final (gpu -1)
+09-15 00:18:54 done l1_pre_final (gpu -1)
+09-15 00:19:23 queued validate_cs35_pre (gpu, prio 0)
+09-15 00:19:23 queued mcinr_full (gpu, prio 1)
+09-15 00:19:23 queued joint_grid (gpu, prio 2)
+09-15 00:19:23 queued cs_pre_grid (gpu, prio 3)
+09-15 00:19:23 queued cs_post_grid (gpu, prio 4)
+09-15 00:19:23 queued mcinr_fit (gpu, prio 9)
+09-15 00:19:23 queued l1_pre_grid (cpu, prio 2)
+09-15 00:19:23 queued l1_post_grid (cpu, prio 3)
+09-15 00:19:23 already complete: l1_pre_grid
+09-15 00:19:23 already complete: l1_post_grid
+09-15 00:19:23 l1_pre: selected lambda 0.004 (edge flag None); queueing the 100% refit
+09-15 00:19:23 queued l1_pre_final (cpu, prio 6)
+09-15 00:19:23 l1_post: selected lambda 0.002 (edge flag None); queueing the 100% refit
+09-15 00:19:23 queued l1_post_final (cpu, prio 6)
+09-15 00:19:23 launched l1_pre_final on cpu pid 1953129
+09-15 00:19:23 launched l1_post_final on cpu pid 1953130
+09-15 00:19:38 done l1_pre_final (gpu -1)
+09-15 00:19:38 done l1_post_final (gpu -1)
+09-15 00:20:02 queued validate_cs35_pre (gpu, prio 0)
+09-15 00:20:02 queued mcinr_full (gpu, prio 1)
+09-15 00:20:02 queued joint_grid (gpu, prio 2)
+09-15 00:20:02 queued cs_pre_grid (gpu, prio 3)
+09-15 00:20:02 queued cs_post_grid (gpu, prio 4)
+09-15 00:20:02 queued mcinr_fit (gpu, prio 9)
+09-15 00:20:02 already complete l1_pre_grid (cpu, prio 2)
+09-15 00:20:02 already complete l1_post_grid (cpu, prio 3)
+09-15 00:20:02 l1_pre: selected lambda 0.004 (edge flag None); queueing the 100% refit
+09-15 00:20:02 already complete l1_pre_final (cpu, prio 6)
+09-15 00:20:02 l1_post: selected lambda 0.002 (edge flag None); queueing the 100% refit
+09-15 00:20:02 already complete l1_post_final (cpu, prio 6)
+09-15 00:34:27 launched validate_cs35_pre on gpu 1 pid 1975065
+09-15 00:35:58 done validate_cs35_pre (gpu 1)
+09-15 00:38:45 launched mcinr_full on gpu 5 pid 1981389
+09-15 00:41:47 launched joint_grid on gpu 2 pid 1986909
+09-15 00:50:38 done mcinr_full (gpu 5)
+09-15 00:50:38 launched cs_pre_grid on gpu 5 pid 2000932
+09-15 01:13:55 done cs_pre_grid (gpu 5)
+09-15 01:13:55 cs_pre: selected lambda 0.002 (edge flag None); queueing the 100% refit
+09-15 01:13:55 queued cs_pre_final (gpu, prio 6)
+09-15 01:13:55 launched cs_post_grid on gpu 5 pid 2040124
+09-15 01:19:29 done joint_grid (gpu 2)
+09-15 01:19:29 joint: selected lambda 0.00283 (edge flag None); queueing the 100% refit
+09-15 01:19:29 queued joint_final (gpu, prio 6)
+09-15 01:19:29 launched cs_pre_final on gpu 2 pid 2052038
+09-15 01:23:32 done cs_pre_final (gpu 2)
+09-15 01:23:32 launched joint_final on gpu 2 pid 2060480
+09-15 01:31:22 done joint_final (gpu 2)
+09-15 01:31:22 launched mcinr_fit on gpu 2 pid 2075878
+09-15 01:37:26 done cs_post_grid (gpu 5)
+09-15 01:37:26 cs_post: selected lambda 0.002 (edge flag None); queueing the 100% refit
+09-15 01:37:26 queued cs_post_final (gpu, prio 6)
+09-15 01:41:44 launched cs_post_final on gpu 5 pid 2097321
+09-15 01:43:30 done mcinr_fit (gpu 2)
+09-15 01:45:47 done cs_post_final (gpu 5)
+09-15 01:45:47 ALL DONE

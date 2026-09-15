@@ -1,0 +1,14 @@
+
+===== launch 2026-09-15 01:19:29 gpu 2 =====
+[pre] coils 42 plane full 7663 lines  scale 1.4000e+02  (6s)
+  [cssense lam 0.002 full] outer 1/200  pre|x|max=1.9454  2s
+  [cssense lam 0.002 full] outer 25/200  pre|x|max=1.9164  29s
+  [cssense lam 0.002 full] outer 50/200  pre|x|max=1.9075  57s
+  [cssense lam 0.002 full] outer 75/200  pre|x|max=1.9028  85s
+  [cssense lam 0.002 full] outer 100/200  pre|x|max=1.9005  112s
+  [cssense lam 0.002 full] outer 125/200  pre|x|max=1.8993  140s
+  [cssense lam 0.002 full] outer 150/200  pre|x|max=1.8988  169s
+  [cssense lam 0.002 full] outer 175/200  pre|x|max=1.8986  196s
+  [cssense lam 0.002 full] outer 200/200  pre|x|max=1.8984  224s
+[cssense_o200_lam0.002_full_pre] kres full 0.18487 fit 0.18217 held-out 0.28460  |alpha| 1.0164  225s
+DONE 230s

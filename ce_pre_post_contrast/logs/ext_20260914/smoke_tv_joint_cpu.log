@@ -1,0 +1,6 @@
+[pre] coils 42 plane fit 7280 lines  scale 1.4000e+02  (29s)
+[post] coils 42 plane fit 7280 lines  scale 1.6715e+02  (61s)
+  [jsense lam 0.001 fit] outer 1/1  pre|x|max=1.4357 post|x|max=1.9018  80s
+[jsense_o1_lam0.001_fit_pre] kres full 0.22335 fit 0.21603 held-out 0.44702  |alpha| 1.0470  89s
+[jsense_o1_lam0.001_fit_post] kres full 0.19947 fit 0.19136 held-out 0.43321  |alpha| 1.0505  98s
+DONE 164s

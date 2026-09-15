@@ -1,0 +1,26 @@
+{
+  "method": "cssense",
+  "mode": "cs",
+  "scan": "pre",
+  "mask": "fit",
+  "lam": 0.002,
+  "outer": 200,
+  "cg": 8,
+  "mu": 0.1,
+  "tik": 0.01,
+  "scale": 140.00473022460938,
+  "alpha_re": 1.0169620713000194,
+  "alpha_im": -4.1913929541918674e-05,
+  "kres": 0.18588654038983612,
+  "kres_fit": 0.18221462478290298,
+  "kres_heldout": 0.31343802800903386,
+  "heldout_is_unseen": true,
+  "shape": [
+    256,
+    232,
+    176
+  ],
+  "seconds": 229.93765783309937,
+  "torch": "2.7.1+cu118",
+  "gpu": "NVIDIA A100 80GB PCIe"
+}

@@ -1,0 +1,24 @@
+{
+  "method": "l1espirit",
+  "scan": "post",
+  "mask": "fit",
+  "lam": 0.0005,
+  "iters": 100,
+  "bart_w": 1.341414,
+  "scale": 167.1511993408203,
+  "alpha_re": 1.0005934796711762,
+  "alpha_im": -1.4015896496567615e-05,
+  "kres": 0.1472151967474723,
+  "kres_fit": 0.14351377145819366,
+  "kres_heldout": 0.26915289888909805,
+  "heldout_is_unseen": true,
+  "shape": [
+    256,
+    232,
+    176
+  ],
+  "threads": 24,
+  "seconds_bart": 410.29310607910156,
+  "seconds": 421.29412293434143,
+  "bart_stdout_tail": ""
+}

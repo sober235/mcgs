@@ -25,6 +25,8 @@ ap.add_argument("--out", required=True)
 ap.add_argument("--epochs", type=int, default=60)         # zsssdu
 ap.add_argument("--unrolls", type=int, default=10)        # zsssdu
 ap.add_argument("--cg_iters_net", type=int, default=6)    # zsssdu inner DC solver
+ap.add_argument("--fit", action="store_true",
+                help="use only the 95%% lines of heldout_split/split_95_5_seed0.npz (added 2026-09-14; tag gets _fit)")
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -61,6 +63,11 @@ y = torch.from_numpy(y_np).to(dev); del y_np
 S = torch.from_numpy(S_np).to(dev); del S_np
 m3 = torch.from_numpy(M_np).to(dev) > 0.5        # (256,232,176) bool
 del M_np
+if args.fit:                                      # held-out lines never enter the fit (split frozen by ce_split.py)
+    _fit = torch.from_numpy(np.load("/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/"
+                                    "heldout_split/split_95_5_seed0.npz")["fit"]).to(dev)
+    m3 = m3 & _fit
+    log(f"--fit: restricted to {int(_fit.sum())} of the acquired lines")
 NC = y.shape[0]
 assert bool((m3 == m3[0:1]).all()), "readout axis is not uniformly sampled"
 m2 = m3[0]                                        # (232,176)
@@ -291,7 +298,7 @@ for i in range(0, NC, CHUNK):
 kres = (num_r / den_r) ** 0.5
 
 xa = (alpha * x).cpu().numpy().astype(np.complex64)
-tag = f"{args.method}_{args.scan}"
+tag = f"{args.method}_{args.scan}" + ("_fit" if args.fit else "")
 np.save(OUT / f"{tag}_complex.npy", xa)
 json.dump({"method": args.method, "scan": args.scan, "shape": list(xa.shape),
            "scale": scale, "alpha_re": float(np.real(alpha)), "alpha_im": float(np.imag(alpha)),

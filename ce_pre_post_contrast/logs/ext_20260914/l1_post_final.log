@@ -1,0 +1,12 @@
+
+===== launch 2026-09-15 00:05:52 gpu -1 =====
+[post] cfl inputs ready in /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_post  (6s)
+[post] BART inverse data scaling (full data, frozen): 1.34141
+/home/congcongliu/src/bart/bart pics -l1 -r 0.002 -i 100 -p /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_post/pat_full -w 1.341414 -S /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_post/ksp_full /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_post/maps /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_post/out_l1espirit_i100_lam0.002_full_post
+[l1espirit_i100_lam0.002_full_post] kres full 0.14728 fit 0.14507 held-out 0.22827  |alpha| 1.0027  bart 353s
+removed /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_post
+DONE 370s
+
+===== launch 2026-09-15 00:19:23 gpu -1 =====
+removed /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/l1espirit/work_post
+DONE 0s

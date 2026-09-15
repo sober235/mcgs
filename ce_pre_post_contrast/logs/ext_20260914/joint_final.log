@@ -1,0 +1,16 @@
+
+===== launch 2026-09-15 01:23:32 gpu 2 =====
+[pre] coils 42 plane full 7663 lines  scale 1.4000e+02  (6s)
+[post] coils 42 plane full 7663 lines  scale 1.6715e+02  (11s)
+  [jsense lam 0.00283 full] outer 1/200  pre|x|max=1.9454 post|x|max=2.7114  4s
+  [jsense lam 0.00283 full] outer 25/200  pre|x|max=1.9127 post|x|max=2.6835  58s
+  [jsense lam 0.00283 full] outer 50/200  pre|x|max=1.9045 post|x|max=2.6904  114s
+  [jsense lam 0.00283 full] outer 75/200  pre|x|max=1.9003 post|x|max=2.6929  169s
+  [jsense lam 0.00283 full] outer 100/200  pre|x|max=1.8983 post|x|max=2.6939  225s
+  [jsense lam 0.00283 full] outer 125/200  pre|x|max=1.8974 post|x|max=2.6943  281s
+  [jsense lam 0.00283 full] outer 150/200  pre|x|max=1.8970 post|x|max=2.6945  336s
+  [jsense lam 0.00283 full] outer 175/200  pre|x|max=1.8968 post|x|max=2.6946  392s
+  [jsense lam 0.00283 full] outer 200/200  pre|x|max=1.8967 post|x|max=2.6946  448s
+[jsense_o200_lam0.00283_full_pre] kres full 0.18480 fit 0.18210 held-out 0.28449  |alpha| 1.0163  448s
+[jsense_o200_lam0.00283_full_post] kres full 0.14999 fit 0.14775 held-out 0.23215  |alpha| 1.0168  449s
+DONE 460s

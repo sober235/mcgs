@@ -1,0 +1,16 @@
+{
+  "mode": "single_post",
+  "channel": "plain",
+  "tag": "gs_single_post",
+  "alpha_re": 1.000299334526062,
+  "alpha_im": -0.00047779976739548147,
+  "kres_internal": 0.15578947961330414,
+  "shape": [
+    256,
+    176,
+    232
+  ],
+  "iters": 4000,
+  "points": 600000,
+  "warmup": 500
+}
