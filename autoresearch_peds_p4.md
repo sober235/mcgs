@@ -238,3 +238,4 @@ The remaining non-scan probes now carry `--lambda_edge 0.001` as well (`p4_ue_*`
 right-sided subependymal nodule (PE 172 on SPE 45).
 | **`p4_u_k05`** | union, guide kappa × 0.5 | 38.514 / 0.9668 / 0.0774 | **34.208 / 0.9063 / 0.1826** | sagittal 170 +0.123 | sagittal 171 +0.527 | **KEEP**: as good as adding common edge on T2s, at zero T1w cost; stacked next (`p4_ue_k05`) and pushed to × 0.25 |
 | `p3_n96_union` (stage-3 session) | 9.6M points + union | 38.936 / 0.9685 / 0.0768 | 34.215 / 0.9047 / 0.1852 | sagittal 170 +0.087 | coronal 136 +0.525 | below the 3.6M union runs on the lesion bar; capacity keeps not helping T2s slices |
+| `p4_u_edge0020` | union + common edge 0.002 | 38.101 / 0.9633 / 0.0873 | 34.196 / 0.9051 / 0.1841 | sagittal 172 +0.095 | sagittal 171 +0.488 | discard: past the optimum; T2s below edge 0.001 and T1w −0.28 more |
