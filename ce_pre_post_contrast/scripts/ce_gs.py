@@ -25,6 +25,9 @@ ap.add_argument("--iters", type=int, default=4000)
 ap.add_argument("--warmup", type=int, default=500)
 ap.add_argument("--points", type=int, default=600000)
 ap.add_argument("--out", required=True)
+ap.add_argument("--fit", action="store_true", help="train on the 95%% lines of the frozen held-out split (2026-09-14)")
+ap.add_argument("--root", default="/data0/congcong/code/GS/Paired_ARC_GS_general_framework",
+                help="directory holding paired_gs/ (2026-09-15: scripts/_trainer_3dd24aa pins the 09-07 trainer)")
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -35,7 +38,7 @@ import numpy as np
 import torch
 import yaml
 
-ROOT = Path("/data0/congcong/code/GS/Paired_ARC_GS_general_framework")
+ROOT = Path(args.root)
 sys.path.insert(0, str(ROOT / "paired_gs"))
 from seed import set_seed
 from trainers.joint_trainer import JointTrainer
@@ -50,6 +53,14 @@ POST = dict(name="post",
             data_path=str(CE / "t1_3D_gre_fsp_sag_iso_ACS_16887049370060/ksp2.mat"),
             csm_path=str(CE / "t1_3D_gre_fsp_sag_iso_ACS_16887049370060/csm2.mat"),
             mask_path=str(CE / "t1_3D_gre_fsp_sag_iso_ACS_16887049370060/mask2.mat"))
+
+if args.fit:
+    # 2026-09-14: the k-space with the 5% held-out lines zeroed (ce_make_fit_kspace.py, same layout as ksp*.mat).
+    # The presampled loader infers its mask from the non-zero samples, so the held-out lines never enter the fit,
+    # the zero-filled normalisation or the initialisation.
+    HS = Path("/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/heldout_split")
+    PRE = dict(PRE, data_path=str(HS / "ksp_fit_pre.h5"))
+    POST = dict(POST, data_path=str(HS / "ksp_fit_post.h5"))
 
 COMMON = dict(acceleration_factor=5.33, mask_type="external", normalization_percentile=99.9,
               normalize_kspace=True, phase_axes=[1, 2], readout_axis=0,

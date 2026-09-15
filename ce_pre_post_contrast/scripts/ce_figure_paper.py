@@ -2,8 +2,8 @@
 """ce_figure_paper.py -- publication figure for the UIH prospective CE pair.
 
 Reconstructed weighted images only (no error maps): 3 orthogonal planes x {pre, post}
-x 8 methods.  Volumes are cropped to the head bounding box and packed with near-zero
-inter-panel spacing.  All 16 volumes are put on ONE common intensity scale by the
+x 11 methods.  Volumes are cropped to the head bounding box and packed with near-zero
+inter-panel spacing.  All 22 volumes are put on ONE common intensity scale by the
 best-fit complex scale against the measured k-space,
 
     alpha = argmin_a || M .( a.A(x) - y ) ||_2 ,
@@ -15,7 +15,7 @@ import os, sys, json, argparse
 from pathlib import Path
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--gpu", type=int, default=0)
+ap.add_argument("--gpu", type=int, default=0, help="-1 = CPU")
 ap.add_argument("--out", default="/home/congcongliu/figs/ce_pair")
 ap.add_argument("--dpi", type=int, default=600)
 ap.add_argument("--vmax", type=float, default=1.0)
@@ -25,7 +25,7 @@ ap.add_argument("--zax", type=int, default=170, help="axial display level (axis0
 ap.add_argument("--probe", action="store_true", help="dump an orientation check only")
 args = ap.parse_args()
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu) if args.gpu >= 0 else ""
 os.environ.setdefault("PYTHONNOUSERSITE", "1")
 
 import numpy as np, torch, torch.fft as tfft
@@ -38,7 +38,9 @@ for _f in ("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",):
 plt.rcParams["font.sans-serif"] = ["Noto Sans CJK JP", "DejaVu Sans"]
 plt.rcParams["axes.unicode_minus"] = False
 
-dev = torch.device("cuda:0")
+dev = torch.device("cuda:0" if args.gpu >= 0 else "cpu")
+if args.gpu < 0:
+    torch.set_num_threads(16)
 W = Path("/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast")
 RR = Path("/data0/congcong/code/NV-Generate-CTMR/recon_real")
 WORK = {"pre": RR / "work_ce_t1_16887049370010", "post": RR / "work_ce_t1_16887049370060"}
@@ -49,15 +51,21 @@ def _c(fn, x, d): return tfft.fftshift(fn(tfft.ifftshift(x, dim=d), dim=d, norm=
 def fft3c(x):  return _c(tfft.fftn,  x, (-3, -2, -1))
 def ifft3c(x): return _c(tfft.ifftn, x, (-3, -2, -1))
 
+# lambdas of the 2026-09-14 arms: held-out selection (scripts/ce_select_lambda.py, written by ce_orchestrate.py)
+SEL = {fam: json.load(open(W / "logs/ext_20260914" / f"selection_{fam}.json"))["best"]
+       for fam in ("cs_pre", "cs_post", "joint", "l1_pre", "l1_post")}
 COLS = [
     ("ZF",                        lambda s: W / f"classical/zf_{s}_complex.npy"),
     ("CG-SENSE",                  lambda s: W / f"classical/cgsense_{s}_complex.npy"),
-    ("CS-SENSE",                  lambda s: W / f"classical/cssense_{s}_complex.npy"),
+    ("CS-SENSE",                  lambda s: W / f"tv_sense/cssense_o200_lam{SEL['cs_' + s]:g}_full_{s}_complex.npy"),
+    ("Joint SENSE",               lambda s: W / f"tv_sense/jsense_o200_lam{SEL['joint']:g}_full_{s}_complex.npy"),
+    ("L1-ESPIRiT",                lambda s: W / f"l1espirit/l1espirit_i100_lam{SEL['l1_' + s]:g}_full_{s}_complex.npy"),
     ("ZS-SSDU",                   lambda s: W / f"classical/zsssdu_{s}_complex.npy"),
     ("3D-DIP",                    lambda s: W / f"dipinr/dip_{s}_complex.npy"),
     ("3D-INR",                    lambda s: W / f"dipinr/inr_{s}_complex.npy"),
-    ("GS single",                 lambda s: W / f"gs_single_{s}/gs_single_{s}_raw_complex.npy"),
-    ("GS joint",                  lambda s: W / f"gs_joint/gs_joint_{s}_raw_complex.npy"),
+    ("MC-INR",                    lambda s: W / f"mcinr/mcinr_full_{s}_complex.npy"),
+    ("GS-single",                 lambda s: W / f"gs_single_{s}/gs_single_{s}_raw_complex.npy"),
+    ("MC-GS",                     lambda s: W / f"gs_joint/gs_joint_{s}_raw_complex.npy"),
 ]
 CHUNK = 6
 mag, zfmag = {}, {}
@@ -86,7 +94,7 @@ for scan in ("pre", "post"):
         del x
     del y, S, m3, acc; torch.cuda.empty_cache()
 
-# ---- one common intensity scale for all 16 volumes ------------------------------------
+# ---- one common intensity scale for all 22 volumes ------------------------------------
 REF = float(np.percentile(zfmag["pre"][::3], 99.9))
 log(f"common scale (P99.9 of |ZF_pre|) = {REF:.4e}")
 for k in mag: mag[k] = mag[k] / REF
