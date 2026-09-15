@@ -19,8 +19,10 @@ SERVED = "/home/congcongliu/figs/t1flair_v3_af_trend"
 AFS = ("12", "16", "20", "24")
 STEPS = list(zip(AFS[:-1], AFS[1:]))
 WP = {"T1": {"12": 11.71, "16": 15.19, "20": 18.56, "24": 24.00}, "FLAIR": {"12": 12.86, "16": 16.49, "20": 19.96, "24": 25.51}}
-ORDER = ["MC-GS", "GS-single", "L1-ESPIRiT", "CS-SENSE (converged TV)", "Joint SENSE", "CS-SENSE (35 it)",
-         "ZS-SSDU", "CG-SENSE", "MC-INR", "3D-DIP", "3D-INR", "ZF"]
+# ORDER is what is SHOWN. L1-ESPIRiT stays in the rescore json (data) but is not shown: dropped from the comparison by
+# the user on 2026-09-15; L1-SPIRiT, the k-space arm registered the same day, takes a row (as in the AF12_16_20 review).
+ORDER = ["MC-GS", "GS-single", "CS-SENSE (converged TV)", "Joint SENSE", "CS-SENSE (35 it)",
+         "ZS-SSDU", "L1-SPIRiT", "CG-SENSE", "MC-INR", "3D-DIP", "3D-INR", "ZF"]
 OURS = ("MC-GS", "GS-single")
 MET = [("head_psnr", "head PSNR (dB)", +1, "{:.3f}"), ("head_ssim", "head SSIM", +1, "{:.4f}"), ("head_hfen", "head HFEN", -1, "{:.4f}")]
 
@@ -124,8 +126,9 @@ for c in ("T1", "FLAIR"):
         print(f"  | {lab} | " + " | ".join(f"{x:.3f}" if x is not None else "--" for x in v) + f" | {tot} | {dpd} | "
               f"{flags[0]} {flags[1]} {flags[2]} {wflag} |" + (" (partial)" if partial else ""))
 
-# 5. the MC-GS margin over the strongest competing arm (MC-GS and GS-single excluded), head PSNR, at every AF
-print("\n=== MC-GS margin over the strongest competing arm, head PSNR (one scorer) ===")
+# 5. margins, head PSNR, at every AF. GS-single is a comparison arm (user 2026-09-13) and the strongest one here, so the
+#    margin to quote is MC-GS - GS-single; the strongest non-GS arm is taken over the arms SHOWN (L1-ESPIRiT dropped).
+print("\n=== MC-GS margin over GS-single (the strongest comparison arm; the margin to quote) and over the strongest non-GS arm shown, head PSNR (one scorer) ===")
 margins = {}
 for c in ("T1", "FLAIR"):
     for af in AFS:
@@ -133,8 +136,8 @@ for c in ("T1", "FLAIR"):
         best, who = max(comp)
         mc, gs = V[(af, c, "MC-GS")]["head_psnr"], V[(af, c, "GS-single")]["head_psnr"]
         margins[f"{c}|{af}"] = dict(margin=mc - best, strongest=who, gs_single_over_strongest=gs - best, coupling=mc - gs)
-        print(f"  {c:5s} AF{af} ({WP[c][af]:5.2f}x)  MC-GS {mc:.3f}  strongest competing {best:.3f} ({who})  margin {mc - best:+.3f}"
-              f"   GS-single {gs - best:+.3f}   coupling {mc - gs:+.3f}")
+        print(f"  {c:5s} AF{af} ({WP[c][af]:5.2f}x)  MC-GS {mc:.3f}  GS-single {gs:.3f}  margin {mc - gs:+.3f}"
+              f"   | strongest non-GS {best:.3f} ({who})  MC-GS {mc - best:+.3f}  GS-single {gs - best:+.3f}")
 json.dump(margins, open(f"{T}/logs/af_trend_margins.json", "w"), indent=1)
 
 # 6. same-recipe cross-check for MC-GS: P6 exists on the AF 12 and AF 16 masks only

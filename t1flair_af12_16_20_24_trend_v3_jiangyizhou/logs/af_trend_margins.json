@@ -1,50 +1,50 @@
 {
  "T1|12": {
-  "margin": 0.5889737210141988,
-  "strongest": "L1-ESPIRiT",
-  "gs_single_over_strongest": 0.43884306463877465,
+  "margin": 0.8525486814834267,
+  "strongest": "CS-SENSE (converged TV)",
+  "gs_single_over_strongest": 0.7024180251080026,
   "coupling": 0.1501306563754241
  },
  "T1|16": {
-  "margin": 0.49697171569428633,
-  "strongest": "L1-ESPIRiT",
-  "gs_single_over_strongest": 0.3488315744034267,
+  "margin": 0.7610548850088819,
+  "strongest": "CS-SENSE (converged TV)",
+  "gs_single_over_strongest": 0.6129147437180222,
   "coupling": 0.14814014129085962
  },
  "T1|20": {
-  "margin": 0.46075315110168447,
-  "strongest": "L1-ESPIRiT",
-  "gs_single_over_strongest": 0.2958052972891494,
+  "margin": 0.8290311931628551,
+  "strongest": "CS-SENSE (converged TV)",
+  "gs_single_over_strongest": 0.66408333935032,
   "coupling": 0.16494785381253507
  },
  "T1|24": {
-  "margin": 0.3659976795470925,
-  "strongest": "L1-ESPIRiT",
-  "gs_single_over_strongest": 0.18694655134815719,
+  "margin": 0.9467816261362927,
+  "strongest": "CS-SENSE (converged TV)",
+  "gs_single_over_strongest": 0.7677304979373574,
   "coupling": 0.17905112819893532
  },
  "FLAIR|12": {
-  "margin": 0.602367804255671,
-  "strongest": "L1-ESPIRiT",
-  "gs_single_over_strongest": 0.5665661630608554,
+  "margin": 0.7354295055485807,
+  "strongest": "Joint SENSE",
+  "gs_single_over_strongest": 0.699627864353765,
   "coupling": 0.03580164119481566
  },
  "FLAIR|16": {
-  "margin": 0.42513485971738163,
-  "strongest": "L1-ESPIRiT",
-  "gs_single_over_strongest": 0.3834710153843446,
+  "margin": 0.5730324400882978,
+  "strongest": "Joint SENSE",
+  "gs_single_over_strongest": 0.5313685957552607,
   "coupling": 0.04166384433303705
  },
  "FLAIR|20": {
-  "margin": 0.4907237950357768,
-  "strongest": "L1-ESPIRiT",
-  "gs_single_over_strongest": 0.4387052057153866,
+  "margin": 0.634440617093361,
+  "strongest": "Joint SENSE",
+  "gs_single_over_strongest": 0.5824220277729708,
   "coupling": 0.05201858932039016
  },
  "FLAIR|24": {
-  "margin": 0.4000683157284328,
-  "strongest": "L1-ESPIRiT",
-  "gs_single_over_strongest": 0.3286561888530031,
+  "margin": 0.5768827831599026,
+  "strongest": "Joint SENSE",
+  "gs_single_over_strongest": 0.5054706562844729,
   "coupling": 0.07141212687542975
  }
 }

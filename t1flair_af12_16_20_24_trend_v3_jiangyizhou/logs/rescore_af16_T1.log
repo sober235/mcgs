@@ -1,14 +1,15 @@
-[AF16 T1] GT LoG 54s
-[AF16 T1] ZF                       zf_T1_complex.npy                        PSNR 25.8405 (rec 25.8405)  SSIM 0.67949 (rec 0.67949)  HFEN 0.69503 (rec 0.69503)  58s
-[AF16 T1] CG-SENSE                 cgsense_T1_complex.npy                   PSNR 32.3538 (rec 32.3538)  SSIM 0.88246 (rec 0.88246)  HFEN 0.22389 (rec 0.22389)  53s
-[AF16 T1] CS-SENSE (35 it)         cssense_T1_complex.npy                   PSNR 34.4095 (rec 34.4095)  SSIM 0.92757 (rec 0.92757)  HFEN 0.15307 (rec 0.15307)  54s
-[AF16 T1] CS-SENSE (converged TV)  cssense_o200_lam0.0007_T1_complex.npy    PSNR 34.9451 (rec 34.9451)  SSIM 0.93171 (rec 0.93171)  HFEN 0.13805 (rec 0.13805)  50s
-[AF16 T1] Joint SENSE              jcssense_o200_lam0.001_T1_complex.npy    PSNR 34.8314 (rec 34.8314)  SSIM 0.93109 (rec 0.93109)  HFEN 0.14286 (rec 0.14286)  51s
-[AF16 T1] L1-ESPIRiT               l1espirit_lam0.0015_T1_complex.npy       PSNR 35.2092 (rec 35.2092)  SSIM 0.93341 (rec 0.93341)  HFEN 0.12863 (rec 0.12863)  85s
-[AF16 T1] ZS-SSDU                  zsssdu_T1_complex.npy                    PSNR 34.1500 (rec 34.1500)  SSIM 0.92159 (rec 0.92159)  HFEN 0.16461 (rec 0.16461)  57s
-[AF16 T1] 3D-DIP                   dip_T1_complex.npy                       PSNR 30.9942 (rec 30.9942)  SSIM 0.85490 (rec 0.85490)  HFEN 0.30244 (rec 0.30244)  56s
-[AF16 T1] 3D-INR                   inr_T1_complex.npy                       PSNR 30.3747 (rec 30.3747)  SSIM 0.79507 (rec 0.79507)  HFEN 0.21250 (rec 0.21250)  56s
-[AF16 T1] MC-INR                   mcinr_T1_complex.npy                     PSNR 31.5896 (rec 31.5896)  SSIM 0.83547 (rec 0.83547)  HFEN 0.23248 (rec 0.23248)  58s
-[AF16 T1] GS-single                gs_single_p3_T1_mag.npy                  PSNR 35.5580 (rec 35.5580)  SSIM 0.93712 (rec 0.93712)  HFEN 0.11858 (rec 0.11858)  55s
-[AF16 T1] MC-GS                    gs_joint_p3_T1_mag.npy                   PSNR 35.7061 (rec 35.7062)  SSIM 0.93962 (rec 0.93962)  HFEN 0.11391 (rec 0.11391)  55s
+[AF16 T1] GT LoG 60s
+[AF16 T1] ZF                       zf_T1_complex.npy                        PSNR 25.8405 (rec 25.8405)  SSIM 0.67949 (rec 0.67949)  HFEN 0.69503 (rec 0.69503)  56s
+[AF16 T1] CG-SENSE                 cgsense_T1_complex.npy                   PSNR 32.3538 (rec 32.3538)  SSIM 0.88246 (rec 0.88246)  HFEN 0.22389 (rec 0.22389)  58s
+[AF16 T1] CS-SENSE (35 it)         cssense_T1_complex.npy                   PSNR 34.4095 (rec 34.4095)  SSIM 0.92757 (rec 0.92757)  HFEN 0.15307 (rec 0.15307)  66s
+[AF16 T1] CS-SENSE (converged TV)  cssense_o200_lam0.0007_T1_complex.npy    PSNR 34.9451 (rec 34.9451)  SSIM 0.93171 (rec 0.93171)  HFEN 0.13805 (rec 0.13805)  65s
+[AF16 T1] Joint SENSE              jcssense_o200_lam0.001_T1_complex.npy    PSNR 34.8314 (rec 34.8314)  SSIM 0.93109 (rec 0.93109)  HFEN 0.14286 (rec 0.14286)  62s
+[AF16 T1] L1-ESPIRiT               l1espirit_lam0.0015_T1_complex.npy       PSNR 35.2092 (rec 35.2092)  SSIM 0.93341 (rec 0.93341)  HFEN 0.12863 (rec 0.12863)  69s
+[AF16 T1] L1-SPIRiT                spirit_ks5_lam0.001_T1_complex.npy       PSNR 33.7878 (rec 33.7878)  SSIM 0.90826 (rec 0.90826)  HFEN 0.14476 (rec 0.14476)  60s
+[AF16 T1] ZS-SSDU                  zsssdu_T1_complex.npy                    PSNR 34.1500 (rec 34.1500)  SSIM 0.92159 (rec 0.92159)  HFEN 0.16461 (rec 0.16461)  56s
+[AF16 T1] 3D-DIP                   dip_T1_complex.npy                       PSNR 30.9942 (rec 30.9942)  SSIM 0.85490 (rec 0.85490)  HFEN 0.30244 (rec 0.30244)  54s
+[AF16 T1] 3D-INR                   inr_T1_complex.npy                       PSNR 30.3747 (rec 30.3747)  SSIM 0.79507 (rec 0.79507)  HFEN 0.21250 (rec 0.21250)  55s
+[AF16 T1] MC-INR                   mcinr_T1_complex.npy                     PSNR 31.5896 (rec 31.5896)  SSIM 0.83547 (rec 0.83547)  HFEN 0.23248 (rec 0.23248)  53s
+[AF16 T1] GS-single                gs_single_p3_T1_mag.npy                  PSNR 35.5580 (rec 35.5580)  SSIM 0.93712 (rec 0.93712)  HFEN 0.11858 (rec 0.11858)  53s
+[AF16 T1] MC-GS                    gs_joint_p3_T1_mag.npy                   PSNR 35.7061 (rec 35.7062)  SSIM 0.93962 (rec 0.93962)  HFEN 0.11391 (rec 0.11391)  52s
 [AF16 T1] DONE

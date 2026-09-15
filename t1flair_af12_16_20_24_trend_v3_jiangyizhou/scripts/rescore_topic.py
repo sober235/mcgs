@@ -29,9 +29,12 @@ gs = {"12": ("gs_single_p14", "gs_joint_p14"), "16": ("gs_single_p3", "gs_joint_
       "24": ("gs_single_p3", "gs_joint_p3")}[af]
 ARMS = [("ZF", "zf", False), ("CG-SENSE", "cgsense", False), ("CS-SENSE (35 it)", "cssense", False),
         ("CS-SENSE (converged TV)", "cssense_o200", True), ("Joint SENSE", "jcssense", True), ("L1-ESPIRiT", "l1espirit", True),
+        ("L1-SPIRiT", "spirit", True),          # k-space arm, registered 2026-09-15; swept over kernel size and lambda
         ("ZS-SSDU", "zsssdu", False), ("3D-DIP", "dip", False), ("3D-INR", "inr", False), ("MC-INR", "mcinr", False),
         ("GS-single", gs[0], False), ("MC-GS", gs[1], False)]
-SWEPT = {"cssense_o200": "cssense_o200_lam{L}", "jcssense": "jcssense_o200_lam{L}", "l1espirit": "l1espirit_lam{L}"}
+# L1-ESPIRiT stays in this raw record (it is data); the display scripts drop it (user, 2026-09-15).
+SWEPT = {"cssense_o200": "cssense_o200_lam{L}", "jcssense": "jcssense_o200_lam{L}", "l1espirit": "l1espirit_lam{L}",
+         "spirit": "spirit_ks{K}_lam{L}"}
 
 gt = np.abs(np.load(topic / f"recon/gt_{c}_complex.npy")).astype(np.float32)
 head = head_mask(gt); gmax = float(gt.max()); K = log_kernel()
@@ -43,7 +46,7 @@ for label, key, swept in ARMS:
     if rec_row is None:
         rows.append(dict(af=af, contrast=c, label=label, key=key, missing="no summary row")); continue
     lam = rec_row.get("lam")
-    stem = SWEPT[key].format(L=lam) if swept else key
+    stem = SWEPT[key].format(L=lam, K=rec_row.get("ksize")) if swept else key
     cands = [f"{stem}_{c}_mag.npy", f"{stem}_{c}_complex.npy", f"{key}_{c}_complex.npy"]
     path = next((topic / "recon" / f for f in cands if (topic / "recon" / f).exists()), None)
     if path is None:

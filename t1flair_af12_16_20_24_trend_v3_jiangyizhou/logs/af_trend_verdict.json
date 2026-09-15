@@ -29,21 +29,6 @@
   ],
   "partial": false
  },
- "T1|head_psnr|L1-ESPIRiT": {
-  "worse_every_step": true,
-  "step_quality": [
-   -1.2165351641157613,
-   -0.8381263382274398,
-   -0.9701962242316142
-  ],
-  "values": [
-   36.425709845110504,
-   35.20917468099474,
-   34.3710483427673,
-   33.40085211853569
-  ],
-  "partial": false
- },
  "T1|head_psnr|CS-SENSE (converged TV)": {
   "worse_every_step": true,
   "step_quality": [
@@ -104,6 +89,21 @@
   ],
   "partial": false
  },
+ "T1|head_psnr|L1-SPIRiT": {
+  "worse_every_step": true,
+  "step_quality": [
+   -1.2292836927358053,
+   -0.906013444286522,
+   -1.0987658309572694
+  ],
+  "values": [
+   35.01705520873246,
+   33.78777151599665,
+   32.88175807171013,
+   31.78299224075286
+  ],
+  "partial": false
+ },
  "T1|head_psnr|CG-SENSE": {
   "worse_every_step": true,
   "step_quality": [
@@ -124,15 +124,15 @@
   "step_quality": [
    -0.6022422752971259,
    -0.6207437899242763,
-   null
+   -0.8933218645643315
   ],
   "values": [
    32.19186314734253,
    31.589620872045405,
    30.96887708212113,
-   null
+   30.075555217556797
   ],
-  "partial": true
+  "partial": false
  },
  "T1|head_psnr|3D-DIP": {
   "worse_every_step": false,
@@ -209,21 +209,6 @@
   ],
   "partial": false
  },
- "T1|head_ssim|L1-ESPIRiT": {
-  "worse_every_step": true,
-  "step_quality": [
-   -0.013492822647094727,
-   -0.012758314609527588,
-   -0.013727307319641113
-  ],
-  "values": [
-   0.9469010829925537,
-   0.933408260345459,
-   0.9206499457359314,
-   0.9069226384162903
-  ],
-  "partial": false
- },
  "T1|head_ssim|CS-SENSE (converged TV)": {
   "worse_every_step": true,
   "step_quality": [
@@ -284,6 +269,21 @@
   ],
   "partial": false
  },
+ "T1|head_ssim|L1-SPIRiT": {
+  "worse_every_step": true,
+  "step_quality": [
+   -0.021560490131378174,
+   -0.014622271060943604,
+   -0.021943628787994385
+  ],
+  "values": [
+   0.9298219084739685,
+   0.9082614183425903,
+   0.8936391472816467,
+   0.8716955184936523
+  ],
+  "partial": false
+ },
  "T1|head_ssim|CG-SENSE": {
   "worse_every_step": true,
   "step_quality": [
@@ -304,15 +304,15 @@
   "step_quality": [
    -0.005240917205810547,
    -0.00825655460357666,
-   null
+   -0.016862154006958008
   ],
   "values": [
    0.840707540512085,
    0.8354666233062744,
    0.8272100687026978,
-   null
+   0.8103479146957397
   ],
-  "partial": true
+  "partial": false
  },
  "T1|head_ssim|3D-DIP": {
   "worse_every_step": true,
@@ -389,21 +389,6 @@
   ],
   "partial": false
  },
- "T1|head_hfen|L1-ESPIRiT": {
-  "worse_every_step": true,
-  "step_quality": [
-   -0.025011053712597528,
-   -0.02318063637069595,
-   -0.03507397110451427
-  ],
-  "values": [
-   0.10362058620364296,
-   0.1286316399162405,
-   0.15181227628693644,
-   0.1868862473914507
-  ],
-  "partial": false
- },
  "T1|head_hfen|CS-SENSE (converged TV)": {
   "worse_every_step": true,
   "step_quality": [
@@ -464,6 +449,21 @@
   ],
   "partial": false
  },
+ "T1|head_hfen|L1-SPIRiT": {
+  "worse_every_step": true,
+  "step_quality": [
+   -0.01870062650439855,
+   -0.031148748623094857,
+   -0.04870618951375183
+  ],
+  "values": [
+   0.1260595444885622,
+   0.14476017099296073,
+   0.1759089196160556,
+   0.22461510912980742
+  ],
+  "partial": false
+ },
  "T1|head_hfen|CG-SENSE": {
   "worse_every_step": true,
   "step_quality": [
@@ -484,15 +484,15 @@
   "step_quality": [
    -0.05467977031980567,
    -0.05680925540850784,
-   null
+   -0.07003928447102342
   ],
   "values": [
    0.17780226948427555,
    0.23248203980408122,
    0.28929129521258906,
-   null
+   0.3593305796836125
   ],
-  "partial": true
+  "partial": false
  },
  "T1|head_hfen|3D-DIP": {
   "worse_every_step": true,
@@ -569,21 +569,6 @@
   ],
   "partial": false
  },
- "FLAIR|head_psnr|L1-ESPIRiT": {
-  "worse_every_step": true,
-  "step_quality": [
-   -1.2544832569752558,
-   -0.8148167130465964,
-   -0.9063367204014128
-  ],
-  "values": [
-   35.75728051320227,
-   34.50279725622701,
-   33.687980543180416,
-   32.781643822779
-  ],
-  "partial": false
- },
  "FLAIR|head_psnr|CS-SENSE (converged TV)": {
   "worse_every_step": true,
   "step_quality": [
@@ -644,6 +629,21 @@
   ],
   "partial": false
  },
+ "FLAIR|head_psnr|L1-SPIRiT": {
+  "worse_every_step": true,
+  "step_quality": [
+   -1.3827146587038897,
+   -0.8957376216936765,
+   -1.0218506278029693
+  ],
+  "values": [
+   35.10281768768929,
+   33.7201030289854,
+   32.82436540729172,
+   31.802514779488753
+  ],
+  "partial": false
+ },
  "FLAIR|head_psnr|CG-SENSE": {
   "worse_every_step": true,
   "step_quality": [
@@ -664,15 +664,15 @@
   "step_quality": [
    -0.7992844726792896,
    -0.5768933703900387,
-   null
+   -0.7186056464179202
   ],
   "values": [
    33.041967432027455,
    32.242682959348166,
    31.665789588958127,
-   null
+   30.947183942540207
   ],
-  "partial": true
+  "partial": false
  },
  "FLAIR|head_psnr|3D-DIP": {
   "worse_every_step": true,
@@ -749,21 +749,6 @@
   ],
   "partial": false
  },
- "FLAIR|head_ssim|L1-ESPIRiT": {
-  "worse_every_step": true,
-  "step_quality": [
-   -0.016645312309265137,
-   -0.01252824068069458,
-   -0.018283367156982422
-  ],
-  "values": [
-   0.9367635846138,
-   0.9201182723045349,
-   0.9075900316238403,
-   0.8893066644668579
-  ],
-  "partial": false
- },
  "FLAIR|head_ssim|CS-SENSE (converged TV)": {
   "worse_every_step": true,
   "step_quality": [
@@ -824,6 +809,21 @@
   ],
   "partial": false
  },
+ "FLAIR|head_ssim|L1-SPIRiT": {
+  "worse_every_step": true,
+  "step_quality": [
+   -0.01955646276473999,
+   -0.015851259231567383,
+   -0.02283322811126709
+  ],
+  "values": [
+   0.9217572808265686,
+   0.9022008180618286,
+   0.8863495588302612,
+   0.8635163307189941
+  ],
+  "partial": false
+ },
  "FLAIR|head_ssim|CG-SENSE": {
   "worse_every_step": true,
   "step_quality": [
@@ -844,15 +844,15 @@
   "step_quality": [
    -0.01058286428451538,
    -0.010411441326141357,
-   null
+   -0.018314778804779053
   ],
   "values": [
    0.869618833065033,
    0.8590359687805176,
    0.8486245274543762,
-   null
+   0.8303097486495972
   ],
-  "partial": true
+  "partial": false
  },
  "FLAIR|head_ssim|3D-DIP": {
   "worse_every_step": true,
@@ -929,21 +929,6 @@
   ],
   "partial": false
  },
- "FLAIR|head_hfen|L1-ESPIRiT": {
-  "worse_every_step": true,
-  "step_quality": [
-   -0.02101775497524286,
-   -0.019623494346330067,
-   -0.03179091630694811
-  ],
-  "values": [
-   0.09995866354800967,
-   0.12097641852325253,
-   0.1405999128695826,
-   0.1723908291765307
-  ],
-  "partial": false
- },
  "FLAIR|head_hfen|CS-SENSE (converged TV)": {
   "worse_every_step": true,
   "step_quality": [
@@ -1004,6 +989,21 @@
   ],
   "partial": false
  },
+ "FLAIR|head_hfen|L1-SPIRiT": {
+  "worse_every_step": true,
+  "step_quality": [
+   -0.021968835364524306,
+   -0.022216235045061664,
+   -0.03740847897192984
+  ],
+  "values": [
+   0.09876842972886543,
+   0.12073726509338974,
+   0.1429535001384514,
+   0.18036197911038124
+  ],
+  "partial": false
+ },
  "FLAIR|head_hfen|CG-SENSE": {
   "worse_every_step": true,
   "step_quality": [
@@ -1024,15 +1024,15 @@
   "step_quality": [
    -0.0319332220438204,
    -0.03681885213952393,
-   null
+   -0.060904810783403734
   ],
   "values": [
    0.13913809936978014,
    0.17107132141360054,
    0.20789017355312447,
-   null
+   0.2687949843365282
   ],
-  "partial": true
+  "partial": false
  },
  "FLAIR|head_hfen|3D-DIP": {
   "worse_every_step": false,

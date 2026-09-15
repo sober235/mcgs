@@ -5,17 +5,20 @@ Extension of the AF 12 / 16 / 20 review's slice_summary.py (2026-09-14); an arm 
 import json, numpy as np
 T = "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_16_20_24_trend_v3_jiangyizhou"
 AFS = ("12", "16", "20", "24")
-ORDER = ["MC-GS", "GS-single", "L1-ESPIRiT", "CS-SENSE (converged TV)", "Joint SENSE", "CS-SENSE (35 it)",
-         "ZS-SSDU", "CG-SENSE", "MC-INR", "3D-DIP", "3D-INR", "ZF"]
+# ORDER is what is SHOWN. L1-ESPIRiT stays in the rescore json (data) but is not shown: dropped from the comparison by
+# the user on 2026-09-15; L1-SPIRiT, the k-space arm registered the same day, takes a row (as in the AF12_16_20 review).
+ORDER = ["MC-GS", "GS-single", "CS-SENSE (converged TV)", "Joint SENSE", "CS-SENSE (35 it)",
+         "ZS-SSDU", "L1-SPIRiT", "CG-SENSE", "MC-INR", "3D-DIP", "3D-INR", "ZF"]
 PL = {0: "transverse", 1: "coronal", 2: "sagittal"}
 M = [("PSNR", 0, +1), ("SSIM", 1, +1), ("NMSE", 2, -1)]
 # numbers printed in the figures of record (180/124/76), for a sanity check of the figure-slice path
 FIGREF = {("20", "T1", "MC-GS", 0): (36.25, 0.9474, 0.00881), ("20", "T1", "MC-GS", 1): (35.38, 0.9103, 0.01986),
-          ("20", "T1", "MC-GS", 2): (36.00, 0.9206, 0.01500), ("20", "T1", "L1-ESPIRiT", 0): (35.81, 0.9393, 0.00975),
+          ("20", "T1", "MC-GS", 2): (36.00, 0.9206, 0.01500), ("20", "T1", "L1-SPIRiT", 0): (34.11, 0.9151, 0.01442),
           ("20", "FLAIR", "MC-GS", 0): (34.30, 0.9221, 0.01067), ("20", "FLAIR", "MC-GS", 1): (35.52, 0.9075, 0.01536),
           ("20", "FLAIR", "MC-GS", 2): (35.03, 0.9032, 0.01685),
           ("24", "T1", "MC-GS", 0): (35.20, 0.9366, 0.01121), ("24", "T1", "MC-GS", 1): (34.31, 0.8908, 0.02541),
-          ("24", "T1", "MC-GS", 2): (34.99, 0.9059, 0.01892), ("24", "T1", "L1-ESPIRiT", 0): (34.95, 0.9318, 0.01190),
+          ("24", "T1", "MC-GS", 2): (34.99, 0.9059, 0.01892), ("24", "T1", "L1-SPIRiT", 0): (33.07, 0.8984, 0.01830),
+          ("24", "FLAIR", "L1-SPIRiT", 0): (31.37, 0.8605, 0.02096),
           ("24", "FLAIR", "MC-GS", 0): (33.25, 0.9084, 0.01359), ("24", "FLAIR", "MC-GS", 1): (34.52, 0.8884, 0.01931),
           ("24", "FLAIR", "MC-GS", 2): (34.17, 0.8888, 0.02054)}
 
@@ -70,7 +73,7 @@ for c in ("T1", "FLAIR"):
     print("   non-monotonic head-PSNR slices of the arms that are not flat (index, head share, per-AF values):")
     for ax in (0, 1, 2):
         frac = head.sum(axis=OTHER[ax]) / np.prod([gt.shape[a] for a in OTHER[ax]]); kept = np.nonzero(keep[ax])[0]
-        for lab in ("MC-GS", "GS-single", "L1-ESPIRiT", "CS-SENSE (converged TV)", "Joint SENSE", "ZS-SSDU", "CG-SENSE", "MC-INR", "3D-INR"):
+        for lab in ("MC-GS", "GS-single", "CS-SENSE (converged TV)", "Joint SENSE", "ZS-SSDU", "L1-SPIRiT", "CG-SENSE", "MC-INR", "3D-INR"):
             s_ = d["allslices"][f"{lab}|{ax}"]; afs = [af for af in AFS if af in s_]
             p = np.array([s_[af]["psnr"] for af in afs])
             bad = [i for i in kept if not np.all(p[1:, i] < p[:-1, i])]

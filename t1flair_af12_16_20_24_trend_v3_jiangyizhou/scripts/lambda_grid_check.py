@@ -6,7 +6,8 @@ import json, glob, re, os
 ROOT = "/data0/congcong/code/GS/Results_20260908"
 fam = {"CS-SENSE converged TV": ("classical_{c}_o200*.json", "cssense_o200"),
        "Joint SENSE": ("jcssense_o200*.json", "jcssense"),
-       "L1-ESPIRiT": ("l1espirit_{c}_lam*.json", "l1espirit")}
+       "L1-SPIRiT": ("spirit_{c}_ks*_lam*.json", "spirit")}        # replaces L1-ESPIRiT (dropped 2026-09-15);
+                                                                    # the best over the two kernel sizes at each lambda
 for af in ("12", "16", "20", "24"):
     t = f"{ROOT}/T1FLAIR_AF{af}_v3_jiangyizhou/logs"
     summ = {(r["method"], r["contrast"]): r for r in json.load(open(f"{t}/summary.json"))}

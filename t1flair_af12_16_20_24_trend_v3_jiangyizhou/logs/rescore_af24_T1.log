@@ -1,13 +1,15 @@
-[AF24 T1] GT LoG 52s
-[AF24 T1] ZF                       zf_T1_complex.npy                        PSNR 25.3327 (rec 25.3327)  SSIM 0.63900 (rec 0.63900)  HFEN 0.75784 (rec 0.75784)  58s
-[AF24 T1] CG-SENSE                 cgsense_T1_complex.npy                   PSNR 30.3404 (rec 30.3404)  SSIM 0.84336 (rec 0.84336)  HFEN 0.33615 (rec 0.33615)  55s
-[AF24 T1] CS-SENSE (35 it)         cssense_T1_complex.npy                   PSNR 32.2314 (rec 32.2314)  SSIM 0.89130 (rec 0.89130)  HFEN 0.23487 (rec 0.23487)  54s
-[AF24 T1] CS-SENSE (converged TV)  cssense_o200_lam0.0007_T1_complex.npy    PSNR 32.8201 (rec 32.8201)  SSIM 0.89908 (rec 0.89908)  HFEN 0.21580 (rec 0.21580)  51s
-[AF24 T1] Joint SENSE              jcssense_o200_lam0.001_T1_complex.npy    PSNR 32.7300 (rec 32.7300)  SSIM 0.89857 (rec 0.89857)  HFEN 0.21855 (rec 0.21855)  53s
-[AF24 T1] L1-ESPIRiT               l1espirit_lam0.001_T1_complex.npy        PSNR 33.4009 (rec 33.4009)  SSIM 0.90692 (rec 0.90692)  HFEN 0.18689 (rec 0.18689)  82s
+[AF24 T1] GT LoG 65s
+[AF24 T1] ZF                       zf_T1_complex.npy                        PSNR 25.3327 (rec 25.3327)  SSIM 0.63900 (rec 0.63900)  HFEN 0.75784 (rec 0.75784)  62s
+[AF24 T1] CG-SENSE                 cgsense_T1_complex.npy                   PSNR 30.3404 (rec 30.3404)  SSIM 0.84336 (rec 0.84336)  HFEN 0.33615 (rec 0.33615)  60s
+[AF24 T1] CS-SENSE (35 it)         cssense_T1_complex.npy                   PSNR 32.2314 (rec 32.2314)  SSIM 0.89130 (rec 0.89130)  HFEN 0.23487 (rec 0.23487)  58s
+[AF24 T1] CS-SENSE (converged TV)  cssense_o200_lam0.0007_T1_complex.npy    PSNR 32.8201 (rec 32.8201)  SSIM 0.89908 (rec 0.89908)  HFEN 0.21580 (rec 0.21580)  66s
+[AF24 T1] Joint SENSE              jcssense_o200_lam0.001_T1_complex.npy    PSNR 32.7300 (rec 32.7300)  SSIM 0.89857 (rec 0.89857)  HFEN 0.21855 (rec 0.21855)  63s
+[AF24 T1] L1-ESPIRiT               l1espirit_lam0.001_T1_complex.npy        PSNR 33.4009 (rec 33.4009)  SSIM 0.90692 (rec 0.90692)  HFEN 0.18689 (rec 0.18689)  75s
+[AF24 T1] L1-SPIRiT                spirit_ks5_lam0.001_T1_complex.npy       PSNR 31.7830 (rec 31.7830)  SSIM 0.87170 (rec 0.87170)  HFEN 0.22462 (rec 0.22462)  53s
 [AF24 T1] ZS-SSDU                  zsssdu_T1_complex.npy                    PSNR 32.5785 (rec 32.5785)  SSIM 0.89893 (rec 0.89893)  HFEN 0.23982 (rec 0.23982)  59s
-[AF24 T1] 3D-DIP                   dip_T1_complex.npy                       PSNR 30.5000 (rec 30.5000)  SSIM 0.83783 (rec 0.83783)  HFEN 0.34499 (rec 0.34499)  56s
-[AF24 T1] 3D-INR                   inr_T1_complex.npy                       PSNR 28.4441 (rec 28.4441)  SSIM 0.71080 (rec 0.71080)  HFEN 0.34734 (rec 0.34734)  56s
-[AF24 T1] GS-single                gs_single_p3_T1_mag.npy                  PSNR 33.5878 (rec 33.5878)  SSIM 0.90899 (rec 0.90899)  HFEN 0.17718 (rec 0.17718)  58s
-[AF24 T1] MC-GS                    gs_joint_p3_T1_mag.npy                   PSNR 33.7668 (rec 33.7669)  SSIM 0.91310 (rec 0.91310)  HFEN 0.16923 (rec 0.16923)  56s
+[AF24 T1] 3D-DIP                   dip_T1_complex.npy                       PSNR 30.5000 (rec 30.5000)  SSIM 0.83783 (rec 0.83783)  HFEN 0.34499 (rec 0.34499)  62s
+[AF24 T1] 3D-INR                   inr_T1_complex.npy                       PSNR 28.4441 (rec 28.4441)  SSIM 0.71080 (rec 0.71080)  HFEN 0.34734 (rec 0.34734)  57s
+[AF24 T1] MC-INR                   mcinr_T1_complex.npy                     PSNR 30.0756 (rec 30.0756)  SSIM 0.81035 (rec 0.81035)  HFEN 0.35933 (rec 0.35933)  58s
+[AF24 T1] GS-single                gs_single_p3_T1_mag.npy                  PSNR 33.5878 (rec 33.5878)  SSIM 0.90899 (rec 0.90899)  HFEN 0.17718 (rec 0.17718)  52s
+[AF24 T1] MC-GS                    gs_joint_p3_T1_mag.npy                   PSNR 33.7668 (rec 33.7669)  SSIM 0.91310 (rec 0.91310)  HFEN 0.16923 (rec 0.16923)  50s
 [AF24 T1] DONE
