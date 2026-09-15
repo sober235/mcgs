@@ -69,8 +69,10 @@ comp = {"CG-SENSE": R / f"recon/cgsense_{c}_complex.npy", "CS-SENSE": lam_file("
         "ZS-SSDU": R / f"recon/zsssdu_{c}_complex.npy", "3D-DIP": R / f"recon/dip_{c}_complex.npy",
         "3D-INR": R / f"recon/inr_{c}_complex.npy", "MC-INR": R / f"recon/mcinr_{c}_complex.npy",
         "GS-single": R / f"recon/gs_single_ar_{c}_complex.npy"}
-if (R / f"recon/gs_single_p3_{c}_complex.npy").exists():
-    comp["GS-single (tuned)"] = R / f"recon/gs_single_p3_{c}_complex.npy"
+for sp in sorted(R.glob(f"recon/gs_single_*_{c}_complex.npy")):          # every registered GS-single arm of this contrast
+    tag = sp.name[len("gs_single_"):-len(f"_{c}_complex.npy")]
+    if tag != "ar":
+        comp[f"GS-single ({tag})"] = sp
 for sj in ARC.glob(f"*single_{c}*_volumes.npz"):
     comp[f"GS-single run {sj.name[:-len('_volumes.npz')]}"] = (sj, "recT1_complex")
 cache = ARC / f"lesion_competitors_{c}.json"

@@ -62,14 +62,24 @@ p4_ue_k05 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.l
 p4_ue_k025 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.25 --lambda_edge 0.001
 # 10:25: the same one-way relaxation for T2s's wavelet term (new loss.wav_union_guide; T1w's wavelet untouched),
 # on the zero-T1w-cost base union + guide kappa x0.5.
-p4_uk_wavg configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.wav_union_guide=true
+# superseded 10:55 by the round-3 base (union + kappa x0.5 + common edge 0.001): p4_uk_wavg
 # rebased 07:30 onto union + common edge 0.001: p4_u_T2s_geo007
-p4_ue_T2s_geo007 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.07 --set loss.edge_tv_union_guide=true --lambda_edge 0.001
+# superseded 10:55 by the round-3 base (union + kappa x0.5 + common edge 0.001): p4_ue_T2s_geo007
 # rebased 07:30 onto union + common edge 0.001: p4_u_T2s_wav006
-p4_ue_T2s_wav006 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.06 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --lambda_edge 0.001
-p4_u_edge0005 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --lambda_edge 0.0005
+# superseded 10:55 by the round-3 base (union + kappa x0.5 + common edge 0.001): p4_ue_T2s_wav006
+# superseded 10:55 by the round-3 base (union + kappa x0.5 + common edge 0.001): p4_u_edge0005
 # rebased 07:30 onto union + common edge 0.001: p4_u_k025
 # rebased 07:30 onto union + common edge 0.001: p4_u_dcw02
-p4_ue_dcw02 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.02 --set loss.lambda_geo_contrast=0.02 --set loss.edge_tv_union_guide=true --set loss.dc_weight_contrast=0.2 --lambda_edge 0.001
+# superseded 10:55 by the round-3 base (union + kappa x0.5 + common edge 0.001): p4_ue_dcw02
 # rebased 07:30 onto union + common edge 0.001: p4_u_regfrz
-p4_ue_regfrz configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.contrast_reg_frozen_geometry=true --lambda_edge 0.001
+# superseded 10:55 by the round-3 base (union + kappa x0.5 + common edge 0.001): p4_ue_regfrz
+#
+# ===== Round 3 (2026-09-15 10:55): base = p4_ue_k05 = union + guide kappa x0.5 + common edge 0.001.
+# T2s 34.230 / 0.9066 / 0.1815, T1w 38.386; best lesion slice +0.153 (sagittal 172), +0.550 over the non-GS arms.
+# (p4_ue_k025, already queued above, is the kappa x0.25 point on this same base.)
+p4_r3_wavg configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.001 --set loss.wav_union_guide=true
+p4_r3_geo007 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.07 --lambda_edge 0.001
+p4_r3_edge0005 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.0005
+p4_r3_wav006 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_wav_contrast=0.06 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.001
+p4_r3_regfrz configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.001 --set loss.contrast_reg_frozen_geometry=true
+p4_r3_dcw02 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_wav_contrast=0.02 --set loss.lambda_geo_contrast=0.02 --lambda_edge 0.001 --set loss.dc_weight_contrast=0.2
