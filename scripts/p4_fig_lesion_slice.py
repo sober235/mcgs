@@ -21,7 +21,8 @@ ap.add_argument("--exp", required=True, help="results_arc run that fills the MC-
 ap.add_argument("--contrast", default="T2s", choices=["T1w", "T2s"])
 ap.add_argument("--axis", type=int, required=True, help="2 transverse, 0 coronal, 1 sagittal")
 ap.add_argument("--index", type=int, required=True)
-ap.add_argument("--mark", default=None, help="lesion position in the slice's own (row, col) of the volume axes, e.g. RO,PE for transverse")
+ap.add_argument("--mark", default=None, help="lesion position(s) in the slice's own (row, col) of the volume axes, e.g. RO,PE for "
+                                            "transverse or RO,SPE for sagittal; several separated by ';'")
 ap.add_argument("--note", default="")
 ap.add_argument("--out", default="/home/congcongliu/figs/peds_tsc_af12_lesion_1db")
 a = ap.parse_args()
@@ -102,14 +103,13 @@ top_in, gap_in, bot_in = 1.25, 0.30, 0.05
 fw, fh = pw * (ncol + (ncol - 1) * ws) + cbw, top_in + 2 * ph + gap_in + bot_in
 fig, axes = plt.subplots(2, ncol, figsize=(fw, fh))
 fig.subplots_adjust(left=0, right=1 - cbw / fw, bottom=bot_in / fh, top=1 - top_in / fh, wspace=ws, hspace=gap_in / ph)
-mark = tuple(int(x) for x in a.mark.split(",")) if a.mark else None
+marks = [tuple(int(x) for x in m.split(",")) for m in a.mark.split(";")] if a.mark else []
 
 
 def circle(ax):
-    if mark is None:
-        return
-    r_, c_ = mark if a.axis == 2 else (mark[1], mark[0])
-    ax.add_patch(plt.Circle((c_, r_), 7, fill=False, color="red", lw=1.4))
+    for mark in marks:
+        r_, c_ = mark if a.axis == 2 else (mark[1], mark[0])
+        ax.add_patch(plt.Circle((c_, r_), 7, fill=False, color="red", lw=1.4))
 
 
 axes[0, 0].imshow(D(g2), cmap="gray", vmin=0, vmax=vmax, origin="upper"); circle(axes[0, 0])

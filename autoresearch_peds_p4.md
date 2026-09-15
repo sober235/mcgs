@@ -253,3 +253,10 @@ right-sided subependymal nodule (PE 172 on SPE 45).
 
 `p4_ue_k025` was placed on card 2 one minute after a CE-topic job started there but before that job took the GPU, so
 two trainings share the card; stopping it was refused by the session's permission rules and it runs at half speed.
+| `p4_ue_k025` | kappa x0.25 instead of x0.5 (shared card, 141 min) | 38.385 / 0.9659 / 0.0802 | 34.192 / 0.9066 / 0.1818 | sagittal 171 +0.119 | sagittal 171 +0.536 | discard: past the kappa optimum; x0.5 stays |
+
+**Current best figure (13:50).** `scripts/p4_fig_lesion_slice.py --exp p4_ue_k05 --axis 1 --index 172 --mark "148,45;166,45"`:
+T2s sagittal 172 through the two right subependymal nodules. MC-GS 33.84 dB / 0.8800 / 0.00845 against GS-single
+33.69 / 0.8765 / 0.00876 and L1-ESPIRiT 33.34 / 0.8753 / 0.0095: first on all three metrics, +0.153 dB over every
+arm, +0.50 over the non-GS arms on this slice. Selected slice, labelled as such in the figure.
+`/home/congcongliu/figs/peds_tsc_af12_lesion_1db/peds_af12_T2s_sagittal_172_p4_ue_k05.png`
