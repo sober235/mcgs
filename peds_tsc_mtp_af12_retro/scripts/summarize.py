@@ -6,6 +6,7 @@ Sources:
   logs/zsssdu_<c>.json      ZS-SSDU                        (scripts/recon_zsssdu.py)
   logs/dip_<c>.json, logs/inr_<c>.json                     (scripts/recon_dip_inr.py)
   logs/mcinr_<c>.json       MC-INR (Niessen 2025)          (scripts/register_mcinr_arm.py)
+  logs/spirit_<c>_*.json    L1-SPIRiT, both calibrations   (scripts/recon_spirit.py, 2026-09-15)
   results_arc/peds_af12_{joint,single_T1w,single_T2s}_score.json   (arc/cycle.py)
 
 All of them are on the one gauge (scripts/check_gauge.py proves the shared module reproduces
@@ -19,10 +20,11 @@ ARC = Path("/data0/congcong/code/GS/mcgs_peds_wt/results_arc")
 
 COLS = ["psnr", "ssim", "nmse", "hfen", "head_psnr", "head_ssim", "head_hfen",
         "sharp", "grain", "grain_ratio"]
-ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "zsssdu", "dip", "inr", "mcinr", "gs_single", "gs_joint"]
+ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "spirit", "zsssdu", "dip", "inr", "mcinr", "gs_single", "gs_joint"]
 LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "zsssdu": "ZS-SSDU",
          "dip": "3D-DIP", "inr": "3D-INR", "mcinr": "MC-INR (Niessen 2025)", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
-         "cssense_o200": "CS-SENSE (TV, converged)", "jcssense": "joint CS-SENSE (JTV)", "l1espirit": "L1-ESPIRiT"}
+         "cssense_o200": "CS-SENSE (TV, converged)", "jcssense": "joint CS-SENSE (JTV)", "l1espirit": "L1-ESPIRiT",
+         "spirit": "L1-SPIRiT"}
 
 
 def main():
@@ -41,8 +43,13 @@ def main():
     # ADMM), L1-wavelet ESPIRiT (BART pics, 100 FISTA) and joint vectorial TV (200 outer), each with
     # lambda SWEPT ON THIS SUBJECT against the ground truth -- the same privilege the MC-GS
     # autoresearch loop has -- and the best lambda per contrast kept (scripts/run_classical_revisited.sh).
+    # L1-SPIRiT (2026-09-15; user: it replaces L1-ESPIRiT in the shown tables, whose rows stay here): one family
+    # over both calibrations -- the kernel from the acquired 24 x 8 ACS block, or from the full k-space centre
+    # (`calib` full24, the block the ESPIRiT maps of every other arm came from) -- and over ksize {3, 5};
+    # the best head PSNR per contrast is kept, and `src` names the run so the scorer finds its volume.
     FAM = [("cssense_o200", "logs/classical_{c}_o200_lam*.json"),
            ("l1espirit", "logs/l1espirit_{c}_lam*.json"),
+           ("spirit", "logs/spirit_{c}_*.json"),
            ("jcssense", "logs/jcssense_o200_lam*.json")]
     for c in ("T1w", "T2s"):
         for key, pat in FAM:
@@ -55,7 +62,8 @@ def main():
                 b = max(cands, key=lambda r: r["head_psnr"])
                 rows.append({"contrast": c, "method": key, **{k: b.get(k) for k in COLS},
                              "seconds": b.get("seconds"), "lam": b.get("lam"), "n_lambda": len(cands),
-                             "lams": sorted(float(r.get("lam")) for r in cands if r.get("lam") is not None)})
+                             "lams": sorted(float(r.get("lam")) for r in cands if r.get("lam") is not None),
+                             "src": b.get("method"), "ksize": b.get("ksize"), "calib": b.get("calib")})
 
     # The GS arms enter through logs/extra_gs_arms.json below (scripts/add_gs_arm.py), under the
     # house names GS-single and MC-GS. The AF16 topic also read the three score jsons directly here,

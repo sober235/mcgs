@@ -18,6 +18,9 @@ ap.add_argument("--full", action="store_true", help="score all 104 partitions (t
 ap.add_argument("--out", default=None)
 ap.add_argument("--jobs", type=int, default=10,
                 help="arms scored in parallel; the 15^3 LoG convolution is single-threaded and dominates")
+ap.add_argument("--only", nargs="+", default=None, metavar="KEY",
+                help="score only these arm keys and merge them into the existing output json; the other rows are kept "
+                     "(the gauge is deterministic, so a new arm does not need the old ones rescored)")
 args = ap.parse_args()
 
 R = Path(__file__).resolve().parents[1]
@@ -43,6 +46,11 @@ def arms(c):
                                ("l1espirit", "L1-ESPIRiT", "l1espirit")):
         p, lam = lam_file(c, key, prefix)
         a.append((key, label, p, lam))
+    # L1-SPIRiT (2026-09-15): summarize.py keeps the best point of the sweep per contrast, over both
+    # calibrations and both kernel sizes, and records the run it kept as `src`, which names the volume
+    sp = next((r for r in summary if r["contrast"] == c and r["method"] == "spirit"), None)
+    if sp is not None:
+        a.append(("spirit", "L1-SPIRiT", R / f"recon/{sp['src']}_{c}_complex.npy", sp.get("lam")))
     a += [("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy", None),
           ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy", None),
           ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy", None),
@@ -74,8 +82,11 @@ def score_one(job):
 jobs = []
 for c in CONTRASTS:
     for key, label, path, lam in arms(c):
+        if args.only and key not in args.only:
+            continue
         assert path is not None and Path(path).exists(), f"missing volume for {label} {c}: {path}"
         jobs.append((c, key, label, path, lam))
+assert jobs, f"no arm matches --only {args.only}"
 
 out = {}
 if args.jobs > 1:
@@ -95,6 +106,12 @@ else:
               f"nmse {row['nmse']:.5f} sharp {row['sharp']:.3f}", flush=True)
 
 p = Path(args.out) if args.out else (R / ("logs/rescore_full.json" if args.full else "logs/rescore.json"))
-json.dump(dict(region=("full volume" if args.full else f"head inside partitions {args.lo}..{args.hi}"),
-               lo=args.lo, hi=args.hi, rows=out), open(p, "w"), indent=2)
+region = "full volume" if args.full else f"head inside partitions {args.lo}..{args.hi}"
+if args.only and p.exists():
+    prev = json.load(open(p))
+    assert prev.get("region") == region, f"{p} holds region '{prev.get('region')}', this run scores '{region}'"
+    prev["rows"].update(out)
+    out = prev["rows"]
+    print(f"merged {len(jobs)} rescored rows into {p} ({len(out)} rows now)")
+json.dump(dict(region=region, lo=args.lo, hi=args.hi, rows=out), open(p, "w"), indent=2)
 print("wrote", p)

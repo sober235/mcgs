@@ -1,6 +1,6 @@
 # STATUS — 2026-09-15（分支 `16yo-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`）
 
-本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。一至四期已完成；**下一轮等用户看图后拍板（第 2、3 节）；L1-SPIRiT 扫描在跑，本线没有训练在跑**。
+本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。一至四期已完成，L1-SPIRiT 臂已登记（09-15 23:06）；**下一轮等用户看图后拍板（第 2、3 节）；本线没有训练在跑**。
 
 英文总结：一期 `docs/superpowers/records/2026-09-12-16yo-mtp-reference-dataset.md`，
 二期 `docs/superpowers/records/2026-09-13-16yo-mtp-af12.md`，
@@ -35,6 +35,23 @@ cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
 `/data0/congcong/code/GS/mcinr_peds_wt`（分支 `peds-mtp`，**无远端、未推**，运行记录 `docs/2026-09-14-peds-mtp-run.md`）。
 重跑：`$PY scripts/run_volume.py --topic peds --af 12 --gpu <空卡> --resume --yield_to_others`，再 `$PY scripts/score.py --topic peds --af 12`
 （环境 `GR_pt1.10`，本机唯一装 tinycudann 的）。
+
+### L1-SPIRiT 臂（09-15 23:06 登记，替换 L1-ESPIRiT）
+
+用户 16:05 拍板换臂（GS-single 仍算对比方法）。扫描由 claude-eb 跑：50 个点，实采 ACS 24×8 校准与全 k 空间中心 24×24 校准两种
+（后者是所有臂的 ESPIRiT 图本来就用的块），ks {3,5} × λ 网格，两个对比度。`summarize.py` 按头内 PSNR 取每对比度最优，两个都是
+full24：T1w ks5 λ2.5e-4，T2s ks3 λ5e-4，最优点都在 λ 网格内部。`scripts/rescore_spirit.sh` 只给这一臂重评分并合并进
+`rescore{,_full}.json`（整卷口径与扫描自带 json 逐位一致）。主区域：**T1w 38.310 / 0.9607 / 0.0679，T2s 32.017 / 0.8630 / 0.2264**。
+
+- T1w：非 GS 臂里最强（14 个计数行里第 5，比不再计数的 L1-ESPIRiT 低 0.52 dB），**但拿走了 T1w HFEN 一格：0.0679 对
+  GS-single 0.0764 / MC-GS 0.0768**——轻正则的 k 空间解把两个 GS 臂抹掉的颗粒（含噪声）留着，锐度 0.982。
+- T2s：12 个计数行里第 8（低于 CS-SENSE、Joint SENSE、ZS-SSDU），不改任何门槛。
+- L1-ESPIRiT 的行留在 json 里，README 表下打印为 "Not counted"；换臂前的表在 `logs/archive_pre_spirit_20260915/`。
+- 图（L1 列已换，看过）：`peds_af12_{T1w,T2s}_row3planes_compact_53_160_152_headerr_p3f_spirit.png` 与
+  `..._inset48_headerr_af16style_spirit.{png,pdf}`（`scripts/figs_spirit.sh`；旧版用 `--l1 espirit` 可重画）。
+- 未换：`slice_quality.py` / `find_mcgs_first_slice.py` / `best_slice_mcgs.py` 三个逐层分析脚本仍列 L1-ESPIRiT，下次用时再换；
+  四期病灶脚本已由 claude-eb 换（43bfe56）。
+- 记录：`docs/superpowers/records/2026-09-15-16yo-mtp-l1spirit-arm.md`。
 
 ### 三期：在本受试者上调参（09-14/15，已收尾）
 
@@ -77,22 +94,19 @@ cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
    对所有臂含 GS-single；不算 GS-single 是 +0.55。四期到此收尾，p4 队列里剩下的探针不再跑。
 2. **三期剩余杠杆（`rotation_lr`、相位 TV）先不跑。** 用户要先看图，看完再定下一步动什么。
 3. **结论方向没有商量余地：推 MC-GS 为最优，且超过所有对比方法（含 GS-single）。** 三期的六格判据不撤，
-   上一版第 2 条"阴性结论怎么写"作废。现状离这条差 T1w 三格：对调参 9.6M 单臂 −0.057 dB / −0.0002 SSIM /
-   HFEN 差 0.0004（0.0768 对 0.0764）；T2s 三格已达标。这三格只能靠真实运行补上，不能靠写法（候选杠杆见第 3 节）。
+   上一版第 2 条"阴性结论怎么写"作废。现状离这条差 T1w 三格：PSNR 对调参 9.6M 单臂 −0.057 dB、SSIM −0.0002，
+   **HFEN 的门槛换臂后变成 L1-SPIRiT 的 0.0679，MC-GS 0.0768 差 0.0089**（换臂前对 GS-single 只差 0.0004）；T2s 三格已达标。这三格只能靠真实运行补上，不能靠写法（候选杠杆见第 3 节）。
 4. **一期其余八个对比度的 23 GB 先不删。**
 
 另（09-15 16:05，用户）：**L1-SPIRiT 替换 L1-ESPIRiT，GS-single 仍算对比方法**，与 jyz 线同日的口径一致。
-L1-ESPIRiT 的行留在表里、标为不计入，所以它的 T1w HFEN 0.0756 不再是门槛；L1-SPIRiT 的门槛等扫描登记后才知道。
+L1-ESPIRiT 的行留在表里、标为不计入，所以它的 T1w HFEN 0.0756 不再是门槛；L1-SPIRiT 已登记（第 1 节），它接过了 T1w HFEN 的门槛。
 
 ## 3. 下一步
 
-**本线现在没有训练在跑。** p4 队列已暂停（`logs/.p4_pause`），两个训练名额被 L1-SPIRiT 扫描占着
-（claude-eb 16:12 起的：`scripts/spirit_sweep.sh` 用实采 ACS 24×8 校准，`spirit_sweep_full24.sh` 用全 k 空间中心校准，
-ksize {3,5} × λ 网格，两个对比度，两个并行；日志 `logs/spirit_sweep.log`，第一批 16:35 才拿到卡）。
+**本线现在没有训练在跑，两个名额都空着。** p4 调度器已停（`logs/.p4_stop`），L1-SPIRiT 扫描 20:03 跑完、23:06 登记完。
 
 1. 用户看图（清单见第 1 节末尾与四期记录 §6），拍板下一轮动不动、动哪个杠杆。
-2. L1-SPIRiT 扫完后由本会话登记进表：每对比度取最优点，`rescore.py --jobs 11` 两个口径重算，
-   `summarize.py` / `readme_tables.py` / `refresh_readme_tables.py`，L1-ESPIRiT 标不计入；横排与三面图的 L1 列换成 L1-SPIRiT 重出。
+2. L1-SPIRiT 已登记（第 1 节）。尾巴：三个逐层分析脚本换臂（下次用时）；四期病灶图 claude-eb 已换。
 3. 补 T1w 三格的候选杠杆（都没在本受试者试过，按 jyz 线的值排）：
    - 相位 TV：jyz AF12 三期 P14 = 共同边缘 0.001 + 相位 TV 0.01，把 FLAIR 联合减单臂从 −0.038 翻到 +0.036；
      本分支没有，需从 `autoresearch-jyz-af12-phase3` cherry-pick `paired_gs/losses/phase_tv.py`（同血脉）。

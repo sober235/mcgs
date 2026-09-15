@@ -32,6 +32,8 @@ ap.add_argument("--mask_error", action="store_true", help="error maps only insid
 ap.add_argument("--mcgs_key", default="gs_joint_ar", help="which registered joint arm fills the MC-GS column")
 ap.add_argument("--single_key", default="gs_single_ar", help="which registered single arm fills the GS-single column")
 ap.add_argument("--tag", default="", help="extra suffix for the output file name, e.g. _p3")
+ap.add_argument("--l1", choices=["spirit", "espirit"], default="spirit",
+                help="the L1 column: L1-SPIRiT (user 2026-09-15, replaces L1-ESPIRiT) or L1-ESPIRiT (the figures drawn before that)")
 args = ap.parse_args()
 
 import h5py
@@ -87,10 +89,18 @@ def lam_file(row_key, prefix):
     return None
 
 
+def spirit_file():
+    """the L1-SPIRiT volume summarize.py kept for this contrast (`src` = the sweep point's own name)"""
+    src = rows.get("spirit", {}).get("src")
+    return R / f"recon/{src}_{c}_complex.npy" if src else None
+
+
+L1 = (("spirit", "L1-SPIRiT", spirit_file()) if args.l1 == "spirit"
+      else ("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espirit")))
 ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("cssense_o200", "CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
         ("jcssense", "Joint SENSE", lam_file("jcssense", "jcssense_o200")),
-        ("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espirit")),
+        L1,
         ("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
         ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy"),
         ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy"),

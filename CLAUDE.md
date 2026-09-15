@@ -51,8 +51,9 @@ session claude-eb, log `autoresearch_peds_p4.md`, record `...2026-09-15-16yo-mtp
 lesion slice 1 dB ahead of every arm and plateaued at +0.15 dB (T2s sagittal 172). **User decisions 2026-09-15 (STATUS §2):
 +0.15 accepted and stage 4 closed; the six-cell target stands — MC-GS must end up first against every arm including
 GS-single, so the T1w cells are still to be closed by real runs; no new training until the user has reviewed the figures;
-L1-SPIRiT replaces L1-ESPIRiT (sweep running, registration by this session); the 23 GB of stage-1 output for the other
-eight contrasts stays.**
+L1-SPIRiT replaces L1-ESPIRiT (registered 2026-09-15 23:06: primary T1w 38.310 / 0.9607 / 0.0679, T2s 32.017 — it takes
+the T1w head HFEN bar from GS-single, so MC-GS is 0.0089 short there); the 23 GB of stage-1 output for the other eight
+contrasts stays.**
 Code: `uih_mtp/` (raw reader, 3D GRAPPA, `retro_mask`, `rescore`), configs `configs/peds_af12_*.yaml`, runner
 `autoresearch_peds.sh`. GPU policy for this line (user, 2026-09-14): any card with no compute process and utilisation
 at most 10 %, at most two of this line's trainings at once (two scheduler instances with disjoint `ALLOWED` lists);

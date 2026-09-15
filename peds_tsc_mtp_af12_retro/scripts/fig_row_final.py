@@ -2,7 +2,7 @@
 """fig_row_final.py -- one slice (transverse; --axis 1 coronal, --axis 2 sagittal), the compared methods in ONE row, error maps underneath.
 
 Layout (2 rows x 10 columns):
-  row 1: GT | CG-SENSE | CS-SENSE | Joint SENSE | L1-ESPIRiT | ZS-SSDU | 3D-DIP | 3D-INR | GS-single | MC-GS
+  row 1: GT | CG-SENSE | CS-SENSE | Joint SENSE | L1-SPIRiT (--l1 espirit: L1-ESPIRiT) | ZS-SSDU | 3D-DIP | 3D-INR | MC-INR | GS-single | MC-GS
   row 2: head mask (bottom left) | |recon - GT| / max(GT) for each method, jet, FIXED [0, 0.1], one shared colorbar
 Naming (user decision 2026-09-11): "GS-single" = the single-contrast MC-GS arm of the autoresearch recipe,
 "MC-GS" = the autoresearch MC-GS joint. CS-SENSE and Joint SENSE are the converged, lambda-swept arms (the
@@ -23,6 +23,8 @@ ap.add_argument("--mcgs_key", default="gs_joint_ar", help="which registered GS j
 ap.add_argument("--mcgs_label", default="MC-GS")
 ap.add_argument("--err_complex", action="store_true",
                 help="error map and panel PSNR from the COMPLEX difference |recon - GT| instead of the magnitude one")
+ap.add_argument("--l1", choices=["spirit", "espirit"], default="spirit",
+                help="the L1 column: L1-SPIRiT (user 2026-09-15, replaces L1-ESPIRiT) or L1-ESPIRiT (the figures drawn before that)")
 args = ap.parse_args()
 tag = args.tag or ("row_crop" if args.crop else "row") + ("_cplxerr" if args.err_complex else "")
 
@@ -65,10 +67,18 @@ def lam_file(row_key, prefix):
     return None
 
 
+def spirit_file():
+    """the L1-SPIRiT volume summarize.py kept for this contrast (`src` = the sweep point's own name)"""
+    src = rows.get("spirit", {}).get("src")
+    return R / f"recon/{src}_{c}_complex.npy" if src else None
+
+
+L1 = (("spirit", "L1-SPIRiT", spirit_file()) if args.l1 == "spirit"
+      else ("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espirit")))
 ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("cssense_o200", "CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
         ("jcssense", "Joint SENSE", lam_file("jcssense", "jcssense_o200")),
-        ("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espirit")),
+        L1,
         ("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
         ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy"),
         ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy"),
