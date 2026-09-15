@@ -266,3 +266,20 @@ arm, +0.50 over the non-GS arms on this slice. Selected slice, labelled as such 
 Plateau: round 3 has not moved the lesion-slice margin past +0.153 (four runs). Stopping rule for this campaign: once
 the remaining round-3 probes (T2s wavelet 0.14, frozen-geometry regularisers, geometry split) are in, stop if none
 adds ≥ 0.05 dB, and write up.
+
+## User decision 2026-09-15 16:05: L1-SPIRiT replaces L1-ESPIRiT; GS-single stays a comparison method
+
+"是的,更换成l1-spirit; gs-single也算对比方法" — the same swap the jyz T1/FLAIR topics made on 2026-09-15. This line had no
+L1-SPIRiT arm, so it is being built:
+
+- `scripts/recon_spirit.py` of the topic = the jyz AF16 script (aligned to Lustig's MATLAB to 1e-12 in double precision),
+  changed only in the contrast names (T1w / T2s) and in measuring the ACS block on the sampled set Omega. That block is
+  **24 x 8** here (jyz: 24 x 16), which under-determines a 5x5 x 32-coil kernel (80 patches for 800 unknowns), so a
+  `--calib full24` variant (kernel from the full k-space centre, the block the ESPIRiT maps came from) runs beside it.
+- Sweeps: `spirit_sweep.sh` (acquired calibration, ksize {3,5} x lambda {0, 5e-4, 1e-3, 2e-3, 4e-3, 8e-3}) and
+  `spirit_sweep_full24.sh` (ksize {3,5} x lambda {5e-4..4e-3}), both contrasts, on this line's two slots (the p4 queue
+  is paused meanwhile, `logs/.p4_pause`); log `logs/spirit_sweep.log`.
+- Registration into the topic tables is done by the stage-3 session (claude-e7), which owns summarize / rescore /
+  README: best point per contrast, L1-ESPIRiT kept in the table and marked as not counted (jyz convention).
+- For this campaign the bar changes nowhere that matters: with GS-single counted, GS-single sets the bar on every
+  lesion slice. `p4_lesion_margin.py` and `p4_fig_lesion_slice.py` will swap L1-ESPIRiT for the registered L1-SPIRiT.
