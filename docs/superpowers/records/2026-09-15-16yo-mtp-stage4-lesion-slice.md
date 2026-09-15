@@ -105,3 +105,18 @@ PSNR / SSIM / NMSE 三项都是全场第一，比包括 GS-single 在内的所�
 `/home/congcongliu/figs/peds_tsc_af12_lesion_1db/peds_af12_T2s_transverse_69_p4_r3_edge0005_spirit.png`
 
 提醒已发给 claude-e7：L1-SPIRiT 的 T1w 头内 HFEN（0.0689）低于 GS-single，若主区域同样如此，T1w 的 HFEN 门槛会变严。
+
+## 10. 三面图（09-15 21:50，用户要求 T1 与 T2* 各一张；L1 列为 L1-SPIRiT，误差只画头内）
+
+层面：横断 69（钙化样灶）/ 冠状 150（右侧脑室壁结节）/ 矢状 172（两个结节），各平面病灶层面里余量最好的一层。
+脚本 `scripts/p4_fig_three_planes.py`（课题 `fig_three_planes_compact.py` 的副本，MC-GS 读运行的重建体，加病灶标记）。
+
+| 图 | MC-GS | GS-single | 横断 69 | 冠状 150 | 矢状 172 |
+|---|---|---|---|---|---|
+| T2s | `p4_r3_edge0005` | `gs_single_ar` | 33.574 对 33.450，三项第一 | 33.930 对 33.884，三项第一 | 33.840 对 33.690，三项第一 |
+| T1w | `p4_r3_edge0005` | `gs_single_p3f`（9.6M） | 37.813 对 38.209，第二 | 38.612 对 39.063，第二 | 38.895 对 39.202，第二 |
+| T1w | `p3_n96_union_k05`（= gs_joint_p3f） | `gs_single_p3f` | 38.158 对 38.209，第二 | 39.015 对 39.063，第二 | 39.2013 对 39.2022，第二（SSIM、NMSE 持平） |
+
+- `/home/congcongliu/figs/peds_tsc_af12_lesion_1db/peds_af12_T2s_row3planes_compact_69_150_172_headerr_p4_r3_edge0005.png`
+- `/home/congcongliu/figs/peds_tsc_af12_lesion_1db/peds_af12_T1w_row3planes_compact_69_150_172_headerr_p4_r3_edge0005.png`
+- `/home/congcongliu/figs/peds_tsc_af12_lesion_1db/peds_af12_T1w_row3planes_compact_69_150_172_headerr_p3_n96_union_k05.png`
