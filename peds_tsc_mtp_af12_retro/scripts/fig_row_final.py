@@ -118,20 +118,22 @@ pw, ws, cbw = 2.6, 0.03, 0.9                         # panel width (in), column 
 VOXEL = (0.7, 0.7, 1.35)                             # mm along (RO, PE, SPE)
 _rows_axis, _cols_axis = ({0: (2, 1), 1: (2, 0), 2: (0, 1)})[args.axis]
 ph = pw * (H * VOXEL[_rows_axis]) / (W * VOXEL[_cols_axis])   # panel height in true anatomical proportions
+# every imshow below takes aspect="auto" so the image fills that box; with the default "equal" it would
+# keep the PIXEL aspect and flatten the coronal and sagittal planes of this anisotropic slab
 top_in, gap_in, bot_in = 0.85, 0.30, 0.05            # room above row 1 (suptitle + titles), between the rows, below
 fw, fh = pw * (ncol + (ncol - 1) * ws) + cbw, top_in + 2 * ph + gap_in + bot_in
 fig, axes = plt.subplots(2, ncol, figsize=(fw, fh))
 fig.subplots_adjust(left=0, right=1 - cbw / fw, bottom=bot_in / fh, top=1 - top_in / fh, wspace=ws, hspace=gap_in / ph)
-axes[0, 0].imshow(Dx(g2), cmap="gray", vmin=0, vmax=vmax, origin=ORIGIN[args.axis])
+axes[0, 0].imshow(Dx(g2), cmap="gray", vmin=0, vmax=vmax, origin=ORIGIN[args.axis], aspect="auto")
 axes[0, 0].set_title(f"GT ({c})", fontsize=13, fontweight="bold")
-axes[1, 0].imshow(Dx(m2), cmap="gray", origin=ORIGIN[args.axis])
+axes[1, 0].imshow(Dx(m2), cmap="gray", origin=ORIGIN[args.axis], aspect="auto")
 axes[1, 0].set_title("head mask", fontsize=11)
 for j, (key, lab, _) in enumerate(ARMS, start=1):
     v = imgs[key]
-    axes[0, j].imshow(Dx(v), cmap="gray", vmin=0, vmax=vmax, origin=ORIGIN[args.axis])
+    axes[0, j].imshow(Dx(v), cmap="gray", vmin=0, vmax=vmax, origin=ORIGIN[args.axis], aspect="auto")
     axes[0, j].set_title(f"{lab}\n{psnr[key]:.2f} dB", fontsize=12,
                          fontweight="bold" if key == best else "normal")
-    im = axes[1, j].imshow(Dx(errs[key]), cmap="jet", vmin=0.0, vmax=0.1, origin=ORIGIN[args.axis])
+    im = axes[1, j].imshow(Dx(errs[key]), cmap="jet", vmin=0.0, vmax=0.1, origin=ORIGIN[args.axis], aspect="auto")
 for a in axes.ravel():
     a.set_xticks([]); a.set_yticks([])
 cax = fig.add_axes([axes[1, -1].get_position().x1 + 0.005, axes[1, -1].get_position().y0,
