@@ -6,6 +6,7 @@ AF16 phase-3 MC-GS recipe as T1FLAIR_AF16_v3_jiangyizhou; only the mask PATTERN 
 vd-Poisson disc:
   gauss   2-D Gaussian variable-density random sampling      -> T1FLAIR_AF16_gauss_v3_jiangyizhou
   radial  Cartesian pseudo-radial spokes through DC          -> T1FLAIR_AF16_radial_v3_jiangyizhou
+  caipi   regular 4 x 4 lattice with a CAIPIRINHA shift       -> T1FLAIR_AF16_caipi_v3_jiangyizhou
 Both are labelled AF 16 (nominal, exactly as the AF16 topic is) and both sit at that topic's actual T1 acceleration
 under the user's definition of 2026-09-14 (AF = PE-plane points / sampled points that carry that contrast's data):
 T1 acquires the whole 256 x 176 plane, so T1 at 15.20x = exactly 2964 of 45056 points (the AF16 mask: 2966, 15.19x).
@@ -25,6 +26,17 @@ gauss   outside the ACS, TARGET - 384 points are drawn without replacement with 
         draw's median rn over its sampled points matches the AF16 vd-Poisson mask's (the density curve is matched
         where a Gaussian can follow it; what differs is the point process, i.i.d. random vs Poisson disc).
         --gauss_s overrides the width (the inspection figure shows 0.7 s and 1.4 s beside it).
+caipi   the standard 3-D parallel-imaging lattice: every Rz-th kz plane, every Ry-th ky within it, with the ky offset
+        stepped by `shift` per sampled kz plane (2-D CAIPIRINHA, Breuer et al. MRM 2006). Ry x Rz = 4 x 3 with
+        shift 2, chosen by CAIPI's own criterion, computed in min_replica(): the image-domain aliasing replicas lie on
+        the dual lattice {(a/Ry, (b - a*shift/Ry)/Rz)} in units of the FOV, and 4x3(2) is the only candidate at this
+        budget whose shift actually increases their minimum separation (0.3005 FOV against 0.2500 unshifted; every
+        shift of 3x4, 4x4 and 3x5 ties with its own unshifted lattice). The lattice plus the ACS overshoots the
+        budget, and the excess is removed at the largest rn: that is elliptical scanning, which every 3-D product
+        sequence applies anyway, and it lands the cut at rn 0.941 with the lattice intact inside. Choosing the lattice
+        this way also keeps FLAIR's acceleration beside the other two patterns (45 points outside its shutter, 15.44x,
+        against the corner-heavy 4x4 lattice's 480 points and 18.14x) -- a uniform lattice spends about a fifth of its
+        samples in the plane's corners, which FLAIR never acquires.
 radial  N spokes through DC at angles i * 180 / N degrees, i = 0..N-1, in the normalised coordinates (a spoke reaches
         the plane edge in every direction: elliptical field of view, like the shutter); each spoke is rasterised by
         rounding 1024 points along it to the nearest grid point. N is the smallest spoke count whose union with the
@@ -47,7 +59,8 @@ import scipy.io as sio
 
 RES = Path("/data0/congcong/code/GS/Results_20260908")
 TOPICS = {"gauss": RES / "T1FLAIR_AF16_gauss_v3_jiangyizhou",
-          "radial": RES / "T1FLAIR_AF16_radial_v3_jiangyizhou"}
+          "radial": RES / "T1FLAIR_AF16_radial_v3_jiangyizhou",
+          "caipi": RES / "T1FLAIR_AF16_caipi_v3_jiangyizhou"}
 REF_MASK = RES / "T1FLAIR_AF16_v3_jiangyizhou/data/mask_vdpois_256x176_af16.mat"
 KSP_FLAIR = RES / "T1FLAIR_AF12_v3_jiangyizhou/data/ksp_FLAIR.h5"         # every jyz topic's symlink target: READ ONLY
 NX, NY, NZ = 256, 256, 176                                                # (readout, ky, kz)
@@ -144,6 +157,45 @@ def draw_radial(seed=SEED):
     return m, info
 
 
+def min_replica(ry, rz, shift, reps=6):
+    """smallest distance between image-domain aliasing replicas, in units of the FOV (CAIPI's own design criterion)"""
+    best = np.inf
+    for a in range(-reps, reps + 1):
+        for b in range(-reps, reps + 1):
+            wy, wz = a / ry, (b - a * shift / ry) / rz
+            wy -= round(wy)
+            wz -= round(wz)
+            if abs(wy) < 1e-9 and abs(wz) < 1e-9:
+                continue
+            best = min(best, float(np.hypot(wy, wz)))
+    return best
+
+
+def draw_caipi(ry=4, rz=3, shift=2, seed=SEED):
+    rng = np.random.default_rng(seed)
+    acs = acs_block()
+    lat = ((KY - shift * (KZ // rz)) % ry == 0) & (KZ % rz == 0)
+    u = lat | acs
+    assert int(u.sum()) >= TARGET, (int(u.sum()), TARGET)
+    excess = int(u.sum()) - TARGET
+    outside = np.flatnonzero((u & ~acs).reshape(-1))
+    r = RN.reshape(-1)[outside]
+    order = np.lexsort((rng.random(r.size), -r))           # largest normalised radius first, random tie-break
+    m = u.copy()
+    m.reshape(-1)[outside[order[:excess]]] = False
+    assert int(m.sum()) == TARGET
+    info = dict(Ry=ry, Rz=rz, shift=shift, nominal_R=ry * rz, lattice_points=int(lat.sum()),
+                min_replica_distance_fov=min_replica(ry, rz, shift),
+                min_replica_distance_unshifted=min_replica(ry, rz, 0),
+                shift_scan={str(d): min_replica(ry, rz, d) for d in range(ry)},
+                points_before_trim=int(u.sum()), trimmed=excess,
+                rn_max_kept=float(RN[m & ~acs].max()),
+                rn_trimmed_min=float(r[order[:excess]].min()) if excess else None,
+                kz_planes_sampled=int(np.unique(np.nonzero(m)[1]).size),
+                note="trim removes the plane's corners (elliptical scanning); the lattice is intact inside")
+    return m, info
+
+
 def stats(m, sup):
     n, n_fl = int(m.sum()), int((m & sup).sum())
     return dict(points=n, plane_points=N_PLANE, T1_AF=N_PLANE / n,
@@ -173,9 +225,18 @@ def write(kind, m, extra):
     return rep
 
 
+def _how(kind, rep):
+    if kind == "gauss":
+        return "s=%.3f" % rep["gauss"]["s"]
+    if kind == "radial":
+        return "%d spokes, trimmed %d" % (rep["radial"]["spokes"], rep["radial"]["trimmed"])
+    c = rep["caipi"]
+    return "%dx%d shift %d (nominal R %d), trimmed %d" % (c["Ry"], c["Rz"], c["shift"], c["nominal_R"], c["trimmed"])
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--kinds", default="gauss,radial")
+    ap.add_argument("--kinds", default="gauss,radial,caipi")
     ap.add_argument("--gauss_s", type=float, default=None, help="override the fitted Gaussian width (rn units)")
     a = ap.parse_args()
     sup = flair_shutter()
@@ -196,6 +257,11 @@ def main():
             extra = dict(pattern="2-D Gaussian variable density, i.i.d. without replacement outside the ACS",
                          gauss=dict(s=s, sigma_ky_lines=s * NY / 2, sigma_kz_lines=s * NZ / 2, fit=fit),
                          reference_vdpois_af16=dict(mask=str(REF_MASK), **rs), **stats(m, sup))
+        elif kind == "caipi":
+            m, info = draw_caipi()
+            extra = dict(pattern="regular Ry x Rz phase-encode lattice with a CAIPIRINHA ky shift per kz plane, "
+                                 "corners trimmed to the budget (elliptical scanning)",
+                         caipi=info, reference_vdpois_af16=dict(mask=str(REF_MASK), **rs), **stats(m, sup))
         elif kind == "radial":
             m, info = draw_radial()
             extra = dict(pattern="Cartesian pseudo-radial spokes, uniform angles, elliptical extent, "
@@ -207,7 +273,7 @@ def main():
         print(f"[{kind}] {rep['points']} points, T1 {rep['T1_AF']:.3f}x, FLAIR {rep['FLAIR_AF']:.3f}x "
               f"({rep['FLAIR_points_outside_shutter']} outside the shutter), 24x24 centre {rep['centre24x24']}, "
               f"full rect {rep['largest_full_centred_rect_ky_kz']}, median rn {rep['median_rn']:.4f}; "
-              f"{'s=%.3f' % rep['gauss']['s'] if kind == 'gauss' else '%d spokes, trimmed %d' % (rep['radial']['spokes'], rep['radial']['trimmed'])}; "
+              f"{_how(kind, rep)}; "
               f"md5 {rep['mask_mat_md5']}", flush=True)
 
 

@@ -1,0 +1,70 @@
+{
+ "kind": "caipi",
+ "label": "AF 16 (nominal); actual = the AF16 topic's own T1 acceleration",
+ "target_points": 2964,
+ "seed": 0,
+ "dc": [
+  128,
+  88
+ ],
+ "acs_block_ky_kz": [
+  24,
+  16
+ ],
+ "pattern": "regular Ry x Rz phase-encode lattice with a CAIPIRINHA ky shift per kz plane, corners trimmed to the budget (elliptical scanning)",
+ "caipi": {
+  "Ry": 4,
+  "Rz": 3,
+  "shift": 2,
+  "nominal_R": 12,
+  "lattice_points": 3776,
+  "min_replica_distance_fov": 0.30046260628866567,
+  "min_replica_distance_unshifted": 0.25,
+  "shift_scan": {
+   "0": 0.25,
+   "1": 0.2635231383473649,
+   "2": 0.30046260628866567,
+   "3": 0.2635231383473649
+  },
+  "points_before_trim": 4130,
+  "trimmed": 1166,
+  "rn_max_kept": 0.940749576468148,
+  "rn_trimmed_min": 0.9409200702038387,
+  "kz_planes_sampled": 66,
+  "note": "trim removes the plane's corners (elliptical scanning); the lattice is intact inside"
+ },
+ "reference_vdpois_af16": {
+  "mask": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_vdpois_256x176_af16.mat",
+  "points": 2966,
+  "plane_points": 45056,
+  "T1_AF": 15.190829399865137,
+  "FLAIR_points_with_data": 2733,
+  "FLAIR_points_outside_shutter": 233,
+  "FLAIR_AF": 16.485912916209294,
+  "FLAIR_AF_vs_own_shutter_old_convention": 12.491401390413465,
+  "centre24x24": 472,
+  "largest_full_centred_rect_ky_kz": [
+   24,
+   16
+  ],
+  "median_rn": 0.4001829751560836,
+  "mean_rn": 0.4629019918122643
+ },
+ "points": 2964,
+ "plane_points": 45056,
+ "T1_AF": 15.201079622132253,
+ "FLAIR_points_with_data": 2919,
+ "FLAIR_points_outside_shutter": 45,
+ "FLAIR_AF": 15.435423090099349,
+ "FLAIR_AF_vs_own_shutter_old_convention": 11.695443645083932,
+ "centre24x24": 402,
+ "largest_full_centred_rect_ky_kz": [
+  24,
+  16
+ ],
+ "median_rn": 0.6181972541560055,
+ "mean_rn": 0.5607598877049921,
+ "mask_mat": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_caipi_v3_jiangyizhou/data/mask_caipi_256x176_af16.mat",
+ "mask_mat_md5": "ef49e59b8e497002cb0466a23ae8af11",
+ "mask3d": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_caipi_v3_jiangyizhou/data/mask_af16_3d.h5"
+}

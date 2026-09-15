@@ -4,12 +4,18 @@
 
 用户要求（09-15）：新分支，Gaussian 掩膜与 radial 掩膜各跑一遍全部方法，加速倍数按 15.2 设、标签记 AF 16；**先看掩膜再决定是否重建**。
 
-- 两个课题目录：`Results_20260908/T1FLAIR_AF16_gauss_v3_jiangyizhou/`、`.../T1FLAIR_AF16_radial_v3_jiangyizhou/`，
+- 三个课题目录：`Results_20260908/T1FLAIR_AF16_{gauss,caipi,radial}_v3_jiangyizhou/`，
   data/ 的 k 空间与 ESPIRiT 图是指向 AF12 课题的符号链接（AF16/20/24 课题同样做法）。
 - 掩膜（`scripts/make_masks_af16_diffmask.py`，seed 0，可再生；两张都是 2964 点 = T1 15.20×，与 vdPoisson AF16 掩膜的 2966 点/15.19× 对齐；
   都保留 vdPoisson 掩膜实测的 24×16 全采样 ACS，L1-SPIRiT 校准区一致）：
   - gauss：ACS 外按二维高斯密度独立随机抽点，宽度 s=0.355（σ 45.4×31.2 线）由"采样点归一化半径中位数与 vdPoisson 掩膜相同"选出；FLAIR 15.43×，44 点在快门外。
+  - caipi：4×3 规则格点 + CAIPI 移位 2（标称 R 12）。移位按 CAIPI 自己的判据选：混叠副本落在对偶格
+    {(a/Ry, (b−a·shift/Ry)/Rz)}，4×3 移位 2 是本预算下唯一靠移位把副本最小间距拉开的（0.3005 FOV 对未移位 0.2500）；
+    3×4、4×4、3×5 的任何移位都与自身未移位持平。格点加 ACS 超预算 1166 点，按最大半径裁掉 = 椭圆扫描，切在 rn 0.941，
+    椭圆内格点完整。FLAIR 15.44×，45 点在快门外。（先试过 4×4 标称 R 16，均匀格点约两成落在平面四角，FLAIR 被推到
+    18.14×、480 点在快门外，与另两张对不齐，已弃用。）
   - radial：12 条均匀角度伪径向辐条（每 15°，椭圆视野），按最大半径裁掉 207 个最外点凑到预算；FLAIR 15.34×，27 点在快门外。
+    ⚠️ 09-15 文献核查：径向相位编码（ky-kz 平面辐条）是真实家族，但主场是心脏/动态，不算头部三标准之一。
   - 读数 `logs/make_masks_af16_diffmask.json`，图 `figures/t1flair_v3_af16_diffmask_{masks,gauss_width}.png`
     （`http://localhost:8765/t1flair_v3_af16_diffmask/`）。
 - 待用户拍板：两张掩膜是否可用（高斯宽度可改 `--gauss_s`；改掩膜先删 data/ 下两个掩膜文件再重跑生成器）；同意后再定跑法

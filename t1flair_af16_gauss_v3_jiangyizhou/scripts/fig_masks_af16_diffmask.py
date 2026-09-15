@@ -31,13 +31,14 @@ SERVED = Path("/home/congcongliu/figs") / NAME
 sup = flair_shutter()
 supf = sup.astype(float)
 ref = sio.loadmat(REF_MASK)["mask"].astype(bool)
+LABEL = {"gauss": "Gaussian random", "caipi": "2-D CAIPIRINHA lattice", "radial": "pseudo-radial spokes"}
 masks = [("vd-Poisson disc (house mask, AF16 topic)", ref, None)]
 info = {}
-for kind in ("gauss", "radial"):
+for kind in ("gauss", "caipi", "radial"):
     T = TOPICS[kind]
     j = json.load(open(T / "logs/make_masks_af16_diffmask.json"))
     info[kind] = j
-    masks.append((("Gaussian random" if kind == "gauss" else "pseudo-radial spokes") + f" ({kind} topic, new)",
+    masks.append((LABEL[kind] + f" ({kind} topic, new)",
                   sio.loadmat(T / f"data/mask_{kind}_256x176_af16.mat")["mask"].astype(bool), j))
 
 
@@ -51,11 +52,16 @@ def title(name, m, j):
     elif j is not None and j["kind"] == "radial":
         r = j["radial"]
         extra = f"\n{r['spokes']} spokes every {r['angle_step_deg']:.2f} deg, {r['trimmed']} outermost points trimmed"
+    elif j is not None and j["kind"] == "caipi":
+        q = j["caipi"]
+        extra = (f"\n{q['Ry']} x {q['Rz']} lattice, CAIPI shift {q['shift']} (nominal R {q['nominal_R']})"
+                 f"\nreplica separation {q['min_replica_distance_fov']:.3f} FOV "
+                 f"(unshifted {q['min_replica_distance_unshifted']:.3f}); elliptical cut at rn {q['rn_max_kept']:.3f}")
     return (f"{name}\n{n} of {m.size} points: T1 {m.size / n:.2f}x, FLAIR {m.size / n_fl:.2f}x "
             f"({n - n_fl} points outside the shutter)\n24x24 centre {c24}/576, median rn {np.median(RN[m]):.3f}{extra}")
 
 
-fig, axes = plt.subplots(2, 3, figsize=(16.5, 11.5), gridspec_kw=dict(height_ratios=[1.5, 1]))
+fig, axes = plt.subplots(2, 4, figsize=(21.5, 11.5), gridspec_kw=dict(height_ratios=[1.5, 1]))
 for col, (name, m, j) in enumerate(masks):
     a = axes[0, col]
     a.imshow(m, cmap="gray", interpolation="nearest")
@@ -68,8 +74,8 @@ for col, (name, m, j) in enumerate(masks):
                           fill=False, edgecolor="c", linewidth=1.5))
     z.set_title(f"centre 64 x 48 (ky x kz); cyan: the {ACS[0]} x {ACS[1]} ACS block", fontsize=9.5)
     z.set_xticks([]); z.set_yticks([])
-fig.suptitle("jiangyizhou T1+FLAIR, nominal AF 16: the house mask and the two diff-mask candidates "
-             "(same 2964-point budget, T1 15.20x; red = FLAIR shutter edge)", fontsize=11)
+fig.suptitle("jiangyizhou T1+FLAIR, nominal AF 16: the house mask and the three diff-mask candidates "
+             "(same ~2964-point budget, T1 15.20x; red = FLAIR shutter edge)", fontsize=12)
 fig.tight_layout()
 
 fig2, ax = plt.subplots(1, 4, figsize=(20, 6.4), gridspec_kw=dict(width_ratios=[1.5, 1, 1, 1]))
