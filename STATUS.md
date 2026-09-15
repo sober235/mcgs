@@ -49,6 +49,8 @@ T1    margin over 4 draws: mean +0.359  SD 0.006  range [+0.354, +0.366]   AF20 
 FLAIR margin over 4 draws: mean +0.397  SD 0.006  range [+0.389, +0.403]   AF20 (4 draws): +0.488 ± 0.004   shift -0.092 = -14.7 x the larger SD   sharpness gate passed on 4/4
 ```
 
+- **数据包与中文总结（claude-ad 按用户直接要求做，76e0d2f）**：`Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/export/af24_p3_mcinr_spirit/`（72 个文件 11.77 GiB，原始 k 空间、线圈图、掩膜 a/b/c/d、各臂重建体含 SPIRiT 与 MC-INR、正式图；README 写明倍数口径与 A/B 未定），本会话独立 `md5sum -c` 72/72 OK；中文一页总结 `docs/2026-09-15-af24-jyz-summary.md`（关键数字已核对）。
+
 ### 一句话
 AF16 三期配方原样不调，跑在"T1 正好 24×"的掩膜上（1877 点，FLAIR 25.51×）：头内 PSNR **33.767 / 33.182**，九臂里头内 PSNR/SSIM/HFEN 六格全第一（含 GS-single）。**对最强对比方法 GS-single 的余量 +0.179 / +0.071**（AF20 +0.165 / +0.052；GS-single 算对比方法是用户 09-13 定的）。
 
