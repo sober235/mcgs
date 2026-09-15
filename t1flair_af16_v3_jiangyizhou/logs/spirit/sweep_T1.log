@@ -1,0 +1,3 @@
+gpu 2 -> T1 _ks3_lam0
+gpu 6 -> T1 _ks3_lam0.0005
+gpu 7 -> T1 _ks3_lam0.001

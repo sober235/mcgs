@@ -10,11 +10,15 @@ from pathlib import Path
 
 T, T12 = Path(sys.argv[1]), Path(sys.argv[2])
 LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "zsssdu": "ZS-SSDU",
-         "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
-         "cssense_o200": "CS-SENSE (TV, converged)", "jcssense": "joint CS-SENSE (JTV)", "l1espirit": "L1-ESPIRiT"}
+         "dip": "3D-DIP", "inr": "3D-INR", "mcinr": "MC-INR (Niessen 2025)", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
+         "cssense_o200": "CS-SENSE (TV, converged)", "jcssense": "joint CS-SENSE (JTV)", "l1espirit": "L1-ESPIRiT", "spirit": "L1-SPIRiT"}
 _x = T / "logs/extra_gs_arms.json"
 if _x.exists():
     LABEL.update({a["key"]: a["label"] for a in json.load(open(_x))})
+# L1-ESPIRiT was dropped from the comparison on 2026-09-15 (user). Its volumes, logs and
+# logs/summary.json entry are untouched -- it is only no longer listed. Sections written
+# before that date still reference it; DROP is the single place that decides.
+DROP = {"l1espirit"}
 rows = json.load(open(T / "logs/summary.json"))
 rows12 = json.load(open(T12 / "logs/summary.json")) if (T12 / "logs/summary.json").exists() else []
 
@@ -24,7 +28,8 @@ def find(rs, c, m):
 
 
 for c in ("T1", "FLAIR"):
-    sub = sorted([r for r in rows if r["contrast"] == c], key=lambda r: -r["head_psnr"])
+    sub = sorted([r for r in rows if r["contrast"] == c and r["method"] not in DROP],
+                 key=lambda r: -r["head_psnr"])
     best_h = max(r["head_psnr"] for r in sub); best_hs = max(r["head_ssim"] for r in sub)
     print(f"\n**{c}** (sorted by head-only PSNR; AF12 column = the same arm in `{T12.name}`)\n")
     print("| method | PSNR | SSIM | head PSNR | head SSIM | head HFEN | sharp | head PSNR @AF12 | AF16 − AF12 |")

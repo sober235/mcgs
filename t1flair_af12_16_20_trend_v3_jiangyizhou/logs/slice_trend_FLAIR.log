@@ -1,13 +1,13 @@
-[FLAIR] MC-GS done 35s
-[FLAIR] GS-single done 70s
-[FLAIR] L1-ESPIRiT done 108s
-[FLAIR] CS-SENSE (converged TV) done 141s
-[FLAIR] Joint SENSE done 174s
-[FLAIR] CS-SENSE (35 it) done 205s
-[FLAIR] ZS-SSDU done 239s
-[FLAIR] CG-SENSE done 275s
-[FLAIR] MC-INR done 310s
-[FLAIR] 3D-DIP done 346s
-[FLAIR] 3D-INR done 381s
-[FLAIR] ZF done 420s
-[FLAIR] DONE; worst figure-vs-vectorised: {'dpsnr': 7.247535904753022e-13, 'dssim': 7.327471962526033e-15, 'dnmse': 3.354955202539145e-15}
+[FLAIR] MC-GS done 12s
+[FLAIR] GS-single done 24s
+[FLAIR] CS-SENSE (converged TV) done 36s
+[FLAIR] Joint SENSE done 48s
+[FLAIR] CS-SENSE (35 it) done 60s
+[FLAIR] ZS-SSDU done 71s
+[FLAIR] L1-SPIRiT done 83s
+[FLAIR] CG-SENSE done 95s
+[FLAIR] MC-INR done 107s
+[FLAIR] 3D-DIP done 119s
+[FLAIR] 3D-INR done 130s
+[FLAIR] ZF done 142s
+[FLAIR] DONE; worst figure-vs-vectorised: {'dpsnr': 7.247535904753022e-13, 'dssim': 7.327471962526033e-15, 'dnmse': 3.299444051307887e-15}

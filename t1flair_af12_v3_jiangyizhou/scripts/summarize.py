@@ -5,6 +5,7 @@ Sources:
   logs/classical_<c>.json   ZF / CG-SENSE / CS-SENSE      (scripts/recon_classical.py)
   logs/zsssdu_<c>.json      ZS-SSDU                        (scripts/recon_zsssdu.py)
   logs/dip_<c>.json, logs/inr_<c>.json                     (scripts/recon_dip_inr.py)
+  logs/mcinr_<c>.json       MC-INR (Niessen 2025)          (repo mcinr_niessen2025, re-scored here)
   results_arc/t1flair_v3_af12_{joint,single_T1,single_FLAIR}_score.json   (arc/cycle.py)
 
 All of them are on the one gauge (scripts/check_gauge.py proves the shared module reproduces
@@ -18,16 +19,19 @@ ARC = Path("/data0/congcong/code/GS/Paired_ARC_GS_general_framework/results_arc"
 
 COLS = ["psnr", "ssim", "nmse", "hfen", "head_psnr", "head_ssim", "head_hfen",
         "sharp", "grain", "grain_ratio"]
-ORDER = ["zf", "cgsense", "cssense", "zsssdu", "dip", "inr", "gs_single", "gs_joint", "gs_joint_v2"]
+ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "spirit", "ploraks", "zsssdu", "dip", "inr", "mcinr", "gs_single", "gs_joint", "gs_single_v2", "gs_joint_v2", "gs_single_v3", "gs_joint_v3", "gs_joint_v3x2", "gs_joint_v32", "gs_joint_v32x2"]
 LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "zsssdu": "ZS-SSDU",
-         "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
-         "gs_joint_v2": "MC-GS joint v2"}
+         "dip": "3D-DIP", "inr": "3D-INR", "mcinr": "MC-INR (Niessen 2025)", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
+         "gs_single_v2": "MC-GS single v2", "gs_joint_v2": "MC-GS joint v2",
+         "cssense_o200": "CS-SENSE (TV, converged)", "jcssense": "joint CS-SENSE (JTV)",
+         "l1espirit": "L1-ESPIRiT", "spirit": "L1-SPIRiT", "ploraks": "P-LORAKS",
+         "gs_single_v3": "MC-GS single v3", "gs_joint_v3": "MC-GS joint v3", "gs_joint_v3x2": "MC-GS joint v3 x2 seeds", "gs_joint_v32": "MC-GS joint v3.2", "gs_joint_v32x2": "MC-GS joint v3.2 x2 seeds"}
 
 
 def main():
     rows = []
     for c in ("T1", "FLAIR"):
-        for stem in ("classical", "zsssdu", "dip", "inr"):
+        for stem in ("classical", "zsssdu", "dip", "inr", "mcinr"):
             p = R / f"logs/{stem}_{c}.json"
             if not p.exists():
                 continue
@@ -49,12 +53,83 @@ def main():
         for ch, name in (("plain", d.get("plain_name", "T1")), ("contrast", d.get("contrast_name", "FLAIR"))):
             rows.append({"contrast": name, "method": "gs_joint_v2",
                          **{k: d[ch].get(k) for k in COLS}, "seconds": d.get("elapsed_s")})
+    # single-contrast arms of the v2 recipe (ablation)
+    for exp, c in (("ar9_single_T1_v2_jyz", "T1"), ("ar9_single_FLAIR_v2_jyz", "FLAIR")):
+        sp = ARC / f"{exp}_score.json"
+        if sp.exists():
+            d = json.load(open(sp))
+            rows.append({"contrast": c, "method": "gs_single_v2",
+                         **{k: d["plain"].get(k) for k in COLS}, "seconds": d.get("elapsed_s")})
     for c in ("T1", "FLAIR"):
         sp = ARC / f"t1flair_v3_af12_single_{c}_score.json"
         if sp.exists():
             d = json.load(open(sp))
             rows.append({"contrast": c, "method": "gs_single",
                          **{k: d["plain"].get(k) for k in COLS}, "seconds": None})
+
+    # classical arms revisited (2026-09-10): converged TV (200 outer), joint vectorial TV (200 outer),
+    # L1-wavelet ESPIRiT (BART, 100 FISTA iterations); P-LORAKS. Lambda families (2026-09-11, the AF12
+    # autoresearch loop's bar): the huangyuwei-selected lambda (unsuffixed / _lam<L> files) plus the
+    # sweep ON THIS SUBJECT against the ground truth (scripts/run_classical_resweep_af12.sh) -- the same
+    # privilege the MC-GS loop has -- and the best lambda per family and contrast is kept.
+    FAM = [("cssense_o200", "logs/classical_{c}_o200*.json"),
+           ("l1espirit", "logs/l1espirit_{c}_lam*.json"),
+           ("jcssense", "logs/jcssense_o200*.json"),
+           ("spirit", "logs/spirit_{c}_ks*_lam*.json")]
+    for c in ['T1', 'FLAIR']:
+        for key, pat in FAM:
+            cands = []
+            for f in sorted(R.glob(pat.format(c=c))):
+                for r in json.load(open(f)).get("rows", []):
+                    if r.get("contrast", c) == c and r.get("head_psnr") is not None:
+                        cands.append(r)
+            if cands:
+                b = max(cands, key=lambda r: r["head_psnr"])
+                rows.append({"contrast": c, "method": key, **{k: b.get(k) for k in COLS},
+                             "seconds": b.get("seconds"), "lam": b.get("lam"), "n_lambda": len(cands),
+                             **({"ksize": b["ksize"]} if b.get("ksize") else {}),
+                             "lams": sorted(float(r.get("lam")) for r in cands if r.get("lam") is not None)})
+        p = R / f"logs/ploraks_{c}.json"
+        if p.exists():
+            for r in json.load(open(p)).get("rows", []):
+                rows.append({"contrast": c, "method": "ploraks", **{k: r.get(k) for k in COLS}, "seconds": r.get("seconds")})
+    # v3 = v2 + 2.4M points + wavelet sparsity 0.05 (framework repo autoresearch_t1t2.md, rounds 11-14), 4000 iters
+    p = ARC / "ar13_tf_jyz_t1flair_v3b_score.json"
+    if p.exists():
+        d = json.load(open(p))
+        for ch, name in (("plain", d.get("plain_name", "T1")), ("contrast", d.get("contrast_name", "FLAIR"))):
+            rows.append({"contrast": name, "method": "gs_joint_v3", **{k: d[ch].get(k) for k in COLS}, "seconds": d.get("elapsed_s")})
+    for c, e in {'T1': 'ar15_single_T1_jyz_v3', 'FLAIR': 'ar15_single_FLAIR_jyz_v3'}.items():
+        p = ARC / f"{e}_score.json"
+        if p.exists():
+            d = json.load(open(p))
+            rows.append({"contrast": c, "method": "gs_single_v3", **{k: d["plain"].get(k) for k in COLS}, "seconds": d.get("elapsed_s")})
+    # v3 x2 = voxelwise mean of the magnitudes of two v3 runs that differ only in the seed (42, 43); twice the compute (program Round 18)
+    p = ARC / "ar13_tf_jyz_t1flair_v3b_x2_score.json"
+    if p.exists():
+        d = json.load(open(p))
+        for ch, name in (("plain", d.get("plain_name", "T1")), ("contrast", d.get("contrast_name", "FLAIR"))):
+            rows.append({"contrast": name, "method": "gs_joint_v3x2", **{k: d[ch].get(k) for k in COLS}, "seconds": d.get("elapsed_s")})
+    # v3.2 = v3 + T1 wavelet 0.06 + edge-TV 0.07 (+ FLAIR wavelet 0.12 on T1+FLAIR); framework program "## v3.2 — adopted"
+    for exp, meth in (("ar19_tf_jyz_full_C012", "gs_joint_v32"), ("ar19_tf_jyz_full_C012_x2", "gs_joint_v32x2")):
+        p = ARC / f"{exp}_score.json"
+        if p.exists():
+            d = json.load(open(p))
+            for ch, name in (("plain", d.get("plain_name", "T1")), ("contrast", d.get("contrast_name", "FLAIR"))):
+                rows.append({"contrast": name, "method": meth, **{k: d[ch].get(k) for k in COLS}, "seconds": d.get("elapsed_s")})
+    # extra MC-GS arms from the AF12 autoresearch loop (scripts/add_gs_arm.py, worktree mcgs_af12_wt): metrics
+    # straight from the run's own score json, so the row is exactly what its scorer printed
+    xp = R / "logs/extra_gs_arms.json"
+    if xp.exists():
+        ARC12 = Path("/data0/congcong/code/GS/mcgs_af12_wt/results_arc")
+        for arm in json.load(open(xp)):
+            d = json.load(open(ARC12 / f"{arm['exp']}_score.json"))
+            for c, ch in arm["map"].items():
+                rows.append({"contrast": c, "method": arm["key"], **{k: d[ch].get(k) for k in COLS},
+                             "seconds": d.get("elapsed_s"), "exp": arm["exp"], "iters": d.get("iters")})
+            LABEL.setdefault(arm["key"], arm["label"])
+            if arm["key"] not in ORDER:
+                ORDER.append(arm["key"])
 
     rows.sort(key=lambda r: (r["contrast"], ORDER.index(r["method"]) if r["method"] in ORDER else 99))
     hdr = ["contrast", "method"] + COLS

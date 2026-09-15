@@ -16,8 +16,11 @@ OUTFIG = f"{T}/figures/jyz_t1flair_af12_16_20_metric_steps.png"
 SERVED = "/home/congcongliu/figs/t1flair_v3_af_trend"
 AFS = ("12", "16", "20")
 WP = {"T1": {"12": 11.71, "16": 15.19, "20": 18.56}, "FLAIR": {"12": 12.86, "16": 16.49, "20": 19.96}}   # whole-plane AF
-ORDER = ["MC-GS", "GS-single", "L1-ESPIRiT", "CS-SENSE (converged TV)", "Joint SENSE", "CS-SENSE (35 it)",
-         "ZS-SSDU", "CG-SENSE", "MC-INR", "3D-DIP", "3D-INR", "ZF"]
+# ORDER is what is SHOWN. L1-ESPIRiT is in the rescore json but not here (dropped by the user 2026-09-15, its
+# data kept); L1-SPIRiT, the k-space arm registered the same day, takes a row. GS-single is a comparison arm
+# (user 2026-09-13) and the strongest one at every AF, so the headline margin is MC-GS minus GS-single.
+ORDER = ["MC-GS", "GS-single", "CS-SENSE (converged TV)", "Joint SENSE", "CS-SENSE (35 it)",
+         "ZS-SSDU", "L1-SPIRiT", "CG-SENSE", "MC-INR", "3D-DIP", "3D-INR", "ZF"]
 MET = [("head_psnr", "head PSNR (dB)", +1, "{:.3f}"), ("head_ssim", "head SSIM", +1, "{:.4f}"), ("head_hfen", "head HFEN", -1, "{:.4f}")]
 
 rows = []

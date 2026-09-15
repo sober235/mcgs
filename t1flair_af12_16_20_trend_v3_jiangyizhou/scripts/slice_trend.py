@@ -16,8 +16,8 @@ T = "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_16_20_trend_v3_jiangy
 ROOT = "/data0/congcong/code/GS/Results_20260908"
 c = sys.argv[1]
 AFS = ("12", "16", "20")
-ORDER = ["MC-GS", "GS-single", "L1-ESPIRiT", "CS-SENSE (converged TV)", "Joint SENSE", "CS-SENSE (35 it)",
-         "ZS-SSDU", "CG-SENSE", "MC-INR", "3D-DIP", "3D-INR", "ZF"]
+ORDER = ["MC-GS", "GS-single", "CS-SENSE (converged TV)", "Joint SENSE", "CS-SENSE (35 it)",       # L1-ESPIRiT dropped
+         "ZS-SSDU", "L1-SPIRiT", "CG-SENSE", "MC-INR", "3D-DIP", "3D-INR", "ZF"]                    # (user 2026-09-15)
 SETS = {"180/124/76": (180, 124, 76), "174/110/47": (174, 110, 47)}
 files = {af: {x["label"]: x["file"] for x in json.load(open(f"{T}/logs/rescore_af{af}_{c}.json"))} for af in AFS}
 
@@ -62,7 +62,7 @@ for lab in ORDER:
         for ax in (0, 1, 2):
             p, s, nm = all_slices(r, ax)
             out["allslices"].setdefault(f"{lab}|{ax}", {})[af] = dict(psnr=p.tolist(), ssim=s.tolist(), nmse=nm.tolist())
-            if af == "20" and lab in ("MC-GS", "L1-ESPIRiT"):
+            if af == "20" and lab in ("MC-GS", "L1-SPIRiT"):
                 for sname, idxs in SETS.items():
                     fp, fs, fn = out["figure"][f"{lab}|{sname}|{ax}"][af]
                     out["validation"].append(dict(lab=lab, ax=ax, idx=idxs[ax], dpsnr=abs(fp - p[idxs[ax]]),

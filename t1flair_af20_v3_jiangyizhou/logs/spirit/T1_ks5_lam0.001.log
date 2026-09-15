@@ -1,0 +1,6 @@
+[T1] coils=26 grid=(256, 256, 176) ACS=24x16 at (116,80) ksize=5 lam=0.001 tyk=0.01 iters=150 scale=9.9251e+01
+[T1] calibration matrix 240 x 650  (under-determined, Tikhonov carries it)
+  step=0.2504  relative change (first 3 / middle 2 / last 2): 8.90e-02 5.46e-02 5.03e-02 2.59e-03 2.52e-03 6.81e-04 6.72e-04
+  readout 24/256  89s
+  readout 216/256  787s
+[T1] spirit_ks5_lam0.001 psnr=36.572 ssim=0.9149 head_psnr=32.882 head_ssim=0.8936 head_hfen=0.1759 sharp=0.903 (952 s, total 1052 s)

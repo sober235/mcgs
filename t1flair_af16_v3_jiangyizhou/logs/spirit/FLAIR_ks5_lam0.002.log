@@ -1,0 +1,6 @@
+[FLAIR] coils=26 grid=(256, 256, 176) ACS=24x16 at (116,80) ksize=5 lam=0.002 tyk=0.01 iters=150 scale=9.8512e+01
+[FLAIR] calibration matrix 240 x 650  (under-determined, Tikhonov carries it)
+  step=0.2329  relative change (first 3 / middle 2 / last 2): 8.92e-02 5.40e-02 4.99e-02 9.93e-04 9.72e-04 2.41e-04 2.37e-04
+  readout 24/256  31s
+  readout 216/256  272s
+[FLAIR] spirit_ks5_lam0.002 psnr=37.387 ssim=0.9228 head_psnr=33.596 head_ssim=0.9037 head_hfen=0.1297 sharp=0.799 (332 s, total 441 s)

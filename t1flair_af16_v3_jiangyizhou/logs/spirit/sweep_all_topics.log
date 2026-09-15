@@ -1,0 +1,57 @@
+=== T1FLAIR_AF12_v3_jiangyizhou T1 02:25
+gpu 7 -> T1 _ks3_lam0.001
+gpu 2 -> T1 _ks3_lam0
+gpu 6 -> T1 _ks3_lam0.0005
+gpu 2 -> T1 _ks3_lam0.002
+gpu 2 -> T1 _ks5_lam0
+gpu 2 -> T1 _ks5_lam0.002
+gpu 7 -> T1 _ks3_lam0.008
+gpu 6 -> T1 _ks3_lam0.004
+gpu 6 -> T1 _ks5_lam0.0005
+gpu 7 -> T1 _ks5_lam0.001
+gpu 7 -> T1 _ks5_lam0.008
+gpu 6 -> T1 _ks5_lam0.004
+sweep done: T1
+=== T1FLAIR_AF12_v3_jiangyizhou FLAIR 04:28
+gpu 6 -> FLAIR _ks3_lam0.0005
+gpu 2 -> FLAIR _ks3_lam0
+gpu 7 -> FLAIR _ks3_lam0.001
+gpu 2 -> FLAIR _ks3_lam0.002
+gpu 2 -> FLAIR _ks5_lam0
+gpu 6 -> FLAIR _ks3_lam0.004
+gpu 7 -> FLAIR _ks3_lam0.008
+gpu 2 -> FLAIR _ks5_lam0.002
+gpu 6 -> FLAIR _ks5_lam0.0005
+gpu 7 -> FLAIR _ks5_lam0.001
+gpu 6 -> FLAIR _ks5_lam0.004
+gpu 7 -> FLAIR _ks5_lam0.008
+sweep done: FLAIR
+=== T1FLAIR_AF20_v3_jiangyizhou T1 05:50
+gpu 2 -> T1 _ks3_lam0
+gpu 7 -> T1 _ks3_lam0.001
+gpu 6 -> T1 _ks3_lam0.0005
+gpu 2 -> T1 _ks3_lam0.002
+gpu 2 -> T1 _ks5_lam0
+gpu 2 -> T1 _ks5_lam0.002
+gpu 6 -> T1 _ks3_lam0.004
+gpu 7 -> T1 _ks3_lam0.008
+gpu 6 -> T1 _ks5_lam0.0005
+gpu 7 -> T1 _ks5_lam0.001
+gpu 6 -> T1 _ks5_lam0.004
+gpu 7 -> T1 _ks5_lam0.008
+sweep done: T1
+=== T1FLAIR_AF20_v3_jiangyizhou FLAIR 06:53
+gpu 2 -> FLAIR _ks3_lam0
+gpu 7 -> FLAIR _ks3_lam0.001
+gpu 6 -> FLAIR _ks3_lam0.0005
+gpu 2 -> FLAIR _ks3_lam0.002
+gpu 2 -> FLAIR _ks5_lam0
+gpu 6 -> FLAIR _ks3_lam0.004
+gpu 7 -> FLAIR _ks3_lam0.008
+gpu 2 -> FLAIR _ks5_lam0.002
+gpu 6 -> FLAIR _ks5_lam0.0005
+gpu 7 -> FLAIR _ks5_lam0.001
+gpu 6 -> FLAIR _ks5_lam0.004
+gpu 7 -> FLAIR _ks5_lam0.008
+sweep done: FLAIR
+ALL SPIRIT SWEEPS DONE

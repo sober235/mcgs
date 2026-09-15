@@ -1,6 +1,6 @@
 
 ==================== T1
-vectorised vs skimage on the figure slices, worst |diff|: {'dpsnr': '7.5e-13', 'dssim': '7.1e-15', 'dnmse': '3.6e-15'}
+vectorised vs skimage on the figure slices, worst |diff|: {'dpsnr': '7.5e-13', 'dssim': '2.6e-15', 'dnmse': '3.3e-15'}
 AF20 figure panel numbers reproduced: yes
 
 [figure slices 180/124/76] worse at both steps in 97/108 (method x plane x metric) cells; exceptions:
@@ -31,11 +31,11 @@ AF20 figure panel numbers reproduced: yes
    share (%) of those slices where the metric is worse at BOTH steps:  plane: PSNR SSIM NMSE all-three
    MC-GS                    | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
    GS-single                | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
-   L1-ESPIRiT               | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
    CS-SENSE (converged TV)  | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
    Joint SENSE              | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
    CS-SENSE (35 it)         | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
    ZS-SSDU                  | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
+   L1-SPIRiT                | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
    CG-SENSE                 | tra  99.6  99.2  99.6  99.2 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
    MC-INR                   | tra  85.6  69.1  85.6  69.1 | cor  98.9  78.1  98.9  78.1 | sag  99.4  61.7  99.4  61.7
    3D-DIP                   | tra  57.6  70.8  57.6  52.7 | cor  48.1  69.0  48.1  42.8 | sag  50.3  68.3  50.3  46.1
@@ -51,7 +51,7 @@ AF20 figure panel numbers reproduced: yes
      sagittal   3D-DIP median head-PSNR change AF16->AF20 over kept slices: -0.004 dB
 
 ==================== FLAIR
-vectorised vs skimage on the figure slices, worst |diff|: {'dpsnr': '7.2e-13', 'dssim': '7.3e-15', 'dnmse': '3.4e-15'}
+vectorised vs skimage on the figure slices, worst |diff|: {'dpsnr': '7.2e-13', 'dssim': '7.3e-15', 'dnmse': '3.3e-15'}
 AF20 figure panel numbers reproduced: yes
 
 [figure slices 180/124/76] worse at both steps in 105/108 (method x plane x metric) cells; exceptions:
@@ -65,27 +65,26 @@ AF20 figure panel numbers reproduced: yes
    share (%) of those slices where the metric is worse at BOTH steps:  plane: PSNR SSIM NMSE all-three
    MC-GS                    | tra 100.0 100.0 100.0 100.0 | cor  99.5 100.0  99.5  99.5 | sag 100.0 100.0 100.0 100.0
    GS-single                | tra 100.0 100.0 100.0 100.0 | cor  99.5 100.0  99.5  99.5 | sag 100.0 100.0 100.0 100.0
-   L1-ESPIRiT               | tra  99.2  99.6  99.2  99.2 | cor  99.5  99.5  99.5  99.5 | sag 100.0 100.0 100.0 100.0
    CS-SENSE (converged TV)  | tra  99.6  99.6  99.6  99.6 | cor  99.5  99.0  99.5  99.0 | sag 100.0 100.0 100.0 100.0
    Joint SENSE              | tra  99.6  99.6  99.6  99.6 | cor  99.0  98.4  99.0  98.4 | sag 100.0 100.0 100.0 100.0
    CS-SENSE (35 it)         | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
    ZS-SSDU                  | tra 100.0 100.0 100.0 100.0 | cor  96.4  99.0  96.4  96.4 | sag 100.0 100.0 100.0 100.0
+   L1-SPIRiT                | tra  99.6  99.6  99.6  99.2 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
    CG-SENSE                 | tra  87.2  87.2  87.2  86.8 | cor 100.0  99.5 100.0  99.5 | sag 100.0 100.0 100.0 100.0
    MC-INR                   | tra  67.1  70.4  67.1  66.7 | cor 100.0  98.4 100.0  98.4 | sag 100.0 100.0 100.0 100.0
    3D-DIP                   | tra  43.2  48.6  43.2  28.8 | cor  50.3  51.8  50.3  45.6 | sag  54.8  59.6  54.8  43.4
    3D-INR                   | tra  99.6 100.0  99.6  99.6 | cor  98.4  97.9  98.4  97.9 | sag 100.0 100.0 100.0 100.0
    ZF                       | tra 100.0 100.0 100.0 100.0 | cor  99.5  98.4  99.5  98.4 | sag 100.0 100.0 100.0 100.0
    non-monotonic head-PSNR slices of the arms that are not flat (index, head share, AF12/16/20):
-     transverse L1-ESPIRiT                 2 slices, 2 within 10 slices of the coverage edge; e.g. 0 (7%: 44.287/43.324/43.619), 6 (10%: 44.256/43.396/43.462)
      transverse CS-SENSE (converged TV)    1 slices, 1 within 10 slices of the coverage edge; e.g. 0 (7%: 44.596/43.543/43.783)
      transverse Joint SENSE                1 slices, 1 within 10 slices of the coverage edge; e.g. 0 (7%: 44.592/43.481/43.707)
+     transverse L1-SPIRiT                  1 slices, 1 within 10 slices of the coverage edge; e.g. 0 (7%: 44.540/44.347/44.348)
      transverse CG-SENSE                  31 slices, 10 within 10 slices of the coverage edge; e.g. 0 (7%: 39.820/40.052/40.574), 1 (8%: 40.250/40.069/40.484), 2 (9%: 39.895/40.326/40.531)
      transverse MC-INR                    80 slices, 10 within 10 slices of the coverage edge; e.g. 0 (7%: 34.902/35.064/35.808), 1 (8%: 35.359/35.799/36.434), 2 (9%: 35.139/36.081/37.154)
      transverse 3D-INR                     1 slices, 0 within 10 slices of the coverage edge; e.g. 37 (23%: 34.964/33.927/33.932)
      transverse 3D-DIP median head-PSNR change AF16->AF20 over kept slices: -0.031 dB
      coronal    MC-GS                      1 slices, 1 within 10 slices of the coverage edge; e.g. 37 (7%: 37.507/35.149/35.351)
      coronal    GS-single                  1 slices, 1 within 10 slices of the coverage edge; e.g. 37 (7%: 37.337/35.085/35.198)
-     coronal    L1-ESPIRiT                 1 slices, 1 within 10 slices of the coverage edge; e.g. 228 (5%: 34.686/34.752/34.032)
      coronal    CS-SENSE (converged TV)    1 slices, 1 within 10 slices of the coverage edge; e.g. 228 (5%: 33.926/33.962/33.365)
      coronal    Joint SENSE                2 slices, 2 within 10 slices of the coverage edge; e.g. 227 (7%: 33.160/33.216/32.565), 228 (5%: 33.603/33.776/33.293)
      coronal    ZS-SSDU                    7 slices, 7 within 10 slices of the coverage edge; e.g. 36 (6%: 36.919/36.934/35.440), 222 (14%: 33.106/33.285/31.742), 223 (12%: 33.724/34.226/32.896)

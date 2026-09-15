@@ -1,13 +1,13 @@
-[T1] MC-GS done 13s
-[T1] GS-single done 26s
-[T1] L1-ESPIRiT done 41s
-[T1] CS-SENSE (converged TV) done 53s
-[T1] Joint SENSE done 66s
-[T1] CS-SENSE (35 it) done 78s
-[T1] ZS-SSDU done 91s
-[T1] CG-SENSE done 105s
-[T1] MC-INR done 118s
-[T1] 3D-DIP done 131s
-[T1] 3D-INR done 144s
-[T1] ZF done 157s
-[T1] DONE; worst figure-vs-vectorised: {'dpsnr': 7.531752999057062e-13, 'dssim': 7.105427357601002e-15, 'dnmse': 3.573530360512223e-15}
+[T1] MC-GS done 11s
+[T1] GS-single done 23s
+[T1] CS-SENSE (converged TV) done 34s
+[T1] Joint SENSE done 45s
+[T1] CS-SENSE (35 it) done 57s
+[T1] ZS-SSDU done 68s
+[T1] L1-SPIRiT done 80s
+[T1] CG-SENSE done 91s
+[T1] MC-INR done 102s
+[T1] 3D-DIP done 114s
+[T1] 3D-INR done 125s
+[T1] ZF done 136s
+[T1] DONE; worst figure-vs-vectorised: {'dpsnr': 7.531752999057062e-13, 'dssim': 2.55351295663786e-15, 'dnmse': 3.337607967779377e-15}

@@ -1,0 +1,7 @@
+[T1] mask = /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/mask_af12_3d.h5
+[T1] coils=26 grid=(256, 256, 176) ACS=24x16 at (116,80) ksize=5 lam=0.0 tyk=0.01 iters=150 scale=9.9251e+01
+[T1] calibration matrix 240 x 650  (under-determined, Tikhonov carries it)
+  step=0.2527  relative change (first 3 / middle 2 / last 2): 1.04e-01 6.44e-02 5.96e-02 6.83e-03 6.76e-03 3.84e-03 3.81e-03
+  readout 24/256  19s
+  readout 216/256  168s
+[T1] spirit_ks5_lam0 psnr=31.160 ssim=0.7347 head_psnr=28.451 head_ssim=0.6996 head_hfen=0.1784 sharp=1.830 (203 s, total 303 s)

@@ -1,0 +1,26 @@
+gpu 2 -> T1 _ks3_lam0
+gpu 6 -> T1 _ks3_lam0.0005
+gpu 7 -> T1 _ks3_lam0.001
+gpu 2 -> T1 _ks3_lam0.002
+gpu 2 -> T1 _ks5_lam0
+gpu 2 -> T1 _ks5_lam0.002
+gpu 6 -> T1 _ks3_lam0.004
+gpu 7 -> T1 _ks3_lam0.008
+gpu 7 -> T1 _ks5_lam0.001
+gpu 6 -> T1 _ks5_lam0.0005
+gpu 6 -> T1 _ks5_lam0.004
+gpu 7 -> T1 _ks5_lam0.008
+sweep done: T1
+gpu 2 -> FLAIR _ks3_lam0
+gpu 6 -> FLAIR _ks3_lam0.0005
+gpu 7 -> FLAIR _ks3_lam0.001
+gpu 2 -> FLAIR _ks3_lam0.002
+gpu 2 -> FLAIR _ks5_lam0
+gpu 2 -> FLAIR _ks5_lam0.002
+gpu 6 -> FLAIR _ks3_lam0.004
+gpu 7 -> FLAIR _ks3_lam0.008
+gpu 6 -> FLAIR _ks5_lam0.0005
+gpu 7 -> FLAIR _ks5_lam0.001
+gpu 6 -> FLAIR _ks5_lam0.004
+gpu 7 -> FLAIR _ks5_lam0.008
+sweep done: FLAIR

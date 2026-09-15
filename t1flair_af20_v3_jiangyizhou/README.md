@@ -52,11 +52,11 @@ optima (`scripts/run_classical_af20.sh`).
 |---|---|---|---|---|---|---|---|---|
 | MC-GS | 38.482 | 0.9144 | **34.832** | **0.9289** | 0.1355 | 0.833 | 35.706 | -0.87 |
 | GS-single | 38.335 | 0.9205 | 34.667 | 0.9257 | 0.1414 | 0.837 | 35.558 | -0.89 |
-| L1-ESPIRiT (λ 0.001) | 37.814 | 0.9279 | 34.371 | 0.9206 | 0.1518 | 0.845 | 35.209 | -0.84 |
 | CS-SENSE (TV, converged) (λ 0.0007) | 37.808 | 0.9418 | 34.003 | 0.9191 | 0.1683 | 0.781 | 34.945 | -0.94 |
 | joint CS-SENSE (JTV) (λ 0.001) | 37.736 | 0.9421 | 33.885 | 0.9183 | 0.1733 | 0.768 | 34.831 | -0.95 |
 | CS-SENSE | 37.269 | 0.9276 | 33.418 | 0.9131 | 0.1864 | 0.725 | 34.409 | -0.99 |
 | ZS-SSDU | 36.795 | 0.9440 | 32.892 | 0.9108 | 0.2241 | 1.014 | 34.150 | -1.26 |
+| L1-SPIRiT (λ 0.001) | 36.572 | 0.9149 | 32.882 | 0.8936 | 0.1759 | 0.903 | 33.788 | -0.91 |
 | CG-SENSE | 34.030 | 0.7646 | 31.425 | 0.8665 | 0.2741 | 0.791 | 32.354 | -0.93 |
 | 3D-DIP | 34.926 | 0.8541 | 30.996 | 0.8537 | 0.3034 | 0.640 | 30.994 | +0.00 |
 | MC-INR (Niessen 2025) | 30.432 | 0.5642 | 30.969 | 0.8272 | 0.2893 | 0.913 | 31.590 | -0.62 |
@@ -69,10 +69,10 @@ optima (`scripts/run_classical_af20.sh`).
 |---|---|---|---|---|---|---|---|---|
 | MC-GS | 37.892 | 0.9028 | **34.179** | **0.9142** | 0.1290 | 0.776 | 34.928 | -0.75 |
 | GS-single | 37.801 | 0.8875 | 34.127 | 0.9127 | 0.1313 | 0.778 | 34.886 | -0.76 |
-| L1-ESPIRiT (λ 0.003) | 37.402 | 0.9322 | 33.688 | 0.9076 | 0.1406 | 0.732 | 34.503 | -0.81 |
 | joint CS-SENSE (JTV) (λ 0.0007) | 37.358 | 0.9364 | 33.544 | 0.9044 | 0.1522 | 0.726 | 34.355 | -0.81 |
 | CS-SENSE (TV, converged) (λ 0.0005) | 37.241 | 0.9328 | 33.494 | 0.9049 | 0.1523 | 0.698 | 34.302 | -0.81 |
 | CS-SENSE | 36.883 | 0.9107 | 33.027 | 0.8968 | 0.1571 | 0.616 | 33.806 | -0.78 |
+| L1-SPIRiT (λ 0.001) | 36.604 | 0.9117 | 32.824 | 0.8863 | 0.1430 | 0.849 | 33.720 | -0.90 |
 | ZS-SSDU | 36.642 | 0.9351 | 32.660 | 0.8958 | 0.1962 | 1.058 | 34.005 | -1.34 |
 | CG-SENSE | 34.868 | 0.7963 | 32.089 | 0.8717 | 0.1972 | 0.718 | 32.826 | -0.74 |
 | MC-INR (Niessen 2025) | 32.459 | 0.6481 | 31.666 | 0.8486 | 0.2079 | 0.808 | 32.243 | -0.58 |
@@ -85,6 +85,31 @@ optima (`scripts/run_classical_af20.sh`).
 | channel | whole PSNR | head PSNR | head SSIM | (AF16: whole / head) |
 |---|---|---|---|---|
 <!-- TABLES:END -->
+
+### L1-ESPIRiT dropped from the comparison (user, 2026-09-15)
+
+L1-ESPIRiT is no longer carried as a comparison arm: it is gone from the tables above and from the
+figures. **Nothing was deleted** — its reconstructions, its lambda sweep logs and its row in
+`logs/summary.json` are untouched, and `DROP` in the table generator is the single line that decides
+what is listed. Sections of this file written before 2026-09-15 still discuss it; they are the record
+of what was measured at the time, and are left as they are.
+
+**It changes no headline number.** GS-single counts as a comparison arm (user, 2026-09-13), and
+GS-single — not L1-ESPIRiT — is the strongest comparison arm on both contrasts here, as in every
+topic of this series. The margin that MC-GS is quoted on is therefore MC-GS − GS-single, **+0.165 dB
+on T1 and +0.052 dB on FLAIR**, and dropping L1-ESPIRiT leaves it untouched.
+
+What does change is the strongest arm *below* the GS pair:
+
+| head-only | T1 | FLAIR |
+|---|---|---|
+| strongest comparison arm (unchanged) | GS-single 34.667 | GS-single 34.127 |
+| strongest non-GS arm, was | L1-ESPIRiT 34.371 | L1-ESPIRiT 33.688 |
+| strongest non-GS arm, now | CS-SENSE (TV, converged) 34.003 | joint CS-SENSE (JTV) 33.544 |
+
+So a sentence of the form "MC-GS leads the best classical arm by X" gets 0.368 dB bigger on T1 and
+0.144 dB bigger on FLAIR with L1-ESPIRiT gone, purely from the arm no longer being shown. The
+headline margin over GS-single does not move.
 
 ## Regenerating
 
@@ -152,3 +177,78 @@ topic's own AF 20 mask (`../T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou/`) and is r
 `scripts/score_mcinr_arm.py` (re-scored on this topic's gauge, worst relative disagreement 2.2e-7): head PSNR 30.969 /
 31.666, eighth / seventh of the ten comparison arms. User decisions 2026-09-14: no held-out subject (huangyuwei not
 considered); the masks stay out of git for now. Details: the record `docs/superpowers/records/2026-09-14-af20-jyz.md` in the worktree.
+
+## L1-SPIRiT registered as a comparison arm (2026-09-15)
+
+Method, GPU port, fidelity against Lustig's MATLAB toolbox and the solver change (`pocsSPIRiT`
+diverges on this data and the original diverges with it; the arm runs a damped proximal-gradient
+step with FISTA momentum on the same objective) are documented once in
+`../T1FLAIR_AF16_v3_jiangyizhou/README.md`. Same scripts and same 150 iterations, on this topic's
+mask. **L1-ESPIRiT stays in the table; nothing was replaced.**
+
+Same grid as the other two topics (kernel size 3 and 5 x lambda in {0, 5e-4, 1e-3, 2e-3, 4e-3,
+8e-3}); both contrasts peak at ksize 5 / lambda 1e-3, interior to it.
+
+| head-only, AF 20 | T1 | FLAIR |
+|---|---|---|
+| **L1-SPIRiT** | **32.882** / 0.8936 / 0.1759 | **32.824** / 0.8863 / 0.1430 |
+| plain SPIRiT (lambda 0) | 29.413 | 29.299 |
+| ZS-SSDU | 32.892 | 32.660 |
+| GS-single, the strongest comparison arm | 34.667 | 34.127 |
+| CS-SENSE (TV, converged) / joint CS-SENSE, the strongest non-GS arm | 34.003 | 33.544 |
+
+- **Sixth of eleven comparison arms on T1 — 0.010 dB behind ZS-SSDU, a tie — and fifth on FLAIR,
+  0.164 dB ahead of it.** Eleven counts GS-single, a comparison arm here (user, 2026-09-13), and
+  excludes L1-ESPIRiT, dropped 2026-09-15. It is 1.785 / 1.303 dB behind GS-single, the strongest
+  comparison arm, and 1.121 / 0.720 dB behind the strongest non-GS arm.
+- **Its fall-off matches the field.** AF16 -> AF20 costs it 0.906 dB on T1 and 0.896 on FLAIR,
+  against 0.84 to 0.99 for every classical arm; ZS-SSDU alone falls faster (1.26 / 1.34). Across
+  the series the arm is monotone, as the cross-AF review found every arm except 3D-DIP to be:
+  T1 35.017 -> 33.788 -> 32.882, FLAIR 35.103 -> 33.720 -> 32.824.
+- **It changes no margin.** MC-GS and GS-single keep the top two rows on both contrasts.
+
+**Figures with the k-space arm in the L1 column** (user request 2026-09-15). The figure of record
+re-rendered with `--l1_arm spirit` (L1-SPIRiT replaces L1-ESPIRiT in that column), same slices,
+style, gauge and recipe keys. An eleven-column `--l1_arm both` render was made first and then
+deleted: the user dropped L1-ESPIRiT from the comparison on 2026-09-15. The flag still regenerates it. **The existing `_p3_mcinr`
+pair is untouched**; the flag appends its own suffix:
+
+```
+figures/t1flair_v3_af20_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit.{png,pdf}
+```
+
+served from `http://localhost:8765/t1flair_v3_af20/`, mirrored in `/home/congcongliu/figs/t1flair_v3_af20/`.
+Rendered by `scripts/fig_three_planes_compact.py --with_mcinr`.
+
+Re-running the same command with `--l1_arm espirit` reproduces the existing figure **pixel for
+pixel** (0 pixels differing), which is what establishes that this is the command that made it, and
+the `_spirit` render differs from it only inside one column slot (a 337-pixel span, 0.96 of the
+1/11 width). The swap makes MC-GS's lead look larger, because the column it removes was the
+strongest comparison arm; how much is quantified in "L1-ESPIRiT dropped from the comparison" above.
+The same note in full is in `../T1FLAIR_AF16_v3_jiangyizhou/README.md`.
+
+**AF label corrected, 2026-09-15.** The title's acceleration now reads `AF_vs_full_rect` — whole
+phase-encode plane over the points that contrast actually has data on, the user's 2026-09-14
+definition, the same number BART's `pics` prints as `Acc`. It used to read `AF_vs_own_support`,
+against the contrast's own vendor shutter, which is the superseded gauge; only FLAIR moves
+(15.13x -> 19.96x), T1 was already right at 18.56x. Both numbers were always in
+`logs/prep_04_export.json`; the figure took the wrong field. Consequence for the check above: the
+pixel-identity re-render was done BEFORE this fix, so repeating it now reproduces the old figure
+exactly on T1 and everywhere but the title on FLAIR.
+
+**The figures of record themselves, re-archived with the corrected label (user, 2026-09-15: keep the
+old, re-archive the new).** The `_p3` and `_p3_mcinr` pairs at 180/124/76 inset48 -- the historical figures, L1-ESPIRiT
+column and all -- were re-rendered under their canonical names by `scripts/archive_and_relabel_figs.sh`
+(in the AF16 topic) with the corrected FLAIR title; the originals are in `figures/archive_aflabel_pre20260915/` and in the
+served mirror `/home/congcongliu/figs/t1flair_v3_af20/archive_aflabel_pre20260915/`, PNG and PDF, 8 files. Verified
+against those originals: every T1 re-render is **pixel-identical**, every FLAIR re-render differs
+**only in the title band** (image rows 13-35 of 2829). So the canonical names now carry the right
+label and nothing else changed.
+
+One thing went wrong on the way and is recorded here rather than hidden: the first pass of that
+script built the archive file name with a doubled underscore, matched nothing, and the re-render
+overwrote the originals before they had been moved. They were recovered from the committed
+snapshot of this topic in the framework worktree (`mcgs_af16_wt/t1flair_af20_v3_jiangyizhou/figures`, PNGs, 2026-09-13/14) and from this topic's
+`export/` bundle (the PDFs the worktree does not carry), then the verification above was run against
+the recovered files. The script is fixed. Older renders of this topic (the 174/110/47 pairs)
+still carry the old FLAIR label and were not touched.

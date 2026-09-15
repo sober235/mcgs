@@ -18,10 +18,10 @@ ARC = Path("/data0/congcong/code/GS/mcgs_af16_wt/results_arc")
 
 COLS = ["psnr", "ssim", "nmse", "hfen", "head_psnr", "head_ssim", "head_hfen",
         "sharp", "grain", "grain_ratio"]
-ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "zsssdu", "dip", "inr", "mcinr", "gs_single", "gs_joint"]
+ORDER = ["zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "spirit", "zsssdu", "dip", "inr", "mcinr", "gs_single", "gs_joint"]
 LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "zsssdu": "ZS-SSDU",
          "dip": "3D-DIP", "inr": "3D-INR", "mcinr": "MC-INR (Niessen 2025)", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
-         "cssense_o200": "CS-SENSE (TV, converged)", "jcssense": "joint CS-SENSE (JTV)", "l1espirit": "L1-ESPIRiT"}
+         "cssense_o200": "CS-SENSE (TV, converged)", "jcssense": "joint CS-SENSE (JTV)", "l1espirit": "L1-ESPIRiT", "spirit": "L1-SPIRiT"}
 
 
 def main():
@@ -42,7 +42,8 @@ def main():
     # autoresearch loop has -- and the best lambda per contrast kept (scripts/run_classical_revisited.sh).
     FAM = [("cssense_o200", "logs/classical_{c}_o200_lam*.json"),
            ("l1espirit", "logs/l1espirit_{c}_lam*.json"),
-           ("jcssense", "logs/jcssense_o200_lam*.json")]
+           ("jcssense", "logs/jcssense_o200_lam*.json"),
+           ("spirit", "logs/spirit_{c}_ks*_lam*.json")]
     for c in ("T1", "FLAIR"):
         for key, pat in FAM:
             cands = []
@@ -54,6 +55,7 @@ def main():
                 b = max(cands, key=lambda r: r["head_psnr"])
                 rows.append({"contrast": c, "method": key, **{k: b.get(k) for k in COLS},
                              "seconds": b.get("seconds"), "lam": b.get("lam"), "n_lambda": len(cands),
+                             **({"ksize": b["ksize"]} if b.get("ksize") else {}),
                              "lams": sorted(float(r.get("lam")) for r in cands if r.get("lam") is not None)})
 
     jp = ARC / "t1flair_v3_af20_joint_score.json"

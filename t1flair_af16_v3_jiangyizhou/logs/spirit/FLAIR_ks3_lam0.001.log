@@ -1,0 +1,6 @@
+[FLAIR] coils=26 grid=(256, 256, 176) ACS=24x16 at (116,80) ksize=3 lam=0.001 tyk=0.01 iters=150 scale=9.8512e+01
+[FLAIR] calibration matrix 308 x 234
+  step=0.1041  relative change (first 3 / middle 2 / last 2): 6.05e-02 4.04e-02 3.88e-02 2.05e-03 2.00e-03 5.58e-04 5.51e-04
+  readout 24/256  117s
+  readout 216/256  1035s
+[FLAIR] spirit_ks3_lam0.001 psnr=37.252 ssim=0.9209 head_psnr=33.580 head_ssim=0.9010 head_hfen=0.1244 sharp=0.866 (1261 s, total 1371 s)

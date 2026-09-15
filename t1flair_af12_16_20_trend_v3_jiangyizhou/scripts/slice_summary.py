@@ -3,13 +3,14 @@
 the slice) on which each metric is worse at both steps, and where the non-monotonic slices of the main arms sit."""
 import json, numpy as np
 T = "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_16_20_trend_v3_jiangyizhou"
-ORDER = ["MC-GS", "GS-single", "L1-ESPIRiT", "CS-SENSE (converged TV)", "Joint SENSE", "CS-SENSE (35 it)",
-         "ZS-SSDU", "CG-SENSE", "MC-INR", "3D-DIP", "3D-INR", "ZF"]
+ORDER = ["MC-GS", "GS-single", "CS-SENSE (converged TV)", "Joint SENSE", "CS-SENSE (35 it)",       # L1-ESPIRiT dropped
+         "ZS-SSDU", "L1-SPIRiT", "CG-SENSE", "MC-INR", "3D-DIP", "3D-INR", "ZF"]                    # (user 2026-09-15)
 PL = {0: "transverse", 1: "coronal", 2: "sagittal"}
 M = [("PSNR", 0, +1), ("SSIM", 1, +1), ("NMSE", 2, -1)]
 # numbers printed in the AF20 figures of record (180/124/76), for a sanity check of the figure-slice path
+# (the L1-ESPIRiT reference panel was removed with the arm; the six MC-GS panels carry the check)
 FIGREF = {("T1", "MC-GS", 0): (36.25, 0.9474, 0.00881), ("T1", "MC-GS", 1): (35.38, 0.9103, 0.01986), ("T1", "MC-GS", 2): (36.00, 0.9206, 0.01500),
-          ("T1", "L1-ESPIRiT", 0): (35.81, 0.9393, 0.00975), ("FLAIR", "MC-GS", 0): (34.30, 0.9221, 0.01067),
+          ("FLAIR", "MC-GS", 0): (34.30, 0.9221, 0.01067),
           ("FLAIR", "MC-GS", 1): (35.52, 0.9075, 0.01536), ("FLAIR", "MC-GS", 2): (35.03, 0.9032, 0.01685)}
 def mono(v, sgn):                       # v = [AF12, AF16, AF20]; True if worse at both steps
     return sgn * (v[1] - v[0]) < 0 and sgn * (v[2] - v[1]) < 0
@@ -61,7 +62,7 @@ for c in ("T1", "FLAIR"):
     print("   non-monotonic head-PSNR slices of the arms that are not flat (index, head share, AF12/16/20):")
     for ax in (0, 1, 2):
         frac = head.sum(axis=OTHER[ax]) / np.prod([gt.shape[a] for a in OTHER[ax]]); kept = np.nonzero(keep[ax])[0]
-        for lab in ("MC-GS", "GS-single", "L1-ESPIRiT", "CS-SENSE (converged TV)", "Joint SENSE", "ZS-SSDU", "CG-SENSE", "MC-INR", "3D-INR"):
+        for lab in ("MC-GS", "GS-single", "CS-SENSE (converged TV)", "Joint SENSE", "ZS-SSDU", "L1-SPIRiT", "CG-SENSE", "MC-INR", "3D-INR"):
             p = np.array([d["allslices"][f"{lab}|{ax}"][af]["psnr"] for af in ("12", "16", "20")])
             bad = [i for i in kept if not (p[1, i] < p[0, i] and p[2, i] < p[1, i])]
             if not bad:

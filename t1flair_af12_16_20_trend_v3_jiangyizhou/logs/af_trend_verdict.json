@@ -19,16 +19,6 @@
    34.66685364005645
   ]
  },
- "T1|head_psnr|L1-ESPIRiT": {
-  "monotonic": true,
-  "step1_quality": -1.2165351641157613,
-  "step2_quality": -0.8381263382274398,
-  "values": [
-   36.425709845110504,
-   35.20917468099474,
-   34.3710483427673
-  ]
- },
  "T1|head_psnr|CS-SENSE (converged TV)": {
   "monotonic": true,
   "step1_quality": -1.217043372961129,
@@ -67,6 +57,16 @@
    35.72382341536821,
    34.15002103469452,
    32.89231643370099
+  ]
+ },
+ "T1|head_psnr|L1-SPIRiT": {
+  "monotonic": true,
+  "step1_quality": -1.2292836927358053,
+  "step2_quality": -0.906013444286522,
+  "values": [
+   35.01705520873246,
+   33.78777151599665,
+   32.88175807171013
   ]
  },
  "T1|head_psnr|CG-SENSE": {
@@ -139,16 +139,6 @@
    0.9257242679595947
   ]
  },
- "T1|head_ssim|L1-ESPIRiT": {
-  "monotonic": true,
-  "step1_quality": -0.013492822647094727,
-  "step2_quality": -0.012758314609527588,
-  "values": [
-   0.9469010829925537,
-   0.933408260345459,
-   0.9206499457359314
-  ]
- },
  "T1|head_ssim|CS-SENSE (converged TV)": {
   "monotonic": true,
   "step1_quality": -0.012847304344177246,
@@ -187,6 +177,16 @@
    0.9421853423118591,
    0.9215920567512512,
    0.9107833504676819
+  ]
+ },
+ "T1|head_ssim|L1-SPIRiT": {
+  "monotonic": true,
+  "step1_quality": -0.021560490131378174,
+  "step2_quality": -0.014622271060943604,
+  "values": [
+   0.9298219084739685,
+   0.9082614183425903,
+   0.8936391472816467
   ]
  },
  "T1|head_ssim|CG-SENSE": {
@@ -259,16 +259,6 @@
    0.14138263851107022
   ]
  },
- "T1|head_hfen|L1-ESPIRiT": {
-  "monotonic": true,
-  "step1_quality": -0.025011053712597528,
-  "step2_quality": -0.02318063637069595,
-  "values": [
-   0.10362058620364296,
-   0.1286316399162405,
-   0.15181227628693644
-  ]
- },
  "T1|head_hfen|CS-SENSE (converged TV)": {
   "monotonic": true,
   "step1_quality": -0.02789229867734133,
@@ -307,6 +297,16 @@
    0.1330204985322218,
    0.1646136211121873,
    0.22413183268115922
+  ]
+ },
+ "T1|head_hfen|L1-SPIRiT": {
+  "monotonic": true,
+  "step1_quality": -0.01870062650439855,
+  "step2_quality": -0.031148748623094857,
+  "values": [
+   0.1260595444885622,
+   0.14476017099296073,
+   0.1759089196160556
   ]
  },
  "T1|head_hfen|CG-SENSE": {
@@ -379,16 +379,6 @@
    34.1266857488958
   ]
  },
- "FLAIR|head_psnr|L1-ESPIRiT": {
-  "monotonic": true,
-  "step1_quality": -1.2544832569752558,
-  "step2_quality": -0.8148167130465964,
-  "values": [
-   35.75728051320227,
-   34.50279725622701,
-   33.687980543180416
-  ]
- },
  "FLAIR|head_psnr|CS-SENSE (converged TV)": {
   "monotonic": true,
   "step1_quality": -1.2794056763400334,
@@ -427,6 +417,16 @@
    35.03420477396947,
    34.00463679771002,
    32.66033257518918
+  ]
+ },
+ "FLAIR|head_psnr|L1-SPIRiT": {
+  "monotonic": true,
+  "step1_quality": -1.3827146587038897,
+  "step2_quality": -0.8957376216936765,
+  "values": [
+   35.10281768768929,
+   33.7201030289854,
+   32.82436540729172
   ]
  },
  "FLAIR|head_psnr|CG-SENSE": {
@@ -499,16 +499,6 @@
    0.9126589298248291
   ]
  },
- "FLAIR|head_ssim|L1-ESPIRiT": {
-  "monotonic": true,
-  "step1_quality": -0.016645312309265137,
-  "step2_quality": -0.01252824068069458,
-  "values": [
-   0.9367635846138,
-   0.9201182723045349,
-   0.9075900316238403
-  ]
- },
  "FLAIR|head_ssim|CS-SENSE (converged TV)": {
   "monotonic": true,
   "step1_quality": -0.01724696159362793,
@@ -547,6 +537,16 @@
    0.9352641105651855,
    0.918474018573761,
    0.8958229422569275
+  ]
+ },
+ "FLAIR|head_ssim|L1-SPIRiT": {
+  "monotonic": true,
+  "step1_quality": -0.01955646276473999,
+  "step2_quality": -0.015851259231567383,
+  "values": [
+   0.9217572808265686,
+   0.9022008180618286,
+   0.8863495588302612
   ]
  },
  "FLAIR|head_ssim|CG-SENSE": {
@@ -619,16 +619,6 @@
    0.13131892735433429
   ]
  },
- "FLAIR|head_hfen|L1-ESPIRiT": {
-  "monotonic": true,
-  "step1_quality": -0.02101775497524286,
-  "step2_quality": -0.019623494346330067,
-  "values": [
-   0.09995866354800967,
-   0.12097641852325253,
-   0.1405999128695826
-  ]
- },
  "FLAIR|head_hfen|CS-SENSE (converged TV)": {
   "monotonic": true,
   "step1_quality": -0.023574685620062874,
@@ -667,6 +657,16 @@
    0.12974095838270738,
    0.15287989085755838,
    0.19623792750216354
+  ]
+ },
+ "FLAIR|head_hfen|L1-SPIRiT": {
+  "monotonic": true,
+  "step1_quality": -0.021968835364524306,
+  "step2_quality": -0.022216235045061664,
+  "values": [
+   0.09876842972886543,
+   0.12073726509338974,
+   0.1429535001384514
   ]
  },
  "FLAIR|head_hfen|CG-SENSE": {
