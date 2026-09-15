@@ -1,3 +1,15 @@
+# This branch: jyz-af16-diffmask (mask-pattern study on the jiangyizhou T1+FLAIR pair, from autoresearch-jyz-af24 13b7bce)
+
+Two alternative mask patterns at the AF16 topic's actual T1 acceleration (15.20x, 2964 points), labelled AF 16 (nominal):
+Gaussian random and Cartesian pseudo-radial spokes. Topics `Results_20260908/T1FLAIR_AF16_{gauss,radial}_v3_jiangyizhou/`
+(mirrored here as `t1flair_af16_{gauss,radial}_v3_jiangyizhou/`, without volumes or masks). Generator
+`scripts/make_masks_af16_diffmask.py` (seeded, regenerable; refuses to overwrite), figures `scripts/fig_masks_af16_diffmask.py`,
+served at `http://localhost:8765/t1flair_v3_af16_diffmask/`. **Status: masks built 2026-09-15 17:21 for the user's
+inspection; no reconstruction has run -- the user decides on the masks first.** The rest of this file is the AF24 line's
+entry and still describes the framework, the recipe and the launcher this study will reuse.
+
+---
+
 # Paired-ARC-GS / MC-GS framework — session entry
 
 Read in this order: this file → `STATUS.md` (current state, what to re-run first) →

@@ -1,3 +1,25 @@
+# STATUS — 2026-09-15 17:30（worktree `mcgs_diffmask_wt`，分支 `jyz-af16-diffmask`，自 `autoresearch-jyz-af24` 13b7bce 切出）
+
+## diff-mask 研究（本分支）：掩膜已建，等用户看图拍板，重建一步没跑
+
+用户要求（09-15）：新分支，Gaussian 掩膜与 radial 掩膜各跑一遍全部方法，加速倍数按 15.2 设、标签记 AF 16；**先看掩膜再决定是否重建**。
+
+- 两个课题目录：`Results_20260908/T1FLAIR_AF16_gauss_v3_jiangyizhou/`、`.../T1FLAIR_AF16_radial_v3_jiangyizhou/`，
+  data/ 的 k 空间与 ESPIRiT 图是指向 AF12 课题的符号链接（AF16/20/24 课题同样做法）。
+- 掩膜（`scripts/make_masks_af16_diffmask.py`，seed 0，可再生；两张都是 2964 点 = T1 15.20×，与 vdPoisson AF16 掩膜的 2966 点/15.19× 对齐；
+  都保留 vdPoisson 掩膜实测的 24×16 全采样 ACS，L1-SPIRiT 校准区一致）：
+  - gauss：ACS 外按二维高斯密度独立随机抽点，宽度 s=0.355（σ 45.4×31.2 线）由"采样点归一化半径中位数与 vdPoisson 掩膜相同"选出；FLAIR 15.43×，44 点在快门外。
+  - radial：12 条均匀角度伪径向辐条（每 15°，椭圆视野），按最大半径裁掉 207 个最外点凑到预算；FLAIR 15.34×，27 点在快门外。
+  - 读数 `logs/make_masks_af16_diffmask.json`，图 `figures/t1flair_v3_af16_diffmask_{masks,gauss_width}.png`
+    （`http://localhost:8765/t1flair_v3_af16_diffmask/`）。
+- 待用户拍板：两张掩膜是否可用（高斯宽度可改 `--gauss_s`；改掩膜先删 data/ 下两个掩膜文件再重跑生成器）；同意后再定跑法
+  （沿用 AF24 的 `run_all_af24.py` 作业表：MC-GS/GS-single 冻结 AF16 三期配方、经典臂按 AF24 网格重扫 λ、ZS-SSDU/DIP/INR/L1-SPIRiT/MC-INR）。
+- 基线测试在本 worktree 跑过一次（`results_arc/tests_baseline.txt`，改动前）。
+
+下面是 AF24 线的 STATUS 原文（本分支的起点）。
+
+---
+
 # STATUS — 2026-09-15 早（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af24`，从 `jyz-af20-results` 4d13197 切出）
 
 ## AF24（本分支）：已全部跑完（09-14 21:45 启动，09-15 05:30 finalize 完成）

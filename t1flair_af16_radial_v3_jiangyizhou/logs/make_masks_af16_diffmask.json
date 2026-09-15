@@ -1,0 +1,72 @@
+{
+ "kind": "radial",
+ "label": "AF 16 (nominal); actual = the AF16 topic's own T1 acceleration",
+ "target_points": 2964,
+ "seed": 0,
+ "dc": [
+  128,
+  88
+ ],
+ "acs_block_ky_kz": [
+  24,
+  16
+ ],
+ "pattern": "Cartesian pseudo-radial spokes, uniform angles, elliptical extent, outermost points trimmed to the budget",
+ "radial": {
+  "spokes": 12,
+  "angle_step_deg": 15.0,
+  "angles_deg": [
+   0.0,
+   15.0,
+   30.0,
+   45.0,
+   60.0,
+   75.0,
+   90.0,
+   105.0,
+   120.0,
+   135.0,
+   150.0,
+   165.0
+  ],
+  "points_before_trim": 3171,
+  "trimmed": 207,
+  "rn_max_kept": 0.9356173525285489,
+  "rn_trimmed_min": 0.9356173525285489,
+  "points_per_spoke_mean": 232.25
+ },
+ "reference_vdpois_af16": {
+  "mask": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_vdpois_256x176_af16.mat",
+  "points": 2966,
+  "plane_points": 45056,
+  "T1_AF": 15.190829399865137,
+  "FLAIR_points_with_data": 2733,
+  "FLAIR_points_outside_shutter": 233,
+  "FLAIR_AF": 16.485912916209294,
+  "FLAIR_AF_vs_own_shutter_old_convention": 12.491401390413465,
+  "centre24x24": 472,
+  "largest_full_centred_rect_ky_kz": [
+   24,
+   16
+  ],
+  "median_rn": 0.4001829751560836,
+  "mean_rn": 0.4629019918122643
+ },
+ "points": 2964,
+ "plane_points": 45056,
+ "T1_AF": 15.201079622132253,
+ "FLAIR_points_with_data": 2937,
+ "FLAIR_points_outside_shutter": 27,
+ "FLAIR_AF": 15.340823970037453,
+ "FLAIR_AF_vs_own_shutter_old_convention": 11.623765747361253,
+ "centre24x24": 447,
+ "largest_full_centred_rect_ky_kz": [
+  24,
+  16
+ ],
+ "median_rn": 0.46252375361299014,
+ "mean_rn": 0.4641561686124422,
+ "mask_mat": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/data/mask_radial_256x176_af16.mat",
+ "mask_mat_md5": "959d1c25a6686e55c500aca6ed58ff1b",
+ "mask3d": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/data/mask_af16_3d.h5"
+}
