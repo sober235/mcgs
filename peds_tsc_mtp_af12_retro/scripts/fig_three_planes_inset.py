@@ -215,10 +215,22 @@ ZC, ZLW = METRIC_COLOR, 2.2          # zoom outline and inset border: the same o
 def put_inset(parent, img, z, x0_in, y0_in, pw_in, h_in, corner="bl", **imkw):
     """outline the zoom box on `parent` and paste the magnified box into one corner of that panel"""
     parent.add_patch(Rectangle((z["x0"], z["y0"]), z["w"], z["w"], fill=False, ec=ZC, lw=ZLW))
-    side, pad = 0.38 * pw_in, 0.012 * pw_in
+    # This topic's panels are anisotropic (0.7 x 0.7 x 1.35 mm): the coronal and sagittal rows are much
+    # shorter than they are wide, so the AF16 line's fixed 0.38 * panel width overflows them and lands on
+    # the row below. Cap the inset by the panel height as well.
+    pad = 0.012 * pw_in
+    # The box is w x w VOXELS, but a panel of this topic maps its two axes to inches at different
+    # rates (0.7 mm in plane, 1.35 mm through it), so the outlined box is not square on the page.
+    # Give the magnified copy the same shape, or it shows the same pixels at a different aspect.
+    nr, nc = img.shape[:2]
+    box_w_in, box_h_in = z["w"] / nc * pw_in, z["w"] / nr * h_in
+    side = min(0.38 * pw_in, 0.52 * h_in * box_w_in / box_h_in if box_h_in > box_w_in else 0.52 * h_in)
+    ih = side * box_h_in / box_w_in
+    if ih > 0.52 * h_in:                       # keep it inside the row whatever the aspect
+        side, ih = side * 0.52 * h_in / ih, 0.52 * h_in
     left = x0_in + (pad if corner in ("bl", "tl") else pw_in - pad - side)
-    top = y0_in + (pad if corner in ("tl", "tr") else h_in - pad - side)
-    a = fig.add_axes([left / fw, 1 - (top + side) / fh, side / fw, side / fh])
+    top = y0_in + (pad if corner in ("tl", "tr") else h_in - pad - ih)
+    a = fig.add_axes([left / fw, 1 - (top + ih) / fh, side / fw, ih / fh])
     a.set_xticks([]); a.set_yticks([])
     for sp in a.spines.values():
         sp.set_visible(True); sp.set_edgecolor(ZC); sp.set_linewidth(ZLW + 0.6)
