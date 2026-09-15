@@ -244,3 +244,12 @@ right-sided subependymal nodule (PE 172 on SPE 45).
 
 `scripts/p4_lesion_margin.py` now counts every registered GS-single arm of the contrast (the stage-3 session registered
 `gs_single_p3f`, T1w only), so the T2s bars did not move.
+
+### Round 3 results (base: union + kappa x0.5 + common edge 0.001)
+
+| run | lever | T1w primary | T2s primary | best lesion slice, all arms | non-GS arms | verdict |
+|---|---|---|---|---|---|---|
+| `p4_r3_wavg` | + one-way guided wavelet for T2s | 38.379 / 0.9659 / 0.0803 | 34.047 / 0.9016 / 0.1826 | transverse 52 +0.098 | sagittal 173 +0.493 | discard: −0.18 dB T2s; relaxing TV at T1w edges helps, relaxing wavelet shrinkage there lets T2s noise in |
+
+`p4_ue_k025` was placed on card 2 one minute after a CE-topic job started there but before that job took the GPU, so
+two trainings share the card; stopping it was refused by the session's permission rules and it runs at half speed.
