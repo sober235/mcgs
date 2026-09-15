@@ -1,0 +1,73 @@
+file	what	shape	dtype	bytes	md5
+volumes/T1/gt_T1_complex.npy	T1: ground truth (conjugate-SENSE image of the full k-space)	256x256x176	complex64	92274816	af619da60b7ff87d1fecef06afdb4d4d
+volumes/T1/zf_T1_complex.npy	T1: zero-filled	256x256x176	complex64	92274816	c201abaadc9e577d6e1129f2bb64b2ad
+volumes/T1/cgsense_T1_complex.npy	T1: CG-SENSE	256x256x176	complex64	92274816	310d3e67d43203887b046e9afaef61a2
+volumes/T1/cssense_T1_complex.npy	T1: CS-SENSE, 35 outer ADMM iterations	256x256x176	complex64	92274816	7c1acb8e59a98f4602905c3128427d92
+volumes/T1/cssense_o200_lam0.0007_T1_complex.npy	T1: CS-SENSE (TV, converged), lambda kept by the table	256x256x176	complex64	92274816	5257f9f91ec8aca5de550533e1e5f6a5
+volumes/T1/jcssense_o200_lam0.001_T1_complex.npy	T1: Joint SENSE (JTV), lambda kept by the table	256x256x176	complex64	92274816	a35853c1bd2c3e4530322e3e2bdf15d3
+volumes/T1/l1espirit_lam0.001_T1_complex.npy	T1: L1-ESPIRiT, lambda kept by the table (data only: not shown since 2026-09-15)	256x256x176	complex64	92274816	0391664fd25f0042013ad994211b94ac
+volumes/T1/spirit_ks5_lam0.001_T1_complex.npy	T1: L1-SPIRiT, kernel size and lambda kept by the table	256x256x176	complex64	92274816	ef624c301f1aca97964bd00144a74720
+volumes/T1/zsssdu_T1_complex.npy	T1: ZS-SSDU	256x256x176	complex64	92274816	8b385d5d81a2116d8968864f3407c368
+volumes/T1/dip_T1_complex.npy	T1: 3D-DIP	256x256x176	complex64	92274816	759cb89a62d8e56365b86df0d46698aa
+volumes/T1/inr_T1_complex.npy	T1: 3D-INR	256x256x176	complex64	92274816	af3060c2ee18ce01fcb3347687d80e6f
+volumes/T1/mcinr_T1_complex.npy	T1: MC-INR (Niessen 2025), topic units	256x256x176	complex64	92274816	b0bde8ed6669def6af547a068bfcd2b9
+volumes/T1/gs_single_p3_T1_mag.npy	T1: GS-single (AF16 phase-3 recipe), magnitude	256x256x176	float32	46137472	08d01fa4ba7eebdaf62560e6819390d4
+volumes/T1/gs_single_p3_T1_complex.npy	T1: GS-single (AF16 phase-3 recipe), complex	256x256x176	complex64	92274816	35da8a8126a94b14aab838783e178460
+volumes/T1/gs_joint_p3_T1_mag.npy	T1: MC-GS (AF16 phase-3 recipe), magnitude	256x256x176	float32	46137472	f4eb43ced7490ae0d6b4c2700693fac4
+volumes/T1/gs_joint_p3_T1_complex.npy	T1: MC-GS (AF16 phase-3 recipe), complex	256x256x176	complex64	92274816	48313905197f3bb43cadeefdbe82b61a
+volumes/FLAIR/gt_FLAIR_complex.npy	FLAIR: ground truth (conjugate-SENSE image of the full k-space)	256x256x176	complex64	92274816	c302014a07805dab30ac9d65f6e9975b
+volumes/FLAIR/zf_FLAIR_complex.npy	FLAIR: zero-filled	256x256x176	complex64	92274816	09f62d6e53b58f9911179df09998d38f
+volumes/FLAIR/cgsense_FLAIR_complex.npy	FLAIR: CG-SENSE	256x256x176	complex64	92274816	d0447ea162e3492e781e44154b87089e
+volumes/FLAIR/cssense_FLAIR_complex.npy	FLAIR: CS-SENSE, 35 outer ADMM iterations	256x256x176	complex64	92274816	832cb17ca08488a63907fc4fcc165b2d
+volumes/FLAIR/cssense_o200_lam0.0005_FLAIR_complex.npy	FLAIR: CS-SENSE (TV, converged), lambda kept by the table	256x256x176	complex64	92274816	ad8f01ed33311404e672f4d01a9f8a63
+volumes/FLAIR/jcssense_o200_lam0.0007_FLAIR_complex.npy	FLAIR: Joint SENSE (JTV), lambda kept by the table	256x256x176	complex64	92274816	74b9c4fdcf67161955780f8267c641f2
+volumes/FLAIR/l1espirit_lam0.002_FLAIR_complex.npy	FLAIR: L1-ESPIRiT, lambda kept by the table (data only: not shown since 2026-09-15)	256x256x176	complex64	92274816	a6ba8d0113d67a278dc76fe3818d76f7
+volumes/FLAIR/spirit_ks5_lam0.001_FLAIR_complex.npy	FLAIR: L1-SPIRiT, kernel size and lambda kept by the table	256x256x176	complex64	92274816	5abac3d7ab75e5464196f32ec19c76fb
+volumes/FLAIR/zsssdu_FLAIR_complex.npy	FLAIR: ZS-SSDU	256x256x176	complex64	92274816	603b2543bf8e845c7c2dc0a81dea4548
+volumes/FLAIR/dip_FLAIR_complex.npy	FLAIR: 3D-DIP	256x256x176	complex64	92274816	7b0299cf4dd1d0fe61b890053ea45c71
+volumes/FLAIR/inr_FLAIR_complex.npy	FLAIR: 3D-INR	256x256x176	complex64	92274816	8bcbd3701413cca70e15ca1ab10cc1c4
+volumes/FLAIR/mcinr_FLAIR_complex.npy	FLAIR: MC-INR (Niessen 2025), topic units	256x256x176	complex64	92274816	2a9dcd61002a3fa362660d826e8cda9c
+volumes/FLAIR/gs_single_p3_FLAIR_mag.npy	FLAIR: GS-single (AF16 phase-3 recipe), magnitude	256x256x176	float32	46137472	f09c7141d0300c01465f5d5b1d31c521
+volumes/FLAIR/gs_single_p3_FLAIR_complex.npy	FLAIR: GS-single (AF16 phase-3 recipe), complex	256x256x176	complex64	92274816	e96dacb0e5e610f874f6c84eb75a2e26
+volumes/FLAIR/gs_joint_p3_FLAIR_mag.npy	FLAIR: MC-GS (AF16 phase-3 recipe), magnitude	256x256x176	float32	46137472	5c723539045f84aecc6be3c3bf4732d4
+volumes/FLAIR/gs_joint_p3_FLAIR_complex.npy	FLAIR: MC-GS (AF16 phase-3 recipe), complex	256x256x176	complex64	92274816	2c8fee9f8e7d2027af5918ab88bb3841
+raw/ksp_T1.h5	T1: acquired k-space, 26 coils, complex64, full grid (the mask is applied retrospectively)			2399161584	108805b17f6f36665d9d04711810d0c4
+raw/csm_espirit_T1.h5	T1: ESPIRiT coil sensitivity maps used by every arm and by the ground truth			2399161584	fbf78eec7fea1f604a1f29d0e2bec867
+raw/ksp_FLAIR.h5	FLAIR: acquired k-space, 26 coils, complex64, full grid (the mask is applied retrospectively)			2399161584	3a97e0fc7cb0a2fb672b18c60ed860af
+raw/csm_espirit_FLAIR.h5	FLAIR: ESPIRiT coil sensitivity maps used by every arm and by the ground truth			2399161584	4d5d68ab563ca543a2c880aef2602a7c
+mask/mask_af24_3d.h5	3-D sampling mask of record (readout-broadcast), 1877 PE points			750200	3e354e2a85869f536f1332c8ad05b16d
+mask/mask_vdpois_256x176_af24.mat	the 2-D vd-Poisson mask of record			180408	c3688d6182ba20df7404519e560dd9b4
+mask/mask_af24_db_3d.h5	mask draw db of the mask-draw variance study (not the mask of record)			763256	918ce24051e722622b763abc0c9fb111
+mask/mask_af24_dc_3d.h5	mask draw dc of the mask-draw variance study (not the mask of record)			753072	44d60714af51f14664fb9485ea9963cf
+mask/mask_af24_dd_3d.h5	mask draw dd of the mask-draw variance study (not the mask of record)			769272	9998ff174313a236b132a56fd80420b3
+logs/summary.json	topic log: summary.json			12835	db873292547e0e8485da844672cb036f
+logs/summary.tsv	topic log: summary.tsv			2375	e8430ac799015a02239683e52c8ed16b
+logs/readme_tables.md	topic log: readme_tables.md			2745	83da4927a6c1db94b0e980b14227caf9
+logs/prep_04_export.json	topic log: prep_04_export.json			1579	816a1ce2e08150be1c2ae45a85a278c4
+logs/extra_gs_arms.json	topic log: extra_gs_arms.json			396	0f9e626de916f51604dbc90609c2904e
+logs/mcinr_T1.json	topic log: mcinr_T1.json			860	2ec7d1bd0ded7335b72662dce3580a00
+logs/mcinr_FLAIR.json	topic log: mcinr_FLAIR.json			870	5fbef97c6d0b821372c27704bd2511e2
+logs/post_summarize.log	topic log: post_summarize.log			2849	136889edd177c1afa619da6033145a02
+logs/spirit_T1_ks5_lam0.001.json	T1: L1-SPIRiT score at the kept kernel size / lambda			918	3b61b6965df94d26ed9f77c9353aa3d8
+logs/spirit_FLAIR_ks5_lam0.001.json	FLAIR: L1-SPIRiT score at the kept kernel size / lambda			926	71054c75d45b898951d61579f5c410b3
+mcinr/mcinr_norm_T1_complex.npy	T1: MC-INR network output in the paper's normalised units	256x256x176	complex64	92274816	d4c865cf94e4837863e2c794296c5467
+mcinr/mcinr_norm_FLAIR_complex.npy	FLAIR: MC-INR network output in the paper's normalised units	256x256x176	complex64	92274816	2d2aa2e5cc3050b5946b4a7d73b2db00
+mcinr/losses.npy	MC-INR per-slice training loss curves	256x200	float64	409728	65a81df3393b12ee71114ab65d048c80
+mcinr/meta.json	MC-INR run metadata			7379	b5360830800bd7fe0330614996b6b492
+mcinr/score_af24.json	MC-INR reproduction log: score_af24.json			4229	658a8c11fddb775efc47bcc61b884deb
+mcinr/gauge_check_af24.json	MC-INR reproduction log: gauge_check_af24.json			2892	b6cdbe5b5518a599781744c23523085d
+README_topic.md	this topic's full README at the time of export			16375	3735a6867527b3269386edee7d38d6b5
+figures/t1flair_v3_af24_FLAIR_row3planes_compact_174_110_47_headerr_p3.png	archive: nine-method render of 2026-09-15 05:30 (L1-ESPIRiT column, old FLAIR AF label)			9616001	17fb5fd673cf60e317e68351ddba8155
+figures/t1flair_v3_af24_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p3.pdf	archive: nine-method render of 2026-09-15 05:30 (L1-ESPIRiT column, old FLAIR AF label)			5622593	1d1cdbd48b32dbe549035a776a1abd18
+figures/t1flair_v3_af24_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p3.png	archive: nine-method render of 2026-09-15 05:30 (L1-ESPIRiT column, old FLAIR AF label)			10374616	059913fc4e1bd9ff60c840674498e2aa
+figures/t1flair_v3_af24_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit.pdf	figure of record, ten methods, L1-SPIRiT in the L1 column, MC-INR included			6238003	1da596470f3cc1d0ace0b042e34be32f
+figures/t1flair_v3_af24_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit.png	figure of record, ten methods, L1-SPIRiT in the L1 column, MC-INR included			11605945	84acc79a5965b87dd658c7c8747e8435
+figures/t1flair_v3_af24_T1_row3planes_compact_174_110_47_headerr_p3.png	archive: nine-method render of 2026-09-15 05:30 (L1-ESPIRiT column, old FLAIR AF label)			9552535	72935ec2bd9819c26b8b9daffba01c75
+figures/t1flair_v3_af24_T1_row3planes_compact_180_124_76_inset48_headerr_p3.pdf	archive: nine-method render of 2026-09-15 05:30 (L1-ESPIRiT column, old FLAIR AF label)			5652781	10f3412377a7b39bd065baf0f088287c
+figures/t1flair_v3_af24_T1_row3planes_compact_180_124_76_inset48_headerr_p3.png	archive: nine-method render of 2026-09-15 05:30 (L1-ESPIRiT column, old FLAIR AF label)			10064687	81da0b395f0b8598cc2be198881271c0
+figures/t1flair_v3_af24_T1_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit.pdf	figure of record, ten methods, L1-SPIRiT in the L1 column, MC-INR included			6268963	3d0b64833aac373c1b1c85612ae3157c
+figures/t1flair_v3_af24_T1_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit.png	figure of record, ten methods, L1-SPIRiT in the L1 column, MC-INR included			11298411	9706e0a9708bcab0ea68cc05bf202080
+figures/t1flair_v3_af24_mask_T1_FLAIR_reinspect.png	mask / acquisition-support figure			245962	e8584a71066efc89af099b9b85d31d70
+figures/t1flair_v3_af24_mask_T1_vs_FLAIR.png	mask / acquisition-support figure			108205	d3b41a5257d60d56d5d07a665f4a3cd3
+figures/t1flair_v3_af24_mask_series_af12_16_20_24.png	mask / acquisition-support figure			177226	8012824ec263fc272798514b78dfaa46
+figures/t1flair_v3_af24_raw_kspace_support_T1_vs_FLAIR.png	mask / acquisition-support figure			192704	e14a39dcedb70187de08cbf7483248f6
