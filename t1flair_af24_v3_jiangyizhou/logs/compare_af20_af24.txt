@@ -7,10 +7,11 @@ CS-SENSE                     33.418   32.231  -1.186     0.9131   0.8913  -0.021
 CS-SENSE (TV, converged)     34.003   32.820  -1.183     0.9191   0.8991  -0.0200     0.730
 joint CS-SENSE (JTV)         33.885   32.730  -1.155     0.9183   0.8986  -0.0197     0.715
 L1-ESPIRiT                   34.371   33.401  -0.970     0.9206   0.9069  -0.0137     0.787
+L1-SPIRiT                    32.882   31.783  -1.099     0.8936   0.8717  -0.0219     0.864
 ZS-SSDU                      32.892   32.578  -0.314     0.9108   0.8989  -0.0119     0.948
 3D-DIP                       30.996   30.500  -0.496     0.8537   0.8378  -0.0159     0.612
 3D-INR                       29.456   28.444  -1.012     0.7596   0.7108  -0.0488     1.339
-MC-INR (Niessen 2025)            --
+MC-INR (Niessen 2025)        30.969   30.076  -0.893     0.8272   0.8103  -0.0169     0.803
 GS-single                    34.667   33.588  -1.079     0.9257   0.9090  -0.0167     0.806
 MC-GS                        34.832   33.767  -1.065     0.9289   0.9131  -0.0158     0.803
 
@@ -22,14 +23,21 @@ CS-SENSE                     33.027   32.165  -0.862     0.8968   0.8762  -0.020
 CS-SENSE (TV, converged)     33.494   32.573  -0.921     0.9049   0.8858  -0.0191     0.639
 joint CS-SENSE (JTV)         33.544   32.605  -0.939     0.9044   0.8849  -0.0195     0.668
 L1-ESPIRiT                   33.688   32.782  -0.906     0.9076   0.8893  -0.0183     0.704
+L1-SPIRiT                    32.824   31.803  -1.022     0.8863   0.8635  -0.0228     0.802
 ZS-SSDU                      32.660   32.107  -0.553     0.8958   0.8849  -0.0109     0.989
 3D-DIP                       30.637   30.360  -0.277     0.8269   0.8144  -0.0125     0.485
 3D-INR                       29.809   29.146  -0.664     0.7716   0.7352  -0.0364     1.071
-MC-INR (Niessen 2025)            --
+MC-INR (Niessen 2025)        31.666   30.947  -0.719     0.8486   0.8303  -0.0183     0.721
 GS-single                    34.127   33.110  -1.016     0.9127   0.8943  -0.0184     0.741
 MC-GS                        34.179   33.182  -0.997     0.9142   0.8966  -0.0176     0.738
 
-=== MC-GS margin over the strongest COMPETING arm (ours excluded), head-only PSNR
+=== MC-GS margin over the strongest comparison arm: GS-single counts, L1-ESPIRiT dropped (the margin to quote), head-only PSNR
+  AF20 T1     MC-GS 34.832  strongest 34.667 (gs_single_p3)  margin +0.165   | strongest non-GS 34.003 (cssense_o200)  +0.829
+  AF20 FLAIR  MC-GS 34.179  strongest 34.127 (gs_single_p3)  margin +0.052   | strongest non-GS 33.544 (jcssense)  +0.634
+  AF24 T1     MC-GS 33.767  strongest 33.588 (gs_single_p3)  margin +0.179   | strongest non-GS 32.820 (cssense_o200)  +0.947
+  AF24 FLAIR  MC-GS 33.182  strongest 33.110 (gs_single_p3)  margin +0.071   | strongest non-GS 32.605 (jcssense)  +0.577
+
+=== older framing, history only: MC-GS margin over the strongest arm with GS-single excluded and L1-ESPIRiT listed
   AF20 T1     MC-GS 34.832  best other 34.371 (l1espirit)  margin +0.461
   AF20 FLAIR  MC-GS 34.179  best other 33.688 (l1espirit)  margin +0.491
   AF24 T1     MC-GS 33.767  best other 33.401 (l1espirit)  margin +0.366
@@ -42,7 +50,7 @@ MC-GS                        34.179   33.182  -0.997     0.9142   0.8966  -0.017
   AF24 FLAIR  +0.071 dB  +2.3 mSSIM
 
 === rank of MC-GS among all arms, head-only PSNR (1 = best)
-  AF20 T1     rank 1/12   (top: gs_joint_p3 34.832)
-  AF20 FLAIR  rank 1/12   (top: gs_joint_p3 34.179)
-  AF24 T1     rank 1/11   (top: gs_joint_p3 33.767)
-  AF24 FLAIR  rank 1/11   (top: gs_joint_p3 33.182)
+  AF20 T1     rank 1/13   (top: gs_joint_p3 34.832)
+  AF20 FLAIR  rank 1/13   (top: gs_joint_p3 34.179)
+  AF24 T1     rank 1/13   (top: gs_joint_p3 33.767)
+  AF24 FLAIR  rank 1/13   (top: gs_joint_p3 33.182)

@@ -1,6 +1,6 @@
 # STATUS — 2026-09-15 早（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af24`，从 `jyz-af20-results` 4d13197 切出）
 
-## AF24（本分支）：已全部跑完（09-14 21:45 启动，09-15 05:30 finalize 完成）
+## AF24（本分支）：已全部跑完（09-14 21:45 启动，09-15 05:30 finalize 完成；09-15 下午补 L1-SPIRiT、MC-INR 与掩膜抽样方差）
 
 先读英文记录 `docs/superpowers/records/2026-09-15-af24-jyz.md`，交接 `docs/handoff/2026-09-15-af24-jyz.md`；
 课题 `/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/`（仓库镜像 `t1flair_af24_v3_jiangyizhou/`，README 有完整表）。
@@ -26,6 +26,28 @@ $ sed -n '/MC-GS margin over the strongest/,/^$/p' $T/logs/af_trend_summary.txt
 复现：`bash $T/scripts/run_rescore.sh`（8 个 CPU 作业约 35 分钟）→ `analyze_af_trend.py` → `run_slice_trend.sh` → `slice_summary.py`（README 第 5 节）。图 `figures/jyz_t1flair_af12_16_20_24_metric_steps.png`，`http://localhost:8765/t1flair_v3_af_trend/`。
 
 **② AF24 掩膜抽样方差：09-15 10:21 启动，运行中。** 规则与注册掩膜相同：第二个池子（`prep_02b_mask_pool_draws_af24.m`，67 张）里编号最小的三张恰好 1877 点、未裁剪的抽样 → b/c/d（FLAIR 25.43/25.41/25.50×，与 a 共享 540–572 点；`logs/prep_03b_pick_export_draws_af24.json`）。每张只跑 MC-GS joint（冻结配方，`MASK_DRAW=<d>`，不存体积）与 L1-ESPIRiT 三个 λ（T1 0.0007/0.001/0.0015，FLAIR 0.0014/0.002/0.003）。队列 `scripts/run_all_af24.py --study draws --max_gpu_jobs 3 --max_cpu_jobs 3`（调度器 pid 2796954，卡 6/7/3），跑完自动 `scripts/score_mask_draws_af24.py` → `logs/mask_draws_af24_summary.{txt,json}`。已核对三个 MC-GS 日志读的是各自掩膜（`zero_lines=105/104/110 of 1877`）、L1 用覆盖掩膜。
+
+### 0b. 09-15 下午：补 L1-SPIRiT 与 MC-INR，掩膜抽样方差跑完
+
+用户问 AF24 执行的层是否与 AF12/16/20 一致（一致：同一组层号参数，GT 逐位相同），并要求补齐方法（"needing 补"）。AF12/16/20 在 09-14/15 由 claude-ad 会话加了 L1-SPIRiT、MC-INR，并按用户 09-15 决定去掉 L1-ESPIRiT；已与 claude-ad 发消息协调（AF24 归本会话），其分支 `spirit-arm-jyz-af12-16-20` 已快进合入本分支（13b7bce）。口径见记忆 jyz-comparison-conventions。
+
+- **L1-SPIRiT**（`scripts/run_all_af24.py --study extra`，24 个 GPU 作业，无失败）：核 3/5 × λ{0,5e-4,1e-3,2e-3,4e-3,8e-3}，两对比度都保留核 5、λ 1e-3，全部内部极值。头内 PSNR/SSIM/HFEN：T1 31.783 / 0.8717 / 0.2246，FLAIR 31.803 / 0.8635 / 0.1804（AF20 32.882 / 32.824）。
+- **MC-INR**：mcinr_niessen2025 加 AF24（提交 2f0b07f、5ff090a，未推），256 层 707 s，口径复核 OK；头内 T1 30.076 / 0.8103 / 0.3593，FLAIR 30.947 / 0.8303 / 0.2688；`scripts/score_mcinr_arm.py` 登记，最大相对差 1.2e-7。
+- **表与图**：summary.json 26 行；README 表按 DROP 不列 L1-ESPIRiT；MC-GS 六格全第一、GS-single 第二。正式图 `figures/t1flair_v3_af24_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit.{png,pdf}`（10 个方法列，标题 `nominal AF 24, actual 24.00x / 25.51x`），`http://localhost:8765/t1flair_v3_af24/`。
+- **掩膜抽样方差**（b/c/d 各恰好 1877 点）：对 L1-ESPIRiT 的余量 T1 +0.359 ± 0.006、FLAIR +0.397 ± 0.006（AF20 +0.459 ± 0.002 / +0.488 ± 0.004，缩小 17 / 15 倍 SD）；锐度 4/4 高于 L1。按现行口径这是历史口径的余量，**GS-single 没在 b–d 上跑，主余量的抽样波动未测**。
+
+```
+$ cd /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou
+$ PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/compare_topics.py | sed -n '/strongest comparison arm/,/older framing/p'
+=== MC-GS margin over the strongest comparison arm: GS-single counts, L1-ESPIRiT dropped (the margin to quote), head-only PSNR
+  AF20 T1     MC-GS 34.832  strongest 34.667 (gs_single_p3)  margin +0.165   | strongest non-GS 34.003 (cssense_o200)  +0.829
+  AF20 FLAIR  MC-GS 34.179  strongest 34.127 (gs_single_p3)  margin +0.052   | strongest non-GS 33.544 (jcssense)  +0.634
+  AF24 T1     MC-GS 33.767  strongest 33.588 (gs_single_p3)  margin +0.179   | strongest non-GS 32.820 (cssense_o200)  +0.947
+  AF24 FLAIR  MC-GS 33.182  strongest 33.110 (gs_single_p3)  margin +0.071   | strongest non-GS 32.605 (jcssense)  +0.577
+$ PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/score_mask_draws_af24.py | tail -2
+T1    margin over 4 draws: mean +0.359  SD 0.006  range [+0.354, +0.366]   AF20 (4 draws): +0.459 ± 0.002   shift -0.099 = -17.4 x the larger SD   sharpness gate passed on 4/4
+FLAIR margin over 4 draws: mean +0.397  SD 0.006  range [+0.389, +0.403]   AF20 (4 draws): +0.488 ± 0.004   shift -0.092 = -14.7 x the larger SD   sharpness gate passed on 4/4
+```
 
 ### 一句话
 AF16 三期配方原样不调，跑在"T1 正好 24×"的掩膜上（1877 点，FLAIR 25.51×）：头内 PSNR **33.767 / 33.182**，九臂里头内 PSNR/SSIM/HFEN 六格全第一（含 GS-single）。**对最强对比方法 GS-single 的余量 +0.179 / +0.071**（AF20 +0.165 / +0.052；GS-single 算对比方法是用户 09-13 定的）。
@@ -72,10 +94,12 @@ Joint SENSE 32.730 / 32.605，ZS-SSDU 32.578 / 32.107，3D-DIP 30.500 / 30.360�
 - 38 个作业由 `scripts/run_all_af24.py` 排队跑完，无失败无重试；MC-GS joint 454 分钟（卡 6，挨着别人的作业）。
 
 ### 2. 待用户拍板
-- 没有阻塞项。可选：① 把 AF24 并进跨加速倍数复核课题 `T1FLAIR_AF12_16_20_trend_v3_jiangyizhou`；② AF24 掩膜抽样方差（余量缩小 0.1 dB 的显著性目前借用 AF20 四张掩膜的 SD 0.002/0.004）；③ AF24 的 MC-INR（没跑）；④ 09-14 遗留：AF16/AF20 图与文档是否按新口径改标签。
+- 要不要在掩膜 b/c/d 上补跑 GS-single（每次约 6 小时），量主余量 MC-GS − GS-single 的抽样波动（已问用户，未答）。
+- 09-14 遗留：AF12/16/20 留档的旧定稿图 FLAIR 标签仍是旧口径（claude-ad 会话那边等用户定）。
+- ①②③ 已做：四档复核课题（上午）、掩膜抽样方差、MC-INR（下午）。
 
 ### 3. 下一步
-- 等用户对第 2 节的选择；没有在跑的作业。
+- 四档复核课题 `T1FLAIR_AF12_16_20_24_trend_v3_jiangyizhou` 按现行口径重出：不列 L1-ESPIRiT、四档都加 L1-SPIRiT 与 MC-INR、主余量 MC-GS − GS-single。
 
 ### 4. 已知的坑与别重做什么
 - 掩膜按秒级 time(0) 取种子、不进 git：别删 `data/mask_pool_af24/`、`data/mask_vdpois_256x176_af24.mat`、`data/mask_af24_3d.h5`；池子与挑选脚本都拒绝覆盖。
@@ -84,6 +108,9 @@ Joint SENSE 32.730 / 32.605，ZS-SSDU 32.578 / 32.107，3D-DIP 30.500 / 30.360�
 - Python 改文件失败后同一段命令里的 git 仍会执行：提交一律用 `&&` 串起来。提交 cd7b28b 的说明写的是启动记录，实际只含调度日志，启动记录在下一个提交 779579f。
 - README 底部"joint 减 single"小表是空的：`readme_tables.py` 按 `gs_joint` 找，登记键是 `gs_joint_p3`（AF20 同样），耦合看 `compare_topics.py` 输出。
 - 工作树目录名 `mcgs_af16_wt` 但检出 AF24 分支；脚本里的这个路径是有意的。
+- 出 `_mcinr_spirit` 图：`--with_mcinr` 只加列不加文件名后缀，要 `--tag _p3_mcinr --with_mcinr --l1_arm spirit`（第一次用 `--tag _p3` 出成了 `_p3_spirit`，已删）。
+- 余量口径：GS-single 算对比方法（用户 09-13）、L1-ESPIRiT 已移出（09-15）；课题 compare_topics.py 旧节把 GS-single 当 ours，只作历史。
+- 调度器 `--study extra` 里 MC-INR 以退出码 3 让卡时自动重排续跑；MC-INR 仓库规定不推远端。
 
 ### 5. 为什么
 - 冻结 MC-GS 参数、只换掩膜，AF20→AF24 的每个差值才能归因于掩膜；经典臂 λ 重扫，保证对手在网格最优点，比较对 MC-GS 偏保守（仅受网格间距限制，见记录 §6）。

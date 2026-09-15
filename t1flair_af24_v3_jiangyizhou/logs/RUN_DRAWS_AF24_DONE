@@ -1,0 +1,26 @@
+{
+ "done": {
+  "l1_T1_db_0.0015": 0,
+  "l1_T1_db_0.0007": 0,
+  "l1_T1_db_0.001": 0,
+  "l1_FLAIR_db_0.0014": 0,
+  "l1_FLAIR_db_0.002": 0,
+  "l1_FLAIR_db_0.003": 0,
+  "l1_T1_dc_0.0007": 0,
+  "l1_T1_dc_0.001": 0,
+  "l1_T1_dc_0.0015": 0,
+  "l1_FLAIR_dc_0.0014": 0,
+  "l1_FLAIR_dc_0.002": 0,
+  "l1_FLAIR_dc_0.003": 0,
+  "l1_T1_dd_0.0007": 0,
+  "l1_T1_dd_0.001": 0,
+  "l1_T1_dd_0.0015": 0,
+  "l1_FLAIR_dd_0.0014": 0,
+  "l1_FLAIR_dd_0.002": 0,
+  "l1_FLAIR_dd_0.003": 0,
+  "gs_joint_dd": 0,
+  "gs_joint_db": 0,
+  "gs_joint_dc": 0
+ },
+ "finalize_rc": 0
+}

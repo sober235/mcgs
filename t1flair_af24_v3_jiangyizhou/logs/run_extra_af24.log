@@ -1,0 +1,53 @@
+[09-15 14:04:47] armed: 25 jobs, cards [0, 1, 2, 3, 4, 5, 6, 7], max 3 GPU / 1 CPU jobs
+[09-15 15:44:45] START mcinr_af24 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou/logs/run_af24.log
+[09-15 15:50:50] START spirit_T1_ks3_lam0 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/T1_ks3_lam0.log
+[09-15 15:53:22] DONE spirit_T1_ks3_lam0 gpu1 rc=0 result=yes 2.5 min
+[09-15 15:55:24] START spirit_T1_ks3_lam0.0005 gpu3 (free 61 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/T1_ks3_lam0.0005.log
+[09-15 15:57:26] DONE mcinr_af24 gpu5 rc=0 result=yes 12.7 min
+[09-15 15:57:26] START spirit_T1_ks3_lam0.001 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/T1_ks3_lam0.001.log
+[09-15 16:00:59] DONE spirit_T1_ks3_lam0.001 gpu5 rc=0 result=yes 3.5 min
+[09-15 16:00:59] START spirit_T1_ks3_lam0.002 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/T1_ks3_lam0.002.log
+[09-15 16:03:31] START spirit_T1_ks3_lam0.004 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/T1_ks3_lam0.004.log
+[09-15 16:04:32] DONE spirit_T1_ks3_lam0.002 gpu5 rc=0 result=yes 3.5 min
+[09-15 16:04:32] START spirit_T1_ks3_lam0.008 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/T1_ks3_lam0.008.log
+[09-15 16:07:04] DONE spirit_T1_ks3_lam0.004 gpu2 rc=0 result=yes 3.5 min
+[09-15 16:07:04] START spirit_T1_ks5_lam0 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/T1_ks5_lam0.log
+[09-15 16:08:05] DONE spirit_T1_ks3_lam0.008 gpu5 rc=0 result=yes 3.5 min
+[09-15 16:08:05] START spirit_T1_ks5_lam0.0005 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/T1_ks5_lam0.0005.log
+[09-15 16:09:36] DONE spirit_T1_ks3_lam0.0005 gpu3 rc=0 result=yes 14.2 min
+[09-15 16:09:36] DONE spirit_T1_ks5_lam0 gpu2 rc=0 result=yes 2.5 min
+[09-15 16:09:37] START spirit_T1_ks5_lam0.001 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/T1_ks5_lam0.001.log
+[09-15 16:09:37] START spirit_T1_ks5_lam0.002 gpu3 (free 61 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/T1_ks5_lam0.002.log
+[09-15 16:11:38] DONE spirit_T1_ks5_lam0.0005 gpu5 rc=0 result=yes 3.5 min
+[09-15 16:11:38] START spirit_T1_ks5_lam0.004 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/T1_ks5_lam0.004.log
+[09-15 16:13:09] DONE spirit_T1_ks5_lam0.001 gpu2 rc=0 result=yes 3.5 min
+[09-15 16:13:10] START spirit_T1_ks5_lam0.008 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/T1_ks5_lam0.008.log
+[09-15 16:15:11] DONE spirit_T1_ks5_lam0.004 gpu5 rc=0 result=yes 3.5 min
+[09-15 16:15:12] START spirit_FLAIR_ks3_lam0 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/FLAIR_ks3_lam0.log
+[09-15 16:16:43] DONE spirit_T1_ks5_lam0.008 gpu2 rc=0 result=yes 3.5 min
+[09-15 16:16:43] START spirit_FLAIR_ks3_lam0.0005 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/FLAIR_ks3_lam0.0005.log
+[09-15 16:17:43] DONE spirit_FLAIR_ks3_lam0 gpu5 rc=0 result=yes 2.5 min
+[09-15 16:17:44] START spirit_FLAIR_ks3_lam0.001 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/FLAIR_ks3_lam0.001.log
+[09-15 16:20:16] DONE spirit_FLAIR_ks3_lam0.0005 gpu2 rc=0 result=yes 3.5 min
+[09-15 16:20:16] START spirit_FLAIR_ks3_lam0.002 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/FLAIR_ks3_lam0.002.log
+[09-15 16:21:17] DONE spirit_FLAIR_ks3_lam0.001 gpu5 rc=0 result=yes 3.5 min
+[09-15 16:21:17] START spirit_FLAIR_ks3_lam0.004 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/FLAIR_ks3_lam0.004.log
+[09-15 16:23:49] DONE spirit_FLAIR_ks3_lam0.002 gpu2 rc=0 result=yes 3.5 min
+[09-15 16:23:49] START spirit_FLAIR_ks3_lam0.008 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/FLAIR_ks3_lam0.008.log
+[09-15 16:24:50] DONE spirit_FLAIR_ks3_lam0.004 gpu5 rc=0 result=yes 3.5 min
+[09-15 16:24:50] START spirit_FLAIR_ks5_lam0 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/FLAIR_ks5_lam0.log
+[09-15 16:26:21] DONE spirit_T1_ks5_lam0.002 gpu3 rc=0 result=yes 16.7 min
+[09-15 16:26:21] START spirit_FLAIR_ks5_lam0.0005 gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/FLAIR_ks5_lam0.0005.log
+[09-15 16:27:22] DONE spirit_FLAIR_ks3_lam0.008 gpu2 rc=0 result=yes 3.5 min
+[09-15 16:27:22] DONE spirit_FLAIR_ks5_lam0 gpu5 rc=0 result=yes 2.5 min
+[09-15 16:27:22] START spirit_FLAIR_ks5_lam0.001 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/FLAIR_ks5_lam0.001.log
+[09-15 16:27:22] START spirit_FLAIR_ks5_lam0.002 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/FLAIR_ks5_lam0.002.log
+[09-15 16:30:55] DONE spirit_FLAIR_ks5_lam0.001 gpu2 rc=0 result=yes 3.5 min
+[09-15 16:30:55] DONE spirit_FLAIR_ks5_lam0.002 gpu5 rc=0 result=yes 3.5 min
+[09-15 16:30:55] START spirit_FLAIR_ks5_lam0.004 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/FLAIR_ks5_lam0.004.log
+[09-15 16:30:55] START spirit_FLAIR_ks5_lam0.008 gpu7 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/spirit/FLAIR_ks5_lam0.008.log
+[09-15 16:34:28] DONE spirit_FLAIR_ks5_lam0.004 gpu5 rc=0 result=yes 3.5 min
+[09-15 16:43:05] DONE spirit_FLAIR_ks5_lam0.0005 gpu6 rc=0 result=yes 16.7 min
+[09-15 16:48:40] DONE spirit_FLAIR_ks5_lam0.008 gpu7 rc=0 result=yes 17.8 min
+[09-15 16:48:40] QUEUE EMPTY. failures: {}. no automatic post-step (score.py --af 24, registration, figures by hand)
+[09-15 16:48:40] FINALIZE rc=0

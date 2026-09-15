@@ -1,0 +1,28 @@
+[T1] volume (256, 256, 176) complex64
+  metric         topic rescore       mcinr repo     |diff|
+  psnr             30.44774900      30.44774877   2.30e-07
+  ssim              0.57117157       0.57117156   7.91e-09
+  nmse              0.11749899       0.11749887   1.21e-07
+  hfen              1.24522603       1.24522614   1.15e-07
+  head_psnr        30.07555521      30.07555553   3.20e-07
+  head_ssim         0.81034791       0.81034791   0.00e+00
+  head_hfen         0.35933058       0.35933058   1.33e-10
+  sharp             0.80337751       0.80337752   7.97e-09
+  grain             0.01459874       0.01459874   7.53e-09
+  wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/mcinr_T1.json
+  linked /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/recon/mcinr_T1_complex.npy -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou/recon/af24/mcinr_T1_complex.npy
+[FLAIR] volume (256, 256, 176) complex64
+  metric         topic rescore       mcinr repo     |diff|
+  psnr             32.44163684      32.44163697   1.34e-07
+  ssim              0.66440703       0.66440705   1.58e-08
+  nmse              0.06689306       0.06689310   3.74e-08
+  hfen              1.09669518       1.09669514   4.41e-08
+  head_psnr        30.94718303      30.94718236   6.69e-07
+  head_ssim         0.83030975       0.83030975   0.00e+00
+  head_hfen         0.26879498       0.26879499   2.00e-09
+  sharp             0.72079176       0.72079165   1.07e-07
+  grain             0.01395907       0.01395905   2.05e-08
+  wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/mcinr_FLAIR.json
+  linked /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/recon/mcinr_FLAIR_complex.npy -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou/recon/af24/mcinr_FLAIR_complex.npy
+
+worst relative disagreement across both contrasts: 1.21e-07

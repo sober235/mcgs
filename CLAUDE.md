@@ -113,5 +113,7 @@ one GPU job of this user per card, at most four at once, then finalize). The use
 the strongest comparison arm, GS-single (user 2026-09-13: GS-single counts as a comparison arm): **+0.179 / +0.071** (AF20 +0.165 / +0.052).
 L1-ESPIRiT was dropped from the comparison on 2026-09-15 (user; data kept, not listed): the strongest non-GS arm is CS-SENSE (TV,
 converged) 32.820 on T1 and joint CS-SENSE 32.605 on FLAIR. The earlier "+0.366 / +0.400 over L1-ESPIRiT" is history, not a margin to
-quote. L1-SPIRiT and MC-INR (added at AF12/16/20 on 2026-09-14/15) are being run at AF24; the figure set of record there is `_mcinr_spirit`. Record `docs/superpowers/records/2026-09-15-af24-jyz.md`,
+quote. L1-SPIRiT (T1 31.783 / FLAIR 31.803) and MC-INR (30.076 / 30.947) were added at AF24 on 2026-09-15 to match AF12/16/20; the figure
+set of record is `t1flair_af24_v3_jiangyizhou/figures/..._180_124_76_inset48_headerr_p3_mcinr_spirit.{png,pdf}`. Mask-draw variance (record §8):
+margin over L1-ESPIRiT +0.359 ± 0.006 / +0.397 ± 0.006 over four draws (history framing; GS-single not run on the draws). Record `docs/superpowers/records/2026-09-15-af24-jyz.md`,
 handoff `docs/handoff/2026-09-15-af24-jyz.md`, figures `t1flair_af24_v3_jiangyizhou/figures/t1flair_v3_af24_*_p3.*`.

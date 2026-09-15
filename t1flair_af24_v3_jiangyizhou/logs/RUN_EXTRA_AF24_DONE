@@ -1,0 +1,30 @@
+{
+ "done": {
+  "spirit_T1_ks3_lam0": 0,
+  "mcinr_af24": 0,
+  "spirit_T1_ks3_lam0.001": 0,
+  "spirit_T1_ks3_lam0.002": 0,
+  "spirit_T1_ks3_lam0.004": 0,
+  "spirit_T1_ks3_lam0.008": 0,
+  "spirit_T1_ks3_lam0.0005": 0,
+  "spirit_T1_ks5_lam0": 0,
+  "spirit_T1_ks5_lam0.0005": 0,
+  "spirit_T1_ks5_lam0.001": 0,
+  "spirit_T1_ks5_lam0.004": 0,
+  "spirit_T1_ks5_lam0.008": 0,
+  "spirit_FLAIR_ks3_lam0": 0,
+  "spirit_FLAIR_ks3_lam0.0005": 0,
+  "spirit_FLAIR_ks3_lam0.001": 0,
+  "spirit_FLAIR_ks3_lam0.002": 0,
+  "spirit_FLAIR_ks3_lam0.004": 0,
+  "spirit_T1_ks5_lam0.002": 0,
+  "spirit_FLAIR_ks3_lam0.008": 0,
+  "spirit_FLAIR_ks5_lam0": 0,
+  "spirit_FLAIR_ks5_lam0.001": 0,
+  "spirit_FLAIR_ks5_lam0.002": 0,
+  "spirit_FLAIR_ks5_lam0.004": 0,
+  "spirit_FLAIR_ks5_lam0.0005": 0,
+  "spirit_FLAIR_ks5_lam0.008": 0
+ },
+ "finalize_rc": 0
+}

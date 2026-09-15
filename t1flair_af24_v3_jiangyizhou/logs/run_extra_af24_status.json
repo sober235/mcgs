@@ -1,0 +1,38 @@
+{
+ "time": "09-15 16:48:10",
+ "running": [
+  {
+   "name": "spirit_FLAIR_ks5_lam0.008",
+   "gpu": 7,
+   "min": 17.3
+  }
+ ],
+ "waiting": [],
+ "queued": [],
+ "done": {
+  "spirit_T1_ks3_lam0": 0,
+  "mcinr_af24": 0,
+  "spirit_T1_ks3_lam0.001": 0,
+  "spirit_T1_ks3_lam0.002": 0,
+  "spirit_T1_ks3_lam0.004": 0,
+  "spirit_T1_ks3_lam0.008": 0,
+  "spirit_T1_ks3_lam0.0005": 0,
+  "spirit_T1_ks5_lam0": 0,
+  "spirit_T1_ks5_lam0.0005": 0,
+  "spirit_T1_ks5_lam0.001": 0,
+  "spirit_T1_ks5_lam0.004": 0,
+  "spirit_T1_ks5_lam0.008": 0,
+  "spirit_FLAIR_ks3_lam0": 0,
+  "spirit_FLAIR_ks3_lam0.0005": 0,
+  "spirit_FLAIR_ks3_lam0.001": 0,
+  "spirit_FLAIR_ks3_lam0.002": 0,
+  "spirit_FLAIR_ks3_lam0.004": 0,
+  "spirit_T1_ks5_lam0.002": 0,
+  "spirit_FLAIR_ks3_lam0.008": 0,
+  "spirit_FLAIR_ks5_lam0": 0,
+  "spirit_FLAIR_ks5_lam0.001": 0,
+  "spirit_FLAIR_ks5_lam0.002": 0,
+  "spirit_FLAIR_ks5_lam0.004": 0,
+  "spirit_FLAIR_ks5_lam0.0005": 0
+ }
+}

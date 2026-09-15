@@ -17,3 +17,29 @@
 [09-15 10:44:03] DONE l1_FLAIR_db_0.003 gpu5 rc=0 result=yes 11.7 min
 [09-15 10:44:03] START l1_T1_dc_0.001 gpu5 (free 52 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_dc_lam0.001.log
 [09-15 10:44:03] START l1_T1_dc_0.0015 gpu5 (free 52 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_dc_lam0.0015.log
+[09-15 10:55:14] DONE l1_T1_dc_0.0007 gpu4 rc=0 result=yes 11.7 min
+[09-15 10:55:14] START l1_FLAIR_dc_0.0014 gpu4 (free 52 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_dc_lam0.0014.log
+[09-15 10:55:44] DONE l1_T1_dc_0.001 gpu5 rc=0 result=yes 11.7 min
+[09-15 10:55:44] DONE l1_T1_dc_0.0015 gpu5 rc=0 result=yes 11.7 min
+[09-15 10:55:45] START l1_FLAIR_dc_0.002 gpu5 (free 52 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_dc_lam0.002.log
+[09-15 10:55:45] START l1_FLAIR_dc_0.003 gpu5 (free 52 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_dc_lam0.003.log
+[09-15 11:05:54] DONE l1_FLAIR_dc_0.0014 gpu4 rc=0 result=yes 10.7 min
+[09-15 11:05:54] START l1_T1_dd_0.0007 gpu5 (free 69 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_dd_lam0.0007.log
+[09-15 11:06:24] DONE l1_FLAIR_dc_0.002 gpu5 rc=0 result=yes 10.7 min
+[09-15 11:06:24] DONE l1_FLAIR_dc_0.003 gpu5 rc=0 result=yes 10.7 min
+[09-15 11:06:24] START l1_T1_dd_0.001 gpu5 (free 74 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_dd_lam0.001.log
+[09-15 11:06:24] START l1_T1_dd_0.0015 gpu5 (free 74 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_dd_lam0.0015.log
+[09-15 11:16:03] DONE l1_T1_dd_0.0007 gpu5 rc=0 result=yes 10.2 min
+[09-15 11:16:03] START l1_FLAIR_dd_0.0014 gpu5 (free 69 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_dd_lam0.0014.log
+[09-15 11:16:33] DONE l1_T1_dd_0.001 gpu5 rc=0 result=yes 10.2 min
+[09-15 11:16:33] DONE l1_T1_dd_0.0015 gpu5 rc=0 result=yes 10.2 min
+[09-15 11:16:34] START l1_FLAIR_dd_0.002 gpu5 (free 74 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_dd_lam0.002.log
+[09-15 11:16:34] START l1_FLAIR_dd_0.003 gpu5 (free 74 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_dd_lam0.003.log
+[09-15 11:26:13] DONE l1_FLAIR_dd_0.0014 gpu5 rc=0 result=yes 10.2 min
+[09-15 11:26:43] DONE l1_FLAIR_dd_0.002 gpu5 rc=0 result=yes 10.2 min
+[09-15 11:26:43] DONE l1_FLAIR_dd_0.003 gpu5 rc=0 result=yes 10.2 min
+[09-15 15:31:38] DONE gs_joint_dd gpu3 rc=0 result=yes 309.9 min
+[09-15 16:18:18] DONE gs_joint_db gpu6 rc=0 result=yes 356.6 min
+[09-15 16:25:24] DONE gs_joint_dc gpu7 rc=0 result=yes 363.7 min
+[09-15 16:25:24] QUEUE EMPTY. failures: {}. score the draws ...
+[09-15 16:25:24] FINALIZE rc=0

@@ -1,0 +1,6 @@
+[T1] coils=26 grid=(256, 256, 176) ACS=24x16 at (116,80) ksize=3 lam=0.0005 tyk=0.01 iters=150 scale=9.9251e+01
+[T1] calibration matrix 308 x 234
+  step=0.1318  relative change (first 3 / middle 2 / last 2): 4.96e-02 3.49e-02 3.42e-02 3.94e-03 3.88e-03 1.52e-03 1.50e-03
+  readout 24/256  64s
+  readout 216/256  581s
+[T1] spirit_ks3_lam0.0005 psnr=35.352 ssim=0.8837 head_psnr=31.779 head_ssim=0.8635 head_hfen=0.2212 sharp=0.933 (739 s, total 848 s)

@@ -16,9 +16,12 @@ ROOT = Path("/data0/congcong/code/GS/Results_20260908")
 A20, A24 = "T1FLAIR_AF20_v3_jiangyizhou", "T1FLAIR_AF24_v3_jiangyizhou"
 ORDER = [("zf", "ZF"), ("cgsense", "CG-SENSE"), ("cssense", "CS-SENSE"),
          ("cssense_o200", "CS-SENSE (TV, converged)"), ("jcssense", "joint CS-SENSE (JTV)"),
-         ("l1espirit", "L1-ESPIRiT"), ("zsssdu", "ZS-SSDU"), ("dip", "3D-DIP"), ("inr", "3D-INR"), ("mcinr", "MC-INR (Niessen 2025)"),
+         ("l1espirit", "L1-ESPIRiT"), ("spirit", "L1-SPIRiT"), ("zsssdu", "ZS-SSDU"), ("dip", "3D-DIP"), ("inr", "3D-INR"), ("mcinr", "MC-INR (Niessen 2025)"),
          ("gs_single_p3", "GS-single"), ("gs_joint_p3", "MC-GS")]
-COMPETING = {"zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "zsssdu", "dip", "inr", "mcinr"}
+COMPETING = {"zf", "cgsense", "cssense", "cssense_o200", "jcssense", "l1espirit", "spirit", "zsssdu", "dip", "inr", "mcinr"}
+# Comparison conventions (user): GS-single counts as a comparison arm (2026-09-13); L1-ESPIRiT is dropped from the
+# comparison (2026-09-15; its rows stay in logs/summary.json). The quoted margin is the section that applies both.
+DROP = {"l1espirit"}
 
 
 def load(topic):
@@ -45,7 +48,19 @@ def main():
             else:
                 print(f"{label:26s} {'--':>8s} {b['head_psnr']:8.3f} {'':7s}   {'--':>8s} {b['head_ssim']:8.4f} {'':8s}   {b['sharp']:7.3f}")
 
-    print("\n=== MC-GS margin over the strongest COMPETING arm (ours excluded), head-only PSNR")
+    print("\n=== MC-GS margin over the strongest comparison arm: GS-single counts, L1-ESPIRiT dropped (the margin to quote), head-only PSNR")
+    for tag, rows in (("AF20", r20), ("AF24", r24)):
+        for c in ("T1", "FLAIR"):
+            mine = row(rows, c, "gs_joint_p3", "MC-GS")
+            comp = [(r["head_psnr"], r["method"]) for r in rows
+                    if r["contrast"] == c and r["method"] not in DROP and r["method"] not in ("gs_joint_p3", "MC-GS")]
+            nongs = [x for x in comp if x[1] not in ("gs_single_p3", "GS-single")]
+            if mine and comp:
+                h, m = max(comp); h2, m2 = max(nongs)
+                print(f"  {tag} {c:5s}  MC-GS {mine['head_psnr']:.3f}  strongest {h:.3f} ({m})  margin {mine['head_psnr']-h:+.3f}"
+                      f"   | strongest non-GS {h2:.3f} ({m2})  {mine['head_psnr']-h2:+.3f}")
+
+    print("\n=== older framing, history only: MC-GS margin over the strongest arm with GS-single excluded and L1-ESPIRiT listed")
     for tag, rows in (("AF20", r20), ("AF24", r24)):
         for c in ("T1", "FLAIR"):
             mine = row(rows, c, "gs_joint_p3", "MC-GS")

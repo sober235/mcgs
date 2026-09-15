@@ -1,0 +1,12 @@
+draw c       pts     AF   MC-GS      L1     lam  margin  sharp MC/L1
+a    T1     1877  24.00  33.767  33.401   0.001  +0.366  0.803/0.787
+a    FLAIR  1877  25.51  33.182  32.782   0.002  +0.400  0.738/0.704
+b    T1     1877  24.00  33.765  33.410   0.001  +0.354  0.802/0.787
+b    FLAIR  1877  25.43  33.155  32.760   0.002  +0.394  0.737/0.705
+c    T1     1877  24.00  33.751  33.389   0.001  +0.362  0.800/0.784
+c    FLAIR  1877  25.41  33.139  32.736   0.002  +0.403  0.731/0.698
+d    T1     1877  24.00  33.773  33.418   0.001  +0.355  0.801/0.786
+d    FLAIR  1877  25.50  33.127  32.737   0.002  +0.389  0.732/0.700
+(* = best L1 lambda on an edge of its three-point grid;  < = MC-GS sharpness below L1-ESPIRiT's)
+T1    margin over 4 draws: mean +0.359  SD 0.006  range [+0.354, +0.366]   AF20 (4 draws): +0.459 ± 0.002   shift -0.099 = -17.4 x the larger SD   sharpness gate passed on 4/4
+FLAIR margin over 4 draws: mean +0.397  SD 0.006  range [+0.389, +0.403]   AF20 (4 draws): +0.488 ± 0.004   shift -0.092 = -14.7 x the larger SD   sharpness gate passed on 4/4
