@@ -35,28 +35,34 @@ cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
 重跑：`$PY scripts/run_volume.py --topic peds --af 12 --gpu <空卡> --resume --yield_to_others`，再 `$PY scripts/score.py --topic peds --af 12`
 （环境 `GR_pt1.10`，本机唯一装 tinycudann 的）。
 
-### 三期到目前为止（09-14）
-判据（用户拍板）：MC-GS 在主表六格对**所有**其他臂第一，**GS-single 算对比方法**。判分用
-`scripts/score_candidate.py`（与主表同函数、同真值、同区域；在二期 joint 运行上逐位复现已发表行）。
-```
-cd /data0/congcong/code/GS/mcgs_peds_wt
-tail -5 autoresearch_peds.tsv | cut -f1,2,7,8,9,10,11     # 账本：min_margin 为正即达标
-```
-- 工作点：小波 T1w 0.06 / T2s 0.10，edge-TV 几何 **T1w 0.03 / T2s 0.10**，其余同 P10。
-- **逐对比度几何权重是新加的**（`lambda_geo_plain` / `lambda_geo_contrast`，`paired_gs/losses/edge_tv.py::geo_term`，
-  4 个测试；默认回退使旧运行逐位不变；全量 **225 测试通过**）。
-- T1w 头内 PSNR：37.855（基线）→ **38.516**（拆权重）→ **38.588**（6000 步）。门槛 38.848。
-- **调参后的单臂 38.848 / 0.9681 / 0.0761，已超过 L1-ESPIRiT（38.830 / 0.9674 / 0.0756，HFEN 仍是 L1 最好）。**
-- **联合减单臂 T1w 从 −0.230 扩大到 −0.332**；共同边缘 0.001 让 T2s 三格全部过线，代价是 T1w −0.133。
-- 容量 6.0M：~~+0.001（无效）~~ **更正（09-14 20:25，四期）：`p3_n60` 实际 T1w 38.791 / T2s 34.195（主区域），对 c1 +0.275 dB，容量对联合臂有效。** 两个调参臂已登记为 `gs_joint_p3` / `gs_single_p3` 并进表。
+### 三期：在本受试者上调参（09-14/15，已收尾）
 
-### ⚠️ 同一分支上还有另一个会话
-提交 `cb7fd40`（09-14 19:38）不是本会话做的：另一个会话在同一个 worktree 上做病灶可见性与选层
-（`peds_tsc_mtp_af12_retro/scripts/peds_*.py`、`lesion_zoom_af12.py`、`selection_notes.txt`）。
-它没动 `STATUS.md` / `CLAUDE.md`。动这个 worktree 前先 `git log --oneline -5` 看有没有新提交，
-别假设工作区只有你自己。
+判据（用户 09-14 拍板）：MC-GS 在主表六格对**所有**其他臂第一，GS-single 算对比方法。**没有达成**，
+但拆出了比"达成"更有价值的东西。英文全过程见 `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md`，
+课题 README 的 "Stage 3" 一节是给外人看的版本。
 
-## 2. 待用户拍板
+最终配置：小波 T1w 0.06 / T2s 0.10，几何 **T1w 0.03 / T2s 0.10**，9.6M 点，4000 步，
+`edge_tv_union_guide=true` + `edge_tv_union_kappa_scale=0.5`。登记为 `gs_joint_p3f` / `gs_single_p3f`。
+
+1. **T2s 上联合臂全表第一**：34.227 / 0.9056 / 0.1836，三格全赢 GS-single（34.175 / 0.9052 / 0.1855）。
+   靠的是 union guide——用 T1w 的边缘给 T2s 的平滑设上界，**单臂原理上没有第二个对比度可借**，
+   是这条线找到的唯一一个"只有联合才有"的机制，且 T1w 零代价。（该开关来自同分支的 stage 4 会话，
+   commit a22073f；我在本课题口径上独立复核过它的 p4_union 与 p4_u_k05 才用。）
+2. **T1w 上单臂仍赢 0.057 dB**：38.993 / 0.9687 / 0.0764 对 38.936 / 0.9685 / 0.0768。
+   两个 GS 臂都已越过 L1-ESPIRiT 的头内 PSNR 与 SSIM，L1 只剩 HFEN（0.0756）。
+3. **二期那句"联合不如单臂"只在 3.6M 点云下成立**：匹配容量的差值 −0.332（3.6M）→ −0.198（6.0M）
+   → −0.057（9.6M），单臂在 6.0M 封顶而联合一直涨。一个云表示两个对比度需要更多点；这条线
+   （以及 jyz 线那次 4.8M 的容量检查）此前所有比较都在 3.6M 上做。饱和后的真实残差是 0.06 dB。
+4. **两个对比度对每个旋钮的需求相反，而容量是唯一不能按对比度拆的**（联合臂只有一个云）：
+   T1w 表示受限（3.6M→6.0M +0.275），T2s 信噪比受限（+0.032，到 19.2M 其 SSIM/HFEN 反而掉线）。
+
+**为什么停手**：T1w HFEN 差 0.0011 且没有不伤 PSNR 的杠杆，而 PSNR 只剩 0.057 余量；
+一个受试者、无留出集，刮第三位小数即拟合测试集。
+
+图（最终配置，最后两列 = MC-GS 与 GS-single）：
+`http://localhost:8765/peds_tsc_af12/peds_af12_{T1w,T2s}_row3planes_compact_53_160_152_headerr_p3f.png`
+
+## 2. 待用户拍板## 2. 待用户拍板
 
 1. **是否按停止规则收尾**。spec 的“杠杆用尽”还差一步（见第 3 节的在跑运行）。剩余杠杆只有优化器
    （`rotation_lr 0.008`，jyz 线上值 +0.025 / +0.046）和相位 TV（本分支没有，需从 `autoresearch-jyz-af12-phase3`
