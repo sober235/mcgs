@@ -1,0 +1,97 @@
+# ============================================================================
+# t1flair_v3_af16r_jyz.yaml -- jiangyizhou T1+FLAIR, diff-mask study, nominal AF 16 (2026-09-15).
+# Cloned from t1flair_v3_af24_jyz.yaml; the ONLY difference from T1FLAIR_AF16_v3_jiangyizhou is the mask
+# PATTERN: Cartesian pseudo-radial spokes, uniform angles, elliptical extent, outermost points trimmed to the budget.
+#
+# Data, geometry, gauge and recipe are unchanged from the AF16 / AF20 / AF24 line: BART CFL at
+# /data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou, dims (256, 256, 176, 26)
+# = (readout x, ky, kz, coil); readout_axis 0; phase_axes [1, 2] = (ky, kz) = (256, 176); DC on the array
+# centre (128, 88), no roll. k-space h5 and ESPIRiT maps are symlinks into T1FLAIR_AF12_v3_jiangyizhou/data
+# (mask-independent). presampled: false, so the loader builds the ground truth from the FULL k-space and
+# then applies the mask -- this is a retrospective experiment.
+#
+# Mask: scripts/make_masks_af16_diffmask.py --kinds radial, seed 0, regenerable; 2964 of 45056 PE points,
+#   the 24 x 16 fully sampled block of the house vd-Poisson AF16 mask kept so every arm calibrates the same.
+#   data/mask_radial_256x176_af16.mat, md5 959d1c25a6686e55c500aca6ed58ff1b, broadcast along the readout into data/mask_af16_3d.h5.
+#   AF = PE-plane points / sampled points that carry that contrast's data (user decision 2026-09-14):
+#     T1    2964 of 45056 on data -> AF 15.201 (T1's support is the whole plane)
+#     FLAIR -> AF 15.341 (27 mask points fall outside its elliptical shutter)
+#   Labelled AF 16 (nominal) everywhere, as T1FLAIR_AF16_v3_jiangyizhou is (its own T1 AF is 15.19).
+#
+# known_zero on FLAIR ONLY (the elliptical shutter is a MEASURED zero; T1 has no shutter). prewhiten not set.
+#
+# Recipe = the AF16 PHASE-3 recipe, frozen, exactly as at AF20 and AF24, so the mask is the only variable.
+# The full argument list lives in ONE place, run_diffmask_mcgs.sh, and is not repeated here.
+# ============================================================================
+data:
+  plain:
+    name: T1
+    acceleration_factor: 16
+    data_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/data/ksp_T1.h5
+    csm_path:  /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/data/csm_espirit_T1.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/data/mask_af16_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [1, 2]
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false        # the mask IS readout-separable here; let the check prove it
+  contrast:
+    name: FLAIR
+    acceleration_factor: 16
+    data_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/data/ksp_FLAIR.h5
+    csm_path:  /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/data/csm_espirit_FLAIR.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/data/mask_af16_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [1, 2]
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false
+    known_zero: true                 # elliptical vendor shutter = measured zeros (FLAIR only)
+gaussian:
+  density_lr: 0.015
+  init_scale: 0.008                  # ~1 voxel at the 256 in-plane matrix (2/256)
+  initial_num_points: 600000         # fresh cloud; the 576902 dual-warm checkpoint is a different FOV
+  position_lr: 0.0003
+  rotation_lr: 0.0003
+  scale_lr: 0.002
+hardware:
+  device: cuda:0
+loss:
+  loss_type: l2
+  tv_weight: 0.10
+  tv_eps: 0.04
+  kspace_freq_adaptive: true
+  kspace_center_fraction: 0.05
+  kspace_center_weight: 0.3
+  kspace_mid_weight: 1.0
+  kspace_high_weight: 2.2
+  lambda_diff: 0.01                  # ignored by the v2 trainer
+  lambda_enh: 0                      # ignored by the v2 trainer
+  edge_tv: true
+  edge_tv_kappa_q: 0.85
+  edge_tv_wfloor: 0.1
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+output:
+  exp_name: t1flair_v3_af16r_joint
+  output_dir: results_arc/t1flair_v3_af16r_joint
+training:
+  max_iterations: 4000
+  shared_warmup_iters: 500
+  eval_every: 1000
+  log_every: 50
+  save_every: 1000
+  seed: 42
+  max_grad_norm: 1.0
+  lr_scheduler:
+    type: exponential
+    gamma: 0.9995
+voxelizer:
+  max_radius: 20
+  tile_size: 8

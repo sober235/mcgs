@@ -18,6 +18,27 @@
     ⚠️ 09-15 文献核查：径向相位编码（ky-kz 平面辐条）是真实家族，但主场是心脏/动态，不算头部三标准之一。
   - 读数 `logs/make_masks_af16_diffmask.json`，图 `figures/t1flair_v3_af16_diffmask_{masks,gauss_width}.png`
     （`http://localhost:8765/t1flair_v3_af16_diffmask/`）。
+## 2026-09-15 23:10 起跑（用户看图后拍板：跑第 1、2、4 列）
+
+第 1 列 = 已有的 `T1FLAIR_AF16_v3_jiangyizhou`（vd-Poisson 房屋掩膜），**早已跑完全部臂，不重跑**，当对照列。
+第 2 列 gauss 与第 4 列 radial 两个新课题跑全部方法。第 3 列 caipi 用户没选，掩膜留着不跑。
+
+- 调度器 `scripts/run_all_diffmask.py`（两个课题各一份，从 gauss 课题起）：102 个作业，最多 4 个 GPU 作业，
+  按层交错两个课题。`logs/run_all_diffmask.{log,_status.json}`，PID 在 `logs/run_all_diffmask.pid`，
+  跑完自动 `finalize_diffmask.sh`（注册 MC-GS 臂 → summarize → readme_tables 对照房屋课题 → 紧凑三面图）。
+- 臂与网格照 AF16 课题：ZF/CG-SENSE/CS-SENSE（base）、收敛 TV 各 5 个 λ、JTV 5 个 λ（AF16 原来只有 2 个，
+  按 AF24 网格补宽，让赢家落在内部）、ZS-SSDU、3D-DIP、3D-INR、L1-SPIRiT（ks 3/5 × 6 个 λ）、MC-INR、
+  GS-single、MC-GS。**L1-ESPIRiT 默认不跑**（用户 09-15 已把它移出对比），要跑加 `--with_l1espirit`。
+- MC-GS/GS-single 用冻结的 AF16 三期配方，`run_diffmask_mcgs.sh` 的配方块与 `run_af24_mcgs.sh` 逐字相同（已 diff 核对）。
+- 冒烟跑（60 步，两张掩膜都读对：15.20×，zero_lines 44 与 27）：gauss 头内 PSNR 33.534/32.634，
+  radial 30.191。只是可行性检查，不是结果。
+- ⚠️ **GPU 锁**：本调度器沿用心脏线 `Cardiac_FreeRunning_MCGS/work/.gpulock.<卡号>` 的锁，两个调度器不会挑到同一张卡。
+  心脏那个 `launch_gs_when_free.sh` 的 `release_lock` 用 `rmdir` 删带 `pid` 文件的目录，永远失败，所以锁会泄漏；
+  09-15 卡 1/2/5 就被属主已死的锁封了 5–9 小时。本调度器按"属主进程已死即回收"处理（不等它的 24 小时）。
+- ⚠️ radial 掩膜上 FLAIR 的 known_zero 估计器认不出椭圆快门（落在快门外的点只有 27 个，`frac_z_used=0`），
+  gauss 上是 0.218。这是掩膜性质不是 bug，写结果时要说明。
+- 基线测试（改动前）：206 通过，`results_arc/tests_baseline.txt`。
+
 - 待用户拍板：两张掩膜是否可用（高斯宽度可改 `--gauss_s`；改掩膜先删 data/ 下两个掩膜文件再重跑生成器）；同意后再定跑法
   （沿用 AF24 的 `run_all_af24.py` 作业表：MC-GS/GS-single 冻结 AF16 三期配方、经典臂按 AF24 网格重扫 λ、ZS-SSDU/DIP/INR/L1-SPIRiT/MC-INR）。
 - 基线测试在本 worktree 跑过一次（`results_arc/tests_baseline.txt`，改动前）。
