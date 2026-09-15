@@ -23,6 +23,12 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--gpu", type=int, default=7, help="-1 = CPU")
 ap.add_argument("--slice", type=int, default=170)   # mid-brain axial level (basal ganglia / ventricles)
 ap.add_argument("--out", default="/home/congcongliu/figs/ce_pair")
+ap.add_argument("--cache", default="/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/figures/cache/errormap_res.npz",
+                help="images, error maps (float16) and kres; reused while every input volume is unchanged")
+ap.add_argument("--recompute", action="store_true")
+ap.add_argument("--drop", nargs="*", default=["L1-ESPIRiT"],
+                help="column labels to leave out; default drops L1-ESPIRiT (user, 2026-09-15: L1-SPIRiT is the L1 arm). '--drop' with no labels renders every column")
+ap.add_argument("--suffix", default="", help="appended to the output file names")
 args = ap.parse_args()
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu) if args.gpu >= 0 else ""
@@ -67,6 +73,13 @@ COLS = [
     ("GS-single",                   lambda s: W / f"gs_single_{s}/gs_single_{s}_raw_complex.npy"),
     ("MC-GS",                       lambda s: W / f"gs_joint/gs_joint_{s}_raw_complex.npy"),
 ]
+# L1-SPIRiT (2026-09-15): inserted after L1-ESPIRiT once its held-out selection exists (ce_orchestrate.py plan spirit)
+SP = {sc: json.load(open(W / "logs/ext_20260914" / f"selection_spirit_{sc}.json")) for sc in ("pre", "post")
+      if (W / "logs/ext_20260914" / f"selection_spirit_{sc}.json").exists()}
+if len(SP) == 2:
+    COLS.insert([l for l, _ in COLS].index("L1-ESPIRiT") + 1,
+                ("L1-SPIRiT", lambda s: W / f"spirit/spirit_ks{SP[s]['ksize']}_i150_lam{SP[s]['lam']:g}_full_{s}_complex.npy"))
+COLS = [c for c in COLS if c[0] not in set(args.drop)]
 # held-out kres shown under each error map: only numbers whose fit never saw the 383 held-out lines
 # (kres_summary_20260914.json; heldout4_scores.json once the 95% runs of the other four columns exist)
 HO = {}
@@ -77,9 +90,25 @@ if (W / "heldout4_scores.json").exists():
     for label, per in json.load(open(W / "heldout4_scores.json")).items():
         for sc, v in per.items():
             HO[(sc, label)] = v["kres_heldout"]
+for sc, v in SP.items():
+    HO[(sc, "L1-SPIRiT")] = json.load(open(W / f"spirit/spirit_ks{v['ksize']}_i150_lam{v['lam']:g}_fit_{sc}_meta.json"))["kres_heldout"]
 CHUNK = 6
+cache = Path(args.cache)
+colsig = lambda sc, pth: json.dumps([str(pth(sc)), os.path.getmtime(pth(sc))])
+stored = {}
+if cache.exists() and not args.recompute:
+    with np.load(cache) as c:
+        stored = {k: c[k] for k in c.files if k not in ("sig", "meta")}
 res = {}
-for scan in ("pre", "post"):
+for sc in ("pre", "post"):
+    for label, pth in COLS:
+        k = f"{sc}|{label}"
+        if k + "|img" in stored and "sig|" + k in stored and str(stored["sig|" + k]) == colsig(sc, pth):
+            res[(sc, label)] = dict(img=stored[k + "|img"].astype(np.float32), err=stored[k + "|err"].astype(np.float32),
+                                    kres=float(stored["kres|" + k]), kho=HO.get((sc, label)))
+todo = {sc: [(l, pth) for l, pth in COLS if (sc, l) not in res] for sc in ("pre", "post")}
+log(f"cache {cache.name}: {2 * len(COLS) - sum(map(len, todo.values()))} of {2 * len(COLS)} panels reused")
+for scan in [sc for sc in ("pre", "post") if todo[sc]]:
     log(f"=== {scan} ===")
     y = torch.from_numpy(np.load(WORK[scan] / "ksp_full.npy")).to(dev)
     S = torch.from_numpy(np.load(WORK[scan] / "csm.npy")).to(dev)
@@ -96,7 +125,7 @@ for scan in ("pre", "post"):
     ref_peak = torch.quantile(zf.abs().flatten().float()[::7], 0.999).item()
     log(f"  ref_peak (P99.9 |ZF|) = {ref_peak:.4e}")
 
-    for label, pth in COLS:
+    for label, pth in todo[scan]:
         p = pth(scan)
         if not p.exists():
             log(f"  MISSING {p}"); continue
@@ -129,8 +158,17 @@ for scan in ("pre", "post"):
     del y, S, m3
     torch.cuda.empty_cache()
 
+if any(todo.values()):
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    allsig = dict(COLS)
+    for (sc, l), v in res.items():
+        k = f"{sc}|{l}"
+        stored[k + "|img"], stored[k + "|err"] = v["img"].astype(np.float16), v["err"].astype(np.float16)
+        stored["kres|" + k], stored["sig|" + k] = np.array(v["kres"]), np.array(colsig(sc, allsig[l]))
+    np.savez(cache, **stored)
+    log(f"cached to {cache}")
 json.dump({f"{s}|{l.splitlines()[0]}": v["kres"] for (s, l), v in res.items()},
-          open(W / "kres_summary_errormap_11col.json", "w"), indent=2)   # kres_summary.json keeps the 09-08 values
+          open(W / "kres_summary_errormap.json", "w"), indent=2)   # kres_summary.json keeps the 09-08 values
 
 # ---------------- slice pick ----------------------------------------------------------
 have = [l for l, _ in COLS if ("pre", l) in res and ("post", l) in res]
@@ -161,7 +199,7 @@ def draw(vmax_err, fname, note):
             if (scan, label) not in res:
                 ax.text(.5, .5, "n/a", ha="center", va="center", transform=ax.transAxes); continue
             d = res[(scan, label)]
-            im = np.rot90(d[kind][sl])
+            im = d[kind][sl]                                  # (A-P, L-R): anterior (eyes) up (2026-09-15, was rot90)
             if kind == "img":
                 ax.imshow(im, cmap="gray", vmin=0, vmax=0.9)
             else:
@@ -179,8 +217,8 @@ def draw(vmax_err, fname, note):
     fig.savefig(q, dpi=150, bbox_inches="tight"); plt.close(fig)
     log(f"saved {q}")
 
-draw(0.10, "ce_pair_methods_errormap.png", "")
-draw(0.02, "ce_pair_methods_errormap_zoom.png", "，5× 放大")
+draw(0.10, f"ce_pair_methods_errormap{args.suffix}.png", "")
+draw(0.02, f"ce_pair_methods_errormap_zoom{args.suffix}.png", "，5× 放大")
 
 log("kres table")
 log(f"{'method':<26s} {'pre':>9s} {'post':>9s} {'pre_ho':>9s} {'post_ho':>9s}")

@@ -23,6 +23,12 @@ ap.add_argument("--margin", type=int, default=4)
 ap.add_argument("--zlo", type=int, default=105, help="inferior cut of the brain slab (axis0)")
 ap.add_argument("--zax", type=int, default=170, help="axial display level (axis0)")
 ap.add_argument("--probe", action="store_true", help="dump an orientation check only")
+ap.add_argument("--cache", default="/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/figures/cache/paper_mag.npz",
+                help="alpha-scaled magnitudes (float16); reused while every input volume is unchanged")
+ap.add_argument("--recompute", action="store_true")
+ap.add_argument("--drop", nargs="*", default=["L1-ESPIRiT"],
+                help="column labels to leave out; default drops L1-ESPIRiT (user, 2026-09-15: L1-SPIRiT is the L1 arm). '--drop' with no labels renders every column")
+ap.add_argument("--suffix", default="", help="appended to the output file name")
 args = ap.parse_args()
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu) if args.gpu >= 0 else ""
@@ -67,9 +73,31 @@ COLS = [
     ("GS-single",                 lambda s: W / f"gs_single_{s}/gs_single_{s}_raw_complex.npy"),
     ("MC-GS",                     lambda s: W / f"gs_joint/gs_joint_{s}_raw_complex.npy"),
 ]
+# L1-SPIRiT (2026-09-15): inserted after L1-ESPIRiT once its held-out selection exists (ce_orchestrate.py plan spirit)
+SP = {sc: json.load(open(W / "logs/ext_20260914" / f"selection_spirit_{sc}.json")) for sc in ("pre", "post")
+      if (W / "logs/ext_20260914" / f"selection_spirit_{sc}.json").exists()}
+if len(SP) == 2:
+    COLS.insert([l for l, _ in COLS].index("L1-ESPIRiT") + 1,
+                ("L1-SPIRiT", lambda s: W / f"spirit/spirit_ks{SP[s]['ksize']}_i150_lam{SP[s]['lam']:g}_full_{s}_complex.npy"))
+COLS = [c for c in COLS if c[0] not in set(args.drop)]
 CHUNK = 6
+cache = Path(args.cache)
+colsig = lambda sc, pth: json.dumps([str(pth(sc)), os.path.getmtime(pth(sc))])
+stored = {}
+if cache.exists() and not args.recompute:
+    with np.load(cache) as c:
+        stored = {k: c[k] for k in c.files if k != "sig"}
 mag, zfmag = {}, {}
-for scan in ("pre", "post"):
+for sc in ("pre", "post"):
+    if f"zf|{sc}" in stored:
+        zfmag[sc] = stored[f"zf|{sc}"].astype(np.float32)
+    for label, pth in COLS:
+        k = f"{sc}|{label}"
+        if k in stored and "sig|" + k in stored and str(stored["sig|" + k]) == colsig(sc, pth):
+            mag[(sc, label)] = stored[k].astype(np.float32)
+todo = {sc: [(l, pth) for l, pth in COLS if (sc, l) not in mag] for sc in ("pre", "post")}
+log(f"cache {cache.name}: {2 * len(COLS) - sum(map(len, todo.values()))} of {2 * len(COLS)} volumes reused")
+for scan in [sc for sc in ("pre", "post") if todo[sc] or sc not in zfmag]:
     log(f"=== {scan} ===")
     y  = torch.from_numpy(np.load(WORK[scan] / "ksp_full.npy")).to(dev)
     S  = torch.from_numpy(np.load(WORK[scan] / "csm.npy")).to(dev)
@@ -79,7 +107,7 @@ for scan in ("pre", "post"):
     for i in range(0, NC, CHUNK):
         acc += (S[i:i+CHUNK].conj() * ifft3c(y[i:i+CHUNK])).sum(0)
     zfmag[scan] = acc.abs().cpu().numpy()
-    for label, pth in COLS:
+    for label, pth in todo[scan]:
         p = pth(scan)
         x = torch.from_numpy(np.load(p)).to(dev)
         if tuple(x.shape) != G:                              # GS renders in (X, Z, Y)
@@ -93,6 +121,15 @@ for scan in ("pre", "post"):
         log(f"  {label:<10s} |alpha|={abs(alpha.item()):.4f}")
         del x
     del y, S, m3, acc; torch.cuda.empty_cache()
+if any(todo.values()) or any(f"zf|{sc}" not in stored for sc in ("pre", "post")):
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    allsig = dict(COLS)
+    for sc in zfmag:
+        stored[f"zf|{sc}"] = zfmag[sc].astype(np.float16)
+    for (sc, l), m in mag.items():
+        stored[f"{sc}|{l}"], stored[f"sig|{sc}|{l}"] = m.astype(np.float16), np.array(colsig(sc, allsig[l]))
+    np.savez(cache, **stored)
+    log(f"cached magnitudes to {cache}")
 
 # ---- one common intensity scale for all 22 volumes ------------------------------------
 REF = float(np.percentile(zfmag["pre"][::3], 99.9))
@@ -125,9 +162,9 @@ log(f"lesion-centred slices: axial z={zi}  coronal y={yi}  sagittal x={xi}")
 
 # volume layout is (S-I, A-P, L-R); flip S-I so superior is up in coronal/sagittal
 def planes(v):
-    ax  = np.rot90(v[zi, y0:y1, x0:x1])            # axial   : (L-R, A-P)
+    ax  = v[zi, y0:y1, x0:x1]                      # axial   : (A-P, L-R), anterior (eyes) up (2026-09-15, was rot90)
     cor = v[z0:z1, yi, x0:x1][::-1]                # coronal : (S-I, L-R)
-    sag = v[z0:z1, y0:y1, xi][::-1, ::-1]          # sagittal: (S-I, A-P), anterior left
+    sag = v[z0:z1, y0:y1, xi][::-1, ::-1]          # sagittal: (S-I, A-P); A-P index 0 is anterior, so anterior is right
     return ax, cor, sag
 
 if args.probe:
@@ -164,7 +201,7 @@ cb = fig.colorbar(im, cax=cax)
 cb.set_label("normalized signal intensity (a.u.)", fontsize=8)
 cb.ax.tick_params(labelsize=7)
 for ext in ("png", "pdf"):
-    q = OUT / f"ce_pair_recon_3planes.{ext}"
+    q = OUT / f"ce_pair_recon_3planes{args.suffix}.{ext}"
     fig.savefig(q, dpi=args.dpi, bbox_inches="tight", pad_inches=0.01)
     log(f"saved {q}")
 plt.close(fig)

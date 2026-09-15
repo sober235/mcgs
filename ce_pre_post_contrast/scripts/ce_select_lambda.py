@@ -25,6 +25,12 @@ FAMILIES = {
     "joint":    dict(dir="tv_sense",  pattern="jsense_o200_lam*_fit_pre_meta.json", scans=("pre", "post")),
     "l1_pre":   dict(dir="l1espirit", pattern="l1espirit_i100_lam*_fit_pre_meta.json", scans=("pre",)),
     "l1_post":  dict(dir="l1espirit", pattern="l1espirit_i100_lam*_fit_post_meta.json", scans=("post",)),
+    # L1-SPIRiT (2026-09-15): one family per kernel size and scan; the kernel size is chosen afterwards on the same
+    # held-out criterion (ce_orchestrate.py plan spirit). lambda 0 is the grid floor, so a minimum there is accepted.
+    "spirit_ks3_pre":  dict(dir="spirit", pattern="spirit_ks3_i150_lam*_fit_pre_meta.json", scans=("pre",)),
+    "spirit_ks5_pre":  dict(dir="spirit", pattern="spirit_ks5_i150_lam*_fit_pre_meta.json", scans=("pre",)),
+    "spirit_ks3_post": dict(dir="spirit", pattern="spirit_ks3_i150_lam*_fit_post_meta.json", scans=("post",)),
+    "spirit_ks5_post": dict(dir="spirit", pattern="spirit_ks5_i150_lam*_fit_post_meta.json", scans=("post",)),
 }
 MAX_EXT = 3
 
