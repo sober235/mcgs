@@ -115,3 +115,43 @@ def wavelet_l21(vols: Sequence[torch.Tensor], wavelet: str = "db2", levels: int 
             b = band.reshape(nv, per, *band.shape[1:])
             total = total + _rho(((b * b).sum(1) * w2).sum(0), eps).sum()
     return total / vols[0].numel()
+
+
+def wavelet_l1_guided(vol: torch.Tensor, guide: torch.Tensor, wavelet: str = "db2", levels: int = 3, eps: float = 0.0,
+                      shifts: Optional[Iterable[int]] = None, on: str = "complex", q: float = 0.85,
+                      w_floor: float = 0.1) -> torch.Tensor:
+    """One-way guided wavelet sparsity: R_wav of ``vol`` with each detail coefficient weighted by
+
+        w = clamp(1 / (1 + (|W guide| / kappa)^2), w_floor, 1),   kappa = q-quantile of the guide's detail magnitudes
+
+    (guide detached, same transform and cycle-spin shift as ``vol``). The weight only drops where the guide has a strong
+    coefficient, so the guide's structure can relax ``vol``'s shrinkage there and nowhere raises it; the guide's own
+    penalty is untouched (unlike ``wavelet_l21``). A flat guide gives exactly ``wavelet_l1([vol])``; kappa has a floor of
+    1e-6 * max|guide| so round-off in a flat guide's coefficients stays harmless, and w is invariant to the guide's scale.
+    """
+    if on not in ("complex", "magnitude"):
+        raise ValueError(f"on must be 'complex' or 'magnitude', got {on!r}")
+
+    def parts(v):
+        if on == "complex":
+            vc = v if torch.is_complex(v) else torch.complex(v, torch.zeros_like(v))
+            return [vc.real, vc.imag]
+        return [v.abs()]
+
+    gd = guide.detach()
+    x = torch.stack(parts(vol) + parts(gd), 0)
+    if shifts is not None:
+        x = torch.roll(x, shifts=tuple(int(s) for s in shifts), dims=(1, 2, 3))
+    coeffs = ptwt.wavedec3(x, wavelet, level=levels, mode="periodic")
+    per = 2 if on == "complex" else 1
+    bands = [band for detail in coeffs[1:] for band in detail.values()]
+    with torch.no_grad():
+        mags = [(b[per:].detach() * b[per:].detach()).sum(0).sqrt() for b in bands]
+        flat = torch.cat([m.reshape(-1) for m in mags])
+        sub = flat[:: max(1, flat.numel() // 1_000_000)]
+        kappa = torch.maximum(torch.quantile(sub.double(), q).to(flat.dtype), 1e-6 * gd.abs().max().to(flat.dtype))
+    total = x.new_zeros(())
+    for b, m in zip(bands, mags):
+        w = torch.clamp(1.0 / (1.0 + (m / kappa) ** 2), min=w_floor, max=1.0)
+        total = total + (w * _rho((b[:per] * b[:per]).sum(0), eps)).sum()
+    return total / vol.numel()

@@ -60,6 +60,9 @@ p4_u_edge0020 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set lo
 # common edge 0.001 and push the scale further, before the probes below (which get rebased on the winner).
 p4_ue_k05 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --lambda_edge 0.001
 p4_ue_k025 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.25 --lambda_edge 0.001
+# 10:25: the same one-way relaxation for T2s's wavelet term (new loss.wav_union_guide; T1w's wavelet untouched),
+# on the zero-T1w-cost base union + guide kappa x0.5.
+p4_uk_wavg configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.wav_union_guide=true
 # rebased 07:30 onto union + common edge 0.001: p4_u_T2s_geo007
 p4_ue_T2s_geo007 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.07 --set loss.edge_tv_union_guide=true --lambda_edge 0.001
 # rebased 07:30 onto union + common edge 0.001: p4_u_T2s_wav006

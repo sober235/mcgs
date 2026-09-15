@@ -905,6 +905,14 @@ class JointTrainer:
             # joint (group) sparsity across the two contrasts: sqrt(w_p^2|Wx_p|^2 + w_c^2|Wx_c|^2) per
             # coefficient instead of w_p|Wx_p| + w_c|Wx_c|. Default off => the separate penalty, unchanged.
             wav_group = bool(loss_cfg.get("wav_group", False))
+            # one-way guided wavelet for the contrast: its shrinkage relaxed where the plain render has strong
+            # coefficients (losses/wavelet_l1.py::wavelet_l1_guided). Default off => unchanged.
+            wav_union_c = bool(loss_cfg.get("wav_union_guide", False))
+            if wav_union_c:
+                from losses.wavelet_l1 import wavelet_l1_guided
+                wav_union_q = float(loss_cfg.get("wav_union_q", 0.85))
+                wav_union_wf = float(loss_cfg.get("wav_union_wfloor", 0.1))
+                print(f"[wavelet] contrast guided by the plain render: q={wav_union_q} w_floor={wav_union_wf}")
             if wav_group:
                 from losses.wavelet_l1 import wavelet_l21
                 print(f"[wavelet] group (L2,1 across contrasts) with weights plain {wav_lam_p}, contrast {wav_lam_c}")
@@ -1039,7 +1047,13 @@ class JointTrainer:
             # R_wav: wavelet sparsity of both rendered volumes, cycle-spun (BART pics -l1 analogue).
             if lambda_wav > 0:
                 sh = tuple(torch.randint(0, 2 ** wav_levels, (3,), generator=wav_gen).tolist()) if wav_spin else None
-                if wav_group:
+                if wav_union_c and not wav_group:
+                    l_wav_w = (wav_lam_p * wavelet_l1([vol_p], wav_name, wav_levels, wav_eps, sh, wav_on)
+                               + wav_lam_c * wavelet_l1_guided(vol_c_reg, vol_p, wav_name, wav_levels, wav_eps, sh, wav_on,
+                                                               q=wav_union_q, w_floor=wav_union_wf))
+                    loss = loss + l_wav_w
+                    l_wav = l_wav_w / lambda_wav        # lambda_wav * l_wav is the term actually added
+                elif wav_group:
                     l_wav_w = wavelet_l21([vol_p, vol_c_reg], wav_name, wav_levels, wav_eps, sh, wav_on,
                                           weights=(wav_lam_p, wav_lam_c))
                     loss = loss + l_wav_w
