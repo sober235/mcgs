@@ -1,0 +1,9 @@
+# Stage 3 round 7: the best of both, 9.6M points + union guide. 19.2M overshot (T1w 38.936 -> 38.924)
+# and 9.6M is where the joint arm's T1w peaked; the union guide is what keeps T2s above its bars once
+# capacity is high. Two cells were short at 19.2M+union: T1w HFEN -0.0012 and T2s SSIM -0.0010.
+p3 p3_n96_union configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=9600000 --set loss.edge_tv_union_guide=true
+# Round 7b: the same, with the guide's kappa scale at 0.5. Verified on this gauge from claude-eb's
+# p4_u_k05 at 3.6M: T2s 34.208 / 0.9063 / 0.1826, all three above their bars (+0.033 / +0.0011 /
+# +0.0029) with T1w unchanged from c1. T2s SSIM is the cell that stayed short at 9.6M and 19.2M with
+# the guide at its default scale, so this is the version that has to carry the capacity.
+p3 p3_n96_union_k05 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=9600000 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5

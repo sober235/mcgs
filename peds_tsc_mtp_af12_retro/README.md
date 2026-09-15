@@ -109,33 +109,49 @@ the paper's normalisation and this topic's coincide (`mcinr/logs/check_real_data
 It lands eighth of ten on both contrasts — above 3D-DIP and 3D-INR, below CG-SENSE — which is where
 it landed on the adult topics too (eighth of eleven there).
 
-## Stage 3 — tuned on this subject (opened 2026-09-14, running)
+## Stage 3 — tuned on this subject (2026-09-14/15, closed)
 
 Stage 2 transferred the GS working point unchanged while L1-ESPIRiT's λ was swept here over 14 values
-and CS-SENSE's over 11. Stage 3 removes that asymmetry: the GS arms are tuned on this subject, the
-single arm alongside the joint one, and the table keeps both the transferred and the tuned rows
-(`gs_joint_ar` / `gs_single_ar` and `gs_joint_p3` / `gs_single_p3`). Design
-`docs/superpowers/specs/2026-09-14-peds-af12-mcgs-autoresearch-design.md`, round log
-`autoresearch_peds.md` (both in the worktree). **The campaign is still running; these two rows are
-its state on 2026-09-14, not a final answer.**
+and CS-SENSE's over 11. Stage 3 removed that asymmetry: the GS arms were tuned on this subject, the
+single arm alongside the joint one at every setting, and the table keeps the transferred rows beside
+the tuned ones. Design `docs/superpowers/specs/2026-09-14-peds-af12-mcgs-autoresearch-design.md`,
+round log `autoresearch_peds.md`, record `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md`
+(all in the worktree). Target: MC-GS first in all six head cells against every arm, GS-single
+included. **It was not met, and what the campaign found instead is worth more.**
 
-Working point so far: wavelet T1w 0.06 / T2s 0.10, edge-TV geometry **T1w 0.03 / T2s 0.10**, everything
-else at P10. The per-contrast geometry weight is new (`lambda_geo_plain` / `lambda_geo_contrast`); a
-single shared weight cannot serve both contrasts here, because T1w keeps improving as it falls while
-T2s degrades. T2s's own weights are unchanged by the tuning, so `gs_single_ar` is already its tuned
-single arm and only T1w's single was re-run.
+Final working point: wavelet T1w 0.06 / T2s 0.10, edge-TV geometry **T1w 0.03 / T2s 0.10**, 9.6M
+points, 4000 iterations, `edge_tv_union_guide` on with `edge_tv_union_kappa_scale` 0.5. Two of those
+are new code: the per-contrast geometry weight (`lambda_geo_plain` / `lambda_geo_contrast`) and the
+union guide, which bounds each T2s edge-TV weight by the plain render's.
 
-What it changes:
+1. **The joint arm is the best T2s reconstruction in this table.** MC-GS (tuned, 9.6M + union guide)
+   leads all three T2s head cells: 34.227 / 0.9056 / 0.1836 against GS-single's 34.175 / 0.9052 /
+   0.1855. The union guide is what does it, and it is the one mechanism found here that a
+   single-contrast arm cannot have — it bounds one contrast's smoothing by the other contrast's
+   edges, and there is no other contrast to borrow from when reconstructing alone. It costs T1w
+   nothing.
+2. **On T1w the single arm still wins, by 0.057 dB.** GS-single (tuned, 9.6M) reaches 38.993 / 0.9687
+   / 0.0764 against the joint arm's 38.936 / 0.9685 / 0.0768. Both GS arms pass L1-ESPIRiT on head
+   PSNR and SSIM; L1-ESPIRiT keeps head HFEN (0.0756).
+3. **Most of stage 2's joint deficit was capacity starvation, not the prior.** At matched settings the
+   joint-minus-single difference on T1w head PSNR is −0.332 at 3.6M points, −0.198 at 6.0M and
+   −0.057 at 9.6M: the single saturates after 6.0M (38.848 → 38.989 → 38.993) while the joint keeps
+   climbing (38.516 → 38.791 → 38.936). One cloud carrying two contrasts needs more points than one
+   carrying one, and every comparison on this line before 2026-09-15 ran at 3.6M. **Stage 2's "joint
+   is not better than single here" therefore holds at 3.6M points; at saturation the residual is
+   0.06 dB, not 0.33.**
+4. **The two contrasts want opposite things from every knob, and capacity is the only one that cannot
+   be split**, because the joint arm has a single cloud. T1w is representation-limited (it gains
+   +0.275 dB from 3.6M → 6.0M); T2s is SNR-limited (+0.032, and by 19.2M its SSIM and HFEN fall below
+   their bars as the extra Gaussians fit noise). The union guide is what holds T2s up once capacity
+   is high.
 
-- **The best T1w reconstruction in this table is now a GS arm.** GS-single (tuned) reaches head PSNR
-  38.848 and SSIM 0.9681, ahead of L1-ESPIRiT's 38.830 / 0.9674; L1-ESPIRiT keeps head HFEN
-  (0.0756 against 0.0761). Tuning moved the single arm 0.762 dB.
-- **The joint arm does not follow.** MC-GS (tuned) reaches 38.516, so joint − single on T1w went from
-  −0.230 at the transferred point to **−0.332** at the tuned one. The deficit grows as the prior gets
-  lighter, which is the opposite of a tuning artefact.
-- **The cross-contrast coupling trades one contrast for the other.** Adding the common-edge term
-  (λ 0.001) moves T2s above all three of its bars (34.197 / 0.9054 / 0.1837) and costs T1w 0.133 dB.
-  On this pair the short-TE contrast is the donor and the long-TE one the beneficiary.
+Caveats: one subject, tuned on itself, no held-out exam exists on this line; the tuned GS rows are
+comparable with the classical arms, which were swept on the same subject, but not with ZS-SSDU,
+3D-DIP, 3D-INR or MC-INR, which were not tuned. `edge_tv_union_guide` and
+`edge_tv_union_kappa_scale` come from the parallel stage-4 session on this branch (commit a22073f);
+its `p4_union` and `p4_u_k05` runs were re-scored through this topic's own `score_candidate` before
+being built on.
 
 ## Evaluation
 
@@ -168,7 +184,9 @@ Retrospective AF 12.00 of the 31616-point phase-encode matrix (7.56x of the 1991
 
 | method | head PSNR | head SSIM | head HFEN | PSNR | NMSE | sharp |
 |---|---|---|---|---|---|---|
-| GS-single (tuned) | **38.848** | **0.9681** | 0.0761 | **41.721** | **0.00334** | 0.885 |
+| GS-single (tuned, 9.6M) | **38.993** | **0.9687** | 0.0764 | **41.803** | **0.00327** | 0.880 |
+| MC-GS (tuned, 9.6M + union guide) | 38.936 | 0.9685 | 0.0768 | 41.739 | 0.00332 | 0.875 |
+| GS-single (tuned) | 38.848 | 0.9681 | 0.0761 | 41.721 | 0.00334 | 0.885 |
 | L1-ESPIRiT (λ 0.001) | 38.830 | 0.9674 | **0.0756** | 41.503 | 0.00351 | 0.924 |
 | MC-GS (tuned) | 38.516 | 0.9668 | 0.0774 | 41.404 | 0.00359 | 0.876 |
 | GS-single | 38.086 | 0.9629 | 0.0910 | 41.089 | 0.00386 | 0.818 |
@@ -185,7 +203,8 @@ Retrospective AF 12.00 of the 31616-point phase-encode matrix (7.56x of the 1991
 
 | method | head PSNR | head SSIM | head HFEN | PSNR | NMSE | sharp |
 |---|---|---|---|---|---|---|
-| GS-single | **34.175** | **0.9052** | **0.1855** | 36.991 | 0.01021 | 0.774 |
+| MC-GS (tuned, 9.6M + union guide) | **34.227** | **0.9056** | **0.1836** | 36.893 | 0.01044 | 0.782 |
+| GS-single | 34.175 | 0.9052 | 0.1855 | 36.991 | 0.01021 | 0.774 |
 | MC-GS (tuned) | 34.163 | 0.9047 | 0.1857 | **36.999** | **0.01019** | 0.760 |
 | MC-GS | 34.160 | 0.9047 | 0.1858 | 36.995 | 0.01020 | 0.759 |
 | L1-ESPIRiT (λ 0.003) | 33.860 | 0.9050 | 0.1882 | 36.745 | 0.01080 | 0.857 |
@@ -205,7 +224,9 @@ The same gauge over all 104 partitions, taken from each arm's own JSON; the cros
 
 | method | head PSNR | head SSIM | head HFEN | PSNR | NMSE |
 |---|---|---|---|---|---|
-| GS-single (tuned) | **38.928** | **0.9699** | 0.0764 | **42.132** | **0.00365** |
+| GS-single (tuned, 9.6M) | **39.087** | **0.9704** | 0.0767 | **42.217** | **0.00358** |
+| MC-GS (tuned, 9.6M + union guide) | 39.032 | 0.9703 | 0.0770 | 42.155 | 0.00363 |
+| GS-single (tuned) | 38.928 | 0.9699 | 0.0764 | 42.132 | 0.00365 |
 | L1-ESPIRiT (λ 0.001) | 38.924 | 0.9692 | **0.0760** | 41.851 | 0.00390 |
 | MC-GS (tuned) | 38.602 | 0.9686 | 0.0777 | 41.825 | 0.00392 |
 | GS-single | 38.141 | 0.9647 | 0.0912 | 41.500 | 0.00422 |
@@ -222,7 +243,8 @@ The same gauge over all 104 partitions, taken from each arm's own JSON; the cros
 
 | method | head PSNR | head SSIM | head HFEN | PSNR | NMSE |
 |---|---|---|---|---|---|
-| GS-single | **34.320** | **0.9065** | **0.1891** | 37.575 | 0.01135 |
+| MC-GS (tuned, 9.6M + union guide) | **34.375** | 0.9063 | **0.1874** | 37.431 | 0.01173 |
+| GS-single | 34.320 | **0.9065** | 0.1891 | 37.575 | 0.01135 |
 | MC-GS (tuned) | 34.315 | 0.9061 | 0.1893 | **37.588** | **0.01131** |
 | MC-GS | 34.312 | 0.9060 | 0.1894 | 37.583 | 0.01133 |
 | L1-ESPIRiT (λ 0.003) | 33.983 | 0.9054 | 0.1923 | 37.268 | 0.01218 |
