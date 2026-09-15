@@ -1,0 +1,44 @@
+cache errormap_res.npz: 0 of 22 panels reused
+=== pre ===
+  ref_peak (P99.9 |ZF|) = 1.4000e+02
+  ZF           kres=0.28449  |alpha|=1.0000
+  CG-SENSE     kres=0.18166  |alpha|=1.0000
+  CS-SENSE     kres=0.18487  |alpha|=1.0000
+  Joint SENSE  kres=0.18480  |alpha|=1.0000
+  L1-ESPIRiT   kres=0.18412  |alpha|=1.0000
+  ZS-SSDU      kres=0.18312  |alpha|=1.0000
+  3D-DIP       kres=0.22686  |alpha|=1.0000
+  3D-INR       kres=0.18573  |alpha|=1.0000
+  MC-INR       kres=0.18168  |alpha|=1.0000
+  GS-single    kres=0.19243  |alpha|=139.9405
+  MC-GS        kres=0.19761  |alpha|=139.9405
+=== post ===
+  ref_peak (P99.9 |ZF|) = 1.6715e+02
+  ZF           kres=0.27193  |alpha|=1.0000
+  CG-SENSE     kres=0.14640  |alpha|=1.0000
+  CS-SENSE     kres=0.14969  |alpha|=1.0000
+  Joint SENSE  kres=0.14999  |alpha|=1.0000
+  L1-ESPIRiT   kres=0.14728  |alpha|=1.0000
+  ZS-SSDU      kres=0.14797  |alpha|=1.0000
+  3D-DIP       kres=0.20722  |alpha|=1.0000
+  3D-INR       kres=0.15176  |alpha|=1.0000
+  MC-INR       kres=0.14620  |alpha|=1.0000
+  GS-single    kres=0.15856  |alpha|=167.9207
+  MC-GS        kres=0.16307  |alpha|=167.9207
+cached to /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/figures/cache/errormap_res.npz
+slice = 170 / 256
+saved /home/congcongliu/figs/ce_pair/ce_pair_methods_errormap.png
+saved /home/congcongliu/figs/ce_pair/ce_pair_methods_errormap_zoom.png
+kres table
+method                           pre      post    pre_ho   post_ho
+ZF                           0.28449   0.27193         -         -
+CG-SENSE                     0.18166   0.14640   0.32946   0.28164
+CS-SENSE                     0.18487   0.14969   0.31344   0.26974
+Joint SENSE                  0.18480   0.14999   0.31367   0.27052
+L1-ESPIRiT                   0.18412   0.14728   0.30797   0.26127
+ZS-SSDU                      0.18312   0.14797   0.30698   0.26254
+3D-DIP                       0.22686   0.20722   0.35891   0.33845
+3D-INR                       0.18573   0.15176   0.32226   0.27585
+MC-INR                       0.18168   0.14620   0.33333   0.28555
+GS-single                    0.19243   0.15856   0.32376   0.28309
+MC-GS                        0.19761   0.16307   0.32558   0.28462

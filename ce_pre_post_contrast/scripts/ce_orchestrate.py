@@ -13,6 +13,8 @@ Restartable: finished work is recognised from its meta files; job pids are kept 
 run detached:  setsid nohup python scripts/ce_orchestrate.py > logs/ext_20260914/orchestrate.log 2>&1 &
 plan heldout4 (2026-09-15): python scripts/ce_orchestrate.py heldout4 -- 95%-line runs of CG-SENSE, ZS-SSDU,
 GS-single and MC-GS (GS on the 3dd24aa trainer snapshot), then ce_score_heldout.py.
+plan spirit (2026-09-15): L1-SPIRiT grids (kernel 3 and 5 x lambda) on the 95% lines, held-out selection of
+lambda per kernel (with edge extension) and then of the kernel, 100% refit per scan (ce_spirit.py).
 """
 import json
 import os
@@ -91,14 +93,24 @@ def validation_ok():
     return abs(m["kres"] - ref) < 2e-4, m["kres"], ref
 
 
+def alive(pid):
+    try:
+        os.kill(pid, 0); return True
+    except OSError:
+        return False
+
+
 jobs = {}
 
 
 def add(j):
     if j["name"] not in jobs:
         done = j["done"]()                  # a job queued by plan_family after a restart may already be complete
-        jobs[j["name"]] = dict(j, state="done" if done else "pending", proc=None, gpu=None, tries=0)
-        log(f"{'already complete' if done else 'queued'} {j['name']} ({j['lane']}, prio {j['prio']})")
+        pf = JOBS / f"{j['name']}.pid"
+        live = (not done) and pf.exists() and alive(int(pf.read_text()))   # still running from a previous scheduler
+        jobs[j["name"]] = dict(j, state="done" if done else ("running" if live else "pending"), proc=None, gpu=None,
+                               tries=0, pid=int(pf.read_text()) if live else None)
+        log(f"{'already complete' if done else ('adopted running' if live else 'queued')} {j['name']} ({j['lane']}, prio {j['prio']})")
 
 
 if PLAN == "arms":
@@ -138,8 +150,50 @@ elif PLAN == "heldout4":
              cmd=lambda g: ["nice", "-n", "10", PY, "-u", str(SC / "ce_score_heldout.py")],
              done=lambda: meta_ok([T / "heldout4_scores.json"])))
     FINALS = list(jobs)
+elif PLAN == "spirit":
+    SP_FAMS = [f"spirit_ks{k}_{s_}" for s_ in ("pre", "post") for k in (3, 5)]
+
+    def sp_job(name, scan, ks, mask, lams, prio):
+        return dict(name=name, lane="gpu", prio=prio, need=40000, deps=[],
+                    cmd=lambda g: [PY, "-u", str(SC / "ce_spirit.py"), "--scan", scan, "--mask", mask, "--ksize", str(ks),
+                                   "--lams", lamstr(lams), "--gpu", str(g), "--out", str(T / "spirit")],
+                    done=lambda: meta_ok([T / "spirit" / f"spirit_ks{ks}_i150_lam{l:g}_{mask}_{scan}_meta.json" for l in lams]))
+    for pr, fam in enumerate(SP_FAMS, start=1):
+        _, k_, s_ = fam.split("_")
+        add(sp_job(f"{fam}_grid", s_, int(k_[2:]), "fit", GRIDS[fam], pr))
+    FINALS = ["sp_pre_final", "sp_post_final"]
 else:
     raise SystemExit(f"unknown plan {PLAN}")
+
+
+def plan_spirit(scan):
+    """per scan: settle lambda for kernel 3 and 5 (extension as in plan_family), then take the (kernel, lambda)
+    with the lowest held-out kres and queue the 100% refit."""
+    final = f"sp_{scan}_final"
+    if final in jobs:
+        return
+    best = None
+    for k in (3, 5):
+        fam = f"spirit_ks{k}_{scan}"
+        if not family_jobs_idle(fam):
+            return
+        r = select(fam, GRIDS[fam])
+        if not r["complete"]:
+            return
+        if r["next_lam"] is not None:
+            nm = f"{fam}_ext_{r['next_lam']:g}"
+            if nm not in jobs:
+                log(f"{fam}: held-out minimum at the {r['at_edge']} edge ({r['best']:g}); extending to {r['next_lam']:g}")
+                add(sp_job(nm, scan, k, "fit", [r["next_lam"]], 5))
+            return
+        score = r["rows"][f"{r['best']:g}"]["score"]
+        C.dump_json(r, LOGS / f"selection_{fam}.json")
+        if best is None or score < best[2]:
+            best = (k, r["best"], score)
+    k, lam, score = best
+    C.dump_json(dict(scan=scan, ksize=k, lam=lam, heldout=score), LOGS / f"selection_spirit_{scan}.json")
+    log(f"spirit {scan}: selected kernel {k}, lambda {lam:g} (held-out {score:.5f}); queueing the 100% refit")
+    add(sp_job(final, scan, k, "full", [lam], 6))
 
 FAMILY_JOBS = {"cs_pre": "cs_pre", "cs_post": "cs_post", "joint": "joint", "l1_pre": "l1_pre", "l1_post": "l1_post"}
 final_names = {"cs_pre": "cs_pre_final", "cs_post": "cs_post_final", "joint": "joint_final",
@@ -182,12 +236,14 @@ def plan_family(fam):
 def my_busy_gpus():
     apps = subprocess.run(["nvidia-smi", "--query-compute-apps=gpu_uuid,pid", "--format=csv,noheader,nounits"],
                           capture_output=True, text=True).stdout
-    gpus = subprocess.run(["nvidia-smi", "--query-gpu=index,uuid,memory.used,memory.total", "--format=csv,noheader,nounits"],
+    gpus = subprocess.run(["nvidia-smi", "--query-gpu=index,uuid,memory.used,memory.total,utilization.gpu", "--format=csv,noheader,nounits"],
                           capture_output=True, text=True).stdout
     uuid2idx, free = {}, {}
     for line in gpus.strip().splitlines():
-        i, u, used, tot = (p.strip() for p in line.split(","))
-        uuid2idx[u] = int(i); free[int(i)] = float(tot) - float(used)
+        i, u, used, tot, util = (p.strip() for p in line.split(","))
+        uuid2idx[u] = int(i)
+        # a card another user is computing on is not free: a job there ran ~9x slower (2026-09-15, GPU 3)
+        free[int(i)] = float(tot) - float(used) if float(util) < 30 else 0.0
     busy = set()
     for line in apps.strip().splitlines():
         parts = [p.strip() for p in line.split(",")]
@@ -202,13 +258,6 @@ def my_busy_gpus():
         if uid == UID and parts[0] in uuid2idx:
             busy.add(uuid2idx[parts[0]])
     return busy, free
-
-
-def alive(pid):
-    try:
-        os.kill(pid, 0); return True
-    except OSError:
-        return False
 
 
 prev_free = set()
@@ -241,6 +290,9 @@ while True:
     if PLAN == "arms":
         for fam in final_names:
             plan_family(fam)
+    elif PLAN == "spirit":
+        for sc_ in ("pre", "post"):
+            plan_spirit(sc_)
     finals = (["mcinr_full", "mcinr_fit"] + list(final_names.values())) if PLAN == "arms" else FINALS
     if all(jobs.get(f, {}).get("state") == "done" for f in finals):
         marker = "ALL_DONE" if PLAN == "arms" else f"ALL_DONE_{PLAN}"
@@ -252,6 +304,9 @@ while True:
         if PLAN == "arms":
             for fam in final_names:
                 plan_family(fam)
+        elif PLAN == "spirit":
+            for sc_ in ("pre", "post"):
+                plan_spirit(sc_)
         if all(j["state"] in ("done", "failed") for j in jobs.values()):
             log(f"STOPPED with unfinished finals {missing}"); break
 

@@ -1,0 +1,13 @@
+
+===== launch 2026-09-15 15:53:13 gpu 1 =====
+[pre] coils=42 grid=(256, 232, 176) mask=full (7663 lines) ACS=24x24 at (104,76) ksize=3 lams=[0.002] tyk=0.01 iters=150 scale=1.4000e+02
+[pre] calibration matrix 484 x 378
+  lam 0.002 step=0.1441 relative change (first 3 / middle 2 / last 2): 5.14e-02 3.49e-02 3.37e-02 3.33e-03 3.20e-03 8.55e-04 8.43e-04
+  readout 12/256  7s
+  readout 60/256  36s
+  readout 108/256  64s
+  readout 156/256  93s
+  readout 204/256  121s
+  readout 252/256  150s
+[spirit_ks3_i150_lam0.002_full_pre] kres full 0.18479 fit 0.18210 held-out 0.28443  |alpha| 1.0029
+DONE 161s (solver 153s for 1 lambdas)

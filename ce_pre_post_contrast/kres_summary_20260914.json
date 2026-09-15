@@ -52,6 +52,24 @@
       "note": "BART pics -l1, 100 FISTA, topic coil maps, lambda on held-out"
     },
     {
+      "method": "L1-SPIRiT",
+      "kres_pre": 0.18478925366095392,
+      "kres_post": 0.15137868821897496,
+      "heldout_pre": 0.31695358853107936,
+      "heldout_post": 0.2695429965524869,
+      "lam": {
+        "pre": {
+          "ksize": 3,
+          "lam": 0.002
+        },
+        "post": {
+          "ksize": 5,
+          "lam": 0.001
+        }
+      },
+      "note": "Lustig L1-SPIRiT, jyz FISTA port verbatim, kernel calibrated on the full-data 24x24 ACS, kernel and lambda on held-out (2026-09-15)"
+    },
+    {
       "method": "ZS-SSDU",
       "kres_pre": 0.18311965541920588,
       "kres_post": 0.14797110867556598,
@@ -118,7 +136,22 @@
     "cs_post": 0.002,
     "joint": 0.00283,
     "l1_pre": 0.004,
-    "l1_post": 0.002
+    "l1_post": 0.002,
+    "spirit_pre": {
+      "scan": "pre",
+      "ksize": 3,
+      "lam": 0.002,
+      "heldout": 0.31695358853107936
+    },
+    "spirit_post": {
+      "scan": "post",
+      "ksize": 5,
+      "lam": 0.001,
+      "heldout": 0.2695429965524869
+    }
   },
-  "heldout_definition": "kres on the 5% held-out PE lines of heldout_split/split_95_5_seed0.npz, alpha refit on those lines (ce_dip_inr.py kres_on)"
+  "heldout_definition": "kres on the 5% held-out PE lines of heldout_split/split_95_5_seed0.npz, alpha refit on those lines (ce_dip_inr.py kres_on)",
+  "dropped_from_comparison": {
+    "L1-ESPIRiT": "user 2026-09-15: L1-SPIRiT is the L1 arm (as in the jyz topics); reconstructions, sweeps and this row are kept, figures and rankings leave it out"
+  }
 }

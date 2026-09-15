@@ -106,7 +106,8 @@ ZF             0.28449    0.27193        -              -              -
 CG-SENSE       0.18166    0.14640      0.32946        0.28164        0.30555
 CS-SENSE       0.18487    0.14969      0.31344        0.26974        0.29159        2e-3 / 2e-3
 Joint SENSE    0.18480    0.14999      0.31367        0.27052        0.29210        2.83e-3 (pair)
-L1-ESPIRiT     0.18412    0.14728      0.30797        0.26127        0.28462        4e-3 / 2e-3
+L1-ESPIRiT     0.18412    0.14728      0.30797        0.26127        0.28462        4e-3 / 2e-3   (not shown since 09-15)
+L1-SPIRiT      0.18479    0.15138      0.31695        0.26954        0.29325        k3 2e-3 / k5 1e-3
 ZS-SSDU        0.18312    0.14797      0.30698        0.26254        0.28476
 3D-DIP         0.22686    0.20722      0.35891        0.33845        0.34868
 3D-INR         0.18573    0.15176      0.32226        0.27585        0.29906
@@ -119,8 +120,9 @@ Source: `kres_summary_20260914.json`. Held-out numbers for CG-SENSE, ZS-SSDU, GS
 `heldout4_scores.json` (2026-09-15, see below).
 
 Reading the held-out columns:
-- **Ranking by mean held-out kres:** L1-ESPIRiT 0.28462 ≈ ZS-SSDU 0.28476 < CS-SENSE 0.29159 ≈ Joint SENSE 0.29210
-  < 3D-INR 0.29906 < GS-single 0.30343 < MC-GS 0.30510 < CG-SENSE 0.30555 < MC-INR 0.30944 < 3D-DIP 0.34868.
+- **Ranking by mean held-out kres** (shown arms; L1-ESPIRiT, dropped on 09-15, would sit first at 0.28462):
+  ZS-SSDU 0.28476 < CS-SENSE 0.29159 ≈ Joint SENSE 0.29210
+  < L1-SPIRiT 0.29325 < 3D-INR 0.29906 < GS-single 0.30343 < MC-GS 0.30510 < CG-SENSE 0.30555 < MC-INR 0.30944 < 3D-DIP 0.34868.
   ZS-SSDU is lowest on pre, L1-ESPIRiT on post.
 - **Coupling gives no held-out gain on this pair, in either family.** Joint SENSE ≈ CS-SENSE (+0.0005 mean), and
   MC-GS is slightly above GS-single on both scans (+0.0018 pre, +0.0015 post). The GS columns run the frozen
@@ -149,9 +151,48 @@ Same frozen split, same scorer (`ce_score_heldout.py` → `heldout4_scores.json`
   09-07 runs imported (see SOURCE.txt), so the 95% and 100% GS runs share the code. Outputs in `gs_fit/`.
   MC-GS took 1 h 53 min on a shared card.
 
-Figure: `figures/ce_pair_recon_3planes.{png,pdf}` now has 11 columns in the order of the table above; the
+### 2026-09-15: L1-SPIRiT added
+
+The user asked for L1-SPIRiT (Lustig & Pauly 2010), the k-space method, as well as L1-ESPIRiT; the 09-14 request's
+"l1-spirit" had been read as L1-ESPIRiT. `ce_spirit.py` reuses the jyz topics' registered arm: every numerical
+function between its "verbatim" markers is byte-identical to `T1FLAIR_AF16_v3_jiangyizhou/scripts/recon_spirit.py`
+(md5 6c25087d20de; checked with diff). That port was aligned with Lustig's MATLAB toolbox to 1e-12, and it replaces
+pocsSPIRiT, which diverges on that data, with a damped proximal-gradient/FISTA step on the same objective. Only the
+data wiring is new:
+- **Data.** Hybrid space along readout axis 0. Data are normalised by the classical P99.9 |ZF| scale, the completed
+  coil k-space is combined with this topic's maps, and the result is scored like every column.
+- **Calibration.** The kernel is calibrated from the full-data 24 x 24 ACS in every run. The 95% mask shatters that
+  block (its largest centred fully sampled block is 18 x 4), and the coil maps every arm uses were also estimated
+  from the full data. 26 of the 576 ACS lines (4.5%) are held-out lines; they inform the kernel but never the
+  data-consistency term.
+- **Grid.** Kernel 3 and 5 x lambda {0, 5e-4, 1e-3, 2e-3, 4e-3, 8e-3}, 150 iterations, the jyz grid. Kernel 3 gives a
+  484 x 378 calibration matrix; kernel 5 gives 400 x 1050, under-determined and carried by Tikhonov 0.01.
+- **Selection.** Lambda per kernel on held-out kres, then the kernel on the same number (plan `ce_orchestrate.py spirit`).
+  - Pre: kernel 3, lambda 2e-3, 0.31695. Kernel 5 at 2e-3 gives 0.31696, a tie.
+  - Post: kernel 5, lambda 1e-3, 0.26954 (kernel 3 best 0.27029).
+  - Every minimum is interior. Plain SPIRiT (lambda 0) gives 0.370 / 0.311: the self-consistency prior alone does
+    not carry this data, as on jyz.
+- **Result.** Mean held-out 0.29325, just behind CS-SENSE / Joint SENSE and ahead of 3D-INR, GS and CG-SENSE.
+  kres 0.18479 / 0.15138 (100% refits). FISTA relative change after 150 iterations is 4e-4 to 2.5e-3.
+- **Gotcha (CPU only).** In GSTMI (torch 2.7.1), batched single-precision complex `torch.linalg.solve` on CPU dies
+  with "Intel oneMKL ERROR: Parameter 6 was incorrect on entry to CLASWP", and no Python traceback is printed. The
+  calibration therefore needs a GPU; the CPU `--smoke` mode of ce_spirit.py cannot get past it.
+- **Scheduling.** A job on a card another user was computing on ran ~9x slower (304 s vs 34 s per chunk). The
+  scheduler now treats a card as free only below 30% utilisation. Its `add()` adopts a still-running job from a
+  previous scheduler instance instead of launching it twice.
+
+Figures of record (user, 2026-09-15: "使用 l1-spirit"): `figures/ce_pair_recon_3planes.{png,pdf}` and
+`ce_pair_methods_errormap{,_zoom}.png` have 11 columns: ZF, CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT, ZS-SSDU,
+3D-DIP, 3D-INR, MC-INR, GS-single, MC-GS. **L1-ESPIRiT is dropped from the comparison**, as in the jyz topics.
+Nothing was deleted: its reconstructions, sweep and table row stay. Both figure scripts drop it by default;
+`--drop` with no labels renders all 12 columns. The earlier render with L1-ESPIRiT and without L1-SPIRiT is kept
+as `*_11col_20260915`; a 12-column render and `*_spirit` duplicates were made and deleted after the decision.
+Earlier: `figures/ce_pair_recon_3planes.{png,pdf}` had 11 columns in the order of the table above; the
 single-scan and joint GS columns are relabelled GS-single and MC-GS. The 09-08 8-column version is kept
-as `figures/ce_pair_recon_3planes_8col_20260908.{png,pdf}`. The coronal and sagittal planes pass through
+as `figures/ce_pair_recon_3planes_8col_20260908.{png,pdf}`. Since 2026-09-15 the axial panels of both figures are
+shown anterior (eyes) up: the array slice v[z] without the former rot90; A-P index 0 is anterior. Sagittal panels
+still show anterior on the right. Both figure scripts cache their per-volume magnitudes in `figures/cache/`, so
+a re-render takes seconds while the input volumes are unchanged; pass `--recompute` to rebuild. The coronal and sagittal planes pass through
 the voxel with the strongest smoothed positive CG-SENSE post-minus-pre difference. This is an intensity
 landmark, not an annotated lesion.
 

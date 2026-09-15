@@ -1,0 +1,23 @@
+
+===== launch 2026-09-15 15:24:08 gpu 1 =====
+[pre] coils=42 grid=(256, 232, 176) mask=fit (7280 lines) ACS=24x24 at (104,76) ksize=5 lams=[0.0, 0.0005, 0.001, 0.002, 0.004, 0.008] tyk=0.01 iters=150 scale=1.4000e+02
+[pre] calibration matrix 400 x 1050  (under-determined, Tikhonov carries it)
+  lam 0 step=0.1728 relative change (first 3 / middle 2 / last 2): 6.85e-02 4.68e-02 4.47e-02 4.51e-03 4.40e-03 1.43e-03 1.42e-03
+  lam 0.0005 step=0.1728 relative change (first 3 / middle 2 / last 2): 6.84e-02 4.68e-02 4.47e-02 3.56e-03 3.44e-03 1.04e-03 1.02e-03
+  lam 0.001 step=0.1728 relative change (first 3 / middle 2 / last 2): 6.84e-02 4.67e-02 4.46e-02 3.06e-03 2.95e-03 8.76e-04 8.64e-04
+  lam 0.002 step=0.1728 relative change (first 3 / middle 2 / last 2): 6.83e-02 4.66e-02 4.44e-02 2.43e-03 2.34e-03 7.81e-04 7.75e-04
+  lam 0.004 step=0.1728 relative change (first 3 / middle 2 / last 2): 6.82e-02 4.64e-02 4.40e-02 2.07e-03 2.05e-03 6.46e-04 6.35e-04
+  lam 0.008 step=0.1728 relative change (first 3 / middle 2 / last 2): 6.80e-02 4.60e-02 4.35e-02 2.13e-03 2.09e-03 4.65e-04 4.60e-04
+  readout 12/256  37s
+  readout 60/256  183s
+  readout 108/256  327s
+  readout 156/256  473s
+  readout 204/256  618s
+  readout 252/256  764s
+[spirit_ks5_i150_lam0_fit_pre] kres full 0.19054 fit 0.18492 held-out 0.36525  |alpha| 0.9970
+[spirit_ks5_i150_lam0.0005_fit_pre] kres full 0.18746 fit 0.18326 held-out 0.32937  |alpha| 0.9996
+[spirit_ks5_i150_lam0.001_fit_pre] kres full 0.18662 fit 0.18271 held-out 0.32106  |alpha| 1.0010
+[spirit_ks5_i150_lam0.002_fit_pre] kres full 0.18637 fit 0.18261 held-out 0.31696  |alpha| 1.0028
+[spirit_ks5_i150_lam0.004_fit_pre] kres full 0.18734 fit 0.18355 held-out 0.31842  |alpha| 1.0050
+[spirit_ks5_i150_lam0.008_fit_pre] kres full 0.18996 fit 0.18604 held-out 0.32495  |alpha| 1.0074
+DONE 789s (solver 779s for 6 lambdas)

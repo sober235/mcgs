@@ -1,0 +1,25 @@
+cache errormap_res.npz: 22 of 24 panels reused
+=== pre ===
+  ref_peak (P99.9 |ZF|) = 1.4000e+02
+  L1-SPIRiT    kres=0.18479  |alpha|=1.0000
+=== post ===
+  ref_peak (P99.9 |ZF|) = 1.6715e+02
+  L1-SPIRiT    kres=0.15138  |alpha|=1.0000
+cached to /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/figures/cache/errormap_res.npz
+slice = 170 / 256
+saved /home/congcongliu/figs/ce_pair/ce_pair_methods_errormap.png
+saved /home/congcongliu/figs/ce_pair/ce_pair_methods_errormap_zoom.png
+kres table
+method                           pre      post    pre_ho   post_ho
+ZF                           0.28449   0.27193         -         -
+CG-SENSE                     0.18166   0.14640   0.32946   0.28164
+CS-SENSE                     0.18487   0.14969   0.31344   0.26974
+Joint SENSE                  0.18480   0.14999   0.31367   0.27052
+L1-ESPIRiT                   0.18412   0.14728   0.30797   0.26127
+L1-SPIRiT                    0.18479   0.15138   0.31695   0.26954
+ZS-SSDU                      0.18312   0.14797   0.30698   0.26254
+3D-DIP                       0.22686   0.20722   0.35891   0.33845
+3D-INR                       0.18573   0.15176   0.32226   0.27585
+MC-INR                       0.18168   0.14620   0.33333   0.28555
+GS-single                    0.19243   0.15856   0.32376   0.28309
+MC-GS                        0.19761   0.16307   0.32558   0.28462

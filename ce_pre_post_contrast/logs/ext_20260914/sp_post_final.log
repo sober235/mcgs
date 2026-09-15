@@ -1,0 +1,13 @@
+
+===== launch 2026-09-15 16:30:47 gpu 2 =====
+[post] coils=42 grid=(256, 232, 176) mask=full (7663 lines) ACS=24x24 at (104,76) ksize=5 lams=[0.001] tyk=0.01 iters=150 scale=1.6715e+02
+[post] calibration matrix 400 x 1050  (under-determined, Tikhonov carries it)
+  lam 0.001 step=0.1672 relative change (first 3 / middle 2 / last 2): 4.80e-02 3.31e-02 3.19e-02 2.98e-03 2.90e-03 8.60e-04 8.48e-04
+  readout 12/256  9s
+  readout 60/256  46s
+  readout 108/256  81s
+  readout 156/256  117s
+  readout 204/256  153s
+  readout 252/256  189s
+[spirit_ks5_i150_lam0.001_full_post] kres full 0.15138 fit 0.14911 held-out 0.23468  |alpha| 1.0018
+DONE 201s (solver 193s for 1 lambdas)

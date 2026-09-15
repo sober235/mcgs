@@ -1,0 +1,39 @@
+
+===== launch 2026-09-15 15:31:28 gpu 3 =====
+[post] coils=42 grid=(256, 232, 176) mask=fit (7280 lines) ACS=24x24 at (104,76) ksize=3 lams=[0.0, 0.0005, 0.001, 0.002, 0.004, 0.008] tyk=0.01 iters=150 scale=1.6715e+02
+[post] calibration matrix 484 x 378
+  lam 0 step=0.1192 relative change (first 3 / middle 2 / last 2): 3.53e-02 2.56e-02 2.57e-02 5.11e-03 5.05e-03 2.45e-03 2.43e-03
+  lam 0.0005 step=0.1192 relative change (first 3 / middle 2 / last 2): 3.53e-02 2.56e-02 2.56e-02 4.26e-03 4.18e-03 1.30e-03 1.28e-03
+  lam 0.001 step=0.1192 relative change (first 3 / middle 2 / last 2): 3.53e-02 2.56e-02 2.56e-02 3.96e-03 3.89e-03 1.08e-03 1.07e-03
+  lam 0.002 step=0.1192 relative change (first 3 / middle 2 / last 2): 3.53e-02 2.55e-02 2.55e-02 3.70e-03 3.62e-03 9.86e-04 9.78e-04
+  lam 0.004 step=0.1192 relative change (first 3 / middle 2 / last 2): 3.52e-02 2.54e-02 2.54e-02 3.13e-03 3.04e-03 8.27e-04 8.15e-04
+  lam 0.008 step=0.1192 relative change (first 3 / middle 2 / last 2): 3.52e-02 2.53e-02 2.52e-02 2.24e-03 2.17e-03 6.04e-04 5.97e-04
+  readout 12/256  304s
+
+===== launch 2026-09-15 15:54:14 gpu 3 =====
+[post] coils=42 grid=(256, 232, 176) mask=fit (7280 lines) ACS=24x24 at (104,76) ksize=3 lams=[0.0, 0.0005, 0.001, 0.002, 0.004, 0.008] tyk=0.01 iters=150 scale=1.6715e+02
+[post] calibration matrix 484 x 378
+  lam 0 step=0.1190 relative change (first 3 / middle 2 / last 2): 3.52e-02 2.56e-02 2.57e-02 5.11e-03 5.05e-03 2.45e-03 2.43e-03
+
+===== launch 2026-09-15 15:56:07 gpu 1 =====
+[post] coils=42 grid=(256, 232, 176) mask=fit (7280 lines) ACS=24x24 at (104,76) ksize=3 lams=[0.0, 0.0005, 0.001, 0.002, 0.004, 0.008] tyk=0.01 iters=150 scale=1.6715e+02
+[post] calibration matrix 484 x 378
+  lam 0 step=0.1192 relative change (first 3 / middle 2 / last 2): 3.53e-02 2.56e-02 2.57e-02 5.11e-03 5.05e-03 2.45e-03 2.43e-03
+  lam 0.0005 step=0.1192 relative change (first 3 / middle 2 / last 2): 3.53e-02 2.56e-02 2.56e-02 4.26e-03 4.19e-03 1.30e-03 1.28e-03
+  lam 0.001 step=0.1192 relative change (first 3 / middle 2 / last 2): 3.53e-02 2.56e-02 2.56e-02 3.97e-03 3.89e-03 1.08e-03 1.07e-03
+  lam 0.002 step=0.1192 relative change (first 3 / middle 2 / last 2): 3.52e-02 2.55e-02 2.55e-02 3.70e-03 3.62e-03 9.86e-04 9.78e-04
+  lam 0.004 step=0.1192 relative change (first 3 / middle 2 / last 2): 3.52e-02 2.54e-02 2.54e-02 3.13e-03 3.04e-03 8.27e-04 8.16e-04
+  lam 0.008 step=0.1192 relative change (first 3 / middle 2 / last 2): 3.52e-02 2.53e-02 2.52e-02 2.24e-03 2.17e-03 6.04e-04 5.97e-04
+  readout 12/256  77s
+  readout 60/256  428s
+  readout 108/256  778s
+  readout 156/256  1129s
+  readout 204/256  1479s
+  readout 252/256  1830s
+[spirit_ks3_i150_lam0_fit_post] kres full 0.15811 fit 0.15315 held-out 0.31114  |alpha| 0.9971
+[spirit_ks3_i150_lam0.0005_fit_post] kres full 0.15288 fit 0.14921 held-out 0.27525  |alpha| 1.0007
+[spirit_ks3_i150_lam0.001_fit_post] kres full 0.15235 fit 0.14884 held-out 0.27029  |alpha| 1.0024
+[spirit_ks3_i150_lam0.002_fit_post] kres full 0.15336 fit 0.14982 held-out 0.27197  |alpha| 1.0044
+[spirit_ks3_i150_lam0.004_fit_post] kres full 0.15614 fit 0.15243 held-out 0.27938  |alpha| 1.0068
+[spirit_ks3_i150_lam0.008_fit_post] kres full 0.16084 fit 0.15688 held-out 0.29094  |alpha| 1.0093
+DONE 1905s (solver 1895s for 6 lambdas)

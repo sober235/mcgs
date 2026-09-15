@@ -1,0 +1,29 @@
+{
+  "method": "spirit",
+  "scan": "pre",
+  "mask": "full",
+  "ksize": 3,
+  "lam": 0.002,
+  "tyk": 0.01,
+  "iters": 150,
+  "levels": 4,
+  "solver": "fista",
+  "acs": "24x24",
+  "calib": "full-data ACS",
+  "npatch": 484,
+  "ncols": 378,
+  "scale": 140.00473022460938,
+  "alpha_re": 1.002870678651011,
+  "alpha_im": -8.271441318126222e-05,
+  "kres": 0.18478925366095392,
+  "kres_fit": 0.18209562161474863,
+  "kres_heldout": 0.2844342261268411,
+  "heldout_is_unseen": false,
+  "step_median": 0.2332838315374126,
+  "relchange_first_chunk": [
+    0.0008426698623225093
+  ],
+  "seconds_all_lams": 152.94808506965637,
+  "torch": "2.7.1+cu118",
+  "gpu": "NVIDIA A800 80GB PCIe"
+}

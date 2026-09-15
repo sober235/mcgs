@@ -1,0 +1,30 @@
+09-15 14:13:48 queued spirit_ks3_pre_grid (gpu, prio 1)
+09-15 14:13:48 queued spirit_ks5_pre_grid (gpu, prio 2)
+09-15 14:13:48 queued spirit_ks3_post_grid (gpu, prio 3)
+09-15 14:13:48 queued spirit_ks5_post_grid (gpu, prio 4)
+09-15 15:11:29 launched spirit_ks3_pre_grid on gpu 1 pid 3654146
+09-15 15:24:07 done spirit_ks3_pre_grid (gpu 1)
+09-15 15:24:08 launched spirit_ks5_pre_grid on gpu 1 pid 3681323
+09-15 15:31:28 launched spirit_ks3_post_grid on gpu 3 pid 3696819
+09-15 15:37:32 done spirit_ks5_pre_grid (gpu 1)
+09-15 15:37:32 spirit pre: selected kernel 3, lambda 0.002 (held-out 0.31695); queueing the 100% refit
+09-15 15:37:32 queued sp_pre_final (gpu, prio 6)
+09-15 15:37:32 launched spirit_ks5_post_grid on gpu 1 pid 3710085
+09-15 15:50:56 done spirit_ks5_post_grid (gpu 1)
+09-15 15:53:13 launched sp_pre_final on gpu 1 pid 3747580
+09-15 15:54:13 RETRY spirit_ks3_post_grid rc=-15; see /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/logs/ext_20260914/spirit_ks3_post_grid.log
+09-15 15:54:14 launched spirit_ks3_post_grid on gpu 3 pid 3750726
+09-15 15:55:36 already complete spirit_ks3_pre_grid (gpu, prio 1)
+09-15 15:55:36 already complete spirit_ks5_pre_grid (gpu, prio 2)
+09-15 15:55:36 queued spirit_ks3_post_grid (gpu, prio 3)
+09-15 15:55:36 already complete spirit_ks5_post_grid (gpu, prio 4)
+09-15 15:55:36 spirit pre: selected kernel 3, lambda 0.002 (held-out 0.31695); queueing the 100% refit
+09-15 15:55:36 adopted running sp_pre_final (gpu, prio 6)
+09-15 15:56:07 done sp_pre_final (gpu None)
+09-15 15:56:07 launched spirit_ks3_post_grid on gpu 1 pid 3757030
+09-15 16:28:00 done spirit_ks3_post_grid (gpu 1)
+09-15 16:28:00 spirit post: selected kernel 5, lambda 0.001 (held-out 0.26954); queueing the 100% refit
+09-15 16:28:00 queued sp_post_final (gpu, prio 6)
+09-15 16:30:47 launched sp_post_final on gpu 2 pid 3868255
+09-15 16:34:20 done sp_post_final (gpu 2)
+09-15 16:34:20 ALL DONE

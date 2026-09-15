@@ -1,0 +1,11 @@
+cache paper_mag.npz: 22 of 24 volumes reused
+=== pre ===
+  L1-SPIRiT  |alpha|=1.0000
+=== post ===
+  L1-SPIRiT  |alpha|=1.0000
+cached magnitudes to /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/figures/cache/paper_mag.npz
+common scale (P99.9 of |ZF_pre|) = 1.3988e+02
+brain bbox: axis0 105:250  axis1 31:232  axis2 0:172
+lesion-centred slices: axial z=170  coronal y=162  sagittal x=86
+saved /home/congcongliu/figs/ce_pair/ce_pair_recon_3planes.png
+saved /home/congcongliu/figs/ce_pair/ce_pair_recon_3planes.pdf

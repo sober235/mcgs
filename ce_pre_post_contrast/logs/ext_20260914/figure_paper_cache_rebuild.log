@@ -1,0 +1,31 @@
+cache paper_mag.npz: 0 of 22 volumes reused
+=== pre ===
+  ZF         |alpha|=1.0000
+  CG-SENSE   |alpha|=1.0000
+  CS-SENSE   |alpha|=1.0000
+  Joint SENSE |alpha|=1.0000
+  L1-ESPIRiT |alpha|=1.0000
+  ZS-SSDU    |alpha|=1.0000
+  3D-DIP     |alpha|=1.0000
+  3D-INR     |alpha|=1.0000
+  MC-INR     |alpha|=1.0000
+  GS-single  |alpha|=139.9405
+  MC-GS      |alpha|=139.9404
+=== post ===
+  ZF         |alpha|=1.0000
+  CG-SENSE   |alpha|=1.0000
+  CS-SENSE   |alpha|=1.0000
+  Joint SENSE |alpha|=1.0000
+  L1-ESPIRiT |alpha|=1.0000
+  ZS-SSDU    |alpha|=1.0000
+  3D-DIP     |alpha|=1.0000
+  3D-INR     |alpha|=1.0000
+  MC-INR     |alpha|=1.0000
+  GS-single  |alpha|=167.9207
+  MC-GS      |alpha|=167.9207
+cached magnitudes to /data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/figures/cache/paper_mag.npz
+common scale (P99.9 of |ZF_pre|) = 1.3988e+02
+brain bbox: axis0 105:250  axis1 31:232  axis2 0:172
+lesion-centred slices: axial z=170  coronal y=162  sagittal x=86
+saved /home/congcongliu/figs/ce_pair/ce_pair_recon_3planes.png
+saved /home/congcongliu/figs/ce_pair/ce_pair_recon_3planes.pdf
