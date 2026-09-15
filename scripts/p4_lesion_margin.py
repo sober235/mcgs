@@ -27,6 +27,8 @@ SLICES = {"transverse": (2, [44, 45, 46, 52, 53, 54, 68, 69, 70]),
 ap = argparse.ArgumentParser()
 ap.add_argument("--exp", action="append", default=[])
 ap.add_argument("--contrast", default="T2s", choices=["T2s", "T1w"])
+ap.add_argument("--l1_arm", default="spirit", choices=["spirit", "espirit"],
+                help="the L1 column: L1-SPIRiT (user 2026-09-15, replaces L1-ESPIRiT) or the old L1-ESPIRiT")
 a = ap.parse_args()
 c = a.contrast
 rows = json.load(open(R / "logs/summary.json"))
@@ -39,6 +41,18 @@ def lam_file(key, prefix):
         if m and abs(float(m.group(1)) - float(lam)) < 1e-12:
             return p
     raise FileNotFoundError(key)
+
+
+def spirit_file():
+    """the L1-SPIRiT point the table registers: best head PSNR over logs/spirit_<c>_*.json (both calibrations)"""
+    best = None
+    for lp in R.glob(f"logs/spirit_{c}_*.json"):
+        d = json.load(open(lp))
+        hp = d["rows"][0]["head_psnr"]
+        if best is None or hp > best[0]:
+            best = (hp, lp)
+    sfx = best[1].name[len(f"spirit_{c}"):-len(".json")]
+    return R / f"recon/spirit{sfx}_{c}_complex.npy"
 
 
 gt = np.abs(np.load(R / f"recon/gt_{c}_complex.npy")).astype(np.float64)
@@ -65,7 +79,8 @@ def per_slice(v):
 
 
 comp = {"CG-SENSE": R / f"recon/cgsense_{c}_complex.npy", "CS-SENSE": lam_file("cssense_o200", "cssense_o200"),
-        "Joint SENSE": lam_file("jcssense", "jcssense_o200"), "L1-ESPIRiT": lam_file("l1espirit", "l1espirit"),
+        "Joint SENSE": lam_file("jcssense", "jcssense_o200"),
+        **({"L1-SPIRiT": spirit_file()} if a.l1_arm == "spirit" else {"L1-ESPIRiT": lam_file("l1espirit", "l1espirit")}),
         "ZS-SSDU": R / f"recon/zsssdu_{c}_complex.npy", "3D-DIP": R / f"recon/dip_{c}_complex.npy",
         "3D-INR": R / f"recon/inr_{c}_complex.npy", "MC-INR": R / f"recon/mcinr_{c}_complex.npy",
         "GS-single": R / f"recon/gs_single_ar_{c}_complex.npy"}
@@ -75,7 +90,7 @@ for sp in sorted(R.glob(f"recon/gs_single_*_{c}_complex.npy")):          # every
         comp[f"GS-single ({tag})"] = sp
 for sj in ARC.glob(f"*single_{c}*_volumes.npz"):
     comp[f"GS-single run {sj.name[:-len('_volumes.npz')]}"] = (sj, "recT1_complex")
-cache = ARC / f"lesion_competitors_{c}.json"
+cache = ARC / f"lesion_competitors_{c}_{a.l1_arm}.json"
 key = sorted(str(v) for v in comp.values()) + [json.dumps(SLICES)]
 if cache.exists() and json.load(open(cache)).get("key") == key:
     comp_p = json.load(open(cache))["psnr"]
@@ -91,8 +106,8 @@ for exp in a.exp:
     marg = {s: p[s] - bar[s] for s in slices}
     best = max(marg, key=marg.get)
     non_gs = {s: p[s] - max(comp_p[k][s] for k in comp_p if not k.startswith("GS-single")) for s in slices}
-    json.dump(dict(exp=exp, contrast=c, psnr=p, bar=bar, bar_arm=who, margin=marg, margin_over_non_gs=non_gs,
-                   best_slice=best, best_margin=marg[best]), open(ARC / f"{exp}_lesion.json", "w"), indent=1)
+    json.dump(dict(exp=exp, contrast=c, l1_arm=a.l1_arm, psnr=p, bar=bar, bar_arm=who, margin=marg, margin_over_non_gs=non_gs,
+                   best_slice=best, best_margin=marg[best]), open(ARC / f"{exp}_lesion{'' if a.l1_arm == 'spirit' else '_espirit'}.json", "w"), indent=1)
     top = sorted(marg.items(), key=lambda kv: -kv[1])[:3]
     print(f"{exp} [{c}]: best lesion slice {best}: {p[best]:.3f} dB vs {who[best]} {bar[best]:.3f} -> margin {marg[best]:+.3f} "
           f"(over non-GS arms {non_gs[best]:+.3f}); next: " + ", ".join(f"{s} {m:+.3f}" for s, m in top[1:]))

@@ -24,6 +24,8 @@ ap.add_argument("--index", type=int, required=True)
 ap.add_argument("--mark", default=None, help="lesion position(s) in the slice's own (row, col) of the volume axes, e.g. RO,PE for "
                                             "transverse or RO,SPE for sagittal; several separated by ';'")
 ap.add_argument("--note", default="")
+ap.add_argument("--l1_arm", default="spirit", choices=["spirit", "espirit"],
+                help="the L1 column: L1-SPIRiT (user 2026-09-15, replaces L1-ESPIRiT) or the old L1-ESPIRiT")
 ap.add_argument("--out", default="/home/congcongliu/figs/peds_tsc_af12_lesion_1db")
 a = ap.parse_args()
 R = Path("/data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro")
@@ -41,6 +43,16 @@ def lam_file(key, prefix):
         if m and abs(float(m.group(1)) - float(lam)) < 1e-12:
             return p
     raise FileNotFoundError(key)
+
+
+def spirit_file():
+    """the L1-SPIRiT point the table registers: best head PSNR over logs/spirit_<c>_*.json (both calibrations)"""
+    best = None
+    for lp in R.glob(f"logs/spirit_{c}_*.json"):
+        hp = json.load(open(lp))["rows"][0]["head_psnr"]
+        if best is None or hp > best[0]:
+            best = (hp, lp)
+    return R / f"recon/spirit{best[1].name[len(f'spirit_{c}'):-len('.json')]}_{c}_complex.npy"
 
 
 sl = [slice(None)] * 3; sl[a.axis] = a.index; sl = tuple(sl)
@@ -76,7 +88,8 @@ sing_met = {k: metrics(v) for k, (v, _) in sing.items()}
 best_single = max(sing_met, key=lambda k: sing_met[k]["psnr"])
 
 ARMS = [("CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"), ("CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
-        ("Joint SENSE", lam_file("jcssense", "jcssense_o200")), ("L1-ESPIRiT", lam_file("l1espirit", "l1espirit")),
+        ("Joint SENSE", lam_file("jcssense", "jcssense_o200")),
+        (("L1-SPIRiT", spirit_file()) if a.l1_arm == "spirit" else ("L1-ESPIRiT", lam_file("l1espirit", "l1espirit"))),
         ("ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"), ("3D-DIP", R / f"recon/dip_{c}_complex.npy"),
         ("3D-INR", R / f"recon/inr_{c}_complex.npy"), ("MC-INR", R / f"recon/mcinr_{c}_complex.npy")]
 imgs = {lab: load_slice(p) for lab, p in ARMS}
@@ -127,7 +140,7 @@ fig.colorbar(im, cax=cax).ax.tick_params(labelsize=9)
 fig.suptitle(f"{c}  16yo MTP  AF 12.00 (31616 / 2635 sampled points)  --  {PLANE[a.axis]} slice {a.index}, lesion circled\n"
              f"panel: head PSNR | SSIM (7x7) | NMSE of this slice, bold = best PSNR;  error | |recon| - |GT| | / max GT inside the head, jet [0, 0.1]"
              + (f"\n{a.note}" if a.note else ""), fontsize=12, fontweight="bold", y=0.995)
-out = F / f"peds_af12_{c}_{PLANE[a.axis]}_{a.index}_{a.exp}.png"
+out = F / f"peds_af12_{c}_{PLANE[a.axis]}_{a.index}_{a.exp}{'_spirit' if a.l1_arm == 'spirit' else ''}.png"
 fig.savefig(out, dpi=130, bbox_inches="tight"); plt.close(fig)
 print(f"http://localhost:8765/{F.name}/{out.name}\n{out}")
 print(json.dumps(dict(exp=a.exp, slice=f"{PLANE[a.axis]} {a.index}", margin_psnr=round(margin, 3), gs_single_shown=best_single,

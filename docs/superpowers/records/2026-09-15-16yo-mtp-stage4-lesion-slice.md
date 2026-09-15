@@ -83,3 +83,25 @@ PSNR / SSIM / NMSE 三项都是全场第一，比包括 GS-single 在内的所�
 - 方向：推 MC-GS 为最优，要超过所有对比方法（含 GS-single）；三期六格判据不撤，T1w 三格以后用真实运行补。
 - 用户先看图再定下一步；本线在此之前不开新训练。L1-SPIRiT 扫描（替换 L1-ESPIRiT）照常跑完，由 claude-e7 登记进表，
   之后本记录的图把 L1 列换成 L1-SPIRiT 重出。
+
+## 9. L1-SPIRiT 换入以后（09-15 21:30）
+
+扫描 50 个点，两个对比度都是全 k 空间中心 24×24 校准更好，最优点都在 λ 网格内部（整卷头内口径，登记与主区域重算由 claude-e7 做）：
+
+| | 最优点 | 头内 PSNR / SSIM / HFEN | 实采 ACS 24×8 校准的最优点 | 同口径 L1-ESPIRiT |
+|---|---|---|---|---|
+| T1w | full24，ks5，λ 2.5e-4 | 38.384 / 0.9629 / 0.0689 | ks3，λ 5e-4：38.114 | 38.924 |
+| T2s | full24，ks3，λ 5e-4 | 32.144 / 0.8642 / 0.2302 | ks3，λ 1e-3：32.095 | 33.983 |
+
+病灶层面（L1 列换成 L1-SPIRiT，`--l1_arm spirit` 为两个脚本的默认值）：
+
+| 层面 | MC-GS | GS-single | L1-SPIRiT | 对所有方法 | 不算 GS-single |
+|---|---|---|---|---|---|
+| 矢状 172（结节） | 33.84 | 33.69 | 31.47 | +0.150 | +1.19（ZS-SSDU 32.65） |
+| 横断 69（钙化样灶） | 33.57 | 33.45 | 30.98 | +0.124 | +1.18（ZS-SSDU 32.40） |
+
+图（L1 列为 L1-SPIRiT）：
+`/home/congcongliu/figs/peds_tsc_af12_lesion_1db/peds_af12_T2s_sagittal_172_p4_r3_edge0005_spirit.png`
+`/home/congcongliu/figs/peds_tsc_af12_lesion_1db/peds_af12_T2s_transverse_69_p4_r3_edge0005_spirit.png`
+
+提醒已发给 claude-e7：L1-SPIRiT 的 T1w 头内 HFEN（0.0689）低于 GS-single，若主区域同样如此，T1w 的 HFEN 门槛会变严。
