@@ -1,0 +1,19 @@
+[09-15 10:21:42] armed: 21 jobs, cards [0, 1, 2, 3, 4, 5, 6, 7], max 3 GPU / 3 CPU jobs
+[09-15 10:21:42] START gs_joint_db gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/sched_gs_joint_db.log
+[09-15 10:21:42] START gs_joint_dc gpu7 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/sched_gs_joint_dc.log
+[09-15 10:21:42] START gs_joint_dd gpu3 (free 61 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/sched_gs_joint_dd.log
+[09-15 10:21:42] START l1_T1_db_0.0007 gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_db_lam0.0007.log
+[09-15 10:21:42] START l1_T1_db_0.001 gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_db_lam0.001.log
+[09-15 10:21:42] START l1_T1_db_0.0015 gpu6 (free 78 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_db_lam0.0015.log
+[09-15 10:31:51] DONE l1_T1_db_0.0015 gpu6 rc=0 result=yes 10.1 min
+[09-15 10:31:52] START l1_FLAIR_db_0.0014 gpu4 (free 52 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_db_lam0.0014.log
+[09-15 10:32:22] DONE l1_T1_db_0.0007 gpu6 rc=0 result=yes 10.7 min
+[09-15 10:32:22] DONE l1_T1_db_0.001 gpu6 rc=0 result=yes 10.7 min
+[09-15 10:32:22] START l1_FLAIR_db_0.002 gpu5 (free 52 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_db_lam0.002.log
+[09-15 10:32:22] START l1_FLAIR_db_0.003 gpu5 (free 52 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_FLAIR_db_lam0.003.log
+[09-15 10:43:32] DONE l1_FLAIR_db_0.0014 gpu4 rc=0 result=yes 11.7 min
+[09-15 10:43:33] START l1_T1_dc_0.0007 gpu4 (free 52 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_dc_lam0.0007.log
+[09-15 10:44:03] DONE l1_FLAIR_db_0.002 gpu5 rc=0 result=yes 11.7 min
+[09-15 10:44:03] DONE l1_FLAIR_db_0.003 gpu5 rc=0 result=yes 11.7 min
+[09-15 10:44:03] START l1_T1_dc_0.001 gpu5 (free 52 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_dc_lam0.001.log
+[09-15 10:44:03] START l1_T1_dc_0.0015 gpu5 (free 52 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/logs/l1espirit_T1_dc_lam0.0015.log

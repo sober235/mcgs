@@ -5,6 +5,28 @@
 先读英文记录 `docs/superpowers/records/2026-09-15-af24-jyz.md`，交接 `docs/handoff/2026-09-15-af24-jyz.md`；
 课题 `/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/`（仓库镜像 `t1flair_af24_v3_jiangyizhou/`，README 有完整表）。
 
+### 0. 09-15 上午追加（用户回复 "continue"，做可选后续的前两项；MC-INR 与改旧标签留给用户）
+
+**① 四档跨加速倍数复核：已完成。** 新课题 `Results_20260908/T1FLAIR_AF12_16_20_24_trend_v3_jiangyizhou/`（仓库镜像 `t1flair_af12_16_20_24_trend_v3_jiangyizhou/`，README 中文）。三档课题不动。
+94 个存盘体积同一打分器重打分，原表复现（最大差 头内 PSNR 3.1e-5 dB）；AF12/16/20 的 72 个与三档复核逐位相同。除 3D-DIP 的 AF16→AF20 外，所有方法头内 PSNR/SSIM/HFEN 每一步都变差，AF24 这一步没有新增例外；展示层与全部层同样成立（ZS-SSDU 这一步在不少层略回升）。
+
+```
+$ T=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_16_20_24_trend_v3_jiangyizhou
+$ sed -n '/MC-GS margin over the strongest/,/^$/p' $T/logs/af_trend_summary.txt
+=== MC-GS margin over the strongest competing arm, head PSNR (one scorer) ===
+  T1    AF12 (11.71x)  MC-GS 37.015  strongest competing 36.426 (L1-ESPIRiT)  margin +0.589   GS-single +0.439   coupling +0.150
+  T1    AF16 (15.19x)  MC-GS 35.706  strongest competing 35.209 (L1-ESPIRiT)  margin +0.497   GS-single +0.349   coupling +0.148
+  T1    AF20 (18.56x)  MC-GS 34.832  strongest competing 34.371 (L1-ESPIRiT)  margin +0.461   GS-single +0.296   coupling +0.165
+  T1    AF24 (24.00x)  MC-GS 33.767  strongest competing 33.401 (L1-ESPIRiT)  margin +0.366   GS-single +0.187   coupling +0.179
+  FLAIR AF12 (12.86x)  MC-GS 36.360  strongest competing 35.757 (L1-ESPIRiT)  margin +0.602   GS-single +0.567   coupling +0.036
+  FLAIR AF16 (16.49x)  MC-GS 34.928  strongest competing 34.503 (L1-ESPIRiT)  margin +0.425   GS-single +0.383   coupling +0.042
+  FLAIR AF20 (19.96x)  MC-GS 34.179  strongest competing 33.688 (L1-ESPIRiT)  margin +0.491   GS-single +0.439   coupling +0.052
+  FLAIR AF24 (25.51x)  MC-GS 33.182  strongest competing 32.782 (L1-ESPIRiT)  margin +0.400   GS-single +0.329   coupling +0.071
+```
+复现：`bash $T/scripts/run_rescore.sh`（8 个 CPU 作业约 35 分钟）→ `analyze_af_trend.py` → `run_slice_trend.sh` → `slice_summary.py`（README 第 5 节）。图 `figures/jyz_t1flair_af12_16_20_24_metric_steps.png`，`http://localhost:8765/t1flair_v3_af_trend/`。
+
+**② AF24 掩膜抽样方差：09-15 10:21 启动，运行中。** 规则与注册掩膜相同：第二个池子（`prep_02b_mask_pool_draws_af24.m`，67 张）里编号最小的三张恰好 1877 点、未裁剪的抽样 → b/c/d（FLAIR 25.43/25.41/25.50×，与 a 共享 540–572 点；`logs/prep_03b_pick_export_draws_af24.json`）。每张只跑 MC-GS joint（冻结配方，`MASK_DRAW=<d>`，不存体积）与 L1-ESPIRiT 三个 λ（T1 0.0007/0.001/0.0015，FLAIR 0.0014/0.002/0.003）。队列 `scripts/run_all_af24.py --study draws --max_gpu_jobs 3 --max_cpu_jobs 3`（调度器 pid 2796954，卡 6/7/3），跑完自动 `scripts/score_mask_draws_af24.py` → `logs/mask_draws_af24_summary.{txt,json}`。已核对三个 MC-GS 日志读的是各自掩膜（`zero_lines=105/104/110 of 1877`）、L1 用覆盖掩膜。
+
 ### 一句话
 AF16 三期配方原样不调，跑在"T1 正好 24×"的掩膜上（1877 点，FLAIR 25.51×）：头内 PSNR **33.767 / 33.182**，对最强对手 L1-ESPIRiT 余量 **+0.366 / +0.400**（AF20 +0.461 / +0.491），九臂里头内 PSNR/SSIM/HFEN 六格全第一；**余量比 AF20 缩小约 0.1 dB**；T1 锐度 0.803 高于 L1-ESPIRiT 的 0.787（AF20 时低于）。
 

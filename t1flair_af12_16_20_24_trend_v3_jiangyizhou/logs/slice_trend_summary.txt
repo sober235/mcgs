@@ -1,0 +1,98 @@
+
+==================== T1
+vectorised vs skimage on the figure slices (AF20, AF24), worst |diff|: {'dpsnr': '7.5e-13', 'dssim': '7.1e-15', 'dnmse': '3.6e-15'}
+AF20 and AF24 figure panel numbers reproduced: yes
+
+[figure slices 180/124/76] worse at every step in 97/108 (method x plane x metric) cells; exceptions:
+    MC-INR transverse SSIM: 0.8650 -> 0.8664 -> 0.8520 -> --
+    MC-INR sagittal SSIM: 0.8064 -> 0.8114 -> 0.8102 -> --
+    3D-DIP transverse PSNR: 33.419 -> 33.004 -> 33.085 -> 32.485
+    3D-DIP transverse SSIM: 0.9064 -> 0.8993 -> 0.9000 -> 0.8875
+    3D-DIP transverse NMSE: 0.01691 -> 0.01860 -> 0.01826 -> 0.02096
+    3D-DIP coronal PSNR: 32.078 -> 31.752 -> 31.856 -> 31.367
+    3D-DIP coronal SSIM: 0.8339 -> 0.8257 -> 0.8270 -> 0.8104
+    3D-DIP coronal NMSE: 0.04246 -> 0.04576 -> 0.04468 -> 0.05000
+    3D-DIP sagittal PSNR: 32.635 -> 32.262 -> 32.306 -> 31.990
+    3D-DIP sagittal SSIM: 0.8646 -> 0.8553 -> 0.8553 -> 0.8415
+    3D-DIP sagittal NMSE: 0.03256 -> 0.03548 -> 0.03512 -> 0.03777
+
+[figure slices 174/110/47] worse at every step in 99/108 (method x plane x metric) cells; exceptions:
+    MC-INR coronal SSIM: 0.8077 -> 0.8107 -> 0.8095 -> --
+    3D-DIP transverse PSNR: 33.399 -> 32.909 -> 33.024 -> 32.517
+    3D-DIP transverse SSIM: 0.9045 -> 0.8925 -> 0.8966 -> 0.8834
+    3D-DIP transverse NMSE: 0.01930 -> 0.02161 -> 0.02104 -> 0.02365
+    3D-DIP coronal PSNR: 33.213 -> 32.802 -> 32.824 -> 32.251
+    3D-DIP coronal NMSE: 0.03684 -> 0.04050 -> 0.04030 -> 0.04598
+    3D-DIP sagittal PSNR: 31.022 -> 30.743 -> 30.824 -> 30.316
+    3D-DIP sagittal SSIM: 0.8252 -> 0.8179 -> 0.8202 -> 0.8004
+    3D-DIP sagittal NMSE: 0.03627 -> 0.03867 -> 0.03796 -> 0.04267
+
+[all slices with head >= 5% of the slice: transverse 243, coronal 187, sagittal 167]
+   share (%) of those slices where the metric is worse at EVERY step:  plane: PSNR SSIM NMSE all-three
+   MC-GS                    | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
+   GS-single                | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
+   L1-ESPIRiT               | tra 100.0 100.0 100.0 100.0 | cor 100.0  99.5 100.0  99.5 | sag 100.0 100.0 100.0 100.0
+   CS-SENSE (converged TV)  | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
+   Joint SENSE              | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
+   CS-SENSE (35 it)         | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
+   ZS-SSDU                  | tra  86.8 100.0  86.8  86.8 | cor  93.6 100.0  93.6  93.6 | sag  93.4  98.2  93.4  93.4
+   CG-SENSE                 | tra  99.6  99.2  99.6  99.2 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
+   MC-INR                   | tra  85.6  69.1  85.6  69.1 | cor  98.9  78.1  98.9  78.1 | sag  99.4  61.7  99.4  61.7   (AF12-20 only)
+   3D-DIP                   | tra  56.8  70.8  56.8  51.9 | cor  47.1  65.8  47.1  39.6 | sag  50.3  68.3  50.3  46.1
+   3D-INR                   | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
+   ZF                       | tra 100.0 100.0 100.0 100.0 | cor 100.0 100.0 100.0 100.0 | sag 100.0 100.0 100.0 100.0
+   non-monotonic head-PSNR slices of the arms that are not flat (index, head share, per-AF values):
+     transverse ZS-SSDU                   32 slices, 0 within 10 slices of the coverage edge; e.g. 30 (23%: 36.731/35.186/34.026/34.135), 32 (24%: 36.401/34.869/33.415/33.549), 33 (24%: 36.321/34.520/33.229/33.331)
+     transverse CG-SENSE                   1 slices, 1 within 10 slices of the coverage edge; e.g. 0 (12%: 38.388/38.453/38.222/37.722)
+     transverse MC-INR                    35 slices, 10 within 10 slices of the coverage edge; e.g. 0 (12%: 31.986/32.769/33.882), 1 (13%: 32.512/33.312/34.392), 2 (13%: 32.251/33.419/34.269)
+     transverse 3D-DIP median head-PSNR change per step over kept slices: AF12->AF16 -0.353, AF16->AF20 -0.018, AF20->AF24 -0.481 dB
+     coronal    ZS-SSDU                   12 slices, 3 within 10 slices of the coverage edge; e.g. 203 (34%: 33.722/32.201/30.385/30.433), 204 (32%: 33.633/31.918/30.355/30.375), 205 (30%: 33.754/31.859/30.362/30.362)
+     coronal    MC-INR                     2 slices, 1 within 10 slices of the coverage edge; e.g. 37 (5%: 31.819/32.069/31.704), 112 (64%: 32.618/32.623/32.452)
+     coronal    3D-DIP median head-PSNR change per step over kept slices: AF12->AF16 -0.342, AF16->AF20 +0.005, AF20->AF24 -0.494 dB
+     sagittal   ZS-SSDU                   11 slices, 11 within 10 slices of the coverage edge; e.g. 6 (6%: 31.713/29.801/26.436/27.231), 7 (7%: 31.496/29.508/25.682/27.142), 8 (8%: 31.446/29.604/25.933/27.056)
+     sagittal   MC-INR                     1 slices, 0 within 10 slices of the coverage edge; e.g. 83 (51%: 32.770/32.805/32.541)
+     sagittal   3D-DIP median head-PSNR change per step over kept slices: AF12->AF16 -0.348, AF16->AF20 -0.004, AF20->AF24 -0.469 dB
+
+==================== FLAIR
+vectorised vs skimage on the figure slices (AF20, AF24), worst |diff|: {'dpsnr': '7.2e-13', 'dssim': '7.3e-15', 'dnmse': '3.7e-15'}
+AF20 and AF24 figure panel numbers reproduced: yes
+
+[figure slices 180/124/76] worse at every step in 105/108 (method x plane x metric) cells; exceptions:
+    3D-DIP sagittal PSNR: 31.958 -> 31.724 -> 31.802 -> 31.465
+    3D-DIP sagittal SSIM: 0.8344 -> 0.8287 -> 0.8302 -> 0.8175
+    3D-DIP sagittal NMSE: 0.03418 -> 0.03608 -> 0.03543 -> 0.03829
+
+[figure slices 174/110/47] worse at every step in 108/108 (method x plane x metric) cells; exceptions:
+
+[all slices with head >= 5% of the slice: transverse 243, coronal 193, sagittal 166]
+   share (%) of those slices where the metric is worse at EVERY step:  plane: PSNR SSIM NMSE all-three
+   MC-GS                    | tra 100.0 100.0 100.0 100.0 | cor  97.9  98.4  97.9  97.9 | sag 100.0 100.0 100.0 100.0
+   GS-single                | tra 100.0 100.0 100.0 100.0 | cor  97.9  98.4  97.9  97.9 | sag 100.0 100.0 100.0 100.0
+   L1-ESPIRiT               | tra  99.2  99.6  99.2  99.2 | cor  98.4  97.9  98.4  97.9 | sag 100.0 100.0 100.0 100.0
+   CS-SENSE (converged TV)  | tra  99.6  99.2  99.6  99.2 | cor  98.4  98.4  98.4  98.4 | sag 100.0 100.0 100.0 100.0
+   Joint SENSE              | tra  99.2  99.2  99.2  98.8 | cor  98.4  97.9  98.4  97.9 | sag 100.0 100.0 100.0 100.0
+   CS-SENSE (35 it)         | tra 100.0 100.0 100.0 100.0 | cor  98.4  97.9  98.4  97.9 | sag 100.0 100.0 100.0 100.0
+   ZS-SSDU                  | tra  77.8  91.8  77.8  77.0 | cor  92.7  93.8  92.7  92.2 | sag 100.0 100.0 100.0 100.0
+   CG-SENSE                 | tra  87.2  87.2  87.2  86.8 | cor 100.0  99.5 100.0  99.5 | sag 100.0 100.0 100.0 100.0
+   MC-INR                   | tra  67.1  70.4  67.1  66.7 | cor 100.0  98.4 100.0  98.4 | sag 100.0 100.0 100.0 100.0   (AF12-20 only)
+   3D-DIP                   | tra  43.2  47.7  43.2  28.8 | cor  50.3  51.8  50.3  45.6 | sag  54.8  59.6  54.8  43.4
+   3D-INR                   | tra  99.6 100.0  99.6  99.6 | cor  98.4  97.9  98.4  97.9 | sag 100.0 100.0 100.0 100.0
+   ZF                       | tra 100.0 100.0 100.0 100.0 | cor  99.5  98.4  99.5  98.4 | sag 100.0 100.0 100.0 100.0
+   non-monotonic head-PSNR slices of the arms that are not flat (index, head share, per-AF values):
+     transverse L1-ESPIRiT                 2 slices, 2 within 10 slices of the coverage edge; e.g. 0 (7%: 44.287/43.324/43.619/42.598), 6 (10%: 44.256/43.396/43.462/42.479)
+     transverse CS-SENSE (converged TV)    1 slices, 1 within 10 slices of the coverage edge; e.g. 0 (7%: 44.596/43.543/43.783/43.840)
+     transverse Joint SENSE                2 slices, 2 within 10 slices of the coverage edge; e.g. 0 (7%: 44.592/43.481/43.707/43.718), 3 (9%: 44.653/43.865/43.571/43.582)
+     transverse ZS-SSDU                   54 slices, 7 within 10 slices of the coverage edge; e.g. 0 (7%: 42.886/41.702/41.393/41.927), 2 (9%: 43.102/42.026/41.384/41.714), 3 (9%: 42.984/42.223/41.411/41.595)
+     transverse CG-SENSE                  31 slices, 10 within 10 slices of the coverage edge; e.g. 0 (7%: 39.820/40.052/40.574/41.145), 1 (8%: 40.250/40.069/40.484/40.837), 2 (9%: 39.895/40.326/40.531/41.027)
+     transverse MC-INR                    80 slices, 10 within 10 slices of the coverage edge; e.g. 0 (7%: 34.902/35.064/35.808), 1 (8%: 35.359/35.799/36.434), 2 (9%: 35.139/36.081/37.154)
+     transverse 3D-INR                     1 slices, 0 within 10 slices of the coverage edge; e.g. 37 (23%: 34.964/33.927/33.932/33.119)
+     transverse 3D-DIP median head-PSNR change per step over kept slices: AF12->AF16 -0.133, AF16->AF20 -0.031, AF20->AF24 -0.231 dB
+     coronal    MC-GS                      4 slices, 4 within 10 slices of the coverage edge; e.g. 37 (7%: 37.507/35.149/35.351/34.443), 226 (8%: 35.344/34.401/33.867/33.955), 227 (7%: 35.094/34.287/33.623/34.097)
+     coronal    GS-single                  4 slices, 4 within 10 slices of the coverage edge; e.g. 37 (7%: 37.337/35.085/35.198/34.322), 226 (8%: 35.435/34.210/33.864/33.967), 227 (7%: 35.167/34.115/33.657/34.120)
+     coronal    L1-ESPIRiT                 3 slices, 3 within 10 slices of the coverage edge; e.g. 226 (8%: 34.778/34.357/33.903/34.150), 227 (7%: 34.617/34.392/33.600/34.268), 228 (5%: 34.686/34.752/34.032/34.584)
+     coronal    CS-SENSE (converged TV)    3 slices, 3 within 10 slices of the coverage edge; e.g. 226 (8%: 33.530/33.184/32.681/32.848), 227 (7%: 33.492/33.401/32.637/32.895), 228 (5%: 33.926/33.962/33.365/33.341)
+     coronal    Joint SENSE                3 slices, 3 within 10 slices of the coverage edge; e.g. 226 (8%: 33.245/33.029/32.581/32.778), 227 (7%: 33.160/33.216/32.565/32.887), 228 (5%: 33.603/33.776/33.293/33.363)
+     coronal    ZS-SSDU                   14 slices, 14 within 10 slices of the coverage edge; e.g. 36 (6%: 36.919/36.934/35.440/36.243), 37 (7%: 36.804/36.093/35.214/35.450), 38 (7%: 36.222/35.537/34.511/34.953)
+     coronal    3D-INR                     3 slices, 3 within 10 slices of the coverage edge; e.g. 226 (8%: 33.851/34.083/34.222/34.421), 227 (7%: 34.041/34.356/34.472/34.657), 228 (5%: 34.741/35.142/35.210/35.319)
+     coronal    3D-DIP median head-PSNR change per step over kept slices: AF12->AF16 -0.125, AF16->AF20 -0.057, AF20->AF24 -0.263 dB
+     sagittal   3D-DIP median head-PSNR change per step over kept slices: AF12->AF16 -0.154, AF16->AF20 -0.025, AF20->AF24 -0.285 dB

@@ -1,0 +1,14 @@
+[AF20 T1] GT LoG 54s
+[AF20 T1] ZF                       zf_T1_complex.npy                        PSNR 25.6393 (rec 25.6393)  SSIM 0.66363 (rec 0.66363)  HFEN 0.72063 (rec 0.72063)  57s
+[AF20 T1] CG-SENSE                 cgsense_T1_complex.npy                   PSNR 31.4250 (rec 31.4250)  SSIM 0.86649 (rec 0.86649)  HFEN 0.27415 (rec 0.27415)  54s
+[AF20 T1] CS-SENSE (35 it)         cssense_T1_complex.npy                   PSNR 33.4175 (rec 33.4175)  SSIM 0.91306 (rec 0.91306)  HFEN 0.18640 (rec 0.18640)  53s
+[AF20 T1] CS-SENSE (converged TV)  cssense_o200_lam0.0007_T1_complex.npy    PSNR 34.0028 (rec 34.0028)  SSIM 0.91908 (rec 0.91908)  HFEN 0.16827 (rec 0.16827)  50s
+[AF20 T1] Joint SENSE              jcssense_o200_lam0.001_T1_complex.npy    PSNR 33.8849 (rec 33.8849)  SSIM 0.91827 (rec 0.91827)  HFEN 0.17335 (rec 0.17335)  53s
+[AF20 T1] L1-ESPIRiT               l1espirit_lam0.001_T1_complex.npy        PSNR 34.3710 (rec 34.3710)  SSIM 0.92065 (rec 0.92065)  HFEN 0.15181 (rec 0.15181)  83s
+[AF20 T1] ZS-SSDU                  zsssdu_T1_complex.npy                    PSNR 32.8923 (rec 32.8923)  SSIM 0.91078 (rec 0.91078)  HFEN 0.22413 (rec 0.22413)  58s
+[AF20 T1] 3D-DIP                   dip_T1_complex.npy                       PSNR 30.9963 (rec 30.9963)  SSIM 0.85375 (rec 0.85375)  HFEN 0.30337 (rec 0.30337)  56s
+[AF20 T1] 3D-INR                   inr_T1_complex.npy                       PSNR 29.4560 (rec 29.4560)  SSIM 0.75957 (rec 0.75957)  HFEN 0.27225 (rec 0.27225)  55s
+[AF20 T1] MC-INR                   mcinr_T1_complex.npy                     PSNR 30.9689 (rec 30.9689)  SSIM 0.82721 (rec 0.82721)  HFEN 0.28929 (rec 0.28929)  57s
+[AF20 T1] GS-single                gs_single_p3_T1_mag.npy                  PSNR 34.6669 (rec 34.6669)  SSIM 0.92572 (rec 0.92572)  HFEN 0.14138 (rec 0.14138)  56s
+[AF20 T1] MC-GS                    gs_joint_p3_T1_mag.npy                   PSNR 34.8318 (rec 34.8318)  SSIM 0.92890 (rec 0.92890)  HFEN 0.13545 (rec 0.13545)  55s
+[AF20 T1] DONE

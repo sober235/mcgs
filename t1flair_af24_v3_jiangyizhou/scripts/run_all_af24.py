@@ -25,6 +25,11 @@ lambda grids are the AF20 topic's final grids plus one point below each.
 Launch detached from a bash script file:  setsid nohup PY -u scripts/run_all_af24.py > /dev/null 2>&1 < /dev/null &
 Status: logs/run_all_af24.log, logs/run_all_af24_status.json, logs/RUN_ALL_AF24_DONE.
 --dry_run prints the queue, the skips and the card eligibility once, and launches nothing.
+--study draws (2026-09-15) queues the mask-draw variance study instead, as at AF20: per extra draw b, c, d
+(scripts/prep_03b_pick_export_draws_af24.py) MC-GS joint with the frozen recipe (MASK_DRAW=<d>, no volumes) and
+L1-ESPIRiT at the AF24 optimum and both neighbours of the main sweep (T1 0.0007 / 0.001 / 0.0015, FLAIR 0.0014 /
+0.002 / 0.003; mask swapped through T1T2_MASK_<CONTRAST>, outputs suffixed _d<d>_lam<L>); at the end
+scripts/score_mask_draws_af24.py instead of finalize. Logs logs/run_draws_af24{.log,_status.json}, logs/RUN_DRAWS_AF24_DONE.
 """
 import argparse, json, os, subprocess, time
 from pathlib import Path
@@ -41,6 +46,8 @@ JTV = ["0.00035", "0.0005", "0.0007", "0.001", "0.0014"]
 L1 = {"T1": ["0.00035", "0.0005", "0.0007", "0.001", "0.0015", "0.0025", "0.004"],
       "FLAIR": ["0.0014", "0.002", "0.003", "0.005", "0.007"]}
 CLASSICAL = ("base_", "tv_", "jtv_")
+DRAWS = ("b", "c", "d")
+DRAW_L1 = {"T1": ["0.0007", "0.001", "0.0015"], "FLAIR": ["0.0014", "0.002", "0.003"]}
 
 
 def all_jobs():
@@ -90,6 +97,25 @@ def all_jobs():
                 f"{PY} -u scripts/recon_l1espirit.py --topic {J} --contrast {c} --gpu {{gpu}} --lam {lam} --iters 100 --suffix _lam{lam} --threads 12",
                 L / f"l1espirit_{c}_lam{lam}.json", L / f"l1espirit_{c}_lam{lam}.log",
                 "recon_l1espirit.py", {"--contrast": c, "--suffix": f"_lam{lam}"})
+    return q
+
+
+def draw_jobs():
+    L, q = J / "logs", []
+    for d in DRAWS:
+        exp = f"af24_p3_joint_d{d}_full4k"
+        q.append(dict(name=f"gs_joint_d{d}", kind="gpu", need=38, cwd=str(F),
+                      cmd=f"MASK_DRAW={d} ./run_af24_mcgs.sh {exp} {{gpu}} 4000",
+                      done=str(F / f"results_arc/{exp}_score.json"), log=str(L / f"sched_gs_joint_d{d}.log"),
+                      script="arc/cycle.py", args={"--exp": exp}, absent=[]))
+    for d in DRAWS:
+        for c in ("T1", "FLAIR"):
+            for lam in DRAW_L1[c]:
+                q.append(dict(name=f"l1_{c}_d{d}_{lam}", kind="cpu", need=12, cwd=str(J),
+                              cmd=(f"T1T2_MASK_{c}={J}/data/mask_af24_d{d}_3d.h5 {PY} -u scripts/recon_l1espirit.py --topic {J} "
+                                   f"--contrast {c} --gpu {{gpu}} --lam {lam} --iters 100 --suffix _d{d}_lam{lam} --threads 12"),
+                              done=str(L / f"l1espirit_{c}_d{d}_lam{lam}.json"), log=str(L / f"l1espirit_{c}_d{d}_lam{lam}.log"),
+                              script="recon_l1espirit.py", args={"--contrast": c, "--suffix": f"_d{d}_lam{lam}"}, absent=[]))
     return q
 
 
@@ -145,9 +171,11 @@ def main():
     ap.add_argument("--max_cpu_jobs", type=int, default=4)
     ap.add_argument("--poll_s", type=int, default=30)
     ap.add_argument("--dry_run", action="store_true")
+    ap.add_argument("--study", choices=("main", "draws"), default="main")
     a = ap.parse_args()
     cards = [int(x) for x in a.cards.split(",")]
-    logf = open(J / "logs/run_all_af24.log", "a")
+    tag = "run_all_af24" if a.study == "main" else "run_draws_af24"
+    logf = open(J / f"logs/{tag}.log", "a")
 
     def say(msg):
         line = f"[{time.strftime('%m-%d %H:%M:%S')}] {msg}"
@@ -155,7 +183,7 @@ def main():
         if not a.dry_run:
             logf.write(line + "\n"); logf.flush()
 
-    queue, running, waiting, done, retried = all_jobs(), [], [], {}, set()
+    queue, running, waiting, done, retried = (all_jobs() if a.study == "main" else draw_jobs()), [], [], {}, set()
     say(f"armed: {len(queue)} jobs, cards {cards}, max {a.max_gpu_jobs} GPU / {a.max_cpu_jobs} CPU jobs")
     while True:
         for r in list(running):                                   # reap
@@ -222,15 +250,20 @@ def main():
         json.dump(dict(time=time.strftime("%m-%d %H:%M:%S"),
                        running=[dict(name=r["job"]["name"], gpu=r["gpu"], min=round((time.time() - r["t0"]) / 60, 1)) for r in running],
                        waiting=[w["name"] for w in waiting], queued=[j["name"] for j in queue], done=done),
-                  open(J / "logs/run_all_af24_status.json", "w"), indent=1)
+                  open(J / f"logs/{tag}_status.json", "w"), indent=1)
         time.sleep(a.poll_s)
     fails = {n: rc for n, rc in done.items() if isinstance(rc, int) and rc != 0}
-    say(f"QUEUE EMPTY. failures: {fails}. finalize ...")
-    exps = [GS[k][0] for k in ("joint", "singleT1", "singleFLAIR")]
-    rc = subprocess.call(["bash", "scripts/finalize_af24_jyz.sh", *exps], cwd=J, env=ENV,
-                         stdout=open(J / "logs/finalize_af24.log", "a"), stderr=subprocess.STDOUT)
+    if a.study == "main":
+        say(f"QUEUE EMPTY. failures: {fails}. finalize ...")
+        exps = [GS[k][0] for k in ("joint", "singleT1", "singleFLAIR")]
+        rc = subprocess.call(["bash", "scripts/finalize_af24_jyz.sh", *exps], cwd=J, env=ENV,
+                             stdout=open(J / "logs/finalize_af24.log", "a"), stderr=subprocess.STDOUT)
+    else:
+        say(f"QUEUE EMPTY. failures: {fails}. score the draws ...")
+        rc = subprocess.call([PY, "-u", "scripts/score_mask_draws_af24.py"], cwd=J, env=ENV,
+                             stdout=open(J / "logs/mask_draws_af24_summary.txt", "w"), stderr=subprocess.STDOUT)
     say(f"FINALIZE rc={rc}")
-    (J / "logs/RUN_ALL_AF24_DONE").write_text(json.dumps(dict(done=done, finalize_rc=rc), indent=1))
+    (J / f"logs/{tag.upper()}_DONE").write_text(json.dumps(dict(done=done, finalize_rc=rc), indent=1))
 
 
 if __name__ == "__main__":

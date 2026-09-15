@@ -1,0 +1,13 @@
+[AF24 FLAIR] GT LoG 54s
+[AF24 FLAIR] ZF                       zf_FLAIR_complex.npy                     PSNR 27.3010 (rec 27.3010)  SSIM 0.67483 (rec 0.67483)  HFEN 0.72713 (rec 0.72713)  56s
+[AF24 FLAIR] CG-SENSE                 cgsense_FLAIR_complex.npy                PSNR 31.2592 (rec 31.2592)  SSIM 0.85097 (rec 0.85097)  HFEN 0.25506 (rec 0.25506)  54s
+[AF24 FLAIR] CS-SENSE (35 it)         cssense_FLAIR_complex.npy                PSNR 32.1651 (rec 32.1651)  SSIM 0.87621 (rec 0.87621)  HFEN 0.19366 (rec 0.19366)  53s
+[AF24 FLAIR] CS-SENSE (converged TV)  cssense_o200_lam0.0005_FLAIR_complex.npy PSNR 32.5731 (rec 32.5731)  SSIM 0.88576 (rec 0.88576)  HFEN 0.18860 (rec 0.18860)  51s
+[AF24 FLAIR] Joint SENSE              jcssense_o200_lam0.0007_FLAIR_complex.npy PSNR 32.6048 (rec 32.6048)  SSIM 0.88489 (rec 0.88489)  HFEN 0.19029 (rec 0.19029)  52s
+[AF24 FLAIR] L1-ESPIRiT               l1espirit_lam0.002_FLAIR_complex.npy     PSNR 32.7816 (rec 32.7816)  SSIM 0.88931 (rec 0.88931)  HFEN 0.17239 (rec 0.17239)  62s
+[AF24 FLAIR] ZS-SSDU                  zsssdu_FLAIR_complex.npy                 PSNR 32.1069 (rec 32.1069)  SSIM 0.88493 (rec 0.88493)  HFEN 0.22562 (rec 0.22562)  52s
+[AF24 FLAIR] 3D-DIP                   dip_FLAIR_complex.npy                    PSNR 30.3602 (rec 30.3602)  SSIM 0.81440 (rec 0.81440)  HFEN 0.30227 (rec 0.30227)  51s
+[AF24 FLAIR] 3D-INR                   inr_FLAIR_complex.npy                    PSNR 29.1456 (rec 29.1456)  SSIM 0.73520 (rec 0.73520)  HFEN 0.30338 (rec 0.30338)  53s
+[AF24 FLAIR] GS-single                gs_single_p3_FLAIR_mag.npy               PSNR 33.1103 (rec 33.1103)  SSIM 0.89425 (rec 0.89425)  HFEN 0.16202 (rec 0.16202)  52s
+[AF24 FLAIR] MC-GS                    gs_joint_p3_FLAIR_mag.npy                PSNR 33.1817 (rec 33.1817)  SSIM 0.89658 (rec 0.89658)  HFEN 0.15788 (rec 0.15788)  52s
+[AF24 FLAIR] DONE

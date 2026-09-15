@@ -31,6 +31,14 @@ case "${SINGLE:-joint}" in
   FLAIR) CONFIG=configs/t1flair_v3_af24_jyz_singleFLAIR.yaml ;;
   *)     echo "SINGLE must be T1, FLAIR or unset: ${SINGLE}" >&2; exit 2 ;;
 esac
+# Mask-draw variance study (2026-09-15): MASK_DRAW=b|c|d swaps in the config whose two mask_path lines read that draw of
+# the AF24 mask (joint arm only; draws from scripts/prep_03b_pick_export_draws_af24.py). Unset = the registered mask.
+case "${MASK_DRAW:-}" in
+  "")    ;;
+  b|c|d) [[ "${SINGLE:-joint}" == joint ]] || { echo "MASK_DRAW is for the joint arm only" >&2; exit 2; }
+         CONFIG=configs/t1flair_v3_af24_jyz_d${MASK_DRAW}.yaml ;;
+  *)     echo "MASK_DRAW must be b, c, d or unset: ${MASK_DRAW}" >&2; exit 2 ;;
+esac
 LOG="$ROOT/results_arc/${EXP}.log"
 for path in "$LOG" "$ROOT/results_arc/${EXP}_score.json" "$ROOT/results_arc/${EXP}"; do
   if [[ -e "$path" ]]; then echo "refusing to overwrite existing output: $path" >&2; exit 1; fi

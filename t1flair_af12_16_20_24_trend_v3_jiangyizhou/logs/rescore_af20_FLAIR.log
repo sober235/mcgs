@@ -1,0 +1,14 @@
+[AF20 FLAIR] GT LoG 53s
+[AF20 FLAIR] ZF                       zf_FLAIR_complex.npy                     PSNR 27.6362 (rec 27.6362)  SSIM 0.69698 (rec 0.69698)  HFEN 0.68745 (rec 0.68745)  57s
+[AF20 FLAIR] CG-SENSE                 cgsense_FLAIR_complex.npy                PSNR 32.0893 (rec 32.0893)  SSIM 0.87173 (rec 0.87173)  HFEN 0.19716 (rec 0.19716)  54s
+[AF20 FLAIR] CS-SENSE (35 it)         cssense_FLAIR_complex.npy                PSNR 33.0267 (rec 33.0267)  SSIM 0.89676 (rec 0.89676)  HFEN 0.15712 (rec 0.15712)  52s
+[AF20 FLAIR] CS-SENSE (converged TV)  cssense_o200_lam0.0005_FLAIR_complex.npy PSNR 33.4944 (rec 33.4944)  SSIM 0.90486 (rec 0.90486)  HFEN 0.15232 (rec 0.15232)  51s
+[AF20 FLAIR] Joint SENSE              jcssense_o200_lam0.0007_FLAIR_complex.npy PSNR 33.5443 (rec 33.5443)  SSIM 0.90443 (rec 0.90443)  HFEN 0.15216 (rec 0.15216)  53s
+[AF20 FLAIR] L1-ESPIRiT               l1espirit_lam0.003_FLAIR_complex.npy     PSNR 33.6880 (rec 33.6880)  SSIM 0.90759 (rec 0.90759)  HFEN 0.14060 (rec 0.14060)  82s
+[AF20 FLAIR] ZS-SSDU                  zsssdu_FLAIR_complex.npy                 PSNR 32.6603 (rec 32.6603)  SSIM 0.89582 (rec 0.89582)  HFEN 0.19624 (rec 0.19624)  59s
+[AF20 FLAIR] 3D-DIP                   dip_FLAIR_complex.npy                    PSNR 30.6373 (rec 30.6373)  SSIM 0.82690 (rec 0.82690)  HFEN 0.27683 (rec 0.27683)  57s
+[AF20 FLAIR] 3D-INR                   inr_FLAIR_complex.npy                    PSNR 29.8094 (rec 29.8094)  SSIM 0.77156 (rec 0.77156)  HFEN 0.24477 (rec 0.24477)  55s
+[AF20 FLAIR] MC-INR                   mcinr_FLAIR_complex.npy                  PSNR 31.6658 (rec 31.6658)  SSIM 0.84862 (rec 0.84862)  HFEN 0.20789 (rec 0.20789)  58s
+[AF20 FLAIR] GS-single                gs_single_p3_FLAIR_mag.npy               PSNR 34.1267 (rec 34.1267)  SSIM 0.91266 (rec 0.91266)  HFEN 0.13132 (rec 0.13132)  55s
+[AF20 FLAIR] MC-GS                    gs_joint_p3_FLAIR_mag.npy                PSNR 34.1787 (rec 34.1787)  SSIM 0.91422 (rec 0.91422)  HFEN 0.12899 (rec 0.12899)  54s
+[AF20 FLAIR] DONE

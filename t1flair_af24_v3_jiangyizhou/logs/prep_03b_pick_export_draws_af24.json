@@ -1,0 +1,62 @@
+{
+ "rule": "three lowest-index draws with exactly 1877 points, duplicates and copies of draw a dropped, untrimmed",
+ "pool": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/data/mask_pool_af24_draws",
+ "pool_draws": 67,
+ "exact_draws": [
+  "draw_033.mat",
+  "draw_057.mat",
+  "draw_067.mat"
+ ],
+ "draws": {
+  "a": {
+   "source": "mask_vdpois_256x176_af24.mat (registered)",
+   "accelx": null,
+   "points": 1877,
+   "T1_AF": 24.004262120404903,
+   "FLAIR_points_on_data": 1766,
+   "FLAIR_AF": 25.513023782559458,
+   "FLAIR_outside_shutter": 111,
+   "centre24": 463,
+   "shared_with_a": 1877
+  },
+  "b": {
+   "source": "draw_033.mat",
+   "accelx": 6.8456,
+   "points": 1877,
+   "T1_AF": 24.004262120404903,
+   "FLAIR_points_on_data": 1772,
+   "FLAIR_AF": 25.426636568848757,
+   "FLAIR_outside_shutter": 105,
+   "centre24": 468,
+   "shared_with_a": 540,
+   "mat_md5": "aa95a04bf54fe10462a1e7251df978ef",
+   "h5_md5": "918ce24051e722622b763abc0c9fb111"
+  },
+  "c": {
+   "source": "draw_057.mat",
+   "accelx": 6.8356,
+   "points": 1877,
+   "T1_AF": 24.004262120404903,
+   "FLAIR_points_on_data": 1773,
+   "FLAIR_AF": 25.41229554427524,
+   "FLAIR_outside_shutter": 104,
+   "centre24": 465,
+   "shared_with_a": 572,
+   "mat_md5": "0d96d351fa26d5a850bb1b12a5ae7172",
+   "h5_md5": "44d60714af51f14664fb9485ea9963cf"
+  },
+  "d": {
+   "source": "draw_067.mat",
+   "accelx": 6.8206,
+   "points": 1877,
+   "T1_AF": 24.004262120404903,
+   "FLAIR_points_on_data": 1767,
+   "FLAIR_AF": 25.49858517260894,
+   "FLAIR_outside_shutter": 110,
+   "centre24": 466,
+   "shared_with_a": 549,
+   "mat_md5": "c6e2af643a7e94b2847c153b3edcb1ac",
+   "h5_md5": "9998ff174313a236b132a56fd80420b3"
+  }
+ }
+}
