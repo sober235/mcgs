@@ -260,3 +260,4 @@ T2s sagittal 172 through the two right subependymal nodules. MC-GS 33.84 dB / 0.
 33.69 / 0.8765 / 0.00876 and L1-ESPIRiT 33.34 / 0.8753 / 0.0095: first on all three metrics, +0.153 dB over every
 arm, +0.50 over the non-GS arms on this slice. Selected slice, labelled as such in the figure.
 `/home/congcongliu/figs/peds_tsc_af12_lesion_1db/peds_af12_T2s_sagittal_172_p4_ue_k05.png`
+| `p4_r3_geo007` | T2s edge-TV 0.10 → 0.07 | 38.389 / 0.9660 / 0.0802 | 34.167 / 0.9065 / 0.1826 | sagittal 172 +0.101 | sagittal 171 +0.508 | discard: less smoothing everywhere loses; only the relaxation at T1w edges helps |
