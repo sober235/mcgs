@@ -261,3 +261,8 @@ T2s sagittal 172 through the two right subependymal nodules. MC-GS 33.84 dB / 0.
 arm, +0.50 over the non-GS arms on this slice. Selected slice, labelled as such in the figure.
 `/home/congcongliu/figs/peds_tsc_af12_lesion_1db/peds_af12_T2s_sagittal_172_p4_ue_k05.png`
 | `p4_r3_geo007` | T2s edge-TV 0.10 → 0.07 | 38.389 / 0.9660 / 0.0802 | 34.167 / 0.9065 / 0.1826 | sagittal 172 +0.101 | sagittal 171 +0.508 | discard: less smoothing everywhere loses; only the relaxation at T1w edges helps |
+| **`p4_r3_edge0005`** | common edge 0.001 → 0.0005 | **38.481 / 0.9667 / 0.0779** | **34.228 / 0.9067 / 0.1814** | sagittal 172 +0.150 | sagittal 171 +0.554 | **co-incumbent**: same T2s as edge 0.001 at a third of the T1w cost (−0.035 against c1 instead of −0.13); the preferred recipe for the figure |
+
+Plateau: round 3 has not moved the lesion-slice margin past +0.153 (four runs). Stopping rule for this campaign: once
+the remaining round-3 probes (T2s wavelet 0.14, frozen-geometry regularisers, geometry split) are in, stop if none
+adds ≥ 0.05 dB, and write up.
