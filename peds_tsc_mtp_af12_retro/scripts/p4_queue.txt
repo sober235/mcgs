@@ -56,13 +56,16 @@ p4_u_gwav configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.l
 p4_u_edge0010 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --lambda_edge 0.001
 p4_u_k05 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5
 p4_u_edge0020 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --lambda_edge 0.002
+# 08:35: p4_u_k05 (guide kappa x0.5) = T2s 34.208 / 0.9063 / 0.1826 with T1w unchanged, lesion +0.123. Stack it with
+# common edge 0.001 and push the scale further, before the probes below (which get rebased on the winner).
+p4_ue_k05 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --lambda_edge 0.001
+p4_ue_k025 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.25 --lambda_edge 0.001
 # rebased 07:30 onto union + common edge 0.001: p4_u_T2s_geo007
 p4_ue_T2s_geo007 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.07 --set loss.edge_tv_union_guide=true --lambda_edge 0.001
 # rebased 07:30 onto union + common edge 0.001: p4_u_T2s_wav006
 p4_ue_T2s_wav006 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.06 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --lambda_edge 0.001
 p4_u_edge0005 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --lambda_edge 0.0005
 # rebased 07:30 onto union + common edge 0.001: p4_u_k025
-p4_ue_k025 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.25 --lambda_edge 0.001
 # rebased 07:30 onto union + common edge 0.001: p4_u_dcw02
 p4_ue_dcw02 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.02 --set loss.lambda_geo_contrast=0.02 --set loss.edge_tv_union_guide=true --set loss.dc_weight_contrast=0.2 --lambda_edge 0.001
 # rebased 07:30 onto union + common edge 0.001: p4_u_regfrz
