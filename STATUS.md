@@ -120,6 +120,9 @@ ITERS=6000 ALLOWED="5 1 4 7" TAG=r3c setsid nohup bash scripts/peds_sched.sh scr
 - **选层别用 `best_slice_mcgs.py` 的判据**（按 MC-GS 领先幅度排序 = 自我美化）。
 - **重评分必须并行**（`rescore.py --jobs 11`，15³ LoG 单线程）；两个口径各约 40 分钟 CPU。
 - GPU：任意“无计算进程且利用率 ≤10%”的卡，本线同时最多两个训练（两个 `ALLOWED` 不重叠的调度器实例）。
+- **图必须自己看过再发**：三期在移植 AF16 版式时出过三个只有看图才能发现的错——放大框越界压住下一行、
+  放大图与框比例不一致（本课题 0.7 / 1.35 mm 各向异性）、纯重建图把冠矢状面拉伸到与横断同高（解剖比例失真）。
+  指标一个都抓不到。已修；脚本 `fig_three_planes_inset.py`（AF16 版式）与 `fig_recon_only.py`。
 - 测试基线 **225**（`--ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py`）。
 
 ## 5. 关键决定的“为什么”
