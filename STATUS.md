@@ -62,6 +62,14 @@ cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
 图（最终配置，最后两列 = MC-GS 与 GS-single）：
 `http://localhost:8765/peds_tsc_af12/peds_af12_{T1w,T2s}_row3planes_compact_53_160_152_headerr_p3f.png`
 
+### GPU 名额：与并行会话的约定（09-15）
+
+同分支的 stage 4 会话（claude-eb，跑 `p4_*`）自 09-15 起占用本线两个训练名额，因为我这边已收尾、没有排队。
+**本线同时最多两个训练的规矩不变**，它的调度器把我的运行也计入。若本会话（或后续会话）要在本线再开运行，
+**先给它发消息**，它会先退回一个名额，再由我们开始——不要直接起调度器，否则会变成三个。
+它的地址见 `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md` 里引用的消息记录；
+它只写 `autoresearch_peds_p4.md` 与 `p4_*` 行，不动 STATUS / CLAUDE / 本记录。
+
 ## 2. 待用户拍板## 2. 待用户拍板
 
 1. **是否按停止规则收尾**。spec 的“杠杆用尽”还差一步（见第 3 节的在跑运行）。剩余杠杆只有优化器
