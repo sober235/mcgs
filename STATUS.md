@@ -1,10 +1,11 @@
-# STATUS — 2026-09-14（分支 `16yo-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`）
+# STATUS — 2026-09-15（分支 `16yo-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`）
 
-本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。一期、二期已完成；**三期（在本受试者上调参）进行中，有一个运行在跑**。
+本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。一至四期已完成；**下一轮等用户看图后拍板（第 2、3 节）；L1-SPIRiT 扫描在跑，本线没有训练在跑**。
 
 英文总结：一期 `docs/superpowers/records/2026-09-12-16yo-mtp-reference-dataset.md`，
 二期 `docs/superpowers/records/2026-09-13-16yo-mtp-af12.md`，
-**三期 `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md`（先读这份）**。
+**三期 `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md`（先读这份）**，
+四期（中文，另一会话 claude-eb 写）`docs/superpowers/records/2026-09-15-16yo-mtp-stage4-lesion-slice.md`。
 设计：一期 `.../specs/2026-09-12-peds-tsc-mtp-grappa-design.md`，二期 `.../specs/2026-09-12-16yo-mtp-stage2-af12-design.md`
 与 `.../plans/2026-09-12-16yo-mtp-stage2-af12.md`，**三期 `.../specs/2026-09-14-peds-af12-mcgs-autoresearch-design.md`**。
 回合日志 `autoresearch_peds.md`，账本 `autoresearch_peds.tsv`。
@@ -70,42 +71,36 @@ cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
 它的地址见 `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md` 里引用的消息记录；
 它只写 `autoresearch_peds_p4.md` 与 `p4_*` 行，不动 STATUS / CLAUDE / 本记录。
 
-## 2. 待用户拍板## 2. 待用户拍板
+## 2. 用户拍板（09-15 16:30 前后，本会话 claude-e7）
 
-1. **是否按停止规则收尾**。spec 的“杠杆用尽”还差一步（见第 3 节的在跑运行）。剩余杠杆只有优化器
-   （`rotation_lr 0.008`，jyz 线上值 +0.025 / +0.046）和相位 TV（本分支没有，需从 `autoresearch-jyz-af12-phase3`
-   cherry-pick `paired_gs/losses/phase_tv.py`，同血脉不涉及跨血脉合并）。
-2. **阴性结论怎么写**。当前证据支持的说法是：在每个对比度各自最合适的权重下，GS 单臂是全表最好的 T1w 重建
-   （超过 L1-ESPIRiT），而同一方法的联合版落后 0.33 dB，且先验越轻差距越大；耦合项只是把代价从一个对比度挪到另一个。
-3. 其余八个对比度的一期输出（23 GB）是否删除（一直未动）。
+1. **四期：1 dB 达不到，接受 0.15 dB。** 即矢状 172 的 +0.153（`p4_ue_k05`）/ +0.150（`p4_r3_edge0005`），
+   对所有臂含 GS-single；不算 GS-single 是 +0.55。四期到此收尾，p4 队列里剩下的探针不再跑。
+2. **三期剩余杠杆（`rotation_lr`、相位 TV）先不跑。** 用户要先看图，看完再定下一步动什么。
+3. **结论方向没有商量余地：推 MC-GS 为最优，且超过所有对比方法（含 GS-single）。** 三期的六格判据不撤，
+   上一版第 2 条"阴性结论怎么写"作废。现状离这条差 T1w 三格：对调参 9.6M 单臂 −0.057 dB / −0.0002 SSIM /
+   HFEN 差 0.0004（0.0768 对 0.0764）；T2s 三格已达标。这三格只能靠真实运行补上，不能靠写法（候选杠杆见第 3 节）。
+4. **一期其余八个对比度的 23 GB 先不删。**
+
+另（09-15 16:05，用户）：**L1-SPIRiT 替换 L1-ESPIRiT，GS-single 仍算对比方法**，与 jyz 线同日的口径一致。
+L1-ESPIRiT 的行留在表里、标为不计入，所以它的 T1w HFEN 0.0756 不再是门槛；L1-SPIRiT 的门槛等扫描登记后才知道。
 
 ## 3. 下一步
 
-**在跑（三个，20:23 起）**：
-- `p3_single_T1w_i6000`（GPU 5，19:34 起）单臂 6000 步 —— 联合臂从这条杠杆拿到 +0.072，公平对照。
-- `p3_n60_i6000` 容量 6.0M + 6000 步的组合 —— 若两者相加，剩下的 0.057 dB 就够了。
-- `p3_single_T1w_n60` 单臂 6.0M —— 公平对照：若单臂也涨 0.275，门槛随之上移、差距不变；若涨得少，容量就是联合追上来的地方。
+**本线现在没有训练在跑。** p4 队列已暂停（`logs/.p4_pause`），两个训练名额被 L1-SPIRiT 扫描占着
+（claude-eb 16:12 起的：`scripts/spirit_sweep.sh` 用实采 ACS 24×8 校准，`spirit_sweep_full24.sh` 用全 k 空间中心校准，
+ksize {3,5} × λ 网格，两个对比度，两个并行；日志 `logs/spirit_sweep.log`，第一批 16:35 才拿到卡）。
 
-队列 `scripts/p3_round4_{a,b}.txt`，调度器 TAG=r4a / r4b。原样重跑即可续（已有结果的行会跳过）。
-**r4b 已于 20:29 主动停掉**：另一个会话的 stage 4 也在这条线上跑训练，两边加起来会超过“同时最多两个训练”的上限。
-`p3_single_T1w_n60`（单臂 6.0M，公平对照）因此只是排着、没有调度；本会话的 `p3_single_T1w_i6000` 跑完后
-用同一条命令把 r4b 拉起来即可：
-```
-cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
-ALLOWED="1 4 7 5" TAG=r4b setsid nohup bash scripts/peds_sched.sh scripts/p3_round4_b.txt >> logs/sched_r4b_boot.log 2>&1 &
-```
-```
-cd /data0/congcong/code/GS/mcgs_peds_wt
-grep -E "^\[iter" results_arc/p3_single_T1w_i6000.log | tail -1          # 进度
-tail -1 autoresearch_peds.tsv | cut -f1,2,7,9,11                          # 完成后的行
-```
-进程没了而 `results_arc/p3_single_T1w_i6000_score.json` 也没有，就原样重跑：
-```
-cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
-ITERS=6000 ALLOWED="5 1 4 7" TAG=r3c setsid nohup bash scripts/peds_sched.sh scripts/p3_round3_c.txt >> logs/sched_r3c_boot.log 2>&1 &
-```
-之后按第 2 条的拍板走：要么跑优化器那一轮，要么直接收尾（收尾要做的：最终臂重登记、两个口径重算、
-`summarize.py` / `readme_tables.py` / `refresh_readme_tables.py`、重出十二臂的横排与三面图、写记录）。
+1. 用户看图（清单见第 1 节末尾与四期记录 §6），拍板下一轮动不动、动哪个杠杆。
+2. L1-SPIRiT 扫完后由本会话登记进表：每对比度取最优点，`rescore.py --jobs 11` 两个口径重算，
+   `summarize.py` / `readme_tables.py` / `refresh_readme_tables.py`，L1-ESPIRiT 标不计入；横排与三面图的 L1 列换成 L1-SPIRiT 重出。
+3. 补 T1w 三格的候选杠杆（都没在本受试者试过，按 jyz 线的值排）：
+   - 相位 TV：jyz AF12 三期 P14 = 共同边缘 0.001 + 相位 TV 0.01，把 FLAIR 联合减单臂从 −0.038 翻到 +0.036；
+     本分支没有，需从 `autoresearch-jyz-af12-phase3` cherry-pick `paired_gs/losses/phase_tv.py`（同血脉）。
+   - 优化器 `rotation_lr 0.008`：jyz +0.025 / +0.046。
+   - 共同边缘小 λ：本线单用 0.0005 是 T1w −0.035，jyz 上与相位 TV 合用才翻正。
+   - 步数 6000：本线 3.6M 上联合 +0.071、单臂 +0.041（整卷口径），净 +0.03；9.6M 上没试。
+   容量已尽（19.2M：T1w 不再涨，T2s 掉）。加给联合臂的杠杆同样加给单臂（第 4 节规矩）。
+4. 要开训练先给 claude-eb 发消息退名额（第 1 节的约定），本线同时最多两个训练。
 
 ## 4. 已知的坑与别重做
 

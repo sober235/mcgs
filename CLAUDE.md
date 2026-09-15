@@ -30,7 +30,7 @@ Read in this order: this file → `STATUS.md` (current state, what to re-run fir
   `af12-to-af10` → `t1t2-af12-retro` → `autoresearch-t1t2` (current). `main` / `origin/main`
   are an unrelated earlier snapshot plus the CE work; never merge across the two lineages.
 
-## Pediatric TSC MTP line (branch `16yo-mtp`, this worktree) — stages 1-2 complete, stage 3 running
+## Pediatric TSC MTP line (branch `16yo-mtp`, this worktree) — stages 1-4 done, next round pending the user's figure review
 Read `STATUS.md` first. Stage 1 built the reference k-space (spec `docs/superpowers/specs/2026-09-12-peds-tsc-mtp-grappa-design.md`,
 topic `Results_20260908/Peds_TSC_MTP_3D/`, dataset `/data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT/`).
 Stage 2 is the retrospective AF-12 ten-arm comparison (spec `...2026-09-12-16yo-mtp-stage2-af12-design.md`,
@@ -42,11 +42,17 @@ GS-single 38.086 > MC-GS 37.855; T2s: GS-single 34.175 ≈ MC-GS 34.160 > L1-ESP
 the same pattern, so it is the contrast pair (r = 0.57, the least similar of the ten), not the implementation.
 MC-INR (Niessen 2025) was added as a tenth arm on 2026-09-14 and lands eighth on both contrasts; its reproduction
 lives in the worktree `/data0/congcong/code/GS/mcinr_peds_wt` (branch `peds-mtp`, no remote).
-Stage 3 (running, spec `...2026-09-14-peds-af12-mcgs-autoresearch-design.md`, program `autoresearch_peds.md`,
-record `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md`) tunes on this subject until MC-GS leads all six head
-cells against every other arm, GS-single counted as a competitor. Where it stands: tuning moved the single arm 0.762 dB
-and it now leads the table on T1w (38.848, ahead of L1-ESPIRiT's 38.830), while the joint arm reaches 38.588 and the
-joint-minus-single deficit **grew** from -0.230 to -0.332. `STATUS.md` has the running job and the two open decisions.
+Stage 3 (closed 2026-09-15, spec `...2026-09-14-peds-af12-mcgs-autoresearch-design.md`, program `autoresearch_peds.md`,
+record `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md`) tuned on this subject against the six-cell target (MC-GS
+first in every head cell against every arm, GS-single counted). Not met: at matched 9.6M points the joint arm leads all
+three T2s cells (34.227 / 0.9056 / 0.1836, union guide) and trails the single on T1w by 0.057 dB / 0.0002 SSIM / 0.0004
+HFEN (38.936 vs 38.993); most of stage 2's deficit was cloud capacity (-0.332 at 3.6M, -0.057 at 9.6M). Stage 4 (parallel
+session claude-eb, log `autoresearch_peds_p4.md`, record `...2026-09-15-16yo-mtp-stage4-lesion-slice.md`) looked for one
+lesion slice 1 dB ahead of every arm and plateaued at +0.15 dB (T2s sagittal 172). **User decisions 2026-09-15 (STATUS §2):
++0.15 accepted and stage 4 closed; the six-cell target stands — MC-GS must end up first against every arm including
+GS-single, so the T1w cells are still to be closed by real runs; no new training until the user has reviewed the figures;
+L1-SPIRiT replaces L1-ESPIRiT (sweep running, registration by this session); the 23 GB of stage-1 output for the other
+eight contrasts stays.**
 Code: `uih_mtp/` (raw reader, 3D GRAPPA, `retro_mask`, `rescore`), configs `configs/peds_af12_*.yaml`, runner
 `autoresearch_peds.sh`. GPU policy for this line (user, 2026-09-14): any card with no compute process and utilisation
 at most 10 %, at most two of this line's trainings at once (two scheduler instances with disjoint `ALLOWED` lists);
