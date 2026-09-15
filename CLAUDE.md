@@ -109,6 +109,9 @@ Cut from `jyz-af20-results` 4d13197; read `STATUS.md` first. Topic `/data0/congc
 (1877 points; FLAIR 25.51x), the house generator with accelx 6.8656, draw_025 of a 134-draw pool, untrimmed (md5 c3688d61...).
 MC-GS = the AF16 phase-3 recipe frozen in `run_af24_mcgs.sh`; every arm is queued by `scripts/run_all_af24.py` (priority queue,
 one GPU job of this user per card, at most four at once, then finalize). The user approved the mask (`figures/t1flair_v3_af24_mask_*.png`) on 2026-09-14 before any GPU job. Result, nine arms: head PSNR
-**33.767 / 33.182**, margins over L1-ESPIRiT **+0.366 / +0.400** (AF20 +0.461 / +0.491: the margin narrows by ~0.1 dB), first on all
-six head cells; coupling +0.179 / +0.071; T1 sharpness 0.803 ≥ L1-ESPIRiT 0.787. Record `docs/superpowers/records/2026-09-15-af24-jyz.md`,
+**33.767 / 33.182**, first on all six head cells over every comparison arm including GS-single. The margin that is quoted is over
+the strongest comparison arm, GS-single (user 2026-09-13: GS-single counts as a comparison arm): **+0.179 / +0.071** (AF20 +0.165 / +0.052).
+L1-ESPIRiT was dropped from the comparison on 2026-09-15 (user; data kept, not listed): the strongest non-GS arm is CS-SENSE (TV,
+converged) 32.820 on T1 and joint CS-SENSE 32.605 on FLAIR. The earlier "+0.366 / +0.400 over L1-ESPIRiT" is history, not a margin to
+quote. L1-SPIRiT and MC-INR (added at AF12/16/20 on 2026-09-14/15) are being run at AF24; the figure set of record there is `_mcinr_spirit`. Record `docs/superpowers/records/2026-09-15-af24-jyz.md`,
 handoff `docs/handoff/2026-09-15-af24-jyz.md`, figures `t1flair_af24_v3_jiangyizhou/figures/t1flair_v3_af24_*_p3.*`.

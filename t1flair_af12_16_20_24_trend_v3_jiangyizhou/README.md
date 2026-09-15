@@ -47,6 +47,8 @@ SSIM、HFEN 的完整数值和每一步的变化在 `logs/af_trend_tables.md`；
 
 ## 3. MC-GS 对最强对手的余量（头内 PSNR，同一打分器）
 
+**09-15 下午更正**：GS-single 算对比方法（用户 09-13），所以主余量是下表的"MC-GS − GS-single"一列：T1 +0.150 → +0.148 → +0.165 → +0.179，FLAIR +0.036 → +0.042 → +0.052 → +0.071，逐档变大。L1-ESPIRiT 已移出对比（用户 09-15），下表"最强对手"两列是旧口径下对 L1-ESPIRiT 的历史数字，不再作为余量引用。AF24 的 L1-SPIRiT、MC-INR 补跑登记后，本课题会按新口径（不列 L1-ESPIRiT、加 L1-SPIRiT）重出。
+
 | 档位 | T1：MC-GS − 最强对手 | GS-single − 最强对手 | MC-GS − GS-single | FLAIR：MC-GS − 最强对手 | GS-single − 最强对手 | MC-GS − GS-single |
 |---|---|---|---|---|---|---|
 | AF12 | +0.589 | +0.439 | +0.150 | +0.602 | +0.567 | +0.036 |

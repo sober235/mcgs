@@ -28,7 +28,9 @@ $ sed -n '/MC-GS margin over the strongest/,/^$/p' $T/logs/af_trend_summary.txt
 **② AF24 掩膜抽样方差：09-15 10:21 启动，运行中。** 规则与注册掩膜相同：第二个池子（`prep_02b_mask_pool_draws_af24.m`，67 张）里编号最小的三张恰好 1877 点、未裁剪的抽样 → b/c/d（FLAIR 25.43/25.41/25.50×，与 a 共享 540–572 点；`logs/prep_03b_pick_export_draws_af24.json`）。每张只跑 MC-GS joint（冻结配方，`MASK_DRAW=<d>`，不存体积）与 L1-ESPIRiT 三个 λ（T1 0.0007/0.001/0.0015，FLAIR 0.0014/0.002/0.003）。队列 `scripts/run_all_af24.py --study draws --max_gpu_jobs 3 --max_cpu_jobs 3`（调度器 pid 2796954，卡 6/7/3），跑完自动 `scripts/score_mask_draws_af24.py` → `logs/mask_draws_af24_summary.{txt,json}`。已核对三个 MC-GS 日志读的是各自掩膜（`zero_lines=105/104/110 of 1877`）、L1 用覆盖掩膜。
 
 ### 一句话
-AF16 三期配方原样不调，跑在"T1 正好 24×"的掩膜上（1877 点，FLAIR 25.51×）：头内 PSNR **33.767 / 33.182**，对最强对手 L1-ESPIRiT 余量 **+0.366 / +0.400**（AF20 +0.461 / +0.491），九臂里头内 PSNR/SSIM/HFEN 六格全第一；**余量比 AF20 缩小约 0.1 dB**；T1 锐度 0.803 高于 L1-ESPIRiT 的 0.787（AF20 时低于）。
+AF16 三期配方原样不调，跑在"T1 正好 24×"的掩膜上（1877 点，FLAIR 25.51×）：头内 PSNR **33.767 / 33.182**，九臂里头内 PSNR/SSIM/HFEN 六格全第一（含 GS-single）。**对最强对比方法 GS-single 的余量 +0.179 / +0.071**（AF20 +0.165 / +0.052；GS-single 算对比方法是用户 09-13 定的）。
+
+**09-15 下午更正（claude-ad 会话转告的用户决定）**：① GS-single 算对比方法（用户 09-13），所以主余量是 MC-GS − GS-single，不是对 L1-ESPIRiT；② L1-ESPIRiT 已移出对比（用户 09-15，数据保留、表里不列），最强的非 GS 方法变为收敛 TV（T1 32.820，余量 +0.947）和 JTV（FLAIR 32.605，余量 +0.577）。下文和记录里写的"对 L1-ESPIRiT 余量 +0.366 / +0.400、比 AF20 缩小约 0.1 dB"是旧口径的历史数字，不再作为余量引用；它说明的"单对比度表征相对 L1-ESPIRiT 的领先在变小"仍成立。AF12/16/20 已补 L1-SPIRiT、MC-INR，正式图只有 `_mcinr_spirit` 一种；AF24 的这两个方法在补跑（`run_all_af24.py --study extra`）。
 
 ### 1. 已完成且已验证
 

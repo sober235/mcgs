@@ -112,8 +112,12 @@ Complete. 2026-09-14 21:00–21:40 the mask, topic, configs and scripts were pre
 and approved them before any GPU job; a 60-iteration smoke run passed; `scripts/run_all_af24.py` started 21:45:49 and
 the queue (38 jobs, no failure) and `scripts/finalize_af24_jyz.sh` were done at 05:30 on 2026-09-15.
 
-Headline (head-only PSNR, T1 / FLAIR): MC-GS **33.767 / 33.182**, margin over L1-ESPIRiT **+0.366 / +0.400** (AF 20:
-+0.461 / +0.491), first on head PSNR, SSIM and HFEN on both contrasts; MC-GS − GS-single +0.179 / +0.071; T1 sharpness
-0.803 against L1-ESPIRiT's 0.787. Every classical λ optimum is interior. Figures in the AF 16 figure-of-record layout:
+Headline (head-only PSNR, T1 / FLAIR): MC-GS **33.767 / 33.182**, first on head PSNR, SSIM and HFEN on both contrasts over
+every comparison arm including GS-single. The quoted margin is over the strongest comparison arm, GS-single (user
+2026-09-13): **+0.179 / +0.071** (AF 20: +0.165 / +0.052). L1-ESPIRiT was dropped from the comparison on 2026-09-15 (user;
+its volumes, logs and summary rows are kept, only no longer listed): the strongest non-GS arm is CS-SENSE (TV, converged)
+32.820 on T1 and joint CS-SENSE (JTV) 32.605 on FLAIR. Numbers written here earlier against L1-ESPIRiT (+0.366 / +0.400,
+T1 sharpness 0.803 against its 0.787) are history. L1-SPIRiT and MC-INR, added to the AF 12 / 16 / 20 topics on
+2026-09-14/15, are being run here (`scripts/run_all_af24.py --study extra`). Every classical λ optimum is interior. Figures in the AF 16 figure-of-record layout:
 `figures/t1flair_v3_af24_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3.{png,pdf}` and
 `..._174_110_47_headerr_p3.png`. Session record: `mcgs_af16_wt/docs/superpowers/records/2026-09-15-af24-jyz.md`.

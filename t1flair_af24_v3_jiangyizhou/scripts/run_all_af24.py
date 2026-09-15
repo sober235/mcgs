@@ -30,6 +30,11 @@ Status: logs/run_all_af24.log, logs/run_all_af24_status.json, logs/RUN_ALL_AF24_
 L1-ESPIRiT at the AF24 optimum and both neighbours of the main sweep (T1 0.0007 / 0.001 / 0.0015, FLAIR 0.0014 /
 0.002 / 0.003; mask swapped through T1T2_MASK_<CONTRAST>, outputs suffixed _d<d>_lam<L>); at the end
 scripts/score_mask_draws_af24.py instead of finalize. Logs logs/run_draws_af24{.log,_status.json}, logs/RUN_DRAWS_AF24_DONE.
+--study extra (2026-09-15) queues the two arms the AF12 / 16 / 20 topics gained on 2026-09-14/15, so AF24 matches them:
+MC-INR (Niessen 2025; mcinr_niessen2025 repo, run_volume.py --af 24 --resume --yield_to_others, GR_pt1.10 env; exit 3 =
+it yielded to another process of this user and is queued again to resume) and the L1-SPIRiT sweep of the AF20 topic
+(scripts/recon_spirit.py, ksize 3 / 5 x lam 0, 5e-4, 1e-3, 2e-3, 4e-3, 8e-3, 150 it, chunk 24). No automatic post-step:
+score.py --af 24, the registration and the figures are run by hand. Logs logs/run_extra_af24{.log,_status.json}.
 """
 import argparse, json, os, subprocess, time
 from pathlib import Path
@@ -48,6 +53,11 @@ L1 = {"T1": ["0.00035", "0.0005", "0.0007", "0.001", "0.0015", "0.0025", "0.004"
 CLASSICAL = ("base_", "tv_", "jtv_")
 DRAWS = ("b", "c", "d")
 DRAW_L1 = {"T1": ["0.0007", "0.001", "0.0015"], "FLAIR": ["0.0014", "0.002", "0.003"]}
+MCINR = Path("/data0/congcong/code/GS/mcinr_niessen2025")
+MCINR_TOPIC = Path("/data0/congcong/code/GS/Results_20260908/T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou")
+PY_TCNN = "/home/congcongliu/anaconda3/envs/GR_pt1.10/bin/python"
+SPIRIT_KS = ("3", "5")
+SPIRIT_LAM = ("0", "0.0005", "0.001", "0.002", "0.004", "0.008")
 
 
 def all_jobs():
@@ -119,6 +129,24 @@ def draw_jobs():
     return q
 
 
+def extra_jobs():
+    L, q = J / "logs", []
+    q.append(dict(name="mcinr_af24", kind="gpu", need=10, cwd=str(MCINR), requeue_rc=3,
+                  cmd=f"{PY_TCNN} -u scripts/run_volume.py --af 24 --gpu {{gpu}} --resume --yield_to_others",
+                  done=str(MCINR_TOPIC / "recon/af24/meta.json"), log=str(MCINR_TOPIC / "logs/run_af24.log"),
+                  script="run_volume.py", args={"--af": "24"}, absent=[]))
+    for c in ("T1", "FLAIR"):
+        for ks in SPIRIT_KS:
+            for lam in SPIRIT_LAM:
+                sfx = f"_ks{ks}_lam{lam}"
+                q.append(dict(name=f"spirit_{c}{sfx}", kind="gpu", need=24, cwd=str(J),
+                              cmd=(f"{PY} -u scripts/recon_spirit.py --contrast {c} --gpu {{gpu}} --ksize {ks} --lam {lam} "
+                                   f"--iters 150 --chunk 24 --suffix {sfx}"),
+                              done=str(L / f"spirit_{c}{sfx}.json"), log=str(L / f"spirit/{c}{sfx}.log"),
+                              script="recon_spirit.py", args={"--contrast": c, "--suffix": sfx}, absent=[]))
+    return q
+
+
 def my_argvs():
     """argv token lists of this uid's live processes"""
     out = []
@@ -171,10 +199,10 @@ def main():
     ap.add_argument("--max_cpu_jobs", type=int, default=4)
     ap.add_argument("--poll_s", type=int, default=30)
     ap.add_argument("--dry_run", action="store_true")
-    ap.add_argument("--study", choices=("main", "draws"), default="main")
+    ap.add_argument("--study", choices=("main", "draws", "extra"), default="main")
     a = ap.parse_args()
     cards = [int(x) for x in a.cards.split(",")]
-    tag = "run_all_af24" if a.study == "main" else "run_draws_af24"
+    tag = {"main": "run_all_af24", "draws": "run_draws_af24", "extra": "run_extra_af24"}[a.study]
     logf = open(J / f"logs/{tag}.log", "a")
 
     def say(msg):
@@ -183,7 +211,7 @@ def main():
         if not a.dry_run:
             logf.write(line + "\n"); logf.flush()
 
-    queue, running, waiting, done, retried = (all_jobs() if a.study == "main" else draw_jobs()), [], [], {}, set()
+    queue, running, waiting, done, retried = {"main": all_jobs, "draws": draw_jobs, "extra": extra_jobs}[a.study](), [], [], {}, set()
     say(f"armed: {len(queue)} jobs, cards {cards}, max {a.max_gpu_jobs} GPU / {a.max_cpu_jobs} CPU jobs")
     while True:
         for r in list(running):                                   # reap
@@ -193,7 +221,9 @@ def main():
             running.remove(r); j = r["job"]; ok = Path(j["done"]).exists()
             done[j["name"]] = rc
             say(f"DONE {j['name']} gpu{r['gpu']} rc={rc} result={'yes' if ok else 'NO'} {(time.time() - r['t0']) / 60:.1f} min")
-            if rc != 0 and not ok:
+            if rc != 0 and not ok and rc == j.get("requeue_rc"):
+                queue.insert(0, j); say(f"YIELDED {j['name']} (rc={rc}): queued again to resume")
+            elif rc != 0 and not ok:
                 if j["name"].startswith("gs_"):
                     say(f"FAILED {j['name']}: not retried (run_af24_mcgs.sh refuses to overwrite; look at its log)")
                 elif j["name"] not in retried:
@@ -258,6 +288,9 @@ def main():
         exps = [GS[k][0] for k in ("joint", "singleT1", "singleFLAIR")]
         rc = subprocess.call(["bash", "scripts/finalize_af24_jyz.sh", *exps], cwd=J, env=ENV,
                              stdout=open(J / "logs/finalize_af24.log", "a"), stderr=subprocess.STDOUT)
+    elif a.study == "extra":
+        say(f"QUEUE EMPTY. failures: {fails}. no automatic post-step (score.py --af 24, registration, figures by hand)")
+        rc = 0
     else:
         say(f"QUEUE EMPTY. failures: {fails}. score the draws ...")
         rc = subprocess.call([PY, "-u", "scripts/score_mask_draws_af24.py"], cwd=J, env=ENV,

@@ -35,6 +35,10 @@ ap.add_argument("--mask_error", action="store_true", help="error maps only insid
 ap.add_argument("--mcgs_key", default="gs_joint_ar", help="which registered joint arm fills the MC-GS column")
 ap.add_argument("--single_key", default="gs_single_ar", help="which registered single arm fills the GS-single column")
 ap.add_argument("--tag", default="", help="extra suffix for the output file name, e.g. _p3")
+ap.add_argument("--l1_arm", default="espirit", choices=["espirit", "spirit", "both"],
+                help="which L1 arm fills that column: L1-ESPIRiT, the SENSE-type default; L1-SPIRiT, the "
+                     "k-space one; or both side by side. Non-default adds _spirit / _bothl1 to the file name, "
+                     "so the figure of record is never overwritten.")
 ap.add_argument("--no_metrics", action="store_true",
                 help="do not print the PSNR / SSIM / NMSE numbers inside the plane panels (user 2026-09-13); the\n"
                      "ranking still goes to stdout")
@@ -62,6 +66,7 @@ ap.add_argument("--inset", type=int, default=0, metavar="W",
                      "the point where the three slices meet (the face of the WxWxW cube of best_cube_mcgs.py); the box "
                      "is outlined on the slice and its own PSNR is printed in the inset")
 args = ap.parse_args()
+args.tag += {"espirit": "", "spirit": "_spirit", "both": "_bothl1"}[args.l1_arm]
 if (args.slices is None) == (args.cube is None):
     ap.error("give either --slices TRA COR SAG or --cube I J K W")
 CROP = None
@@ -90,8 +95,10 @@ c = args.contrast
 METRIC_COLOR = "#FFC23D"          # orange-yellow for the in-panel metrics (user request 2026-09-11); best of each plane in bold
 SSIM_KW = (dict(win_size=7) if args.ssim == "uniform"
            else dict(gaussian_weights=True, sigma=1.5, use_sample_covariance=False))
-_af = json.load(open(R / "logs/prep_04_export.json"))["contrasts"][c]    # AF = PE-plane points / sampled points with data (user 2026-09-14)
-AF_LABEL = f"AF {_af['AF_vs_full_rect']:.2f}"
+_af = json.load(open(R / "logs/prep_04_export.json"))["contrasts"][c]    # nominal AF 24 label, same format as the AF16 / AF20 topics (2026-09-15)
+# AF label gauge (user 2026-09-14): whole phase-encode plane / the points this contrast actually has data on = AF_vs_full_rect
+# = BART's Acc. The AF 24 mask puts T1 at exactly 24.00x; FLAIR reads 25.51x.
+AF_LABEL = f"nominal AF 24, actual {_af['AF_vs_full_rect']:.2f}x"
 rows = {r["method"]: r for r in json.load(open(R / "logs/summary.json")) if r["contrast"] == c}
 
 
@@ -107,10 +114,24 @@ def lam_file(row_key, prefix):
     return None
 
 
+def spirit_file():
+    """saved volume of the L1-SPIRiT row: recon/spirit_ks<K>_lam<L>_<c>_complex.npy at the kernel size
+    and lambda summarize.py kept (its sweep spans both, so lam_file's prefix_lam<L> pattern misses it)."""
+    r = rows.get("spirit", {})
+    if r.get("lam") is None or not r.get("ksize"):
+        return None
+    p = R / f"recon/spirit_ks{r['ksize']}_lam{r['lam']:g}_{c}_complex.npy"
+    return p if p.exists() else None
+
+L1_ARMS = {"espirit": [("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espirit"))],
+           "spirit": [("spirit", "L1-SPIRiT", spirit_file())],
+           "both": [("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espirit")),
+                    ("spirit", "L1-SPIRiT", spirit_file())]}[args.l1_arm]
+
 ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("cssense_o200", "CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
         ("jcssense", "Joint SENSE", lam_file("jcssense", "jcssense_o200")),
-        ("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espirit")),
+        *L1_ARMS,
         ("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
         ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy"),
         ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy"),
