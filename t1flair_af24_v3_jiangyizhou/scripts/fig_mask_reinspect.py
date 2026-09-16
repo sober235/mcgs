@@ -3,8 +3,9 @@
 
 Top row: the T1 channel's and the FLAIR channel's mask_path from configs/t1flair_v3_af24_jyz.yaml, and their XOR (0 lines).
 Bottom row: log10 per-line k-space energy of each contrast on the mask, and FLAIR's full k-space with its acquired region.
-AF = PE-plane lines / sampled lines that carry that contrast's data (user decision 2026-09-14): T1 45056/1877 = 24.00,
-FLAIR 45056/1766 = 25.51 (111 lines fall in FLAIR's unacquired corners). Writes figures/ and the served figs folder."""
+AF = PE-plane lines / sampled lines (user decision 2026-09-16): 45056/1877 = 24.00 on both contrasts, since both read the same
+mask; 1766 of those lines carry FLAIR data (111 fall where its scan acquired nothing). The per-contrast gauge of 2026-09-14
+(FLAIR 45056/1766 = 25.51) is what this replaces; both numbers are printed below. Writes figures/ and the served figs folder."""
 import hashlib, re, shutil
 import h5py, numpy as np, torch
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
@@ -64,7 +65,7 @@ ax[1, 2].contour(supFL, levels=[0.5], colors="r", linewidths=0.9)
 ax[1, 2].set_title(f"FLAIR full k-space (log10 line energy)\nacquired region {int(supFL.sum())} of {N} lines\n(vendor shutter; rows ky < 20 not acquired)", fontsize=11)
 for a in ax.ravel():
     a.set_xlabel("kz (176)"); a.set_ylabel("ky (256)"); a.set_xticks([]); a.set_yticks([])
-fig.suptitle(f"jiangyizhou AF24 topic: one mask for T1 and FLAIR   (AF = whole-plane lines / sampled lines that carry data:  T1 {N / t1_sig:.2f},  FLAIR {N / fl_sig:.2f})",
+fig.suptitle(f"jiangyizhou AF24 topic: one mask for T1 and FLAIR   (AF = whole-plane lines / sampled lines = {N / nT1:.2f} on both;  lines carrying data: T1 {t1_sig}, FLAIR {fl_sig})",
              fontsize=13, fontweight="bold")
 fig.tight_layout(rect=(0, 0, 1, 0.97))
 fig.savefig(OUT, dpi=130); shutil.copy2(OUT, SERVED)

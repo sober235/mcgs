@@ -36,10 +36,11 @@ for a, c in zip(axes[1:], ("T1", "FLAIR")):
     n_in, n_out = int((m & sup[c]).sum()), int((m & ~sup[c]).sum())
     a.set_title(f"{c}: acquired region {100 * sup[c].mean():.1f}% of the plane (grey)\n"
                 f"{n_in} points on data (white), {n_out} on corners (red)\n"
-                f"AF = {m.size} / {n_in} = {m.size / n_in:.2f}", fontsize=10.5)
+                f"AF = {m.size} / {int(m.sum())} sampled points = {m.size / m.sum():.2f} (one mask, both contrasts)\n"
+                f"{n_in} of them carry {c} data", fontsize=10.5)
 for a in axes:
     a.set_xlabel("kz (176)"); a.set_ylabel("ky (256)"); a.set_xticks([]); a.set_yticks([])
-fig.suptitle("jiangyizhou retrospective AF 24: one mask, two contrasts   (AF = whole-plane points / sampled points that carry data)", fontsize=12.5, fontweight="bold")
+fig.suptitle("jiangyizhou retrospective AF 24: one mask, two contrasts   (AF = whole-plane points / sampled points, user 2026-09-16)", fontsize=12.5, fontweight="bold")
 fig.tight_layout(w_pad=2.5)
 for d in (Path("/home/congcongliu/figs/t1flair_v3_af24"), R / "figures"):
     fig.savefig(d / "t1flair_v3_af24_mask_T1_vs_FLAIR.png", dpi=140)

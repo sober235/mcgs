@@ -18,7 +18,10 @@ OUTFIG = f"{T}/figures/jyz_t1flair_af12_16_20_24_metric_steps.png"
 SERVED = "/home/congcongliu/figs/t1flair_v3_af_trend"
 AFS = ("12", "16", "20", "24")
 STEPS = list(zip(AFS[:-1], AFS[1:]))
-WP = {"T1": {"12": 11.71, "16": 15.19, "20": 18.56, "24": 24.00}, "FLAIR": {"12": 12.86, "16": 16.49, "20": 19.96, "24": 25.51}}
+# AF label (user 2026-09-16): whole PE plane / sampled points of that topic's mask -- one number per topic, both contrasts,
+# since each topic uses one mask. The per-contrast gauge of 2026-09-14 (FLAIR 12.86 / 16.49 / 19.96 / 25.51, its points that
+# carry data) is what this replaces; FLAIR's scan covers 34139 of the 45056 lines, so its mask points carrying data are fewer.
+WP = {"T1": {"12": 11.71, "16": 15.19, "20": 18.56, "24": 24.00}, "FLAIR": {"12": 11.71, "16": 15.19, "20": 18.56, "24": 24.00}}
 # ORDER is what is SHOWN. L1-ESPIRiT stays in the rescore json (data) but is not shown: dropped from the comparison by
 # the user on 2026-09-15; L1-SPIRiT, the k-space arm registered the same day, takes a row (as in the AF12_16_20 review).
 ORDER = ["MC-GS", "GS-single", "CS-SENSE (converged TV)", "Joint SENSE", "CS-SENSE (35 it)",

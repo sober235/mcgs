@@ -41,7 +41,9 @@ for i, c in enumerate(("T1", "FLAIR")):
     ax[2 + i].imshow(rgb, interpolation="nearest")
     n_on = int((m & acq).sum())
     ax[2 + i].set_title(f"AF 24 mask on {c}: {int(m.sum())} sampled points\n{n_on} on acquired data (white), "
-                        f"{int((m & ~acq).sum())} on empty lines (red)\nAF = {e.size} / {n_on} = {e.size / n_on:.2f}", fontsize=10.5)
+                        f"{int((m & ~acq).sum())} on empty lines (red)\n"
+                        f"AF = {e.size} / {int(m.sum())} = {e.size / m.sum():.2f} (label, both contrasts); "
+                        f"{e.size / n_on:.2f} against the points carrying data", fontsize=10.5)
 for a in ax:
     a.set_xlabel("kz (176)"); a.set_ylabel("ky (256)"); a.set_xticks([]); a.set_yticks([])
 fig.suptitle("jiangyizhou raw scans: T1 acquired the whole phase-encode plane; FLAIR skipped the corners (elliptical scanning) "

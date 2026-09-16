@@ -106,7 +106,9 @@ the afternoon's review. Read `STATUS.md` first.
 ## AF24 study (branch `autoresearch-jyz-af24`, this worktree, 2026-09-14) — complete (2026-09-15 05:30)
 Cut from `jyz-af20-results` 4d13197; read `STATUS.md` first. Topic `/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/`
 (mirror `t1flair_af24_v3_jiangyizhou/`, README). One variable again, the mask: T1 at exactly 24x under the user's AF definition
-(1877 points; FLAIR 25.51x), the house generator with accelx 6.8656, draw_025 of a 134-draw pool, untrimmed (md5 c3688d61...).
+(1877 points), the house generator with accelx 6.8656, draw_025 of a 134-draw pool, untrimmed (md5 c3688d61...). Figures and tables
+label both contrasts **AF 24.00x** = plane points / sampled points (user 2026-09-16); FLAIR's scan carries data on 1766 of those
+points (25.51x on the per-contrast gauge of 09-14, 19.33x against its own acquisition).
 MC-GS = the AF16 phase-3 recipe frozen in `run_af24_mcgs.sh`; every arm is queued by `scripts/run_all_af24.py` (priority queue,
 one GPU job of this user per card, at most four at once, then finalize). The user approved the mask (`figures/t1flair_v3_af24_mask_*.png`) on 2026-09-14 before any GPU job. Result, nine arms: head PSNR
 **33.767 / 33.182**, first on all six head cells over every comparison arm including GS-single. The margin that is quoted is over

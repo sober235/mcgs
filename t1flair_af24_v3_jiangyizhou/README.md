@@ -14,12 +14,15 @@ them. Nothing is reused from the AF 20 results: every arm depends on the mask.
 Created with `scripts/setup_af24_jyz.sh`; configs `configs/t1flair_v3_af24_jyz{,_singleT1,_singleFLAIR}.yaml` in the
 worktree `/data0/congcong/code/GS/mcgs_af16_wt` on branch `autoresearch-jyz-af24`.
 
-**Acceleration** follows the user's definition of 2026-09-14: AF = PE-plane points / sampled points that carry that
-contrast's data. T1 acquires the whole (ky, kz) plane; FLAIR's elliptical vendor shutter leaves the corners empty
-(34139 of 45056 lines), so one shared mask gives FLAIR the higher AF. **This topic puts T1 at exactly 24x** (1877
-points; 45056 / 1877 = 24.004), so neither contrast is below 24x.
+**Acceleration label (user, 2026-09-16): AF = PE-plane points / sampled points = 45056 / 1877 = 24.00x, the same number on
+both contrasts**, because both read the same mask. The mask was drawn to put that number at exactly 24x. What differs
+between the contrasts is how much of it carries data: T1 acquired the whole (ky, kz) plane, FLAIR only 34139 of the 45056
+lines (elliptical scanning plus ky rows 0-19, verified on the raw CFL — `figures/t1flair_v3_af24_raw_kspace_support_T1_vs_FLAIR.png`),
+so 1766 of the 1877 sampled points carry FLAIR data. Two other gauges are reported where they matter and are NOT the label:
+45056 / points-with-data (the 2026-09-14 per-contrast gauge: T1 24.00x, FLAIR 25.51x) and 34139 / 1766 = 19.33x, FLAIR against
+its own acquisition. Sections written before 2026-09-16 quote the per-contrast gauge.
 
-| mask | generator call | PE points | T1 AF | FLAIR AF | FLAIR points outside the shutter | 24x24 centre | (older convention) FLAIR vs its shutter |
+| mask | generator call | PE points | AF label (both contrasts) | FLAIR AF, 09-14 gauge | FLAIR points outside its scan | 24x24 centre | FLAIR vs its own acquisition |
 |---|---|---|---|---|---|---|---|
 | AF 12 topic | `vdPoisMex(256,176,256,176, 3, 4, 24, 0, 1)` | 3847 | 11.71 | 12.86 | 343 | 482 | 9.74 |
 | AF 16 topic | `vdPoisMex(256,176,256,176, 4, 4, 24, 0, 1)` | 2966 | 15.19 | 16.49 | 233 | 472 | 12.49 |
@@ -172,7 +175,8 @@ margin, MC-GS − GS-single, was not measured (GS-single was not run on draws b�
 - **Figure set of record** (as in the AF 12 / 16 / 20 topics since 2026-09-15):
   `figures/t1flair_v3_af24_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit.{png,pdf}` — the AF 16 layout,
   slices and 48-voxel box; ten method columns with L1-SPIRiT in the L1 column and MC-INR added; title
-  `nominal AF 24, actual 24.00x` / `25.51x` (AF = PE-plane points / sampled points that carry data). MC-GS is first on PSNR,
+  `nominal AF 24, actual 24.00x` on both contrasts (user 2026-09-16), with the FLAIR panel note "1766 sampled points carry FLAIR
+  data" under the panels. MC-GS is first on PSNR,
   SSIM and NMSE in every plane of both contrasts. Command:
   `fig_three_planes_compact.py --contrast <c> --slices 180 124 76 --inset 48 --inset_corner tr bl bl --mask_error --gray_cbar
   --cbar_planes 0 --tra_rot 1 --err_vmax 0.1 --pdf --mcgs_key gs_joint_p3 --single_key gs_single_p3 --tag _p3_mcinr --with_mcinr --l1_arm spirit`.

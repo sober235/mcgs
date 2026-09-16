@@ -95,10 +95,13 @@ c = args.contrast
 METRIC_COLOR = "#FFC23D"          # orange-yellow for the in-panel metrics (user request 2026-09-11); best of each plane in bold
 SSIM_KW = (dict(win_size=7) if args.ssim == "uniform"
            else dict(gaussian_weights=True, sigma=1.5, use_sample_covariance=False))
-_af = json.load(open(R / "logs/prep_04_export.json"))["contrasts"][c]    # nominal AF 24 label, same format as the AF16 / AF20 topics (2026-09-15)
-# AF label gauge (user 2026-09-14): whole phase-encode plane / the points this contrast actually has data on = AF_vs_full_rect
-# = BART's Acc. The AF 24 mask puts T1 at exactly 24.00x; FLAIR reads 25.51x.
-AF_LABEL = f"nominal AF 24, actual {_af['AF_vs_full_rect']:.2f}x"
+_ex = json.load(open(R / "logs/prep_04_export.json"))
+_af = _ex["contrasts"][c]
+# AF label gauge (user 2026-09-16): whole phase-encode plane / the points the mask samples -- the same 24.00x on both
+# contrasts, since both read the same mask. FLAIR's scan acquired only 34139 of the 45056 lines (elliptical scanning +
+# ky rows 0-19), so 1766 of the 1877 sampled points carry FLAIR data; that is stated under the panels, not in the title.
+# The per-contrast gauge of 2026-09-14 (AF_vs_full_rect: T1 24.00x, FLAIR 25.51x) is what this replaces.
+AF_LABEL = f"nominal AF 24, actual {_ex['mask2d_AF_rect']:.2f}x"
 rows = {r["method"]: r for r in json.load(open(R / "logs/summary.json")) if r["contrast"] == c}
 
 
@@ -333,6 +336,11 @@ if not args.no_metrics:
     _win = "7x7 window" if args.ssim == "uniform" else "Gaussian window, sigma 1.5"
     _cap.append(f"head-masked slice PSNR / SSIM ({_win}) / NMSE in each panel, the best of each plane in bold")
 _cap.append(f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]" + ("   (inside the head only)" if args.mask_error else ""))
+NPL = int(_ex["mask2d_shape"][0]) * int(_ex["mask2d_shape"][1])
+_cap.append(f"AF = {NPL} plane points / {_ex['mask2d_samples']} sampled points, the same on both contrasts (one mask)"
+            + ("" if _af["support_frac"] >= 1 else
+               f";   this scan acquired {round(_af['support_frac'] * NPL)} of the {NPL} lines, so {round(_af['sampled_frac_of_plane'] * NPL)} "
+               f"sampled points carry {c} data"))
 _cap.append("left of each error row: the sampling mask in that plane (k-space, never cropped)")
 if args.gray_cbar:
     _cap.append("grey bar right of the " + " / ".join(ANAT[a] for a in sorted(args.cbar_planes))

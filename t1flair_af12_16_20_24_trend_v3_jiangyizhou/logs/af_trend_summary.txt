@@ -49,7 +49,7 @@ worst |rescore - recorded|: {'head_psnr': '3.11e-05', 'head_ssim': '4.17e-07', '
 | 3D-INR | 0.1577 | 0.2125 | 0.2723 | 0.3473 | +0.0548 | +0.0597 | +0.0751 | yes |
 | ZF | 0.6641 | 0.6950 | 0.7206 | 0.7578 | +0.0309 | +0.0256 | +0.0372 | yes |
 
-### FLAIR head PSNR (dB)   (whole-plane AF 12.86 -> 16.49 -> 19.96 -> 25.51)
+### FLAIR head PSNR (dB)   (whole-plane AF 11.71 -> 15.19 -> 18.56 -> 24.0)
 | method | AF12 | AF16 | AF20 | AF24 | step 12->16 | step 16->20 | step 20->24 | worse at every step |
 |---|---|---|---|---|---|---|---|---|
 | MC-GS | 36.360 | 34.928 | 34.179 | 33.182 | -1.4317 | -0.7492 | -0.9970 | yes |
@@ -65,7 +65,7 @@ worst |rescore - recorded|: {'head_psnr': '3.11e-05', 'head_ssim': '4.17e-07', '
 | 3D-INR | 31.190 | 30.257 | 29.809 | 29.146 | -0.9336 | -0.4473 | -0.6638 | yes |
 | ZF | 28.193 | 27.879 | 27.636 | 27.301 | -0.3142 | -0.2426 | -0.3352 | yes |
 
-### FLAIR head SSIM   (whole-plane AF 12.86 -> 16.49 -> 19.96 -> 25.51)
+### FLAIR head SSIM   (whole-plane AF 11.71 -> 15.19 -> 18.56 -> 24.0)
 | method | AF12 | AF16 | AF20 | AF24 | step 12->16 | step 16->20 | step 20->24 | worse at every step |
 |---|---|---|---|---|---|---|---|---|
 | MC-GS | 0.9415 | 0.9261 | 0.9142 | 0.8966 | -0.0154 | -0.0119 | -0.0176 | yes |
@@ -81,7 +81,7 @@ worst |rescore - recorded|: {'head_psnr': '3.11e-05', 'head_ssim': '4.17e-07', '
 | 3D-INR | 0.8277 | 0.7889 | 0.7716 | 0.7352 | -0.0389 | -0.0173 | -0.0364 | yes |
 | ZF | 0.7330 | 0.7126 | 0.6970 | 0.6748 | -0.0204 | -0.0156 | -0.0221 | yes |
 
-### FLAIR head HFEN   (whole-plane AF 12.86 -> 16.49 -> 19.96 -> 25.51)
+### FLAIR head HFEN   (whole-plane AF 11.71 -> 15.19 -> 18.56 -> 24.0)
 | method | AF12 | AF16 | AF20 | AF24 | step 12->16 | step 16->20 | step 20->24 | worse at every step |
 |---|---|---|---|---|---|---|---|---|
 | MC-GS | 0.0935 | 0.1121 | 0.1290 | 0.1579 | +0.0186 | +0.0169 | +0.0289 | yes |
@@ -115,28 +115,28 @@ T1: | method | AF12 | AF16 | AF20 | AF24 | 12->24 | dB/doubling per step | PSNR 
   | ZF | 26.130 | 25.841 | 25.639 | 25.333 | -0.797 | -0.77, -0.70, -0.83 | Y Y Y Y |
 
 FLAIR: | method | AF12 | AF16 | AF20 | AF24 | 12->24 | dB/doubling per step | PSNR SSIM HFEN wholePSNR |
-  | MC-GS | 36.360 | 34.928 | 34.179 | 33.182 | -3.178 | -3.99, -2.72, -2.82 | Y Y Y Y |
-  | GS-single | 36.324 | 34.886 | 34.127 | 33.110 | -3.214 | -4.01, -2.76, -2.87 | Y Y Y Y |
-  | CS-SENSE (converged TV) | 35.581 | 34.302 | 33.494 | 32.573 | -3.008 | -3.57, -2.93, -2.60 | Y Y Y Y |
-  | Joint SENSE | 35.624 | 34.355 | 33.544 | 32.605 | -3.019 | -3.54, -2.94, -2.65 | Y Y Y Y |
-  | CS-SENSE (35 it) | 35.084 | 33.806 | 33.027 | 32.165 | -2.919 | -3.56, -2.83, -2.43 | Y Y Y Y |
-  | ZS-SSDU | 35.034 | 34.005 | 32.660 | 32.107 | -2.927 | -2.87, -4.88, -1.56 | Y Y Y Y |
-  | L1-SPIRiT | 35.103 | 33.720 | 32.824 | 31.803 | -3.300 | -3.85, -3.25, -2.89 | Y Y Y Y |
-  | CG-SENSE | 33.957 | 32.826 | 32.089 | 31.259 | -2.698 | -3.15, -2.68, -2.35 | Y Y Y Y |
-  | MC-INR | 33.042 | 32.243 | 31.666 | 30.947 | -2.095 | -2.23, -2.09, -2.03 | Y Y Y N |
-  | 3D-DIP | 30.810 | 30.650 | 30.637 | 30.360 | -0.450 | -0.45, -0.04, -0.78 | Y Y N Y |
-  | 3D-INR | 31.190 | 30.257 | 29.809 | 29.146 | -2.045 | -2.60, -1.62, -1.88 | Y Y Y Y |
-  | ZF | 28.193 | 27.879 | 27.636 | 27.301 | -0.892 | -0.88, -0.88, -0.95 | Y Y Y Y |
+  | MC-GS | 36.360 | 34.928 | 34.179 | 33.182 | -3.178 | -3.81, -2.59, -2.69 | Y Y Y Y |
+  | GS-single | 36.324 | 34.886 | 34.127 | 33.110 | -3.214 | -3.83, -2.63, -2.74 | Y Y Y Y |
+  | CS-SENSE (converged TV) | 35.581 | 34.302 | 33.494 | 32.573 | -3.008 | -3.41, -2.79, -2.48 | Y Y Y Y |
+  | Joint SENSE | 35.624 | 34.355 | 33.544 | 32.605 | -3.019 | -3.38, -2.80, -2.53 | Y Y Y Y |
+  | CS-SENSE (35 it) | 35.084 | 33.806 | 33.027 | 32.165 | -2.919 | -3.40, -2.70, -2.32 | Y Y Y Y |
+  | ZS-SSDU | 35.034 | 34.005 | 32.660 | 32.107 | -2.927 | -2.74, -4.65, -1.49 | Y Y Y Y |
+  | L1-SPIRiT | 35.103 | 33.720 | 32.824 | 31.803 | -3.300 | -3.68, -3.10, -2.76 | Y Y Y Y |
+  | CG-SENSE | 33.957 | 32.826 | 32.089 | 31.259 | -2.698 | -3.01, -2.55, -2.24 | Y Y Y Y |
+  | MC-INR | 33.042 | 32.243 | 31.666 | 30.947 | -2.095 | -2.13, -2.00, -1.94 | Y Y Y N |
+  | 3D-DIP | 30.810 | 30.650 | 30.637 | 30.360 | -0.450 | -0.43, -0.04, -0.75 | Y Y N Y |
+  | 3D-INR | 31.190 | 30.257 | 29.809 | 29.146 | -2.045 | -2.49, -1.55, -1.79 | Y Y Y Y |
+  | ZF | 28.193 | 27.879 | 27.636 | 27.301 | -0.892 | -0.84, -0.84, -0.90 | Y Y Y Y |
 
 === MC-GS margin over GS-single (the strongest comparison arm; the margin to quote) and over the strongest non-GS arm shown, head PSNR (one scorer) ===
   T1    AF12 (11.71x)  MC-GS 37.015  GS-single 36.865  margin +0.150   | strongest non-GS 36.162 (CS-SENSE (converged TV))  MC-GS +0.853  GS-single +0.702
   T1    AF16 (15.19x)  MC-GS 35.706  GS-single 35.558  margin +0.148   | strongest non-GS 34.945 (CS-SENSE (converged TV))  MC-GS +0.761  GS-single +0.613
   T1    AF20 (18.56x)  MC-GS 34.832  GS-single 34.667  margin +0.165   | strongest non-GS 34.003 (CS-SENSE (converged TV))  MC-GS +0.829  GS-single +0.664
   T1    AF24 (24.00x)  MC-GS 33.767  GS-single 33.588  margin +0.179   | strongest non-GS 32.820 (CS-SENSE (converged TV))  MC-GS +0.947  GS-single +0.768
-  FLAIR AF12 (12.86x)  MC-GS 36.360  GS-single 36.324  margin +0.036   | strongest non-GS 35.624 (Joint SENSE)  MC-GS +0.735  GS-single +0.700
-  FLAIR AF16 (16.49x)  MC-GS 34.928  GS-single 34.886  margin +0.042   | strongest non-GS 34.355 (Joint SENSE)  MC-GS +0.573  GS-single +0.531
-  FLAIR AF20 (19.96x)  MC-GS 34.179  GS-single 34.127  margin +0.052   | strongest non-GS 33.544 (Joint SENSE)  MC-GS +0.634  GS-single +0.582
-  FLAIR AF24 (25.51x)  MC-GS 33.182  GS-single 33.110  margin +0.071   | strongest non-GS 32.605 (Joint SENSE)  MC-GS +0.577  GS-single +0.505
+  FLAIR AF12 (11.71x)  MC-GS 36.360  GS-single 36.324  margin +0.036   | strongest non-GS 35.624 (Joint SENSE)  MC-GS +0.735  GS-single +0.700
+  FLAIR AF16 (15.19x)  MC-GS 34.928  GS-single 34.886  margin +0.042   | strongest non-GS 34.355 (Joint SENSE)  MC-GS +0.573  GS-single +0.531
+  FLAIR AF20 (18.56x)  MC-GS 34.179  GS-single 34.127  margin +0.052   | strongest non-GS 33.544 (Joint SENSE)  MC-GS +0.634  GS-single +0.582
+  FLAIR AF24 (24.00x)  MC-GS 33.182  GS-single 33.110  margin +0.071   | strongest non-GS 32.605 (Joint SENSE)  MC-GS +0.577  GS-single +0.505
 
 === same-recipe MC-GS cross-check (P6, each run's own score json) ===
   AF12 P6: T1 PSNR 36.753 SSIM 0.9480 HFEN 0.1009 | FLAIR PSNR 36.165 SSIM 0.9374 HFEN 0.1002

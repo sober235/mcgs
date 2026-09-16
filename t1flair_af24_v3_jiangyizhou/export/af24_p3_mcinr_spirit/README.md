@@ -18,13 +18,14 @@ unchanged (`gs_joint_p3`, `gs_single_p3`; 4000 iterations); every classical lamb
 interior to its grid; L1-SPIRiT is the AF12/16/20 arm (kernel 5 x 5, lambda 1e-3); MC-INR is the Niessen 2025
 reproduction run on this mask and re-scored through this topic's scorer (agreement 1.2e-7).
 
-**Acceleration labels — which gauge.** Every number and every figure title here uses the user's 2026-09-14 gauge:
-whole phase-encode plane (45056 points) divided by the sampled points that carry that contrast's data, the same
-number BART's `pics` prints as `Acc`. T1 carries data on all 1877 mask points -> **24.00x**; FLAIR carries data on
-1766 of them (111 fall on lines its acquisition never sampled) -> **25.51x**. Two other gauges exist and are NOT used:
-against FLAIR's own acquired support (34139 lines) it is 19.33x; by mask points alone both contrasts are 24.00x. The
-user has not yet decided whether FLAIR should instead be labelled 24.00 with a note (option B); if that is chosen, the
-titles change but no data does.
+**Acceleration labels — which gauge (user decision, 2026-09-16).** The label is the whole phase-encode plane (45056
+points) divided by the mask's sampled points (1877): **24.00x on both contrasts**, since both read the same mask. The
+FLAIR figures state under the panels that 1766 of those points carry FLAIR data — its acquisition covers 34139 of the
+45056 lines (elliptical scanning plus ky rows 0-19). Two other gauges are reported in the text where they matter and are
+NOT the label: 45056 / points-with-data (the 2026-09-14 per-contrast gauge, FLAIR 25.51x) and 34139 / 1766 = 19.33x,
+FLAIR against its own acquisition. The `_p3_mcinr_spirit`, mask and raw-support figures in this bundle were re-rendered
+under this label on 2026-09-16 (checksums and MANIFEST updated with them); the archived nine-arm `_p3` renders keep the
+older titles, and no data changed.
 
 ## Head-only PSNR of the arms in this bundle (T1 / FLAIR, dB)
 
