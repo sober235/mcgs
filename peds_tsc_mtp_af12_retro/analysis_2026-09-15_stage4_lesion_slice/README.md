@@ -43,7 +43,7 @@ T1w ks5 λ2.5e-4、T2s ks3 λ5e-4；主区域 T1w 38.310 / 0.9607 / 0.0679，T2s
   下排是误差图（jet，[0, 0.1]，只画头内），左下角是该平面的采样掩膜，病灶用红圈或橙色放大框标出。
 - `scripts/`：出图与评分脚本（`p4_fig_*`、`p4_lesion_margin.py`、`p4_summary.py`）、调度（`p4_sched2.sh`、`p4_queue.txt`）、
   L1-SPIRiT 重建与扫描（`recon_spirit.py`、`spirit_sweep*.sh`）、四期的诊断脚本（噪声天花板、比值模型、误差按边缘分类）。
-- `logs/`：每次运行的主区域指标（`*_primary.json`）、病灶层面余量（`*_lesion.json`）、账本中的 p4 行、L1-SPIRiT 扫描日志。
+- `metrics/`：每次运行的主区域指标（`*_primary.json`）、病灶层面余量（`*_lesion.json`）、账本中的 p4 行、L1-SPIRiT 扫描日志。（目录名不用 `logs`，仓库的 .gitignore 有 `logs*/` 规则会把它挡掉。）
 - `volumes/`：推荐做法的复数重建体（T1w、T2s 各一，complex64，320×304×104）。其余臂的重建体在课题的 `recon/`。
 - `docs/`：四期记录与回合日志（每次运行做了什么、保留还是淘汰、为什么）。
 
