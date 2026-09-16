@@ -1,5 +1,20 @@
 # gauss-loop queue (autoresearch_gauss.md): [KEY=VAL ...] EXP ITERS [extra args]; consumed by scripts/gauss_sched.sh, top first.
 # Round 0 = reference rows, then one lever per run on the parent (the frozen phase-3 recipe on the Gaussian mask), 1500 it.
+# Round 1 (added 13:03): stack of the two Round-0 keeps (rotation_lr 0.008 = keep, 6.0M points = keep-one on FLAIR)
+g_r1_rot008_n60 1500 --set gaussian.rotation_lr=0.008 --set gaussian.initial_num_points=6000000
+# Round 0c (added 13:03): the optimiser was the only lever class that kept, and the regulariser SHAPES are untested on this mask
+g_r0_scl004 1500 --set gaussian.scale_lr=0.004
+g_r0_scl001 1500 --set gaussian.scale_lr=0.001
+g_r0_pos0006 1500 --set gaussian.position_lr=0.0006
+g_r0_den003 1500 --set gaussian.density_lr=0.03
+g_r0_gam0999 1500 --set training.lr_scheduler.gamma=0.999
+g_r0_kq075 1500 --edge_tv_kappa_q 0.75
+g_r0_kq090 1500 --edge_tv_kappa_q 0.90
+g_r0_wfl005 1500 --edge_tv_wfloor 0.05
+g_r0_eps002 1500 --tv_eps 0.02
+g_r0_wavl2 1500 --set loss.wav_levels=2
+g_r0_pwc 1500 --prewhiten_only contrast
+g_r0_pw 1500 --prewhiten
 g_r0_control 1500
 g_r0_control_s43 1500 --set training.seed=43
 g_r0_wav15 1500 --set loss.lambda_wav_plain=0.18 --set loss.lambda_wav=0.15
@@ -16,9 +31,5 @@ g_r0_kc05 1500 --kspace_center 0.5
 g_r0_edge0002 1500 --lambda_edge 0.002
 g_r0_n48 1500 --set gaussian.initial_num_points=4800000
 g_r0_ptv005 1500 --lambda_ptv 0.05
-g_r0_geo020 1500 --lambda_geo 0.20
 WARMUP=300 g_r0_wu300 1500
 WARMUP=800 g_r0_wu800 1500
-# Round 0b (added 12:32 after the first three screens: more wavelet / more edge-TV both lose, so bracket downward)
-g_r0_wav05 1500 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav=0.05
-g_r0_geo005 1500 --lambda_geo 0.05

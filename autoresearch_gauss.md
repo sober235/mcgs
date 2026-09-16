@@ -87,6 +87,13 @@ Not re-opened (closed with evidence on the AF16 line): non-local RED (BM4D targe
 contrast-private residual Gaussians, the complementary FLAIR mask. If Rounds 0–1 stall far below the bar, re-opening
 non-local RED is proposed separately (i.i.d. aliasing is noise-like), not done silently.
 
+## Round 0c and Round 1 (queued 13:03, after the second batch)
+
+Round 1: `g_r1_rot008_n60` = rotation_lr 0.008 + 6.0M points, the two keeps stacked. Round 0c (the optimiser was the only
+lever class that kept; the regulariser shapes are untested on this mask): scale_lr 0.004 / 0.001, position_lr 0.0006,
+density_lr 0.03, lr gamma 0.999, edge-TV kappa_q 0.75 / 0.90, w_floor 0.05, tv_eps 0.02, wavelet 2 levels, prewhitening
+(FLAIR only / both). Withdrawn as foregone after the brackets closed: wav 0.06/0.05, geo 0.05, geo 0.20.
+
 ## Round log
 
 Head-only, 1500 it unless noted; bar = GS-single frozen 34.771 / 34.294 (PSNR), 0.9305 / 0.9202 (SSIM), 0.1412 / 0.1295 (HFEN).
@@ -98,3 +105,9 @@ Head-only, 1500 it unless noted; bar = GS-single frozen 34.771 / 34.294 (PSNR), 
 | 12:29  g_r0_wav15 | 34.837 (-0.038) | 34.205 (-0.043) | 0.9330 / 0.9198 | 0.1381 / 0.1297 | 0.779 / 0.737 | **discard**: both contrasts down (−0.038 / −0.043), HFEN and sharpness worse — more sparsity is the wrong direction on this mask |
 | 12:29  g_r0_wav20 | 34.745 (-0.130) | 34.124 (-0.124) | 0.9321 / 0.9185 | 0.1416 / 0.1314 | 0.766 / 0.720 | **discard**: −0.130 / −0.124, every cell worse; the wavelet dose curve is falling from 0.12/0.10 upward → 0.06/0.05 queued (Round 0b) |
 | 12:29  g_r0_geo014 | 34.848 (-0.027) | 34.235 (-0.013) | 0.9320 / 0.9190 | 0.1378 / 0.1312 | 0.769 / 0.726 | **discard**: −0.027 / −0.013, SSIM / HFEN / sharpness all worse; edge-TV 0.14 over-smooths → 0.05 queued (Round 0b) |
+| 13:00  g_r0_kh30 | 34.658 (-0.217) | 34.074 (-0.174) | 0.9275 / 0.9151 | 0.1354 / 0.1308 | 0.855 / 0.826 | **discard**: −0.217 / −0.174 and SSIM −0.005 on both, although sharper (+0.06); the high-band weight 2.2 is already at or past its optimum (1.5 queued) |
+| 13:00  g_r0_rot008 | 34.908 (+0.033) | 34.297 (+0.049) | 0.9333 / 0.9208 | 0.1346 / 0.1281 | 0.797 / 0.759 | **keep** — the first: +0.033 / +0.049, every one of the six cells equal or better, sharpness unchanged. The AF12 phase-3 optimiser lever transfers; the rotation learning rate was 27× too small for this cloud |
+| 13:00  g_r0_ptv001 | 34.915 (+0.040) | 34.237 (-0.011) | 0.9323 / 0.9187 | 0.1367 / 0.1321 | 0.781 / 0.737 | **reshape**: T1 +0.040 but FLAIR −0.011, SSIM / HFEN / sharpness all slip — lowering phase TV from 0.03 trades FLAIR and structure for T1 PSNR (0.05 still queued for the other end of the curve) |
+| 13:00  g_r0_n60 | 34.882 (+0.007) | 34.321 (+0.073) | 0.9329 / 0.9211 | 0.1350 / 0.1283 | 0.793 / 0.755 | **keep-one**: FLAIR +0.073 (T1 +0.007, inside the floor), FLAIR SSIM +0.0008, T1 SSIM / HFEN −0.0002 (inside); as at AF16, capacity buys FLAIR, the thinner side. Stacked with rot008 as Round 1 (`g_r1_rot008_n60`) |
+| 13:00  g_r0_wav07 | 34.838 (-0.037) | 34.233 (-0.015) | 0.9322 / 0.9199 | 0.1331 / 0.1280 | 0.811 / 0.774 | **discard**: −0.037 / −0.015 — with wav15 this brackets the wavelet dose: 0.12 / 0.10 is the optimum on this mask too (0.06/0.05 bracket withdrawn) |
+| 13:00  g_r0_geo007 | 34.847 (-0.028) | 34.213 (-0.035) | 0.9329 / 0.9202 | 0.1344 / 0.1280 | 0.821 / 0.786 | **discard**: −0.028 / −0.035 — with geo014 this brackets edge-TV: 0.10 is the optimum (0.05 and 0.20 withdrawn as foregone) |
