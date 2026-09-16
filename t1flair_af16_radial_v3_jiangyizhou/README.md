@@ -131,6 +131,12 @@ full tables in `logs/compare_masks_head_{psnr,ssim,hfen}.md`):
 | FLAIR | Gaussian | 34.317 | GS-single 34.294 | **+0.023** |
 | FLAIR | pseudo-radial | 31.729 | ZS-SSDU 31.635 | **+0.093** |
 
+**GS-single counts as a comparison arm, not as a second version of ours** (user, 2026-09-13, restated 2026-09-16 with
+its reason): 3-D reconstruction by Gaussian splatting is already published work, so a single-contrast Gaussian-splatting
+reconstruction is prior art that this method has to beat, exactly like CS-SENSE or ZS-SSDU. Every margin quoted in this
+topic is therefore over the strongest arm *including* GS-single. A margin computed over "the strongest non-GS arm" is
+not a number this study reports.
+
 **Five of the six cells win on all three head metrics; the sixth does not.** On the pseudo-radial mask FLAIR keeps head
 PSNR but loses head SSIM (0.8673 against ZS-SSDU's 0.8686) and head HFEN (0.2809 against 0.2768). That is the one cell
 where MC-GS is not the outright winner, and it is the cell whose known-zero prior the pattern disables (27 mask points
