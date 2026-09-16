@@ -1,4 +1,4 @@
-# STATUS — 2026-09-15（分支 `16yo-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`）
+# STATUS — 2026-09-16（分支 `16yo-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`）
 
 本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。一至四期已完成，L1-SPIRiT 臂已登记（09-15 23:06）；**下一轮等用户看图后拍板（第 2、3 节）；本线没有训练在跑**。
 
@@ -52,6 +52,15 @@ full24：T1w ks5 λ2.5e-4，T2s ks3 λ5e-4，最优点都在 λ 网格内部。`
 - 未换：`slice_quality.py` / `find_mcgs_first_slice.py` / `best_slice_mcgs.py` 三个逐层分析脚本仍列 L1-ESPIRiT，下次用时再换；
   四期病灶脚本已由 claude-eb 换（43bfe56）。
 - 记录：`docs/superpowers/records/2026-09-15-16yo-mtp-l1spirit-arm.md`。
+
+### 一张 MC-GS 全超所有对比方法的层（09-16，用户要求）
+
+`scripts/find_slice_all_first.py`：三个平面逐层，图面板同一口径（头内 PSNR / SSIM 7×7 / NMSE），MC-GS = `gs_joint_p3f`，
+对手 = 计数表行 + 该对比度**所有** GS-single 体（含 results_arc 里五个 T1w 单臂运行）。计数：T1w 29/578（横断 1 层颅底碎片、
+冠状 9 层前后缘帽、**矢状 19 层全是大截面**），T2s 331/561。两个对比度同一层都赢的只有 10 层，全在矢状 137–173。
+**选矢状 161**：T1w 39.344 对 GS-single(p3f) 39.326（+0.018 dB / SSIM +0.0001），T2s 33.449 对 GS-single 33.388（+0.061 / +0.0008）。
+备选 160（T2s 余量最大 +0.095，但 T1w SSIM 余量四位小数下为 0）。T1w 上没有任何横断或冠状大截面能全超。
+图：`peds_af12_{T1w,T2s}_allfirst_sag161_axis1_161.png`（及 sag160），记录 `docs/superpowers/records/2026-09-16-16yo-mtp-one-slice-all-first.md`。
 
 ### 三期：在本受试者上调参（09-14/15，已收尾）
 
