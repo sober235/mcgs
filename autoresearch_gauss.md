@@ -61,6 +61,12 @@ so the other schedulers of this user stay off the card). Progress: `results_arc/
 5. Sharpness: no external gate any more (L1-ESPIRiT is out); reported, and rule 2 keeps it from collapsing.
 6. Whole-volume SSIM reported, never optimised.
 
+
+Rule 2 refinement, written 2026-09-16 12:27 before any candidate row existed (`scripts/gauss_judge.py` applies it):
+*keep* = both contrasts up beyond their floor with no slip; *keep-one* = one contrast up beyond its floor, the other
+inside its floor, no slip (usable in a stack); *reshape* = one up, the other down beyond its floor; *keep-marginal* =
+PSNR up but SSIM / HFEN (0.0005) or sharpness (0.010) slips; everything else *discard*.
+
 ## Round 0 (queued 2026-09-16 11:50, 1500 it, empty cards only; order = `scripts/gauss_queue.txt`)
 
 | exp | extra args | reading |
@@ -87,3 +93,5 @@ Head-only, 1500 it unless noted; bar = GS-single frozen 34.771 / 34.294 (PSNR), 
 
 | time | exp | T1 | FLAIR | SSIM T1 / FL | HFEN T1 / FL | sharp | reading |
 |---|---|---|---|---|---|---|---|
+| 12:20 | g_r0_control (parent at 1500 it on this runner) | 34.875 | 34.248 | 0.9331 / 0.9203 | 0.1348 / 0.1284 | 0.797 / 0.757 | the reference row; margins over the bar +0.105 / −0.046 (at 4000 it the parent is 34.909 / 34.317, so the last 2500 iterations are worth +0.034 / +0.069) |
+| 12:22 | g_r0_control_s43 (seed 43) | 34.865 | 34.240 | 0.9329 / 0.9201 | 0.1350 / 0.1286 | 0.797 / 0.758 | **seed floor 0.010 / 0.008 dB**, SSIM 0.0002, HFEN 0.0002, sharpness 0.001 |
