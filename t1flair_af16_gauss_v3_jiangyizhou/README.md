@@ -188,3 +188,14 @@ setsid nohup bash scripts/launch_diffmask.sh > /dev/null 2>&1 < /dev/null &
 ## Status
 
 2026-09-16: complete. Eleven arms x two contrasts reconstructed, scored and figured; MC-INR re-scored through this topic's own gauge with a worst disagreement of 1e-7 against the reproduction's own numbers (the gauge is mask-independent, so this is the expected result and it confirms the three topics' numbers are directly comparable).
+
+## 三图案横断位叠放图（2026-09-16 晚，用户要求）
+
+`scripts/fig_masks_transverse_stack.py --contrast T1|FLAIR --pdf`：三种图案从上到下（vd-Poisson / Gaussian / 伪径向）各占一行灰度图
+加一行误差图，横断位 180（图 of record 的层，眼睛朝上）；列 = GT、ZF、九个方法、GS-single、MC-GS（p3 配方，各图案自己的 λ）。
+每行灰度图右侧一条灰度 colorbar（窗 = GT 该层的 P99.9，三行相同），误差图右侧一条 jet colorbar（固定 0 到 0.1，只显示头内）；
+误差行左格 = 该图案的 (ky, kz) 掩膜；面板内橙黄的头内层 PSNR / SSIM / NMSE，每行最好者加粗。
+输出 `figures/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra180_headerr_p3_zf_caps.{png,pdf}`（200 dpi PNG；PDF 面板 300 dpi 栅格、字体 TrueType），
+served 于 `http://localhost:8765/t1flair_v3_af16_diffmask/`。
+该层读数：vd-Poisson 与 Gaussian 两行 MC-GS 三项都第一；伪径向行 T1 三项第二（ZS-SSDU 第一，32.10 对 31.87 dB），FLAIR 的 PSNR / NMSE 第二、
+SSIM 第一。这是单层读数；全体积头内 PSNR 三种图案 MC-GS 仍第一（`logs/compare_masks_head_psnr.md`）。换层用 `--tra`。

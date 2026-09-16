@@ -12,6 +12,8 @@ FLAIR +0.042/+0.023/+0.093。六格里五格三指标（头内 PSNR/SSIM/HFEN）
 
 ## 已完成且已验证
 
+- （09-16 晚追加）三图案横断位叠放图：`T1FLAIR_AF16_gauss_v3_jiangyizhou/scripts/fig_masks_transverse_stack.py`，三行（vd-Poisson / Gaussian / 伪径向）× 灰度加误差，每行各带 colorbar，层 180，T1 与 FLAIR 各一张（PNG+PDF），`http://localhost:8765/t1flair_v3_af16_diffmask/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra180_headerr_p3_zf_caps.png`；说明在该课题 README 末节。
+
 - 两个课题各 11 臂 × 2 对比度，全部重建、打分、出图，零失败。图在
   `http://localhost:8765/t1flair_v3_af16_diffmask_{gauss,radial}/`，定稿版式 180/124/76 + 48 框（含 600dpi PDF），
   另有 174/110/47 无放大版；掩膜与全采样 k 空间图在 `http://localhost:8765/t1flair_v3_af16_diffmask/`。
