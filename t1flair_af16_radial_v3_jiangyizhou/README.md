@@ -175,6 +175,13 @@ cross-contrast information being worth more when the single-contrast problem is 
   is unaffected too -- both run the same frozen recipe -- but a margin quoted over converged TV or joint TV on this
   mask would be optimistic. Recording an edge winner rather than silently extending the grid is this project's
   convention (the AF24 and cardiac topics do the same).
+- **L1-ESPIRiT is retired from this series, not merely unlisted** (user, 2026-09-16): it is replaced everywhere by
+  L1-SPIRiT as the k-space comparison arm. It was not run on either diff-mask topic and will not be; the older topics
+  keep their recorded L1-ESPIRiT volumes and summary rows as history. `run_all_diffmask.py --with_l1espirit` still
+  exists but is not something this series uses.
+- **The 2-D CAIPIRINHA mask was built but not reconstructed** (user, 2026-09-16). Its topic
+  `../T1FLAIR_AF16_caipi_v3_jiangyizhou` holds the mask, its read-out and the inspection figures only; the study
+  compares vd-Poisson, Gaussian and pseudo-radial.
 - Everything the AF16 topic's own README lists as a limitation applies here unchanged: the recipe and the classical
   lambdas were selected on this subject, and the numbers are on the magnitude gauge.
 

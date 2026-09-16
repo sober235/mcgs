@@ -165,6 +165,13 @@ cross-contrast information being worth more when the single-contrast problem is 
   three masks -- that is what makes the study single-variable. The classical arms' lambdas were re-selected on this
   mask from the AF16 grids (CS-SENSE converged TV, joint TV, L1-SPIRiT); every winner here landed in the interior of
   its grid, so those arms are at their grid optimum.
+- **L1-ESPIRiT is retired from this series, not merely unlisted** (user, 2026-09-16): it is replaced everywhere by
+  L1-SPIRiT as the k-space comparison arm. It was not run on either diff-mask topic and will not be; the older topics
+  keep their recorded L1-ESPIRiT volumes and summary rows as history. `run_all_diffmask.py --with_l1espirit` still
+  exists but is not something this series uses.
+- **The 2-D CAIPIRINHA mask was built but not reconstructed** (user, 2026-09-16). Its topic
+  `../T1FLAIR_AF16_caipi_v3_jiangyizhou` holds the mask, its read-out and the inspection figures only; the study
+  compares vd-Poisson, Gaussian and pseudo-radial.
 - Everything the AF16 topic's own README lists as a limitation applies here unchanged: the recipe and the classical
   lambdas were selected on this subject, and the numbers are on the magnitude gauge.
 

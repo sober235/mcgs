@@ -20,11 +20,14 @@ FLAIR +0.042/+0.023/+0.093。六格里五格三指标（头内 PSNR/SSIM/HFEN）
 - 基线测试 206 通过（`results_arc/tests_baseline.txt`，改动前）。
 - 第三张候选掩膜 caipi（4×3 CAIPIRINHA 格点，移位按混叠副本间距判据选）已建，用户没选，未跑。
 
-## 待用户拍板
+## 用户已拍板（2026-09-16）
 
-- 是否跑 caipi 课题（掩膜已就绪，作业表加 `--topics` 即可）。
-- 是否补 L1-ESPIRiT（默认没跑，用户 09-15 已把它移出对比；`--with_l1espirit` 可加回）。
-- 是否推分支与 tag 到 origin（sober235/mcgs）。
+- **caipi 不跑。** 掩膜、读数与检查图留在 `T1FLAIR_AF16_caipi_v3_jiangyizhou`，本研究只比 vd-Poisson / 高斯 / 伪径向。
+- **L1-ESPIRiT 彻底退役**，后续一律换成 L1-SPIRiT 作 k 空间对比臂。不是"数据留着不列"，是新课题不再跑它；
+  旧课题已有的体积与 summary 行留作历史。`--with_l1espirit` 开关仍在，但本系列不用。
+- **不再补调参**（选项三）。MC-GS/GS-single 三张掩膜共用冻结配方，经典臂按 AF16 网格各自重选 λ；
+  表与图只呈现结果。radial 的 TV 两臂是边缘赢家，这一条留在「已知限制」，它只限制"对 TV 的余量"这类说法。
+- **已推 origin**（sober235/mcgs）：分支 `jyz-af16-diffmask` 与 tag `handoff/2026-09-16-diffmask`。main 未动。
 
 ## 已知的坑与别重做
 
