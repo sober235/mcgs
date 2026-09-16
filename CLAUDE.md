@@ -128,3 +128,11 @@ Read `STATUS.md` (section "L1-SPIRiT 臂…") then `docs/handoff/2026-09-16-spir
 (`figures/archive_aflabel_pre20260915/`). The delivered figures are the `_spirit` set. AF 24 data bundle:
 `T1FLAIR_AF24_v3_jiangyizhou/export/af24_p3_mcinr_spirit/` (72 files, md5 72/72); Chinese summary `docs/2026-09-15-af24-jyz-summary.md`.
 
+
+## Hyper-parameter sensitivity study (branch `hparam-sensitivity`, worktree `mcgs_hparam_wt`, 2026-09-16)
+Cut from `origin/autoresearch-jyz-af24` 5ea6189. Purpose: a two-group sensitivity design (shared Gaussian count N_s;
+private-to-shared ratio N_p/N_s) read against this code; nothing has run. Read `STATUS.md` (top section) first: the
+knobs (`gaussian.initial_num_points`, `gaussian.num_private_points`), the AF16 capacity and private-residual points that
+already exist, the four mismatches waiting on the user's decision (N_s scale, the private branch's status, the AF, the
+lesion-CNR data), and the do-not-disturb rules (other worktrees' GPUs, `TORCH_EXTENSIONS_DIR`, outputs only in this
+worktree's `results_arc/`).

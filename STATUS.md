@@ -1,3 +1,68 @@
+# STATUS — 2026-09-16 17:30（worktree `mcgs_hparam_wt`，分支 `hparam-sensitivity`，自 `origin/autoresearch-jyz-af24` 5ea6189 切出）
+
+## 超参数敏感性研究（本分支）：分支已建、设计已对照代码，一步实验没跑，等用户拍板
+
+用户 09-16 要求：基于 GitHub 上的 mcgs 仓库新建分支，理解一份两组实验的设计（共享 Gaussian 数量敏感性 +
+私有 Gaussian 比例），千万不要干扰其他实验。本节只有事实与待定项，没有结果。
+
+### 收到的设计（要点）
+- 第一组：固定其他一切，只改共享 Gaussian 数 N_s ∈ {50k, 100k, 200k, 400k}；同一加速倍数（原文"例如 R=6"）、
+  同一泊松盘掩膜、同一批病例、同一训练设置；报 PSNR / SSIM / NMSE；回答"是否依赖特定数量、性能是否随容量饱和"
+  （期望形态 100k < 200k ≈ 400k）。
+- 第二组：固定 N_s = 200k，改 N_p/N_s ∈ {0, 5%, 10%}；0% = 完全去掉私有分支（兼消融）；报 PSNR / SSIM / Lesion CNR，
+  理由是私有 Gaussian 的作用是保住对比度特异信息与病灶，不是抬全局 PSNR。
+- 最终只放两张小曲线：N_s → PSNR/SSIM；N_p/N_s → PSNR/Lesion CNR。不做 5×5 网格，不在所有加速倍数上重复。
+
+### 对照代码（本分支 5ea6189 已核实）
+| 设计里的量 | 代码里的旋钮 | 现状 |
+|---|---|---|
+| N_s 共享 Gaussian 数 | `--set gaussian.initial_num_points=N`。模型 `paired_gs/gaussian/joint_gaussian_model.py`：共享几何（位置/尺度/旋转）+ 每个 Gaussian 的双复数密度 α_plain→T1、α_contrast→FLAIR | 冻结配方 = **3.6M**（`run_af24_mcgs.sh`）。`adaptive_control.enable` 未开（配方 yaml 无该节，`joint_trainer.py:672`），训练中点数不变（AF24 日志 `N=3600000`） |
+| N_p 私有 Gaussian 数 | `--set gaussian.num_private_points=N`（`paired_gs/trainers/joint_trainer.py:304` → `add_private_residual`） | 单独一套 Gaussian，**只渲染进 contrast 通道（FLAIR）**，几何与幅值自有，只受 FLAIR 的 DC 项训练；初始化 = 共享云的等步长子集、幅值 ×0.1（或 `gaussian.private_warm_start_checkpoint`）。冻结配方 **N_p = 0** |
+| R=6 泊松盘掩膜 | 房屋生成器 `vdPoisMex(256,176,256,176, accelx, 4, 24, 0, 1)`（MATLAB R2021a，`addpath /data0/congcong/code/ESPIRiT/utils`），按 time(0) 播种、不可再生、必须存盘；抽池 + 定点脚本 `t1flair_af24_v3_jiangyizhou/scripts/prep_02_mask_pool_af24.m` / `prep_03_pick_mask_af24.py` | 现有课题掩膜只有 AF12/16/20/24（accelx 3 / 4 / 5 / 6.8656，accely 4）。R=6 要新抽：accelx 1.5，或按 AF24 的办法抽池取 45056/6 = 7509 点。BART `poisson` 也在（`~/src/bart/bart`），但换了生成器家族 |
+| PSNR / SSIM / NMSE | `arc/cycle.py` 的打分 json 每个对比度已有 `head_psnr / head_ssim / head_hfen / nmse / psnr / ssim`（主表口径 = 头内） | 直接可用 |
+| Lesion CNR | `paired_gs/metrics/lesion_metrics.py`：CNR = \|mean(lesion) − mean(bg)\| / std(bg)；ROI 自动检测按 \|post\| − \|pre\| 差分（增强扫描专用） | **需要病灶 ROI**。T1+FLAIR 的 16 对 raw（`/data1/data1_congcong/data/3D/{T1,FLAIR}_csm_ksp`）全是志愿者，无病灶 |
+| 同一批病例 | 已建课题的 T1+FLAIR 受试者：jiangyizhou（AF12/16/20/24）、huangyuwei（`T1FLAIR_AF12_retro` / `AF16_retro`）、tangbing（`T1FLAIR_AF12_v4_tangbing`）；其余 13 对只有 raw，要先做 ESPIRiT 图与课题目录 | 一次 4000 步 3.6M 运行 ≈ 6–7.5 h、33 GB（AF24 日志 elapsed_s 21.4k–27.2k），6.0M 再贵约 50% |
+
+### 已有数据可复用（AF16 课题 jiangyizhou，头内 PSNR T1 / FLAIR）
+- 容量（三期冻结配方，4000 步）：3.6M 35.706 / 34.928；4.8M 35.697 / 34.962；6.0M 35.675 / 34.977
+  （`docs/superpowers/records/2026-09-13-autoresearch-jyz-af16-phase3.md` 容量表；判定"容量是取舍不是 null"）。
+  P6 配方 4000 步：2.4M 35.434 / 34.605 对 3.6M 35.397 / 34.664（`autoresearch_jyz_af16.md` Promotion 3）。一期还有 0.9M / 1.2M 点（旧配方，不可直接并表）。
+- 私有：三期 base B（1500 步）+ 0.3M FLAIR 私有（= 3.6M 的 8.3%）：+0.005 / +0.015 dB，其余格不动，判 null
+  （`autoresearch_af16_p3.md` 21:46 行 `p3_r2_priv03`）。
+
+### 设计与现状的四处不合（待用户拍板）
+1. **N_s 量级**：设计的 50k–400k 比冻结配方 3.6M 低 9–72 倍。体积 256×256×176 = 11.5M 体素，3.6M ≈ 0.31 个/体素，
+   200k ≈ 0.017 个/体素；本线从未跑过低于 0.6M（hyw 旧配置的"fresh cloud"）。照字面跑 = 研究严重欠拟合区，
+   回答不了"容量—性能平衡"。建议以配方为中心、2 倍步长：{0.9M, 1.8M, 3.6M, 7.2M}（配方在第三档，对应设计里的"200k"）；
+   或者沿用已有的 {2.4M, 3.6M, 4.8M, 6.0M}，在 AF16 上只补 2.4M 一次（三期配方）。
+2. **私有分支的地位**：发表的 MC-GS（AF12/16/20/24 全部结果）N_p = 0；私有集是一个已测判 null 的可选杠杆，不是模型的组成部分。
+   第二组"0% = 去掉私有分支"在现状下是反的：0% 才是主推配方，5% / 10% 是往上加。论文若把私有分支写成方法的一部分，
+   主配方得改成带私有集（所有主结果重跑）；若不写，第二组就是"加私有集有没有用"的附加消融。另外私有集只在 FLAIR 侧，不对称。
+3. **加速倍数**：设计写的是"例如 R=6"。本线主结果在 AF12–24，图 of record 在 AF16；R=6 下各方法都近饱和，容量差会被压小，
+   还要新抽掩膜。建议在 AF16 做：上面的 4 个容量点与 1 个私有点直接复用，经典臂不必重跑（只跑 MC-GS）。
+4. **Lesion CNR**：T1+FLAIR 三个受试者无病灶。可选：(a) 换到有病灶的数据 — 儿童 TSC MTP（有参考、有 lesion B 层，
+   但对比度是 T1w/T2s，且 MC-GS 在那不领先）或 CE 平扫/增强（有病灶、无 GT，PSNR/SSIM 只能用留出 k 空间）；
+   (b) 在 jyz 上换成"对比度特异结构"指标（如 FLAIR 的 CSF/白质 CNR、两对比度不一致区域的误差）；(c) 第二组只报 PSNR/SSIM/NMSE。
+
+### 预算（每个受试者，4000 步）
+第一组 4 档 + 第二组 2 档（0% 与第一组共用）= 6 次运行 ≈ 40 GPU·h（7.2M 档更贵、更占显存）；三个受试者 ≈ 120 GPU·h。
+09-16 17:00 空卡为 1、2；一卡一训练。
+
+### 别碰的东西（本分支的纪律）
+- 其他 worktree 与它们的卡：`mcgs_peds_wt`（卡 0、6）、`mcgs_gauss_wt`（卡 3、4、7，那是 Gaussian **掩膜**调参循环，
+  与本分支的 Gaussian **数量**无关，别混）、卡 5 是别的用户。本分支只用空卡，跑前 `nvidia-smi --query-compute-apps`。
+- `run_af24_mcgs.sh` 的 `TORCH_EXTENSIONS_DIR` 写死指向 `mcgs_af16_wt.torch_ext`；本分支起跑脚本要改成自己的目录，
+  避免与 AF24 worktree 抢编译缓存。
+- 本 worktree 的 `results_arc/` 为空（gitignored），任何输出只写这里；不写别的课题目录，不动 `Results_20260908/` 已有课题。
+
+### 下一步
+用户对上面四条拍板 → 写 `docs/superpowers/specs/2026-09-16-hparam-sensitivity-design.md` → 计划 → 起跑脚本
+（沿 `run_af24_mcgs.sh` 的 EXP 前缀隔离规矩，本分支前缀 `hp_`）。
+
+下面是 autoresearch-jyz-af24 分支的 STATUS 原文（本分支的起点）。
+
+---
+
 # STATUS — 2026-09-15 早（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af24`，从 `jyz-af20-results` 4d13197 切出）
 
 ## AF24（本分支）：已全部跑完（09-14 21:45 启动，09-15 05:30 finalize 完成；09-15 下午补 L1-SPIRiT、MC-INR 与掩膜抽样方差）
