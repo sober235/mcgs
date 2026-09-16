@@ -191,3 +191,21 @@ time with 2 to 3 cards: 12 to 16 hours.
 - GPU time depends on the Gaussian-mask loop releasing two cards.
 - Disk: about 4.8 GB of measurements plus about 8 GB of volumes and npz archives; /data0 has 5.0 T free.
 - A 600-dpi PDF render holds about 100 GB of RAM; at most two at a time.
+
+## Addendum (2026-09-16 23:20): a second, milder level, 1 sigma0
+
+Interim numbers of the 2 sigma0 run (NOT final): the frozen GS recipe loses 6.0 dB (T1) / 4.8 dB (FLAIR) head PSNR on
+GS-single, its sharpness ratio rises to 1.35 / 1.22 (noise fitted into the image), and hard data consistency accounts
+for only 0.06 dB of it; CG-SENSE loses about 2.5 dB and the classical TV arms recover much of their loss by moving to a
+larger lambda. Asked what to add, the user chose **a second noise level at 1 sigma0, the frozen recipe and every arm
+run again** (not a noise-retuned GS arm).
+
+- Topic `Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou/`, built exactly like the 2 sigma0 topic (its scripts are
+  copies with the topic path, the multiplier, the experiment prefix `af16n1_` and the MC-INR tag `_noise1x` changed).
+- Noise: sigma = 1 x sigma0_k, **same seed and same draws** as the 2 sigma0 level, so the 1 sigma0 noise is exactly
+  half of the 2 sigma0 noise (common random numbers: the two levels differ only in the scale of one realization).
+  The generator checks this directly: 2 (meas_1x - clean) = (meas_2x - clean) up to single-precision rounding.
+- Everything else, including the grids (TV / JTV already extended) and the render diagnostic, is unchanged. The GS
+  runner accepts `af16n1_` and reads `configs/t1flair_v3_af16n1_jyz*.yaml`.
+- The two queues share cards 1, 2 and 5 (one job of this user per card; both schedulers take the same locks).
+- Final comparison: no noise / 1 sigma0 / 2 sigma0 side by side (`compare_noise_levels.py` in the 1 sigma0 topic).
