@@ -5,7 +5,10 @@ gauss topic `Results_20260908/T1FLAIR_AF16_gauss_v3_jiangyizhou/` (read-only fro
 comparison bar, `logs/bar_gauss.json`). Runner `autoresearch_gauss.sh` (parent = the frozen AF16 phase-3 recipe on this
 mask), ledger `autoresearch_gauss.tsv`, queue `scripts/gauss_queue.txt`, scheduler `scripts/gauss_sched.sh` (tmux
 `gauss_sched`, empty cards only). Target (user 2026-09-16): MC-GS >= every comparison arm + 0.5 dB head PSNR on both
-contrasts, GS-single at the frozen recipe counting as a comparison arm. Everything below this line is the diff-mask
+contrasts, GS-single at the frozen recipe counting as a comparison arm. **Status 2026-09-16 18:20: the parameter
+space is closed with evidence and the target is NOT met — best 4000-it points rsw +0.152 / +0.068 and rswt
++0.205 / +0.059 over the frozen GS-single (record `docs/superpowers/records/2026-09-16-gauss-loop.md`); the
+record-only singles and rswt's seed repeat were still running.** Everything below this line is the diff-mask
 branch's entry, kept as inherited context.
 
 ---

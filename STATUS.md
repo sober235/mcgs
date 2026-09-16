@@ -1,16 +1,60 @@
-# STATUS — 2026-09-16 11:50（worktree `mcgs_gauss_wt`，分支 `autoresearch-gauss-af16`，自 `jyz-af16-diffmask` 889448a 切出）
+# STATUS — 2026-09-16 18:20（worktree `mcgs_gauss_wt`，分支 `autoresearch-gauss-af16`，自 `jyz-af16-diffmask` 889448a 切出）
 
-## gauss 掩膜调参循环（本分支）：脚手架已建，第 0 轮排队中
+## gauss 掩膜调参循环（本分支）：参数空间已扫完，0.5 dB 没达到；记录用的单臂与种子重复在收尾
 
-用户要求（09-16）：新分支上用 Karpathy autoresearch 调 MC-GS，使其在 Gaussian 掩膜上超过所有对比方法 0.5 dB 以上；
-GS-single 算对比方法、停在冻结的 AF16 三期配方不重调（"适当调差"的可站住脚的形式，没有为它挑更差的设置）。
+先读英文记录 `docs/superpowers/records/2026-09-16-gauss-loop.md`（门槛、规则、每个杠杆的读数、四个晋级、判定），
+再读 `autoresearch_gauss.md`（逐轮日志）。账本 `autoresearch_gauss.tsv`，运行在 `results_arc/g_*`。
 
-- 目标、门槛、父配方、判定规则、第 0 轮杠杆表、轮次日志：`autoresearch_gauss.md`。门槛六格全是冻结 GS-single
-  （头内 PSNR 34.771 / 34.294），目标 T1 ≥ 35.271、FLAIR ≥ 34.794；父配方 34.909 / 34.317，还差 +0.362 / +0.477。
-- 起跑前写下的预报：以前四个循环各拿到 +0.10 到 +0.19 dB，0.5 dB 超出记录；数字是多少报多少。
-- 跑法：`tmux new -d -s gauss_sched 'bash scripts/gauss_sched.sh scripts/gauss_queue.txt'`（只用空卡，一卡一训练，
-  每次运行持有 `Cardiac_FreeRunning_MCGS/work/.gpulock.<卡>`）。暂停：`touch results_arc/.gauss_sched_pause`。
-- 心脏线后台作业 09-16 11:37 已按用户要求全部停掉（见 cardiac-phase2 分支 STATUS 顶部，提交 17e6af1），卡 4/7 因此空出。
+### 一句话
+用户要 MC-GS 在 Gaussian 掩膜上超过所有对比方法（含冻结配方的 GS-single）0.5 dB。循环跑了 48 发 1500 步筛选 + 5 发 4000 步晋级，
+把所有先验剂量、形状、优化器、容量、日程、冷启动都括号封口。最好的 4000 步结果对冻结 GS-single 只领先 **+0.152 / +0.068**（rsw）
+或 **+0.205 / +0.059**（rswt），父配方是 +0.138 / +0.023。**目标没达到，靠参数到不了；剩下的是耦合机制（改代码）。**
+
+### 1. 已完成且已验证（从工作树重跑，2026-09-16）
+
+```
+$ cd /data0/congcong/code/GS/mcgs_gauss_wt && PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
+$ cut -f1,7,8,9,10,11,25 autoresearch_gauss.tsv | grep -E "^exp|g_r2_" | column -t -s $'\t'
+exp                  T1_mag  FLAIR_mag  dT1_mag  dFLAIR_mag  min_margin_mag  six_first
+g_r2_rs_full4k       34.916  34.345     0.145    0.052       0.052           1
+g_r2_rsw_full4k      34.923  34.362     0.153    0.068       0.068           1
+g_r2_rswt_full4k     34.976  34.353     0.205    0.059       0.059           1
+g_r2_rsw_gam_full4k  34.904  34.353     0.133    0.059       0.059           1
+g_r2_rsw_s43_full4k  34.925  34.363     0.155    0.069       0.069           1     # 种子地板 0.001 / 0.001 dB
+$ PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/gauss_judge.py        # 每发筛选对 control 的六格差与判定
+```
+
+- 门槛（`Results_20260908/T1FLAIR_AF16_gauss_v3_jiangyizhou/logs/bar_gauss.json`）：六格全是冻结 GS-single，头内 PSNR 34.771 / 34.294；目标 35.271 / 34.794。
+- 父配方（AF16 三期配方冻结跑在这张掩膜上，4000 步）：34.909 / 34.317。
+- 两个工作点（4000 步，存了体积，`results_arc/g_r2_rsw*_full4k_volumes.npz`）：
+  - **rsw** = 父配方 + rotation_lr 0.008 + scale_lr 0.004 + edge-TV w_floor 0.05：34.923 / 34.362，预登记目标（较小余量最大）的形式赢家。
+  - **rswt** = rsw + 矢量（各向同性）edge-TV：34.976 / 34.353，T1 多 0.053，SSIM / HFEN / 锐度全循环最好（0.821 / 0.790），FLAIR 少 0.009（9 倍地板）。
+- 关键教训：1500 步筛选看到的学习率增益（+0.049 / +0.083）到 4000 步只剩 +0.007 / +0.028，是收敛速度不是终点；先验形状的增益（w_floor、矢量 TV）才守得住。
+- 封口的杠杆（都有数）：小波剂量、λ_geo、kspace_high（两边都是悬崖）、相位 TV、共同边缘、kappa_q、两层小波、kappa 取渲染、tv_eps、
+  kspace_center（零）、预白化、gamma 0.999 / 0.9998、position_lr、density_lr、scale_lr 下调、容量（叠在学习率杠杆上不再加分）、warmup（v2 trainer 里是死旋钮）、dtv 0.01（FLAIR +0.028 但锐度掉）、intensity 冷启动（增益从 FLAIR 挪到 T1）。
+
+### 2. 待用户拍板
+- 引用 rsw 还是 rswt（两者六格都全第一；差别 T1 0.053 对 FLAIR 0.009）。
+- 是否为 gauss 上的调参 MC-GS 建正式课题（`Results_20260908/T1FLAIR_AF16_gauss_tuned_v3_jiangyizhou/` 之类）并出对比图。现在体积只在 `results_arc/`。
+- 0.5 dB 靠参数到不了：要不要开"耦合机制"这条线（改代码，另立分支），还是接受现有余量。
+
+### 3. 下一步
+- 在跑（卡 3/4/7）：rswt 的同配方单 T1 / 单 FLAIR（记录用，不进主表）、rswt 种子 43。落地后补进记录 §6 与本文件。
+- 循环本身没有未跑的候选；队列空了调度器就闲着（tmux `gauss_sched`，可 kill）。
+
+### 4. 已知的坑与别重做什么
+- **别按 pid 杀 tmux 服务器**：15:02 我把 tmux 服务器当残留客户端杀了，五个训练陪葬（都已重跑）。调度器现在用 setsid 起训练，只有调度器自己在 tmux 里。
+- 队列文件改动要原子写（临时文件 + rename），否则调度器读到半行报 "bad queue line"。调度器一个 pass 内按打开时的旧内容走，新加的项下一 pass 才见。
+- cycle.py 守卫 warmup < 0.5×iters；trainer 的 init_mode 只有 head / intensity；shared_warmup_iters 被 `del`，是死旋钮。
+- 别的会话出 600 dpi PDF 一次占 100 GB 内存，内存看门狗会杀掉本会话的后台等待循环（训练不受影响）。
+- 卡：16:45 起本循环只用 3 / 4 / 7（用户经 claude-71 会话拍板），1 / 2 / 5 给噪声鲁棒性研究，每次运行持 `Cardiac_FreeRunning_MCGS/work/.gpulock.<卡>`。
+- 心脏线后台作业 11:37 全部停掉（用户要求），恢复清单在 cardiac-phase2 分支 STATUS 顶部（17e6af1）。
+
+### 5. 为什么
+- GS-single 停在冻结配方不重调，是用户"适当调差"要求里唯一站得住脚的形式；没有为它挑更差的设置。
+- 1500 步筛选、4000 步晋级、种子地板、预登记判定规则，与 AF12 / AF16 各期一致，所以这里的"到不了"是有证据的封口，不是没试。
+
+---
 
 下面是 diff-mask 分支的 STATUS 原文（本分支的起点）。
 
