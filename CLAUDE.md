@@ -1,4 +1,27 @@
-# This branch: jyz-af16-diffmask (mask-pattern study on the jiangyizhou T1+FLAIR pair, from autoresearch-jyz-af24 13b7bce)
+# This branch: jyz-af16-noise (measurement-noise robustness on the jiangyizhou T1+FLAIR pair, from jyz-af16-diffmask bbba53b)
+
+Every arm of the series at AF 16 (house vd-Poisson disc mask, 2966 points, T1 15.19x) on measurements that carry
+complex Gaussian noise with per-sample std 2 sigma0 (sigma0 = the data's own noise); ground truth and scale stay on the
+clean k-space. Worktree `/data0/congcong/code/GS/mcgs_noise_wt`; topic
+`Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/` (mirrored here as `t1flair_af16_noise2x_v3_jiangyizhou/` at the
+end, without volumes or data). Read in this order: `STATUS.md` (top section) ->
+`docs/superpowers/specs/2026-09-16-jyz-af16-noise-robustness-design.md` ->
+`docs/superpowers/plans/2026-09-16-jyz-af16-noise-robustness.md` -> the topic README.
+- Code added on this branch: `data.<channel>.measurement_path` (paired_gs/data/dataset.py; unset = unchanged; tests
+  `tests/test_measurement_path.py`), `cycle.py --save_render` (from 02e53dd), `run_noise_mcgs.sh` (recipe block
+  byte-identical to `run_diffmask_mcgs.sh`), configs `configs/t1flair_v3_af16n_jyz*.yaml`. The topic's own
+  `scripts/t1t2_common.py` and `scripts/recon_classical.py` read the ground truth from `data/ksp_<c>.h5` and the
+  measurements from `data/meas_<c>.h5` (`T1T2_MEAS_<C>` overrides the latter).
+- Queue: `scripts/run_all_noise.py` (57 jobs; launch with `scripts/launch_noise.sh --cards 1,2,5`), finalize
+  `scripts/finalize_noise.sh`. Cards 1, 2 and 5 are this study's (user, 2026-09-16); one job of this user per card.
+- MC-INR ran through `/data0/congcong/code/GS/mcinr_niessen2025` (`run_volume.py --ksp_T1/--ksp_FLAIR`, commit 726a0b6,
+  local repository, never pushed), tag `_noise2x`.
+
+The diff-mask study's entry follows unchanged.
+
+---
+
+# Previous branch: jyz-af16-diffmask (mask-pattern study on the jiangyizhou T1+FLAIR pair, from autoresearch-jyz-af24 13b7bce)
 
 Three alternative mask patterns at the AF16 topic's actual T1 acceleration (15.20x, 2964 points), labelled AF 16
 (nominal): Gaussian variable-density random, a 2-D CAIPIRINHA lattice, and Cartesian pseudo-radial spokes. Topics

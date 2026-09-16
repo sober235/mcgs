@@ -1,3 +1,86 @@
+# STATUS — 2026-09-16 22:00（worktree `mcgs_noise_wt`，分支 `jyz-af16-noise`，从 `jyz-af16-diffmask` bbba53b 切出）
+
+## 噪声鲁棒性研究（本分支）：准备完成，57 个作业 21:48 起在卡 1、2、5 上跑
+
+用户 09-16 的要求：jyz 数据、AF16、泊松盘三维掩膜、全部方法，给测量加高斯噪声，验证鲁棒性。
+拍板：一档噪声，每个采样点的复噪声标准差 = 2 × 数据本底 σ0；设计与计划照批准执行；卡用 1、2、5。
+先读设计 `docs/superpowers/specs/2026-09-16-jyz-af16-noise-robustness-design.md`，再读计划
+`docs/superpowers/plans/2026-09-16-jyz-af16-noise-robustness.md`（任务 1–9 已做完，剩任务 10、11），
+课题 `Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/`（README 有噪声表）。
+
+### 1. 已完成且已验证
+
+- 测试：改动前 206 通过（`results_arc/tests_baseline.txt`），加 `measurement_path` 后 211 通过（`results_arc/tests_after_task2.txt`）。
+  ```
+  cd /data0/congcong/code/GS/mcgs_noise_wt && CUDA_VISIBLE_DEVICES=<空卡> PYTHONNOUSERSITE=1 PYTHONPATH= \
+    /home/congcongliu/anaconda3/envs/GSTMI/bin/python -m pytest tests -q --ignore=tests/smoke_test.py
+  # 211 passed, 1 warning in 421.30s
+  ```
+- 带噪测量 `data/meas_{T1,FLAIR}.h5`（`scripts/make_noisy_kspace.py`，种子 20260916，拒绝覆盖），六项检查全过：
+  ```
+  $ grep -E "sigma0|OK|BAD|DONE|RC=" <课题>/logs/make_noisy_kspace.log
+  [T1] scale 9.925056e+01  f_acq 1.000000 (45056 lines)  sigma0_img 0.014076  sigma0_k 0.014076  sigma 0.028153 (raw 2.794153e+00)
+  [T1]   OK  support_exact   True (limit True)
+  [T1]   OK  mean_z          2.293684753898831 (limit 4.0)
+  [T1]   OK  std_rel         0.0007078130556691375 (limit 0.005)
+  [T1]   OK  air_noise_rel   0.0002259799891025649 (limit 0.02)
+  [T1]   OK  gt_vs_house     3.7762638748974465e-07 (limit 0.0001)
+  [T1]   OK  scale_vs_house  8.430551444632068e-08 (limit 1e-05)
+  [FLAIR] scale 9.851180e+01  f_acq 0.757702 (34139 lines)  sigma0_img 0.012815  sigma0_k 0.014722  sigma 0.029445 (raw 2.900644e+00)
+  [FLAIR]   OK  support_exact   True (limit True)
+  [FLAIR]   OK  mean_z          2.5866291304561444 (limit 4.0)
+  [FLAIR]   OK  std_rel         0.000643540226515471 (limit 0.005)
+  [FLAIR]   OK  air_noise_rel   0.0003434885728889059 (limit 0.02)
+  [FLAIR]   OK  gt_vs_house     4.7587603710187855e-07 (limit 0.0001)
+  [FLAIR]   OK  scale_vs_house  3.222210176661274e-10 (limit 1e-05)
+  MAKE_NOISY_KSPACE DONE
+  RC=0
+  ```
+  加噪后全采图像空气噪声：T1 预期 0.03148 / 实测 0.03147，FLAIR 0.02866 / 0.02865（`logs/make_noisy_kspace.json`）。
+- 口径检查（`logs/gauge_check_clean.log`）：把测量指回干净文件，`recon_classical` 与 `Pair.score` 两条路径的 CG-SENSE
+  九项指标与 AF16 课题记录的差全是 0.00e+00，尺度相对差 0；不设覆盖时读 `meas_<c>.h5`，带噪减干净最大 0.126，真值与尺度不变。
+  两个对比度都 `GAUGE CHECK OK`。检查用的体积已删，json 在 `logs/gauge_check/`。
+- GS 冒烟（60 步，NOT_EVIDENCE）：`[Measurement] fitting to .../meas_T1.h5`、FLAIR `zero_lines=233/2966`（与干净数据相同）、
+  `actual acceleration: 15.19x`、npz 含 `recT1_render_complex`/`recFL_render_complex`。
+- MC-INR：仓库测试改动前后都是 28 passed；单层冒烟 RC=0，meta 的 `ksp` 指向两个带噪文件（提交 726a0b6，本地仓库不推送）。
+- 队列空跑：57 个作业，顺序 gs_joint → gs_singleFLAIR → base → gs_singleT1 → TV → JTV → ZS-SSDU → INR → DIP → SPIRiT → MC-INR。
+
+### 2. 待用户拍板
+
+- 暂无。结果出来后按设计第 1 节读数。
+
+### 3. 下一步（正在跑）
+
+- 调度器 `run_all_noise.py --cards 1,2,5`（21:50 重启，第一次 21:48 只用卡 5 启动，见坑 1）。看进度：
+  ```
+  N=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou
+  tail -20 $N/logs/run_all_noise.log; cat $N/logs/run_all_noise_status.json; nvidia-smi
+  ```
+- 调度器进程没了而 `logs/RUN_ALL_NOISE_DONE` 不存在：原样重启即可（已有结果跳过，在跑的作业会被等待）：
+  `setsid nohup bash $N/scripts/launch_noise.sh --cards 1,2,5 > /dev/null 2>&1 < /dev/null &`
+- 队列空了会自动跑 `finalize_noise.sh`（登记 GS 臂、MC-INR 打分、渲染诊断、汇总表、对比表、图）。之后做计划的任务 10（查边缘 λ、
+  看图、读数）和任务 11（记录、镜像、提交、推送、打 tag、记忆）。
+
+### 4. 已知的坑与别重做
+
+1. 卡：1、2 号在 17:00 后被另一会话的超参数敏感性研究（`mcgs_hparam_wt`）接走，它 20:56 跑完；用户 09-16 21:4x 定“先用 5 号卡开跑，
+   等它完了再加 1、2”，所以 21:48 先 `--cards 5` 启动，21:50 发现它已跑完，杀掉调度器进程（只杀调度器，作业不动）后用 `--cards 1,2,5` 重启。
+   儿科五期的 `p5_sched.sh` 可用卡是全部 8 张且不看 `.gpulock`，已发消息请它避开 1、2、5。
+2. 别覆盖 `data/meas_*.h5`：生成器拒绝覆盖；要重做先删两个 meas 文件和 `recon/fullnoisy_*`、`logs/make_noisy_kspace.json`。
+3. 训练器的尺度用 torch 单精度分位数（99.251015），`Pair` 用 numpy（99.25055），相对差 4.6e-6，PSNR 影响约 4e-5 dB；GS 主表行取训练器自己的打分，与以往课题一致。
+4. zsh 不拆分 `$VAR`、未加引号的 `--include=*.py` 会报错：多参数命令一律写 bash 脚本（本会话踩了两次）。
+5. `--l1_arm` 默认是 espirit，出图必须传 `--l1_arm spirit`（finalize 里已写）。
+
+### 5. 为什么
+
+- 真值与尺度用干净数据：否则噪声同时进了参考，"鲁棒性"无从谈起；这样零噪声列（AF16 课题）与本课题逐位同口径（口径检查已证）。
+- 噪声只加在实际采集的位置：FLAIR 厂商视野外本来就没采，加了会破坏视野检测，也不符合物理。
+- 均值检查放宽到 4 个标准误、真值比对放宽到 1e-4：前者是 52 个检验的多重比较，后者因为 AF16 的真值是单精度算的（设计文档已写明）。
+- TV/JTV 网格上扩两档：噪声会把最优 λ 往大推；仍落边界就再扩，最多两次。
+- GS 渲染体诊断：GS 打分时把实测数据硬替换回采样点，加噪后这一步不利于 GS，单列出来说明代价，不改主表口径。
+
+---
+
 # STATUS — 2026-09-16（worktree `mcgs_diffmask_wt`，分支 `jyz-af16-diffmask`，tag `handoff/2026-09-16-diffmask`）
 
 ## 结论：MC-GS 的领先不依赖采样图案
