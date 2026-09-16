@@ -87,7 +87,8 @@ sing = {k: (load_slice(p), p) for k, p in singles.items()}
 sing_met = {k: metrics(v) for k, (v, _) in sing.items()}
 best_single = max(sing_met, key=lambda k: sing_met[k]["psnr"])
 
-ARMS = [("CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"), ("CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
+ARMS = [("Zero-filling", R / f"recon/zf_{c}_complex.npy"),          # user 2026-09-16: ZF right after GT in every figure
+        ("CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"), ("CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
         ("Joint SENSE", lam_file("jcssense", "jcssense_o200")),
         (("L1-SPIRiT", spirit_file()) if a.l1_arm == "spirit" else ("L1-ESPIRiT", lam_file("l1espirit", "l1espirit"))),
         ("ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"), ("3D-DIP", R / f"recon/dip_{c}_complex.npy"),

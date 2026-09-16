@@ -129,7 +129,8 @@ def spirit_file():
 
 L1 = (("spirit", "L1-SPIRiT", spirit_file()) if args.l1 == "spirit"
       else ("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espirit")))
-ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
+ARMS = [("zf", "Zero-filling", R / f"recon/zf_{c}_complex.npy"),     # user 2026-09-16: ZF right after GT
+        ("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("cssense_o200", "CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
         ("jcssense", "Joint SENSE", lam_file("jcssense", "jcssense_o200")),
         L1,

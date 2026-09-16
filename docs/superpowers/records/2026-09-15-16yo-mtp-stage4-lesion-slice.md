@@ -145,3 +145,10 @@ T1w（MC-GS = `p3_n96_union_k05`，T1w 最强的联合运行；GS-single 为同�
 `peds_af12_T2s_row3planes_compact_45_148_172_inset48x48x16_headerr_p4_r3_edge0005_nodule`
 `peds_af12_T1w_row3planes_compact_69_165_196_inset48x48x16_box166_196_69_headerr_p3_n96_union_k05_focus`
 `peds_af12_T1w_row3planes_compact_45_148_172_inset48x48x16_headerr_p3_n96_union_k05_nodule`
+
+## 12. 零填充列（09-16，用户要求）
+
+三个出图脚本（`p4_fig_lesion_slice.py`、`p4_fig_three_planes.py`、`p4_fig_three_planes_inset.py`）在 GT 之后加了
+Zero-filling 列，用课题登记的 `recon/zf_<c>_complex.npy`（整卷头内 T1w 24.006、T2s 22.582）。九张图全部重出：
+两张单层横排、三张紧凑三面图、四张带放大框的三面图（png 与 600 dpi pdf）。
+示例：T2s 横断 69 上零填充 21.96 dB / SSIM 0.5243 / NMSE 0.14343，放大图里病灶已糊成一团。
