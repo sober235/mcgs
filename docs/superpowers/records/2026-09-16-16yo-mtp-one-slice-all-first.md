@@ -50,3 +50,33 @@ L1 column = L1-SPIRiT; `--single_key` added today):
   cells are still GS-single's (PSNR, SSIM) and L1-SPIRiT's (HFEN). On T2s the lead is broad (331 of 561 slices).
 - The panel metrics are PSNR / SSIM / NMSE; HFEN is not a per-panel metric of the figures.
 - One subject, arms tuned on it (the GS arms and the classical λ alike); the reference is GRAPPA-completed 2x data.
+
+## 5. Follow-up (user, 2026-09-16 morning): the three planes on which MC-GS leads, zoomed on the lesion
+
+User: one slice that beats every comparison method is enough; then show the three planes on which it leads, and use
+the zoom-in view on the lesion region to show the finer reconstruction of the lesion against the comparison methods.
+
+Lesions are visible on T2*w only, so this figure is T2s. From `find_slice_all_first_T2s.json`, the slices through each
+lesion centre (stage-4 coordinates, RO / PE / SPE) and whether MC-GS leads every arm on PSNR, SSIM and NMSE there:
+
+- right subependymal nodules (148 / 166, 172, 45): transverse 43–47 all lead, sagittal 170–173 all lead, coronal 146,
+  149 and 150 lead (147 and 148 lose SSIM by ≤ 0.0003). **Chosen triple: transverse 46 / coronal 146 / sagittal 172**,
+  margins over the best other arm +0.081 dB / +0.0010, +0.041 / +0.0006, +0.095 / +0.0011; the runner-up is GS-single
+  in every cell.
+- left nodules (138–147, 139–140, 53): transverse 51–55 lead; a full triple exists at 53 / 146 / 140
+  (+0.048 / +0.0008, +0.041 / +0.0006, +0.068 / +0.0004).
+- calcified focus (166, 196, 69): transverse 67–71 and sagittal 194–198 lead (transverse 69: +0.095 / +0.0031, the
+  largest SSIM lead of any lesion slice), but every coronal slice through it (164–168) loses SSIM to GS-single by
+  0.0004–0.0013, so no full triple.
+- T1w at the chosen triple: MC-GS second to GS-single on all three planes (−0.059 / −0.041 / −0.001 dB); the lesions
+  are not visible on T1w in any case.
+
+Figure: `fig_three_planes_inset.py --contrast T2s --slices 46 146 172 --inset 48 --inset_corner tr bl bl --mask_error
+--gray_cbar --cbar_planes 0 --pdf --mcgs_key gs_joint_p3f --single_key gs_single_ar --tag _lesionB_allfirst` →
+`figures/peds_af12_T2s_row3planes_compact_46_146_172_inset48_headerr_lesionB_allfirst.{png,pdf}`; an `inset32` variant
+(tighter box) beside it. The zoom cube sits on the intersection of the three slices, 1.4 mm from the nodule centre
+(148, 172, 45), so every plane's inset holds the lesion. MC-GS is first on all three metrics in every plane (bold).
+Looked at: the two nodules are distinct dark foci on the ventricle wall in GT, MC-GS and GS-single; 3D-DIP blurs them
+into blobs, CG-SENSE, L1-SPIRiT, ZS-SSDU and MC-INR are grainy around them. MC-GS and GS-single are not separable by
+eye — the lead over GS-single is the numbers (+0.04 to +0.10 dB per plane); the visible gain is over the other eight
+arms. Selected on the reported metric, as everything in this record.
