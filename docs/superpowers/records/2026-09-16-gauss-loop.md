@@ -76,11 +76,16 @@ All four promotions are first on all six head cells (`six_first` = 1).
 
 ## 5. Verdict
 
-**The 0.5 dB target is not met, and the loop closes the parameter space.** The best 4000-it recipe, **rswt** =
-the frozen phase-3 recipe + rotation_lr 0.008 + scale_lr 0.004 + edge-TV w_floor 0.05 + vector edge-TV, is
-34.976 / 34.353: **+0.205 / +0.059 dB over the frozen GS-single** (parent +0.138 / +0.023), first on all six head cells,
-and the sharpest / structurally best MC-GS on this mask. Against the strongest non-GS arm (ZS-SSDU) it is
-+0.601 / +0.381. rsw (no vector TV) is the FLAIR-maximal point, +0.152 / +0.068, 0.009 dB more FLAIR for 0.053 dB less T1.
+**The 0.5 dB target is not met, and the loop closes the parameter space.** Two operating points came out of it, both
+first on all six head cells, both far under the target:
+- **rsw** = the frozen phase-3 recipe + rotation_lr 0.008 + scale_lr 0.004 + edge-TV w_floor 0.05: 34.923 / 34.362,
+  **+0.152 / +0.068 dB over the frozen GS-single** — the formal winner of the pre-registered objective (max of the
+  smaller margin: 0.068 against rswt's 0.059; the 4000-it seed floor is 0.001 / 0.001, so the 0.009 is real).
+- **rswt** = rsw + vector (isotropic) edge-TV: 34.976 / 34.353, **+0.205 / +0.059** — T1 +0.053 over rsw, and the best
+  SSIM / HFEN / sharpness of any MC-GS on this mask (0.9349 / 0.9225, 0.1305 / 0.1255, 0.821 / 0.790); FLAIR PSNR
+  0.009 under rsw. Against the strongest non-GS arm (ZS-SSDU) it is +0.601 / +0.381.
+The parent was +0.138 / +0.023. Which point is quoted is the user's call (the previous lines left the same choice to
+them); the record-only singles of section 6 were run for rswt.
 Every prior dose (wavelet, edge-TV, phase TV, common-edge, kspace weights), every shape lever except the two kept, the
 lr schedule, capacity, warm-up (inert), prewhitening and the cold start were bracketed or closed with evidence.
 What is left is not a parameter: a 0.5 dB gap over the same model run single-contrast needs a coupling mechanism that
@@ -89,8 +94,9 @@ past their optimum here).
 
 ## 6. Record-only rows (rule 4) and the 4000-it floor
 
-PENDING at the time of writing (runs launched 17:03–17:25, results appended below when they land):
-- `g_r2_rsw_s43_full4k` (rsw, seed 43) and `g_r2_rswt_s43_full4k` (rswt, seed 43): the 4000-it seed floor.
+- `g_r2_rsw_s43_full4k` (rsw, seed 43): 34.925 / 34.363 → **4000-it seed floor 0.001 / 0.001 dB**, SSIM / HFEN /
+  sharpness 0.000 — every promotion delta above is far outside it. `g_r2_rswt_s43_full4k` (rswt, seed 43): PENDING.
+PENDING at the time of writing (results appended below when they land):
 - `g_r3_rswt_singleT1_full4k`, `g_r3_rswt_singleFLAIR_full4k`: rswt's own single-contrast arms at the same recipe —
   the fair coupling number, not part of the bar (the user's decision keeps GS-single frozen in the main table).
 
