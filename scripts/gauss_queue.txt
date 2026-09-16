@@ -49,9 +49,11 @@ g_r0_edge0002 1500 --lambda_edge 0.002
 g_r0_n48 1500 --set gaussian.initial_num_points=4800000
 g_r0_ptv005 1500 --lambda_ptv 0.05
 WARMUP=300 g_r0_wu300 1500
-WARMUP=800 g_r0_wu800 1500
+# g_r0_wu800 crashed on the cycle.py guard (warmup < 0.5*iters); 700 is the legal upper bracket
+WARMUP=700 g_r0_wu700 1500
 # Round 0e (added 14:08): cold-start alternative (init from ZF importance instead of head-uniform)
-g_r0_initimp 1500 --set gaussian.init_mode=importance
+# g_r0_initimp crashed: the trainer accepts init_mode head | intensity only
+g_r0_initint 1500 --set gaussian.init_mode=intensity
 g_r0_kren 1500 --set loss.edge_tv_kappa_source=render
 # bracket of the w_floor keep (added 14:31)
 g_r0_wfl002 1500 --edge_tv_wfloor 0.02
