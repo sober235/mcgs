@@ -90,3 +90,8 @@ left-side inset below the three metric lines (`TEXT_KEEPOUT_IN`). **Figure of re
 nodules (RO 148 and 166), so the transverse and sagittal insets hold both and the coronal inset (RO 146) holds the
 medial one; landscape on the coronal and sagittal panels, square on the transverse; every inset below the metrics.
 Looked at. The cube-box versions (`_inset48_`, `_inset32_`) are superseded.
+
+T1w companion at the same slices and box (user asked "T1也修改了吗?"): `figures/peds_af12_T1w_row3planes_compact_46_146_172_inset48x48x16_box157_172_46_headerr_lesionB_allfirst.{png,pdf}`,
+GS-single = `gs_single_p3f`. There GS-single is first on all three metrics in every plane and MC-GS second
+(transverse 39.703 vs 39.762, coronal 38.974 vs 39.015, sagittal 39.201 vs 39.202 — a tie at two decimals); the
+nodules are faint grey dots on T1w. It completes the pair; the "leads every arm" claim is T2s-only on these slices.
