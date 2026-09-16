@@ -116,12 +116,30 @@ T1w +0.007 dB / SSIM +0.00002（面板四位小数下 0.9608 平），T2s +0.058
    **HFEN 的门槛换臂后变成 L1-SPIRiT 的 0.0679，MC-GS 0.0768 差 0.0089**（换臂前对 GS-single 只差 0.0004）；T2s 三格已达标。这三格只能靠真实运行补上，不能靠写法（候选杠杆见第 3 节）。
 4. **一期其余八个对比度的 23 GB 先不删。**
 
+（09-16 中午）5. **GS-single 的所有版本都算对比方法**（用户重申："gs 重建 for 3D MR 已经有工作了"）。用户提出"适当把 GS-single
+   调参一点，让 MC-GS 超所有方法 0.8 dB"——把已跑出的对比配置调差去凑余量，本会话拒绝，理由已答复。事实：T1w 上卡 0.8 dB 的是
+   L1-SPIRiT（PSNR 余量 +0.63，HFEN 输），不是 GS-single；T2s 上原样迁移的 GS-single 也只落后 0.05 dB。0.8 dB 对任何 GS-single
+   口径都到不了。
+6. **"启动 MC-GS 杠杆"**：五期开跑（第 3 节）。目标仍是六格全第一；能动的是 T1w 三格。
+
 另（09-15 16:05，用户）：**L1-SPIRiT 替换 L1-ESPIRiT，GS-single 仍算对比方法**，与 jyz 线同日的口径一致。
 L1-ESPIRiT 的行留在表里、标为不计入，所以它的 T1w HFEN 0.0756 不再是门槛；L1-SPIRiT 已登记（第 1 节），它接过了 T1w HFEN 的门槛。
 
 ## 3. 下一步
 
-**本线现在没有训练在跑，两个名额都空着。** p4 调度器已停（`logs/.p4_stop`），L1-SPIRiT 扫描 20:03 跑完、23:06 登记完。
+**五期在跑（09-16 11:38 起）**：调度器 `scripts/p5_sched.sh`（claude-eb 的 p4_sched2 复制版，全线最多两个训练、计入所有会话），
+队列 `scripts/p5_round1.txt`，ALLOWED 全部卡、OWN_MAX 2。基线 = 三期最终配置 p3_n96_union_k05。第一轮六个运行，每个 9.6M 点约 100 分钟：
+`p5_rot008`（rotation_lr 0.008）、`p5_ptv001`（相位 TV 0.01，代码从 jyz af12 三期 cherry-pick 0ba2d3b，6 测试过）、
+`p5_khp30`（T1w 高频数据权重 2.2→3.0，唯一对着 HFEN 的旋钮）、`p5_e0005_ptv001`（共同边缘 0.0005 + 相位 TV 0.01）、
+`p5_ptv003`、`p5_single_T1w_rot008`（单臂公平对照）。预期：PSNR/SSIM 两格有机会（jyz 上 +0.02–0.05），HFEN 差 0.0089 大概率补不上
+（3.6M 时 edge-TV 0.03→0.015 只动 0.0006）。
+```
+cat /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro/logs/p5_sched.log          # 启动/停止
+grep -E "^p5_" /data0/congcong/code/GS/mcgs_peds_wt/autoresearch_peds.tsv | cut -f1,2,7,8,9,10,12,14   # 完成的行（主区域）
+touch .../logs/.p5_pause | .../logs/.p5_stop                                                      # 暂停 / 结束调度器
+```
+调度器没了就原样重起：`cd $T && ALLOWED="6 0 1 3 4 5 7 2" OWN_MAX=2 setsid nohup bash scripts/p5_sched.sh scripts/p5_round1.txt > /dev/null 2>&1 < /dev/null &`
+（已有 `results_arc/<exp>.log` 的行会跳过）。第二轮把赢的杠杆叠起来，并给单臂补同样的旋钮。
 
 1. 用户看图（清单见第 1 节末尾与四期记录 §6），拍板下一轮动不动、动哪个杠杆。
 2. L1-SPIRiT 已登记（第 1 节）。尾巴：三个逐层分析脚本换臂（下次用时）；四期病灶图 claude-eb 已换。

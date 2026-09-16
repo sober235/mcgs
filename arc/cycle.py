@@ -32,6 +32,7 @@ ap.add_argument("--warmup", type=int, default=500)               # training.shar
 ap.add_argument("--lambda_dtv", type=float, default=0.0)         # loss.lambda_dtv cross-contrast coupling; PRIMARY
 ap.add_argument("--dtv_eta_scale", type=float, default=1.0)
 ap.add_argument("--lambda_edge", type=float, default=0.0)        # loss.lambda_edge symmetric common-edge cross-grad prior (helps BOTH contrasts)
+ap.add_argument("--lambda_ptv", type=float, default=0.0)         # loss.lambda_ptv phase-only TV (ported from the AF16 phase-2/3 line, 2026-09-13)
 ap.add_argument("--edge_p", type=float, default=0.75)            # loss.edge_p edge-gate quantile
 ap.add_argument("--edge_kappa", type=float, default=10.0)        # loss.edge_kappa edge-gate sigmoid sharpness
 ap.add_argument("--lambda_vtv", type=float, default=0.0)         # loss.lambda_vtv vectorial (joint) TV; symmetric edge-location coupling (stable)
@@ -154,6 +155,7 @@ def build_cfg():
     cfg["loss"]["lambda_dtv"] = args.lambda_dtv
     cfg["loss"]["dtv_eta_scale"] = args.dtv_eta_scale
     cfg["loss"]["lambda_edge"] = args.lambda_edge
+    cfg["loss"]["lambda_ptv"] = args.lambda_ptv
     cfg["loss"]["edge_p"] = args.edge_p
     cfg["loss"]["edge_kappa"] = args.edge_kappa
     cfg["loss"]["lambda_vtv"] = args.lambda_vtv
