@@ -8,6 +8,7 @@ FLAIR 45056/2257 = 19.96 (170 lines fall in FLAIR's unacquired corners). Writes 
 import hashlib, re, shutil
 import h5py, numpy as np, torch
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+matplotlib.rcParams["pdf.fonttype"] = 42
 R = "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou"
 CFG = "/data0/congcong/code/GS/mcgs_af16_wt/configs/t1flair_v3_af20_jyz.yaml"
 OUT = f"{R}/figures/t1flair_v3_af20_mask_T1_FLAIR_reinspect.png"
@@ -67,5 +68,6 @@ for a in ax.ravel():
 fig.suptitle(f"jiangyizhou AF20 topic: one mask for T1 and FLAIR   (AF = whole-plane lines / sampled lines that carry data:  T1 {N / t1_sig:.2f},  FLAIR {N / fl_sig:.2f})",
              fontsize=13, fontweight="bold")
 fig.tight_layout(rect=(0, 0, 1, 0.97))
-fig.savefig(OUT, dpi=130); shutil.copy2(OUT, SERVED)
+fig.savefig(OUT, dpi=600); shutil.copy2(OUT, SERVED)
+fig.savefig(OUT[:-4] + ".pdf"); shutil.copy2(OUT[:-4] + ".pdf", SERVED)
 print("wrote", OUT)

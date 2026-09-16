@@ -99,6 +99,7 @@ if args.cube:
 import h5py
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42
 import matplotlib.patheffects as pe
 from matplotlib.patches import Rectangle
 from matplotlib.ticker import MaxNLocator
@@ -122,7 +123,7 @@ _af = _ex["contrasts"][c]    # AF label from the export json
 # AF label gauge (user 2026-09-16, as in the AF 24 topic): whole PE plane / the points the mask samples -- one number for
 # both contrasts, since both read the same mask; how many sampled points carry this contrast's data goes under the panels.
 # Replaces the per-contrast gauge of 2026-09-14 (AF_vs_full_rect), which in turn replaced AF_vs_own_support on 2026-09-15.
-AF_LABEL = args.af_note if args.af_note else f"AF 12, actual {_ex['mask2d_AF_rect']:.2f}x"
+AF_LABEL = args.af_note if args.af_note else f"nominal AF 12, actual {_ex['mask2d_AF_rect']:.2f}x"
 rows = {r["method"]: r for r in json.load(open(R / "logs/summary.json")) if r["contrast"] == c}
 
 

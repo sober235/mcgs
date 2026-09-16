@@ -90,6 +90,7 @@ if args.cube:
 import h5py
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42
 import matplotlib.patheffects as pe
 from matplotlib.patches import Rectangle
 from matplotlib.ticker import MaxNLocator

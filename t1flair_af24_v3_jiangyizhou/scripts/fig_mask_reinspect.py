@@ -9,6 +9,7 @@ mask; 1766 of those lines carry FLAIR data (111 fall where its scan acquired not
 import hashlib, re, shutil
 import h5py, numpy as np, torch
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+matplotlib.rcParams["pdf.fonttype"] = 42
 R = "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou"
 CFG = "/data0/congcong/code/GS/mcgs_af16_wt/configs/t1flair_v3_af24_jyz.yaml"
 OUT = f"{R}/figures/t1flair_v3_af24_mask_T1_FLAIR_reinspect.png"
@@ -68,5 +69,6 @@ for a in ax.ravel():
 fig.suptitle(f"jiangyizhou AF24 topic: one mask for T1 and FLAIR   (AF = whole-plane lines / sampled lines = {N / nT1:.2f} on both;  lines carrying data: T1 {t1_sig}, FLAIR {fl_sig})",
              fontsize=13, fontweight="bold")
 fig.tight_layout(rect=(0, 0, 1, 0.97))
-fig.savefig(OUT, dpi=130); shutil.copy2(OUT, SERVED)
+fig.savefig(OUT, dpi=600); shutil.copy2(OUT, SERVED)
+fig.savefig(OUT[:-4] + ".pdf"); shutil.copy2(OUT[:-4] + ".pdf", SERVED)
 print("wrote", OUT)

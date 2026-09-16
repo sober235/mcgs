@@ -10,6 +10,7 @@ figures/t1flair_v3_af24_raw_kspace_support_T1_vs_FLAIR.png and the served figs f
 import shutil
 import numpy as np, scipy.io as sio
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+matplotlib.rcParams["pdf.fonttype"] = 42
 
 SRC = "/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou"
 R = "/data0/codec" if False else "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou"
@@ -49,5 +50,6 @@ for a in ax:
 fig.suptitle("jiangyizhou raw scans: T1 acquired the whole phase-encode plane; FLAIR skipped the corners (elliptical scanning) "
              "and ky rows 0-19", fontsize=12.5, fontweight="bold")
 fig.tight_layout(rect=(0, 0, 1, 0.95))
-fig.savefig(OUT, dpi=130); shutil.copy2(OUT, SERVED)
+fig.savefig(OUT, dpi=600); shutil.copy2(OUT, SERVED)
+fig.savefig(OUT[:-4] + ".pdf"); shutil.copy2(OUT[:-4] + ".pdf", SERVED)
 print("wrote", OUT)

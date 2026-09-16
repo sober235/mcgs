@@ -14,6 +14,7 @@ from pathlib import Path
 import h5py
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io as sio
@@ -46,6 +47,8 @@ for a, (name, accelx, p) in zip(axes, MASKS):
 fig.suptitle("jiangyizhou house vd-Poisson masks, vdPoisMex(256,176,256,176, accelx, 4, 24, 0, 1); red line = edge of FLAIR's acquired region\n"
              "AF = whole-plane points / sampled points (user 2026-09-16): one mask, one number for both contrasts", fontsize=12.5, fontweight="bold")
 fig.tight_layout(rect=(0, 0, 1, 0.95), w_pad=2.0)
-fig.savefig(OUT, dpi=140)
+fig.savefig(OUT, dpi=600)
+fig.savefig(OUT.with_suffix(".pdf"))
+shutil.copy2(OUT.with_suffix(".pdf"), SERVED / OUT.with_suffix(".pdf").name)
 shutil.copy2(OUT, SERVED / OUT.name)
 print("wrote", OUT)
