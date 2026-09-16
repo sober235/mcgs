@@ -29,6 +29,14 @@ Scheduling rules, inherited from run_all_af24.py with one addition:
 - A job whose result file exists is skipped; a job already running outside this queue is waited for, not relaunched; a
   non-MC-GS job that exits non-zero without its result is retried once; a failed MC-GS run is only logged
   (run_diffmask_mcgs.sh refuses to overwrite its outputs, so it needs a look first).
+- The "already running outside this queue" test compares the live process's WORKING DIRECTORY as well as its argv.
+  run_all_af24.py compared argv alone, which is unique when a launcher drives one topic; driving two topics at once it
+  is not -- gauss and radial run the same script with the same --contrast / --suffix, so on the first run (2026-09-15)
+  46 radial jobs were classified as duplicates of the gauss job then running, moved to `waiting`, and marked
+  EXTERNAL DONE result=NO without ever being launched. The cwd is what separates them (each topic job runs in its own
+  topic directory; MC-GS runs in the worktree but its --exp carries the topic, and MC-INR's --tag does).
+- A job that comes back from `waiting` with no result is re-queued once rather than being written off, so a
+  mis-identification costs a re-run instead of a silently missing arm.
 - When nothing is queued or running: finalize_diffmask.sh per topic.
 
 Launch detached from a bash script file:
@@ -183,7 +191,8 @@ def release(g, say):
         say(f"released lock {d}")
 
 
-def my_argvs():
+def my_procs():
+    """(argv, resolved cwd) of every live process of this uid"""
     out = []
     for pid in os.listdir("/proc"):
         if not pid.isdigit():
@@ -192,13 +201,17 @@ def my_argvs():
             if os.stat(f"/proc/{pid}").st_uid != UID:
                 continue
             toks = open(f"/proc/{pid}/cmdline", "rb").read().split(b"\0")
+            cwd = os.path.realpath(os.readlink(f"/proc/{pid}/cwd"))
         except (FileNotFoundError, ProcessLookupError, PermissionError, OSError):
             continue
-        out.append([t.decode(errors="replace") for t in toks if t])
+        out.append(([t.decode(errors="replace") for t in toks if t], cwd))
     return out
 
 
-def matches(argv, j):
+def matches(proc, j):
+    argv, cwd = proc
+    if cwd != os.path.realpath(j["cwd"]):       # the two topics share script names and flags; the cwd separates them
+        return False
     if not any(t.endswith(j["script"]) for t in argv):
         return False
     for k, v in j["args"].items():
@@ -275,18 +288,26 @@ def main():
                     retried.add(j["name"])
                     queue.insert(0, j)
                     say(f"RETRY {j['name']} once")
-        argvs = my_argvs()
+        procs = my_procs()
         for w in list(waiting):
-            if not any(matches(v, w) for v in argvs):
+            if not any(matches(v, w) for v in procs):
                 waiting.remove(w)
-                done[w["name"]] = "external"
-                say(f"EXTERNAL DONE {w['name']} result={'yes' if Path(w['done']).exists() else 'NO'}")
+                if Path(w["done"]).exists():
+                    done[w["name"]] = "external"
+                    say(f"EXTERNAL DONE {w['name']} result=yes")
+                elif w["name"] not in retried:
+                    retried.add(w["name"])
+                    queue.insert(0, w)
+                    say(f"EXTERNAL DONE {w['name']} result=NO -> re-queued once (it may have been mis-identified)")
+                else:
+                    done[w["name"]] = "external"
+                    say(f"EXTERNAL DONE {w['name']} result=NO (already re-queued once; giving up)")
         for j in list(queue):
             if Path(j["done"]).exists():
                 queue.remove(j)
                 done[j["name"]] = "skip"
                 say(f"SKIP {j['name']} (result exists)")
-            elif any(matches(v, j) for v in argvs):
+            elif any(matches(v, j) for v in procs):
                 queue.remove(j)
                 waiting.append(j)
                 say(f"WAIT {j['name']} (already running outside this queue)")
