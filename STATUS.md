@@ -135,6 +135,13 @@ L1-ESPIRiT 的行留在表里、标为不计入，所以它的 T1w HFEN 0.0756 �
 `p5_khp30`（T1w 高频数据权重 2.2→3.0，唯一对着 HFEN 的旋钮）、`p5_e0005_ptv001`（共同边缘 0.0005 + 相位 TV 0.01）、
 `p5_ptv003`、`p5_single_T1w_rot008`（单臂公平对照）。预期：PSNR/SSIM 两格有机会（jyz 上 +0.02–0.05），HFEN 差 0.0089 大概率补不上
 （3.6M 时 edge-TV 0.03→0.015 只动 0.0006）。
+**第一、二轮结果（19:50，主区域）**：相位 TV 0.01 是唯一动 T1w 的杠杆（+0.052 dB，SSIM 过线，HFEN 也降 0.0009）；rotation_lr 无效；
+T1w 高频权重 3.0 掉 0.07；共同边缘只涨 T2s、T1w 付 0.034；相位 TV 0.02/0.03 T1w 反降但 T2s 更好。
+**`p5_ptv001_i6000`（相位 TV 0.01 + 6000 步）= 当前最好：T1w 38.999 / 0.9692 / 0.0759，T2s 34.311 / 0.9094 / 0.1789，
+六格过五格**——T1w PSNR +0.006（对已登记单臂）、+0.001（对 16:37 已起跑的 6000 步单臂对照 38.998，未登记）、SSIM +0.0006、
+T2s 三格 +0.136 / +0.0042 / +0.0066；只剩 T1w HFEN 输 L1-SPIRiT（0.0759 对 0.0679），所有杠杆都没让它动过 0.001。
+在跑 / 排队：`p5_ptv001_i8000`、`p5_ptvp001c003_i6000`（新加的分对比度权重：T1w 0.01 / T2s 0.03）、`p5_ptv001_i6000_gp0015`。
+记录 `docs/superpowers/records/2026-09-16-16yo-mtp-stage5-levers.md`。
 ```
 cat /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro/logs/p5_sched.log          # 启动/停止
 grep -E "^p5_" /data0/congcong/code/GS/mcgs_peds_wt/autoresearch_peds.tsv | cut -f1,2,7,8,9,10,12,14   # 完成的行（主区域）

@@ -25,3 +25,13 @@ p5_ptv002 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.l
 # Round 2b (15:40): iterations 4000 -> 6000 on the phase-TV base (3.6M: joint +0.071); the weight is re-checked when
 # ptv002 / ptv003 land (a second 6000 run follows if 0.02 or 0.03 beats 0.01).
 ITERS=6000 p5_ptv001_i6000 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=9600000 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --lambda_ptv 0.01
+# Round 3 (19:45). Round 2: ptv 0.01 is the T1w optimum (0.02 -0.047, 0.03 -0.134 against the bar; a parabola through the
+# three puts the peak at 0.0105, so no finer scan); 6000 iterations lifted T1w to 38.999 (+0.006 over GS-single 9.6M,
+# +0.001 over the 6000-iteration single that had already launched at 16:37, before the user's no-more-controls decision).
+# Next: iterations 8000 on the same base, and T1w edge-TV 0.015 (3.6M: +0.003 dB, HFEN -0.0006).
+# 19:55 smoke of the per-contrast phase-TV weights (loss.lambda_ptv_plain / _contrast, new code): 60 iterations, 3.6M
+ITERS=60 p5_smoke_ptvsplit configs/peds_af12_T1w_T2s.yaml --warmup 20 --set loss.lambda_ptv_plain=0.01 --set loss.lambda_ptv_contrast=0.03
+# Round 3b: T1w keeps 0.01, T2s takes 0.03 (its SSIM 0.9118 / HFEN 0.1756 at 0.03 against 0.9094 / 0.1789 at 0.01)
+ITERS=6000 p5_ptvp001c003_i6000 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=9600000 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_ptv_plain=0.01 --set loss.lambda_ptv_contrast=0.03
+ITERS=8000 p5_ptv001_i8000 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=9600000 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --lambda_ptv 0.01
+ITERS=6000 p5_ptv001_i6000_gp0015 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.015 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=9600000 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --lambda_ptv 0.01

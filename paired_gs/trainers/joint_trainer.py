@@ -890,11 +890,15 @@ class JointTrainer:
         # R_ptv: phase-only TV (ported 2026-09-13 from the AF16 phase-2/3 line, losses/phase_tv.py).
         # Default 0 => the term is never built and the run is bit-identical to before.
         lambda_ptv = float(loss_cfg.get("lambda_ptv", 0.0))
-        if lambda_ptv > 0:
+        # Per-contrast weights (2026-09-16, the lambda_geo_plain / _contrast pattern): on the 16yo MTP pair T1w peaks
+        # at 0.01 and T2s keeps improving to 0.03. Both default to the shared value, so a run without them is unchanged.
+        ptv_lam_p = float(loss_cfg.get("lambda_ptv_plain", lambda_ptv))
+        ptv_lam_c = float(loss_cfg.get("lambda_ptv_contrast", lambda_ptv))
+        if ptv_lam_p > 0 or ptv_lam_c > 0:
             if not bool(loss_cfg.get("edge_tv", False)):
                 raise ValueError("loss.lambda_ptv reuses the edge-TV kappa / w_floor; enable loss.edge_tv")
             from losses.phase_tv import phase_tv
-            print(f"[phase-tv] lambda_ptv={lambda_ptv} eps={float(loss_cfg.get('tv_eps', 0.0))}")
+            print(f"[phase-tv] lambda_ptv plain={ptv_lam_p} contrast={ptv_lam_c} eps={float(loss_cfg.get('tv_eps', 0.0))}")
         # R_wav: L1 sparsity of the 3-D wavelet detail coefficients of the rendered volumes -- the
         # prior behind L1-wavelet ESPIRiT (losses/wavelet_l1.py). Default 0 => no-op, nothing imported,
         # no random numbers drawn, so a run without it is bit-identical to before.
@@ -1053,10 +1057,10 @@ class JointTrainer:
                 l_vtv = torch.tensor(0.0, device=self.device)
 
             # R_ptv: phase-only TV — the orthogonal part of the complex gradient (AF16 line, ported here).
-            if lambda_ptv > 0:
-                l_ptv = (phase_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor, self._tv_eps)
-                         + phase_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor, self._tv_eps))
-                loss = loss + lambda_ptv * l_ptv
+            if ptv_lam_p > 0 or ptv_lam_c > 0:          # l_ptv carries its weights (they differ per contrast)
+                l_ptv = (ptv_lam_p * phase_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor, self._tv_eps)
+                         + ptv_lam_c * phase_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor, self._tv_eps))
+                loss = loss + l_ptv
             else:
                 l_ptv = torch.tensor(0.0, device=self.device)
 
@@ -1109,7 +1113,7 @@ class JointTrainer:
                 "loss/R_edge": float((lambda_edge * l_edge).detach().item()),
                 "loss/R_vtv": float((lambda_vtv * l_vtv).detach().item()),
                 "loss/R_wav": float((lambda_wav * l_wav).detach().item()),
-                "loss/R_ptv": float((lambda_ptv * l_ptv).detach().item()),
+                "loss/R_ptv": float(l_ptv.detach().item()),
             }
             if lambda_sgtv > 0:
                 components["loss/R_sgtv"] = float((lambda_sgtv * l_sgtv).detach().item())
