@@ -100,14 +100,15 @@ defined once, in `scripts/run_all_diffmask.py`.
 
 ## Figures
 
-The house layouts, at the AF16 figure-of-record slices and box so nothing is re-selected on this mask. Eleven arms:
-CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT, ZS-SSDU, 3D-DIP, 3D-INR, MC-INR, GS-single, MC-GS, against the ground truth.
+House layouts, at the AF16 figure-of-record slices and box so nothing is re-selected on this mask. Twelve columns:
+ground truth, zero-filling, CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT, ZS-SSDU, 3D-DIP, 3D-INR, MC-INR, GS-single,
+MC-GS.
 
 | figure | what |
 |---|---|
-| `http://localhost:8765/t1flair_v3_af16_diffmask_gauss/t1flair_v3_af16g_T1_row3planes_compact_174_110_47_headerr_p3_spirit.png` | T1, transverse 174 / coronal 110 / sagittal 47, no inset |
+| `http://localhost:8765/t1flair_v3_af16_diffmask_gauss/t1flair_v3_af16g_T1_row3planes_compact_174_110_47_headerr_p3_spirit.png` | T1, transverse 174 / coronal 110 / sagittal 47 |
 | `http://localhost:8765/t1flair_v3_af16_diffmask_gauss/t1flair_v3_af16g_FLAIR_row3planes_compact_174_110_47_headerr_p3_spirit.png` | FLAIR, same slices |
-| `http://localhost:8765/t1flair_v3_af16_diffmask_gauss/t1flair_v3_af16g_T1_row3planes_compact_180_124_76_inset48_headerr_p3_spirit.png` | T1, figure-of-record layout, 48-voxel zoom inset (also `.pdf`, 600 dpi vector) |
+| `http://localhost:8765/t1flair_v3_af16_diffmask_gauss/t1flair_v3_af16g_T1_row3planes_compact_180_124_76_inset48_headerr_p3_spirit.png` | T1, figure of record, 48-voxel zoom inset (also `.pdf`, 600 dpi vector) |
 | `http://localhost:8765/t1flair_v3_af16_diffmask_gauss/t1flair_v3_af16g_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p3_spirit.png` | FLAIR, same (also `.pdf`) |
 | `http://localhost:8765/t1flair_v3_af16_diffmask/t1flair_v3_af16_diffmask_masks.png` | the four candidate masks side by side |
 | `http://localhost:8765/t1flair_v3_af16_diffmask/t1flair_v3_jyz_full_kspace.png` | the fully sampled k-space both contrasts are undersampled from |
@@ -115,6 +116,14 @@ CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT, ZS-SSDU, 3D-DIP, 3D-INR, MC-INR, GS-
 Files also live in this topic's `figures/`. Orange in-panel numbers are head-masked slice PSNR / SSIM (7x7 window) /
 NMSE, the best of each plane in bold; error maps are `|recon - GT| / max(GT)`, jet, fixed [0, 0.1], inside the head
 only; left of each error row is that plane's sampling mask.
+
+Zero-filling is the adjoint, so it barely uses the pattern and lands within 0.4 dB of itself on all three masks (head
+PSNR 25.4-25.8 on T1, 27.4-27.9 on FLAIR). It is the anchor showing the three studies start from the same place; what
+differs in its panel is the *shape* of the aliasing, noise-like on the random patterns and streaky on the radial one.
+
+The served folder and the file-name prefix are derived from the topic path inside `fig_three_planes_compact.py`, not
+hardcoded: a hardcoded copy of that script wrote this study's radial renders into the Gaussian folder under Gaussian
+names on 2026-09-16 and overwrote them. Both sets were re-rendered after the fix.
 
 ## The study's headline: does MC-GS's lead depend on the pattern?
 
@@ -152,9 +161,10 @@ of the study is that the ranking of the *methods* does not change with it.
 cross-contrast information being worth more when the single-contrast problem is harder -- an observation, not evidence.
 
 ## Known limitations
-- **The lambda grids were swept on this mask but the MC-GS recipe was not.** MC-GS and GS-single run the AF16 recipe
-  frozen, which is the point of the study (one variable), but it does mean the classical arms get a per-mask lambda
-  while MC-GS does not. If MC-GS still leads, that is in spite of the handicap, not because of it.
+- **Parameter selection, for the record.** MC-GS and GS-single run one frozen recipe (the AF16 phase-3 one) on all
+  three masks -- that is what makes the study single-variable. The classical arms' lambdas were re-selected on this
+  mask from the AF16 grids (CS-SENSE converged TV, joint TV, L1-SPIRiT); every winner here landed in the interior of
+  its grid, so those arms are at their grid optimum.
 - Everything the AF16 topic's own README lists as a limitation applies here unchanged: the recipe and the classical
   lambdas were selected on this subject, and the numbers are on the magnitude gauge.
 

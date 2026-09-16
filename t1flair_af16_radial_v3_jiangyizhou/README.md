@@ -100,14 +100,15 @@ defined once, in `scripts/run_all_diffmask.py`.
 
 ## Figures
 
-The house layouts, at the AF16 figure-of-record slices and box so nothing is re-selected on this mask. Eleven arms:
-CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT, ZS-SSDU, 3D-DIP, 3D-INR, MC-INR, GS-single, MC-GS, against the ground truth.
+House layouts, at the AF16 figure-of-record slices and box so nothing is re-selected on this mask. Twelve columns:
+ground truth, zero-filling, CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT, ZS-SSDU, 3D-DIP, 3D-INR, MC-INR, GS-single,
+MC-GS.
 
 | figure | what |
 |---|---|
-| `http://localhost:8765/t1flair_v3_af16_diffmask_radial/t1flair_v3_af16r_T1_row3planes_compact_174_110_47_headerr_p3_spirit.png` | T1, transverse 174 / coronal 110 / sagittal 47, no inset |
+| `http://localhost:8765/t1flair_v3_af16_diffmask_radial/t1flair_v3_af16r_T1_row3planes_compact_174_110_47_headerr_p3_spirit.png` | T1, transverse 174 / coronal 110 / sagittal 47 |
 | `http://localhost:8765/t1flair_v3_af16_diffmask_radial/t1flair_v3_af16r_FLAIR_row3planes_compact_174_110_47_headerr_p3_spirit.png` | FLAIR, same slices |
-| `http://localhost:8765/t1flair_v3_af16_diffmask_radial/t1flair_v3_af16r_T1_row3planes_compact_180_124_76_inset48_headerr_p3_spirit.png` | T1, figure-of-record layout, 48-voxel zoom inset (also `.pdf`, 600 dpi vector) |
+| `http://localhost:8765/t1flair_v3_af16_diffmask_radial/t1flair_v3_af16r_T1_row3planes_compact_180_124_76_inset48_headerr_p3_spirit.png` | T1, figure of record, 48-voxel zoom inset (also `.pdf`, 600 dpi vector) |
 | `http://localhost:8765/t1flair_v3_af16_diffmask_radial/t1flair_v3_af16r_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p3_spirit.png` | FLAIR, same (also `.pdf`) |
 | `http://localhost:8765/t1flair_v3_af16_diffmask/t1flair_v3_af16_diffmask_masks.png` | the four candidate masks side by side |
 | `http://localhost:8765/t1flair_v3_af16_diffmask/t1flair_v3_jyz_full_kspace.png` | the fully sampled k-space both contrasts are undersampled from |
@@ -115,6 +116,14 @@ CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT, ZS-SSDU, 3D-DIP, 3D-INR, MC-INR, GS-
 Files also live in this topic's `figures/`. Orange in-panel numbers are head-masked slice PSNR / SSIM (7x7 window) /
 NMSE, the best of each plane in bold; error maps are `|recon - GT| / max(GT)`, jet, fixed [0, 0.1], inside the head
 only; left of each error row is that plane's sampling mask.
+
+Zero-filling is the adjoint, so it barely uses the pattern and lands within 0.4 dB of itself on all three masks (head
+PSNR 25.4-25.8 on T1, 27.4-27.9 on FLAIR). It is the anchor showing the three studies start from the same place; what
+differs in its panel is the *shape* of the aliasing, noise-like on the random patterns and streaky on the radial one.
+
+The served folder and the file-name prefix are derived from the topic path inside `fig_three_planes_compact.py`, not
+hardcoded: a hardcoded copy of that script wrote this study's radial renders into the Gaussian folder under Gaussian
+names on 2026-09-16 and overwrote them. Both sets were re-rendered after the fix.
 
 ## The study's headline: does MC-GS's lead depend on the pattern?
 
@@ -155,9 +164,17 @@ cross-contrast information being worth more when the single-contrast problem is 
 - **FLAIR's known-zero prior is effectively inactive here.** The trainer estimates the elliptical vendor shutter from the mask points that land outside it; this mask puts only 27 points there and the estimator cannot fit the ellipse (`frac_z_used = 0.0000`, `explained = 0`), against 0.2180 / 35 on the Gaussian mask. That is a property of the pattern, not a fault: full-diameter spokes spend almost nothing in the corners. Read MC-GS's FLAIR row with it in mind.
 - **A full-diameter spoke is point-symmetric**, so every sampled point's conjugate is sampled too: 100 % of this mask's non-ACS points against 13.7 % (Gaussian) and 14.4 % (vd-Poisson). For an object with smooth phase that is redundancy, and it is inherent to radial phase encoding rather than a flaw in this draw.
 - **Radial phase encoding is not one of the standard 3-D head patterns.** The literature check of 2026-09-15 puts variable-density random (Lustig 2007) and the 2-D CAIPIRINHA lattice (Breuer 2006) beside vd-Poisson disc for 3-D head; ky-kz spokes are a real family (RPE, CIRCUS) whose home is cardiac and dynamic imaging. This topic is therefore the study's extra arm, kept because the user asked for it.
-- **The lambda grids were swept on this mask but the MC-GS recipe was not.** MC-GS and GS-single run the AF16 recipe
-  frozen, which is the point of the study (one variable), but it does mean the classical arms get a per-mask lambda
-  while MC-GS does not. If MC-GS still leads, that is in spite of the handicap, not because of it.
+- **Parameter selection, for the record.** MC-GS and GS-single run one frozen recipe (the AF16 phase-3 one) on all
+  three masks -- that is what makes the study single-variable. The classical arms' lambdas were re-selected on this
+  mask from the AF16 grids.
+- **On this mask the TV arms' lambdas are edge winners and the grid was not extended.** Converged CS-SENSE picks the
+  grid's top point on both contrasts (T1 0.0014, FLAIR 0.001) and joint TV picks 0.0014 on both: a pseudo-radial mask
+  needs stronger regularisation than the AF16 grids were drawn for, so those two arms sit at the edge of their sweep
+  rather than at an interior optimum, and their true optimum is somewhat above what this table shows. L1-SPIRiT's
+  winner is interior on both contrasts, so it is unaffected. The study's own headline margin, MC-GS over GS-single,
+  is unaffected too -- both run the same frozen recipe -- but a margin quoted over converged TV or joint TV on this
+  mask would be optimistic. Recording an edge winner rather than silently extending the grid is this project's
+  convention (the AF24 and cardiac topics do the same).
 - Everything the AF16 topic's own README lists as a limitation applies here unchanged: the recipe and the classical
   lambdas were selected on this subject, and the numbers are on the magnitude gauge.
 

@@ -18,7 +18,8 @@ volume) averaged over the head pixels, as slice_quality.py; NMSE = compute_nmse 
 sum (recon - GT)^2 / sum GT^2.
 Title: AF = PE-plane points / sampled points that carry that contrast's data (user decision 2026-09-14; AF_vs_full_rect in
 logs/prep_04_export.json): T1 24.00, FLAIR 25.51.
-Writes t1flair_v3_af16r_<contrast>_row3planes_compact_<tra>_<cor>_<sag>.png to the served figs folder and figures/.
+Writes t1flair_v3_af16<g|r>_<contrast>_row3planes_compact_<tra>_<cor>_<sag>.png to that topic's served figs folder
+and its figures/ (both derived from the topic path, so the two diff-mask topics cannot overwrite each other).
 """
 import argparse, json, re
 from pathlib import Path
@@ -61,6 +62,7 @@ ap.add_argument("--cbar_planes", type=int, nargs="+", default=[0, 1, 2], choices
                 help="which planes carry those colorbars (default all three; e.g. 0 = the transverse row only). Each "
                      "plane has its own grey window, so a plane without a bar has no scale of its own on the figure.")
 ap.add_argument("--with_mcinr", action="store_true", help="add the MC-INR (Niessen 2025) column after 3D-INR (recon/mcinr_<c>_complex.npy); off reproduces the nine-arm figures of 2026-09-13")
+ap.add_argument("--with_zf", action="store_true", help="add a zero-filling column immediately after the ground truth (recon/zf_<c>_complex.npy); off reproduces the figures that start at CG-SENSE")
 ap.add_argument("--inset", type=int, default=0, metavar="W",
                 help="full slices plus a WxW zoom inset in the bottom-left of every method panel, the box centred on "
                      "the point where the three slices meet (the face of the WxWxW cube of best_cube_mcgs.py); the box "
@@ -90,7 +92,12 @@ from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening, un
 from skimage.metrics import structural_similarity
 
 R = Path(__file__).resolve().parents[1]
-F = Path("/home/congcongliu/figs/t1flair_v3_af16_diffmask_radial"); F.mkdir(parents=True, exist_ok=True)
+# The served folder and the file-name prefix are DERIVED from this topic's path, never hardcoded: the two
+# diff-mask topics share this script, and a plain copy of a hardcoded version wrote the radial renders into the
+# Gaussian folder under Gaussian names on 2026-09-16, overwriting them. Deriving them makes that impossible.
+_KIND = R.name.split("T1FLAIR_AF16_")[1].split("_v3_")[0]          # gauss | radial
+_PREFIX = f"af16{_KIND[0]}"                                        # af16g | af16r
+F = Path(f"/home/congcongliu/figs/t1flair_v3_af16_diffmask_{_KIND}"); F.mkdir(parents=True, exist_ok=True)
 c = args.contrast
 METRIC_COLOR = "#FFC23D"          # orange-yellow for the in-panel metrics (user request 2026-09-11); best of each plane in bold
 SSIM_KW = (dict(win_size=7) if args.ssim == "uniform"
@@ -128,7 +135,8 @@ L1_ARMS = {"espirit": [("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espi
            "both": [("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espirit")),
                     ("spirit", "L1-SPIRiT", spirit_file())]}[args.l1_arm]
 
-ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
+ARMS = [*([("zf", "Zero-filling", R / f"recon/zf_{c}_complex.npy")] if args.with_zf else []),
+        ("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("cssense_o200", "CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
         ("jcssense", "Joint SENSE", lam_file("jcssense", "jcssense_o200")),
         *L1_ARMS,
@@ -342,8 +350,8 @@ _cap2 = (f"in every panel, the {args.inset}x{args.inset} box outlined on the sli
          + " / ".join(f"{_CN[args.inset_corner[a]]} ({ANAT[a]})" for a in (0, 1, 2)) if args.inset else "")
 fig.text(0.5, 1 - 0.40 / fh, ";   ".join(_cap) + ("\n" + _cap2 if _cap2 else ""),
          ha="center", va="top", fontsize=11)
-name = (f"t1flair_v3_af16r_{c}_cube{args.cube[3]}_{args.cube[0]}_{args.cube[1]}_{args.cube[2]}" if args.cube else
-        f"t1flair_v3_af16r_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}" + (f"_inset{args.inset}" if args.inset else "")) + f"{'_headerr' if args.mask_error else ''}{args.tag}.png"
+name = (f"t1flair_v3_{_PREFIX}_{c}_cube{args.cube[3]}_{args.cube[0]}_{args.cube[1]}_{args.cube[2]}" if args.cube else
+        f"t1flair_v3_{_PREFIX}_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}" + (f"_inset{args.inset}" if args.inset else "")) + f"{'_headerr' if args.mask_error else ''}{args.tag}.png"
 for d in (F, R / "figures"):
     fig.savefig(d / name, dpi=130)
     if args.pdf:
