@@ -192,14 +192,119 @@ single-scan and joint GS columns are relabelled GS-single and MC-GS. The 09-08 8
 as `figures/ce_pair_recon_3planes_8col_20260908.{png,pdf}`. Since 2026-09-15 the axial panels of both figures are
 shown anterior (eyes) up: the array slice v[z] without the former rot90; A-P index 0 is anterior. Sagittal panels
 still show anterior on the right. Both figure scripts cache their per-volume magnitudes in `figures/cache/`, so
-a re-render takes seconds while the input volumes are unchanged; pass `--recompute` to rebuild. The coronal and sagittal planes pass through
-the voxel with the strongest smoothed positive CG-SENSE post-minus-pre difference. This is an intensity
-landmark, not an annotated lesion.
+a re-render takes seconds while the input volumes are unchanged; pass `--recompute` to rebuild.
+
+Slices (user, 2026-09-15: every method, pre and post, on the lesion slices in all three planes): both figures now
+cut through the lesion core at axial z=201, coronal y=131, sagittal x=48 (`--slices`, default; see "Slices through
+the lesion" below). The error-map figure is drawn once per plane: `ce_pair_methods_errormap{,_coronal,_sagittal}{,_zoom}.png`,
+with `layout="compressed"` because tight_layout let the kres labels run into the next row on the wide sagittal panels.
+The previous render is kept as `*_l1spirit_z170_20260915`: axial 170, with coronal 162 and sagittal 86 taken from the
+strongest smoothed CG-SENSE post-minus-pre voxel, which is not the lesion. In the new coronal and sagittal error maps
+MC-INR shows horizontal stripes: it fits one network per readout (S-I) slice, so neighbouring slices are not tied.
+
+Enhancement version (2026-09-16, `ce_figure_paper.py --diff` -> `ce_pair_recon_3planes_enhancement.{png,pdf}`): the same
+11 methods and the same three planes, but 9 rows, pre / post / post - pre per plane, the lesion core outlined in orange
+and, under each column, the method's post minus pre in the reference regions of `enhance_rois_cssense.npz`. The displayed
+difference is smoothed (sigma `--dsmooth` 1.0, the numbers are not) and shares the common intensity scale;
+`--dvmax` 0.20 is 0.6 white-matter units. Per method (post minus pre, each scan in its own white-matter units):
+
+```
+              vessels  plexus  cortex     WM  lesion core
+ZF              +1.81   +0.52   +0.099  +0.007   +0.019
+CG-SENSE        +2.80   +1.10   +0.103  +0.002   +0.022
+CS-SENSE        +2.84   +1.08   +0.105  +0.003   +0.021
+Joint SENSE     +2.81   +1.04   +0.103  +0.003   +0.021
+L1-SPIRiT       +2.86   +1.11   +0.101  -0.001   +0.021
+ZS-SSDU         +3.02   +1.21   +0.110  +0.003   +0.023
+3D-DIP          +2.60   +0.77   +0.109  +0.002   +0.057
+3D-INR          +2.88   +1.17   +0.106  +0.004   +0.029
+MC-INR          +2.86   +1.13   +0.102  +0.001   +0.022
+GS-single       +2.92   +1.16   +0.108  +0.004   +0.021
+MC-GS           +2.92   +1.15   +0.106  +0.003   +0.024
+```
+
+There is no ground truth, so these compare the methods with each other, not with truth. ZF and 3D-DIP keep much less of
+the enhancement of small structures (vessels, choroid plexus), and 3D-DIP also puts +0.057 into a lesion that does not
+enhance. MC-GS matches GS-single, so the joint arm does not suppress the difference between the two scans here.
+
+Lesion boundary (asked 2026-09-16: does MC-GS hold the boundary better?). `scripts/ce_edge_profile.py` fixes one
+boundary - the outer margin of the T1-dark lesion, thresholded once on CS-SENSE inside a box and anchored on the core
+mask (37.7 mL at `--lesion_thr` 0.65) - and measures every arm against it: the intensity profile against signed
+distance, the equivalent-rectangle width (step / max slope), the 20-80% width, the shift of the 50% crossing between
+pre and post, the mean gradient in the 1.5 mm rim, and the high-frequency std in normal white matter as a noise
+stand-in. Result (pre): equivalent width 2.57-2.61 mm for every arm except ZF 3.13 and 3D-DIP 2.71; 20-80% width
+1.55-1.69 except ZF 2.72; the 50% crossing moves 0.12-0.19 mm between the two scans for all of them. MC-GS is 2.59 /
+1.61 / 0.18, i.e. the same as CS-SENSE (2.60 / 1.62 / 0.18) and GS-single (2.61 / 1.62 / 0.17). **No arm preserves
+this boundary better than another**, and the arms that look sharper are the noisy ones: the rim gradient divided by
+the white-matter high frequency is 1.02-1.15 for all eleven, so what the gradient measures at this edge is mostly
+noise. The lesion margin itself is a 2.6 mm ramp at 1 mm voxels, far coarser than the differences between
+reconstructions; answering the question needs ground truth (retrospective undersampling of BMSR / PDGM) and a
+boundary metric against it. Figure `ce_pair_lesion_edge_profile.png`, numbers in `lesion_edge_profile.json`.
+Three traps in building this measure, all fixed: the core's own boundary sits inside a gradual ramp and gives every
+arm the same 8 mm; thresholding without a brain mask takes the whole head (8 M voxels); and `distance_transform_edt`
+puts no voxel within 1 mm of the surface, so the central bins are empty unless the interface is offset by 0.5.
+
+Zoomed version for the proposed arm (`ce_figure_paper.py --zoom` -> `ce_pair_zoom_mcgs.png`): one axial slice, three
+rows of 72 x 72 mm crops with a locator column - the lesion and a vessel region in post minus pre, and the background
+outside the head in the post image. The boxes are picked automatically (lesion from the core mask, vessel box = the
+window with the most voxels above 0.3 white-matter units in CS-SENSE and clear of the lesion, background = the window
+free of the dilated head that carries the most signal). The numbers under each crop are whole-volume statistics, not
+crop statistics: lesion core and vessels are ROI means of post minus pre, background is the mean of the post image
+outside the head mask dilated by 6 mm, all in white-matter units. Background: 3D-DIP 0.878, 3D-INR 0.427, MC-INR 0.122,
+ZS-SSDU 0.024, CG-SENSE 0.013, ZF 0.010, L1-SPIRiT 0.009, GS-single 0.009, MC-GS 0.008, CS-SENSE / Joint SENSE 0.005.
+So among the arms that fit one scan with an untrained representation, MC-GS is the only one that at the same time keeps
+the vessel enhancement (+2.92, second only to ZS-SSDU's +3.02), adds no enhancement to the non-enhancing lesion
+(+0.024) and leaves a background as clean as the classical arms (0.008 against 0.878 for 3D-DIP).
 
 Scheduling notes: GPU jobs take a card only when no process of this user is on it, with at most two cards
 in use. A rule requiring the card to be free on two consecutive 60 s polls never fired, because other
 sessions refill a freed card within a minute; a single poll every 15 s works. Kill jobs by PID only:
 `pkill -f` also matches the invoking shell and any monitor script.
+
+## Data bundle of the figure of record (2026-09-15)
+
+`export/ce_l1spirit_20260915/` (15.05 GiB, 87 files, real copies, `md5sum -c checksums.md5` 87/87 OK):
+- the 100%-line volume of each of the 11 shown arms plus L1-ESPIRiT, per scan;
+- the 42-coil k-space, coil maps and mask; the held-out split; tables, selection records and run metas;
+- the figures.
+Its README gives layout, units (GS volumes need a transpose and the P99.9 scale) and a loader. It is written by
+`scripts/export_ce_bundle.py` (`--no_raw` skips the 14 GiB of k-space and maps). Not de-identified: server only.
+
+## Slices through the lesion (2026-09-15)
+
+There is no annotation or clinical report for this exam. The automatic search for focal enhancement
+(`ce_lesion_candidates.py analyze`, `blobs`) returned only vessels, dural sinuses and choroid plexus. A lesion was
+found by eye on the axial montage instead: image-left upper hemisphere, T1-dark and lobulated with a darker core,
+seen on both scans. `ce_lesion_candidates.py slices` (CS-SENSE, white-matter units) keeps the largest component of
+smoothed pre < 0.32 inside a box set by eye (z 180:224, y 75:155, x 22:82):
+- core 6039 mm3, centroid (z 202.1, y 124.9, x 48.4), extent z 190-217, y 105-140, x 33-60; mean pre 0.255,
+  post 0.276, so the core does not clearly enhance; SynthSeg label 42.
+- slices where the core is largest: axial z=201 (446 mm2; within 10% for z 199-203), coronal y=131 (279 mm2;
+  y 130-135; a second lobe peaks at y=122, 216 mm2), sagittal x=48 (384 mm2; x 47-54).
+- figure `/home/congcongliu/figs/ce_pair/lesion_candidates/lesion_slices_z201_y131_x48.png`, numbers in
+  `lesion_candidates/lesion_cores_cssense.json`. Chain: `prep` (SynthSeg, CPU) -> `analyze` (labels) -> `slices`.
+- Both comparison figures use these slices since 2026-09-15; their earlier planes (z 170, y 162, x 86) missed the
+  core. The lesion figure shows sagittal anterior left; the comparison figures show it anterior right.
+- **The lesion does not enhance** (asked 2026-09-16: a slice subtle on pre but obvious on post). post minus pre in
+  WM units: core 0.021, rim 0-3 mm 0.026, rim 3-6 mm 0.009, against 0.003 for all white matter and 0.046 / 0.061 /
+  0.035 for the mirrored contralateral regions, i.e. the lesion side enhances *less* than the normal side. Its
+  contrast against its own 3-6 mm surroundings falls from 0.303 (pre) to 0.291 (post). A whole-brain search for
+  foci that look like normal tissue on pre and bright on post (difference of Gaussians on each scan, inside
+  parenchyma, away from ventricles) returns only vessels, sinuses and choroid plexus: of 218 blob peaks the
+  blob-shaped deep survivors are 1, a vessel at (148, 133, 114). The densest such slice is z=129 (761 mm2), the
+  skull base. Evidence figures: `lesion_lower_slices_scan.png` (z 180-198), `post_only_candidate_z148.png`,
+  `post_only_is_vessels_z129.png`.
+- **What the static post-contrast scan does show** (`ce_lesion_candidates.py enhance` -> `enhance_rois_cssense.json`,
+  `enhancement_explained_z201_y131_x48.png`): barrier leakage and blood pool, not flow. Mean post minus pre in WM
+  units: normal WM +0.004 (barrier intact, gadolinium stays intravascular and brain blood volume is only 3-5%),
+  vessels and dural sinuses +2.858 (blood pool), choroid plexus +1.087 (no barrier there), normal cortex +0.105
+  (cortical and pial vessels, partial volume, not leakage), lesion core +0.021 and its 0-3 mm rim +0.028. The figure
+  draws the three lesion planes as pre / post / post - pre with the enhancing set (cyan) and the core (orange)
+  outlined: the cyan set traces vessels, sulci and scalp and never enters the lesion.
+- Not a diagnosis. Patient left/right is not recorded; label 42 reads "right cortex" only under the assumed
+  radiological convention.
+- Do not use `lesion_mask_cssense.npy`, `lesion_mask_thr0.55/0.6.npy` or `lesion_measure_cssense.json`: those
+  threshold segmentations leaked into CSF and across the midline (82-199 mL).
 
 ## Layout
 
@@ -252,7 +357,7 @@ env $E $PY $R/scripts/ce_gs.py --mode joint --gpu 0 --iters 4000 --warmup 500 \
 bash $R/scripts/run_classical.sh     # ZF/CG/CS + ZS-SSDU, GPUs 3/5/6
 bash $R/scripts/run_dip_inr.sh       # 3D-DIP + 3D-INR, GPUs 0-3
 
-env $E $PY $R/scripts/ce_figure.py       --gpu 0 --slice 170   # 8-col image + error-map figure
+env $E $PY $R/scripts/ce_figure.py       --gpu 0               # image + error-map figures (09-08: axial only, --slice 170)
 env $E $PY $R/scripts/ce_figure_paper.py --gpu 0               # paper figure, 600 dpi + PDF (11 cols; --gpu -1 = CPU)
 
 # 09-14 arms (Joint SENSE, L1-ESPIRiT, MC-INR, converged CS-SENSE): split, then the scheduler runs everything
@@ -261,7 +366,8 @@ cd $R && env $E setsid nohup $PY -u scripts/ce_orchestrate.py >> logs/ext_202609
 #   restartable; writes logs/ext_20260914/ALL_DONE when finished. GPU ~2 h on two A800/A100, BART ~1 h CPU.
 cd $R && env $E setsid nohup $PY -u scripts/ce_orchestrate.py heldout4 >> logs/ext_20260914/orchestrate_heldout4.log 2>&1 &
 #   09-15 held-out runs of CG-SENSE, ZS-SSDU, GS-single, MC-GS + ce_score_heldout.py (GPU ~4.5 h, ALL_DONE_heldout4)
-env $E $PY $R/scripts/ce_figure.py --gpu -1 --slice 170           # 11-col image + error-map figure (CPU ok)
+env $E $PY $R/scripts/ce_figure.py --gpu -1                       # 11-col image + error-map figures, three planes (CPU ok)
+env $E $PY $R/scripts/ce_figure_paper.py --gpu -1                 # both default to --slices 201,131,48 (lesion core)
 ```
 
 ## Gotchas that cost time (do not re-discover)

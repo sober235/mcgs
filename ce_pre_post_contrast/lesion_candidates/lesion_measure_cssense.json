@@ -1,0 +1,43 @@
+{
+ "lesion_voxels_mm3": 198823,
+ "lesion_centroid_zyx": [
+  208.0,
+  98.9,
+  52.3
+ ],
+ "lesion_extent": {
+  "z": [
+   178,
+   227
+  ],
+  "y": [
+   55,
+   154
+  ],
+  "x": [
+   20,
+   91
+  ]
+ },
+ "max_area_slices": {
+  "axial_z": 225,
+  "coronal_y": 57,
+  "sagittal_x": 85
+ },
+ "max_areas_mm2": {
+  "axial": 6116,
+  "coronal": 2778,
+  "sagittal": 4127
+ },
+ "core_centroid_zyx": [
+  201.1,
+  119.2,
+  47.7
+ ],
+ "core_voxels": 3102,
+ "pre_mean_in_lesion": 0.33042800426483154,
+ "post_mean_in_lesion": 0.42500144243240356,
+ "post_over_pre_in_lesion": 1.2862149477005005,
+ "rim_post_minus_pre": 0.10983738303184509,
+ "wm_ref_post_minus_pre": 0.0033229170367121696
+}

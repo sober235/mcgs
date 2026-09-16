@@ -1,0 +1,5686 @@
+{
+ "report": {
+  "recon": "cssense",
+  "method": "hessian blobs",
+  "scales": "1.5,2.5,4",
+  "depth_mm": 3.0,
+  "dmin": 0.25,
+  "bmin": 0.05,
+  "n": 218,
+  "post_vs_pre_shift_voxels": [
+   0,
+   0,
+   0
+  ]
+ },
+ "candidates": [
+  {
+   "centroid_si_ap_lr": [
+    133,
+    196,
+    81
+   ],
+   "blob": 0.296,
+   "scale_vox": 4.0,
+   "D": 3.762,
+   "ratio": 5.03,
+   "pre_wm_units": 0.93,
+   "label": "R cortex",
+   "depth_mm": 5.4,
+   "to_ventricle_mm": 35.8,
+   "score": 1.112,
+   "rank": 1,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 3.762,
+   "ratio_mean": 5.03
+  },
+  {
+   "centroid_si_ap_lr": [
+    131,
+    174,
+    34
+   ],
+   "blob": 0.27,
+   "scale_vox": 2.5,
+   "D": 2.779,
+   "ratio": 4.62,
+   "pre_wm_units": 0.77,
+   "label": "R cerebellum ctx",
+   "depth_mm": 3.6,
+   "to_ventricle_mm": 31.4,
+   "score": 0.7494,
+   "rank": 2,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 2.779,
+   "ratio_mean": 4.62
+  },
+  {
+   "centroid_si_ap_lr": [
+    134,
+    184,
+    106
+   ],
+   "blob": 0.344,
+   "scale_vox": 1.5,
+   "D": 1.811,
+   "ratio": 3.1,
+   "pre_wm_units": 0.86,
+   "label": "L cerebellum ctx",
+   "depth_mm": 19.1,
+   "to_ventricle_mm": 25.2,
+   "score": 0.6237,
+   "rank": 3,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.811,
+   "ratio_mean": 3.1
+  },
+  {
+   "centroid_si_ap_lr": [
+    136,
+    199,
+    90
+   ],
+   "blob": 0.155,
+   "scale_vox": 4.0,
+   "D": 3.353,
+   "ratio": 3.97,
+   "pre_wm_units": 1.13,
+   "label": "L cortex",
+   "depth_mm": 6.5,
+   "to_ventricle_mm": 39.6,
+   "score": 0.5204,
+   "rank": 4,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 3.353,
+   "ratio_mean": 3.97
+  },
+  {
+   "centroid_si_ap_lr": [
+    133,
+    197,
+    96
+   ],
+   "blob": 0.147,
+   "scale_vox": 1.5,
+   "D": 3.492,
+   "ratio": 4.18,
+   "pre_wm_units": 1.1,
+   "label": "L cortex",
+   "depth_mm": 7.8,
+   "to_ventricle_mm": 36.9,
+   "score": 0.5139,
+   "rank": 5,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 3.492,
+   "ratio_mean": 4.18
+  },
+  {
+   "centroid_si_ap_lr": [
+    126,
+    164,
+    31
+   ],
+   "blob": 0.158,
+   "scale_vox": 4.0,
+   "D": 3.083,
+   "ratio": 5.09,
+   "pre_wm_units": 0.75,
+   "label": "R cerebellum ctx",
+   "depth_mm": 4.1,
+   "to_ventricle_mm": 32.5,
+   "score": 0.4863,
+   "rank": 6,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 3.083,
+   "ratio_mean": 5.09
+  },
+  {
+   "centroid_si_ap_lr": [
+    135,
+    168,
+    137
+   ],
+   "blob": 0.175,
+   "scale_vox": 1.5,
+   "D": 2.337,
+   "ratio": 3.15,
+   "pre_wm_units": 1.09,
+   "label": "L cortex",
+   "depth_mm": 7.0,
+   "to_ventricle_mm": 27.1,
+   "score": 0.4085,
+   "rank": 7,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 2.337,
+   "ratio_mean": 3.15
+  },
+  {
+   "centroid_si_ap_lr": [
+    201,
+    183,
+    82
+   ],
+   "blob": 0.213,
+   "scale_vox": 1.5,
+   "D": 1.737,
+   "ratio": 3.46,
+   "pre_wm_units": 0.71,
+   "label": "R cortex",
+   "depth_mm": 10.0,
+   "to_ventricle_mm": 40.1,
+   "score": 0.3702,
+   "rank": 8,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.737,
+   "ratio_mean": 3.46
+  },
+  {
+   "centroid_si_ap_lr": [
+    132,
+    188,
+    70
+   ],
+   "blob": 0.195,
+   "scale_vox": 1.5,
+   "D": 1.609,
+   "ratio": 2.98,
+   "pre_wm_units": 0.81,
+   "label": "R cortex",
+   "depth_mm": 14.0,
+   "to_ventricle_mm": 29.3,
+   "score": 0.3134,
+   "rank": 9,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.609,
+   "ratio_mean": 2.98
+  },
+  {
+   "centroid_si_ap_lr": [
+    138,
+    176,
+    137
+   ],
+   "blob": 0.133,
+   "scale_vox": 1.5,
+   "D": 2.31,
+   "ratio": 2.95,
+   "pre_wm_units": 1.19,
+   "label": "L cortex",
+   "depth_mm": 4.5,
+   "to_ventricle_mm": 28.1,
+   "score": 0.3072,
+   "rank": 10,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 2.31,
+   "ratio_mean": 2.95
+  },
+  {
+   "centroid_si_ap_lr": [
+    140,
+    193,
+    47
+   ],
+   "blob": 0.176,
+   "scale_vox": 1.5,
+   "D": 1.596,
+   "ratio": 3.41,
+   "pre_wm_units": 0.66,
+   "label": "R cortex",
+   "depth_mm": 3.3,
+   "to_ventricle_mm": 30.9,
+   "score": 0.2805,
+   "rank": 11,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.596,
+   "ratio_mean": 3.41
+  },
+  {
+   "centroid_si_ap_lr": [
+    190,
+    199,
+    78
+   ],
+   "blob": 0.142,
+   "scale_vox": 1.5,
+   "D": 1.947,
+   "ratio": 3.06,
+   "pre_wm_units": 0.95,
+   "label": "R cortex",
+   "depth_mm": 3.6,
+   "to_ventricle_mm": 46.3,
+   "score": 0.2766,
+   "rank": 12,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.947,
+   "ratio_mean": 3.06
+  },
+  {
+   "centroid_si_ap_lr": [
+    131,
+    199,
+    114
+   ],
+   "blob": 0.053,
+   "scale_vox": 1.5,
+   "D": 4.958,
+   "ratio": 5.03,
+   "pre_wm_units": 1.23,
+   "label": "L cortex",
+   "depth_mm": 3.3,
+   "to_ventricle_mm": 36.9,
+   "score": 0.2642,
+   "rank": 13,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 4.958,
+   "ratio_mean": 5.03
+  },
+  {
+   "centroid_si_ap_lr": [
+    132,
+    105,
+    104
+   ],
+   "blob": 0.248,
+   "scale_vox": 1.5,
+   "D": 1.034,
+   "ratio": 3.35,
+   "pre_wm_units": 0.44,
+   "label": "L cortex",
+   "depth_mm": 7.3,
+   "to_ventricle_mm": 11.7,
+   "score": 0.2564,
+   "rank": 14,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.034,
+   "ratio_mean": 3.35
+  },
+  {
+   "centroid_si_ap_lr": [
+    132,
+    180,
+    129
+   ],
+   "blob": 0.076,
+   "scale_vox": 1.5,
+   "D": 3.156,
+   "ratio": 4.2,
+   "pre_wm_units": 0.99,
+   "label": "L cerebellum ctx",
+   "depth_mm": 7.5,
+   "to_ventricle_mm": 29.0,
+   "score": 0.2407,
+   "rank": 15,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 3.156,
+   "ratio_mean": 4.2
+  },
+  {
+   "centroid_si_ap_lr": [
+    142,
+    103,
+    114
+   ],
+   "blob": 0.193,
+   "scale_vox": 1.5,
+   "D": 1.172,
+   "ratio": 3.42,
+   "pre_wm_units": 0.48,
+   "label": "L cortex",
+   "depth_mm": 11.8,
+   "to_ventricle_mm": 14.1,
+   "score": 0.2263,
+   "rank": 16,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.172,
+   "ratio_mean": 3.42
+  },
+  {
+   "centroid_si_ap_lr": [
+    138,
+    186,
+    94
+   ],
+   "blob": 0.167,
+   "scale_vox": 1.5,
+   "D": 1.197,
+   "ratio": 2.61,
+   "pre_wm_units": 0.74,
+   "label": "L cortex",
+   "depth_mm": 17.7,
+   "to_ventricle_mm": 28.3,
+   "score": 0.1998,
+   "rank": 17,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.197,
+   "ratio_mean": 2.61
+  },
+  {
+   "centroid_si_ap_lr": [
+    149,
+    184,
+    85
+   ],
+   "blob": 0.111,
+   "scale_vox": 1.5,
+   "D": 1.758,
+   "ratio": 3.28,
+   "pre_wm_units": 0.77,
+   "label": "L cortex",
+   "depth_mm": 24.8,
+   "to_ventricle_mm": 29.7,
+   "score": 0.1954,
+   "rank": 18,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.758,
+   "ratio_mean": 3.28
+  },
+  {
+   "centroid_si_ap_lr": [
+    145,
+    98,
+    123
+   ],
+   "blob": 0.172,
+   "scale_vox": 1.5,
+   "D": 1.088,
+   "ratio": 3.32,
+   "pre_wm_units": 0.47,
+   "label": "L cortex",
+   "depth_mm": 13.5,
+   "to_ventricle_mm": 20.6,
+   "score": 0.1877,
+   "rank": 19,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.088,
+   "ratio_mean": 3.32
+  },
+  {
+   "centroid_si_ap_lr": [
+    134,
+    169,
+    124
+   ],
+   "blob": 0.12,
+   "scale_vox": 1.5,
+   "D": 1.566,
+   "ratio": 2.8,
+   "pre_wm_units": 0.87,
+   "label": "L cortex",
+   "depth_mm": 17.2,
+   "to_ventricle_mm": 21.4,
+   "score": 0.1876,
+   "rank": 20,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.566,
+   "ratio_mean": 2.8
+  },
+  {
+   "centroid_si_ap_lr": [
+    128,
+    191,
+    52
+   ],
+   "blob": 0.076,
+   "scale_vox": 2.5,
+   "D": 2.461,
+   "ratio": 3.63,
+   "pre_wm_units": 0.94,
+   "label": "R cortex",
+   "depth_mm": 3.5,
+   "to_ventricle_mm": 35.6,
+   "score": 0.1874,
+   "rank": 21,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 2.461,
+   "ratio_mean": 3.63
+  },
+  {
+   "centroid_si_ap_lr": [
+    176,
+    164,
+    85
+   ],
+   "blob": 0.132,
+   "scale_vox": 1.5,
+   "D": 1.403,
+   "ratio": 3.36,
+   "pre_wm_units": 0.59,
+   "label": "L cortex",
+   "depth_mm": 37.7,
+   "to_ventricle_mm": 15.0,
+   "score": 0.1859,
+   "rank": 22,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.403,
+   "ratio_mean": 3.36
+  },
+  {
+   "centroid_si_ap_lr": [
+    167,
+    163,
+    88
+   ],
+   "blob": 0.126,
+   "scale_vox": 1.5,
+   "D": 1.466,
+   "ratio": 3.6,
+   "pre_wm_units": 0.56,
+   "label": "L cortex",
+   "depth_mm": 30.7,
+   "to_ventricle_mm": 13.4,
+   "score": 0.1853,
+   "rank": 23,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.466,
+   "ratio_mean": 3.6
+  },
+  {
+   "centroid_si_ap_lr": [
+    105,
+    147,
+    113
+   ],
+   "blob": 0.112,
+   "scale_vox": 2.5,
+   "D": 1.646,
+   "ratio": 3.72,
+   "pre_wm_units": 0.61,
+   "label": "L cerebellum ctx",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 25.8,
+   "score": 0.1844,
+   "rank": 24,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.646,
+   "ratio_mean": 3.72
+  },
+  {
+   "centroid_si_ap_lr": [
+    139,
+    186,
+    82
+   ],
+   "blob": 0.118,
+   "scale_vox": 1.5,
+   "D": 1.518,
+   "ratio": 2.95,
+   "pre_wm_units": 0.78,
+   "label": "R cortex",
+   "depth_mm": 16.5,
+   "to_ventricle_mm": 29.6,
+   "score": 0.179,
+   "rank": 25,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.518,
+   "ratio_mean": 2.95
+  },
+  {
+   "centroid_si_ap_lr": [
+    155,
+    210,
+    69
+   ],
+   "blob": 0.136,
+   "scale_vox": 1.5,
+   "D": 1.233,
+   "ratio": 2.07,
+   "pre_wm_units": 1.15,
+   "label": "R cortex",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 44.1,
+   "score": 0.1671,
+   "rank": 26,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.233,
+   "ratio_mean": 2.07
+  },
+  {
+   "centroid_si_ap_lr": [
+    101,
+    157,
+    43
+   ],
+   "blob": 0.07,
+   "scale_vox": 2.5,
+   "D": 2.355,
+   "ratio": 4.55,
+   "pre_wm_units": 0.66,
+   "label": "R cerebellum ctx",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 33.7,
+   "score": 0.1658,
+   "rank": 27,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 2.355,
+   "ratio_mean": 4.55
+  },
+  {
+   "centroid_si_ap_lr": [
+    146,
+    207,
+    62
+   ],
+   "blob": 0.123,
+   "scale_vox": 1.5,
+   "D": 1.316,
+   "ratio": 2.26,
+   "pre_wm_units": 1.04,
+   "label": "R cortex",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 41.0,
+   "score": 0.1625,
+   "rank": 28,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.316,
+   "ratio_mean": 2.26
+  },
+  {
+   "centroid_si_ap_lr": [
+    138,
+    108,
+    65
+   ],
+   "blob": 0.154,
+   "scale_vox": 1.5,
+   "D": 1.026,
+   "ratio": 3.26,
+   "pre_wm_units": 0.45,
+   "label": "R cortex",
+   "depth_mm": 7.5,
+   "to_ventricle_mm": 13.0,
+   "score": 0.158,
+   "rank": 29,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.026,
+   "ratio_mean": 3.26
+  },
+  {
+   "centroid_si_ap_lr": [
+    166,
+    160,
+    83
+   ],
+   "blob": 0.111,
+   "scale_vox": 2.5,
+   "D": 1.389,
+   "ratio": 3.04,
+   "pre_wm_units": 0.68,
+   "label": "R cerebral WM",
+   "depth_mm": 28.2,
+   "to_ventricle_mm": 12.0,
+   "score": 0.1536,
+   "rank": 30,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.389,
+   "ratio_mean": 3.04
+  },
+  {
+   "centroid_si_ap_lr": [
+    140,
+    190,
+    77
+   ],
+   "blob": 0.172,
+   "scale_vox": 1.5,
+   "D": 0.872,
+   "ratio": 1.96,
+   "pre_wm_units": 0.91,
+   "label": "R cortex",
+   "depth_mm": 15.4,
+   "to_ventricle_mm": 32.8,
+   "score": 0.1503,
+   "rank": 31,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.872,
+   "ratio_mean": 1.96
+  },
+  {
+   "centroid_si_ap_lr": [
+    112,
+    147,
+    100
+   ],
+   "blob": 0.166,
+   "scale_vox": 1.5,
+   "D": 0.895,
+   "ratio": 2.84,
+   "pre_wm_units": 0.49,
+   "label": "L cerebellum ctx",
+   "depth_mm": 9.6,
+   "to_ventricle_mm": 12.8,
+   "score": 0.1489,
+   "rank": 32,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.895,
+   "ratio_mean": 2.84
+  },
+  {
+   "centroid_si_ap_lr": [
+    124,
+    193,
+    64
+   ],
+   "blob": 0.082,
+   "scale_vox": 4.0,
+   "D": 1.803,
+   "ratio": 2.88,
+   "pre_wm_units": 0.96,
+   "label": "R cerebellum ctx",
+   "depth_mm": 4.1,
+   "to_ventricle_mm": 34.5,
+   "score": 0.1476,
+   "rank": 33,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.803,
+   "ratio_mean": 2.88
+  },
+  {
+   "centroid_si_ap_lr": [
+    141,
+    198,
+    52
+   ],
+   "blob": 0.123,
+   "scale_vox": 1.5,
+   "D": 1.089,
+   "ratio": 2.28,
+   "pre_wm_units": 0.85,
+   "label": "R cortex",
+   "depth_mm": 3.6,
+   "to_ventricle_mm": 33.9,
+   "score": 0.1336,
+   "rank": 34,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.089,
+   "ratio_mean": 2.28
+  },
+  {
+   "centroid_si_ap_lr": [
+    134,
+    204,
+    76
+   ],
+   "blob": 0.098,
+   "scale_vox": 1.5,
+   "D": 1.319,
+   "ratio": 2.63,
+   "pre_wm_units": 0.81,
+   "label": "R cortex",
+   "depth_mm": 4.6,
+   "to_ventricle_mm": 43.8,
+   "score": 0.1298,
+   "rank": 35,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.319,
+   "ratio_mean": 2.63
+  },
+  {
+   "centroid_si_ap_lr": [
+    185,
+    167,
+    145
+   ],
+   "blob": 0.094,
+   "scale_vox": 1.5,
+   "D": 1.364,
+   "ratio": 2.36,
+   "pre_wm_units": 1.0,
+   "label": "L cortex",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 36.2,
+   "score": 0.1282,
+   "rank": 36,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.364,
+   "ratio_mean": 2.36
+  },
+  {
+   "centroid_si_ap_lr": [
+    165,
+    172,
+    86
+   ],
+   "blob": 0.08,
+   "scale_vox": 1.5,
+   "D": 1.54,
+   "ratio": 3.37,
+   "pre_wm_units": 0.65,
+   "label": "L cortex",
+   "depth_mm": 34.0,
+   "to_ventricle_mm": 22.0,
+   "score": 0.1236,
+   "rank": 37,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.54,
+   "ratio_mean": 3.37
+  },
+  {
+   "centroid_si_ap_lr": [
+    159,
+    119,
+    126
+   ],
+   "blob": 0.131,
+   "scale_vox": 1.5,
+   "D": 0.916,
+   "ratio": 2.94,
+   "pre_wm_units": 0.47,
+   "label": "L cortex",
+   "depth_mm": 21.0,
+   "to_ventricle_mm": 18.8,
+   "score": 0.1202,
+   "rank": 38,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.916,
+   "ratio_mean": 2.94
+  },
+  {
+   "centroid_si_ap_lr": [
+    163,
+    115,
+    136
+   ],
+   "blob": 0.14,
+   "scale_vox": 1.5,
+   "D": 0.857,
+   "ratio": 2.22,
+   "pre_wm_units": 0.7,
+   "label": "L cortex",
+   "depth_mm": 10.3,
+   "to_ventricle_mm": 28.2,
+   "score": 0.1201,
+   "rank": 39,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.857,
+   "ratio_mean": 2.22
+  },
+  {
+   "centroid_si_ap_lr": [
+    110,
+    162,
+    35
+   ],
+   "blob": 0.075,
+   "scale_vox": 4.0,
+   "D": 1.531,
+   "ratio": 3.96,
+   "pre_wm_units": 0.52,
+   "label": "R cerebellum ctx",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 40.0,
+   "score": 0.1152,
+   "rank": 40,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.531,
+   "ratio_mean": 3.96
+  },
+  {
+   "centroid_si_ap_lr": [
+    158,
+    169,
+    75
+   ],
+   "blob": 0.123,
+   "scale_vox": 1.5,
+   "D": 0.886,
+   "ratio": 2.65,
+   "pre_wm_units": 0.54,
+   "label": "R cortex",
+   "depth_mm": 28.4,
+   "to_ventricle_mm": 14.9,
+   "score": 0.1086,
+   "rank": 41,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.886,
+   "ratio_mean": 2.65
+  },
+  {
+   "centroid_si_ap_lr": [
+    124,
+    193,
+    90
+   ],
+   "blob": 0.079,
+   "scale_vox": 1.5,
+   "D": 1.36,
+   "ratio": 2.82,
+   "pre_wm_units": 0.75,
+   "label": "L cerebellum ctx",
+   "depth_mm": 3.5,
+   "to_ventricle_mm": 31.1,
+   "score": 0.1074,
+   "rank": 42,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.36,
+   "ratio_mean": 2.82
+  },
+  {
+   "centroid_si_ap_lr": [
+    112,
+    189,
+    62
+   ],
+   "blob": 0.081,
+   "scale_vox": 1.5,
+   "D": 1.3,
+   "ratio": 2.54,
+   "pre_wm_units": 0.84,
+   "label": "R cerebellum ctx",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 33.4,
+   "score": 0.105,
+   "rank": 43,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.3,
+   "ratio_mean": 2.54
+  },
+  {
+   "centroid_si_ap_lr": [
+    171,
+    168,
+    86
+   ],
+   "blob": 0.083,
+   "scale_vox": 1.5,
+   "D": 1.246,
+   "ratio": 3.03,
+   "pre_wm_units": 0.61,
+   "label": "L cortex",
+   "depth_mm": 36.4,
+   "to_ventricle_mm": 17.5,
+   "score": 0.1031,
+   "rank": 44,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.246,
+   "ratio_mean": 3.03
+  },
+  {
+   "centroid_si_ap_lr": [
+    170,
+    148,
+    29
+   ],
+   "blob": 0.116,
+   "scale_vox": 1.5,
+   "D": 0.873,
+   "ratio": 2.79,
+   "pre_wm_units": 0.49,
+   "label": "R cortex",
+   "depth_mm": 12.2,
+   "to_ventricle_mm": 27.6,
+   "score": 0.1015,
+   "rank": 45,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.873,
+   "ratio_mean": 2.79
+  },
+  {
+   "centroid_si_ap_lr": [
+    171,
+    102,
+    52
+   ],
+   "blob": 0.149,
+   "scale_vox": 1.5,
+   "D": 0.653,
+   "ratio": 2.87,
+   "pre_wm_units": 0.35,
+   "label": "R cortex",
+   "depth_mm": 26.2,
+   "to_ventricle_mm": 20.2,
+   "score": 0.0975,
+   "rank": 46,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.653,
+   "ratio_mean": 2.87
+  },
+  {
+   "centroid_si_ap_lr": [
+    156,
+    179,
+    86
+   ],
+   "blob": 0.068,
+   "scale_vox": 1.5,
+   "D": 1.422,
+   "ratio": 2.98,
+   "pre_wm_units": 0.72,
+   "label": "L cortex",
+   "depth_mm": 31.3,
+   "to_ventricle_mm": 26.2,
+   "score": 0.0972,
+   "rank": 47,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.422,
+   "ratio_mean": 2.98
+  },
+  {
+   "centroid_si_ap_lr": [
+    165,
+    125,
+    135
+   ],
+   "blob": 0.121,
+   "scale_vox": 1.5,
+   "D": 0.795,
+   "ratio": 2.37,
+   "pre_wm_units": 0.58,
+   "label": "L cortex",
+   "depth_mm": 15.3,
+   "to_ventricle_mm": 25.5,
+   "score": 0.0964,
+   "rank": 48,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.795,
+   "ratio_mean": 2.37
+  },
+  {
+   "centroid_si_ap_lr": [
+    136,
+    97,
+    53
+   ],
+   "blob": 0.134,
+   "scale_vox": 1.5,
+   "D": 0.697,
+   "ratio": 2.6,
+   "pre_wm_units": 0.44,
+   "label": "R cortex",
+   "depth_mm": 9.3,
+   "to_ventricle_mm": 18.0,
+   "score": 0.0933,
+   "rank": 49,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.697,
+   "ratio_mean": 2.6
+  },
+  {
+   "centroid_si_ap_lr": [
+    170,
+    54,
+    83
+   ],
+   "blob": 0.098,
+   "scale_vox": 1.5,
+   "D": 0.877,
+   "ratio": 2.88,
+   "pre_wm_units": 0.47,
+   "label": "R cortex",
+   "depth_mm": 3.7,
+   "to_ventricle_mm": 36.5,
+   "score": 0.0858,
+   "rank": 50,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.877,
+   "ratio_mean": 2.88
+  },
+  {
+   "centroid_si_ap_lr": [
+    156,
+    99,
+    86
+   ],
+   "blob": 0.12,
+   "scale_vox": 1.5,
+   "D": 0.716,
+   "ratio": 3.16,
+   "pre_wm_units": 0.33,
+   "label": "L cortex",
+   "depth_mm": 14.9,
+   "to_ventricle_mm": 9.0,
+   "score": 0.0856,
+   "rank": 51,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.716,
+   "ratio_mean": 3.16
+  },
+  {
+   "centroid_si_ap_lr": [
+    163,
+    170,
+    92
+   ],
+   "blob": 0.093,
+   "scale_vox": 1.5,
+   "D": 0.917,
+   "ratio": 2.4,
+   "pre_wm_units": 0.65,
+   "label": "L cortex",
+   "depth_mm": 32.2,
+   "to_ventricle_mm": 17.5,
+   "score": 0.085,
+   "rank": 52,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.917,
+   "ratio_mean": 2.4
+  },
+  {
+   "centroid_si_ap_lr": [
+    109,
+    157,
+    83
+   ],
+   "blob": 0.112,
+   "scale_vox": 1.5,
+   "D": 0.733,
+   "ratio": 2.47,
+   "pre_wm_units": 0.5,
+   "label": "R cerebellum ctx",
+   "depth_mm": 8.8,
+   "to_ventricle_mm": 3.3,
+   "score": 0.0822,
+   "rank": 53,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.733,
+   "ratio_mean": 2.47
+  },
+  {
+   "centroid_si_ap_lr": [
+    140,
+    112,
+    70
+   ],
+   "blob": 0.091,
+   "scale_vox": 1.5,
+   "D": 0.89,
+   "ratio": 3.27,
+   "pre_wm_units": 0.39,
+   "label": "R amygdala",
+   "depth_mm": 7.3,
+   "to_ventricle_mm": 15.2,
+   "score": 0.0814,
+   "rank": 54,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.89,
+   "ratio_mean": 3.27
+  },
+  {
+   "centroid_si_ap_lr": [
+    167,
+    175,
+    91
+   ],
+   "blob": 0.118,
+   "scale_vox": 1.5,
+   "D": 0.662,
+   "ratio": 1.92,
+   "pre_wm_units": 0.72,
+   "label": "L cortex",
+   "depth_mm": 32.8,
+   "to_ventricle_mm": 20.6,
+   "score": 0.0784,
+   "rank": 55,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.662,
+   "ratio_mean": 1.92
+  },
+  {
+   "centroid_si_ap_lr": [
+    136,
+    172,
+    64
+   ],
+   "blob": 0.099,
+   "scale_vox": 1.5,
+   "D": 0.746,
+   "ratio": 2.08,
+   "pre_wm_units": 0.69,
+   "label": "R cerebellum ctx",
+   "depth_mm": 26.6,
+   "to_ventricle_mm": 19.3,
+   "score": 0.0738,
+   "rank": 56,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.746,
+   "ratio_mean": 2.08
+  },
+  {
+   "centroid_si_ap_lr": [
+    195,
+    60,
+    82
+   ],
+   "blob": 0.074,
+   "scale_vox": 2.5,
+   "D": 0.987,
+   "ratio": 2.76,
+   "pre_wm_units": 0.56,
+   "label": "R cortex",
+   "depth_mm": 3.7,
+   "to_ventricle_mm": 38.8,
+   "score": 0.0728,
+   "rank": 57,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.987,
+   "ratio_mean": 2.76
+  },
+  {
+   "centroid_si_ap_lr": [
+    128,
+    106,
+    66
+   ],
+   "blob": 0.064,
+   "scale_vox": 1.5,
+   "D": 1.139,
+   "ratio": 4.12,
+   "pre_wm_units": 0.37,
+   "label": "R cortex",
+   "depth_mm": 4.4,
+   "to_ventricle_mm": 14.7,
+   "score": 0.0724,
+   "rank": 58,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.139,
+   "ratio_mean": 4.12
+  },
+  {
+   "centroid_si_ap_lr": [
+    185,
+    159,
+    147
+   ],
+   "blob": 0.079,
+   "scale_vox": 1.5,
+   "D": 0.912,
+   "ratio": 1.94,
+   "pre_wm_units": 0.97,
+   "label": "L cortex",
+   "depth_mm": 3.7,
+   "to_ventricle_mm": 37.1,
+   "score": 0.0721,
+   "rank": 59,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.912,
+   "ratio_mean": 1.94
+  },
+  {
+   "centroid_si_ap_lr": [
+    163,
+    164,
+    27
+   ],
+   "blob": 0.115,
+   "scale_vox": 1.5,
+   "D": 0.626,
+   "ratio": 1.82,
+   "pre_wm_units": 0.77,
+   "label": "R cortex",
+   "depth_mm": 6.3,
+   "to_ventricle_mm": 27.2,
+   "score": 0.0717,
+   "rank": 60,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.626,
+   "ratio_mean": 1.82
+  },
+  {
+   "centroid_si_ap_lr": [
+    190,
+    97,
+    87
+   ],
+   "blob": 0.104,
+   "scale_vox": 1.5,
+   "D": 0.685,
+   "ratio": 2.5,
+   "pre_wm_units": 0.46,
+   "label": "L cortex",
+   "depth_mm": 34.1,
+   "to_ventricle_mm": 12.4,
+   "score": 0.0711,
+   "rank": 61,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.685,
+   "ratio_mean": 2.5
+  },
+  {
+   "centroid_si_ap_lr": [
+    148,
+    134,
+    106
+   ],
+   "blob": 0.07,
+   "scale_vox": 1.5,
+   "D": 1.016,
+   "ratio": 3.12,
+   "pre_wm_units": 0.48,
+   "label": "L ventral DC",
+   "depth_mm": 21.6,
+   "to_ventricle_mm": 6.0,
+   "score": 0.0707,
+   "rank": 62,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.016,
+   "ratio_mean": 3.12
+  },
+  {
+   "centroid_si_ap_lr": [
+    167,
+    204,
+    101
+   ],
+   "blob": 0.098,
+   "scale_vox": 1.5,
+   "D": 0.711,
+   "ratio": 1.49,
+   "pre_wm_units": 1.45,
+   "label": "L cortex",
+   "depth_mm": 9.1,
+   "to_ventricle_mm": 35.6,
+   "score": 0.07,
+   "rank": 63,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.711,
+   "ratio_mean": 1.49
+  },
+  {
+   "centroid_si_ap_lr": [
+    140,
+    207,
+    78
+   ],
+   "blob": 0.077,
+   "scale_vox": 1.5,
+   "D": 0.871,
+   "ratio": 1.93,
+   "pre_wm_units": 0.94,
+   "label": "R cortex",
+   "depth_mm": 3.5,
+   "to_ventricle_mm": 46.8,
+   "score": 0.0674,
+   "rank": 64,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.871,
+   "ratio_mean": 1.93
+  },
+  {
+   "centroid_si_ap_lr": [
+    173,
+    93,
+    116
+   ],
+   "blob": 0.123,
+   "scale_vox": 1.5,
+   "D": 0.543,
+   "ratio": 2.33,
+   "pre_wm_units": 0.41,
+   "label": "L cortex",
+   "depth_mm": 24.4,
+   "to_ventricle_mm": 22.2,
+   "score": 0.0671,
+   "rank": 65,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.543,
+   "ratio_mean": 2.33
+  },
+  {
+   "centroid_si_ap_lr": [
+    174,
+    123,
+    125
+   ],
+   "blob": 0.105,
+   "scale_vox": 1.5,
+   "D": 0.637,
+   "ratio": 2.22,
+   "pre_wm_units": 0.52,
+   "label": "L cortex",
+   "depth_mm": 23.9,
+   "to_ventricle_mm": 26.9,
+   "score": 0.0671,
+   "rank": 66,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.637,
+   "ratio_mean": 2.22
+  },
+  {
+   "centroid_si_ap_lr": [
+    129,
+    97,
+    105
+   ],
+   "blob": 0.091,
+   "scale_vox": 1.5,
+   "D": 0.719,
+   "ratio": 2.37,
+   "pre_wm_units": 0.53,
+   "label": "L cortex",
+   "depth_mm": 3.6,
+   "to_ventricle_mm": 19.6,
+   "score": 0.0654,
+   "rank": 67,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.719,
+   "ratio_mean": 2.37
+  },
+  {
+   "centroid_si_ap_lr": [
+    131,
+    115,
+    100
+   ],
+   "blob": 0.069,
+   "scale_vox": 4.0,
+   "D": 0.941,
+   "ratio": 3.04,
+   "pre_wm_units": 0.46,
+   "label": "L cortex",
+   "depth_mm": 4.1,
+   "to_ventricle_mm": 8.3,
+   "score": 0.0651,
+   "rank": 68,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.941,
+   "ratio_mean": 3.04
+  },
+  {
+   "centroid_si_ap_lr": [
+    146,
+    132,
+    65
+   ],
+   "blob": 0.093,
+   "scale_vox": 1.5,
+   "D": 0.667,
+   "ratio": 2.77,
+   "pre_wm_units": 0.38,
+   "label": "R ventral DC",
+   "depth_mm": 22.3,
+   "to_ventricle_mm": 5.8,
+   "score": 0.0619,
+   "rank": 69,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.667,
+   "ratio_mean": 2.77
+  },
+  {
+   "centroid_si_ap_lr": [
+    170,
+    135,
+    42
+   ],
+   "blob": 0.09,
+   "scale_vox": 1.5,
+   "D": 0.684,
+   "ratio": 2.52,
+   "pre_wm_units": 0.45,
+   "label": "R cortex",
+   "depth_mm": 26.0,
+   "to_ventricle_mm": 21.8,
+   "score": 0.0614,
+   "rank": 70,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.684,
+   "ratio_mean": 2.52
+  },
+  {
+   "centroid_si_ap_lr": [
+    134,
+    92,
+    110
+   ],
+   "blob": 0.09,
+   "scale_vox": 1.5,
+   "D": 0.681,
+   "ratio": 2.31,
+   "pre_wm_units": 0.52,
+   "label": "L cortex",
+   "depth_mm": 4.4,
+   "to_ventricle_mm": 24.0,
+   "score": 0.0611,
+   "rank": 71,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.681,
+   "ratio_mean": 2.31
+  },
+  {
+   "centroid_si_ap_lr": [
+    193,
+    107,
+    86
+   ],
+   "blob": 0.076,
+   "scale_vox": 1.5,
+   "D": 0.794,
+   "ratio": 2.89,
+   "pre_wm_units": 0.42,
+   "label": "L cortex",
+   "depth_mm": 31.1,
+   "to_ventricle_mm": 13.0,
+   "score": 0.0601,
+   "rank": 72,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.794,
+   "ratio_mean": 2.89
+  },
+  {
+   "centroid_si_ap_lr": [
+    146,
+    121,
+    22
+   ],
+   "blob": 0.101,
+   "scale_vox": 1.5,
+   "D": 0.58,
+   "ratio": 2.05,
+   "pre_wm_units": 0.55,
+   "label": "R cortex",
+   "depth_mm": 7.3,
+   "to_ventricle_mm": 28.7,
+   "score": 0.0587,
+   "rank": 73,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.58,
+   "ratio_mean": 2.05
+  },
+  {
+   "centroid_si_ap_lr": [
+    153,
+    128,
+    23
+   ],
+   "blob": 0.103,
+   "scale_vox": 1.5,
+   "D": 0.57,
+   "ratio": 2.26,
+   "pre_wm_units": 0.45,
+   "label": "R cortex",
+   "depth_mm": 8.0,
+   "to_ventricle_mm": 27.5,
+   "score": 0.0587,
+   "rank": 74,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.57,
+   "ratio_mean": 2.26
+  },
+  {
+   "centroid_si_ap_lr": [
+    134,
+    169,
+    118
+   ],
+   "blob": 0.056,
+   "scale_vox": 1.5,
+   "D": 1.046,
+   "ratio": 2.23,
+   "pre_wm_units": 0.85,
+   "label": "L cerebellum ctx",
+   "depth_mm": 20.9,
+   "to_ventricle_mm": 20.3,
+   "score": 0.0584,
+   "rank": 75,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 1.046,
+   "ratio_mean": 2.23
+  },
+  {
+   "centroid_si_ap_lr": [
+    164,
+    174,
+    105
+   ],
+   "blob": 0.088,
+   "scale_vox": 1.5,
+   "D": 0.646,
+   "ratio": 1.82,
+   "pre_wm_units": 0.79,
+   "label": "L cortex",
+   "depth_mm": 34.5,
+   "to_ventricle_mm": 10.0,
+   "score": 0.0567,
+   "rank": 76,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.646,
+   "ratio_mean": 1.82
+  },
+  {
+   "centroid_si_ap_lr": [
+    148,
+    194,
+    73
+   ],
+   "blob": 0.097,
+   "scale_vox": 1.5,
+   "D": 0.578,
+   "ratio": 1.7,
+   "pre_wm_units": 0.83,
+   "label": "R cortex",
+   "depth_mm": 18.5,
+   "to_ventricle_mm": 31.2,
+   "score": 0.0561,
+   "rank": 77,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.578,
+   "ratio_mean": 1.7
+  },
+  {
+   "centroid_si_ap_lr": [
+    106,
+    144,
+    55
+   ],
+   "blob": 0.066,
+   "scale_vox": 2.5,
+   "D": 0.827,
+   "ratio": 2.53,
+   "pre_wm_units": 0.54,
+   "label": "R cerebellum ctx",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 22.1,
+   "score": 0.0547,
+   "rank": 78,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.827,
+   "ratio_mean": 2.53
+  },
+  {
+   "centroid_si_ap_lr": [
+    174,
+    190,
+    125
+   ],
+   "blob": 0.076,
+   "scale_vox": 1.5,
+   "D": 0.714,
+   "ratio": 1.57,
+   "pre_wm_units": 1.25,
+   "label": "L cortex",
+   "depth_mm": 9.7,
+   "to_ventricle_mm": 28.2,
+   "score": 0.0545,
+   "rank": 79,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.714,
+   "ratio_mean": 1.57
+  },
+  {
+   "centroid_si_ap_lr": [
+    161,
+    202,
+    89
+   ],
+   "blob": 0.095,
+   "scale_vox": 1.5,
+   "D": 0.566,
+   "ratio": 1.49,
+   "pre_wm_units": 1.16,
+   "label": "L cortex",
+   "depth_mm": 9.0,
+   "to_ventricle_mm": 38.1,
+   "score": 0.0536,
+   "rank": 80,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.566,
+   "ratio_mean": 1.49
+  },
+  {
+   "centroid_si_ap_lr": [
+    162,
+    106,
+    44
+   ],
+   "blob": 0.08,
+   "scale_vox": 1.5,
+   "D": 0.67,
+   "ratio": 2.45,
+   "pre_wm_units": 0.46,
+   "label": "R cortex",
+   "depth_mm": 19.4,
+   "to_ventricle_mm": 27.1,
+   "score": 0.0536,
+   "rank": 81,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.67,
+   "ratio_mean": 2.45
+  },
+  {
+   "centroid_si_ap_lr": [
+    168,
+    161,
+    134
+   ],
+   "blob": 0.073,
+   "scale_vox": 1.5,
+   "D": 0.728,
+   "ratio": 1.77,
+   "pre_wm_units": 0.94,
+   "label": "L cortex",
+   "depth_mm": 15.8,
+   "to_ventricle_mm": 18.4,
+   "score": 0.053,
+   "rank": 82,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.728,
+   "ratio_mean": 1.77
+  },
+  {
+   "centroid_si_ap_lr": [
+    157,
+    200,
+    55
+   ],
+   "blob": 0.078,
+   "scale_vox": 1.5,
+   "D": 0.661,
+   "ratio": 1.62,
+   "pre_wm_units": 1.07,
+   "label": "R cortex",
+   "depth_mm": 4.6,
+   "to_ventricle_mm": 33.1,
+   "score": 0.0513,
+   "rank": 83,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.661,
+   "ratio_mean": 1.62
+  },
+  {
+   "centroid_si_ap_lr": [
+    161,
+    165,
+    138
+   ],
+   "blob": 0.095,
+   "scale_vox": 1.5,
+   "D": 0.528,
+   "ratio": 1.52,
+   "pre_wm_units": 1.02,
+   "label": "L cortex",
+   "depth_mm": 11.6,
+   "to_ventricle_mm": 20.6,
+   "score": 0.05,
+   "rank": 84,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.528,
+   "ratio_mean": 1.52
+  },
+  {
+   "centroid_si_ap_lr": [
+    139,
+    168,
+    104
+   ],
+   "blob": 0.083,
+   "scale_vox": 1.5,
+   "D": 0.597,
+   "ratio": 1.79,
+   "pre_wm_units": 0.76,
+   "label": "L cerebellum ctx",
+   "depth_mm": 27.6,
+   "to_ventricle_mm": 17.0,
+   "score": 0.0498,
+   "rank": 85,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.597,
+   "ratio_mean": 1.79
+  },
+  {
+   "centroid_si_ap_lr": [
+    153,
+    93,
+    35
+   ],
+   "blob": 0.071,
+   "scale_vox": 2.5,
+   "D": 0.696,
+   "ratio": 2.65,
+   "pre_wm_units": 0.42,
+   "label": "R cortex",
+   "depth_mm": 5.4,
+   "to_ventricle_mm": 33.0,
+   "score": 0.0491,
+   "rank": 86,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.696,
+   "ratio_mean": 2.65
+  },
+  {
+   "centroid_si_ap_lr": [
+    150,
+    109,
+    98
+   ],
+   "blob": 0.07,
+   "scale_vox": 1.5,
+   "D": 0.699,
+   "ratio": 2.99,
+   "pre_wm_units": 0.35,
+   "label": "L cortex",
+   "depth_mm": 10.3,
+   "to_ventricle_mm": 12.2,
+   "score": 0.049,
+   "rank": 87,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.699,
+   "ratio_mean": 2.99
+  },
+  {
+   "centroid_si_ap_lr": [
+    158,
+    166,
+    79
+   ],
+   "blob": 0.08,
+   "scale_vox": 1.5,
+   "D": 0.61,
+   "ratio": 2.3,
+   "pre_wm_units": 0.47,
+   "label": "R cortex",
+   "depth_mm": 25.3,
+   "to_ventricle_mm": 15.8,
+   "score": 0.0486,
+   "rank": 88,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.61,
+   "ratio_mean": 2.3
+  },
+  {
+   "centroid_si_ap_lr": [
+    184,
+    174,
+    34
+   ],
+   "blob": 0.084,
+   "scale_vox": 1.5,
+   "D": 0.574,
+   "ratio": 1.83,
+   "pre_wm_units": 0.69,
+   "label": "R cortex",
+   "depth_mm": 5.8,
+   "to_ventricle_mm": 33.7,
+   "score": 0.0484,
+   "rank": 89,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.574,
+   "ratio_mean": 1.83
+  },
+  {
+   "centroid_si_ap_lr": [
+    143,
+    108,
+    108
+   ],
+   "blob": 0.065,
+   "scale_vox": 1.5,
+   "D": 0.734,
+   "ratio": 2.45,
+   "pre_wm_units": 0.51,
+   "label": "L cortex",
+   "depth_mm": 11.5,
+   "to_ventricle_mm": 12.1,
+   "score": 0.0479,
+   "rank": 90,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.734,
+   "ratio_mean": 2.45
+  },
+  {
+   "centroid_si_ap_lr": [
+    169,
+    119,
+    89
+   ],
+   "blob": 0.068,
+   "scale_vox": 1.5,
+   "D": 0.7,
+   "ratio": 2.14,
+   "pre_wm_units": 0.61,
+   "label": "L thalamus",
+   "depth_mm": 31.1,
+   "to_ventricle_mm": 2.2,
+   "score": 0.0477,
+   "rank": 91,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.7,
+   "ratio_mean": 2.14
+  },
+  {
+   "centroid_si_ap_lr": [
+    162,
+    92,
+    84
+   ],
+   "blob": 0.063,
+   "scale_vox": 1.5,
+   "D": 0.75,
+   "ratio": 2.74,
+   "pre_wm_units": 0.43,
+   "label": "R cortex",
+   "depth_mm": 21.6,
+   "to_ventricle_mm": 6.9,
+   "score": 0.0469,
+   "rank": 92,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.75,
+   "ratio_mean": 2.74
+  },
+  {
+   "centroid_si_ap_lr": [
+    112,
+    143,
+    68
+   ],
+   "blob": 0.072,
+   "scale_vox": 1.5,
+   "D": 0.648,
+   "ratio": 2.48,
+   "pre_wm_units": 0.44,
+   "label": "R cerebellum ctx",
+   "depth_mm": 6.4,
+   "to_ventricle_mm": 11.0,
+   "score": 0.0466,
+   "rank": 93,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.648,
+   "ratio_mean": 2.48
+  },
+  {
+   "centroid_si_ap_lr": [
+    140,
+    192,
+    127
+   ],
+   "blob": 0.066,
+   "scale_vox": 1.5,
+   "D": 0.696,
+   "ratio": 1.52,
+   "pre_wm_units": 1.34,
+   "label": "L cortex",
+   "depth_mm": 3.6,
+   "to_ventricle_mm": 29.4,
+   "score": 0.046,
+   "rank": 94,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.696,
+   "ratio_mean": 1.52
+  },
+  {
+   "centroid_si_ap_lr": [
+    178,
+    191,
+    49
+   ],
+   "blob": 0.067,
+   "scale_vox": 1.5,
+   "D": 0.67,
+   "ratio": 1.74,
+   "pre_wm_units": 0.91,
+   "label": "R cortex",
+   "depth_mm": 7.8,
+   "to_ventricle_mm": 33.5,
+   "score": 0.0451,
+   "rank": 95,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.67,
+   "ratio_mean": 1.74
+  },
+  {
+   "centroid_si_ap_lr": [
+    138,
+    104,
+    57
+   ],
+   "blob": 0.059,
+   "scale_vox": 1.5,
+   "D": 0.763,
+   "ratio": 2.96,
+   "pre_wm_units": 0.39,
+   "label": "R cortex",
+   "depth_mm": 10.5,
+   "to_ventricle_mm": 12.1,
+   "score": 0.0447,
+   "rank": 96,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.763,
+   "ratio_mean": 2.96
+  },
+  {
+   "centroid_si_ap_lr": [
+    173,
+    140,
+    118
+   ],
+   "blob": 0.072,
+   "scale_vox": 1.5,
+   "D": 0.617,
+   "ratio": 2.11,
+   "pre_wm_units": 0.56,
+   "label": "L cortex",
+   "depth_mm": 34.2,
+   "to_ventricle_mm": 12.4,
+   "score": 0.0446,
+   "rank": 97,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.617,
+   "ratio_mean": 2.11
+  },
+  {
+   "centroid_si_ap_lr": [
+    154,
+    138,
+    146
+   ],
+   "blob": 0.083,
+   "scale_vox": 1.5,
+   "D": 0.536,
+   "ratio": 1.63,
+   "pre_wm_units": 0.85,
+   "label": "L cortex",
+   "depth_mm": 8.1,
+   "to_ventricle_mm": 25.9,
+   "score": 0.0445,
+   "rank": 98,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.536,
+   "ratio_mean": 1.63
+  },
+  {
+   "centroid_si_ap_lr": [
+    156,
+    131,
+    146
+   ],
+   "blob": 0.056,
+   "scale_vox": 1.5,
+   "D": 0.769,
+   "ratio": 1.97,
+   "pre_wm_units": 0.79,
+   "label": "L cortex",
+   "depth_mm": 6.4,
+   "to_ventricle_mm": 27.4,
+   "score": 0.0433,
+   "rank": 99,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.769,
+   "ratio_mean": 1.97
+  },
+  {
+   "centroid_si_ap_lr": [
+    163,
+    161,
+    137
+   ],
+   "blob": 0.073,
+   "scale_vox": 1.5,
+   "D": 0.587,
+   "ratio": 1.6,
+   "pre_wm_units": 0.98,
+   "label": "L cortex",
+   "depth_mm": 13.3,
+   "to_ventricle_mm": 19.9,
+   "score": 0.0428,
+   "rank": 100,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.587,
+   "ratio_mean": 1.6
+  },
+  {
+   "centroid_si_ap_lr": [
+    157,
+    174,
+    75
+   ],
+   "blob": 0.069,
+   "scale_vox": 1.5,
+   "D": 0.619,
+   "ratio": 1.89,
+   "pre_wm_units": 0.69,
+   "label": "R cortex",
+   "depth_mm": 31.5,
+   "to_ventricle_mm": 17.5,
+   "score": 0.0427,
+   "rank": 101,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.619,
+   "ratio_mean": 1.89
+  },
+  {
+   "centroid_si_ap_lr": [
+    159,
+    139,
+    44
+   ],
+   "blob": 0.073,
+   "scale_vox": 1.5,
+   "D": 0.58,
+   "ratio": 1.93,
+   "pre_wm_units": 0.62,
+   "label": "R cortex",
+   "depth_mm": 29.0,
+   "to_ventricle_mm": 12.0,
+   "score": 0.0426,
+   "rank": 102,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.58,
+   "ratio_mean": 1.93
+  },
+  {
+   "centroid_si_ap_lr": [
+    147,
+    133,
+    118
+   ],
+   "blob": 0.06,
+   "scale_vox": 1.5,
+   "D": 0.709,
+   "ratio": 1.92,
+   "pre_wm_units": 0.77,
+   "label": "L hippocampus",
+   "depth_mm": 19.2,
+   "to_ventricle_mm": 2.2,
+   "score": 0.0424,
+   "rank": 103,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.709,
+   "ratio_mean": 1.92
+  },
+  {
+   "centroid_si_ap_lr": [
+    153,
+    130,
+    139
+   ],
+   "blob": 0.086,
+   "scale_vox": 1.5,
+   "D": 0.491,
+   "ratio": 1.65,
+   "pre_wm_units": 0.76,
+   "label": "L cortex",
+   "depth_mm": 13.2,
+   "to_ventricle_mm": 19.9,
+   "score": 0.0424,
+   "rank": 104,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.491,
+   "ratio_mean": 1.65
+  },
+  {
+   "centroid_si_ap_lr": [
+    158,
+    107,
+    41
+   ],
+   "blob": 0.071,
+   "scale_vox": 1.5,
+   "D": 0.599,
+   "ratio": 2.58,
+   "pre_wm_units": 0.38,
+   "label": "R cortex",
+   "depth_mm": 17.8,
+   "to_ventricle_mm": 24.6,
+   "score": 0.0424,
+   "rank": 105,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.599,
+   "ratio_mean": 2.58
+  },
+  {
+   "centroid_si_ap_lr": [
+    152,
+    142,
+    133
+   ],
+   "blob": 0.09,
+   "scale_vox": 1.5,
+   "D": 0.47,
+   "ratio": 1.57,
+   "pre_wm_units": 0.83,
+   "label": "L cortex",
+   "depth_mm": 21.0,
+   "to_ventricle_mm": 12.6,
+   "score": 0.0421,
+   "rank": 106,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.47,
+   "ratio_mean": 1.57
+  },
+  {
+   "centroid_si_ap_lr": [
+    184,
+    76,
+    84
+   ],
+   "blob": 0.063,
+   "scale_vox": 1.5,
+   "D": 0.67,
+   "ratio": 2.47,
+   "pre_wm_units": 0.46,
+   "label": "R cortex",
+   "depth_mm": 21.1,
+   "to_ventricle_mm": 21.2,
+   "score": 0.042,
+   "rank": 107,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.67,
+   "ratio_mean": 2.47
+  },
+  {
+   "centroid_si_ap_lr": [
+    146,
+    105,
+    121
+   ],
+   "blob": 0.064,
+   "scale_vox": 1.5,
+   "D": 0.647,
+   "ratio": 2.41,
+   "pre_wm_units": 0.46,
+   "label": "L cortex",
+   "depth_mm": 17.7,
+   "to_ventricle_mm": 14.8,
+   "score": 0.0411,
+   "rank": 108,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.647,
+   "ratio_mean": 2.41
+  },
+  {
+   "centroid_si_ap_lr": [
+    156,
+    95,
+    85
+   ],
+   "blob": 0.067,
+   "scale_vox": 1.5,
+   "D": 0.611,
+   "ratio": 2.59,
+   "pre_wm_units": 0.38,
+   "label": "L cortex",
+   "depth_mm": 15.1,
+   "to_ventricle_mm": 10.3,
+   "score": 0.041,
+   "rank": 109,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.611,
+   "ratio_mean": 2.59
+  },
+  {
+   "centroid_si_ap_lr": [
+    97,
+    170,
+    64
+   ],
+   "blob": 0.072,
+   "scale_vox": 1.5,
+   "D": 0.562,
+   "ratio": 1.89,
+   "pre_wm_units": 0.64,
+   "label": "R cerebellum ctx",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 25.2,
+   "score": 0.0404,
+   "rank": 110,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.562,
+   "ratio_mean": 1.89
+  },
+  {
+   "centroid_si_ap_lr": [
+    167,
+    200,
+    85
+   ],
+   "blob": 0.06,
+   "scale_vox": 1.5,
+   "D": 0.671,
+   "ratio": 1.6,
+   "pre_wm_units": 1.12,
+   "label": "L cortex",
+   "depth_mm": 9.9,
+   "to_ventricle_mm": 40.4,
+   "score": 0.04,
+   "rank": 111,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.671,
+   "ratio_mean": 1.6
+  },
+  {
+   "centroid_si_ap_lr": [
+    149,
+    142,
+    102
+   ],
+   "blob": 0.064,
+   "scale_vox": 1.5,
+   "D": 0.622,
+   "ratio": 2.06,
+   "pre_wm_units": 0.59,
+   "label": "L hippocampus",
+   "depth_mm": 21.3,
+   "to_ventricle_mm": 13.3,
+   "score": 0.0399,
+   "rank": 112,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.622,
+   "ratio_mean": 2.06
+  },
+  {
+   "centroid_si_ap_lr": [
+    165,
+    152,
+    140
+   ],
+   "blob": 0.059,
+   "scale_vox": 1.5,
+   "D": 0.676,
+   "ratio": 1.85,
+   "pre_wm_units": 0.8,
+   "label": "L cortex",
+   "depth_mm": 13.2,
+   "to_ventricle_mm": 23.3,
+   "score": 0.0399,
+   "rank": 113,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.676,
+   "ratio_mean": 1.85
+  },
+  {
+   "centroid_si_ap_lr": [
+    119,
+    140,
+    104
+   ],
+   "blob": 0.076,
+   "scale_vox": 1.5,
+   "D": 0.523,
+   "ratio": 2.07,
+   "pre_wm_units": 0.49,
+   "label": "L cerebellum ctx",
+   "depth_mm": 4.9,
+   "to_ventricle_mm": 16.9,
+   "score": 0.0398,
+   "rank": 114,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.523,
+   "ratio_mean": 2.07
+  },
+  {
+   "centroid_si_ap_lr": [
+    153,
+    188,
+    71
+   ],
+   "blob": 0.066,
+   "scale_vox": 1.5,
+   "D": 0.601,
+   "ratio": 1.73,
+   "pre_wm_units": 0.82,
+   "label": "R cortex",
+   "depth_mm": 23.4,
+   "to_ventricle_mm": 24.3,
+   "score": 0.0396,
+   "rank": 115,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.601,
+   "ratio_mean": 1.73
+  },
+  {
+   "centroid_si_ap_lr": [
+    154,
+    162,
+    30
+   ],
+   "blob": 0.091,
+   "scale_vox": 1.5,
+   "D": 0.432,
+   "ratio": 1.5,
+   "pre_wm_units": 0.87,
+   "label": "R cortex",
+   "depth_mm": 10.2,
+   "to_ventricle_mm": 21.7,
+   "score": 0.0395,
+   "rank": 116,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.432,
+   "ratio_mean": 1.5
+  },
+  {
+   "centroid_si_ap_lr": [
+    165,
+    171,
+    73
+   ],
+   "blob": 0.078,
+   "scale_vox": 1.5,
+   "D": 0.504,
+   "ratio": 1.91,
+   "pre_wm_units": 0.55,
+   "label": "R cortex",
+   "depth_mm": 35.1,
+   "to_ventricle_mm": 15.7,
+   "score": 0.0394,
+   "rank": 117,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.504,
+   "ratio_mean": 1.91
+  },
+  {
+   "centroid_si_ap_lr": [
+    197,
+    168,
+    140
+   ],
+   "blob": 0.064,
+   "scale_vox": 1.5,
+   "D": 0.61,
+   "ratio": 1.77,
+   "pre_wm_units": 0.79,
+   "label": "L cortex",
+   "depth_mm": 3.3,
+   "to_ventricle_mm": 38.5,
+   "score": 0.0389,
+   "rank": 118,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.61,
+   "ratio_mean": 1.77
+  },
+  {
+   "centroid_si_ap_lr": [
+    195,
+    55,
+    78
+   ],
+   "blob": 0.063,
+   "scale_vox": 1.5,
+   "D": 0.599,
+   "ratio": 2.45,
+   "pre_wm_units": 0.41,
+   "label": "R cortex",
+   "depth_mm": 3.3,
+   "to_ventricle_mm": 42.1,
+   "score": 0.038,
+   "rank": 119,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.599,
+   "ratio_mean": 2.45
+  },
+  {
+   "centroid_si_ap_lr": [
+    195,
+    134,
+    85
+   ],
+   "blob": 0.065,
+   "scale_vox": 1.5,
+   "D": 0.575,
+   "ratio": 2.21,
+   "pre_wm_units": 0.48,
+   "label": "R cortex",
+   "depth_mm": 30.0,
+   "to_ventricle_mm": 15.0,
+   "score": 0.0375,
+   "rank": 120,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.575,
+   "ratio_mean": 2.21
+  },
+  {
+   "centroid_si_ap_lr": [
+    169,
+    157,
+    128
+   ],
+   "blob": 0.058,
+   "scale_vox": 1.5,
+   "D": 0.636,
+   "ratio": 1.76,
+   "pre_wm_units": 0.84,
+   "label": "L cortex",
+   "depth_mm": 22.2,
+   "to_ventricle_mm": 13.0,
+   "score": 0.0371,
+   "rank": 121,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.636,
+   "ratio_mean": 1.76
+  },
+  {
+   "centroid_si_ap_lr": [
+    195,
+    164,
+    43
+   ],
+   "blob": 0.068,
+   "scale_vox": 1.5,
+   "D": 0.549,
+   "ratio": 1.96,
+   "pre_wm_units": 0.57,
+   "label": "R cortex",
+   "depth_mm": 13.1,
+   "to_ventricle_mm": 30.3,
+   "score": 0.0371,
+   "rank": 122,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.549,
+   "ratio_mean": 1.96
+  },
+  {
+   "centroid_si_ap_lr": [
+    184,
+    151,
+    140
+   ],
+   "blob": 0.061,
+   "scale_vox": 1.5,
+   "D": 0.608,
+   "ratio": 1.6,
+   "pre_wm_units": 1.01,
+   "label": "L cortex",
+   "depth_mm": 11.1,
+   "to_ventricle_mm": 30.6,
+   "score": 0.037,
+   "rank": 123,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.608,
+   "ratio_mean": 1.6
+  },
+  {
+   "centroid_si_ap_lr": [
+    148,
+    198,
+    49
+   ],
+   "blob": 0.059,
+   "scale_vox": 1.5,
+   "D": 0.622,
+   "ratio": 1.58,
+   "pre_wm_units": 1.07,
+   "label": "R cortex",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 32.3,
+   "score": 0.0365,
+   "rank": 124,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.622,
+   "ratio_mean": 1.58
+  },
+  {
+   "centroid_si_ap_lr": [
+    158,
+    162,
+    92
+   ],
+   "blob": 0.072,
+   "scale_vox": 1.5,
+   "D": 0.502,
+   "ratio": 1.84,
+   "pre_wm_units": 0.6,
+   "label": "L cortex",
+   "depth_mm": 23.6,
+   "to_ventricle_mm": 13.6,
+   "score": 0.0361,
+   "rank": 125,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.502,
+   "ratio_mean": 1.84
+  },
+  {
+   "centroid_si_ap_lr": [
+    147,
+    112,
+    125
+   ],
+   "blob": 0.061,
+   "scale_vox": 1.5,
+   "D": 0.591,
+   "ratio": 2.03,
+   "pre_wm_units": 0.57,
+   "label": "L cortex",
+   "depth_mm": 19.8,
+   "to_ventricle_mm": 12.1,
+   "score": 0.0358,
+   "rank": 126,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.591,
+   "ratio_mean": 2.03
+  },
+  {
+   "centroid_si_ap_lr": [
+    159,
+    109,
+    127
+   ],
+   "blob": 0.054,
+   "scale_vox": 1.5,
+   "D": 0.657,
+   "ratio": 2.4,
+   "pre_wm_units": 0.47,
+   "label": "L cortex",
+   "depth_mm": 15.7,
+   "to_ventricle_mm": 23.3,
+   "score": 0.0358,
+   "rank": 127,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.657,
+   "ratio_mean": 2.4
+  },
+  {
+   "centroid_si_ap_lr": [
+    148,
+    179,
+    131
+   ],
+   "blob": 0.072,
+   "scale_vox": 1.5,
+   "D": 0.493,
+   "ratio": 1.46,
+   "pre_wm_units": 1.06,
+   "label": "L cortex",
+   "depth_mm": 8.6,
+   "to_ventricle_mm": 19.9,
+   "score": 0.0356,
+   "rank": 128,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.493,
+   "ratio_mean": 1.46
+  },
+  {
+   "centroid_si_ap_lr": [
+    157,
+    143,
+    146
+   ],
+   "blob": 0.06,
+   "scale_vox": 1.5,
+   "D": 0.595,
+   "ratio": 1.72,
+   "pre_wm_units": 0.83,
+   "label": "L cortex",
+   "depth_mm": 8.0,
+   "to_ventricle_mm": 26.6,
+   "score": 0.0356,
+   "rank": 129,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.595,
+   "ratio_mean": 1.72
+  },
+  {
+   "centroid_si_ap_lr": [
+    175,
+    106,
+    117
+   ],
+   "blob": 0.074,
+   "scale_vox": 1.5,
+   "D": 0.481,
+   "ratio": 1.87,
+   "pre_wm_units": 0.55,
+   "label": "L cortex",
+   "depth_mm": 25.9,
+   "to_ventricle_mm": 21.9,
+   "score": 0.0355,
+   "rank": 130,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.481,
+   "ratio_mean": 1.87
+  },
+  {
+   "centroid_si_ap_lr": [
+    169,
+    138,
+    135
+   ],
+   "blob": 0.071,
+   "scale_vox": 1.5,
+   "D": 0.498,
+   "ratio": 1.62,
+   "pre_wm_units": 0.8,
+   "label": "L cortex",
+   "depth_mm": 17.2,
+   "to_ventricle_mm": 24.4,
+   "score": 0.0354,
+   "rank": 131,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.498,
+   "ratio_mean": 1.62
+  },
+  {
+   "centroid_si_ap_lr": [
+    169,
+    130,
+    86
+   ],
+   "blob": 0.052,
+   "scale_vox": 1.5,
+   "D": 0.676,
+   "ratio": 2.49,
+   "pre_wm_units": 0.45,
+   "label": "L thalamus",
+   "depth_mm": 34.7,
+   "to_ventricle_mm": 5.7,
+   "score": 0.035,
+   "rank": 132,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.676,
+   "ratio_mean": 2.49
+  },
+  {
+   "centroid_si_ap_lr": [
+    194,
+    143,
+    83
+   ],
+   "blob": 0.075,
+   "scale_vox": 1.5,
+   "D": 0.467,
+   "ratio": 1.82,
+   "pre_wm_units": 0.57,
+   "label": "R cortex",
+   "depth_mm": 28.3,
+   "to_ventricle_mm": 16.0,
+   "score": 0.035,
+   "rank": 133,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.467,
+   "ratio_mean": 1.82
+  },
+  {
+   "centroid_si_ap_lr": [
+    169,
+    140,
+    41
+   ],
+   "blob": 0.071,
+   "scale_vox": 1.5,
+   "D": 0.491,
+   "ratio": 1.95,
+   "pre_wm_units": 0.52,
+   "label": "R cortex",
+   "depth_mm": 24.8,
+   "to_ventricle_mm": 19.5,
+   "score": 0.0348,
+   "rank": 134,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.491,
+   "ratio_mean": 1.95
+  },
+  {
+   "centroid_si_ap_lr": [
+    139,
+    131,
+    104
+   ],
+   "blob": 0.063,
+   "scale_vox": 1.5,
+   "D": 0.552,
+   "ratio": 2.13,
+   "pre_wm_units": 0.49,
+   "label": "L cortex",
+   "depth_mm": 13.9,
+   "to_ventricle_mm": 9.4,
+   "score": 0.0346,
+   "rank": 135,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.552,
+   "ratio_mean": 2.13
+  },
+  {
+   "centroid_si_ap_lr": [
+    178,
+    165,
+    26
+   ],
+   "blob": 0.053,
+   "scale_vox": 1.5,
+   "D": 0.646,
+   "ratio": 2.21,
+   "pre_wm_units": 0.53,
+   "label": "R cortex",
+   "depth_mm": 3.7,
+   "to_ventricle_mm": 34.4,
+   "score": 0.0341,
+   "rank": 136,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.646,
+   "ratio_mean": 2.21
+  },
+  {
+   "centroid_si_ap_lr": [
+    154,
+    180,
+    137
+   ],
+   "blob": 0.069,
+   "scale_vox": 2.5,
+   "D": 0.481,
+   "ratio": 1.53,
+   "pre_wm_units": 0.92,
+   "label": "L cortex",
+   "depth_mm": 3.2,
+   "to_ventricle_mm": 24.2,
+   "score": 0.0333,
+   "rank": 137,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.481,
+   "ratio_mean": 1.53
+  },
+  {
+   "centroid_si_ap_lr": [
+    138,
+    121,
+    98
+   ],
+   "blob": 0.052,
+   "scale_vox": 1.5,
+   "D": 0.633,
+   "ratio": 2.53,
+   "pre_wm_units": 0.41,
+   "label": "L cortex",
+   "depth_mm": 7.3,
+   "to_ventricle_mm": 11.7,
+   "score": 0.0329,
+   "rank": 138,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.633,
+   "ratio_mean": 2.53
+  },
+  {
+   "centroid_si_ap_lr": [
+    151,
+    167,
+    97
+   ],
+   "blob": 0.077,
+   "scale_vox": 1.5,
+   "D": 0.42,
+   "ratio": 1.6,
+   "pre_wm_units": 0.7,
+   "label": "L cortex",
+   "depth_mm": 24.8,
+   "to_ventricle_mm": 13.1,
+   "score": 0.0322,
+   "rank": 139,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.42,
+   "ratio_mean": 1.6
+  },
+  {
+   "centroid_si_ap_lr": [
+    191,
+    152,
+    85
+   ],
+   "blob": 0.055,
+   "scale_vox": 1.5,
+   "D": 0.588,
+   "ratio": 2.22,
+   "pre_wm_units": 0.48,
+   "label": "L cortex",
+   "depth_mm": 31.1,
+   "to_ventricle_mm": 16.2,
+   "score": 0.0322,
+   "rank": 140,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.588,
+   "ratio_mean": 2.22
+  },
+  {
+   "centroid_si_ap_lr": [
+    200,
+    100,
+    79
+   ],
+   "blob": 0.068,
+   "scale_vox": 1.5,
+   "D": 0.467,
+   "ratio": 2.22,
+   "pre_wm_units": 0.38,
+   "label": "R cortex",
+   "depth_mm": 24.7,
+   "to_ventricle_mm": 18.9,
+   "score": 0.0319,
+   "rank": 141,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.467,
+   "ratio_mean": 2.22
+  },
+  {
+   "centroid_si_ap_lr": [
+    149,
+    113,
+    106
+   ],
+   "blob": 0.064,
+   "scale_vox": 1.5,
+   "D": 0.496,
+   "ratio": 2.12,
+   "pre_wm_units": 0.44,
+   "label": "L cortex",
+   "depth_mm": 15.6,
+   "to_ventricle_mm": 10.6,
+   "score": 0.0317,
+   "rank": 142,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.496,
+   "ratio_mean": 2.12
+  },
+  {
+   "centroid_si_ap_lr": [
+    169,
+    161,
+    130
+   ],
+   "blob": 0.056,
+   "scale_vox": 1.5,
+   "D": 0.571,
+   "ratio": 1.59,
+   "pre_wm_units": 0.97,
+   "label": "L cortex",
+   "depth_mm": 19.7,
+   "to_ventricle_mm": 15.0,
+   "score": 0.0317,
+   "rank": 143,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.571,
+   "ratio_mean": 1.59
+  },
+  {
+   "centroid_si_ap_lr": [
+    128,
+    133,
+    62
+   ],
+   "blob": 0.063,
+   "scale_vox": 2.5,
+   "D": 0.495,
+   "ratio": 2.09,
+   "pre_wm_units": 0.46,
+   "label": "R cortex",
+   "depth_mm": 4.6,
+   "to_ventricle_mm": 16.9,
+   "score": 0.0314,
+   "rank": 144,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.495,
+   "ratio_mean": 2.09
+  },
+  {
+   "centroid_si_ap_lr": [
+    161,
+    184,
+    77
+   ],
+   "blob": 0.068,
+   "scale_vox": 1.5,
+   "D": 0.457,
+   "ratio": 1.47,
+   "pre_wm_units": 0.97,
+   "label": "R cortex",
+   "depth_mm": 27.0,
+   "to_ventricle_mm": 25.5,
+   "score": 0.0309,
+   "rank": 145,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.457,
+   "ratio_mean": 1.47
+  },
+  {
+   "centroid_si_ap_lr": [
+    147,
+    188,
+    103
+   ],
+   "blob": 0.07,
+   "scale_vox": 1.5,
+   "D": 0.441,
+   "ratio": 1.42,
+   "pre_wm_units": 1.06,
+   "label": "L cortex",
+   "depth_mm": 23.4,
+   "to_ventricle_mm": 20.4,
+   "score": 0.0307,
+   "rank": 146,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.441,
+   "ratio_mean": 1.42
+  },
+  {
+   "centroid_si_ap_lr": [
+    175,
+    142,
+    126
+   ],
+   "blob": 0.063,
+   "scale_vox": 1.5,
+   "D": 0.479,
+   "ratio": 1.68,
+   "pre_wm_units": 0.7,
+   "label": "L cortex",
+   "depth_mm": 26.2,
+   "to_ventricle_mm": 17.9,
+   "score": 0.0304,
+   "rank": 147,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.479,
+   "ratio_mean": 1.68
+  },
+  {
+   "centroid_si_ap_lr": [
+    155,
+    160,
+    76
+   ],
+   "blob": 0.056,
+   "scale_vox": 1.5,
+   "D": 0.539,
+   "ratio": 2.04,
+   "pre_wm_units": 0.52,
+   "label": "R cortex",
+   "depth_mm": 20.2,
+   "to_ventricle_mm": 10.9,
+   "score": 0.0303,
+   "rank": 148,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.539,
+   "ratio_mean": 2.04
+  },
+  {
+   "centroid_si_ap_lr": [
+    125,
+    122,
+    124
+   ],
+   "blob": 0.07,
+   "scale_vox": 1.5,
+   "D": 0.433,
+   "ratio": 1.73,
+   "pre_wm_units": 0.59,
+   "label": "L cortex",
+   "depth_mm": 7.0,
+   "to_ventricle_mm": 13.2,
+   "score": 0.0301,
+   "rank": 149,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.433,
+   "ratio_mean": 1.73
+  },
+  {
+   "centroid_si_ap_lr": [
+    130,
+    123,
+    83
+   ],
+   "blob": 0.056,
+   "scale_vox": 1.5,
+   "D": 0.529,
+   "ratio": 2.08,
+   "pre_wm_units": 0.49,
+   "label": "brainstem",
+   "depth_mm": 6.1,
+   "to_ventricle_mm": 17.6,
+   "score": 0.0296,
+   "rank": 150,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.529,
+   "ratio_mean": 2.08
+  },
+  {
+   "centroid_si_ap_lr": [
+    142,
+    150,
+    102
+   ],
+   "blob": 0.057,
+   "scale_vox": 2.5,
+   "D": 0.52,
+   "ratio": 2.06,
+   "pre_wm_units": 0.49,
+   "label": "L cortex",
+   "depth_mm": 18.1,
+   "to_ventricle_mm": 14.2,
+   "score": 0.0295,
+   "rank": 151,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.52,
+   "ratio_mean": 2.06
+  },
+  {
+   "centroid_si_ap_lr": [
+    197,
+    128,
+    84
+   ],
+   "blob": 0.054,
+   "scale_vox": 1.5,
+   "D": 0.55,
+   "ratio": 2.14,
+   "pre_wm_units": 0.48,
+   "label": "R cortex",
+   "depth_mm": 30.1,
+   "to_ventricle_mm": 16.4,
+   "score": 0.0294,
+   "rank": 152,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.55,
+   "ratio_mean": 2.14
+  },
+  {
+   "centroid_si_ap_lr": [
+    198,
+    195,
+    111
+   ],
+   "blob": 0.065,
+   "scale_vox": 4.0,
+   "D": 0.45,
+   "ratio": 1.47,
+   "pre_wm_units": 0.95,
+   "label": "L cortex",
+   "depth_mm": 3.5,
+   "to_ventricle_mm": 42.1,
+   "score": 0.0294,
+   "rank": 153,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.45,
+   "ratio_mean": 1.47
+  },
+  {
+   "centroid_si_ap_lr": [
+    151,
+    144,
+    67
+   ],
+   "blob": 0.058,
+   "scale_vox": 1.5,
+   "D": 0.503,
+   "ratio": 2.03,
+   "pre_wm_units": 0.49,
+   "label": "R hippocampus",
+   "depth_mm": 20.9,
+   "to_ventricle_mm": 9.3,
+   "score": 0.0293,
+   "rank": 154,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.503,
+   "ratio_mean": 2.03
+  },
+  {
+   "centroid_si_ap_lr": [
+    190,
+    153,
+    147
+   ],
+   "blob": 0.056,
+   "scale_vox": 1.5,
+   "D": 0.521,
+   "ratio": 1.58,
+   "pre_wm_units": 0.89,
+   "label": "L cortex",
+   "depth_mm": 4.0,
+   "to_ventricle_mm": 39.4,
+   "score": 0.0293,
+   "rank": 155,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.521,
+   "ratio_mean": 1.58
+  },
+  {
+   "centroid_si_ap_lr": [
+    196,
+    111,
+    126
+   ],
+   "blob": 0.062,
+   "scale_vox": 1.5,
+   "D": 0.466,
+   "ratio": 1.83,
+   "pre_wm_units": 0.56,
+   "label": "L cortex",
+   "depth_mm": 13.7,
+   "to_ventricle_mm": 30.5,
+   "score": 0.029,
+   "rank": 156,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.466,
+   "ratio_mean": 1.83
+  },
+  {
+   "centroid_si_ap_lr": [
+    161,
+    185,
+    131
+   ],
+   "blob": 0.058,
+   "scale_vox": 1.5,
+   "D": 0.501,
+   "ratio": 1.41,
+   "pre_wm_units": 1.21,
+   "label": "L cortex",
+   "depth_mm": 7.3,
+   "to_ventricle_mm": 22.5,
+   "score": 0.0289,
+   "rank": 157,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.501,
+   "ratio_mean": 1.41
+  },
+  {
+   "centroid_si_ap_lr": [
+    172,
+    204,
+    107
+   ],
+   "blob": 0.069,
+   "scale_vox": 1.5,
+   "D": 0.417,
+   "ratio": 1.32,
+   "pre_wm_units": 1.29,
+   "label": "L cortex",
+   "depth_mm": 5.7,
+   "to_ventricle_mm": 36.1,
+   "score": 0.0289,
+   "rank": 158,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.417,
+   "ratio_mean": 1.32
+  },
+  {
+   "centroid_si_ap_lr": [
+    193,
+    141,
+    94
+   ],
+   "blob": 0.061,
+   "scale_vox": 1.5,
+   "D": 0.468,
+   "ratio": 1.86,
+   "pre_wm_units": 0.54,
+   "label": "L cortex",
+   "depth_mm": 31.0,
+   "to_ventricle_mm": 10.5,
+   "score": 0.0286,
+   "rank": 159,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.468,
+   "ratio_mean": 1.86
+  },
+  {
+   "centroid_si_ap_lr": [
+    169,
+    183,
+    127
+   ],
+   "blob": 0.056,
+   "scale_vox": 1.5,
+   "D": 0.509,
+   "ratio": 1.46,
+   "pre_wm_units": 1.11,
+   "label": "L cortex",
+   "depth_mm": 12.0,
+   "to_ventricle_mm": 21.5,
+   "score": 0.0285,
+   "rank": 160,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.509,
+   "ratio_mean": 1.46
+  },
+  {
+   "centroid_si_ap_lr": [
+    139,
+    180,
+    73
+   ],
+   "blob": 0.051,
+   "scale_vox": 1.5,
+   "D": 0.553,
+   "ratio": 1.72,
+   "pre_wm_units": 0.77,
+   "label": "R cortex",
+   "depth_mm": 24.1,
+   "to_ventricle_mm": 24.9,
+   "score": 0.0284,
+   "rank": 161,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.553,
+   "ratio_mean": 1.72
+  },
+  {
+   "centroid_si_ap_lr": [
+    140,
+    168,
+    108
+   ],
+   "blob": 0.056,
+   "scale_vox": 1.5,
+   "D": 0.511,
+   "ratio": 1.6,
+   "pre_wm_units": 0.85,
+   "label": "L cortex",
+   "depth_mm": 27.3,
+   "to_ventricle_mm": 14.7,
+   "score": 0.0284,
+   "rank": 162,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.511,
+   "ratio_mean": 1.6
+  },
+  {
+   "centroid_si_ap_lr": [
+    158,
+    83,
+    86
+   ],
+   "blob": 0.051,
+   "scale_vox": 1.5,
+   "D": 0.544,
+   "ratio": 2.13,
+   "pre_wm_units": 0.48,
+   "label": "R cortex",
+   "depth_mm": 19.4,
+   "to_ventricle_mm": 16.0,
+   "score": 0.0275,
+   "rank": 163,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.544,
+   "ratio_mean": 2.13
+  },
+  {
+   "centroid_si_ap_lr": [
+    181,
+    185,
+    96
+   ],
+   "blob": 0.052,
+   "scale_vox": 1.5,
+   "D": 0.534,
+   "ratio": 1.71,
+   "pre_wm_units": 0.75,
+   "label": "L cortex",
+   "depth_mm": 22.0,
+   "to_ventricle_mm": 27.5,
+   "score": 0.0275,
+   "rank": 164,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.534,
+   "ratio_mean": 1.71
+  },
+  {
+   "centroid_si_ap_lr": [
+    137,
+    177,
+    65
+   ],
+   "blob": 0.053,
+   "scale_vox": 1.5,
+   "D": 0.515,
+   "ratio": 1.8,
+   "pre_wm_units": 0.64,
+   "label": "R cortex",
+   "depth_mm": 23.8,
+   "to_ventricle_mm": 20.9,
+   "score": 0.0273,
+   "rank": 165,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.515,
+   "ratio_mean": 1.8
+  },
+  {
+   "centroid_si_ap_lr": [
+    130,
+    178,
+    56
+   ],
+   "blob": 0.055,
+   "scale_vox": 1.5,
+   "D": 0.487,
+   "ratio": 1.84,
+   "pre_wm_units": 0.58,
+   "label": "R cerebellum ctx",
+   "depth_mm": 15.5,
+   "to_ventricle_mm": 25.9,
+   "score": 0.027,
+   "rank": 166,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.487,
+   "ratio_mean": 1.84
+  },
+  {
+   "centroid_si_ap_lr": [
+    163,
+    199,
+    54
+   ],
+   "blob": 0.055,
+   "scale_vox": 1.5,
+   "D": 0.488,
+   "ratio": 1.63,
+   "pre_wm_units": 0.78,
+   "label": "R cortex",
+   "depth_mm": 4.6,
+   "to_ventricle_mm": 32.9,
+   "score": 0.027,
+   "rank": 167,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.488,
+   "ratio_mean": 1.63
+  },
+  {
+   "centroid_si_ap_lr": [
+    159,
+    179,
+    34
+   ],
+   "blob": 0.068,
+   "scale_vox": 1.5,
+   "D": 0.396,
+   "ratio": 1.51,
+   "pre_wm_units": 0.78,
+   "label": "R cortex",
+   "depth_mm": 5.0,
+   "to_ventricle_mm": 25.0,
+   "score": 0.0269,
+   "rank": 168,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.396,
+   "ratio_mean": 1.51
+  },
+  {
+   "centroid_si_ap_lr": [
+    186,
+    169,
+    43
+   ],
+   "blob": 0.062,
+   "scale_vox": 1.5,
+   "D": 0.436,
+   "ratio": 1.54,
+   "pre_wm_units": 0.81,
+   "label": "R cortex",
+   "depth_mm": 15.1,
+   "to_ventricle_mm": 26.2,
+   "score": 0.0269,
+   "rank": 169,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.436,
+   "ratio_mean": 1.54
+  },
+  {
+   "centroid_si_ap_lr": [
+    165,
+    116,
+    128
+   ],
+   "blob": 0.06,
+   "scale_vox": 2.5,
+   "D": 0.438,
+   "ratio": 1.73,
+   "pre_wm_units": 0.6,
+   "label": "L cortex",
+   "depth_mm": 17.7,
+   "to_ventricle_mm": 25.7,
+   "score": 0.0263,
+   "rank": 170,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.438,
+   "ratio_mean": 1.73
+  },
+  {
+   "centroid_si_ap_lr": [
+    130,
+    142,
+    40
+   ],
+   "blob": 0.062,
+   "scale_vox": 1.5,
+   "D": 0.424,
+   "ratio": 2.56,
+   "pre_wm_units": 0.27,
+   "label": "R cortex",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 16.6,
+   "score": 0.0262,
+   "rank": 171,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.424,
+   "ratio_mean": 2.56
+  },
+  {
+   "centroid_si_ap_lr": [
+    189,
+    117,
+    121
+   ],
+   "blob": 0.074,
+   "scale_vox": 1.5,
+   "D": 0.356,
+   "ratio": 1.61,
+   "pre_wm_units": 0.58,
+   "label": "L cortex",
+   "depth_mm": 23.2,
+   "to_ventricle_mm": 22.6,
+   "score": 0.0262,
+   "rank": 172,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.356,
+   "ratio_mean": 1.61
+  },
+  {
+   "centroid_si_ap_lr": [
+    171,
+    137,
+    50
+   ],
+   "blob": 0.068,
+   "scale_vox": 1.5,
+   "D": 0.38,
+   "ratio": 1.81,
+   "pre_wm_units": 0.47,
+   "label": "R cortex",
+   "depth_mm": 33.9,
+   "to_ventricle_mm": 14.9,
+   "score": 0.0259,
+   "rank": 173,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.38,
+   "ratio_mean": 1.81
+  },
+  {
+   "centroid_si_ap_lr": [
+    150,
+    155,
+    151
+   ],
+   "blob": 0.051,
+   "scale_vox": 1.5,
+   "D": 0.508,
+   "ratio": 1.56,
+   "pre_wm_units": 0.9,
+   "label": "L cortex",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 31.2,
+   "score": 0.0257,
+   "rank": 174,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.508,
+   "ratio_mean": 1.56
+  },
+  {
+   "centroid_si_ap_lr": [
+    158,
+    200,
+    113
+   ],
+   "blob": 0.057,
+   "scale_vox": 1.5,
+   "D": 0.451,
+   "ratio": 1.34,
+   "pre_wm_units": 1.32,
+   "label": "L cortex",
+   "depth_mm": 8.5,
+   "to_ventricle_mm": 28.1,
+   "score": 0.0257,
+   "rank": 175,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.451,
+   "ratio_mean": 1.34
+  },
+  {
+   "centroid_si_ap_lr": [
+    179,
+    156,
+    31
+   ],
+   "blob": 0.052,
+   "scale_vox": 1.5,
+   "D": 0.488,
+   "ratio": 1.79,
+   "pre_wm_units": 0.62,
+   "label": "R cortex",
+   "depth_mm": 11.4,
+   "to_ventricle_mm": 29.1,
+   "score": 0.0255,
+   "rank": 176,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.488,
+   "ratio_mean": 1.79
+  },
+  {
+   "centroid_si_ap_lr": [
+    194,
+    165,
+    133
+   ],
+   "blob": 0.058,
+   "scale_vox": 1.5,
+   "D": 0.431,
+   "ratio": 1.48,
+   "pre_wm_units": 0.91,
+   "label": "L cortex",
+   "depth_mm": 11.2,
+   "to_ventricle_mm": 30.6,
+   "score": 0.0252,
+   "rank": 177,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.431,
+   "ratio_mean": 1.48
+  },
+  {
+   "centroid_si_ap_lr": [
+    166,
+    188,
+    58
+   ],
+   "blob": 0.074,
+   "scale_vox": 1.5,
+   "D": 0.341,
+   "ratio": 1.42,
+   "pre_wm_units": 0.82,
+   "label": "R cortex",
+   "depth_mm": 16.3,
+   "to_ventricle_mm": 23.3,
+   "score": 0.0251,
+   "rank": 178,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.341,
+   "ratio_mean": 1.42
+  },
+  {
+   "centroid_si_ap_lr": [
+    175,
+    151,
+    22
+   ],
+   "blob": 0.054,
+   "scale_vox": 1.5,
+   "D": 0.468,
+   "ratio": 1.84,
+   "pre_wm_units": 0.56,
+   "label": "R cortex",
+   "depth_mm": 4.9,
+   "to_ventricle_mm": 35.8,
+   "score": 0.0251,
+   "rank": 179,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.468,
+   "ratio_mean": 1.84
+  },
+  {
+   "centroid_si_ap_lr": [
+    175,
+    167,
+    40
+   ],
+   "blob": 0.072,
+   "scale_vox": 1.5,
+   "D": 0.346,
+   "ratio": 1.45,
+   "pre_wm_units": 0.77,
+   "label": "R cortex",
+   "depth_mm": 15.4,
+   "to_ventricle_mm": 22.0,
+   "score": 0.0248,
+   "rank": 180,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.346,
+   "ratio_mean": 1.45
+  },
+  {
+   "centroid_si_ap_lr": [
+    163,
+    111,
+    127
+   ],
+   "blob": 0.051,
+   "scale_vox": 1.5,
+   "D": 0.482,
+   "ratio": 2.14,
+   "pre_wm_units": 0.42,
+   "label": "L cortex",
+   "depth_mm": 16.9,
+   "to_ventricle_mm": 25.5,
+   "score": 0.0245,
+   "rank": 181,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.482,
+   "ratio_mean": 2.14
+  },
+  {
+   "centroid_si_ap_lr": [
+    203,
+    84,
+    83
+   ],
+   "blob": 0.063,
+   "scale_vox": 1.5,
+   "D": 0.388,
+   "ratio": 1.92,
+   "pre_wm_units": 0.42,
+   "label": "R cortex",
+   "depth_mm": 16.7,
+   "to_ventricle_mm": 28.2,
+   "score": 0.0245,
+   "rank": 182,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.388,
+   "ratio_mean": 1.92
+  },
+  {
+   "centroid_si_ap_lr": [
+    151,
+    159,
+    24
+   ],
+   "blob": 0.069,
+   "scale_vox": 1.5,
+   "D": 0.356,
+   "ratio": 1.38,
+   "pre_wm_units": 0.93,
+   "label": "R cortex",
+   "depth_mm": 6.6,
+   "to_ventricle_mm": 26.5,
+   "score": 0.0244,
+   "rank": 183,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.356,
+   "ratio_mean": 1.38
+  },
+  {
+   "centroid_si_ap_lr": [
+    137,
+    127,
+    67
+   ],
+   "blob": 0.056,
+   "scale_vox": 1.5,
+   "D": 0.438,
+   "ratio": 1.95,
+   "pre_wm_units": 0.46,
+   "label": "R cortex",
+   "depth_mm": 14.2,
+   "to_ventricle_mm": 9.6,
+   "score": 0.0243,
+   "rank": 184,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.438,
+   "ratio_mean": 1.95
+  },
+  {
+   "centroid_si_ap_lr": [
+    162,
+    184,
+    93
+   ],
+   "blob": 0.053,
+   "scale_vox": 1.5,
+   "D": 0.46,
+   "ratio": 1.69,
+   "pre_wm_units": 0.66,
+   "label": "L cortex",
+   "depth_mm": 27.3,
+   "to_ventricle_mm": 23.0,
+   "score": 0.0243,
+   "rank": 185,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.46,
+   "ratio_mean": 1.69
+  },
+  {
+   "centroid_si_ap_lr": [
+    192,
+    192,
+    71
+   ],
+   "blob": 0.064,
+   "scale_vox": 1.5,
+   "D": 0.376,
+   "ratio": 1.4,
+   "pre_wm_units": 0.93,
+   "label": "R cortex",
+   "depth_mm": 12.2,
+   "to_ventricle_mm": 39.6,
+   "score": 0.0242,
+   "rank": 186,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.376,
+   "ratio_mean": 1.4
+  },
+  {
+   "centroid_si_ap_lr": [
+    166,
+    175,
+    64
+   ],
+   "blob": 0.064,
+   "scale_vox": 1.5,
+   "D": 0.373,
+   "ratio": 1.6,
+   "pre_wm_units": 0.62,
+   "label": "R cortex",
+   "depth_mm": 29.8,
+   "to_ventricle_mm": 14.1,
+   "score": 0.0238,
+   "rank": 187,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.373,
+   "ratio_mean": 1.6
+  },
+  {
+   "centroid_si_ap_lr": [
+    180,
+    195,
+    66
+   ],
+   "blob": 0.066,
+   "scale_vox": 1.5,
+   "D": 0.36,
+   "ratio": 1.34,
+   "pre_wm_units": 1.06,
+   "label": "R cortex",
+   "depth_mm": 11.5,
+   "to_ventricle_mm": 37.7,
+   "score": 0.0237,
+   "rank": 188,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.36,
+   "ratio_mean": 1.34
+  },
+  {
+   "centroid_si_ap_lr": [
+    102,
+    176,
+    100
+   ],
+   "blob": 0.055,
+   "scale_vox": 1.5,
+   "D": 0.431,
+   "ratio": 1.53,
+   "pre_wm_units": 0.81,
+   "label": "L cerebellum ctx",
+   "depth_mm": 3.2,
+   "to_ventricle_mm": 25.6,
+   "score": 0.0235,
+   "rank": 189,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.431,
+   "ratio_mean": 1.53
+  },
+  {
+   "centroid_si_ap_lr": [
+    161,
+    190,
+    83
+   ],
+   "blob": 0.057,
+   "scale_vox": 1.5,
+   "D": 0.411,
+   "ratio": 1.47,
+   "pre_wm_units": 0.88,
+   "label": "R cortex",
+   "depth_mm": 20.1,
+   "to_ventricle_mm": 33.8,
+   "score": 0.0233,
+   "rank": 190,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.411,
+   "ratio_mean": 1.47
+  },
+  {
+   "centroid_si_ap_lr": [
+    147,
+    160,
+    60
+   ],
+   "blob": 0.06,
+   "scale_vox": 1.5,
+   "D": 0.378,
+   "ratio": 1.64,
+   "pre_wm_units": 0.59,
+   "label": "R cortex",
+   "depth_mm": 27.3,
+   "to_ventricle_mm": 5.9,
+   "score": 0.0227,
+   "rank": 191,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.378,
+   "ratio_mean": 1.64
+  },
+  {
+   "centroid_si_ap_lr": [
+    185,
+    175,
+    128
+   ],
+   "blob": 0.054,
+   "scale_vox": 1.5,
+   "D": 0.422,
+   "ratio": 1.35,
+   "pre_wm_units": 1.19,
+   "label": "L cortex",
+   "depth_mm": 13.6,
+   "to_ventricle_mm": 26.2,
+   "score": 0.0227,
+   "rank": 192,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.422,
+   "ratio_mean": 1.35
+  },
+  {
+   "centroid_si_ap_lr": [
+    165,
+    178,
+    74
+   ],
+   "blob": 0.062,
+   "scale_vox": 1.5,
+   "D": 0.366,
+   "ratio": 1.45,
+   "pre_wm_units": 0.81,
+   "label": "R cortex",
+   "depth_mm": 30.8,
+   "to_ventricle_mm": 21.0,
+   "score": 0.0226,
+   "rank": 193,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.366,
+   "ratio_mean": 1.45
+  },
+  {
+   "centroid_si_ap_lr": [
+    159,
+    67,
+    115
+   ],
+   "blob": 0.058,
+   "scale_vox": 1.5,
+   "D": 0.388,
+   "ratio": 2.05,
+   "pre_wm_units": 0.37,
+   "label": "L cortex",
+   "depth_mm": 3.0,
+   "to_ventricle_mm": 36.5,
+   "score": 0.0225,
+   "rank": 194,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.388,
+   "ratio_mean": 2.05
+  },
+  {
+   "centroid_si_ap_lr": [
+    160,
+    195,
+    69
+   ],
+   "blob": 0.058,
+   "scale_vox": 1.5,
+   "D": 0.375,
+   "ratio": 1.36,
+   "pre_wm_units": 1.05,
+   "label": "R cerebral WM",
+   "depth_mm": 15.4,
+   "to_ventricle_mm": 30.1,
+   "score": 0.0218,
+   "rank": 195,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.375,
+   "ratio_mean": 1.36
+  },
+  {
+   "centroid_si_ap_lr": [
+    207,
+    94,
+    83
+   ],
+   "blob": 0.053,
+   "scale_vox": 1.5,
+   "D": 0.411,
+   "ratio": 2.12,
+   "pre_wm_units": 0.37,
+   "label": "R cortex",
+   "depth_mm": 17.0,
+   "to_ventricle_mm": 28.1,
+   "score": 0.0218,
+   "rank": 196,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.411,
+   "ratio_mean": 2.12
+  },
+  {
+   "centroid_si_ap_lr": [
+    173,
+    204,
+    113
+   ],
+   "blob": 0.051,
+   "scale_vox": 4.0,
+   "D": 0.428,
+   "ratio": 1.36,
+   "pre_wm_units": 1.18,
+   "label": "L cortex",
+   "depth_mm": 3.3,
+   "to_ventricle_mm": 36.2,
+   "score": 0.0217,
+   "rank": 197,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.428,
+   "ratio_mean": 1.36
+  },
+  {
+   "centroid_si_ap_lr": [
+    140,
+    157,
+    117
+   ],
+   "blob": 0.063,
+   "scale_vox": 1.5,
+   "D": 0.339,
+   "ratio": 1.45,
+   "pre_wm_units": 0.75,
+   "label": "L cortex",
+   "depth_mm": 15.4,
+   "to_ventricle_mm": 10.8,
+   "score": 0.0214,
+   "rank": 198,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.339,
+   "ratio_mean": 1.45
+  },
+  {
+   "centroid_si_ap_lr": [
+    151,
+    135,
+    33
+   ],
+   "blob": 0.057,
+   "scale_vox": 1.5,
+   "D": 0.374,
+   "ratio": 1.65,
+   "pre_wm_units": 0.58,
+   "label": "R cortex",
+   "depth_mm": 18.0,
+   "to_ventricle_mm": 16.4,
+   "score": 0.0213,
+   "rank": 199,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.374,
+   "ratio_mean": 1.65
+  },
+  {
+   "centroid_si_ap_lr": [
+    153,
+    191,
+    99
+   ],
+   "blob": 0.065,
+   "scale_vox": 1.5,
+   "D": 0.328,
+   "ratio": 1.26,
+   "pre_wm_units": 1.28,
+   "label": "L cortex",
+   "depth_mm": 23.3,
+   "to_ventricle_mm": 23.2,
+   "score": 0.0212,
+   "rank": 200,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.328,
+   "ratio_mean": 1.26
+  },
+  {
+   "centroid_si_ap_lr": [
+    177,
+    193,
+    56
+   ],
+   "blob": 0.052,
+   "scale_vox": 1.5,
+   "D": 0.406,
+   "ratio": 1.55,
+   "pre_wm_units": 0.74,
+   "label": "R cortex",
+   "depth_mm": 10.3,
+   "to_ventricle_mm": 33.4,
+   "score": 0.0212,
+   "rank": 201,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.406,
+   "ratio_mean": 1.55
+  },
+  {
+   "centroid_si_ap_lr": [
+    143,
+    147,
+    90
+   ],
+   "blob": 0.06,
+   "scale_vox": 1.5,
+   "D": 0.35,
+   "ratio": 1.91,
+   "pre_wm_units": 0.38,
+   "label": "brainstem",
+   "depth_mm": 7.0,
+   "to_ventricle_mm": 4.6,
+   "score": 0.0211,
+   "rank": 202,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.35,
+   "ratio_mean": 1.91
+  },
+  {
+   "centroid_si_ap_lr": [
+    148,
+    193,
+    85
+   ],
+   "blob": 0.06,
+   "scale_vox": 1.5,
+   "D": 0.343,
+   "ratio": 1.41,
+   "pre_wm_units": 0.84,
+   "label": "L cortex",
+   "depth_mm": 16.6,
+   "to_ventricle_mm": 34.8,
+   "score": 0.0205,
+   "rank": 203,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.343,
+   "ratio_mean": 1.41
+  },
+  {
+   "centroid_si_ap_lr": [
+    168,
+    174,
+    78
+   ],
+   "blob": 0.056,
+   "scale_vox": 1.5,
+   "D": 0.36,
+   "ratio": 1.55,
+   "pre_wm_units": 0.65,
+   "label": "R cortex",
+   "depth_mm": 31.9,
+   "to_ventricle_mm": 19.9,
+   "score": 0.0202,
+   "rank": 204,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.36,
+   "ratio_mean": 1.55
+  },
+  {
+   "centroid_si_ap_lr": [
+    104,
+    149,
+    71
+   ],
+   "blob": 0.051,
+   "scale_vox": 1.5,
+   "D": 0.395,
+   "ratio": 1.79,
+   "pre_wm_units": 0.5,
+   "label": "R cerebellum ctx",
+   "depth_mm": 6.5,
+   "to_ventricle_mm": 10.6,
+   "score": 0.0201,
+   "rank": 205,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.395,
+   "ratio_mean": 1.79
+  },
+  {
+   "centroid_si_ap_lr": [
+    163,
+    198,
+    90
+   ],
+   "blob": 0.053,
+   "scale_vox": 1.5,
+   "D": 0.373,
+   "ratio": 1.27,
+   "pre_wm_units": 1.36,
+   "label": "L cortex",
+   "depth_mm": 13.3,
+   "to_ventricle_mm": 34.8,
+   "score": 0.0199,
+   "rank": 206,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.373,
+   "ratio_mean": 1.27
+  },
+  {
+   "centroid_si_ap_lr": [
+    172,
+    118,
+    47
+   ],
+   "blob": 0.053,
+   "scale_vox": 1.5,
+   "D": 0.37,
+   "ratio": 1.79,
+   "pre_wm_units": 0.47,
+   "label": "R cortex",
+   "depth_mm": 28.9,
+   "to_ventricle_mm": 25.2,
+   "score": 0.0195,
+   "rank": 207,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.37,
+   "ratio_mean": 1.79
+  },
+  {
+   "centroid_si_ap_lr": [
+    146,
+    196,
+    109
+   ],
+   "blob": 0.054,
+   "scale_vox": 1.5,
+   "D": 0.344,
+   "ratio": 1.25,
+   "pre_wm_units": 1.39,
+   "label": "L cortex",
+   "depth_mm": 13.5,
+   "to_ventricle_mm": 26.2,
+   "score": 0.0185,
+   "rank": 208,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.344,
+   "ratio_mean": 1.25
+  },
+  {
+   "centroid_si_ap_lr": [
+    168,
+    98,
+    122
+   ],
+   "blob": 0.052,
+   "scale_vox": 1.5,
+   "D": 0.356,
+   "ratio": 1.72,
+   "pre_wm_units": 0.49,
+   "label": "L cortex",
+   "depth_mm": 16.8,
+   "to_ventricle_mm": 28.7,
+   "score": 0.0183,
+   "rank": 209,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.356,
+   "ratio_mean": 1.72
+  },
+  {
+   "centroid_si_ap_lr": [
+    127,
+    175,
+    119
+   ],
+   "blob": 0.056,
+   "scale_vox": 1.5,
+   "D": 0.321,
+   "ratio": 1.38,
+   "pre_wm_units": 0.85,
+   "label": "L cerebellum ctx",
+   "depth_mm": 16.3,
+   "to_ventricle_mm": 28.4,
+   "score": 0.018,
+   "rank": 210,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.321,
+   "ratio_mean": 1.38
+  },
+  {
+   "centroid_si_ap_lr": [
+    141,
+    177,
+    48
+   ],
+   "blob": 0.055,
+   "scale_vox": 1.5,
+   "D": 0.328,
+   "ratio": 1.4,
+   "pre_wm_units": 0.82,
+   "label": "R cortex",
+   "depth_mm": 14.5,
+   "to_ventricle_mm": 18.1,
+   "score": 0.0179,
+   "rank": 211,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.328,
+   "ratio_mean": 1.4
+  },
+  {
+   "centroid_si_ap_lr": [
+    161,
+    184,
+    44
+   ],
+   "blob": 0.056,
+   "scale_vox": 1.5,
+   "D": 0.321,
+   "ratio": 1.37,
+   "pre_wm_units": 0.87,
+   "label": "R cortex",
+   "depth_mm": 9.4,
+   "to_ventricle_mm": 21.7,
+   "score": 0.0179,
+   "rank": 212,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.321,
+   "ratio_mean": 1.37
+  },
+  {
+   "centroid_si_ap_lr": [
+    173,
+    107,
+    24
+   ],
+   "blob": 0.054,
+   "scale_vox": 1.5,
+   "D": 0.332,
+   "ratio": 1.77,
+   "pre_wm_units": 0.43,
+   "label": "R cortex",
+   "depth_mm": 4.9,
+   "to_ventricle_mm": 45.0,
+   "score": 0.0178,
+   "rank": 213,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.332,
+   "ratio_mean": 1.77
+  },
+  {
+   "centroid_si_ap_lr": [
+    120,
+    165,
+    82
+   ],
+   "blob": 0.052,
+   "scale_vox": 1.5,
+   "D": 0.339,
+   "ratio": 1.52,
+   "pre_wm_units": 0.65,
+   "label": "R cerebellum ctx",
+   "depth_mm": 13.9,
+   "to_ventricle_mm": 4.7,
+   "score": 0.0177,
+   "rank": 214,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.339,
+   "ratio_mean": 1.52
+  },
+  {
+   "centroid_si_ap_lr": [
+    147,
+    201,
+    67
+   ],
+   "blob": 0.055,
+   "scale_vox": 1.5,
+   "D": 0.318,
+   "ratio": 1.25,
+   "pre_wm_units": 1.29,
+   "label": "R cortex",
+   "depth_mm": 10.7,
+   "to_ventricle_mm": 35.8,
+   "score": 0.0174,
+   "rank": 215,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.318,
+   "ratio_mean": 1.25
+  },
+  {
+   "centroid_si_ap_lr": [
+    159,
+    85,
+    114
+   ],
+   "blob": 0.062,
+   "scale_vox": 1.5,
+   "D": 0.276,
+   "ratio": 1.48,
+   "pre_wm_units": 0.58,
+   "label": "L cortex",
+   "depth_mm": 10.5,
+   "to_ventricle_mm": 25.4,
+   "score": 0.017,
+   "rank": 216,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.276,
+   "ratio_mean": 1.48
+  },
+  {
+   "centroid_si_ap_lr": [
+    151,
+    77,
+    65
+   ],
+   "blob": 0.05,
+   "scale_vox": 1.5,
+   "D": 0.298,
+   "ratio": 1.7,
+   "pre_wm_units": 0.42,
+   "label": "R cortex",
+   "depth_mm": 4.1,
+   "to_ventricle_mm": 20.8,
+   "score": 0.0149,
+   "rank": 217,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.298,
+   "ratio_mean": 1.7
+  },
+  {
+   "centroid_si_ap_lr": [
+    155,
+    178,
+    125
+   ],
+   "blob": 0.05,
+   "scale_vox": 1.5,
+   "D": 0.271,
+   "ratio": 1.22,
+   "pre_wm_units": 1.21,
+   "label": "L cortex",
+   "depth_mm": 14.8,
+   "to_ventricle_mm": 12.8,
+   "score": 0.0137,
+   "rank": 218,
+   "voxels": 0,
+   "bbox_extent": [
+    0,
+    0,
+    0
+   ],
+   "elongation": 0.0,
+   "D_mean": 0.271,
+   "ratio_mean": 1.22
+  }
+ ]
+}
