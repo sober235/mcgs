@@ -4,6 +4,7 @@
 Columns : ZF | CG-SENSE | CS-SENSE | Joint SENSE | L1-ESPIRiT | ZS-SSDU | 3D-DIP | 3D-INR | MC-INR | GS-single | MC-GS
           (11 columns since 2026-09-15; the 09-08 8-column version is kept as *_8col_20260908.png)
 Rows    : PRE image / PRE error-vs-y  /  POST image / POST error-vs-y
+Planes  : one figure per plane through the lesion core (--slices): axial, _coronal, _sagittal (2026-09-15)
 
 There is NO fully sampled ground truth for this prospectively undersampled acquisition,
 so the error map is the image-domain footprint of the k-space data-consistency residual
@@ -21,7 +22,9 @@ from pathlib import Path
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--gpu", type=int, default=7, help="-1 = CPU")
-ap.add_argument("--slice", type=int, default=170)   # mid-brain axial level (basal ganglia / ventricles)
+ap.add_argument("--slices", default="201,131,48",
+                help="axial z, coronal y, sagittal x; default = the lesion core from ce_lesion_candidates.py slices "
+                     "(2026-09-15). Earlier figures were axial only, at 170")
 ap.add_argument("--out", default="/home/congcongliu/figs/ce_pair")
 ap.add_argument("--cache", default="/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/figures/cache/errormap_res.npz",
                 help="images, error maps (float16) and kres; reused while every input volume is unchanged")
@@ -170,28 +173,25 @@ if any(todo.values()):
 json.dump({f"{s}|{l.splitlines()[0]}": v["kres"] for (s, l), v in res.items()},
           open(W / "kres_summary_errormap.json", "w"), indent=2)   # kres_summary.json keeps the 09-08 values
 
-# ---------------- slice pick ----------------------------------------------------------
+# ---------------- slices: through the lesion core (ce_lesion_candidates.py slices) ----
 have = [l for l, _ in COLS if ("pre", l) in res and ("post", l) in res]
 assert have, "nothing to plot"
-key = next((l for l in have if l.startswith("CG-SENSE")), have[0])
-if args.slice >= 0:
-    sl = args.slice
-else:                                   # fallback: strongest post-pre enhancement, brain levels only
-    a = res[("pre", key)]["img"]; b = res[("post", key)]["img"]
-    d = np.clip(b - a, 0, None) * (a > 0.08)
-    prof = d.reshape(d.shape[0], -1).sum(1)
-    lo, hi = int(0.55 * d.shape[0]), int(0.90 * d.shape[0])
-    sl = lo + int(prof[lo:hi].argmax())
-log(f"slice = {sl} / {res[('pre', key)]['img'].shape[0]}")
+zs, ys, xs = (int(v) for v in args.slices.split(","))
+ZLO = 105                                      # coronal/sagittal: brain slab only (ce_figure_paper.py --zlo)
+PLANES = [("", f"横断位 z={zs}", lambda v: v[zs]),                             # (A-P, L-R): anterior (eyes) up
+          ("_coronal", f"冠状位 y={ys}", lambda v: v[ZLO:, ys, :][::-1]),        # (S-I, L-R): superior up
+          ("_sagittal", f"矢状位 x={xs}", lambda v: v[ZLO:, :, xs][::-1, ::-1])]  # (S-I, A-P): superior up, anterior right
+log(f"slices: axial z={zs}  coronal y={ys}  sagittal x={xs}")
 
 ROWS = [("pre",  "img", "平扫 PRE"),
         ("pre",  "err", "平扫  |error vs y|"),
         ("post", "img", "增强 POST"),
         ("post", "err", "增强  |error vs y|")]
 
-def draw(vmax_err, fname, note):
+def draw(vmax_err, fname, note, pname, take):
     ncol = len(COLS)
-    fig, axes = plt.subplots(4, ncol, figsize=(2.35 * ncol, 4 * 2.85))
+    r, c = take(res[("pre", have[0])]["img"]).shape
+    fig, axes = plt.subplots(4, ncol, figsize=(2.35 * ncol, 4 * (2.35 * 0.75 * r / c + 0.55)), layout="compressed")
     h = None
     for ri, (scan, kind, rlab) in enumerate(ROWS):
         for ci, (label, _) in enumerate(COLS):
@@ -199,7 +199,7 @@ def draw(vmax_err, fname, note):
             if (scan, label) not in res:
                 ax.text(.5, .5, "n/a", ha="center", va="center", transform=ax.transAxes); continue
             d = res[(scan, label)]
-            im = d[kind][sl]                                  # (A-P, L-R): anterior (eyes) up (2026-09-15, was rot90)
+            im = take(d[kind])
             if kind == "img":
                 ax.imshow(im, cmap="gray", vmin=0, vmax=0.9)
             else:
@@ -207,18 +207,18 @@ def draw(vmax_err, fname, note):
                 ax.set_xlabel(f"kres = {d['kres']:.4f}" + (f"\nheld-out {d['kho']:.4f}" if d.get("kho") else ""), fontsize=8, labelpad=2)
             if ri == 0: ax.set_title(label, fontsize=10)
             if ci == 0: ax.set_ylabel(rlab, fontsize=11)
-    fig.suptitle("UIH 3D T1 GRE 平扫/增强配对 — 前瞻欠采 AF 5.33，无全采 GT\n"
+    fig.suptitle(f"UIH 3D T1 GRE 平扫/增强配对 — 前瞻欠采 AF 5.33，无全采 GT — {pname}（过病灶）\n"
                  "error map = |对测量信号 y 的 k 空间残差的 SENSE 合成图|"
                  f"   (jet, 固定 0–{vmax_err:g}{note})", fontsize=13)
-    fig.tight_layout(rect=[0, 0.03, 1, 0.93])
-    cax = fig.add_axes([0.28, 0.012, 0.44, 0.011])
-    fig.colorbar(h, cax=cax, orientation="horizontal").set_label("|error| / ref peak", fontsize=9)
+    # compressed layout: tight_layout let the kres labels overlap the next row once the panels are wide (sagittal)
+    fig.colorbar(h, ax=axes, location="bottom", shrink=0.45, aspect=70, pad=0.02).set_label("|error| / ref peak", fontsize=9)
     q = OUT / fname
     fig.savefig(q, dpi=150, bbox_inches="tight"); plt.close(fig)
     log(f"saved {q}")
 
-draw(0.10, f"ce_pair_methods_errormap{args.suffix}.png", "")
-draw(0.02, f"ce_pair_methods_errormap_zoom{args.suffix}.png", "，5× 放大")
+for suf, pname, take in PLANES:
+    draw(0.10, f"ce_pair_methods_errormap{suf}{args.suffix}.png", "", pname, take)
+    draw(0.02, f"ce_pair_methods_errormap{suf}_zoom{args.suffix}.png", "，5× 放大", pname, take)
 
 log("kres table")
 log(f"{'method':<26s} {'pre':>9s} {'post':>9s} {'pre_ho':>9s} {'post_ho':>9s}")

@@ -21,7 +21,9 @@ ap.add_argument("--dpi", type=int, default=600)
 ap.add_argument("--vmax", type=float, default=1.0)
 ap.add_argument("--margin", type=int, default=4)
 ap.add_argument("--zlo", type=int, default=105, help="inferior cut of the brain slab (axis0)")
-ap.add_argument("--zax", type=int, default=170, help="axial display level (axis0)")
+ap.add_argument("--slices", default="201,131,48",
+                help="axial z, coronal y, sagittal x (axis 0, 1, 2); default = the lesion core from ce_lesion_candidates.py "
+                     "slices (2026-09-15). Earlier figures used 170,162,86")
 ap.add_argument("--probe", action="store_true", help="dump an orientation check only")
 ap.add_argument("--cache", default="/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/figures/cache/paper_mag.npz",
                 help="alpha-scaled magnitudes (float16); reused while every input volume is unchanged")
@@ -29,7 +31,23 @@ ap.add_argument("--recompute", action="store_true")
 ap.add_argument("--drop", nargs="*", default=["L1-ESPIRiT"],
                 help="column labels to leave out; default drops L1-ESPIRiT (user, 2026-09-15: L1-SPIRiT is the L1 arm). '--drop' with no labels renders every column")
 ap.add_argument("--suffix", default="", help="appended to the output file name")
+ap.add_argument("--diff", action="store_true",
+                help="add a post - pre row per plane and, per column, the enhancement of the reference regions "
+                     "(2026-09-16). Output suffix defaults to _enhancement")
+ap.add_argument("--dvmax", type=float, default=0.20, help="top of the post - pre scale; 0.20 = 0.6 white-matter units")
+ap.add_argument("--dsmooth", type=float, default=1.0,
+                help="Gaussian sigma on the displayed post - pre (the analysis in ce_lesion_candidates.py uses 1.0); "
+                     "0 shows it unsmoothed, which is dominated by the noise of two independent reconstructions")
+ap.add_argument("--rois", default="lesion_candidates/enhance_rois_cssense.npz",
+                help="masks written by ce_lesion_candidates.py enhance; without them --diff draws no numbers")
+ap.add_argument("--zoom", action="store_true",
+                help="instead of the panel figure: zoomed crops of the axial slice, three rows -- the lesion and a "
+                     "vessel region in post - pre, and the background in post (2026-09-16)")
+ap.add_argument("--zoom_size", type=int, default=72, help="side of the zoom boxes, mm")
+ap.add_argument("--bgvmax", type=float, default=0.12, help="top of the grey scale in the background row")
 args = ap.parse_args()
+if args.diff and not args.suffix:
+    args.suffix = "_enhancement"
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu) if args.gpu >= 0 else ""
 os.environ.setdefault("PYTHONNOUSERSITE", "1")
@@ -150,15 +168,9 @@ def span(ax_):                                    # in-plane bbox, brain slab on
 y0, y1 = span(1); x0, x1 = span(2)
 log(f"brain bbox: axis0 {z0}:{z1}  axis1 {y0}:{y1}  axis2 {x0}:{x1}")
 
-# ---- slice indices: put all three planes through the enhancing lesion -----------------
-a, b = mag[("pre", "CG-SENSE")], mag[("post", "CG-SENSE")]
-d = np.clip(b - a, 0, None) * head
-from scipy.ndimage import uniform_filter
-core = np.zeros_like(d, dtype=bool); core[args.zax-12:args.zax+12, 40:-40, 30:-30] = True
-ds = uniform_filter(d * core, size=5)
-zi, yi, xi = (int(v) for v in np.unravel_index(int(np.argmax(ds)), d.shape))
-zi = args.zax                                     # fix the axial level; coronal/sagittal follow the lesion
-log(f"lesion-centred slices: axial z={zi}  coronal y={yi}  sagittal x={xi}")
+# ---- slice indices: all three planes through the lesion core (ce_lesion_candidates.py slices) ----
+zi, yi, xi = (int(v) for v in args.slices.split(","))
+log(f"lesion slices: axial z={zi}  coronal y={yi}  sagittal x={xi}")
 
 # volume layout is (S-I, A-P, L-R); flip S-I so superior is up in coronal/sagittal
 def planes(v):
@@ -176,27 +188,140 @@ if args.probe:
     log("probe saved"); sys.exit(0)
 
 # ---- layout ---------------------------------------------------------------------------
-ROWS = [("pre", 0, "Pre-contrast\nAxial"), ("pre", 1, "Pre-contrast\nCoronal"), ("pre", 2, "Pre-contrast\nSagittal"),
-        ("post", 0, "Post-contrast\nAxial"), ("post", 1, "Post-contrast\nCoronal"), ("post", 2, "Post-contrast\nSagittal")]
+PLANE = ("Axial", "Coronal", "Sagittal")
+ROI, CORE = None, None
+if args.diff or args.zoom:
+    from scipy.ndimage import gaussian_filter
+    rp = W / args.rois
+    if rp.exists():
+        with np.load(rp) as r:
+            ROI = {n: r[f"roi{i}"] for i, n in enumerate(r["names"])}
+            CORE = r["core"]
+        log(f"reference regions from {rp.name}: " + ", ".join(f"{k} {int(v.sum())}" for k, v in ROI.items()))
+    else:
+        log(f"no {rp}; run ce_lesion_candidates.py enhance to get the numbers")
+
+
+def enh_units(label):
+    """post - pre with each scan divided by its own white-matter median, so that 1 = white matter."""
+    a, b = mag[("pre", label)], mag[("post", label)]
+    return b / np.median(b[ROI["正常白质"]]) - a / np.median(a[ROI["正常白质"]])
+
+
+# ---- zoomed comparison: what the proposed arm keeps and what it does not invent --------
+if args.zoom:
+    if ROI is None:
+        sys.exit("--zoom needs the reference regions: run ce_lesion_candidates.py enhance first")
+    from scipy.ndimage import binary_dilation, uniform_filter
+    from matplotlib.patches import Rectangle
+    S, H, Wd = args.zoom_size, mag[("pre", "ZF")].shape[1], mag[("pre", "ZF")].shape[2]
+    D = {l: gaussian_filter(mag[("post", l)] - mag[("pre", l)], args.dsmooth) for l, _ in COLS}
+    wmu = float(np.median(mag[("pre", "CS-SENSE")][ROI["正常白质"]]))     # one white-matter unit, common scale
+    win = lambda m: uniform_filter(m.astype(np.float32), S, mode="constant") * S * S   # window count / mean
+    clip = lambda yy, xx: (int(np.clip(yy, 0, H - S)), int(np.clip(xx, 0, Wd - S)))
+    pts = np.argwhere(CORE[zi])
+    ly, lx = clip(*(int(v) - S // 2 for v in pts.mean(0)))                # lesion box
+    cnt = win(D["CS-SENSE"][zi] > 0.3 * wmu)                              # vessel box: most enhancing voxels,
+    cnt[max(ly - S, 0):ly + 2 * S, max(lx - S, 0):lx + 2 * S] = 0         # clear of the lesion
+    vy, vx = clip(*(int(v) - S // 2 for v in np.unravel_index(int(cnt.argmax()), cnt.shape)))
+    avg = np.mean([mag[("post", l)][zi] for l, _ in COLS], axis=0)        # background box: outside the head,
+    bgw = np.where(win(binary_dilation(head[zi], iterations=4)) > 0, -1.0,            # where the arms put most signal
+                   uniform_filter(avg, S, mode="constant"))
+    by, bx = clip(*(int(v) - S // 2 for v in np.unravel_index(int(bgw.argmax()), bgw.shape)))
+    BOX = [("病灶（增强 − 平扫）", "#FFC23D", (ly, lx)), ("血管（增强 − 平扫）", "#3BE8FF", (vy, vx)),
+           ("颅外背景（增强）", "#FFFFFF", (by, bx))]
+    for t, _, (yy, xx) in BOX:
+        log(f"{t}: y {yy}:{yy + S}  x {xx}:{xx + S}")
+    outside = ~binary_dilation(head, iterations=6)
+    num = {}
+    for label, _ in COLS:
+        e, b = enh_units(label), mag[("post", label)]
+        num[label] = (float(e[ROI["病灶核心"]].mean()), float(e[ROI["血管/静脉窦"]].mean()),
+                      float(b[outside].mean() / np.median(b[ROI["正常白质"]])))
+    fig, axs = plt.subplots(3, len(COLS) + 1, figsize=(1.45 * (len(COLS) + 1.2), 6.1), layout="compressed",
+                            gridspec_kw=dict(width_ratios=[(x1 - x0) / (y1 - y0)] + [1.0] * len(COLS)))
+    for r, (title, col, (yy, xx)) in enumerate(BOX):
+        ax = axs[r, 0]
+        ax.imshow(mag[("post", "CS-SENSE")][zi, y0:y1, x0:x1], cmap="gray", vmin=0, vmax=args.vmax)
+        ax.add_patch(Rectangle((xx - x0, yy - y0), S, S, fill=False, ec=col, lw=0.9))
+        ax.set_xticks([]); ax.set_yticks([]); ax.set_ylabel(title, fontsize=8.5)
+        if r == 0: ax.set_title(f"定位 z={zi}", fontsize=8.5)
+        for c, (label, _) in enumerate(COLS, start=1):
+            a2 = axs[r, c]
+            if r < 2:
+                a2.imshow(D[label][zi, yy:yy + S, xx:xx + S], cmap="magma", vmin=0, vmax=args.dvmax)
+                a2.set_xlabel(f"病灶 {num[label][0]:+.3f}" if r == 0 else f"血管 {num[label][1]:+.2f}", fontsize=7)
+            else:
+                a2.imshow(mag[("post", label)][zi, yy:yy + S, xx:xx + S], cmap="gray", vmin=0, vmax=args.bgvmax)
+                a2.set_xlabel(f"颅外 {num[label][2]:.3f}", fontsize=7)
+            a2.set_xticks([]); a2.set_yticks([])
+            if r == 0: a2.set_title(label, fontsize=8.5)
+    fig.suptitle(f"放大对比（横断位 z={zi}，{S}×{S} mm 框）：上两行是「增强 − 平扫」，下行是增强图的颅外背景\n"
+                 "每格下方的数值是全脑统计，不是该框内的：病灶核心与血管/静脉窦为对应 ROI 的「增强 − 平扫」均值，"
+                 "颅外为头掩膜膨胀 6 mm 之外全部体素的增强图均值，三者同以白质 = 1\n"
+                 "病灶核心越接近 0 越好（不造假强化），血管/静脉窦越大说明强化保得越住，颅外越小背景越干净", fontsize=10)
+    q = OUT / f"ce_pair_zoom_mcgs{args.suffix}.png"
+    fig.savefig(q, dpi=min(args.dpi, 300), bbox_inches="tight", pad_inches=0.02)
+    plt.close(fig)
+    log(f"saved {q}")
+    sys.exit(0)
+
+if args.diff:
+    ROWS = [(s, pi, f"{t}\n{PLANE[pi]}") for pi in range(3)
+            for s, t in (("pre", "Pre-contrast"), ("post", "Post-contrast"), ("diff", "Post − Pre"))]
+    for label, _ in COLS:                          # the enhancement itself, on the same common scale
+        e = mag[("post", label)] - mag[("pre", label)]
+        mag[("diff", label)] = gaussian_filter(e, args.dsmooth) if args.dsmooth > 0 else e
+else:
+    ROWS = [("pre", 0, "Pre-contrast\nAxial"), ("pre", 1, "Pre-contrast\nCoronal"), ("pre", 2, "Pre-contrast\nSagittal"),
+            ("post", 0, "Post-contrast\nAxial"), ("post", 1, "Post-contrast\nCoronal"), ("post", 2, "Post-contrast\nSagittal")]
 shapes = planes(mag[("pre", "ZF")])
 ncol, nrow = len(COLS), len(ROWS)
 COLW = 1.55                                        # inches per column
 hr = [shapes[r[1]].shape[0] / shapes[r[1]].shape[1] for r in ROWS]
+pad_b = 0.78 if ROI else 0.04                      # room for the per-column numbers and the caption
 figw = COLW * ncol + 0.62 + 0.42                   # + row labels + colorbar
-figh = COLW * sum(hr) + 0.34
+figh = COLW * sum(hr) + 0.30 + pad_b
 fig = plt.figure(figsize=(figw, figh))
 gs = gridspec.GridSpec(nrow, ncol, figure=fig, height_ratios=hr, wspace=0.003, hspace=0.003,
-                       left=0.62/figw, right=1 - 0.42/figw, top=1 - 0.30/figh, bottom=0.04/figh)
+                       left=0.62/figw, right=1 - 0.42/figw, top=1 - 0.30/figh, bottom=pad_b/figh)
+im = hdiff = None
+last = {}
 for ri, (scan, pi, rlab) in enumerate(ROWS):
     for ci, (label, _) in enumerate(COLS):
         ax = fig.add_subplot(gs[ri, ci])
-        im = ax.imshow(planes(mag[(scan, label)])[pi], cmap="gray", vmin=0, vmax=args.vmax,
-                       interpolation="nearest", aspect="auto")
+        d = scan == "diff"
+        h = ax.imshow(planes(mag[(scan, label)])[pi], cmap="magma" if d else "gray", vmin=0,
+                      vmax=args.dvmax if d else args.vmax, interpolation="nearest", aspect="auto")
+        if d:
+            hdiff = h
+            if CORE is not None:                   # where the lesion is, for reference
+                ax.contour(planes(CORE)[pi], levels=[0.5], colors="#FFC23D", linewidths=0.35)
+        else:
+            im = h
         ax.set_xticks([]); ax.set_yticks([])
         for sp in ax.spines.values(): sp.set_visible(False)
         if ri == 0: ax.set_title(label, fontsize=9, pad=3)
         if ci == 0: ax.set_ylabel(rlab, fontsize=8, labelpad=2)
-cax = fig.add_axes([1 - 0.34/figw, 0.10, 0.10/figw, 0.78])
+        if ri == nrow - 1: last[label] = ax
+if ROI:                                            # enhancement of the reference regions, per method
+    wmm = ROI["正常白质"]
+    for label, _ in COLS:
+        e = enh_units(label)                                        # each scan in its own white-matter units
+        last[label].set_xlabel(f"血管 {e[ROI['血管/静脉窦']].mean():+.2f}   脉络丛 {e[ROI['脉络丛']].mean():+.2f}\n"
+                               f"病灶 {e[ROI['病灶核心']].mean():+.3f}   白质 {e[wmm].mean():+.3f}", fontsize=6.5, labelpad=3)
+    wmu = float(np.median(mag[("pre", COLS[1][0])][wmm]))           # one white-matter unit on the common scale
+    fig.text(0.5, 0.010, "每列下方 = 该方法的「增强 − 平扫」在参考区的均值，两次扫描各按自身白质中位数归一（白质 = 1）。"
+             "血管/静脉窦与脉络丛是血池和无血脑屏障的结构，本该强化；病灶核心与正常白质接近 0 表示没有漏出。"
+             f"橙线 = 病灶核心。差值行与图像行共用同一强度尺度，色标 0–{args.dvmax:g} 相当于 {args.dvmax / wmu:.1f} 个白质单位，"
+             f"显示前做了 σ={args.dsmooth:g} 的高斯平滑（数值未平滑）。",
+             ha="center", fontsize=8)
+if ROI:
+    cax = fig.add_axes([1 - 0.34/figw, 0.45, 0.10/figw, 0.45])
+    cb2 = fig.colorbar(hdiff, cax=fig.add_axes([1 - 0.34/figw, pad_b/figh + 0.02, 0.10/figw, 0.33]))
+    cb2.set_label("post − pre (same scale)", fontsize=8); cb2.ax.tick_params(labelsize=7)
+else:
+    cax = fig.add_axes([1 - 0.34/figw, 0.10, 0.10/figw, 0.78])
 cb = fig.colorbar(im, cax=cax)
 cb.set_label("normalized signal intensity (a.u.)", fontsize=8)
 cb.ax.tick_params(labelsize=7)
