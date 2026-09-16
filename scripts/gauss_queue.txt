@@ -2,6 +2,11 @@
 # Round 0 = reference rows, then one lever per run on the parent (the frozen phase-3 recipe on the Gaussian mask), 1500 it.
 # Round 1 (added 13:03): stack of the two Round-0 keeps (rotation_lr 0.008 = keep, 6.0M points = keep-one on FLAIR)
 g_r1_rot008_n60 1500 --set gaussian.rotation_lr=0.008 --set gaussian.initial_num_points=6000000
+# Round 1c (added 14:05): pairwise stacks of the keeps -- rot008 did not add on top of n60, so test whether the two optimiser levers add, and each with capacity
+g_r1_rot008_scl004 1500 --set gaussian.rotation_lr=0.008 --set gaussian.scale_lr=0.004
+g_r1_scl004_n60 1500 --set gaussian.scale_lr=0.004 --set gaussian.initial_num_points=6000000
+g_r1_rot008_scl004_n48 1500 --set gaussian.rotation_lr=0.008 --set gaussian.scale_lr=0.004 --set gaussian.initial_num_points=4800000
+g_r0_gam09998 1500 --set training.lr_scheduler.gamma=0.9998
 # Round 1b / 0d (added 13:45): the 4.8M stack beside the 6.0M one; two cheap coupling / TV-shape screens never run on this mask
 g_r1_rot008_n48 1500 --set gaussian.rotation_lr=0.008 --set gaussian.initial_num_points=4800000
 g_r0_dtv001 1500 --lambda_dtv 0.01
