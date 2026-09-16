@@ -96,9 +96,12 @@ past their optimum here).
 
 - `g_r2_rsw_s43_full4k` (rsw, seed 43): 34.925 / 34.363 → **4000-it seed floor 0.001 / 0.001 dB**, SSIM / HFEN /
   sharpness 0.000 — every promotion delta above is far outside it. `g_r2_rswt_s43_full4k` (rswt, seed 43): PENDING.
-PENDING at the time of writing (results appended below when they land):
-- `g_r3_rswt_singleT1_full4k`, `g_r3_rswt_singleFLAIR_full4k`: rswt's own single-contrast arms at the same recipe —
-  the fair coupling number, not part of the bar (the user's decision keeps GS-single frozen in the main table).
+- rswt's own single-contrast arms at the same recipe (`g_r3_rswt_single{T1,FLAIR}_full4k`, plain channel quoted as in
+  every earlier line): T1 34.840 (SSIM 0.9323, HFEN 0.1364, sharp 0.820), FLAIR 34.295 (0.9213, 0.1274, 0.795).
+  **Fair coupling MC-GS − GS-single(same recipe) = +0.135 / +0.058 dB**, SSIM +0.0026 / +0.0012, HFEN better by
+  0.0058 / 0.0019 (parent line: +0.138 / +0.023). The recipe lifts the single T1 arm (34.771 → 34.840) but not the
+  single FLAIR arm (34.294 → 34.295), so on FLAIR the frozen bar and the fair bar are the same number. These rows are
+  not part of the bar (the user's decision keeps GS-single frozen in the main table).
 
 ## 7. Caveats
 
