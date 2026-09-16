@@ -1,0 +1,16 @@
+{
+  "mode": "joint",
+  "channel": "contrast",
+  "tag": "gs_joint_post",
+  "alpha_re": 1.000571846961975,
+  "alpha_im": -0.0010670495685189962,
+  "kres_internal": 0.1631534993648529,
+  "shape": [
+    256,
+    176,
+    232
+  ],
+  "iters": 4000,
+  "points": 600000,
+  "warmup": 500
+}
