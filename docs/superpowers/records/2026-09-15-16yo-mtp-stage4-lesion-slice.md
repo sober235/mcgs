@@ -120,3 +120,28 @@ PSNR / SSIM / NMSE 三项都是全场第一，比包括 GS-single 在内的所�
 - `/home/congcongliu/figs/peds_tsc_af12_lesion_1db/peds_af12_T2s_row3planes_compact_69_150_172_headerr_p4_r3_edge0005.png`
 - `/home/congcongliu/figs/peds_tsc_af12_lesion_1db/peds_af12_T1w_row3planes_compact_69_150_172_headerr_p4_r3_edge0005.png`
 - `/home/congcongliu/figs/peds_tsc_af12_lesion_1db/peds_af12_T1w_row3planes_compact_69_150_172_headerr_p3_n96_union_k05.png`
+
+## 11. 带放大框的三面图（09-16，用户要求）
+
+脚本 `scripts/p4_fig_three_planes_inset.py`（课题 `fig_three_planes_inset.py` 的副本，MC-GS 改为读运行的重建体，
+输出只写到我的图目录）。放大框 48×48×16 体素（33.6×33.6×21.6 mm），框心落在病灶上，三个平面都切过这个框；
+误差只画头内，L1 列为 L1-SPIRiT，同时输出 600 dpi 矢量 PDF。
+
+两组，每组三个平面都穿过同一个病灶：
+
+| 组 | 层面 | 框心 |
+|---|---|---|
+| 钙化样灶 | 横断 69 / 冠状 165 / 矢状 196 | RO 166, PE 196, SPE 69 |
+| 右侧脑室壁结节 | 横断 45 / 冠状 148 / 矢状 172 | RO 148, PE 172, SPE 45 |
+
+T2s（MC-GS = `p4_r3_edge0005`）：六个平面全部三项第一。对 GS-single 的余量 +0.124 / +0.024 / +0.105（钙化灶组）
+与 +0.068 / +0.009 / +0.150（结节组）；不算 GS-single 为 +1.18 / +1.55 / +1.26 与 +0.82 / +1.31 / +1.19。
+
+T1w（MC-GS = `p3_n96_union_k05`，T1w 最强的联合运行；GS-single 为同容量 9.6M 单臂）：六个平面里 MC-GS 均第二，
+只有冠状 165 的 SSIM 第一。T1w 上这两个病灶没有局灶改变，放大框只起定位作用。
+
+文件（`/home/congcongliu/figs/peds_tsc_af12_lesion_1db/`，png 与 pdf 成对）：
+`peds_af12_T2s_row3planes_compact_69_165_196_inset48x48x16_box166_196_69_headerr_p4_r3_edge0005_focus`
+`peds_af12_T2s_row3planes_compact_45_148_172_inset48x48x16_headerr_p4_r3_edge0005_nodule`
+`peds_af12_T1w_row3planes_compact_69_165_196_inset48x48x16_box166_196_69_headerr_p3_n96_union_k05_focus`
+`peds_af12_T1w_row3planes_compact_45_148_172_inset48x48x16_headerr_p3_n96_union_k05_nodule`
