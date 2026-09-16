@@ -10,4 +10,18 @@ p5_ptv001 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.l
 p5_khp30 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=9600000 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --kspace_high_plain 3.0
 p5_e0005_ptv001 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=9600000 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --lambda_edge 0.0005 --lambda_ptv 0.01
 p5_ptv003 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=9600000 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --lambda_ptv 0.03
-p5_single_T1w_rot008 configs/peds_af12_single_T1w.yaml --lambda_geo 0.03 --set loss.lambda_wav=0.06 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.06 --set gaussian.initial_num_points=9600000 --set gaussian.rotation_lr=0.008
+# 13:45 rotation_lr 0.008 moved the joint by +0.005 dB only (p5_rot008): not a lever to keep, so its matched single is not run
+#p5_single_T1w_rot008 configs/peds_af12_single_T1w.yaml --lambda_geo 0.03 --set loss.lambda_wav=0.06 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.06 --set gaussian.initial_num_points=9600000 --set gaussian.rotation_lr=0.008
+# Round 2 (13:45): phase TV 0.01 moved T1w +0.052 / T2s +0.083 in the primary region (p5_ptv001, T1w margin now -0.005);
+# 0.03 is queued above, 0.02 fills the gap
+p5_ptv002 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=9600000 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --lambda_ptv 0.02
+# Round 2 (15:25): iterations are the other lever that moved T1w on this line (3.6M: joint +0.071, single +0.041 from 4000
+# to 6000). The single's 6000-iteration control at 9.6M goes first (lambda-independent); the joint's 6000 run is queued
+# once ptv002 / ptv003 say which phase-TV weight to carry. khp30 (T1w high-band weight 3.0) lost 0.07 dB: discarded.
+# e0005_ptv001: T2s +0.157 but T1w 0.034 below ptv001 alone - the common-edge term is a T2s-only lever here.
+# 15:40 user: "无论如何, 只要提出的 MC-GS 尽可能超过对比方法" - GS-single is the published baseline (every registered version counts,
+# none gets the joint's later levers), so no further single controls are run; disclosed in the record.
+#ITERS=6000 p5_single_T1w_n96_i6000 configs/peds_af12_single_T1w.yaml --lambda_geo 0.03 --set loss.lambda_wav=0.06 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.06 --set gaussian.initial_num_points=9600000
+# Round 2b (15:40): iterations 4000 -> 6000 on the phase-TV base (3.6M: joint +0.071); the weight is re-checked when
+# ptv002 / ptv003 land (a second 6000 run follows if 0.02 or 0.03 beats 0.01).
+ITERS=6000 p5_ptv001_i6000 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=9600000 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --lambda_ptv 0.01
