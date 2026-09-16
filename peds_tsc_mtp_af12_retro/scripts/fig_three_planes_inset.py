@@ -56,7 +56,15 @@ ap.add_argument("--pdf", action="store_true", help="also write a vector PDF next
 ap.add_argument("--pdf_dpi", type=int, default=600, help="raster resolution of the image panels inside that PDF")
 ap.add_argument("--l1", choices=["spirit", "espirit"], default="spirit",
                 help="the L1 column: L1-SPIRiT (user 2026-09-15, replaces L1-ESPIRiT) or L1-ESPIRiT (the figures drawn before that)")
+ap.add_argument("--with_zf", action="store_true",
+                help="a zero-filled column right after GT (recon/zf_<c>_complex.npy; user 2026-09-16); appends _zf to the file name")
+ap.add_argument("--caps", action="store_true",
+                help="typography (user 2026-09-16): plane names capitalised, method names in the first row upper case (SPIRiT kept); appends _caps")
 args = ap.parse_args()
+if args.with_zf:
+    args.tag += "_zf"
+if args.caps:
+    args.tag += "_caps"
 
 import h5py
 import matplotlib
@@ -122,7 +130,8 @@ def spirit_file():
 
 L1 = (("spirit", "L1-SPIRiT", spirit_file()) if args.l1 == "spirit"
       else ("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espirit")))
-ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
+ARMS = [*([("zf", "ZF", R / f"recon/zf_{c}_complex.npy")] if args.with_zf else []),
+        ("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("cssense_o200", "CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
         ("jcssense", "Joint SENSE", lam_file("jcssense", "jcssense_o200")),
         L1,
@@ -302,7 +311,7 @@ for k, p in enumerate(planes):
             if p["zoom"]:
                 put_inset(a, D(p["g2"], ax_), p["zoom"], x, y, pw, h, corner=CORNER[ax_],
                           cmap="gray", vmin=0, vmax=p["vmax"], origin=ORIGIN[ax_])
-            label(a, f"{PLANE_NAME[ax_]} {p['idx']}", bold=True)
+            label(a, f"{PLANE_NAME[ax_].capitalize() if args.caps else PLANE_NAME[ax_]} {p['idx']}", bold=True)
             b.imshow(D(p["kmask"], ax_), cmap="gray", vmin=0, vmax=1, origin=ORIGIN[ax_], aspect="auto", interpolation="nearest")
             if k == 0:
                 a.set_title(f"GT ({c})", fontsize=14, fontweight="bold", pad=4)
@@ -322,7 +331,7 @@ for k, p in enumerate(planes):
             put_inset(b, emap, p["zoom"], x, y + h + gap, pw, h, corner=CORNER[ax_],
                       cmap="jet", vmin=0.0, vmax=args.err_vmax, origin=ORIGIN[ax_])
         if k == 0:
-            a.set_title(lab, fontsize=14, pad=4)
+            a.set_title((lab if "SPIRiT" in lab else lab.upper()) if args.caps else lab, fontsize=14, pad=4)
     if args.gray_cbar and CBAR[ax_]:
         x_cb = (ncol * pw + (ncol - 1) * gap + cbpad) / fw
         for handle, top_, tk in ((gim, y, MaxNLocator(5)), (im, y + h + gap, None)):
