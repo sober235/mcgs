@@ -95,3 +95,32 @@ T1w companion at the same slices and box (user asked "T1也修改了吗?"): `fig
 GS-single = `gs_single_p3f`. There GS-single is first on all three metrics in every plane and MC-GS second
 (transverse 39.703 vs 39.762, coronal 38.974 vs 39.015, sagittal 39.201 vs 39.202 — a tie at two decimals); the
 nodules are faint grey dots on T1w. It completes the pair; the "leads every arm" claim is T2s-only on these slices.
+
+## 6. One slice on which BOTH contrasts lead every arm, through the lesion (user, 2026-09-16 late morning)
+
+User: keep looking for one slice on which T1w and T2*w both beat every comparison method. The candidates are the ten
+sagittal slices of section 2; exact margins (PSNR dB / SSIM, runner-up), with whether the SSIM lead survives the
+figures' four decimals:
+
+| sagittal | T1w | T2s | lesion in plane |
+|---|---|---|---|
+| 156 | +0.016 / +0.00008 (GS-single p3f) | +0.048 / +0.00045 | no |
+| 161 | +0.018 / +0.00007 | +0.061 / +0.00082 | no (11 voxels from the right nodules) |
+| 167 | +0.010 / +0.00006 | +0.085 / +0.00110 | edge (5 voxels = 3.5 mm from the nodule centres) |
+| **173** | **+0.007 / +0.00002** (ties at 4 dp) | **+0.058 / +0.00012** | **yes: both right subependymal nodules (PE 172)** |
+| 157, 160, 162, 163, 166, 137 | T1w SSIM lead < 0.00005 (displays as a tie) | all positive | no |
+| 168–172, 174, 175 | T1w loses PSNR by 0.001–0.008 or SSIM by ≤ 0.00002 | — | 171 / 172 through the nodules |
+
+Nothing else qualifies: on T1w MC-GS leads no full transverse or coronal section, and no sagittal slice near the left
+nodules (PE 128–140) or the calcified focus (PE 196) leads on both contrasts with a visible margin.
+
+**Chosen: sagittal 173** — the only both-first slice that passes through a lesion. Strictly first on all three metrics
+for both contrasts; on T1w the SSIM lead (0.00002) shows as 0.9608 vs 0.9608 in the panel, the PSNR lead as 39.28 vs
+39.26 dB. Sagittal 161 is the robust alternative (every lead visible at the panel's precision) but holds no lesion.
+
+Figures (`fig_three_planes_inset.py --planes sag`, new option: draw a subset of the planes; box 48 x 48 x 16 at
+RO 157 between the nodules, SPE 46; L1 = L1-SPIRiT; GS-single = `gs_single_p3f` on T1w, `gs_single_ar` on T2s):
+`figures/peds_af12_{T1w,T2s}_row3planes_compact_46_146_173_planes-sag_inset48x48x16_box157_173_46_headerr_bothfirst.{png,pdf}`
+and the same for 161. Looked at: on T2s both nodules are sharp dark foci in GT, MC-GS and GS-single, blurred by
+3D-DIP, grainy in CG-SENSE / L1-SPIRiT / ZS-SSDU / 3D-INR / MC-INR; on T1w they are faint grey dots. Selected on the
+reported metric, as everything in this record.

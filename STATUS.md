@@ -66,6 +66,9 @@ full24：T1w ks5 λ2.5e-4，T2s ks3 λ5e-4，最优点都在 λ 网格内部。`
 定稿图 `peds_af12_T2s_row3planes_compact_46_146_172_inset48x48x16_box157_172_46_headerr_lesionB_allfirst.{png,pdf}`
 （用户改：矢状/冠状放大框改成横向矩形 48×48×16 体素、框心移到两个结节中间 RO 157、放大图不压左上角指标；脚本加了 `--inset RO PE SPE` 与 `--inset_center`）。
 T1w 同层同框的配套图 `peds_af12_T1w_..._lesionB_allfirst.{png,pdf}` 也出了：三平面都是 GS-single 第一、MC-GS 第二（矢状 39.201 对 39.202），病灶在 T1w 上只是淡灰点。
+（09-16 上午末）用户要"T1 和 T2* 都超过对比方法的一层"：十个双赢矢状层里**只有 173 穿过病灶**（右侧两个结节，PE 172）：
+T1w +0.007 dB / SSIM +0.00002（面板四位小数下 0.9608 平），T2s +0.058 / +0.00012，三项都严格第一；161 余量都看得见但没病灶。
+单平面图（脚本新加 `--planes`）`peds_af12_{T1w,T2s}_row3planes_compact_46_146_173_planes-sag_inset48x48x16_box157_173_46_headerr_bothfirst.{png,pdf}`（另有 161 版）。记录 §6。
 钙化样灶的冠状面 SSIM 输 GS-single，凑不齐三平面；T1w 同三层 MC-GS 第二（病灶在 T1w 上本就不可见）。记录 §5。
 
 ### 三期：在本受试者上调参（09-14/15，已收尾）

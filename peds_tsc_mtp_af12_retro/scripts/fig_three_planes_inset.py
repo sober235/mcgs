@@ -42,6 +42,10 @@ ap.add_argument("--inset_center", type=int, nargs=3, default=[-1, -1, -1], metav
                 help="centre of the zoom box in voxels; -1 = the matching --slices index (coronal, sagittal, transverse), "
                      "the default. Lets the box sit on a lesion that is off the slice intersection while every plane still "
                      "cuts through the box (each slice index must lie inside the box's extent along its axis)")
+ap.add_argument("--planes", nargs="+", default=["tra", "cor", "sag"], choices=["tra", "cor", "sag"],
+                help="which planes to draw, in display order (default all three); --slices still gives all three indices, "
+                     "the undrawn ones only position the zoom box (user 2026-09-16: a one-plane figure of the slice on "
+                     "which both contrasts lead every arm)")
 ap.add_argument("--inset_corner", nargs=3, default=["bl", "bl", "bl"], choices=["bl", "br", "tl", "tr"],
                 help="which corner holds the zoom, one per plane in display order (transverse, coronal, sagittal)")
 ap.add_argument("--gray_cbar", action="store_true", help="a grey colorbar beside each image row, not only the error bar")
@@ -153,8 +157,11 @@ def head_region(m):
 
 
 PLANES = [(2, "transverse"), (0, "coronal"), (1, "sagittal")]     # display order, this topic's axes
+DRAW = [{"tra": 2, "cor": 0, "sag": 1}[n] for n in args.planes]
 planes = []
 for (axis, _pname), idx in zip(PLANES, args.slices):
+    if axis not in DRAW:
+        continue
     sl = [slice(None)] * 3; sl[axis] = idx; sl = tuple(sl)
     g2, m2 = gt[sl], head[sl]
     g64 = g2.astype(np.float64)
@@ -197,11 +204,23 @@ if INSET[0] > 0:
         assert got == EXPECT[p["axis"]], f"box is {got} (rows, cols) on {PLANE_NAME[p['axis']]}, expected {EXPECT[p['axis']]}"
         p["zoom"] = dict(x0=int(cls.min()), y0=int(rws.min()), w=got[1], h=got[0])
 
-ratio = float(np.mean([p["med"] / p["vmax"] for p in planes if p["axis"] != 1]))
+# the sagittal grey window follows the other two planes' in-head median; with the sagittal plane drawn alone it needs
+# their windows anyway, so they are measured here without being drawn
+_ref = [p["med"] / p["vmax"] for p in planes if p["axis"] != 1]
+if not _ref:
+    for (axis, _pname), idx in zip(PLANES, args.slices):
+        if axis == 1:
+            continue
+        sl = [slice(None)] * 3; sl[axis] = idx; sl = tuple(sl)
+        g2, m2 = gt[sl], head[sl]
+        _ref.append(float(np.median(g2[m2])) / float(np.quantile(g2, 0.999)))
+ratio = float(np.mean(_ref))
 for p in planes:
     p["vmax_p999"] = p["vmax"]
     if p["axis"] == 1:                  # the sagittal plane of this topic is axis 1
         p["vmax"] = p["med"] / ratio
+CORNER = {2: args.inset_corner[0], 0: args.inset_corner[1], 1: args.inset_corner[2]}        # per axis, full display order
+CBAR = {2: 0 in args.cbar_planes, 0: 1 in args.cbar_planes, 1: 2 in args.cbar_planes}
 
 
 # D, ORIGIN and PLANE_NAME come from the anatomy block above
@@ -281,7 +300,7 @@ for k, p in enumerate(planes):
         if j == 0:
             gim = a.imshow(D(p["g2"], ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin=ORIGIN[ax_], aspect="auto")
             if p["zoom"]:
-                put_inset(a, D(p["g2"], ax_), p["zoom"], x, y, pw, h, corner=args.inset_corner[k],
+                put_inset(a, D(p["g2"], ax_), p["zoom"], x, y, pw, h, corner=CORNER[ax_],
                           cmap="gray", vmin=0, vmax=p["vmax"], origin=ORIGIN[ax_])
             label(a, f"{PLANE_NAME[ax_]} {p['idx']}", bold=True)
             b.imshow(D(p["kmask"], ax_), cmap="gray", vmin=0, vmax=1, origin=ORIGIN[ax_], aspect="auto", interpolation="nearest")
@@ -292,7 +311,7 @@ for k, p in enumerate(planes):
         v = vols[key][p["sl"]]
         a.imshow(D(v, ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin=ORIGIN[ax_], aspect="auto")
         if p["zoom"]:
-            put_inset(a, D(v, ax_), p["zoom"], x, y, pw, h, corner=args.inset_corner[k],
+            put_inset(a, D(v, ax_), p["zoom"], x, y, pw, h, corner=CORNER[ax_],
                       cmap="gray", vmin=0, vmax=p["vmax"], origin=ORIGIN[ax_])
         for i, (txt, met) in enumerate(((f"{p['ps'][key]:.2f} dB", "psnr"), (f"SSIM {p['ss'][key]:.4f}", "ssim"),
                                          (f"NMSE {p['nm'][key]:.5f}", "nmse"))):
@@ -300,11 +319,11 @@ for k, p in enumerate(planes):
         emap = D(np.abs(v - p["g2"]) / gmax * (p["emask"] if args.mask_error else 1), ax_)
         im = b.imshow(emap, cmap="jet", vmin=0.0, vmax=args.err_vmax, origin=ORIGIN[ax_], aspect="auto")
         if p["zoom"]:
-            put_inset(b, emap, p["zoom"], x, y + h + gap, pw, h, corner=args.inset_corner[k],
+            put_inset(b, emap, p["zoom"], x, y + h + gap, pw, h, corner=CORNER[ax_],
                       cmap="jet", vmin=0.0, vmax=args.err_vmax, origin=ORIGIN[ax_])
         if k == 0:
             a.set_title(lab, fontsize=14, pad=4)
-    if args.gray_cbar and k in args.cbar_planes:
+    if args.gray_cbar and CBAR[ax_]:
         x_cb = (ncol * pw + (ncol - 1) * gap + cbpad) / fw
         for handle, top_, tk in ((gim, y, MaxNLocator(5)), (im, y + h + gap, None)):
             cax_ = fig.add_axes([x_cb, 1 - (top_ + h) / fh, cbw / fw, h / fh])
@@ -315,12 +334,12 @@ last_top = top_in + sum(row_h[:-1]) + (len(row_h) - 1) * gap
 if not args.gray_cbar:
     cax = fig.add_axes([(ncol * pw + (ncol - 1) * gap + cbpad) / fw, 1 - (last_top + row_h[-1]) / fh, cbw / fw, row_h[-1] / fh])
     cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=10)
-fig.suptitle(f"{c}  16yo MTP  {AF_LABEL}  --  transverse {args.slices[0]} / coronal {args.slices[1]} / sagittal {args.slices[2]}",
+fig.suptitle(f"{c}  16yo MTP  {AF_LABEL}  --  " + " / ".join(f"{PLANE_NAME[p['axis']]} {p['idx']}" for p in planes),
              fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
 fig.text(0.5, 1 - 0.40 / fh, f"head-masked slice PSNR / SSIM ({'7x7 window' if args.ssim == 'uniform' else 'Gaussian window, sigma 1.5'}) / NMSE "
          f"in each panel, the best of each plane in bold;   error |recon - GT| / max(GT), jet [0, 0.1];   "
          f"left of each error row: the sampling mask in that plane" + ("   (error shown inside the head only)" if args.mask_error else ""), ha="center", va="top", fontsize=11)
-name = (f"peds_af12_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}"
+name = (f"peds_af12_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}" + ("" if len(planes) == 3 else "_planes-" + "-".join(args.planes))
         + ((f"_inset{INSET[0]}" if len(set(INSET)) == 1 else f"_inset{'x'.join(map(str, INSET))}") + BOX_TAG if INSET[0] > 0 else "")
         + f"{'_headerr' if args.mask_error else ''}{args.tag}.png")
 for d in (F, R / "figures"):
