@@ -1,0 +1,58 @@
+{
+ "seed": 1,
+ "note": "null = second seed minus first seed on the pre scan; observed = post minus pre",
+ "rows": [
+  {
+   "arm": "3D-DIP",
+   "seed": 1,
+   "run_a": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/dipinr/dip_pre_complex.npy",
+   "run_b": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/seed_null_s1/dip_pre_complex.npy",
+   "null_core": 0.007619546726346016,
+   "null_core_abs": 0.025514710694551468,
+   "null_vessels": -0.005778665188699961,
+   "null_plexus": 0.0022106280084699392,
+   "null_wm": -6.862770078441827e-06,
+   "obs_core": 0.05666498839855194,
+   "obs_vessels": 2.5967471599578857
+  },
+  {
+   "arm": "3D-INR",
+   "seed": 1,
+   "run_a": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/dipinr/inr_pre_complex.npy",
+   "run_b": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/seed_null_s1/inr_pre_complex.npy",
+   "null_core": 0.002555396407842636,
+   "null_core_abs": 0.03395731374621391,
+   "null_vessels": -0.00048769856221042573,
+   "null_plexus": 0.0021257170010358095,
+   "null_wm": 0.001440888736397028,
+   "obs_core": 0.029356125742197037,
+   "obs_vessels": 2.8828861713409424
+  },
+  {
+   "arm": "GS-single",
+   "seed": 1,
+   "run_a": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/gs_single_pre/gs_single_pre_raw_complex.npy",
+   "run_b": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/seed_null_s1/gs_single_pre/gs_single_pre_raw_complex.npy",
+   "null_core": 0.0007928187842480838,
+   "null_core_abs": 0.016689706593751907,
+   "null_vessels": 0.00020778141333721578,
+   "null_plexus": 0.0013567785499617457,
+   "null_wm": 0.00018208763503935188,
+   "obs_core": 0.021352190524339676,
+   "obs_vessels": 2.9234251976013184
+  },
+  {
+   "arm": "MC-GS",
+   "seed": 1,
+   "run_a": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/gs_joint/gs_joint_pre_raw_complex.npy",
+   "run_b": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/seed_null_s1/gs_joint/gs_joint_pre_raw_complex.npy",
+   "null_core": 0.0010201653931289911,
+   "null_core_abs": 0.016766969114542007,
+   "null_vessels": 7.04452904756181e-05,
+   "null_plexus": 0.0012529550585895777,
+   "null_wm": -1.2808405699615832e-05,
+   "obs_core": 0.023582329973578453,
+   "obs_vessels": 2.9232561588287354
+  }
+ ]
+}

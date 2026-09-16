@@ -1,5 +1,8 @@
 # CE pair reconstruction results — UIH 3D T1 GRE pre/post contrast
 
+> New session: read `STATUS.md` first (what is done and verified, what is waiting for a decision, what not to redo),
+> then this file for the full protocol and history.
+
 Canonical results directory. **All current and subsequent results for this line of work go here.**
 (Superseded: `/data0/congcong/data/3D_data/ce_compare_20260907`, moved here 2026-09-08.)
 
@@ -270,6 +273,35 @@ sessions refill a freed card within a minute; a single poll every 15 s works. Ki
 Its README gives layout, units (GS volumes need a transpose and the P99.9 scale) and a loader. It is written by
 `scripts/export_ce_bundle.py` (`--no_raw` skips the 14 GiB of k-space and maps). Not de-identified: server only.
 
+## Seed null test: what the randomly initialised arms invent on their own (2026-09-16)
+
+The enhancement table is built from two independently reconstructed scans, so part of what an arm reports in the
+non-enhancing lesion could be its own randomness rather than contrast uptake. `ce_orchestrate.py seednull` reruns the
+four randomly initialised arms on the **same** pre-contrast data with a second seed (`--seed`, default 0 for
+`ce_dip_inr.py` and 42 for `ce_gs.py`; the held-out line split stays at seed 0, and the GS arms use the pinned 09-07
+trainer `_trainer_3dd24aa`, so only the seed differs). `ce_seed_null.py` scores the two runs against each other in
+the same reference regions (`seed_null_s1.json`, figure `ce_pair_seed_null.png`).
+
+```
+arm         seed - seed, lesion core   per-voxel |diff|   observed post - pre   excess over the data level
+3D-DIP              +0.008                  0.026               +0.057                  +0.036
+3D-INR              +0.003                  0.034               +0.029                  +0.008
+GS-single           +0.001                  0.017               +0.021                   0.000
+MC-GS               +0.001                  0.017               +0.024                  +0.003
+```
+
+The data level is +0.021: the deterministic arms (CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT) all report that in the
+lesion, and they have no seed, so +0.02 is a property of this pair (partial volume, the residue of white-matter
+normalisation), not something a method produces. What matters is the excess above it. **3D-DIP's excess is +0.036,
+4.5x its own floor of +0.008: its lesion signal is not explained by randomness, it is a systematic disagreement
+between its two reconstructions.** 3D-INR's excess is +0.008, about 2.7x its floor. The two GS arms sit at 0.000 and
++0.003 against a floor of +0.001, and their per-voxel scatter (0.017) is the smallest of the four, i.e. they are the
+most reproducible run to run. Both runs of every arm converged to the same level (3D-DIP kres 0.22695 vs 0.22686,
+3D-INR 0.18561 vs 0.18573), so this is not one run being stopped early.
+
+Caveat: one seed pair per arm, so these are bounds, not error bars; a third seed would turn them into a spread. The
+runs are in `seed_null_s1/` (about 40-55 min each on a free card; the plan writes `logs/ext_20260914/ALL_DONE_seednull`).
+
 ## Derived-results bundle (2026-09-16)
 
 `export/ce_enhancement_20260916/` (64 files, 329 MiB, `md5sum -c checksums.md5` 64/64 OK, written by
@@ -297,7 +329,8 @@ smoothed pre < 0.32 inside a box set by eye (z 180:224, y 75:155, x 22:82):
 - Both comparison figures use these slices since 2026-09-15; their earlier planes (z 170, y 162, x 86) missed the
   core. The lesion figure shows sagittal anterior left; the comparison figures show it anterior right.
 - **The lesion does not enhance** (asked 2026-09-16: a slice subtle on pre but obvious on post). post minus pre in
-  WM units: core 0.021, rim 0-3 mm 0.026, rim 3-6 mm 0.009, against 0.003 for all white matter and 0.046 / 0.061 /
+  WM units: core 0.021, rim 0-3 mm 0.026, rim 3-6 mm 0.009 (the rims here are also cut by the eroded brain mask; the
+  `enhance` stage dilates without that cut and reports 0.028 for the same 0-3 mm rim), against 0.003 for white matter and 0.046 / 0.061 /
   0.035 for the mirrored contralateral regions, i.e. the lesion side enhances *less* than the normal side. Its
   contrast against its own 3-6 mm surroundings falls from 0.303 (pre) to 0.291 (post). A whole-brain search for
   foci that look like normal tissue on pre and bright on post (difference of Gaussians on each scan, inside
