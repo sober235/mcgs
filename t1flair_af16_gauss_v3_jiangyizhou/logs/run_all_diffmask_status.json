@@ -1,0 +1,77 @@
+{
+ "time": "09-16 09:48:39",
+ "running": [
+  {
+   "name": "radial/tv_T1_0.00035",
+   "gpu": 3,
+   "min": 7.1
+  },
+  {
+   "name": "radial/tv_T1_0.001",
+   "gpu": 5,
+   "min": 2.6
+  },
+  {
+   "name": "radial/tv_T1_0.0014",
+   "gpu": 7,
+   "min": 2.6
+  },
+  {
+   "name": "radial/tv_FLAIR_0.00025",
+   "gpu": 2,
+   "min": 0.0
+  }
+ ],
+ "waiting": [],
+ "queued": [
+  "radial/tv_FLAIR_0.00035",
+  "radial/tv_FLAIR_0.0005",
+  "radial/tv_FLAIR_0.0007",
+  "radial/tv_FLAIR_0.001",
+  "radial/jtv_0.00035",
+  "radial/jtv_0.0005",
+  "radial/jtv_0.0007",
+  "radial/jtv_0.001",
+  "radial/jtv_0.0014",
+  "radial/zsssdu_T1",
+  "radial/zsssdu_FLAIR",
+  "radial/inr_T1",
+  "radial/inr_FLAIR",
+  "radial/dip_T1",
+  "radial/dip_FLAIR",
+  "radial/spirit_T1_ks3_lam0",
+  "radial/spirit_T1_ks3_lam0.0005",
+  "radial/spirit_T1_ks3_lam0.001",
+  "radial/spirit_T1_ks3_lam0.002",
+  "radial/spirit_T1_ks3_lam0.004",
+  "radial/spirit_T1_ks3_lam0.008",
+  "radial/spirit_T1_ks5_lam0",
+  "radial/spirit_T1_ks5_lam0.0005",
+  "radial/spirit_T1_ks5_lam0.001",
+  "radial/spirit_T1_ks5_lam0.002",
+  "radial/spirit_T1_ks5_lam0.004",
+  "radial/spirit_T1_ks5_lam0.008",
+  "radial/spirit_FLAIR_ks3_lam0",
+  "radial/spirit_FLAIR_ks3_lam0.0005",
+  "radial/spirit_FLAIR_ks3_lam0.001",
+  "radial/spirit_FLAIR_ks3_lam0.002",
+  "radial/spirit_FLAIR_ks3_lam0.004",
+  "radial/spirit_FLAIR_ks3_lam0.008",
+  "radial/spirit_FLAIR_ks5_lam0",
+  "radial/spirit_FLAIR_ks5_lam0.0005",
+  "radial/spirit_FLAIR_ks5_lam0.001",
+  "radial/spirit_FLAIR_ks5_lam0.002",
+  "radial/spirit_FLAIR_ks5_lam0.004",
+  "radial/spirit_FLAIR_ks5_lam0.008"
+ ],
+ "done": {
+  "radial/gs_joint": "skip",
+  "radial/gs_singleFLAIR": "skip",
+  "radial/base_FLAIR": "skip",
+  "radial/gs_singleT1": "skip",
+  "radial/mcinr": "skip",
+  "radial/tv_T1_0.0005": 0,
+  "radial/tv_T1_0.0007": 0,
+  "radial/base_T1": 0
+ }
+}
