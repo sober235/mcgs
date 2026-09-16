@@ -1,3 +1,52 @@
+# STATUS — 2026-09-16 21:10（worktree `mcgs_hparam_wt`，分支 `hparam-sensitivity`）— 超参数敏感性研究已完成
+
+## 1. 已完成且已验证
+- 六个运行全部 rc=0（`results_arc/hp_runs.log`：n18 19:22、n36 19:33、n09 20:11、p05 20:46、p10 20:49、n72 20:56），
+  独占 A100 上每个 47–82 min。汇总表与图：
+
+```
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= /home/congcongliu/anaconda3/envs/GSTMI/bin/python scripts/hp_summarize.py | tail -9
+Deltas against hp_n36 (head PSNR T1 / FLAIR, dB):
+- hp_n09: -0.349 / -0.793
+- hp_n18: -0.114 / -0.264
+- hp_n72: -0.036 / +0.052
+- hp_p05: +0.000 / +0.005
+- hp_p10: +0.002 / +0.010
+
+Anchor hp_n36 vs registered gs_joint_p3 35.706 / 34.928: delta 0.000 / 0.000 dB, tolerance 0.02 -> PASS
+```
+  头内 PSNR T1 / FLAIR：0.9M 35.357 / 34.135，1.8M 35.592 / 34.664，3.6M 35.706 / 34.928，7.2M 35.670 / 34.980；
+  5% 35.706 / 34.933，10% 35.708 / 34.938。完整表 `results_arc/hp_summary.md`（课题 `logs/` 有副本）。
+- 课题 `Results_20260908/T1FLAIR_AF16_hparam_v3_jiangyizhou/`（README 中文、scripts、logs、mcgs 打分 json、figures），仓库镜像
+  `t1flair_af16_hparam_v3_jiangyizhou/`；记录 `docs/superpowers/records/2026-09-16-hparam-sensitivity.md`；根 README 已加一行。
+- 图 `figures/hp_sensitivity_psnr_ssim.{png,pdf}`，`http://localhost:8765/t1flair_v3_af16_hparam/hp_sensitivity_psnr_ssim.png`。
+- 单元测试 `tests/test_hp_summarize.py` 3 通过。
+
+## 2. 待用户拍板
+- 结论怎么写进论文：第一组是"取舍不是饱和"（T1 在 3.6M 最高、FLAIR 随容量继续涨，与三期 4.8M/6.0M 一致）；第二组 null。
+  spec §8 的判据照字面得出这两句，措辞由用户定。
+- 要不要扩展：第二受试者 huangyuwei（掩膜同一张 md5）、R=6 新掩膜、病灶数据上的 CNR——都不在本 spec 内，没跑。
+- 六个 0.71 GB 体积留在 `results_arc/`，要不要打包进课题 `export/`。
+
+## 3. 下一步
+无待跑作业。两个运行器在训练全部退出后自行退出（见第 4 节若有例外）。
+
+## 4. 坑与"别重做什么"
+- anchor 逐位复现（0.000 / 0.000），说明 5ea6189 与三期尖端的训练/打分路径一致，不必再查漂移。
+- `TORCH_EXTENSIONS_DIR` 无效（扩展编进 worktree 的 `paired_gs/gaussian/build/`）；`.gpulock.<卡>` 与其他三个调度器共用；
+  两个运行器同时消费一份队列靠"有输出就跳过"，别再起第三个。
+- 冒烟 `hp_smoke_*` 不是结果。AF24 日志里 6–7.5 h/run 是共卡数字，别拿来估算。
+
+## 5. 关键决定的"为什么"
+- N_s 网格以 3.6M 为中心（设计的 50k–400k 是通用 3DGS 直觉，比本体积的工作点低 9–72 倍，照跑只能看到欠拟合区）。
+- 主配方 N_p=0（发表结果全是 0；私有集是测过判 null 的可选杠杆），所以第二组是"往上加"。
+- AF16 而非 R=6：图 of record 在 AF16，R=6 各法近饱和且要新掩膜。
+- 无 Lesion CNR：三个受试者无病灶；换数据会让两组不在同一数据上。
+
+下面是起跑前后的过程记录（同一天，保留）。
+
+---
+
 # STATUS — 2026-09-16 17:30（worktree `mcgs_hparam_wt`，分支 `hparam-sensitivity`，自 `origin/autoresearch-jyz-af24` 5ea6189 切出）
 
 ## 超参数敏感性研究（本分支）：分支已建、设计已对照代码，一步实验没跑，等用户拍板

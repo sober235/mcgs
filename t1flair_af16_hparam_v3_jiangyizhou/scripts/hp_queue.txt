@@ -1,0 +1,9 @@
+# hyper-parameter sensitivity queue (spec docs/superpowers/specs/2026-09-16-hparam-sensitivity-design.md)
+# format: [KEY=VAL ...] EXP ITERS [extra run_hp_mcgs.sh args]; consumed by scripts/hp_queue.sh, top first.
+# anchor first (repeats the registered gs_joint_p3: head PSNR 35.706 / 34.928), then the capacity axis, then the private axis.
+SAVE_VOLUMES=1 hp_n36 4000 --set gaussian.initial_num_points=3600000
+SAVE_VOLUMES=1 hp_n18 4000 --set gaussian.initial_num_points=1800000
+SAVE_VOLUMES=1 hp_n09 4000 --set gaussian.initial_num_points=900000
+SAVE_VOLUMES=1 hp_n72 4000 --set gaussian.initial_num_points=7200000
+SAVE_VOLUMES=1 hp_p05 4000 --set gaussian.initial_num_points=3600000 --set gaussian.num_private_points=180000
+SAVE_VOLUMES=1 hp_p10 4000 --set gaussian.initial_num_points=3600000 --set gaussian.num_private_points=360000

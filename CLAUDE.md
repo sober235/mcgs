@@ -141,4 +141,7 @@ N_p = 0 and group 2 adds 5 % / 10 % FLAIR-private Gaussians on top; AF16 (the ex
 Spec `docs/superpowers/specs/2026-09-16-hparam-sensitivity-design.md`, plan `docs/superpowers/plans/2026-09-16-hparam-sensitivity.md`.
 Launcher `run_hp_mcgs.sh` (recipe block identical to `run_af24_mcgs.sh`, AF16 config), queue `scripts/hp_queue.sh` +
 `scripts/hp_queue.txt`, summary `scripts/hp_summarize.py` (test `tests/test_hp_summarize.py`). Six runs hp_n09/n18/n36/n72/p05/p10;
-hp_n36 is the regression anchor (gs_joint_p3 35.706 / 34.928, tolerance 0.02 dB). Queue state and controls: `STATUS.md`.
+hp_n36 is the regression anchor (gs_joint_p3 35.706 / 34.928, tolerance 0.02 dB). **Complete 2026-09-16 21:00**: anchor delta
+0.000 / 0.000 (PASS); capacity 0.9M -> 3.6M monotone (T1 +0.349 / FLAIR +0.793 dB), 3.6M -> 7.2M a trade (T1 -0.036 / FLAIR +0.052);
+private 5 % / 10 % null (at most +0.010 dB). Topic `Results_20260908/T1FLAIR_AF16_hparam_v3_jiangyizhou/` (mirror
+`t1flair_af16_hparam_v3_jiangyizhou/`), record `docs/superpowers/records/2026-09-16-hparam-sensitivity.md`, hand-off in `STATUS.md`.
