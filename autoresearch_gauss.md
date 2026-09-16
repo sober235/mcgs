@@ -104,6 +104,11 @@ card locks were released by the wrappers' traps. Fix (commit below): the schedul
 `setsid nohup … &`, detached from tmux, so only the scheduler itself lives in the tmux session. All five are re-queued
 unchanged and re-run from scratch. Cost: about 25 GPU-minutes; no result was affected (nothing had been read).
 
+## Cards (16:45, user decision relayed by session claude-71)
+
+The loop is cut to three cards: the scheduler now runs with `ALLOWED='3 4 7'`; cards 1, 2 and 5 are given up (the jobs
+on 1 and 2 finish, nothing new is placed there) for the jyz AF16 noise-robustness study (worktree `mcgs_noise_wt`).
+
 ## Round log
 
 Head-only, 1500 it unless noted; bar = GS-single frozen 34.771 / 34.294 (PSNR), 0.9305 / 0.9202 (SSIM), 0.1412 / 0.1295 (HFEN).
@@ -157,3 +162,6 @@ Head-only, 1500 it unless noted; bar = GS-single frozen 34.771 / 34.294 (PSNR), 
 | 16:07  g_r1_rswt | 34.972 (+0.097) | 34.333 (+0.085) | 0.9349 / 0.9223 | 0.1305 / 0.1255 | 0.822 / 0.790 | **keep — best T1 and best structure of the loop**: +0.097 / +0.085, SSIM +0.0018 / +0.0020, HFEN +0.0043 / +0.0029, sharpness +0.025 / +0.033; FLAIR PSNR below rsw (+0.100), which keeps the larger min-margin (0.054 vs 0.039). Both promoted at 4000 it; rsw also with lr gamma 0.9998 |
 | 16:08  g_r0_initint | 34.921 (+0.046) | 34.267 (+0.019) | 0.9334 / 0.9194 | 0.1322 / 0.1272 | 0.810 / 0.779 | **keep-marginal**: T1 +0.046, FLAIR +0.019, HFEN better on both, sharper (+0.013 / +0.022), but FLAIR SSIM −0.0009 — the intensity-weighted cold start places points better for T1; stacked on rswt (`g_r1_rswt_init`) to see whether the slip is covered |
 | 16:11 | **g_r2_rs_full4k (4000 it, volumes)** | 34.916 | 34.345 | 0.9333 / 0.9213 | 0.1345 / 0.1278 | 0.795 / 0.758 | vs the parent at 4000 (34.909 / 34.317): **+0.007 / +0.028 only** — the +0.049 / +0.083 seen at 1500 it is mostly convergence speed, not a better end point (the same 1500-vs-4000 lesson as the AF12 capacity rows). Margin over the bar +0.145 / +0.052 (parent +0.138 / +0.023); six cells still first. The 1500-it screen overstates every optimiser lever; only prior-shape gains (w_floor, vector TV) can be expected to survive promotion, which rsw / rswt / rsw_gam will show |
+| 16:32  g_r0_kren | 34.864 (-0.011) | 34.245 (-0.003) | 0.9328 / 0.9196 | 0.1361 / 0.1304 | 0.790 / 0.741 | **discard**: −0.011 / −0.003 with HFEN and sharpness worse — the edge threshold taken from the running render is worse than from ZF even on this noisier ZF; P6's kappa-from-ZF stays |
+| 16:33  g_r0_wfl002 | 34.891 (+0.016) | 34.271 (+0.023) | 0.9336 / 0.9210 | 0.1340 / 0.1280 | 0.809 / 0.770 | **keep**: +0.016 / +0.023, a shade above 0.05 (+0.013 / +0.017) on every cell — the w_floor curve keeps rising as the floor goes to zero; 0.0 queued as the bracket end. The 0.02-vs-0.05 difference is inside what 4000 it can resolve, so the promotions stay at 0.05 |
+| 16:40 | **g_r2_rsw_full4k (4000 it, volumes)** | 34.923 | 34.362 | 0.9337 / 0.9218 | 0.1339 / 0.1274 | 0.806 / 0.769 | vs the parent at 4000: **+0.014 / +0.045**, every cell better, sharper (+0.010 / +0.010); vs the rs promotion +0.007 / +0.017 — the w_floor gain (a prior-shape change) survives promotion, the lr gains largely do not. Margin over the bar **+0.152 / +0.068**; six cells first. Best 4000-it recipe so far |
