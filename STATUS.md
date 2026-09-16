@@ -75,7 +75,15 @@ spec `docs/superpowers/specs/2026-09-16-hparam-sensitivity-design.md`，plan `do
 - 坑：`TORCH_EXTENSIONS_DIR` 对这套代码无效，体素化 CUDA 扩展按源码哈希编进各 worktree 自己的 `paired_gs/gaussian/build/`，
   worktree 之间不共享缓存（所以不会互相干扰）；`run_hp_mcgs.sh` 里那个变量留着无害。
 
-### 跑完以后（下一会话，plan Task 5）
+### 19:40 进展（用户"继续"）
+- **anchor 门 PASS**：hp_n36 = 35.706 / 34.928，对注册 gs_joint_p3 差 0.000 / 0.000 dB（同种子同代码路径，逐位复现）。
+- hp_n18 = 35.592 / 34.664（对 3.6M −0.114 / −0.264）。hp_n09（卡 2）、hp_n72（卡 1）在跑。
+- 19:39 在空出来的卡 3、4 上又起了一个运行器（`ALLOWED="3 4"`，日志 `results_arc/hp_queue_b.log`），hp_p05 / hp_p10 立即开跑，
+  不必等卡 1、2；两个运行器靠同一套"有输出就跳过"规则与卡锁互不重复。起它之前核对：gauss 队列 0 个待跑、未暂停，卡 3/4 无进程无锁。
+- 实测每个 3.6M 运行 66 min、1.8M 53 min；预计 21:45 前全部落地（7.2M 最慢）。
+- 课题目录骨架已建：`Results_20260908/T1FLAIR_AF16_hparam_v3_jiangyizhou/`（data/ 五个符号链接指向 AF16 课题，掩膜 md5 d08179b8…）。
+
+### 跑完以后（plan Task 5）
 汇总表 → anchor 门 → 双面板图（先读 dataviz skill）→ 课题目录 `Results_20260908/T1FLAIR_AF16_hparam_v3_jiangyizhou/` → 记录
 `docs/superpowers/records/2026-09-16-hparam-sensitivity.md` → 提交、推送、打 tag `handoff/<日期>-hparam`。
 
