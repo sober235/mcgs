@@ -67,5 +67,10 @@ AF16 的 MC-INR 列默认开（`--no_mcinr` 才关），AF20/AF24 默认关（�
 掩膜检查、掩膜序列、原始 k 空间支撑等小图已就地重出为 **600 dpi PNG + 矢量 PDF**：
 AF20 两张、AF24 四张，在各自 `figures/` 下。
 
-AF12 的 `mask_check_af12_af11_af16.png` 与 AF16 的 `probe_c_mask_T1_vs_FLAIRc.png`
-在各自 `scripts/` 里没有对应生成脚本（当初临时画的），**无法重出矢量版**，保持原 PNG。
+AF12 的 `mask_check_af12_af11_af16.png`：原来没有生成脚本（2026-09-13 临时画的），2026-09-16
+按掩膜数据重写了 `scripts/fig_mask_check_af12_af11_af16.py`。图上每个数字都是从三张掩膜现算的，
+**不是抄旧图**，算出来与旧图逐个吻合（3847 / 4173 / 2966 点，AF 11.71 / 10.80 / 15.19，
+中心 56×56 采样率 39.3 / 40.8 / 36.1 %，AF12∩AF16 共享 812 点 = 21 % / 27 %）。
+
+AF16 的 `probe_c_mask_T1_vs_FLAIRc.png`：生成代码一直都在，只是藏在 prep 脚本里
+（`prep_04c_export_af16c.py` 的 `figure()`），它自带 `--fig_only` 模式只重画不重导数据。

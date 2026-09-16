@@ -27,6 +27,7 @@ import glob, hashlib, json, os, sys
 import h5py, numpy as np, scipy.io
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42
 import matplotlib.pyplot as plt
 
 SRC = "/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/flair_train_jiangyizhou_cc"
@@ -183,7 +184,8 @@ def figure(new, cur, sup, stats):
     fig.tight_layout(w_pad=2.5)
     os.makedirs(FIGS, exist_ok=True)
     for d in (f"{R}/figures", FIGS):
-        fig.savefig(os.path.join(d, OUT_FIG), dpi=140)
+        fig.savefig(os.path.join(d, OUT_FIG), dpi=600)
+        fig.savefig(os.path.join(d, OUT_FIG.replace(".png", ".pdf")))
 
 
 def fig_only():
