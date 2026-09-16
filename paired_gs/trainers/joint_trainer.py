@@ -73,6 +73,7 @@ def _load_dataset(data_cfg: Dict[str, Any]) -> MRIDataset:
         skip_readout_check=data_cfg.get("skip_readout_check", True),
         center_kspace_dc=data_cfg.get("center_kspace_dc", False),
         presampled=data_cfg.get("presampled", True),
+        measurement_path=data_cfg.get("measurement_path"),
     )
 
 

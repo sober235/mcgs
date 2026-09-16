@@ -94,6 +94,7 @@ class MRIDataset(Dataset):
         split_ratio: Tuple[float, float, float] = (0.60, 0.25, 0.15),
         mask_split_seed: int = 42,                # 独立 field,与 global --seed 解耦 (CONTEXT 决策 A)
         mask_split_out_dir: Optional[str] = None, # 若提供则 dump split_indices.npz
+        measurement_path: Optional[str] = None,   # noise study 2026-09-16: fit THIS k-space; GT/scale stay on data_path
     ):
         super().__init__()
         self.data_path = data_path
@@ -119,6 +120,7 @@ class MRIDataset(Dataset):
         self.mask_split_seed = int(mask_split_seed)
         self.mask_split_out_dir = mask_split_out_dir
         self.mask_split: Dict[str, torch.Tensor] = {}
+        self.measurement_path = measurement_path if measurement_path not in (None, "", "None") else None
         self._load_data()
         if self.enable_mask_split:
             self._build_mask_split()
@@ -182,10 +184,11 @@ class MRIDataset(Dataset):
                 f"readout_axis and phase_axes must cover all spatial axes exactly once, got {self.readout_axis}, {self.phase_axes}"
             )
 
-    def _load_h5_kspace(self) -> np.ndarray:
+    def _load_h5_kspace(self, path: Optional[str] = None) -> np.ndarray:
+        path = path or self.data_path
         if h5py is None:
             raise ImportError("Reading .h5 k-space files requires h5py to be installed.")
-        with h5py.File(self.data_path, "r") as handle:
+        with h5py.File(path, "r") as handle:
             keys = list(handle.keys())
             preferred_keys = ["kspace", "ksp"]
             key = next((name for name in preferred_keys if name in handle), None)
@@ -194,14 +197,15 @@ class MRIDataset(Dataset):
             print(f"Using H5 key: {key}")
             return handle[key][:]
 
-    def _load_mat_kspace(self) -> np.ndarray:
+    def _load_mat_kspace(self, path: Optional[str] = None) -> np.ndarray:
+        path = path or self.data_path
         try:
-            variables = scipy.io.whosmat(self.data_path)
+            variables = scipy.io.whosmat(path)
         except NotImplementedError:
             print("MATLAB v7.3 file detected, falling back to h5py reader.")
-            return self._load_h5_kspace()
+            return self._load_h5_kspace(path)
         if len(variables) == 0:
-            raise ValueError(f"No variables found in MATLAB file: {self.data_path}")
+            raise ValueError(f"No variables found in MATLAB file: {path}")
         preferred_keys = ["kspace", "ksp", "raw_kspace", "rawdata", "data"]
         available_names = [name for name, _, _ in variables]
         key = None
@@ -213,7 +217,7 @@ class MRIDataset(Dataset):
         if key is None:
             key = max(variables, key=lambda item: np.prod(item[1]))[0]
         print(f"Using MATLAB variable: {key}")
-        mat = scipy.io.loadmat(self.data_path, variable_names=[key])
+        mat = scipy.io.loadmat(path, variable_names=[key])
         return mat[key]
 
     def _normalize_kspace_layout(self, kspace_data: np.ndarray) -> np.ndarray:
@@ -750,8 +754,26 @@ class MRIDataset(Dataset):
             )
             print(f"[MaskSplit INF-01] dumped split indices -> {dumped}")
 
+    def _load_measurement(self) -> torch.Tensor:
+        """The k-space the reconstruction fits when it is not the reference that defines the ground truth
+        (data.<channel>.measurement_path; noise-robustness study, spec 2026-09-16 section 4). Read and laid out like
+        data_path, rolled like it, and divided by the SAME normalization_scale (the clean ground truth's), so a
+        measurement file identical to data_path reproduces the default path bit for bit."""
+        path = self.measurement_path
+        print(f"[Measurement] fitting to {path} (ground truth and scale from {self.data_path})")
+        ext = os.path.splitext(path)[1].lower()
+        arr = self._load_mat_kspace(path) if ext == ".mat" else self._load_h5_kspace(path)
+        meas = torch.from_numpy(self._normalize_kspace_layout(arr)).to(torch.complex64)
+        if tuple(meas.shape) != tuple(self.kspace_multicoil.shape):
+            raise ValueError(f"measurement k-space {tuple(meas.shape)} from {path} does not match the reference "
+                             f"{tuple(self.kspace_multicoil.shape)} from {self.data_path}")
+        if self.center_kspace_dc and any(self._dc_roll):
+            meas = torch.roll(meas, shifts=self._dc_roll, dims=(1, 2, 3)).contiguous()
+        return meas / self.normalization_scale
+
     def _apply_undersampling(self):
-        kspace_undersampled_complex = self.kspace_multicoil * self.mask.unsqueeze(0)
+        measured = self._load_measurement() if self.measurement_path else self.kspace_multicoil
+        kspace_undersampled_complex = measured * self.mask.unsqueeze(0)
         image_multicoil = ifft3c(kspace_undersampled_complex)
         zero_filled_complex = torch.sum(torch.conj(self.sensitivity_maps) * image_multicoil, dim=0)
         self.kspace_undersampled_complex = kspace_undersampled_complex.contiguous()

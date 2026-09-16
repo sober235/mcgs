@@ -138,7 +138,7 @@ def build_cfg():
     cfg = yaml.safe_load(open(ROOT / args.base_cfg))
     for s in ("plain", "contrast"):
         sc = cfg["data"][s]
-        for k in ("data_path", "csm_path", "mask_path"):
+        for k in ("data_path", "csm_path", "mask_path", "measurement_path"):
             if sc.get(k):
                 sc[k] = resolve_subject_paths(sc[k])
     cfg.setdefault("training", {})
