@@ -109,6 +109,16 @@ unchanged and re-run from scratch. Cost: about 25 GPU-minutes; no result was aff
 The loop is cut to three cards: the scheduler now runs with `ALLOWED='3 4 7'`; cards 1, 2 and 5 are given up (the jobs
 on 1 and 2 finish, nothing new is placed there) for the jyz AF16 noise-robustness study (worktree `mcgs_noise_wt`).
 
+## Verdict (2026-09-16 19:20)
+
+**Target not met; parameter space closed with evidence.** 48 screens at 1500 it, 4 promotions and 2 seed repeats at 4000 it,
+2 record-only singles. Two operating points, both first on all six head cells: rsw 34.923 / 34.362 (+0.152 / +0.068 over the
+frozen GS-single; the pre-registered objective's formal winner) and rswt 34.976 / 34.353 (+0.205 / +0.059; T1 +0.053 and every
+structural cell better; fair coupling against its own same-recipe singles +0.135 / +0.058). Parent +0.138 / +0.023. Seed floors
+at 4000 it 0.001 / 0.001 (rsw) and 0.000 / 0.001 (rswt). The missing ~0.3 / ~0.44 dB is not a parameter: every prior dose and
+shape, the optimiser, capacity, schedule, warm-up (inert) and cold start were bracketed; the coupling terms in the code are at
+or past their optimum. A larger joint-over-single gap needs a new coupling mechanism (code), which is the user's decision.
+
 ## Round log
 
 Head-only, 1500 it unless noted; bar = GS-single frozen 34.771 / 34.294 (PSNR), 0.9305 / 0.9202 (SSIM), 0.1412 / 0.1295 (HFEN).
@@ -172,3 +182,4 @@ Head-only, 1500 it unless noted; bar = GS-single frozen 34.771 / 34.294 (PSNR), 
 | 18:10 | g_r2_rsw_s43_full4k (rsw, seed 43, 4000 it) | 34.925 | 34.363 | 0.9337 / 0.9218 | 0.1339 / 0.1274 | 0.806 / 0.769 | **4000-it seed floor 0.001 / 0.001 dB**, SSIM / HFEN / sharpness 0.000. So rswt's FLAIR −0.009 against rsw is real (9× the floor): by the pre-registered objective (max min-margin) **rsw is the formal winner by 0.009 dB** (0.068 vs 0.059); rswt wins the other five cells (T1 +0.053, all structure, sharpness). Both are reported as operating points; which is quoted is the user's call |
 | 18:25 | g_r3_rswt_singleT1_full4k (GS-single T1 at the rswt recipe, record only) | 34.840 | — | 0.9323 / — | 0.1364 / — | 0.820 / — | same-recipe single T1: **MC-GS − GS-single(same recipe) = +0.135 dB on T1**, SSIM +0.0026, HFEN better by 0.0058; the tuned recipe lifts the single T1 arm too (frozen 34.771 → 34.840) |
 | 18:28 | g_r3_rswt_singleFLAIR_full4k (GS-single FLAIR at the rswt recipe, record only) | — | 34.295 | — / 0.9213 | — / 0.1274 | — / 0.795 | same-recipe single FLAIR: **MC-GS − GS-single(same recipe) = +0.058 dB on FLAIR**, SSIM +0.0012, HFEN better by 0.0019; the single FLAIR arm does not move with the recipe (frozen 34.294 → 34.295), so on FLAIR the frozen bar and the fair bar coincide |
+| 19:18 | g_r2_rswt_s43_full4k (rswt, seed 43, 4000 it) | 34.976 | 34.352 | 0.9349 / 0.9225 | 0.1305 / 0.1255 | 0.821 / 0.790 | **rswt seed floor 0.000 / 0.001 dB**; the loop is complete — queue empty, scheduler stopped. Verdict in `docs/superpowers/records/2026-09-16-gauss-loop.md` §5 |

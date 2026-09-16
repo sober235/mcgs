@@ -1,6 +1,7 @@
 # Record — MC-GS tuned on the Gaussian variable-density random mask (jiangyizhou T1+FLAIR, nominal AF 16), 2026-09-16
 
-Branch `autoresearch-gauss-af16`, worktree `mcgs_gauss_wt` (cut from `jyz-af16-diffmask` 889448a). Program file with the
+Branch `autoresearch-gauss-af16`, worktree `mcgs_gauss_wt` (cut from `jyz-af16-diffmask` 889448a). Loop complete 19:20:
+58 ledger rows = 1 smoke, 2 crashes (mine), 48 screens at 1500 it, 4 promotions + 2 seed repeats + 2 record-only singles at 4000 it. Program file with the
 full round log: `autoresearch_gauss.md`; ledger `autoresearch_gauss.tsv`; every run under `results_arc/g_*`.
 
 ## 1. Question, bar and target
@@ -95,7 +96,8 @@ past their optimum here).
 ## 6. Record-only rows (rule 4) and the 4000-it floor
 
 - `g_r2_rsw_s43_full4k` (rsw, seed 43): 34.925 / 34.363 → **4000-it seed floor 0.001 / 0.001 dB**, SSIM / HFEN /
-  sharpness 0.000 — every promotion delta above is far outside it. `g_r2_rswt_s43_full4k` (rswt, seed 43): PENDING.
+  sharpness 0.000 — every promotion delta above is far outside it. `g_r2_rswt_s43_full4k` (rswt, seed 43):
+  34.976 / 34.352 → rswt floor 0.000 / 0.001 dB.
 - rswt's own single-contrast arms at the same recipe (`g_r3_rswt_single{T1,FLAIR}_full4k`, plain channel quoted as in
   every earlier line): T1 34.840 (SSIM 0.9323, HFEN 0.1364, sharp 0.820), FLAIR 34.295 (0.9213, 0.1274, 0.795).
   **Fair coupling MC-GS − GS-single(same recipe) = +0.135 / +0.058 dB**, SSIM +0.0026 / +0.0012, HFEN better by

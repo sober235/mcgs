@@ -1,12 +1,12 @@
-# STATUS — 2026-09-16 18:20（worktree `mcgs_gauss_wt`，分支 `autoresearch-gauss-af16`，自 `jyz-af16-diffmask` 889448a 切出）
+# STATUS — 2026-09-16 19:20（worktree `mcgs_gauss_wt`，分支 `autoresearch-gauss-af16`，自 `jyz-af16-diffmask` 889448a 切出）
 
-## gauss 掩膜调参循环（本分支）：参数空间已扫完，0.5 dB 没达到；记录用的单臂与种子重复在收尾
+## gauss 掩膜调参循环（本分支）：参数空间已扫完，0.5 dB 没达到；循环已结束，没有在跑的作业
 
 先读英文记录 `docs/superpowers/records/2026-09-16-gauss-loop.md`（门槛、规则、每个杠杆的读数、四个晋级、判定），
 再读 `autoresearch_gauss.md`（逐轮日志）。账本 `autoresearch_gauss.tsv`，运行在 `results_arc/g_*`。
 
 ### 一句话
-用户要 MC-GS 在 Gaussian 掩膜上超过所有对比方法（含冻结配方的 GS-single）0.5 dB。循环跑了 48 发 1500 步筛选 + 5 发 4000 步晋级，
+用户要 MC-GS 在 Gaussian 掩膜上超过所有对比方法（含冻结配方的 GS-single）0.5 dB。循环跑了 48 发 1500 步筛选 + 8 发 4000 步（4 晋级、2 种子重复、2 记录用单臂），
 把所有先验剂量、形状、优化器、容量、日程、冷启动都括号封口。最好的 4000 步结果对冻结 GS-single 只领先 **+0.152 / +0.068**（rsw）
 或 **+0.205 / +0.059**（rswt），父配方是 +0.138 / +0.023。**目标没达到，靠参数到不了；剩下的是耦合机制（改代码）。**
 
@@ -20,7 +20,8 @@ g_r2_rs_full4k       34.916  34.345     0.145    0.052       0.052           1
 g_r2_rsw_full4k      34.923  34.362     0.153    0.068       0.068           1
 g_r2_rswt_full4k     34.976  34.353     0.205    0.059       0.059           1
 g_r2_rsw_gam_full4k  34.904  34.353     0.133    0.059       0.059           1
-g_r2_rsw_s43_full4k  34.925  34.363     0.155    0.069       0.069           1     # 种子地板 0.001 / 0.001 dB
+g_r2_rsw_s43_full4k  34.925  34.363     0.155    0.069       0.069           1     # rsw 种子地板 0.001 / 0.001 dB
+g_r2_rswt_s43_full4k 34.976  34.352     0.205    0.058       0.058           1     # rswt 种子地板 0.000 / 0.001 dB
 $ PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/gauss_judge.py        # 每发筛选对 control 的六格差与判定
 ```
 
@@ -39,8 +40,8 @@ $ PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/gauss_judge.py        # 每发筛�
 - 0.5 dB 靠参数到不了：要不要开"耦合机制"这条线（改代码，另立分支），还是接受现有余量。
 
 ### 3. 下一步
-- 在跑（卡 3/4/7）：rswt 的同配方单 T1 / 单 FLAIR（记录用，不进主表）、rswt 种子 43。落地后补进记录 §6 与本文件。
-- 循环本身没有未跑的候选；队列空了调度器就闲着（tmux `gauss_sched`，可 kill）。
+- 全部落地：rswt 同配方单臂 T1 34.840 / FLAIR 34.295（公平耦合 +0.135 / +0.058，记录 §6）；rswt 种子地板 0.000 / 0.001。
+- 没有在跑的作业，调度器已停，队列空。等第 2 节三个拍板。
 
 ### 4. 已知的坑与别重做什么
 - **别按 pid 杀 tmux 服务器**：15:02 我把 tmux 服务器当残留客户端杀了，五个训练陪葬（都已重跑）。调度器现在用 setsid 起训练，只有调度器自己在 tmux 里。
