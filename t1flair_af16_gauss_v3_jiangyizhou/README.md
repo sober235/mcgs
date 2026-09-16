@@ -199,3 +199,14 @@ setsid nohup bash scripts/launch_diffmask.sh > /dev/null 2>&1 < /dev/null &
 served 于 `http://localhost:8765/t1flair_v3_af16_diffmask/`。
 该层读数：vd-Poisson 与 Gaussian 两行 MC-GS 三项都第一；伪径向行 T1 三项第二（ZS-SSDU 第一，32.10 对 31.87 dB），FLAIR 的 PSNR / NMSE 第二、
 SSIM 第一。这是单层读数；全体积头内 PSNR 三种图案 MC-GS 仍第一（`logs/compare_masks_head_psnr.md`）。换层用 `--tra`。
+
+### 三种图案全超的层（2026-09-16 晚，用户问"难道没有三个 mask 都超过对比方法的层"）
+
+`scripts/find_slice_all_masks.py`（口径与叠放图相同：头内层 PSNR / SSIM / NMSE，12 列，GS-single 算对比臂；合格层 = 头内面积
+不低于最大层一半，两对比度都满足，48 到 223 共 176 层；读数 `logs/find_slice_all_masks.json`）：
+- T1 三项、三图案全第一：106 层（48 到 138 连续，加 203 到 223 里的一段），最小余量最大的是 104 层（+0.178 dB）。
+- FLAIR 三项、三图案全第一：25 层，最好 148（+0.063）、192（+0.062）、205（+0.050）。
+- **两对比度、三项、三图案全第一：只有 203 到 206 四层，205 层余量最大**（最小余量 +0.050 dB；T1 三图案 +0.131 / +0.122 / +0.140，
+  FLAIR +0.050 / +0.079 / +0.197）。只看 PSNR 时两对比度全超的有 22 层（含 122 到 132 一段，129 层最小余量 +0.041）。
+- 叠放图 205 层版：`figures/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra205_headerr_p3_zf_caps.{png,pdf}`。180 层版保留作图 of record 层的对照
+（那一层伪径向行 T1 是 ZS-SSDU 第一）。
