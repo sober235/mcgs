@@ -270,6 +270,17 @@ sessions refill a freed card within a minute; a single poll every 15 s works. Ki
 Its README gives layout, units (GS volumes need a transpose and the P99.9 scale) and a loader. It is written by
 `scripts/export_ce_bundle.py` (`--no_raw` skips the 14 GiB of k-space and maps). Not de-identified: server only.
 
+## Derived-results bundle (2026-09-16)
+
+`export/ce_enhancement_20260916/` (64 files, 329 MiB, `md5sum -c checksums.md5` 64/64 OK, written by
+`scripts/export_ce_derived.py`): everything built on top of the reconstructions in this round -
+`lesion/` (SynthSeg labels and segmentation, the white-matter-normalised pre and post volumes, the enhancement map,
+the candidate tables, the reference-region masks, and the superseded threshold segmentations kept for the record),
+`tables/`, `figures/` including `figures/lesion/`, the scripts, and the topic README at export time. The
+reconstruction volumes and raw k-space are not copied again; they are in `export/ce_l1spirit_20260915/`.
+**Not de-identified, and the NIfTI volumes include the face: server only.** The figures and the numbers (not the
+NIfTI, not the masks) are also on GitHub, branch `ce-pre-post-contrast`.
+
 ## Slices through the lesion (2026-09-15)
 
 There is no annotation or clinical report for this exam. The automatic search for focal enhancement
