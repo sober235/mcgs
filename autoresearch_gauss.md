@@ -94,6 +94,16 @@ lever class that kept; the regulariser shapes are untested on this mask): scale_
 density_lr 0.03, lr gamma 0.999, edge-TV kappa_q 0.75 / 0.90, w_floor 0.05, tv_eps 0.02, wavelet 2 levels, prewhitening
 (FLAIR only / both). Withdrawn as foregone after the brackets closed: wav 0.06/0.05, geo 0.05, geo 0.20.
 
+## Incident 15:02 (mine) — tmux server killed, five screens lost and re-queued
+
+At 15:02 I killed pid 1777714 believing it a stray `tmux new-session` client; it was the tmux SERVER (its ps line shows
+the first session's command). Every tmux session died with it: the scheduler and the five trainers then running
+(`g_r1_tvvec_rot008_n48` at 700/1500, `g_r0_pw` 400, `g_r0_wu300` 300, `g_r0_kren` 50, `g_r0_wfl002` just launched).
+Their partial outputs are kept aside as `results_arc/<exp>_killed_tmux_1502*`; no ledger row was written for them; the
+card locks were released by the wrappers' traps. Fix (commit below): the scheduler now launches every run with
+`setsid nohup … &`, detached from tmux, so only the scheduler itself lives in the tmux session. All five are re-queued
+unchanged and re-run from scratch. Cost: about 25 GPU-minutes; no result was affected (nothing had been read).
+
 ## Round log
 
 Head-only, 1500 it unless noted; bar = GS-single frozen 34.771 / 34.294 (PSNR), 0.9305 / 0.9202 (SSIM), 0.1412 / 0.1295 (HFEN).

@@ -6,7 +6,8 @@
 # (<cardiac topic>/work/.gpulock.<card> with a live owner) and no trainer of this line. One trainer per card,
 # launches at least 90 s apart. Items whose score json or launcher log already exists are skipped (a crashed item
 # is not retried automatically). Touch results_arc/.gauss_sched_pause to hold launches. Runs forever; kill the
-# tmux session `gauss_sched` to stop.
+# tmux session `gauss_sched` to stop (the trainers are detached and survive that; the tmux SERVER process shows this
+# script's command line in ps -- never kill it by pid).
 cd "$(dirname "$0")/.."
 Q=${1:?queue file}
 ALLOWED=${ALLOWED:-"4 7 2 3 5 6"}
@@ -41,7 +42,9 @@ while true; do
     [[ -e results_arc/.gauss_sched_pause ]] && break
     card=$(free_card) || break
     log "launch $EXP on card $card ($IT it)${ENVS:+ env:$ENVS} $EXTRA"
-    tmux new-session -d -s "g_$EXP" "bash scripts/gauss_launch_one.sh $EXP $card $IT $ENVS -- $EXTRA > results_arc/${EXP}.launcher.log 2>&1"
+    # detached (setsid + nohup): the run must not depend on this scheduler's tmux server -- killing that server on
+    # 2026-09-16 15:02 took four trainers down with it
+    setsid nohup bash scripts/gauss_launch_one.sh $EXP $card $IT $ENVS -- $EXTRA > results_arc/${EXP}.launcher.log 2>&1 < /dev/null &
     sleep 90
   done < "$Q"
   sleep 60
