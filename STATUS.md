@@ -64,7 +64,7 @@ spec `docs/superpowers/specs/2026-09-16-hparam-sensitivity-design.md`，plan `do
 - 运行器 `scripts/hp_queue.sh scripts/hp_queue.txt`（`setsid nohup`，日志 `results_arc/hp_queue.log`）；六个运行按
   hp_n36 → hp_n18 → hp_n09 → hp_n72 → hp_p05 → hp_p10 排队（`--set gaussian.initial_num_points` / `gaussian.num_private_points`
   是各运行之间唯一的差别，配方块与 `run_af24_mcgs.sh` 逐字相同，已 diff 核对），只用空卡（默认卡 1、2），一卡一训练，
-  持有 `Cardiac_FreeRunning_MCGS/work/.gpulock.<卡>`。每个运行 6–7.5 h（7.2M 更久），全部约一天。hp_n36 于 18:27 在卡 1 起跑，hp_n18 于 18:28 在卡 2 起跑（两把锁的属主都活着，`nvidia-smi` 上各一个训练进程）。
+  持有 `Cardiac_FreeRunning_MCGS/work/.gpulock.<卡>`。实测速度约 1 it/s（hp_n36 150 步用时 3.5 min 含初始化；gauss 循环同规模 4000 步 67 min），每个运行约 1.2–1.5 h（7.2M 更久），两张卡全部约 7–9 h；早先按 AF24 日志估的 6–7.5 h/run 是那批运行与别的任务共卡时的数字。hp_n36 于 18:27 在卡 1 起跑，hp_n18 于 18:28 在卡 2 起跑（两把锁的属主都活着，`nvidia-smi` 上各一个训练进程）。
 - 暂停：`touch results_arc/.hp_queue_pause`；停运行器：`pkill -f "scripts/hp_queue.sh"`（训练进程独立，不会跟着死）；停一个训练：
   `pkill -f "cycle.py --exp hp_n72"`（之后删掉它的 `results_arc/hp_n72*` 才会重排）。
 - 进度：`tail -2 results_arc/hp_runs.log`；汇总：`env PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/hp_summarize.py`
