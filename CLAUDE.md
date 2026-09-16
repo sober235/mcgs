@@ -1,3 +1,15 @@
+# This branch: autoresearch-gauss-af16 (tune MC-GS on the Gaussian-random mask, from jyz-af16-diffmask 889448a)
+
+Read `autoresearch_gauss.md` first (objective, bar, parent, rules, round log), then `STATUS.md`. The loop's arena is the
+gauss topic `Results_20260908/T1FLAIR_AF16_gauss_v3_jiangyizhou/` (read-only from here; its result tables are the
+comparison bar, `logs/bar_gauss.json`). Runner `autoresearch_gauss.sh` (parent = the frozen AF16 phase-3 recipe on this
+mask), ledger `autoresearch_gauss.tsv`, queue `scripts/gauss_queue.txt`, scheduler `scripts/gauss_sched.sh` (tmux
+`gauss_sched`, empty cards only). Target (user 2026-09-16): MC-GS >= every comparison arm + 0.5 dB head PSNR on both
+contrasts, GS-single at the frozen recipe counting as a comparison arm. Everything below this line is the diff-mask
+branch's entry, kept as inherited context.
+
+---
+
 # This branch: jyz-af16-diffmask (mask-pattern study on the jiangyizhou T1+FLAIR pair, from autoresearch-jyz-af24 13b7bce)
 
 Three alternative mask patterns at the AF16 topic's actual T1 acceleration (15.20x, 2964 points), labelled AF 16

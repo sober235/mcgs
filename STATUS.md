@@ -1,3 +1,21 @@
+# STATUS — 2026-09-16 11:50（worktree `mcgs_gauss_wt`，分支 `autoresearch-gauss-af16`，自 `jyz-af16-diffmask` 889448a 切出）
+
+## gauss 掩膜调参循环（本分支）：脚手架已建，第 0 轮排队中
+
+用户要求（09-16）：新分支上用 Karpathy autoresearch 调 MC-GS，使其在 Gaussian 掩膜上超过所有对比方法 0.5 dB 以上；
+GS-single 算对比方法、停在冻结的 AF16 三期配方不重调（"适当调差"的可站住脚的形式，没有为它挑更差的设置）。
+
+- 目标、门槛、父配方、判定规则、第 0 轮杠杆表、轮次日志：`autoresearch_gauss.md`。门槛六格全是冻结 GS-single
+  （头内 PSNR 34.771 / 34.294），目标 T1 ≥ 35.271、FLAIR ≥ 34.794；父配方 34.909 / 34.317，还差 +0.362 / +0.477。
+- 起跑前写下的预报：以前四个循环各拿到 +0.10 到 +0.19 dB，0.5 dB 超出记录；数字是多少报多少。
+- 跑法：`tmux new -d -s gauss_sched 'bash scripts/gauss_sched.sh scripts/gauss_queue.txt'`（只用空卡，一卡一训练，
+  每次运行持有 `Cardiac_FreeRunning_MCGS/work/.gpulock.<卡>`）。暂停：`touch results_arc/.gauss_sched_pause`。
+- 心脏线后台作业 09-16 11:37 已按用户要求全部停掉（见 cardiac-phase2 分支 STATUS 顶部，提交 17e6af1），卡 4/7 因此空出。
+
+下面是 diff-mask 分支的 STATUS 原文（本分支的起点）。
+
+---
+
 # STATUS — 2026-09-15 17:30（worktree `mcgs_diffmask_wt`，分支 `jyz-af16-diffmask`，自 `autoresearch-jyz-af24` 13b7bce 切出）
 
 ## diff-mask 研究（本分支）：掩膜已建，等用户看图拍板，重建一步没跑
