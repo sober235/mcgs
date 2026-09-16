@@ -77,7 +77,7 @@ Expected tail: `206 passed, 1 warning` and `TESTS_RC=0` (the diff-mask tip bbba5
 ```bash
 ls /data0/congcong/code/GS/mcgs_noise_wt/paired_gs/gaussian/cuda_ext/build/
 ```
-Expected: a `tile_voxelize_cuda_<hash>_<hash>` directory containing a `.so`. No commit (both files are gitignored).
+Expected: `tile_voxelize_cuda_<hash>_<hash>.so` (a flat file next to `build.ninja`; on 2026-09-16 `tile_voxelize_cuda_0141c525_7aedd3b0.so`). No commit (both files are gitignored).
 
 ---
 
@@ -567,10 +567,10 @@ for c in [x for x in a.contrasts.split(",") if x]:
     worst_z, worst_std = 0.0, 0.0
     for i in range(y.shape[0]):
         d = mz[i][:, iy, iz].astype(np.complex128) - y[i][:, iy, iz].astype(np.complex128)
-        se = (sigma_raw / np.sqrt(2.0)) / np.sqrt(d.size)
-        worst_z = max(worst_z, abs(d.real.mean()) / se, abs(d.imag.mean()) / se)
+        se = float(sigma_raw / np.sqrt(2.0) / np.sqrt(d.size))
+        worst_z = max(worst_z, float(abs(d.real.mean())) / se, float(abs(d.imag.mean())) / se)
         for part in (d.real, d.imag):
-            worst_std = max(worst_std, abs(part.std() / (sigma_raw / np.sqrt(2.0)) - 1.0))
+            worst_std = max(worst_std, abs(float(part.std()) / float(sigma_raw / np.sqrt(2.0)) - 1.0))
     checks["mean_z"] = dict(value=worst_z, limit=4.0, ok=worst_z <= 4.0)
     checks["std_rel"] = dict(value=worst_std, limit=0.005, ok=worst_std <= 0.005)
     noisy = (sense_adj(mz, S) / scale).numpy()
