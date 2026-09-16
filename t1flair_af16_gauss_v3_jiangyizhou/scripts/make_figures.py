@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 R = Path("/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_gauss_v3_jiangyizhou")
-FIGS = Path("/home/congcongliu/figs/t1flair_v3_af24")
+FIGS = Path("/home/congcongliu/figs/t1flair_v3_af16_diffmask_gauss")
 FIGS.mkdir(parents=True, exist_ok=True)
 
 ANAT = {0: "transverse (axial)", 1: "coronal", 2: "sagittal"}   # adjudicated 2026-09-09, see README

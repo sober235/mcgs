@@ -35,7 +35,7 @@ import matplotlib.patches as patches
 import numpy as np
 
 R = Path(__file__).resolve().parents[1]
-F = Path("/home/congcongliu/figs/t1flair_v3_af24"); F.mkdir(parents=True, exist_ok=True)
+F = Path("/home/congcongliu/figs/t1flair_v3_af16_diffmask_radial"); F.mkdir(parents=True, exist_ok=True)
 c = args.contrast
 rows = {r["method"]: r for r in json.load(open(R / "logs/summary.json")) if r["contrast"] == c}
 extra = json.load(open(R / "logs/extra_gs_arms.json")) if (R / "logs/extra_gs_arms.json").exists() else []

@@ -1,0 +1,295 @@
+{
+ "topic": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_gauss_v3_jiangyizhou",
+ "gauges": {
+  "magnitude": "| |recon| - |GT| | over the head mask, peak = max|GT|",
+  "complex": "|recon - GT| on the complex volumes, same mask and peak"
+ },
+ "head_mask": "|GT| > 0.05 * P99.9(|GT|)",
+ "comparison_arms": "every arm except MC-GS and ZF; GS-single at the frozen phase-3 recipe counts (user 2026-09-16)",
+ "arms": {
+  "T1": {
+   "ZF": {
+    "head_psnr": 25.4116,
+    "head_ssim": 0.6523,
+    "head_hfen": 0.732,
+    "sharp": 0.278,
+    "lam": null
+   },
+   "CG-SENSE": {
+    "head_psnr": 31.8988,
+    "head_ssim": 0.8782,
+    "head_hfen": 0.2516,
+    "sharp": 0.811,
+    "lam": null,
+    "head_psnr_cplx": 29.0649,
+    "cos_phase": 0.98447,
+    "head_psnr_recomputed": 31.8988
+   },
+   "CS-SENSE (base)": {
+    "head_psnr": 33.6373,
+    "head_ssim": 0.9172,
+    "head_hfen": 0.1855,
+    "sharp": 0.747,
+    "lam": null,
+    "head_psnr_cplx": 30.6561,
+    "cos_phase": 0.98918,
+    "head_psnr_recomputed": 33.6373
+   },
+   "CS-SENSE": {
+    "head_psnr": 33.8964,
+    "head_ssim": 0.919,
+    "head_hfen": 0.1814,
+    "sharp": 0.788,
+    "lam": 0.0007,
+    "head_psnr_cplx": 30.8455,
+    "cos_phase": 0.98957,
+    "head_psnr_recomputed": 33.8964
+   },
+   "Joint SENSE": {
+    "head_psnr": 33.8412,
+    "head_ssim": 0.9188,
+    "head_hfen": 0.1832,
+    "sharp": 0.779,
+    "lam": 0.001,
+    "head_psnr_cplx": 30.811,
+    "cos_phase": 0.9895,
+    "head_psnr_recomputed": 33.8412
+   },
+   "L1-SPIRiT": {
+    "head_psnr": 32.9951,
+    "head_ssim": 0.901,
+    "head_hfen": 0.1653,
+    "sharp": 0.896,
+    "lam": 0.001,
+    "head_psnr_cplx": 29.9441,
+    "cos_phase": 0.98727,
+    "head_psnr_recomputed": 32.9857
+   },
+   "ZS-SSDU": {
+    "head_psnr": 34.3747,
+    "head_ssim": 0.9273,
+    "head_hfen": 0.1697,
+    "sharp": 0.899,
+    "lam": null,
+    "head_psnr_cplx": 31.4206,
+    "cos_phase": 0.99137,
+    "head_psnr_recomputed": 34.3747
+   },
+   "3D-DIP": {
+    "head_psnr": 31.141,
+    "head_ssim": 0.8546,
+    "head_hfen": 0.3053,
+    "sharp": 0.647,
+    "lam": null,
+    "head_psnr_cplx": 28.096,
+    "cos_phase": 0.98017,
+    "head_psnr_recomputed": 31.141
+   },
+   "3D-INR": {
+    "head_psnr": 29.4427,
+    "head_ssim": 0.7659,
+    "head_hfen": 0.2206,
+    "sharp": 1.436,
+    "lam": null,
+    "head_psnr_cplx": 26.6809,
+    "cos_phase": 0.97509,
+    "head_psnr_recomputed": 29.4427
+   },
+   "MC-INR": {
+    "head_psnr": 31.5581,
+    "head_ssim": 0.8463,
+    "head_hfen": 0.2598,
+    "sharp": 0.929,
+    "lam": null
+   },
+   "MC-GS": {
+    "head_psnr": 34.9088,
+    "head_ssim": 0.9333,
+    "head_hfen": 0.1344,
+    "sharp": 0.796,
+    "lam": null,
+    "head_psnr_cplx": 31.7156,
+    "cos_phase": 0.99129,
+    "head_psnr_recomputed": 34.9087
+   },
+   "GS-single": {
+    "head_psnr": 34.7706,
+    "head_ssim": 0.9305,
+    "head_hfen": 0.1412,
+    "sharp": 0.794,
+    "lam": null,
+    "head_psnr_cplx": 31.6222,
+    "cos_phase": 0.99117,
+    "head_psnr_recomputed": 34.7706
+   }
+  },
+  "FLAIR": {
+   "ZF": {
+    "head_psnr": 27.4505,
+    "head_ssim": 0.6956,
+    "head_hfen": 0.6888,
+    "sharp": 0.26,
+    "lam": null
+   },
+   "CG-SENSE": {
+    "head_psnr": 32.5571,
+    "head_ssim": 0.8828,
+    "head_hfen": 0.18,
+    "sharp": 0.757,
+    "lam": null,
+    "head_psnr_cplx": 29.7693,
+    "cos_phase": 0.98877,
+    "head_psnr_recomputed": 32.5571
+   },
+   "CS-SENSE (base)": {
+    "head_psnr": 33.4465,
+    "head_ssim": 0.9078,
+    "head_hfen": 0.1477,
+    "sharp": 0.655,
+    "lam": null,
+    "head_psnr_cplx": 30.7226,
+    "cos_phase": 0.99125,
+    "head_psnr_recomputed": 33.4465
+   },
+   "CS-SENSE": {
+    "head_psnr": 33.6827,
+    "head_ssim": 0.9115,
+    "head_hfen": 0.148,
+    "sharp": 0.699,
+    "lam": 0.0007,
+    "head_psnr_cplx": 30.8831,
+    "cos_phase": 0.99144,
+    "head_psnr_recomputed": 33.6827
+   },
+   "Joint SENSE": {
+    "head_psnr": 33.7314,
+    "head_ssim": 0.9112,
+    "head_hfen": 0.1481,
+    "sharp": 0.719,
+    "lam": 0.001,
+    "head_psnr_cplx": 30.9002,
+    "cos_phase": 0.99141,
+    "head_psnr_recomputed": 33.7314
+   },
+   "L1-SPIRiT": {
+    "head_psnr": 32.8493,
+    "head_ssim": 0.8923,
+    "head_hfen": 0.136,
+    "sharp": 0.876,
+    "lam": 0.001,
+    "head_psnr_cplx": 30.0327,
+    "cos_phase": 0.98963,
+    "head_psnr_recomputed": 32.8493
+   },
+   "ZS-SSDU": {
+    "head_psnr": 33.9718,
+    "head_ssim": 0.9196,
+    "head_hfen": 0.1479,
+    "sharp": 0.905,
+    "lam": null,
+    "head_psnr_cplx": 31.4854,
+    "cos_phase": 0.99328,
+    "head_psnr_recomputed": 33.9718
+   },
+   "3D-DIP": {
+    "head_psnr": 30.9185,
+    "head_ssim": 0.8393,
+    "head_hfen": 0.2613,
+    "sharp": 0.545,
+    "lam": null,
+    "head_psnr_cplx": 28.7598,
+    "cos_phase": 0.98828,
+    "head_psnr_recomputed": 30.9185
+   },
+   "3D-INR": {
+    "head_psnr": 29.8067,
+    "head_ssim": 0.7745,
+    "head_hfen": 0.2053,
+    "sharp": 1.212,
+    "lam": null,
+    "head_psnr_cplx": 27.2895,
+    "cos_phase": 0.98192,
+    "head_psnr_recomputed": 29.8067
+   },
+   "MC-INR": {
+    "head_psnr": 32.1021,
+    "head_ssim": 0.8599,
+    "head_hfen": 0.1946,
+    "sharp": 0.852,
+    "lam": null
+   },
+   "MC-GS": {
+    "head_psnr": 34.3167,
+    "head_ssim": 0.921,
+    "head_hfen": 0.1278,
+    "sharp": 0.759,
+    "lam": null,
+    "head_psnr_cplx": 31.3388,
+    "cos_phase": 0.99202,
+    "head_psnr_recomputed": 34.3167
+   },
+   "GS-single": {
+    "head_psnr": 34.2937,
+    "head_ssim": 0.9202,
+    "head_hfen": 0.1295,
+    "sharp": 0.767,
+    "lam": null,
+    "head_psnr_cplx": 31.3558,
+    "cos_phase": 0.99212,
+    "head_psnr_recomputed": 34.2937
+   }
+  }
+ },
+ "bar": {
+  "head_psnr": {
+   "T1": {
+    "arm": "GS-single",
+    "value": 34.7706
+   },
+   "FLAIR": {
+    "arm": "GS-single",
+    "value": 34.2937
+   }
+  },
+  "head_ssim": {
+   "T1": {
+    "arm": "GS-single",
+    "value": 0.9305
+   },
+   "FLAIR": {
+    "arm": "GS-single",
+    "value": 0.9202
+   }
+  },
+  "head_hfen": {
+   "T1": {
+    "arm": "GS-single",
+    "value": 0.1412
+   },
+   "FLAIR": {
+    "arm": "GS-single",
+    "value": 0.1295
+   }
+  },
+  "sharp": {
+   "T1": {
+    "arm": "3D-INR",
+    "value": 1.436
+   },
+   "FLAIR": {
+    "arm": "3D-INR",
+    "value": 1.212
+   }
+  },
+  "head_psnr_cplx": {
+   "T1": {
+    "arm": "GS-single",
+    "value": 31.6222
+   },
+   "FLAIR": {
+    "arm": "ZS-SSDU",
+    "value": 31.4854
+   }
+  }
+ }
+}

@@ -1,3 +1,45 @@
+# STATUS — 2026-09-16（worktree `mcgs_diffmask_wt`，分支 `jyz-af16-diffmask`，tag `handoff/2026-09-16-diffmask`）
+
+## 结论：MC-GS 的领先不依赖采样图案
+
+三个课题只差采样图案（vd-Poisson 房屋掩膜作对照列未重跑、gauss、radial），点数预算一致（2964 点，T1 15.20×）。
+**MC-GS 在三种图案、两个对比度上头内 PSNR 全部第一**，对最强对比臂余量 T1 +0.148/+0.138/+0.200、
+FLAIR +0.042/+0.023/+0.093。六格里五格三指标（头内 PSNR/SSIM/HFEN）全胜；唯一例外是 radial 的 FLAIR：
+保住 PSNR，SSIM 0.8673 输 ZS-SSDU 0.8686、HFEN 0.2809 输 0.2768。那一列恰好是 known-zero 先验被图案废掉的一列。
+图案本身的代价远大于方法间差距：同一臂从 vd-Poisson 换到高斯掉 0.3–1.1 dB、换到径向掉 1.1–5.0 dB。
+耦合增益（MC-GS−GS-single）三种图案都为正，径向上最大。
+表在 gauss 课题 `logs/compare_masks_head_{psnr,ssim,hfen}.md`（`scripts/compare_masks.py`，只读三个课题）。
+
+## 已完成且已验证
+
+- 两个课题各 11 臂 × 2 对比度，全部重建、打分、出图，零失败。图在
+  `http://localhost:8765/t1flair_v3_af16_diffmask_{gauss,radial}/`，定稿版式 180/124/76 + 48 框（含 600dpi PDF），
+  另有 174/110/47 无放大版；掩膜与全采样 k 空间图在 `http://localhost:8765/t1flair_v3_af16_diffmask/`。
+- MC-INR 在两张掩膜上跑通并注册，本课题打分器重算与 mcinr 仓库自算的最大相对差 1e-7（打分口径与掩膜无关，
+  所以三个课题的数字可直接并列）。
+- 基线测试 206 通过（`results_arc/tests_baseline.txt`，改动前）。
+- 第三张候选掩膜 caipi（4×3 CAIPIRINHA 格点，移位按混叠副本间距判据选）已建，用户没选，未跑。
+
+## 待用户拍板
+
+- 是否跑 caipi 课题（掩膜已就绪，作业表加 `--topics` 即可）。
+- 是否补 L1-ESPIRiT（默认没跑，用户 09-15 已把它移出对比；`--with_l1espirit` 可加回）。
+- 是否推分支与 tag 到 origin（sober235/mcgs）。
+
+## 已知的坑与别重做
+
+- ⚠️ **调度器的去重曾误杀 46 个 radial 作业**：作业指纹只比对脚本名和参数，两个课题这些完全相同，
+  gauss 在跑时 radial 被判为重复，标成 EXTERNAL DONE 而从未启动。已修（指纹加进程工作目录；等待中的作业
+  最后没产出就重排一次）。**再驱动多课题前先确认指纹能区分课题。**
+- ⚠️ 心脏线 `launch_gs_when_free.sh` 的 `release_lock` 用 `rmdir` 删带 `pid` 文件的目录，永远失败，锁会泄漏。
+  本调度器沿用同一套锁但按"属主进程已死即回收"处理。
+- ⚠️ radial 掩膜上 FLAIR 的 known_zero 估计器认不出椭圆快门（快门外仅 27 点，`frac_z_used=0`），gauss 是 0.218。
+- ⚠️ `logs/summary.json` 存的是臂的 **key** 不是标签；房屋课题里 `gs_joint` 是 2026-09-10 的旧臂，
+  三期臂是 `gs_joint_p3`。跨课题比对必须用 key，否则会拿旧臂当对手（写 compare_masks.py 时踩过）。
+- zsh 不拆分变量里的命令（`E="env A=1"; $E cmd` 报 command not found），长命令一律写成 bash 脚本文件。
+
+---
+
 # STATUS — 2026-09-15 17:30（worktree `mcgs_diffmask_wt`，分支 `jyz-af16-diffmask`，自 `autoresearch-jyz-af24` 13b7bce 切出）
 
 ## diff-mask 研究（本分支）：掩膜已建，等用户看图拍板，重建一步没跑

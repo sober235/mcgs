@@ -1,0 +1,45 @@
+{
+  "note": "written by the diff-mask study (2026-09-16) in the exact format prep_04_export.py writes in the AF12/16/20/24 topics, so the shared figure and table scripts find the AF read-out they expect. The mask comes from make_masks_af16_diffmask.py, not from vdPoisMex, and the k-space h5 files are symlinks into the AF12 topic (mask-independent), so nothing was exported here.",
+  "mask2d_shape": [
+    256,
+    176
+  ],
+  "mask2d_samples": 2964,
+  "mask2d_frac": 0.06578480113636363,
+  "mask2d_AF_rect": 15.201079622132255,
+  "mask3d_path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_gauss_v3_jiangyizhou/data/mask_af16_3d.h5",
+  "contrasts": {
+    "T1": {
+      "src": "/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/t1_fsp_train_jiangyizhou_cc",
+      "dims": [
+        256,
+        256,
+        176,
+        26
+      ],
+      "support_frac": 1.0,
+      "sampled_frac_of_plane": 0.06578480113636363,
+      "AF_vs_full_rect": 15.201079622132255,
+      "AF_vs_own_support": 15.201079622132255,
+      "acs24_kept": 0.7673611111111112,
+      "ksp_h5": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_gauss_v3_jiangyizhou/data/ksp_T1.h5",
+      "ksp_h5_target": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/ksp_T1.h5"
+    },
+    "FLAIR": {
+      "src": "/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/flair_train_jiangyizhou_cc",
+      "dims": [
+        256,
+        256,
+        176,
+        26
+      ],
+      "support_frac": 0.7577015269886364,
+      "sampled_frac_of_plane": 0.06480823863636363,
+      "AF_vs_full_rect": 15.43013698630137,
+      "AF_vs_own_support": 11.691438356164385,
+      "acs24_kept": 0.7673611111111112,
+      "ksp_h5": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_gauss_v3_jiangyizhou/data/ksp_FLAIR.h5",
+      "ksp_h5_target": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/ksp_FLAIR.h5"
+    }
+  }
+}

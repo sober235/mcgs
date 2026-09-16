@@ -25,7 +25,7 @@ import numpy as np
 
 R = Path("/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_gauss_v3_jiangyizhou")
 R12 = Path("/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou")
-F = Path("/home/congcongliu/figs/t1flair_v3_af24"); F.mkdir(parents=True, exist_ok=True)
+F = Path("/home/congcongliu/figs/t1flair_v3_af16_diffmask_gauss"); F.mkdir(parents=True, exist_ok=True)
 LABEL = {"zf": "Zero-filled", "cgsense": "CG-SENSE", "cssense": "CS-SENSE (TV)", "zsssdu": "ZS-SSDU",
          "dip": "3D-DIP", "inr": "3D-INR", "gs_single": "MC-GS single", "gs_joint": "MC-GS joint",
          "gs_joint@AF12": "MC-GS joint @AF12 (ref.)"}

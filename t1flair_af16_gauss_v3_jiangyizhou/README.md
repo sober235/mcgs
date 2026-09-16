@@ -70,6 +70,7 @@ defined once, in `scripts/run_all_diffmask.py`.
 | CS-SENSE | 37.481 | 0.9389 | 33.637 | 0.9172 | 0.1855 | 0.747 | 34.409 | -0.77 |
 | L1-SPIRiT (λ 0.001) | 36.709 | 0.9210 | 32.995 | 0.9010 | 0.1653 | 0.896 | 33.788 | -0.79 |
 | CG-SENSE | 34.598 | 0.7887 | 31.899 | 0.8782 | 0.2516 | 0.811 | 32.354 | -0.45 |
+| MC-INR (Niessen 2025) | 31.874 | 0.6231 | 31.558 | 0.8463 | 0.2598 | 0.929 | 31.590 | -0.03 |
 | 3D-DIP | 35.063 | 0.8570 | 31.141 | 0.8546 | 0.3053 | 0.647 | 30.994 | +0.15 |
 | 3D-INR | 32.299 | 0.7073 | 29.443 | 0.7659 | 0.2206 | 1.436 | 30.375 | -0.93 |
 | ZF | 29.468 | 0.7953 | 25.412 | 0.6523 | 0.7320 | 0.278 | 25.841 | -0.43 |
@@ -86,6 +87,7 @@ defined once, in `scripts/run_all_diffmask.py`.
 | CS-SENSE | 37.314 | 0.9298 | 33.447 | 0.9078 | 0.1477 | 0.655 | 33.806 | -0.36 |
 | L1-SPIRiT (λ 0.001) | 36.652 | 0.9187 | 32.849 | 0.8923 | 0.1360 | 0.876 | 33.720 | -0.87 |
 | CG-SENSE | 35.275 | 0.8047 | 32.557 | 0.8828 | 0.1800 | 0.757 | 32.826 | -0.27 |
+| MC-INR (Niessen 2025) | 33.082 | 0.6739 | 32.102 | 0.8599 | 0.1946 | 0.852 | 32.243 | -0.14 |
 | 3D-DIP | 34.850 | 0.8239 | 30.918 | 0.8393 | 0.2613 | 0.545 | 30.650 | +0.27 |
 | 3D-INR | 32.917 | 0.7329 | 29.807 | 0.7745 | 0.2053 | 1.212 | 30.257 | -0.45 |
 | ZF | 31.332 | 0.8335 | 27.451 | 0.6956 | 0.6888 | 0.260 | 27.879 | -0.43 |
@@ -95,6 +97,53 @@ defined once, in `scripts/run_all_diffmask.py`.
 | channel | whole PSNR | head PSNR | head SSIM | (vd-Poisson: whole / head) |
 |---|---|---|---|---|
 <!-- TABLES:END -->
+
+## Figures
+
+The house layouts, at the AF16 figure-of-record slices and box so nothing is re-selected on this mask. Eleven arms:
+CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT, ZS-SSDU, 3D-DIP, 3D-INR, MC-INR, GS-single, MC-GS, against the ground truth.
+
+| figure | what |
+|---|---|
+| `http://localhost:8765/t1flair_v3_af16_diffmask_gauss/t1flair_v3_af16g_T1_row3planes_compact_174_110_47_headerr_p3_spirit.png` | T1, transverse 174 / coronal 110 / sagittal 47, no inset |
+| `http://localhost:8765/t1flair_v3_af16_diffmask_gauss/t1flair_v3_af16g_FLAIR_row3planes_compact_174_110_47_headerr_p3_spirit.png` | FLAIR, same slices |
+| `http://localhost:8765/t1flair_v3_af16_diffmask_gauss/t1flair_v3_af16g_T1_row3planes_compact_180_124_76_inset48_headerr_p3_spirit.png` | T1, figure-of-record layout, 48-voxel zoom inset (also `.pdf`, 600 dpi vector) |
+| `http://localhost:8765/t1flair_v3_af16_diffmask_gauss/t1flair_v3_af16g_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p3_spirit.png` | FLAIR, same (also `.pdf`) |
+| `http://localhost:8765/t1flair_v3_af16_diffmask/t1flair_v3_af16_diffmask_masks.png` | the four candidate masks side by side |
+| `http://localhost:8765/t1flair_v3_af16_diffmask/t1flair_v3_jyz_full_kspace.png` | the fully sampled k-space both contrasts are undersampled from |
+
+Files also live in this topic's `figures/`. Orange in-panel numbers are head-masked slice PSNR / SSIM (7x7 window) /
+NMSE, the best of each plane in bold; error maps are `|recon - GT| / max(GT)`, jet, fixed [0, 0.1], inside the head
+only; left of each error row is that plane's sampling mask.
+
+## The study's headline: does MC-GS's lead depend on the pattern?
+
+The three topics share everything but the sampling pattern, so this table isolates it. **MC-GS is first on head-only
+PSNR on all three patterns and both contrasts** (`scripts/compare_masks.py`, which reads all three topics read-only;
+full tables in `logs/compare_masks_head_{psnr,ssim,hfen}.md`):
+
+| contrast | pattern | MC-GS | strongest comparison arm | margin |
+|---|---|---|---|---|
+| T1 | vd-Poisson (house) | 35.706 | GS-single 35.558 | **+0.148** |
+| T1 | Gaussian | 34.909 | GS-single 34.771 | **+0.138** |
+| T1 | pseudo-radial | 31.113 | GS-single 30.913 | **+0.200** |
+| FLAIR | vd-Poisson (house) | 34.928 | GS-single 34.886 | **+0.042** |
+| FLAIR | Gaussian | 34.317 | GS-single 34.294 | **+0.023** |
+| FLAIR | pseudo-radial | 31.729 | ZS-SSDU 31.635 | **+0.093** |
+
+**Five of the six cells win on all three head metrics; the sixth does not.** On the pseudo-radial mask FLAIR keeps head
+PSNR but loses head SSIM (0.8673 against ZS-SSDU's 0.8686) and head HFEN (0.2809 against 0.2768). That is the one cell
+where MC-GS is not the outright winner, and it is the cell whose known-zero prior the pattern disables (27 mask points
+outside the shutter, the estimator cannot fit the ellipse). It is reported, not smoothed over.
+
+**The pattern itself is worth more than any arm's lead over another.** Against the house vd-Poisson mask, the same arm
+loses 0.3-1.1 dB on the Gaussian mask and 1.1-5.0 dB on the pseudo-radial one -- an order of magnitude more than the
+margins above. Poisson disc is the better pattern of the three, which is what the 3-D head literature says; the point
+of the study is that the ranking of the *methods* does not change with it.
+
+**The coupling gain (MC-GS minus GS-single) is positive on every pattern**: T1 +0.148 / +0.138 / +0.200, FLAIR +0.042 /
++0.023 / +0.150 (vd-Poisson / Gaussian / pseudo-radial). It is largest on the worst pattern, which is consistent with
+cross-contrast information being worth more when the single-contrast problem is harder -- an observation, not evidence.
 
 ## Known limitations
 - **The lambda grids were swept on this mask but the MC-GS recipe was not.** MC-GS and GS-single run the AF16 recipe
@@ -115,4 +164,4 @@ setsid nohup bash scripts/launch_diffmask.sh > /dev/null 2>&1 < /dev/null &
 
 ## Status
 
-2026-09-16: complete.
+2026-09-16: complete. Eleven arms x two contrasts reconstructed, scored and figured; MC-INR re-scored through this topic's own gauge with a worst disagreement of 1e-7 against the reproduction's own numbers (the gauge is mask-independent, so this is the expected result and it confirms the three topics' numbers are directly comparable).

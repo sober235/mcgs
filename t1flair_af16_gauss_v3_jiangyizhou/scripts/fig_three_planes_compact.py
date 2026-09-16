@@ -90,15 +90,15 @@ from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening, un
 from skimage.metrics import structural_similarity
 
 R = Path(__file__).resolve().parents[1]
-F = Path("/home/congcongliu/figs/t1flair_v3_af24"); F.mkdir(parents=True, exist_ok=True)
+F = Path("/home/congcongliu/figs/t1flair_v3_af16_diffmask_gauss"); F.mkdir(parents=True, exist_ok=True)
 c = args.contrast
 METRIC_COLOR = "#FFC23D"          # orange-yellow for the in-panel metrics (user request 2026-09-11); best of each plane in bold
 SSIM_KW = (dict(win_size=7) if args.ssim == "uniform"
            else dict(gaussian_weights=True, sigma=1.5, use_sample_covariance=False))
-_af = json.load(open(R / "logs/prep_04_export.json"))["contrasts"][c]    # nominal AF 24 label, same format as the AF16 / AF20 topics (2026-09-15)
+_af = json.load(open(R / "logs/prep_04_export.json"))["contrasts"][c]    # nominal AF 16 label, same format as the AF16 / AF20 topics (2026-09-15)
 # AF label gauge (user 2026-09-14): whole phase-encode plane / the points this contrast actually has data on = AF_vs_full_rect
 # = BART's Acc. The AF 24 mask puts T1 at exactly 24.00x; FLAIR reads 25.51x.
-AF_LABEL = f"nominal AF 24, actual {_af['AF_vs_full_rect']:.2f}x"
+AF_LABEL = f"nominal AF 16, actual {_af['AF_vs_full_rect']:.2f}x"
 rows = {r["method"]: r for r in json.load(open(R / "logs/summary.json")) if r["contrast"] == c}
 
 

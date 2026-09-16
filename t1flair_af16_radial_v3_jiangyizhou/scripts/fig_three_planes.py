@@ -21,7 +21,7 @@ ap.add_argument("--tag", default=None, help="suffix for the stacked file name, e
 args = ap.parse_args()
 
 R = Path(__file__).resolve().parents[1]
-F = Path("/home/congcongliu/figs/t1flair_v3_af24")
+F = Path("/home/congcongliu/figs/t1flair_v3_af16_diffmask_radial")
 parts = []
 for axis, idx in enumerate(args.slices):
     subprocess.run([sys.executable, str(R / "scripts/fig_row_final.py"), "--contrast", args.contrast,
