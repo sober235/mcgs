@@ -1,5 +1,29 @@
 # STATUS — 2026-09-15 早（worktree `mcgs_af16_wt`，分支 `autoresearch-jyz-af24`，从 `jyz-af20-results` 4d13197 切出）
 
+## 2026-09-16 晚：四档图升到投稿分辨率（本会话 claude-eb，已推 origin）
+
+交接文档 `docs/handoff/2026-09-16-figures-hires.md`，提交 `5ea6189` + `ac33c8a`。**没有重跑任何重建**，只改渲染。
+
+AF12/16/20/24 的 figure of record 八张全部重出：PNG 6453×4352 @200 dpi（180 mm 版面折合 911 dpi），
+PDF 矢量且字体改成 TrueType（matplotlib 默认 Type 3 会被 IEEE/Elsevier 投稿系统拒收）。
+内容逐张与旧图 diff 一致，24/24 格 MC-GS 仍第一。顺带修了三处并排才看得出的不齐：
+`--caps` 把 L1-SPIRiT 写成 L1-SPIRIT（小写 i 是方法名的一部分）、AF12 标题少了 `nominal`、Type 3 字体。
+脚本新增 `--png_dpi`（默认 130，所有既有命令照旧复现）。
+
+各课题的掩膜/支撑辅助图同时升为 600 dpi PNG + 矢量 PDF。其中 AF12 的 `mask_check_af12_af11_af16.png`
+原来**全盘没有生成脚本**（只存在于旧会话的聊天记录里），已按掩膜数据重写 `scripts/fig_mask_check_af12_af11_af16.py`，
+现算的数字与旧图逐个吻合。
+
+交付包 `Results_20260908/T1FLAIR_AF12_16_20_24_figures_hires/`（png/ + pdf/ + README + manifest + scripts），
+git 里只存文本部分。
+
+⚠️ **一个 600-dpi PDF 渲染占约 100 GB 内存，最多同时跑 2 个。** 当天四路并行把服务器压到只剩 6 GB。
+⚠️ 当天两个会话同时渲同名文件互相覆盖过一次；开批量前先 `pgrep -fa` 查同类任务。
+
+待用户拍板三件：旧 `_spirit`/归档图的 AF 口径要不要级联成 gauge B；AF24 的 FLAIR 标签 A/B 案（本批按 A 出）；
+交付包的二进制要不要也入库（+222 MB）。
+
+
 ## AF24（本分支）：已全部跑完（09-14 21:45 启动，09-15 05:30 finalize 完成；09-15 下午补 L1-SPIRiT、MC-INR 与掩膜抽样方差）
 
 先读英文记录 `docs/superpowers/records/2026-09-15-af24-jyz.md`，交接 `docs/handoff/2026-09-15-af24-jyz.md`；
