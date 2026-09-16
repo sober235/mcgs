@@ -152,8 +152,8 @@ render before data consistency; it is scored through the topic's `Pair` under th
 
 `scripts/run_all_noise.py`, cloned from `run_all_diffmask.py` for one topic, keeps its rules: one job of this user per
 card, the shared `.gpulock.<card>` lock, the working directory in the job fingerprint, one retry, MC-GS never retried
-blindly. `--cards` = the two cards the Gaussian-mask loop gives up plus card 5 (shared with another user's job); at
-most 3 GPU jobs. Launched detached from a bash file; `finalize_noise.sh` runs at the end: register the GS arms and the
+blindly. `--cards 1,2,5`: the Gaussian-mask loop's session (claude-64) released cards 1, 2 and 5 on 2026-09-16 and
+restarted `gauss_sched` with `ALLOWED='3 4 7'` at 16:41; card 5 also carries another user's job. At most 3 GPU jobs. Launched detached from a bash file; `finalize_noise.sh` runs at the end: register the GS arms and the
 render diagnostic, `summarize.py`, README tables with the zero-noise column, `compare_noise.py`, figures. Expected wall
 time with 2 to 3 cards: 12 to 16 hours.
 
