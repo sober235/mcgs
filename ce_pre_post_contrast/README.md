@@ -1,5 +1,8 @@
 # CE pair reconstruction results — UIH 3D T1 GRE pre/post contrast
 
+> New session: read `STATUS.md` first (what is done and verified, what is waiting for a decision, what not to redo),
+> then this file for the full protocol and history.
+
 Canonical results directory. **All current and subsequent results for this line of work go here.**
 (Superseded: `/data0/congcong/data/3D_data/ce_compare_20260907`, moved here 2026-09-08.)
 
@@ -297,7 +300,8 @@ smoothed pre < 0.32 inside a box set by eye (z 180:224, y 75:155, x 22:82):
 - Both comparison figures use these slices since 2026-09-15; their earlier planes (z 170, y 162, x 86) missed the
   core. The lesion figure shows sagittal anterior left; the comparison figures show it anterior right.
 - **The lesion does not enhance** (asked 2026-09-16: a slice subtle on pre but obvious on post). post minus pre in
-  WM units: core 0.021, rim 0-3 mm 0.026, rim 3-6 mm 0.009, against 0.003 for all white matter and 0.046 / 0.061 /
+  WM units: core 0.021, rim 0-3 mm 0.026, rim 3-6 mm 0.009 (the rims here are also cut by the eroded brain mask; the
+  `enhance` stage dilates without that cut and reports 0.028 for the same 0-3 mm rim), against 0.003 for white matter and 0.046 / 0.061 /
   0.035 for the mirrored contralateral regions, i.e. the lesion side enhances *less* than the normal side. Its
   contrast against its own 3-6 mm surroundings falls from 0.303 (pre) to 0.291 (post). A whole-brain search for
   foci that look like normal tissue on pre and bright on post (difference of Gaussians on each scan, inside
