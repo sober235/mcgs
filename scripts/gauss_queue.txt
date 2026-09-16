@@ -6,6 +6,9 @@ g_r1_rot008_n60 1500 --set gaussian.rotation_lr=0.008 --set gaussian.initial_num
 SAVE_VOLUMES=1 g_r2_rs_full4k 4000 --set gaussian.rotation_lr=0.008 --set gaussian.scale_lr=0.004
 # Round 2b (added 15:34): promotion of rs + w_floor 0.05 (+0.061 / +0.100 at 1500 it, best stack so far), 4000 it with volumes
 SAVE_VOLUMES=1 g_r2_rsw_full4k 4000 --set gaussian.rotation_lr=0.008 --set gaussian.scale_lr=0.004 --edge_tv_wfloor 0.05
+# Round 2c (added 16:09): promotion of the full stack rswt (best T1 / structure) and the slow-decay variant of rsw (best FLAIR margin), 4000 it with volumes
+SAVE_VOLUMES=1 g_r2_rswt_full4k 4000 --set gaussian.rotation_lr=0.008 --set gaussian.scale_lr=0.004 --edge_tv_wfloor 0.05 --tv_vector
+SAVE_VOLUMES=1 g_r2_rsw_gam_full4k 4000 --set gaussian.rotation_lr=0.008 --set gaussian.scale_lr=0.004 --edge_tv_wfloor 0.05 --set training.lr_scheduler.gamma=0.9998
 # Round 1f (added 15:36): rs + w_floor 0.05 + vector edge-TV (both keeps on rs)
 g_r1_rswt 1500 --set gaussian.rotation_lr=0.008 --set gaussian.scale_lr=0.004 --edge_tv_wfloor 0.05 --tv_vector
 # Round 1e (added 14:58): the remaining keeps stacked on rot008 + scl004 (capacity no longer adds on top of it: rs+n48 = +0.031 / +0.084)
