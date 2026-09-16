@@ -61,12 +61,14 @@ jcssense, spirit, zsssdu, dip, inr, mcinr, gs_single_p3, gs_joint_p3. Nothing is
   `scripts/make_noisy_kspace.py` refuses to overwrite.
 - **Generator checks, all must pass.**
   1. meas minus clean is exactly zero outside the support.
-  2. On the support, each coil's mean is within 3 standard errors of 0, and the standard deviations of the real and
-     imaginary parts are sigma / sqrt(2) within 0.5 %.
+  2. On the support, each coil's mean is within 4 standard errors of 0 (26 coils x 2 parts = 52 tests; at 3 standard
+     errors one of them would fail by chance about 13 % of the time, at 4 below 0.5 %), and the standard deviations of
+     the real and imaginary parts are sigma / sqrt(2) within 0.5 %.
   3. The air noise of the SENSE-combined noisy full image matches sqrt(sigma0_img^2 + sigma^2 f) within 2 %.
-  4. The ground truth computed from the clean file equals the AF16 topic's `recon/gt_{c}_complex.npy` (single
-     precision) within 1e-5 in gauge units (max absolute difference), and the scale equals the AF16 topic's
-     `scale_p999` to 1e-6 relative.
+  4. The ground truth computed from the clean file equals the AF16 topic's `recon/gt_{c}_complex.npy` within 1e-4 in
+     gauge units (max absolute difference), and the scale equals the AF16 topic's `scale_p999` to 1e-5 relative. The
+     AF16 volume was computed in single precision on a GPU, so bit equality is not expected; a wrong map, a flipped
+     array or another file would differ by 0.1 or more.
 
 ## 4. Data flow and code changes (defaults unchanged everywhere)
 
