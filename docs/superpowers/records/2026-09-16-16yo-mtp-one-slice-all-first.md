@@ -80,3 +80,13 @@ Looked at: the two nodules are distinct dark foci on the ventricle wall in GT, M
 into blobs, CG-SENSE, L1-SPIRiT, ZS-SSDU and MC-INR are grainy around them. MC-GS and GS-single are not separable by
 eye — the lead over GS-single is the numbers (+0.04 to +0.10 dB per plane); the visible gain is over the other eight
 arms. Selected on the reported metric, as everything in this record.
+
+Revision (user, 2026-09-16 10:xx): the sagittal zoom box must be a landscape rectangle covering the lesion region, and
+no inset may overlap the metrics in the panel's top-left corner. `fig_three_planes_inset.py` now takes `--inset RO PE
+SPE` (three extents; one value still means a cube), `--inset_center RO PE SPE` (-1 = the slice index), and keeps a
+left-side inset below the three metric lines (`TEXT_KEEPOUT_IN`). **Figure of record:**
+`figures/peds_af12_T2s_row3planes_compact_46_146_172_inset48x48x16_box157_172_46_headerr_lesionB_allfirst.{png,pdf}`
+— box 48 x 48 x 16 voxels (33.6 x 33.6 x 21.6 mm) centred at (RO 157, PE 172, SPE 46), midway between the two
+nodules (RO 148 and 166), so the transverse and sagittal insets hold both and the coronal inset (RO 146) holds the
+medial one; landscape on the coronal and sagittal panels, square on the transverse; every inset below the metrics.
+Looked at. The cube-box versions (`_inset48_`, `_inset32_`) are superseded.

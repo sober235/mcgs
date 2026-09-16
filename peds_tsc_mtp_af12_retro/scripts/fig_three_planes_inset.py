@@ -32,9 +32,16 @@ ap.add_argument("--mask_error", action="store_true", help="error maps only insid
 ap.add_argument("--mcgs_key", default="gs_joint_ar", help="which registered joint arm fills the MC-GS column")
 ap.add_argument("--single_key", default="gs_single_ar", help="which registered single arm fills the GS-single column")
 ap.add_argument("--tag", default="", help="extra suffix for the output file name, e.g. _p3")
-ap.add_argument("--inset", type=int, default=0, metavar="W",
-                help="also paste a WxW zoom of the same anatomical cube into every panel; the cube is centred on "
-                     "the three --slices indices, outlined on each slice and magnified in a corner")
+ap.add_argument("--inset", type=int, nargs="+", default=[0], metavar="W",
+                help="also paste a zoom of the same anatomical box into every panel, centred on the three --slices "
+                     "indices, outlined on each slice and magnified in a corner. One value: a WxWxW-voxel cube. Three "
+                     "values: its extent in voxels along RO, PE and SPE, e.g. 48 48 16 = 33.6 x 33.6 x 21.6 mm, which is "
+                     "square on the transverse panel and a landscape rectangle on the coronal and sagittal ones "
+                     "(user 2026-09-16: the cube's 64.8 mm through-plane side made those two insets tall strips)")
+ap.add_argument("--inset_center", type=int, nargs=3, default=[-1, -1, -1], metavar=("RO", "PE", "SPE"),
+                help="centre of the zoom box in voxels; -1 = the matching --slices index (coronal, sagittal, transverse), "
+                     "the default. Lets the box sit on a lesion that is off the slice intersection while every plane still "
+                     "cuts through the box (each slice index must lie inside the box's extent along its axis)")
 ap.add_argument("--inset_corner", nargs=3, default=["bl", "bl", "bl"], choices=["bl", "br", "tl", "tr"],
                 help="which corner holds the zoom, one per plane in display order (transverse, coronal, sagittal)")
 ap.add_argument("--gray_cbar", action="store_true", help="a grey colorbar beside each image row, not only the error bar")
@@ -169,17 +176,26 @@ for (axis, _pname), idx in zip(PLANES, args.slices):
 # --slices is given as (transverse, coronal, sagittal), hence the mapping below.
 for p in planes:
     p["zoom"] = None
-if args.inset:
-    hw = args.inset // 2
+assert len(args.inset) in (1, 3), "--inset takes one value (a cube) or three (RO PE SPE extents)"
+INSET = list(args.inset) * 3 if len(args.inset) == 1 else list(args.inset)      # voxels along (RO, PE, SPE)
+if INSET[0] > 0:
+    hro, hpe, hspe = (v // 2 for v in INSET)
     _tra, _cor, _sag = args.slices
+    cro, cpe, cspe = (v if v >= 0 else d for v, d in zip(args.inset_center, (_cor, _sag, _tra)))
+    for name, lo, hi, idx in (("RO", cro - hro, cro + hro, _cor), ("PE", cpe - hpe, cpe + hpe, _sag), ("SPE", cspe - hspe, cspe + hspe, _tra)):
+        assert lo <= idx < hi, f"the {name} slice {idx} misses the zoom box {lo}..{hi - 1}; move --inset_center or the slice"
     BOX = np.zeros(gt.shape, bool)
-    BOX[_cor - hw:_cor + hw, _sag - hw:_sag + hw, _tra - hw:_tra + hw] = True
+    BOX[cro - hro:cro + hro, cpe - hpe:cpe + hpe, cspe - hspe:cspe + hspe] = True
+    BOX_TAG = "" if (cro, cpe, cspe) == (_cor, _sag, _tra) else f"_box{cro}_{cpe}_{cspe}"
+    # (rows, cols) of the box on each DISPLAYED panel: transverse (RO, PE); coronal and sagittal are transposed by D(),
+    # so their rows are SPE and their columns PE and RO respectively
+    EXPECT = {2: (INSET[0], INSET[1]), 0: (INSET[2], INSET[1]), 1: (INSET[2], INSET[0])}
     for p in planes:
         bm = D(BOX[p["sl"]], p["axis"])
         rws, cls = np.nonzero(bm)
-        assert cls.max() - cls.min() + 1 == args.inset and rws.max() - rws.min() + 1 == args.inset, \
-            f"box is {cls.max()-cls.min()+1} x {rws.max()-rws.min()+1} on {PLANE_NAME[p['axis']]}, expected {args.inset} square"
-        p["zoom"] = dict(x0=int(cls.min()), y0=int(rws.min()), w=int(args.inset))
+        got = (int(rws.max() - rws.min() + 1), int(cls.max() - cls.min() + 1))
+        assert got == EXPECT[p["axis"]], f"box is {got} (rows, cols) on {PLANE_NAME[p['axis']]}, expected {EXPECT[p['axis']]}"
+        p["zoom"] = dict(x0=int(cls.min()), y0=int(rws.min()), w=got[1], h=got[0])
 
 ratio = float(np.mean([p["med"] / p["vmax"] for p in planes if p["axis"] != 1]))
 for p in planes:
@@ -222,29 +238,36 @@ def label(a, text, bold=False, line=0, fs=12, h=None, color="white"):
 ZC, ZLW = METRIC_COLOR, 2.2          # zoom outline and inset border: the same orange-yellow as the metrics
 
 
+# The in-panel metrics (label(): three lines of 10.5 pt at 1.28 spacing, 2.5 % of the panel from its top) own the
+# top-left corner of every image panel; an inset on the left side must stay below them (user 2026-09-16).
+TEXT_KEEPOUT_IN = 3 * 10.5 * 1.28 / 72 + 0.06
+
+
 def put_inset(parent, img, z, x0_in, y0_in, pw_in, h_in, corner="bl", **imkw):
     """outline the zoom box on `parent` and paste the magnified box into one corner of that panel"""
-    parent.add_patch(Rectangle((z["x0"], z["y0"]), z["w"], z["w"], fill=False, ec=ZC, lw=ZLW))
+    parent.add_patch(Rectangle((z["x0"], z["y0"]), z["w"], z["h"], fill=False, ec=ZC, lw=ZLW))
     # This topic's panels are anisotropic (0.7 x 0.7 x 1.35 mm): the coronal and sagittal rows are much
     # shorter than they are wide, so the AF16 line's fixed 0.38 * panel width overflows them and lands on
     # the row below. Cap the inset by the panel height as well.
     pad = 0.012 * pw_in
-    # The box is w x w VOXELS, but a panel of this topic maps its two axes to inches at different
+    # The box is w x h VOXELS, but a panel of this topic maps its two axes to inches at different
     # rates (0.7 mm in plane, 1.35 mm through it), so the outlined box is not square on the page.
     # Give the magnified copy the same shape, or it shows the same pixels at a different aspect.
     nr, nc = img.shape[:2]
-    box_w_in, box_h_in = z["w"] / nc * pw_in, z["w"] / nr * h_in
-    side = min(0.38 * pw_in, 0.52 * h_in * box_w_in / box_h_in if box_h_in > box_w_in else 0.52 * h_in)
+    box_w_in, box_h_in = z["w"] / nc * pw_in, z["h"] / nr * h_in
+    keepout = 0.025 * h_in + TEXT_KEEPOUT_IN if corner in ("bl", "tl") else 0.0      # the metrics live top-left
+    avail = min(0.52 * h_in, h_in - keepout - 2 * pad)                                  # room for the inset's height
+    side = 0.38 * pw_in
     ih = side * box_h_in / box_w_in
-    if ih > 0.52 * h_in:                       # keep it inside the row whatever the aspect
-        side, ih = side * 0.52 * h_in / ih, 0.52 * h_in
+    if ih > avail:                             # keep it inside the row and off the metrics whatever the aspect
+        side, ih = side * avail / ih, avail
     left = x0_in + (pad if corner in ("bl", "tl") else pw_in - pad - side)
-    top = y0_in + (pad if corner in ("tl", "tr") else h_in - pad - ih)
+    top = y0_in + ((keepout if corner == "tl" else pad) if corner in ("tl", "tr") else h_in - pad - ih)
     a = fig.add_axes([left / fw, 1 - (top + ih) / fh, side / fw, ih / fh])
     a.set_xticks([]); a.set_yticks([])
     for sp in a.spines.values():
         sp.set_visible(True); sp.set_edgecolor(ZC); sp.set_linewidth(ZLW + 0.6)
-    a.imshow(img[z["y0"]:z["y0"] + z["w"], z["x0"]:z["x0"] + z["w"]], aspect="auto", **imkw)
+    a.imshow(img[z["y0"]:z["y0"] + z["h"], z["x0"]:z["x0"] + z["w"]], aspect="auto", **imkw)
     return a
 
 
@@ -298,7 +321,7 @@ fig.text(0.5, 1 - 0.40 / fh, f"head-masked slice PSNR / SSIM ({'7x7 window' if a
          f"in each panel, the best of each plane in bold;   error |recon - GT| / max(GT), jet [0, 0.1];   "
          f"left of each error row: the sampling mask in that plane" + ("   (error shown inside the head only)" if args.mask_error else ""), ha="center", va="top", fontsize=11)
 name = (f"peds_af12_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}"
-        + (f"_inset{args.inset}" if args.inset else "")
+        + ((f"_inset{INSET[0]}" if len(set(INSET)) == 1 else f"_inset{'x'.join(map(str, INSET))}") + BOX_TAG if INSET[0] > 0 else "")
         + f"{'_headerr' if args.mask_error else ''}{args.tag}.png")
 for d in (F, R / "figures"):
     fig.savefig(d / name, dpi=130)
