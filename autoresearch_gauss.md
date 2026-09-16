@@ -95,3 +95,6 @@ Head-only, 1500 it unless noted; bar = GS-single frozen 34.771 / 34.294 (PSNR), 
 |---|---|---|---|---|---|---|---|
 | 12:20 | g_r0_control (parent at 1500 it on this runner) | 34.875 | 34.248 | 0.9331 / 0.9203 | 0.1348 / 0.1284 | 0.797 / 0.757 | the reference row; margins over the bar +0.105 / −0.046 (at 4000 it the parent is 34.909 / 34.317, so the last 2500 iterations are worth +0.034 / +0.069) |
 | 12:22 | g_r0_control_s43 (seed 43) | 34.865 | 34.240 | 0.9329 / 0.9201 | 0.1350 / 0.1286 | 0.797 / 0.758 | **seed floor 0.010 / 0.008 dB**, SSIM 0.0002, HFEN 0.0002, sharpness 0.001 |
+| 12:29  g_r0_wav15 | 34.837 (-0.038) | 34.205 (-0.043) | 0.9330 / 0.9198 | 0.1381 / 0.1297 | 0.779 / 0.737 | **discard**: both contrasts down (−0.038 / −0.043), HFEN and sharpness worse — more sparsity is the wrong direction on this mask |
+| 12:29  g_r0_wav20 | 34.745 (-0.130) | 34.124 (-0.124) | 0.9321 / 0.9185 | 0.1416 / 0.1314 | 0.766 / 0.720 | **discard**: −0.130 / −0.124, every cell worse; the wavelet dose curve is falling from 0.12/0.10 upward → 0.06/0.05 queued (Round 0b) |
+| 12:29  g_r0_geo014 | 34.848 (-0.027) | 34.235 (-0.013) | 0.9320 / 0.9190 | 0.1378 / 0.1312 | 0.769 / 0.726 | **discard**: −0.027 / −0.013, SSIM / HFEN / sharpness all worse; edge-TV 0.14 over-smooths → 0.05 queued (Round 0b) |

@@ -19,3 +19,6 @@ g_r0_ptv005 1500 --lambda_ptv 0.05
 g_r0_geo020 1500 --lambda_geo 0.20
 WARMUP=300 g_r0_wu300 1500
 WARMUP=800 g_r0_wu800 1500
+# Round 0b (added 12:32 after the first three screens: more wavelet / more edge-TV both lose, so bracket downward)
+g_r0_wav05 1500 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav=0.05
+g_r0_geo005 1500 --lambda_geo 0.05
