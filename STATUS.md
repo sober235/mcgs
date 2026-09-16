@@ -55,9 +55,29 @@
   避免与 AF24 worktree 抢编译缓存。
 - 本 worktree 的 `results_arc/` 为空（gitignored），任何输出只写这里；不写别的课题目录，不动 `Results_20260908/` 已有课题。
 
-### 下一步
-用户对上面四条拍板 → 写 `docs/superpowers/specs/2026-09-16-hparam-sensitivity-design.md` → 计划 → 起跑脚本
-（沿 `run_af24_mcgs.sh` 的 EXP 前缀隔离规矩，本分支前缀 `hp_`）。
+### 用户拍板（2026-09-16，"同意"四条建议）
+N_s 取 0.9M / 1.8M / 3.6M / 7.2M；发表的 MC-GS 保持 N_p = 0，第二组在 3.6M 上加 5% / 10% FLAIR 私有集（0% 与 3.6M 档同一次运行）；
+在 AF16 现有房屋掩膜上做；不报 Lesion CNR（第二组报 PSNR / SSIM / NMSE）；先跑 jiangyizhou。
+spec `docs/superpowers/specs/2026-09-16-hparam-sensitivity-design.md`，plan `docs/superpowers/plans/2026-09-16-hparam-sensitivity.md`。
+
+### 队列已起跑（2026-09-16 18:27，plan Task 4）
+- 运行器 `scripts/hp_queue.sh scripts/hp_queue.txt`（`setsid nohup`，日志 `results_arc/hp_queue.log`）；六个运行按
+  hp_n36 → hp_n18 → hp_n09 → hp_n72 → hp_p05 → hp_p10 排队（`--set gaussian.initial_num_points` / `gaussian.num_private_points`
+  是各运行之间唯一的差别，配方块与 `run_af24_mcgs.sh` 逐字相同，已 diff 核对），只用空卡（默认卡 1、2），一卡一训练，
+  持有 `Cardiac_FreeRunning_MCGS/work/.gpulock.<卡>`。每个运行 6–7.5 h（7.2M 更久），全部约一天。hp_n36 于 18:27 在卡 1 起跑，hp_n18 于 18:28 在卡 2 起跑（两把锁的属主都活着，`nvidia-smi` 上各一个训练进程）。
+- 暂停：`touch results_arc/.hp_queue_pause`；停运行器：`pkill -f "scripts/hp_queue.sh"`（训练进程独立，不会跟着死）；停一个训练：
+  `pkill -f "cycle.py --exp hp_n72"`（之后删掉它的 `results_arc/hp_n72*` 才会重排）。
+- 进度：`tail -2 results_arc/hp_runs.log`；汇总：`env PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/hp_summarize.py`
+  （写 `results_arc/hp_summary.{md,csv}`），先看 hp_n36 的 anchor 行是否 PASS（对注册的 gs_joint_p3 35.706 / 34.928 容差 0.02 dB）。
+- 冒烟 `hp_smoke_n09` / `hp_smoke_p05`（60 步，18:21 / 18:26 都 rc=0；掩膜读到 15.19×，`N=900000`，私有集
+  "attached 45000 private residual Gaussians"）只是可行性检查，不是结果，别引用。
+- 单元测试 `tests/test_hp_summarize.py` 3 通过（无需 GPU）。
+- 坑：`TORCH_EXTENSIONS_DIR` 对这套代码无效，体素化 CUDA 扩展按源码哈希编进各 worktree 自己的 `paired_gs/gaussian/build/`，
+  worktree 之间不共享缓存（所以不会互相干扰）；`run_hp_mcgs.sh` 里那个变量留着无害。
+
+### 跑完以后（下一会话，plan Task 5）
+汇总表 → anchor 门 → 双面板图（先读 dataviz skill）→ 课题目录 `Results_20260908/T1FLAIR_AF16_hparam_v3_jiangyizhou/` → 记录
+`docs/superpowers/records/2026-09-16-hparam-sensitivity.md` → 提交、推送、打 tag `handoff/<日期>-hparam`。
 
 下面是 autoresearch-jyz-af24 分支的 STATUS 原文（本分支的起点）。
 

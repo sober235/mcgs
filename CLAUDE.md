@@ -136,3 +136,9 @@ knobs (`gaussian.initial_num_points`, `gaussian.num_private_points`), the AF16 c
 already exist, the four mismatches waiting on the user's decision (N_s scale, the private branch's status, the AF, the
 lesion-CNR data), and the do-not-disturb rules (other worktrees' GPUs, `TORCH_EXTENSIONS_DIR`, outputs only in this
 worktree's `results_arc/`).
+User decisions 2026-09-16 (all four recommendations accepted): N_s 0.9M / 1.8M / 3.6M / 7.2M; the published MC-GS keeps
+N_p = 0 and group 2 adds 5 % / 10 % FLAIR-private Gaussians on top; AF16 (the existing house mask); no lesion CNR.
+Spec `docs/superpowers/specs/2026-09-16-hparam-sensitivity-design.md`, plan `docs/superpowers/plans/2026-09-16-hparam-sensitivity.md`.
+Launcher `run_hp_mcgs.sh` (recipe block identical to `run_af24_mcgs.sh`, AF16 config), queue `scripts/hp_queue.sh` +
+`scripts/hp_queue.txt`, summary `scripts/hp_summarize.py` (test `tests/test_hp_summarize.py`). Six runs hp_n09/n18/n36/n72/p05/p10;
+hp_n36 is the regression anchor (gs_joint_p3 35.706 / 34.928, tolerance 0.02 dB). Queue state and controls: `STATUS.md`.
