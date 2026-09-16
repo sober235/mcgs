@@ -2142,3 +2142,29 @@ cd /data0/congcong/code/GS/mcinr_niessen2025 && git status --short | head -5 && 
 ```
 
 - [ ] **Step 6: Update the auto-memory** (`/home/congcongliu/.claude/projects/-home-congcongliu/memory/`): one new file for the noise study (branch, worktree, topic, headline numbers, open decisions) and its line in `MEMORY.md`.
+
+---
+
+### Task 12 (added 2026-09-16 23:20, spec addendum): the 1 sigma0 level
+
+Done in the session, in this order (commands as run):
+- Topic `Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou/` scaffolded like Task 4 Step 1; `logs/prep_04_export.json`
+  copied from the 2 sigma0 topic with the topic path replaced.
+- Every script of the 2 sigma0 topic copied with the replacements `noise2x -> noise1x`, `t1flair_v3_af16_noise2x ->
+  t1flair_v3_af16_noise1x`, `_noise2x -> _noise1x`, `af16n_ -> af16n1_`, `SHORT "af16n" -> "af16n1"`,
+  `2 sigma0 -> 1 sigma0`, `2σ0 -> 1σ0`, `MULT 2.0 -> 1.0`; a grep for `noise2x|af16n_|2 sigma0|2σ0` finds nothing.
+- `make_noisy_kspace.py` (1 sigma0 copy) gains the `nested_vs_2x` check: 2 (meas_1x - clean) = meas_2x - clean within
+  4e-7 (|clean| + 10 sigma_raw_2x) per sample. Result: 0.29 (T1), 0.29 (FLAIR), all other checks as at 2 sigma0.
+- `run_noise_mcgs.sh` accepts `af16n1_` (written to a new file and moved over the old one, because a running bash
+  reads its script as it goes); configs `configs/t1flair_v3_af16n1_jyz{,_singleT1,_singleFLAIR}.yaml`.
+- `compare_noise_levels.py` (1 sigma0 topic) prints no noise / 1 sigma0 / 2 sigma0 side by side.
+- Second scheduler: `launch_noise.sh --cards 2,1,5` in the 1 sigma0 topic (its finalize uses card 2 for GPU scoring,
+  the 2 sigma0 finalize card 1).
+
+Remaining for Tasks 10 and 11, in addition to the 2 sigma0 steps:
+```bash
+cd /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou && for m in head_psnr head_ssim head_hfen; do
+  PYTHONNOUSERSITE=1 PYTHONPATH= /home/congcongliu/anaconda3/envs/GSTMI/bin/python scripts/compare_noise_levels.py \
+    --metric $m --out logs/compare_noise_levels_$m.md > /dev/null; done
+```
+and mirror both topics into the repo (`t1flair_af16_noise1x_v3_jiangyizhou/`, `t1flair_af16_noise2x_v3_jiangyizhou/`).

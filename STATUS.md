@@ -45,9 +45,21 @@
 - MC-INR：仓库测试改动前后都是 28 passed；单层冒烟 RC=0，meta 的 `ksp` 指向两个带噪文件（提交 726a0b6，本地仓库不推送）。
 - 队列空跑：57 个作业，顺序 gs_joint → gs_singleFLAIR → base → gs_singleT1 → TV → JTV → ZS-SSDU → INR → DIP → SPIRiT → MC-INR。
 
+### 1b. 追加：1σ0 一档（用户 09-16 23:1x 选定）
+
+- 起因（中途数字，非最终）：2σ0 下冻结配方的 GS-single 头内 PSNR T1 29.57（零噪声 35.56）、FLAIR 30.06（34.89），锐度比 1.35 / 1.22；
+  硬替换只占 0.06 dB（CPU 临时核对，`scratchpad` 脚本，未入账）；CG-SENSE 约 −2.5 dB，TV 随 λ 增大回升。用户选“再加一档 1×σ0”，不加重调 GS。
+- 课题 `Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou/`，脚本从 2σ0 课题复制，只换课题路径、倍数、实验前缀 `af16n1_`、MC-INR 标签 `_noise1x`。
+  噪声与 2σ0 同种子同抽样，恰为其一半（`nested_vs_2x` 0.29 / 0.29，限 1）；其余六项检查全过（`logs/make_noisy_kspace.log`）。
+  CPU 核对：该课题 `Pair` 读 `meas_T1.h5`，带噪减干净最大 0.0629（2σ0 为 0.1259）。
+- 运行脚本 `run_noise_mcgs.sh` 增加 `af16n1_` 分支（原子替换，配方段落 diff 一致），配置 `configs/t1flair_v3_af16n1_jyz*.yaml`，提交 79e2b97。
+- 第二个调度器 23:37 起：`launch_noise.sh --cards 2,1,5`（1σ0 课题），与 2σ0 调度器共用卡 1、2、5，各守每卡一个作业与卡锁。
+- 三档对比脚本 `T1FLAIR_AF16_noise1x_v3_jiangyizhou/scripts/compare_noise_levels.py`（两队列都结束后跑）。
+
 ### 2. 待用户拍板
 
 - 暂无。结果出来后按设计第 1 节读数。
+- 可选：0、3、4、7 号卡空闲时如允许使用，两档总耗时可明显缩短（目前只用已批准的 1、2、5，5 号卡与他人共用、慢约 5 倍）。
 
 ### 3. 下一步（正在跑）
 
