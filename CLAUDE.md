@@ -117,3 +117,12 @@ quote. L1-SPIRiT (T1 31.783 / FLAIR 31.803) and MC-INR (30.076 / 30.947) were ad
 set of record is `t1flair_af24_v3_jiangyizhou/figures/..._180_124_76_inset48_headerr_p3_mcinr_spirit.{png,pdf}`. Mask-draw variance (record §8):
 margin over L1-ESPIRiT +0.359 ± 0.006 / +0.397 ± 0.006 over four draws (history framing; GS-single not run on the draws). Record `docs/superpowers/records/2026-09-15-af24-jyz.md`,
 handoff `docs/handoff/2026-09-15-af24-jyz.md`, figures `t1flair_af24_v3_jiangyizhou/figures/t1flair_v3_af24_*_p3.*`.
+
+## L1-SPIRiT arm across AF 12 / 16 / 20, the 2026-09-15 conventions, AF-label fix (claude-ad, 2026-09-14/16; on this branch since 13b7bce)
+Read `STATUS.md` (section "L1-SPIRiT 臂…") then `docs/handoff/2026-09-16-spirit-arm-jyz-af12-16-20.md`. Per topic:
+`scripts/recon_spirit.py` (k-space arm; `--solver fista`, the reference POCS diverges), `spirit_align_check.py` + `spirit_align.m`
+(1e-12 agreement with the MATLAB original in double), `run_spirit_sweep.sh`; the topic READMEs end with the decision notes
+(L1-ESPIRiT dropped from display, GS-single the strongest comparison arm, AF label = `AF_vs_full_rect`) and the archive note
+(`figures/archive_aflabel_pre20260915/`). The delivered figures are the `_spirit` set. AF 24 data bundle:
+`T1FLAIR_AF24_v3_jiangyizhou/export/af24_p3_mcinr_spirit/` (72 files, md5 72/72); Chinese summary `docs/2026-09-15-af24-jyz-summary.md`.
+

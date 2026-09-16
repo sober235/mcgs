@@ -131,6 +131,19 @@ Joint SENSE 32.730 / 32.605，ZS-SSDU 32.578 / 32.107，3D-DIP 30.500 / 30.360�
 课题目录 `/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/`（仓库镜像 `t1flair_af20_v3_jiangyizhou/`）。
 AF16 三期的 STATUS 在它自己的分支与 tag `handoff/2026-09-13-jyz-af16-phase3` 上。
 
+## L1-SPIRiT 臂（AF12/16/20）、09-15 两条约定、AF 标签修正、AF24 数据包（claude-ad，09-14 至 09-16；提交 13b7bce、76e0d2f）
+
+先读 `docs/handoff/2026-09-16-spirit-arm-jyz-af12-16-20.md`（命令与输出都在里面）。要点：
+- 三个课题各补了 k 空间对比臂 L1-SPIRiT（Lustig 工具箱 GPU 移植，双精度与原版对到 1e-12；原版 POCS 在此数据上发散，改 FISTA）；
+  72 次扫描最优点全在网格内部，取 5×5 核 / λ 1e-3；头内 PSNR T1 35.017 / 33.788 / 32.882（AF24 31.783），FLAIR 35.103 / 33.720 / 32.824（31.803）。不改变任何余量。
+- L1-ESPIRiT 从表和图撤出（数据保留，`DROP` 一处决定）；GS-single 算对比臂且是最强的，头条余量 = MC-GS − GS-single：
+  T1 +0.150 / +0.148 / +0.165 / +0.179，FLAIR +0.036 / +0.042 / +0.052 / +0.071（AF12→24）。三课题 README 各有决定说明；`AF12_16_20` 趋势课题同样统一。
+- 图标题 FLAIR 加速原取错字段（对自身快门），已改为整平面口径 12.86 / 16.49 / 19.96；定稿图按"旧图移入 `figures/archive_aflabel_pre20260915/`、原名重出"处理，
+  T1 逐像素相同、FLAIR 只差标题行。交付图集 = `_spirit`（十列，无 L1-ESPIRiT），索引 `~/figs/spirit_index.html`。
+- AF24 数据包 `export/af24_p3_mcinr_spirit/`（72 文件 11.77 GiB，md5 72/72）+ 中文总结 `docs/2026-09-15-af24-jyz-summary.md`。
+- 待用户定：FLAIR 标签 A/B；AF24 掩膜 b/c/d 补跑 GS-single；删冗余分支 `spirit-arm-jyz-af12-16-20` 与工作树 `mcgs_spirit_wt`；AF12 用三期配方重跑使四点余量序列同配方（可选）。
+- 会话边界：本段与交接文档随 tag `handoff/2026-09-16-spirit-arm-jyz` 一起推 origin（分支 `autoresearch-jyz-af24`，不合 main）。
+
 ## 0. 09-14 下午追加（分支 `jyz-af20-results` 的新提交）
 - **加速倍数口径（用户 09-14 定）**：整平面线数 ÷ 该对比度带数据的采样线数（即 BART `pics` 打印的 `Acc`）。AF20 掩膜 T1 18.56×、FLAIR 19.96×；AF16 为 15.19 / 16.49；AF12 为 11.71 / 12.86。下文与旧文档、图标题里的“标称 AF20，实际 FLAIR 15.13×”是旧口径，未改。
 - **跨加速倍数复核**：新课题 `Results_20260908/T1FLAIR_AF12_16_20_trend_v3_jiangyizhou/`（仓库镜像 `t1flair_af12_16_20_trend_v3_jiangyizhou/`，README 中文）。三个课题 GT 逐位相同、打分代码 md5 相同；72 个存盘体积用同一套代码重打分，原表复现。除 3D-DIP 在 AF16→AF20 持平外，所有方法头内 PSNR/SSIM/HFEN 两步都变差；展示层 180/124/76、174/110/47 与几乎全部层上同样成立；MC-GS 各加速第一，对 L1-ESPIRiT 余量 T1 +0.59/+0.50/+0.46、FLAIR +0.60/+0.43/+0.49。AF12 的 MC-GS 是 P14 配方（AF16/20 为三期配方），P6 同配方核对 AF12→16 同样下降。
