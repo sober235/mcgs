@@ -28,6 +28,8 @@ ap.add_argument("--out", required=True)
 ap.add_argument("--fit", action="store_true", help="train on the 95%% lines of the frozen held-out split (2026-09-14)")
 ap.add_argument("--root", default="/data0/congcong/code/GS/Paired_ARC_GS_general_framework",
                 help="directory holding paired_gs/ (2026-09-15: scripts/_trainer_3dd24aa pins the 09-07 trainer)")
+ap.add_argument("--seed", type=int, default=42,
+                help="initialisation and training randomness (2026-09-16, for the same-scan null test)")
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -86,13 +88,13 @@ cfg = {
     "output": {"exp_name": args.mode, "output_dir": args.out},
     "training": {"max_iterations": args.iters, "shared_warmup_iters": args.warmup,
                  "eval_every": 10**9, "log_every": 100, "save_every": 10**9,
-                 "seed": 42, "max_grad_norm": 1.0,
+                 "seed": args.seed, "max_grad_norm": 1.0,
                  "lr_scheduler": {"type": "exponential", "gamma": 0.9995}},
     "voxelizer": {"max_radius": 20, "tile_size": 8},
 }
 
 out_dir = Path(args.out); out_dir.mkdir(parents=True, exist_ok=True)
-set_seed(42)
+set_seed(args.seed)
 tr = JointTrainer(cfg)
 tr.train()
 

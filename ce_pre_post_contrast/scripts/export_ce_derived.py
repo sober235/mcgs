@@ -49,6 +49,7 @@ for n, w in [("cssense_pre.nii.gz", "CS-SENSE pre as NIfTI (1 mm, P99.9-normalis
              ("lesion_measure_cssense.json", "superseded measurement from the leaky mask -- kept for the record")]:
     add(f"lesion/{n}", w, T / "lesion_candidates" / n)
 for n, w in [("lesion_edge_profile.json", "lesion boundary: profiles, widths, 50% shift, rim gradient, WM noise"),
+             ("seed_null_s1.json", "seed null test: a second seed on the same scan against the observed post - pre"),
              ("kres_summary_errormap.json", "kres of every arm as drawn in the error-map figures"),
              ("kres_summary_20260914.json", "the full result table"), ("heldout4_scores.json", "held-out kres")]:
     add(f"tables/{n}", w, T / n)
@@ -56,8 +57,10 @@ for p in sorted((T / "figures").glob("*.png")) + sorted((T / "figures").glob("*.
     add(f"figures/{p.name}", "figure", p)
 for p in sorted((FIGS / "lesion_candidates").glob("*.png")):
     add(f"figures/lesion/{p.name}", "lesion figure", p)
-for n in ("ce_lesion_candidates.py", "ce_figure_paper.py", "ce_figure.py", "ce_edge_profile.py",
-          "export_ce_derived.py", "export_ce_bundle.py"):
+for p_ in sorted((T / "seed_null_s1").rglob("*_meta.json")):
+    add(f"seed_null_s1/{p_.relative_to(T / 'seed_null_s1')}", "seed null run meta (volumes stay in seed_null_s1/)", p_)
+for n in ("ce_lesion_candidates.py", "ce_figure_paper.py", "ce_figure.py", "ce_edge_profile.py", "ce_seed_null.py",
+          "ce_orchestrate.py", "export_ce_derived.py", "export_ce_bundle.py"):
     add(f"scripts/{n}", "script", T / "scripts" / n)
 add("README_topic.md", "the topic README at export time", T / "README.md")
 

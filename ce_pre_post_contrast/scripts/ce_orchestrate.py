@@ -162,6 +162,31 @@ elif PLAN == "spirit":
         _, k_, s_ = fam.split("_")
         add(sp_job(f"{fam}_grid", s_, int(k_[2:]), "fit", GRIDS[fam], pr))
     FINALS = ["sp_pre_final", "sp_post_final"]
+elif PLAN == "seednull":
+    # 2026-09-16: the floor of each randomly initialised arm. Same scan, same data, same code, only the seed
+    # differs, so the difference between the two runs is what the method invents on its own. Compare it with the
+    # post - pre the arm reports in the non-enhancing lesion (3D-DIP +0.057, 3D-INR +0.029, MC-GS +0.024).
+    SNAP = str(SC / "_trainer_3dd24aa")                  # the trainer the archived GS runs used
+    SEED = int(os.environ.get("SEED_B", "1"))
+    OUTD = T / f"seed_null_s{SEED}"
+    add(dict(name="sn_dip_pre", lane="gpu", prio=1, need=40000, deps=[],
+             cmd=lambda g: [PY, "-u", str(SC / "ce_dip_inr.py"), "--method", "dip", "--scan", "pre", "--iters", "5000",
+                            "--lr", "3e-3", "--eval_every", "100", "--seed", str(SEED), "--gpu", str(g),
+                            "--out", str(OUTD)],
+             done=lambda: meta_ok([OUTD / "dip_pre_meta.json"])))
+    add(dict(name="sn_inr_pre", lane="gpu", prio=2, need=40000, deps=[],
+             cmd=lambda g: [PY, "-u", str(SC / "ce_dip_inr.py"), "--method", "inr", "--scan", "pre", "--iters", "1500",
+                            "--eval_every", "50", "--seed", str(SEED), "--gpu", str(g), "--out", str(OUTD)],
+             done=lambda: meta_ok([OUTD / "inr_pre_meta.json"])))
+    add(dict(name="sn_gs_single_pre", lane="gpu", prio=3, need=60000, deps=[],
+             cmd=lambda g: [PY, "-u", str(SC / "ce_gs.py"), "--mode", "single_pre", "--root", SNAP, "--seed", str(SEED),
+                            "--gpu", str(g), "--out", str(OUTD / "gs_single_pre")],
+             done=lambda: meta_ok([OUTD / "gs_single_pre" / "gs_single_pre_meta.json"])))
+    add(dict(name="sn_gs_joint", lane="gpu", prio=4, need=60000, deps=[],
+             cmd=lambda g: [PY, "-u", str(SC / "ce_gs.py"), "--mode", "joint", "--root", SNAP, "--seed", str(SEED),
+                            "--gpu", str(g), "--out", str(OUTD / "gs_joint")],
+             done=lambda: meta_ok([OUTD / "gs_joint" / f"gs_joint_{s_}_meta.json" for s_ in C.SCANS])))
+    FINALS = list(jobs)
 else:
     raise SystemExit(f"unknown plan {PLAN}")
 

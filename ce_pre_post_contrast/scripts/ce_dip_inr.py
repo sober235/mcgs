@@ -45,6 +45,9 @@ ap.add_argument("--inr_nmax", type=int, default=512)
 ap.add_argument("--inr_hidden", type=int, default=64)
 ap.add_argument("--inr_layers", type=int, default=3)
 ap.add_argument("--render_chunk", type=int, default=1_500_000)
+ap.add_argument("--seed", type=int, default=0,
+                help="model initialisation and training randomness; the held-out line split is always seed 0, so a "
+                     "second seed differs only in the run itself (2026-09-16, for the same-scan null test)")
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -53,7 +56,7 @@ os.environ.setdefault("PYTHONNOUSERSITE", "1")
 
 import numpy as np, torch, torch.nn as nn, torch.nn.functional as F, torch.fft as tfft
 
-torch.manual_seed(0); np.random.seed(0)
+torch.manual_seed(args.seed); np.random.seed(args.seed)   # the held-out line split below stays at seed 0
 dev = torch.device("cuda:0")
 RR = Path("/data0/congcong/code/NV-Generate-CTMR/recon_real")
 WORK = {"pre": RR / "work_ce_t1_16887049370010", "post": RR / "work_ce_t1_16887049370060"}[args.scan]
@@ -291,7 +294,7 @@ json.dump({"method": args.method, "scan": args.scan, "shape": list(xa.shape), "s
            "alpha_re": float(np.real(alpha)), "alpha_im": float(np.imag(alpha)),
            "kres": kres, "kres_heldout": best["ho"], "best_iter": best["it"],
            "params": int(npar), "holdout_lines": int(nho), "total_lines": int(Nl),
-           "iters": args.iters, "lr": lr, "tv": args.tv, "seconds": time.time() - t0},
+           "iters": args.iters, "lr": lr, "tv": args.tv, "seed": args.seed, "seconds": time.time() - t0},
           open(OUT / f"{tag}_meta.json", "w"), indent=2)
 log(f"[{tag}] kres_full={kres:.5f} kres_ho={best['ho']:.5f} |alpha|={abs(alpha):.4f} "
     f"in {time.time()-t0:.0f}s -> {OUT/(tag+'_complex.npy')}")
