@@ -63,13 +63,13 @@
 
 ### 3. 下一步（正在跑）
 
-- 调度器 `run_all_noise.py --cards 1,2,5`（21:50 重启，第一次 21:48 只用卡 5 启动，见坑 1）。看进度：
+- 两个调度器（见坑 1、6、8 的重启经过）。看进度：
   ```
   N=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou
   tail -20 $N/logs/run_all_noise.log; cat $N/logs/run_all_noise_status.json; nvidia-smi
   ```
 - 调度器进程没了而 `logs/RUN_ALL_NOISE_DONE` 不存在：原样重启即可（已有结果跳过，在跑的作业会被等待）：
-  `setsid nohup bash $N/scripts/launch_noise.sh --cards 1,2,5 > /dev/null 2>&1 < /dev/null &`
+  `setsid nohup bash $N/scripts/launch_noise.sh --cards 1,2,5 --light_only_cards 5 > /dev/null 2>&1 < /dev/null &`（1σ0 课题用 `--cards 2,1,5 --light_only_cards 5`）
 - 队列空了会自动跑 `finalize_noise.sh`（登记 GS 臂、MC-INR 打分、渲染诊断、汇总表、对比表、图）。之后做计划的任务 10（查边缘 λ、
   看图、读数）和任务 11（记录、镜像、提交、推送、打 tag、记忆）。
 
@@ -87,6 +87,10 @@
    `inr_T1` 与 CE 的 INR 同时跑，各约 8 s/it。已给 CE 会话（进程 1044409）发消息请它避开 1、2、5，对方随后撤走了 1 号卡上的作业。
    我们这边在两份 `run_all_noise.py` 里加了占位进程：每派一个作业，同卡起一个只建上下文的小进程（`HOLD_S=240`，
    远低于 MC-INR 让卡的 1500 MiB 门槛），作业回收时一并结束。01:22 两个调度器按原参数重启（只杀调度器进程，作业不动）。
+8. 5 号卡与他人满载作业共用，重作业在上面慢得不可用：2σ0 的 `inr_FLAIR` 17 s/it（空卡 2.3 s/it，1500 步要 7 小时）。
+   03:25 给两份 `run_all_noise.py` 加 `--light_only_cards 5`（GS、INR、DIP、ZS-SSDU、MC-INR 不上 5 号卡，只放 base/TV/JTV/SPIRiT），
+   两个调度器带此参数重启，随后杀掉 5 号卡上的 `inr_FLAIR`（已跑 57 分钟，200/1500），它被重排到 2 号卡重跑。
+   现在的启动命令：2σ0 `launch_noise.sh --cards 1,2,5 --light_only_cards 5`，1σ0 `launch_noise.sh --cards 2,1,5 --light_only_cards 5`。
 7. 两个调度器实际是先后跑：2σ0 调度器回收作业后立刻在同一轮里派下一个，总先拿到空出的卡；1σ0 只在 2σ0 没有合适作业时才拿到卡。
 
 ### 5. 为什么
