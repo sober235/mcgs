@@ -52,3 +52,38 @@ README_topic.md   the topic README at export time;  MANIFEST.tsv, checksums.md5,
 
 The masks cannot be regenerated (the generator seeds from the clock); this bundle and the topic's `data/` are the only
 copies. The k-space and maps are the AF12 topic's files, dereferenced.
+
+## Provenance of the raw data — where `raw/` comes from, and the check that it is the raw data (2026-09-16)
+
+Vendor source of record, untouched since acquisition and still on this server:
+
+```
+/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/
+  t1_fsp_train_jiangyizhou_cc.cfl   2,399,141,888 B   md5 c449fdbd70cf896173dc576993e2cb47
+  t1_fsp_train_jiangyizhou_cc.hdr              31 B   md5 efccd5dc6cdcae22f02b1cfee6541ad8   dims 256 256 176 26 1
+  flair_train_jiangyizhou_cc.cfl    2,399,141,888 B   md5 ce3627e9c84e88ee1b8cfc557070f3c7
+  flair_train_jiangyizhou_cc.hdr               31 B   md5 efccd5dc6cdcae22f02b1cfee6541ad8   dims 256 256 176 26 1
+```
+
+(`t2_train_jiangyizhou_cc.*` sits in the same folder and is NOT used by this study.)
+
+`raw/ksp_T1.h5` and `raw/ksp_FLAIR.h5` are those two files in HDF5 form, written by the AF12 topic's
+`scripts/prep_04_export.py`: read the CFL Fortran-order as `(X,Y,Z,C,1)`, drop the trailing singleton, then
+`moveaxis(3, 0)` to `(C,X,Y,Z)` complex64. No cropping, no scaling, no reordering of the data itself.
+
+Checked on 2026-09-16 by reading both representations and comparing every element (all 256 readout planes, no
+sampling): **0 differing elements out of 299,892,736 per contrast** — the bundle's k-space *is* the vendor raw data,
+bit for bit.
+
+```
+[T1]    cfl (256, 256, 176, 26) complex64   h5 (26, 256, 256, 176) complex64   differing elements = 0
+[FLAIR] cfl (256, 256, 176, 26) complex64   h5 (26, 256, 256, 176) complex64   differing elements = 0
+```
+
+`raw/csm_espirit_*.h5` are *derived*, not raw: BART `ecalib -t 0.001 -c 0.0 -r 24 -m 1` on those same CFL files
+(AF12 topic `scripts/prep_03_csm.sh`), reproducible from the raw data at any time. The masks are the opposite case —
+the generator seeds from the clock, so `mask/` cannot be regenerated and this bundle plus the topic's `data/` are the
+only copies.
+
+So the raw data now lives on this server in two independent places: the vendor CFL on `/data1` and this self-contained
+bundle on `/data0`. Re-verify the bundle at any time with `md5sum -c checksums.md5` (72/72 OK, re-run 2026-09-16).

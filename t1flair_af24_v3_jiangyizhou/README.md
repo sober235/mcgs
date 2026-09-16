@@ -185,6 +185,27 @@ margin, MC-GS âˆ’ GS-single, was not measured (GS-single was not run on draws bâ
 - Mask figures: `t1flair_v3_af24_mask_T1_vs_FLAIR.png`, `..._mask_series_af12_16_20_24.png`, `..._mask_T1_FLAIR_reinspect.png`.
 - 48-voxel box leads are printed by the figure script only (not on the figure) and do not transfer between masks.
 
+## Raw data on this server (2026-09-16)
+
+Everything behind the figures of record is archived in one self-contained folder, symlinks dereferenced, so it can be
+moved or tarred on its own:
+
+```
+export/af24_p3_mcinr_spirit/          72 files, 12 GiB    md5sum -c checksums.md5  ->  72/72 OK (re-run 2026-09-16)
+  raw/      ksp_{T1,FLAIR}.h5 (26-coil FULL k-space), csm_espirit_{T1,FLAIR}.h5
+  mask/     mask_af24_3d.h5 + the .mat of record, and draws b/c/d
+  volumes/  ground truth, ZF and every arm at its kept parameters, complex64 256x256x176
+  mcinr/    MC-INR outputs and score logs;  logs/  summary.json/tsv and every prep/score json
+  figures/  the _p3_mcinr_spirit set of record (PNG + PDF) and the archived renders
+```
+
+Provenance, checked element-wise on 2026-09-16: `raw/ksp_{T1,FLAIR}.h5` are **bit for bit** the vendor CFL in
+`/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/{t1_fsp,flair}_train_jiangyizhou_cc.cfl`
+(md5 c449fdbd... / ce3627e9...) reshaped `(X,Y,Z,C)` -> `(C,X,Y,Z)`; 0 differing elements out of 299,892,736 per
+contrast, all 256 readout planes compared, nothing sampled. The ESPIRiT maps are derived (BART `ecalib -t 0.001 -c 0.0
+-r 24 -m 1`) and reproducible; the masks are not (clock-seeded generator), so the bundle and this topic's `data/` are
+their only copies. Details in `export/af24_p3_mcinr_spirit/README.md`.
+
 ## Regenerating
 
 ```

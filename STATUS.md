@@ -51,6 +51,19 @@ FLAIR margin over 4 draws: mean +0.397  SD 0.006  range [+0.389, +0.403]   AF20 
 
 - **数据包与中文总结（claude-ad 按用户直接要求做，76e0d2f）**：`Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/export/af24_p3_mcinr_spirit/`（72 个文件 11.77 GiB，原始 k 空间、线圈图、掩膜 a/b/c/d、各臂重建体含 SPIRiT 与 MC-INR、正式图；README 写明倍数口径与 A/B 未定），本会话独立 `md5sum -c` 72/72 OK；中文一页总结 `docs/2026-09-15-af24-jyz-summary.md`（关键数字已核对）。
 
+### 0c. 09-16：原始数据落盘核实（用户："将上述重建结果对应的原始数据保存到该服务器上"）
+
+已经在服务器上，两份互相独立，**没有再复制**：
+
+- 厂商原始 CFL（采集后未动）`/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/{t1_fsp,flair}_train_jiangyizhou_cc.{cfl,hdr}`，各 2,399,141,888 B，md5 `c449fdbd…`（T1）/ `ce3627e9…`（FLAIR），头 dims `256 256 176 26 1`。同目录的 t2 文件本课题不用。
+- 自包含数据包 `Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/export/af24_p3_mcinr_spirit/`，72 个文件 12 GiB，软链接已解开；`md5sum -c checksums.md5` 09-16 重跑 **72/72 OK，无 FAILED**。
+
+这次真正新做的是溯源核对：把数据包里的 `raw/ksp_{T1,FLAIR}.h5` 按 `prep_04_export.py` 的同一变换（Fortran 序 `(X,Y,Z,C,1)` 去掉末维、`moveaxis(3,0)` 成 `(C,X,Y,Z)`）读回来与厂商 CFL **逐元素**比，256 个读出层全比、不抽样：**每个对比度 299,892,736 个元素，差异 0 个**。所以包里的 k 空间就是厂商原始数据本身，正式图能一路追到采集。
+
+`raw/csm_espirit_*.h5` 不是原始数据，是 BART `ecalib -t 0.001 -c 0.0 -r 24 -m 1` 算出来的，随时可复算；掩膜相反，`vdPoisMex` 按 `time(0)` 取种，不可重生成，数据包和课题 `data/` 是仅有的两份。磁盘 `/data0` 88%（余 5.1T）、`/data1` 76%（余 1.7T），再复制一份 4.8 GiB 没有收益，所以没做。
+
+说明写进了数据包 README（新节 Provenance of the raw data）与课题 README（新节 Raw data on this server），两份都已镜像进本分支；记录见 `docs/superpowers/records/2026-09-15-af24-jyz.md` §12。
+
 ### 一句话
 AF16 三期配方原样不调，跑在 1877 点的掩膜上（标签 **24.00×**，两个对比度同一个数，用户 09-16 定；FLAIR 有 1766 点带数据）：头内 PSNR **33.767 / 33.182**，九臂里头内 PSNR/SSIM/HFEN 六格全第一（含 GS-single）。**对最强对比方法 GS-single 的余量 +0.179 / +0.071**（AF20 +0.165 / +0.052；GS-single 算对比方法是用户 09-13 定的）。
 
