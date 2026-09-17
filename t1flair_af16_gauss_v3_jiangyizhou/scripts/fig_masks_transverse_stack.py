@@ -13,6 +13,11 @@ slice PSNR / SSIM / NMSE (the best of each row in bold). Metrics as fig_three_pl
 |GT| > 0.05 * P99.9 of the volume, PSNR at the volume's max|GT|, SSIM = 2-D map (7x7 uniform window, data range
 max|GT|) averaged over the head pixels, NMSE = sum (recon - GT)^2 / sum GT^2 over the head pixels. Grey window = the
 slice's P99.9 of the GT (the GT is the same volume in all three topics, so the three rows share one window).
+Zoom (2026-09-17, optional): --inset W outlines a W x W box, centred on (J, K) = --inset_center in the transverse slice, on every
+image and error panel and pastes it magnified into the --inset_corner corner (same geometry and orange-yellow outline as
+fig_three_planes_compact.py; no numbers inside the zoom, as the figures of record). One box for all three rows. The default
+centre (124, 76) is the in-plane centre of the figure-of-record 48^3 box (180 / 124 / 76); find_zoom_box_all_masks.py reports
+how MC-GS stands inside it. With --inset the pattern label of the GT panel goes on two lines so it stays clear of the zoom.
 Reads the three topics only; writes to this (Gaussian) topic's figures/, the home of the cross-pattern comparison,
 and to /home/congcongliu/figs/t1flair_v3_af16_diffmask/ (served at http://localhost:8765/t1flair_v3_af16_diffmask/).
 """
@@ -29,6 +34,7 @@ import matplotlib.image as mimage  # noqa: E402
 import matplotlib.patheffects as pe  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
+from matplotlib.patches import Rectangle  # noqa: E402
 from matplotlib.ticker import MaxNLocator  # noqa: E402
 from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening  # noqa: E402
 from skimage.metrics import structural_similarity  # noqa: E402
@@ -48,6 +54,13 @@ ap.add_argument("--png_dpi", type=int, default=200)
 ap.add_argument("--pdf", action="store_true", help="also write a vector PDF (text vector, panels rasterised at --pdf_dpi)")
 ap.add_argument("--pdf_dpi", type=int, default=300)
 ap.add_argument("--tag", default="_p3_zf_caps", help="suffix of the output file name")
+ap.add_argument("--inset", type=int, default=0, metavar="W",
+                help="W x W zoom box outlined on every image / error panel and magnified into a corner; 0 = no zoom (default); "
+                     "adds _inset<W> to the file name")
+ap.add_argument("--inset_center", type=int, nargs=2, default=[124, 76], metavar=("J", "K"),
+                help="box centre in the transverse slice, volume axes 1 and 2 (default = the figure-of-record 48^3 box centre)")
+ap.add_argument("--inset_corner", default="tr", choices=["bl", "br", "tl", "tr"],
+                help="panel corner that holds the magnified box (default top-right, as the transverse row of the figures of record)")
 args = ap.parse_args()
 c = args.contrast
 CAPS = not args.no_caps
@@ -146,7 +159,20 @@ for name, R in TOPICS:
         mask3 = np.array(f["mask"]) > 0
     assert mask3.shape == gt.shape and np.all(mask3 == mask3[:1]), f"{R.name}: expected a readout-separable 3-D mask"
     af = json.load(open(R / "logs/prep_04_export.json"))["contrasts"][c]["AF_vs_full_rect"]
-    ROWS.append(dict(name=name, af=af, arms=arms, g2=g2, gmax=gmax, vols=vols, ps=ps, ss=ss, nm=nm,
+    zoom = None
+    if args.inset:
+        # the box is defined in volume coordinates and pushed through the same D(), so it lands where the panel shows it
+        _hw, (_J, _K) = args.inset // 2, args.inset_center
+        bm = np.zeros(g2.shape, bool)
+        bm[_J - _hw:_J + _hw, _K - _hw:_K + _hw] = True
+        assert bm.sum() == args.inset ** 2, "zoom box leaves the slice"
+        rr, cc = np.nonzero(D(bm))
+        zoom = dict(x0=int(cc.min()), y0=int(rr.min()), w=int(args.inset))
+        bz = bm & m2
+        zoom["head_frac"] = float(bz.sum() / bm.sum())
+        zoom["psnr"] = {key: 20 * np.log10(gmax) - 10 * np.log10(float(((vols[key][bz].astype(np.float64) - g64[bz]) ** 2).mean()))
+                        for key, _, _ in arms}
+    ROWS.append(dict(name=name, af=af, arms=arms, g2=g2, gmax=gmax, vols=vols, ps=ps, ss=ss, nm=nm, zoom=zoom,
                      emask=head_region(m2), vmax=float(np.quantile(g2, 0.999)), kmask=mask3[mask3.shape[0] // 2],
                      best=dict(psnr=max(ps, key=ps.get), ssim=max(ss, key=ss.get), nmse=min(nm, key=nm.get))))
 
@@ -189,6 +215,26 @@ def title_text(lab):
     return (lab if "SPIRiT" in lab else lab.upper()) if CAPS else lab
 
 
+ZC = METRIC_COLOR                                # zoom-box outline / zoom border, as fig_three_planes_compact.py
+ZLW = 2.2
+INSETS = []                                      # the zoom axes, for the text-overlap check below
+
+
+def put_inset(parent, img, z, x0_in, y0_in, pw_in, h_in, corner="tr", **imkw):
+    """outline the zoom box on `parent` and paste the magnified box into the given corner of the panel"""
+    parent.add_patch(Rectangle((z["x0"] - 0.5, z["y0"] - 0.5), z["w"], z["w"], fill=False, ec=ZC, lw=ZLW))
+    side, pad = 0.38 * pw_in, 0.012 * pw_in
+    left = x0_in + (pad if corner in ("bl", "tl") else pw_in - pad - side)
+    top = y0_in + (pad if corner in ("tl", "tr") else h_in - pad - side)
+    a = fig.add_axes([left / fw, 1 - (top + side) / fh, side / fw, side / fh])
+    a.set_xticks([]); a.set_yticks([])
+    for sp in a.spines.values():
+        sp.set_visible(True); sp.set_edgecolor(ZC); sp.set_linewidth(ZLW + 0.6)
+    a.imshow(img[z["y0"]:z["y0"] + z["w"], z["x0"]:z["x0"] + z["w"]], origin="lower", aspect="auto", **imkw)
+    INSETS.append(a)
+    return a
+
+
 y = top_in
 x_cb = (ncol * pw + (ncol - 1) * gap + cbpad) / fw
 for k, p in enumerate(ROWS):
@@ -199,7 +245,12 @@ for k, p in enumerate(ROWS):
         b = axes_at(x, y + ph + gap, pw, ph)
         if j == 0:
             gim = a.imshow(D(p["g2"]), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
-            label(a, f"{p['name']}  {p['af']:.2f}x", bold=True)
+            if p["zoom"]:
+                put_inset(a, D(p["g2"]), p["zoom"], x, y, pw, ph, corner=args.inset_corner, cmap="gray", vmin=0, vmax=p["vmax"])
+                label(a, p["name"], bold=True)
+                label(a, f"{p['af']:.2f}x", bold=True, line=1, h=ph)
+            else:
+                label(a, f"{p['name']}  {p['af']:.2f}x", bold=True)
             b.imshow(D(p["kmask"]), cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto", interpolation="nearest")
             if k == 0:
                 a.set_title(f"GT ({c})", fontsize=14, pad=4)
@@ -207,12 +258,16 @@ for k, p in enumerate(ROWS):
         key, lab, _ = p["arms"][j - 1]
         v = p["vols"][key]
         a.imshow(D(v), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
+        if p["zoom"]:
+            put_inset(a, D(v), p["zoom"], x, y, pw, ph, corner=args.inset_corner, cmap="gray", vmin=0, vmax=p["vmax"])
         if not args.no_metrics:
             for i, (txt, met) in enumerate(((f"{p['ps'][key]:.2f} dB", "psnr"), (f"SSIM {p['ss'][key]:.4f}", "ssim"),
                                              (f"NMSE {p['nm'][key]:.5f}", "nmse"))):
                 label(a, txt, bold=key == p["best"][met], line=i, fs=10.5, h=ph, color=METRIC_COLOR)
         emap = D(np.abs(v - p["g2"]) / p["gmax"] * p["emask"])
         im = b.imshow(emap, cmap="jet", vmin=0.0, vmax=args.err_vmax, origin="lower", aspect="auto")
+        if p["zoom"]:
+            put_inset(b, emap, p["zoom"], x, y + ph + gap, pw, ph, corner=args.inset_corner, cmap="jet", vmin=0.0, vmax=args.err_vmax)
         if k == 0:
             a.set_title(title_text(lab), fontsize=14, pad=4)
     # colorbars: the outer end of each bar flush with its row, the facing ends pulled in by CBTRIM so the grey bar's 0 and
@@ -234,8 +289,20 @@ _cap.append(f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]   (inside
 _cap.append("left of each error row: that pattern's (ky, kz) sampling mask")
 _cap.append("grey bar right of each image row: the slice window (P99.9 of the GT slice, the same for the three rows); "
             "AF label = PE-plane points / sampled points carrying this contrast's data")
+if args.inset:
+    _CN = {"tr": "top-right", "tl": "top-left", "br": "bottom-right", "bl": "bottom-left"}
+    _cap[3] += (f";   in every panel the {args.inset}x{args.inset} box (the same in all rows) is outlined and magnified into the "
+                f"{_CN[args.inset_corner]} corner")
 fig.text(0.5, 1 - 0.40 / fh, ";   ".join(_cap[:3]) + "\n" + _cap[3], ha="center", va="top", fontsize=11)
-name = f"t1flair_v3_af16_masks_stack_{c}_tra{args.tra}_headerr{args.tag}.png"
+name = f"t1flair_v3_af16_masks_stack_{c}_tra{args.tra}{f'_inset{args.inset}' if args.inset else ''}_headerr{args.tag}.png"
+if INSETS:
+    # no panel text may run under a zoom: compare every text's rendered box with every zoom's box
+    _r = fig.canvas.get_renderer()
+    _zb = [z.get_window_extent(_r) for z in INSETS]
+    _hits = [t.get_text() for t in fig.findobj(matplotlib.text.Text)
+             if t.get_text() and t.axes is not None and t.axes not in INSETS
+             and any(t.get_window_extent(_r).overlaps(b) for b in _zb)]
+    print("text under a zoom:", _hits if _hits else "none")
 for d in (F, OUT):
     fig.savefig(d / name, dpi=args.png_dpi)
     if args.pdf:
@@ -248,4 +315,11 @@ for p in ROWS:
     for met, d, hi in (("PSNR", p["ps"], True), ("SSIM", p["ss"], True), ("NMSE", p["nm"], False)):
         order = sorted(d, key=(lambda k: -d[k]) if hi else (lambda k: d[k]))
         msg.append(f"{met} MC-GS #{order.index(args.mcgs_key) + 1} (first: {order[0]})")
-    print(f"  {p['name']:13s} {p['af']:.2f}x transverse {args.tra} (grey window {p['vmax']:.3f}): " + "; ".join(msg))
+    line = f"  {p['name']:13s} {p['af']:.2f}x transverse {args.tra} (grey window {p['vmax']:.3f}): " + "; ".join(msg)
+    if p["zoom"]:
+        zp = p["zoom"]["psnr"]
+        oth = {k: v for k, v in zp.items() if k != args.mcgs_key}
+        bo = max(oth, key=oth.get)
+        line += (f"  |  {args.inset}-box (head {p['zoom']['head_frac']:.2f}) PSNR: MC-GS {zp[args.mcgs_key]:.2f}, "
+                 f"best other {oth[bo]:.2f} ({bo}), lead {zp[args.mcgs_key] - oth[bo]:+.3f}")
+    print(line)

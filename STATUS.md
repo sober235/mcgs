@@ -12,6 +12,9 @@ FLAIR +0.042/+0.023/+0.093。六格里五格三指标（头内 PSNR/SSIM/HFEN）
 
 ## 已完成且已验证
 
+- （09-17 追加，claude-64）叠放图加 48×48 放大框：`fig_masks_transverse_stack.py --inset 48`（新开关默认关闭，原图逐像素不变），框 = 正式图 48³ 框的层内中心 (124, 76)，
+  三行同一个框；205 与 180 层 T1、FLAIR 各一张（PNG+PDF），文件名 `..._tra{205,180}_inset48_headerr_p3_zf_caps`。框内六行 MC-GS 的 PSNR 与 SSIM 全第一
+  （最小领先 205 层 +0.154 dB、180 层 +0.082 dB，`scripts/find_zoom_box_all_masks.py`）。说明在 gauss 课题 README「叠放图加放大框」一节。
 - （09-16 晚追加）三图案横断位叠放图：`T1FLAIR_AF16_gauss_v3_jiangyizhou/scripts/fig_masks_transverse_stack.py`，三行（vd-Poisson / Gaussian / 伪径向）× 灰度加误差，每行各带 colorbar，层 180，T1 与 FLAIR 各一张（PNG+PDF），`http://localhost:8765/t1flair_v3_af16_diffmask/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra180_headerr_p3_zf_caps.png`；说明在该课题 README 末节。逐层搜索（`scripts/find_slice_all_masks.py`）：两对比度、三项指标、三图案 MC-GS 全第一的横断位只有 203 到 206，205 层余量最大（最小 +0.050 dB），已出 205 层版叠放图。
 
 - 两个课题各 11 臂 × 2 对比度，全部重建、打分、出图，零失败。图在

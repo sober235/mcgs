@@ -210,3 +210,23 @@ SSIM 第一。这是单层读数；全体积头内 PSNR 三种图案 MC-GS 仍�
   FLAIR +0.050 / +0.079 / +0.197）。只看 PSNR 时两对比度全超的有 22 层（含 122 到 132 一段，129 层最小余量 +0.041）。
 - 叠放图 205 层版：`figures/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra205_headerr_p3_zf_caps.{png,pdf}`。180 层版保留作图 of record 层的对照
 （那一层伪径向行 T1 是 ZS-SSDU 第一）。
+
+### 叠放图加放大框（2026-09-17，用户"补充 zoom-in view"）
+
+`scripts/fig_masks_transverse_stack.py` 新增三个默认关闭的开关：`--inset W`（W×W 框在每个灰度与误差面板上橙黄描边，框内放大贴到面板一角，
+放大区不写数字，与正式图一致；文件名加 `_inset<W>`）、`--inset_center J K`（框在横断层内的中心，体积第 1、2 轴，默认 124 76）、
+`--inset_corner`（默认右上）。三行掩膜用同一个框；掩膜格不放大；开放大框时 GT 面板的图案标签分两行写，避开放大区（脚本出图后逐个核对
+文字与放大区不重叠）。不加这些开关时出图与原图逐像素相同（`scripts/figs_masks_stack_inset.sh` 第一步：T1 205 层重出后与已提交的图比对，全等）。
+
+框的位置没有另挑：中心 (124, 76) 就是正式图 48³ 框（180 / 124 / 76）的层内中心。`scripts/find_zoom_box_all_masks.py --tra 205|180`
+按叠放图的口径（框内头部像素的 PSNR 与 SSIM，12 列，GS-single 算对比臂）查了这个框：
+- 205 层：三图案、两对比度六行 MC-GS 框内 PSNR 与 SSIM 全第一，最小 PSNR 领先 +0.154 dB（FLAIR vd-Poisson，对 GS-single）；
+  T1 三图案 +0.299 / +0.335 / +0.703，FLAIR +0.154 / +0.220 / +0.719。
+- 180 层：六行同样全第一，最小领先 +0.082 dB（FLAIR vd-Poisson）；T1 +0.336 / +0.375 / +0.585，FLAIR +0.082 / +0.140 / +0.484。
+
+同一脚本也搜了全层（步长 2，框内头部占比 ≥ 0.95，避开右上放大区与左上文字）：205 层有 1114 个中心六行全第一，最好的 (138, 76) 最小领先
++0.219 dB；180 层 1911 个，最好 (172, 92) +0.171 dB。没有换用，框与正式图保持一致；读数在 `logs/find_zoom_box_all_masks_tra{205,180}.json`。
+框内数字只打印不上图，而且只代表这一块区域，对外仍引全层与全体积余量。
+
+输出 `figures/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra{205,180}_inset48_headerr_p3_zf_caps.{png,pdf}`（200 dpi PNG；PDF 面板 300 dpi 栅格），
+served 于 `http://localhost:8765/t1flair_v3_af16_diffmask/`；无放大框的四张保留。重出：`bash scripts/figs_masks_stack_inset.sh`（CPU，逐张）。
