@@ -54,7 +54,7 @@ sim/meta.json               种子、σ、kres 复现值、掩膜统计、脚本
 2. 残差 r = M₀ · (y_meas − α · F₃(S · x_GT))，α 为 ce_common 定义的最小二乘复标度 α = Σ conj(A x)·y / Σ |A x|²。
 3. σ = sqrt(mean_{M₀ 采样点、全线圈} |r|² / 2)，即实部、虚部各自的标准差。
 4. 合成：ksp_full_noisy = F₃(S · x_GT) + σ·(N(0,1) + i·N(0,1))，噪声加在**全部** k 空间点上（种子固定：pre 100、post 200），然后再乘掩膜写盘。臂只看到采样点，所以"全点加噪再掩膜"与"只在采样点加噪"等价；全点含噪版本同时能喂训练器的非 presampled 路径。
-5. meta 记录：σ、‖r‖/‖M₀y‖（应复现 CS-SENSE 全掩膜 kres 0.18487 / 0.14969）、σ 折算到像域的白质 SNR：正交 FFT 下每线圈像域噪声标准差仍为 σ，SENSE 伴随 Σ_c conj(S_c)·x_c 的逐体素噪声标准差 σ_img = σ · sqrt(Σ_c |S_c|²)，白质 SNR = median_WM(|x_GT|) ÷ median_WM(σ_img)，白质掩膜取 `enhance_rois_cssense.npz` 的"正常白质"。
+5. meta 记录：σ、‖r‖/‖M₀y‖（应复现 CS-SENSE 全掩膜 kres 0.18487 / 0.14969）、α（必须 ≈ 1，断言 |α−1| < 1e-3：真值已按测量 k 空间复标度，α 偏离 1 说明尺度错了而两道门都看不出来）、σ 折算到像域的白质 SNR：正交 FFT 下每线圈像域噪声标准差仍为 σ，SENSE 估计 x̂ = Σ_c conj(S_c)·x_c ÷ Σ_c|S_c|² 的逐体素噪声标准差为 σ ÷ sos（sos = sqrt(Σ_c|S_c|²)），白质 SNR = median_WM(|x_GT|·sos) ÷ σ，白质掩膜取 `enhance_rois_cssense.npz` 的"正常白质"（本数据 CSM 为单位 SoS，sos ≡ 1）。样本数按 线圈 × 读出 × M₀ 采样点 计（漏掉读出轴会把 σ 高估 16 倍）。
 
 口径说明：残差里除热噪声外还含 CSM 误差和被 TV 抹掉的细节，所以 σ 略高于纯热噪声；这是用户选定的口径。
 
