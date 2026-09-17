@@ -17,13 +17,14 @@ import numpy as np
 T = Path(__file__).resolve().parents[1]
 ap = argparse.ArgumentParser()
 ap.add_argument("--case", default="UCSF-PDGM-0053")
-ap.add_argument("--arms", default="zf,cgsense,cssense,dip,inr,gs_single,gs_joint")
+ap.add_argument("--arms", default="zf,cgsense,cssense,jsense,spirit,zsssdu,dip,inr,mcinr,gs_single,gs_joint")
 ap.add_argument("--out", default="/home/congcongliu/figs/ce_retro")
 ap.add_argument("--vmax", type=float, default=1.6, help="grey scale of the images, in white-matter units")
 ap.add_argument("--dvmax", type=float, default=0.8, help="top of the post - pre scale")
 a = ap.parse_args()
-LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "dip": "3D-DIP", "inr": "3D-INR",
-         "gs_single": "GS-single", "gs_joint": "MC-GS"}
+LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "jsense": "Joint SENSE", "spirit": "L1-SPIRiT",
+         "zsssdu": "ZS-SSDU", "dip": "3D-DIP", "inr": "3D-INR", "mcinr": "MC-INR", "gs_single": "GS-single",
+         "gs_joint": "MC-GS"}
 
 g = np.load(T / "sim" / a.case / "gt.npz")
 gt = {"pre": np.abs(g["pre"]), "post": np.abs(g["post"])}
@@ -34,9 +35,24 @@ rows = {r["arm"]: r for r in json.load(open(T / "retro_scores.json"))["rows"] if
 lam = json.load(open(T / "recon" / a.case / "cs_lambda.json")) if (T / "recon" / a.case / "cs_lambda.json").exists() else None
 
 
+MORE = json.load(open(T / "recon" / a.case / "more_arms_selection.json")) \
+    if (T / "recon" / a.case / "more_arms_selection.json").exists() else {}
+
+
 def load(arm, scan):
     R = T / "recon" / a.case
-    if arm == "cssense":
+    if arm == "jsense":
+        l = MORE.get("jsense", {}).get("lam")
+        p, gs = (R / "tv" / f"jsense_o200_lam{l:g}_full_{scan}_complex.npy") if l else Path("/nonexistent"), False
+    elif arm == "spirit":
+        q = MORE.get(f"spirit_{scan}")
+        p, gs = ((R / "spirit" / f"spirit_ks{q['ksize']}_i150_lam{q['lam']:g}_full_{scan}_complex.npy")
+                 if q else Path("/nonexistent")), False
+    elif arm == "zsssdu":
+        p, gs = R / f"zsssdu_{scan}_complex.npy", False
+    elif arm == "mcinr":
+        p, gs = R / "mcinr" / f"mcinr_full_{scan}_complex.npy", False
+    elif arm == "cssense":
         l = lam[scan]["lam"] if lam else 2e-3
         p, gs = R / "tv" / f"cssense_o200_lam{l:g}_full_{scan}_complex.npy", False
     elif arm == "gs_single":

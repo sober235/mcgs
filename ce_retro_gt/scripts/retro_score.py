@@ -22,13 +22,21 @@ import numpy as np
 T = Path(__file__).resolve().parents[1]
 ap = argparse.ArgumentParser()
 ap.add_argument("--cases", default="")
-ap.add_argument("--arms", default="zf,cgsense,cssense,dip,inr,gs_single,gs_joint")
+ap.add_argument("--arms", default="zf,cgsense,cssense,jsense,spirit,zsssdu,dip,inr,mcinr,gs_single,gs_joint",
+                help="the prospective topic's column order")
 ap.add_argument("--lam", type=float, default=2e-3)
 ap.add_argument("--out", default="retro_scores.json")
 a = ap.parse_args()
 CASES = a.cases.split(",") if a.cases else sorted(p.name for p in (T / "sim").iterdir() if p.is_dir())
-LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "dip": "3D-DIP", "inr": "3D-INR",
-         "gs_single": "GS-single", "gs_joint": "MC-GS"}
+LABEL = {"zf": "ZF", "cgsense": "CG-SENSE", "cssense": "CS-SENSE", "jsense": "Joint SENSE", "spirit": "L1-SPIRiT",
+         "zsssdu": "ZS-SSDU", "dip": "3D-DIP", "inr": "3D-INR", "mcinr": "MC-INR", "gs_single": "GS-single",
+         "gs_joint": "MC-GS"}
+
+
+def more_sel(case):
+    """the held-out choices of retro_more_arms.py (Joint SENSE lambda, L1-SPIRiT kernel and lambda)."""
+    f = T / "recon" / case / "more_arms_selection.json"
+    return json.load(open(f)) if f.exists() else {}
 
 
 def cs_lambda(case, scan):
@@ -39,6 +47,18 @@ def cs_lambda(case, scan):
 
 def paths(arm, case, scan):
     R = T / "recon" / case
+    sel = more_sel(case)
+    if arm == "jsense":
+        l = sel.get("jsense", {}).get("lam")
+        return (R / "tv" / f"jsense_o200_lam{l:g}_full_{scan}_complex.npy") if l else Path("/nonexistent"), False
+    if arm == "spirit":
+        q = sel.get(f"spirit_{scan}")
+        return ((R / "spirit" / f"spirit_ks{q['ksize']}_i150_lam{q['lam']:g}_full_{scan}_complex.npy")
+                if q else Path("/nonexistent")), False
+    if arm == "zsssdu":
+        return R / f"zsssdu_{scan}_complex.npy", False
+    if arm == "mcinr":
+        return R / "mcinr" / f"mcinr_full_{scan}_complex.npy", False
     if arm == "cssense":
         return R / "tv" / f"cssense_o200_lam{cs_lambda(case, scan):g}_full_{scan}_complex.npy", False
     if arm == "gs_single":
