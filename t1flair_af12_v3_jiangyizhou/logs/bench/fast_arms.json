@@ -1,0 +1,133 @@
+{
+ "gpu": 7,
+ "device": "NVIDIA A800 80GB PCIe",
+ "settings": {
+  "gpu": 7,
+  "lam_cs": 0.0007,
+  "lam_joint": 0.001,
+  "admm_outer": 200,
+  "admm_cg": 8,
+  "mu": 0.1,
+  "cg_iters": 60,
+  "tik": 0.01
+ },
+ "rows": [
+  {
+   "arm": "load",
+   "contrast": "T1",
+   "seconds": 5.04109585902188,
+   "shared": [],
+   "coils": 26,
+   "grid": [
+    256,
+    256,
+    176
+   ]
+  },
+  {
+   "arm": "zf",
+   "contrast": "T1",
+   "seconds": 0.044214223977178335,
+   "shared": [],
+   "reps": [
+    0.04483164893463254,
+    0.04420585907064378,
+    0.044214223977178335
+   ]
+  },
+  {
+   "arm": "cgsense",
+   "contrast": "T1",
+   "seconds": 5.243697024998255,
+   "shared": [],
+   "reps": [
+    5.285383338923566,
+    5.243697024998255,
+    5.237504414981231
+   ]
+  },
+  {
+   "arm": "cssense_o200",
+   "contrast": "T1",
+   "seconds": 144.66842846397776,
+   "shared": [],
+   "lam": 0.0007
+  },
+  {
+   "arm": "score",
+   "contrast": "T1",
+   "seconds": 92.87242577201687,
+   "shared": [],
+   "head_psnr": 36.162134878524974
+  },
+  {
+   "arm": "load",
+   "contrast": "FLAIR",
+   "seconds": 4.950293734087609,
+   "shared": [],
+   "coils": 26,
+   "grid": [
+    256,
+    256,
+    176
+   ]
+  },
+  {
+   "arm": "zf",
+   "contrast": "FLAIR",
+   "seconds": 0.044444167986512184,
+   "shared": [],
+   "reps": [
+    0.044044625014066696,
+    0.044444167986512184,
+    0.044473740039393306
+   ]
+  },
+  {
+   "arm": "cgsense",
+   "contrast": "FLAIR",
+   "seconds": 5.260020730085671,
+   "shared": [],
+   "reps": [
+    5.260020730085671,
+    5.256420008954592,
+    5.281764779007062
+   ]
+  },
+  {
+   "arm": "cssense_o200",
+   "contrast": "FLAIR",
+   "seconds": 144.79649532900658,
+   "shared": [],
+   "lam": 0.0007
+  },
+  {
+   "arm": "score",
+   "contrast": "FLAIR",
+   "seconds": 91.64378328295425,
+   "shared": [],
+   "head_psnr": 35.58117477458315
+  },
+  {
+   "arm": "jcssense_o200",
+   "contrast": "T1+FLAIR",
+   "seconds": 288.69296390598174,
+   "shared": [],
+   "lam": 0.001
+  },
+  {
+   "arm": "jcssense_check",
+   "contrast": "T1",
+   "seconds": 0.0,
+   "shared": [],
+   "head_psnr": 36.06962962430713
+  },
+  {
+   "arm": "jcssense_check",
+   "contrast": "FLAIR",
+   "seconds": 0.0,
+   "shared": [],
+   "head_psnr": 35.62421789783809
+  }
+ ]
+}

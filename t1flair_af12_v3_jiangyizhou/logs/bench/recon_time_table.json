@@ -1,0 +1,97 @@
+{
+ "header": "Reconstruction time per arm, one T1 + FLAIR pair, jiangyizhou AF 12 (26 coils, 256 x 256 x 176), one NVIDIA A800 80GB per job, solver only (data loading 5.04 s / 4.95 s and scoring excluded). Fast arms re-timed on an exclusive card; long arms from the runs of record (one card per job). No foreign process on the card during the fast-arm timing.",
+ "rows": [
+  {
+   "arm": "ZF",
+   "joint": false,
+   "T1": 0.044214223977178335,
+   "FLAIR": 0.044444167986512184,
+   "pair": 0.08865839196369052,
+   "note": "adjoint SENSE of the zero-filled k-space; median of 3"
+  },
+  {
+   "arm": "CG-SENSE",
+   "joint": false,
+   "T1": 5.243697024998255,
+   "FLAIR": 5.260020730085671,
+   "pair": 10.503717755083926,
+   "note": "60 CG iterations, Tikhonov 0.01; median of 3"
+  },
+  {
+   "arm": "CS-SENSE",
+   "joint": false,
+   "T1": 144.66842846397776,
+   "FLAIR": 144.79649532900658,
+   "pair": 289.46492379298434,
+   "note": "ADMM isotropic 3-D TV, 200 outer x 8 CG, lambda 7e-4"
+  },
+  {
+   "arm": "Joint SENSE",
+   "joint": true,
+   "T1": null,
+   "FLAIR": null,
+   "pair": 288.69296390598174,
+   "note": "vectorial TV over both contrasts, 200 outer x 8 CG, lambda 1e-3; one run for the pair"
+  },
+  {
+   "arm": "L1-SPIRiT",
+   "joint": false,
+   "T1": 93.35974884033203,
+   "FLAIR": 92.94316792488098,
+   "pair": 186.302916765213,
+   "note": "FISTA, 150 iterations, kernel 5, lambda 2e-3 / 1e-3, per-readout calibration included; re-timed on the exclusive card"
+  },
+  {
+   "arm": "ZS-SSDU",
+   "joint": false,
+   "T1": 1311.5446053681662,
+   "FLAIR": 2164.762221620069,
+   "pair": 3476.306826988235,
+   "note": "self-supervised training to early stop (epochs 40 / 66) + inference; run of record minus the measured load; spot check T1 1331 s"
+  },
+  {
+   "arm": "3D-DIP",
+   "joint": false,
+   "T1": 3017.9731040000916,
+   "FLAIR": 3010.125277519226,
+   "pair": 6028.098381519318,
+   "note": "5000 iterations of the convolutional decoder, held-out selection online; run of record"
+  },
+  {
+   "arm": "3D-INR",
+   "joint": false,
+   "T1": 3433.4196288585663,
+   "FLAIR": 3432.720894575119,
+   "pair": 6866.140523433685,
+   "note": "1500 iterations of the hash-grid INR, held-out selection online; run of record"
+  },
+  {
+   "arm": "MC-INR",
+   "joint": true,
+   "T1": null,
+   "FLAIR": null,
+   "pair": 690.662736415863,
+   "note": "Niessen 2025 per-slice 2-D multi-contrast INR, 256 readout slices x 200 epochs; run of record (A800, torch 1.13)"
+  },
+  {
+   "arm": "GS-single",
+   "joint": false,
+   "T1": 3768.2,
+   "FLAIR": 3552.1,
+   "pair": 7320.299999999999,
+   "note": "P14 recipe, 4000 iterations, 3.6M Gaussians; training loop of the run of record (FLAIR single ran on an A100)"
+  },
+  {
+   "arm": "MC-GS",
+   "joint": true,
+   "T1": null,
+   "FLAIR": null,
+   "pair": 3673.2,
+   "note": "P14 recipe, 4000 iterations, 3.6M Gaussians, both contrasts in one run; training loop of the run of record; spot check on the exclusive card 3712 s"
+  }
+ ],
+ "load": {
+  "T1": 5.04109585902188,
+  "FLAIR": 4.950293734087609
+ }
+}
