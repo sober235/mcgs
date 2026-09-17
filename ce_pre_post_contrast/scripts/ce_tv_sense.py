@@ -146,17 +146,19 @@ for lam in todo:
     for s in scans:
         d = D[s]
         x = X[s] * d["scale"]
-        r = C.kres_metrics(x, d["y"], d["S"], {"full": d["m2"], "fit": fit_plane, "ho": ho_plane})
+        r = C.kres_metrics(x, d["y"], d["S"],
+                           C.drop_foreign_planes({"full": d["m2"], "fit": fit_plane, "ho": ho_plane}, d["m2"]))
         alpha = r["full"]["alpha"]
         np.save(OUT / f"{tag(lam, s)}_complex.npy", (alpha * x).cpu().numpy().astype(np.complex64))
         meta = dict(method=name, mode=args.mode, scan=s, mask=args.mask, lam=lam, outer=args.outer, cg=args.cg,
                     mu=MU, tik=TIK, scale=d["scale"], alpha_re=float(np.real(alpha)), alpha_im=float(np.imag(alpha)),
-                    kres=r["full"]["kres"], kres_fit=r["fit"]["kres"], kres_heldout=r["ho"]["kres"],
+                    kres=r["full"]["kres"], kres_fit=r.get("fit", {}).get("kres"), kres_heldout=r.get("ho", {}).get("kres"),
                     heldout_is_unseen=args.mask == "fit", shape=list(x.shape),
                     seconds=time.time() - t1, torch=torch.__version__,
                     gpu=torch.cuda.get_device_name(0) if args.gpu >= 0 else "cpu")
         C.dump_json(meta, OUT / f"{tag(lam, s)}_meta.json")
-        log(f"[{tag(lam, s)}] kres full {meta['kres']:.5f} fit {meta['kres_fit']:.5f} held-out {meta['kres_heldout']:.5f}"
+        fmt = lambda v: "-" if v is None else f"{v:.5f}"
+        log(f"[{tag(lam, s)}] kres full {meta['kres']:.5f} fit {fmt(meta['kres_fit'])} held-out {fmt(meta['kres_heldout'])}"
             f"  |alpha| {abs(alpha):.4f}  {meta['seconds']:.0f}s")
     del X, Z, U
     torch.cuda.empty_cache()

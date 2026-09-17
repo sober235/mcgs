@@ -11,6 +11,7 @@ ce_dip_inr.py's kres_on (alpha refit on the held-out lines), so it is comparable
 Sums are accumulated in float64.
 """
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -19,8 +20,12 @@ import torch.fft as tfft
 
 TOPIC = Path("/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast")
 RR = Path("/data0/congcong/code/NV-Generate-CTMR/recon_real")
-WORK = {"pre": RR / "work_ce_t1_16887049370010", "post": RR / "work_ce_t1_16887049370060"}
-SPLIT = TOPIC / "heldout_split" / "split_95_5_seed0.npz"
+# 2026-09-16: CE_WORK_PRE / CE_WORK_POST override the source, so the retrospective simulation
+# (Results_20260908/CE_retro_gt) runs through exactly this code path.
+WORK = {"pre": Path(os.environ.get("CE_WORK_PRE", RR / "work_ce_t1_16887049370010")),
+        "post": Path(os.environ.get("CE_WORK_POST", RR / "work_ce_t1_16887049370060"))}
+# CE_SPLIT overrides the frozen UIH split, for the retrospective simulation's own grid (2026-09-17)
+SPLIT = Path(os.environ.get("CE_SPLIT", TOPIC / "heldout_split" / "split_95_5_seed0.npz"))
 SCANS = ("pre", "post")
 
 
@@ -70,6 +75,12 @@ def make_split(m2, holdout=0.05, seed=0):
 def load_split(device="cpu"):
     d = np.load(SPLIT)
     return torch.from_numpy(d["fit"]).to(device), torch.from_numpy(d["ho"]).to(device)
+
+
+def drop_foreign_planes(planes, m2):
+    """keep only the planes that match this acquisition: the frozen 95/5 split belongs to the UIH pair, and the
+    retrospective simulation (CE_retro_gt) has a different phase-encode grid (2026-09-16)."""
+    return {k: p for k, p in planes.items() if p is not None and tuple(p.shape) == tuple(m2.shape)}
 
 
 def kres_metrics(x, y, S, planes, chunk=6):
