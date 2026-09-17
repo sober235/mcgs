@@ -1,0 +1,114 @@
+  scored T1 ZF
+  scored T1 CG-SENSE
+  scored T1 CS-SENSE
+  scored T1 Joint SENSE
+  scored T1 L1-SPIRiT
+  scored T1 ZS-SSDU
+  scored T1 3D-DIP
+  scored T1 3D-INR
+  scored T1 MC-INR
+  scored T1 GS-single
+  scored T1 MC-GS
+  scored FLAIR ZF
+  scored FLAIR CG-SENSE
+  scored FLAIR CS-SENSE
+  scored FLAIR Joint SENSE
+  scored FLAIR L1-SPIRiT
+  scored FLAIR ZS-SSDU
+  scored FLAIR 3D-DIP
+  scored FLAIR 3D-INR
+  scored FLAIR MC-INR
+  scored FLAIR GS-single
+  scored FLAIR MC-GS
+
+T1 transverse: eligible 180, MC-GS first on PSNR 180, on PSNR and SSIM 180
+  slice 171: PSNR 36.589 lead +0.285 over GS-single     SSIM 0.9451 lead +0.0040 over CS-SENSE
+  slice 158: PSNR 36.369 lead +0.264 over GS-single     SSIM 0.9392 lead +0.0040 over GS-single
+  slice 104: PSNR 34.022 lead +0.264 over GS-single     SSIM 0.8937 lead +0.0067 over GS-single
+  slice 177: PSNR 36.641 lead +0.259 over GS-single     SSIM 0.9480 lead +0.0026 over CS-SENSE
+  slice 164: PSNR 36.359 lead +0.257 over GS-single     SSIM 0.9401 lead +0.0037 over CS-SENSE
+  slice 146: PSNR 35.842 lead +0.243 over GS-single     SSIM 0.9370 lead +0.0041 over GS-single
+  slice 152: PSNR 36.076 lead +0.232 over GS-single     SSIM 0.9368 lead +0.0033 over CS-SENSE
+  slice 118: PSNR 34.079 lead +0.227 over GS-single     SSIM 0.9177 lead +0.0050 over GS-single
+
+T1 coronal: eligible 135, MC-GS first on PSNR 135, on PSNR and SSIM 135
+  slice  99: PSNR 36.344 lead +0.253 over GS-single     SSIM 0.9187 lead +0.0050 over GS-single
+  slice  83: PSNR 35.238 lead +0.249 over GS-single     SSIM 0.9251 lead +0.0050 over GS-single
+  slice 120: PSNR 36.063 lead +0.233 over GS-single     SSIM 0.9202 lead +0.0044 over GS-single
+  slice  91: PSNR 35.748 lead +0.233 over GS-single     SSIM 0.9207 lead +0.0041 over GS-single
+  slice 113: PSNR 36.477 lead +0.225 over GS-single     SSIM 0.9241 lead +0.0041 over GS-single
+  slice  69: PSNR 34.392 lead +0.214 over GS-single     SSIM 0.9223 lead +0.0044 over GS-single
+  slice 106: PSNR 36.403 lead +0.213 over GS-single     SSIM 0.9223 lead +0.0043 over GS-single
+  slice  77: PSNR 34.813 lead +0.210 over GS-single     SSIM 0.9200 lead +0.0048 over GS-single
+
+T1 sagittal: eligible 128, MC-GS first on PSNR 128, on PSNR and SSIM 128
+  slice  96: PSNR 36.617 lead +0.259 over GS-single     SSIM 0.9231 lead +0.0036 over CS-SENSE
+  slice  82: PSNR 36.722 lead +0.254 over GS-single     SSIM 0.9264 lead +0.0029 over CS-SENSE
+  slice 103: PSNR 36.546 lead +0.254 over GS-single     SSIM 0.9241 lead +0.0032 over CS-SENSE
+  slice  75: PSNR 36.383 lead +0.212 over GS-single     SSIM 0.9264 lead +0.0036 over GS-single
+  slice 147: PSNR 34.438 lead +0.207 over GS-single     SSIM 0.9158 lead +0.0044 over GS-single
+  slice 138: PSNR 34.867 lead +0.204 over GS-single     SSIM 0.9220 lead +0.0040 over GS-single
+  slice  89: PSNR 35.819 lead +0.204 over GS-single     SSIM 0.9088 lead +0.0049 over GS-single
+  slice 126: PSNR 35.794 lead +0.195 over GS-single     SSIM 0.9243 lead +0.0034 over GS-single
+
+FLAIR transverse: eligible 178, MC-GS first on PSNR 148, on PSNR and SSIM 136
+  slice 170: PSNR 34.573 lead +0.100 over GS-single     SSIM 0.9167 lead +0.0025 over GS-single
+  slice 157: PSNR 34.777 lead +0.092 over GS-single     SSIM 0.9181 lead +0.0021 over GS-single
+  slice 151: PSNR 34.650 lead +0.086 over GS-single     SSIM 0.9183 lead +0.0022 over GS-single
+  slice 164: PSNR 34.511 lead +0.086 over GS-single     SSIM 0.9149 lead +0.0020 over GS-single
+  slice 176: PSNR 34.820 lead +0.083 over GS-single     SSIM 0.9266 lead +0.0023 over GS-single
+  slice 109: PSNR 33.854 lead +0.083 over GS-single     SSIM 0.8829 lead +0.0024 over ZS-SSDU
+  slice 182: PSNR 34.491 lead +0.072 over GS-single     SSIM 0.9229 lead +0.0020 over GS-single
+  slice 141: PSNR 33.890 lead +0.071 over GS-single     SSIM 0.9068 lead +0.0020 over GS-single
+
+FLAIR coronal: eligible 140, MC-GS first on PSNR 137, on PSNR and SSIM 129
+  slice 166: PSNR 34.670 lead +0.062 over GS-single     SSIM 0.9128 lead +0.0014 over GS-single
+  slice 114: PSNR 36.418 lead +0.059 over GS-single     SSIM 0.9205 lead +0.0011 over GS-single
+  slice 156: PSNR 35.069 lead +0.055 over GS-single     SSIM 0.9152 lead +0.0017 over GS-single
+  slice 105: PSNR 36.519 lead +0.054 over GS-single     SSIM 0.9236 lead +0.0011 over GS-single
+  slice 150: PSNR 35.084 lead +0.051 over GS-single     SSIM 0.9165 lead +0.0018 over GS-single
+  slice  92: PSNR 35.981 lead +0.047 over GS-single     SSIM 0.9147 lead +0.0012 over GS-single
+  slice 181: PSNR 33.532 lead +0.047 over GS-single     SSIM 0.9031 lead +0.0015 over GS-single
+  slice 125: PSNR 36.031 lead +0.045 over GS-single     SSIM 0.9153 lead +0.0012 over GS-single
+
+FLAIR sagittal: eligible 128, MC-GS first on PSNR 127, on PSNR and SSIM 127
+  slice 147: PSNR 34.092 lead +0.083 over GS-single     SSIM 0.9070 lead +0.0026 over GS-single
+  slice 127: PSNR 34.759 lead +0.071 over GS-single     SSIM 0.9058 lead +0.0018 over GS-single
+  slice 118: PSNR 35.003 lead +0.069 over GS-single     SSIM 0.9038 lead +0.0023 over GS-single
+  slice 101: PSNR 35.304 lead +0.068 over GS-single     SSIM 0.9083 lead +0.0021 over GS-single
+  slice 112: PSNR 35.072 lead +0.067 over GS-single     SSIM 0.9047 lead +0.0022 over GS-single
+  slice  54: PSNR 35.099 lead +0.055 over GS-single     SSIM 0.9111 lead +0.0016 over GS-single
+  slice  69: PSNR 35.339 lead +0.054 over GS-single     SSIM 0.9097 lead +0.0012 over GS-single
+  slice  87: PSNR 34.675 lead +0.053 over GS-single     SSIM 0.8999 lead +0.0017 over GS-single
+
+paired transverse: first on PSNR and SSIM in both contrasts on 136 slices
+  slice 170: T1 lead +0.240 (GS-single), FLAIR lead +0.100 (GS-single), SSIM leads +0.0035 / +0.0025
+  slice 157: T1 lead +0.246 (GS-single), FLAIR lead +0.092 (GS-single), SSIM leads +0.0029 / +0.0021
+  slice 151: T1 lead +0.227 (GS-single), FLAIR lead +0.086 (GS-single), SSIM leads +0.0027 / +0.0022
+  slice 164: T1 lead +0.257 (GS-single), FLAIR lead +0.086 (GS-single), SSIM leads +0.0037 / +0.0020
+  slice 176: T1 lead +0.228 (GS-single), FLAIR lead +0.083 (GS-single), SSIM leads +0.0032 / +0.0023
+  slice 109: T1 lead +0.202 (GS-single), FLAIR lead +0.083 (GS-single), SSIM leads +0.0050 / +0.0024
+  slice 182: T1 lead +0.218 (GS-single), FLAIR lead +0.072 (GS-single), SSIM leads +0.0024 / +0.0020
+  slice 141: T1 lead +0.210 (GS-single), FLAIR lead +0.071 (GS-single), SSIM leads +0.0042 / +0.0020
+
+paired coronal: first on PSNR and SSIM in both contrasts on 127 slices
+  slice 166: T1 lead +0.150 (GS-single), FLAIR lead +0.062 (GS-single), SSIM leads +0.0022 / +0.0014
+  slice 114: T1 lead +0.223 (GS-single), FLAIR lead +0.059 (GS-single), SSIM leads +0.0040 / +0.0011
+  slice 156: T1 lead +0.188 (GS-single), FLAIR lead +0.055 (GS-single), SSIM leads +0.0035 / +0.0017
+  slice 105: T1 lead +0.212 (GS-single), FLAIR lead +0.054 (GS-single), SSIM leads +0.0038 / +0.0011
+  slice 150: T1 lead +0.162 (GS-single), FLAIR lead +0.051 (GS-single), SSIM leads +0.0030 / +0.0018
+  slice  92: T1 lead +0.212 (GS-single), FLAIR lead +0.047 (GS-single), SSIM leads +0.0038 / +0.0012
+  slice 181: T1 lead +0.116 (GS-single), FLAIR lead +0.047 (GS-single), SSIM leads +0.0027 / +0.0015
+  slice 125: T1 lead +0.198 (GS-single), FLAIR lead +0.045 (GS-single), SSIM leads +0.0038 / +0.0012
+
+paired sagittal: first on PSNR and SSIM in both contrasts on 127 slices
+  slice 147: T1 lead +0.207 (GS-single), FLAIR lead +0.083 (GS-single), SSIM leads +0.0044 / +0.0026
+  slice 127: T1 lead +0.155 (GS-single), FLAIR lead +0.071 (GS-single), SSIM leads +0.0031 / +0.0018
+  slice 118: T1 lead +0.165 (GS-single), FLAIR lead +0.069 (GS-single), SSIM leads +0.0032 / +0.0023
+  slice 101: T1 lead +0.212 (GS-single), FLAIR lead +0.068 (GS-single), SSIM leads +0.0030 / +0.0021
+  slice 112: T1 lead +0.157 (GS-single), FLAIR lead +0.067 (GS-single), SSIM leads +0.0014 / +0.0022
+  slice  54: T1 lead +0.135 (GS-single), FLAIR lead +0.055 (GS-single), SSIM leads +0.0027 / +0.0016
+  slice  69: T1 lead +0.151 (GS-single), FLAIR lead +0.054 (GS-single), SSIM leads +0.0011 / +0.0012
+  slice  87: T1 lead +0.206 (GS-single), FLAIR lead +0.053 (GS-single), SSIM leads +0.0045 / +0.0017
+wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/best_planes_noise.json
+RC=0

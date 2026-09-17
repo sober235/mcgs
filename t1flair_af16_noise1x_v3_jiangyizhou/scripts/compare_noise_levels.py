@@ -1,24 +1,29 @@
 #!/usr/bin/env python3
-"""compare_noise_levels.py -- the noise study's three-level tables: no noise, 1 sigma0, 2 sigma0, one gauge.
+"""compare_noise_levels.py -- the noise study's tables across every level run so far, one gauge.
 
-    no noise   T1FLAIR_AF16_v3_jiangyizhou            recorded, not re-run
-    1 sigma0   T1FLAIR_AF16_noise1x_v3_jiangyizhou    this topic
-    2 sigma0   T1FLAIR_AF16_noise2x_v3_jiangyizhou    same draws as 1 sigma0, doubled (spec addendum 2026-09-16)
+    no noise      T1FLAIR_AF16_v3_jiangyizhou             recorded, not re-run
+    k sigma0      T1FLAIR_AF16_noise<k>x_v3_jiangyizhou   k = 0.25, 0.5, 0.75, 1, 2 (0p25, 0p5, 0p75, 1, 2); every noisy
+                                                          level is the same draw scaled (spec addenda 2026-09-16/17)
+    levels whose topic has no logs/summary.json yet are left out.
 
 Same subject, reference k-space, coil maps, house vd-Poisson mask, ground truth, scorer and frozen AF16 phase-3 MC-GS
-recipe in all three; the classical lambdas are re-selected per level. Sections: every arm per level with the change
+recipe at every level; the classical lambdas are re-selected per level. Sections: every arm per level with the change
 from no noise; MC-GS against the strongest comparison arm (GS-single counts) per level; the rank of MC-GS on the three
 head metrics per level; the lambda each swept family chose per level; the GS render-only diagnostic per noisy level.
-usage: compare_noise_levels.py [--metric head_psnr] [--out FILE]      (read-only on all three topics)
+usage: compare_noise_levels.py [--metric head_psnr] [--out FILE]      (read-only on every topic)
 """
 import argparse
 import json
 from pathlib import Path
 
 RES = Path("/data0/congcong/code/GS/Results_20260908")
-LEVELS = [("no noise", RES / "T1FLAIR_AF16_v3_jiangyizhou"),
-          ("1 sigma0", RES / "T1FLAIR_AF16_noise1x_v3_jiangyizhou"),
-          ("2 sigma0", RES / "T1FLAIR_AF16_noise2x_v3_jiangyizhou")]
+LEVELS = [(name, T) for name, T in (("no noise", RES / "T1FLAIR_AF16_v3_jiangyizhou"),
+                                    ("0.25 sigma0", RES / "T1FLAIR_AF16_noise0p25x_v3_jiangyizhou"),
+                                    ("0.5 sigma0", RES / "T1FLAIR_AF16_noise0p5x_v3_jiangyizhou"),
+                                    ("0.75 sigma0", RES / "T1FLAIR_AF16_noise0p75x_v3_jiangyizhou"),
+                                    ("1 sigma0", RES / "T1FLAIR_AF16_noise1x_v3_jiangyizhou"),
+                                    ("2 sigma0", RES / "T1FLAIR_AF16_noise2x_v3_jiangyizhou"))
+          if (T / "logs/summary.json").exists()]
 # summary.json is keyed by arm KEY; the house topic also carries older gs_joint / gs_joint_ar rows (see compare_masks.py)
 ARMS = [("gs_joint_p3", "MC-GS"), ("gs_single_p3", "GS-single"), ("zsssdu", "ZS-SSDU"),
         ("cssense_o200", "CS-SENSE (TV, converged)"), ("jcssense", "Joint SENSE (JTV)"),
@@ -50,18 +55,18 @@ def val(name, c, k, m=M):
 
 
 names = [n for n, _ in LEVELS]
-out = [f"# Noise study: every arm at no noise, 1 sigma0 and 2 sigma0 of added measurement noise ({M})", "",
-       "Same subject, reference k-space, coil maps, house vd-Poisson mask, ground truth, scorer and frozen AF16 phase-3",
-       "MC-GS recipe at every level; the classical lambdas are re-selected per level; the 2 sigma0 noise is the 1 sigma0",
-       "noise doubled (one realization).", ""]
+out = [f"# Noise study: every arm at every level of added measurement noise run so far ({M})", "",
+       "Levels: " + ", ".join(names) + ". Same subject, reference k-space, coil maps, house vd-Poisson mask, ground truth,",
+       "scorer and frozen AF16 phase-3 MC-GS recipe at every level; the classical lambdas are re-selected per level; every",
+       "noisy level is the same realization, scaled.", ""]
 for c in ("T1", "FLAIR"):
-    out += [f"**{c}**", "", "| arm | " + " | ".join(names) + " | 1 sigma0 − none | 2 sigma0 − none |",
-            "|---|" + "---|" * (len(names) + 2)]
+    noisy = names[1:]
+    out += [f"**{c}**", "", "| arm | " + " | ".join(names) + " | " + " | ".join(f"{n} − none" for n in noisy) + " |",
+            "|---|" + "---|" * (len(names) + len(noisy))]
     for key, lab in ARMS:
         v = [val(n, c, key) for n in names]
-        d1 = None if v[0] is None or v[1] is None else v[1] - v[0]
-        d2 = None if v[0] is None or v[2] is None else v[2] - v[0]
-        out.append(f"| {lab} | " + " | ".join(fmt(x) for x in v) + f" | {sfmt(d1)} | {sfmt(d2)} |")
+        d = [None if v[0] is None or x is None else x - v[0] for x in v[1:]]
+        out.append(f"| {lab} | " + " | ".join(fmt(x) for x in v) + " | " + " | ".join(sfmt(x) for x in d) + " |")
     out.append("")
 
 out += ["## MC-GS against the strongest comparison arm (GS-single counts)", "",

@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""check_scale_levels.py -- every per-contrast job file of both noise topics records the zero-noise topic's scale_p999,
+"""check_scale_levels.py -- every per-contrast job file of every noise topic records the zero-noise topic's scale_p999,
 and each summary.json has 24 rows (12 arms x 2 contrasts). Read-only; run after both finalizes (2026-09-17).
 """
 import json, sys
 from pathlib import Path
 H = Path("/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou")
 ref = {c: json.load(open(H / f"logs/classical_{c}.json"))["scale_p999"] for c in ("T1", "FLAIR")}
-for L in ("noise1x", "noise2x"):
-    N = Path(f"/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_{L}_v3_jiangyizhou")
+for N in sorted(Path("/data0/congcong/code/GS/Results_20260908").glob("T1FLAIR_AF16_noise*_v3_jiangyizhou")):
+    L = N.name.split("_")[2]
+    if not (N / "logs/summary.json").exists():
+        print(f"{L}: no summary.json yet"); continue
     bad, n, worst = [], 0, 0.0
     for p in sorted(N.glob("logs/*.json")):
         try:

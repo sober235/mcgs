@@ -1,0 +1,92 @@
+wrote recon/gs_joint_p3_T1_mag.npy
+wrote recon/gs_joint_p3_T1_complex.npy
+wrote recon/gs_joint_p3_FLAIR_mag.npy
+wrote recon/gs_joint_p3_FLAIR_complex.npy
+registered gs_joint_p3 (MC-GS) <- af16n05_p3_joint_full4k {'T1': 'plain', 'FLAIR': 'contrast'}
+wrote recon/gs_single_p3_T1_mag.npy
+wrote recon/gs_single_p3_T1_complex.npy
+registered gs_single_p3 (GS-single) <- af16n05_p3_singleT1_full4k {'T1': 'plain'}
+registered single-FLAIR af16n05_p3_singleFLAIR_full4k
+[T1] gauge re-check on cgsense: OK  (115 s)
+[T1] mcinr  head PSNR 31.129  head SSIM 0.8135  head HFEN 0.2406  whole PSNR 29.016  SSIM 0.5143  NMSE 0.16337  sharp 1.062
+[FLAIR] gauge re-check on cgsense: OK  (319 s)
+[FLAIR] mcinr  head PSNR 31.881  head SSIM 0.8410  head HFEN 0.1788  whole PSNR 31.252  SSIM 0.5863  NMSE 0.08797  sharp 0.926
+DONE score_af16_noise0p5x.json (418 s)
+[T1] volume (256, 256, 176) complex64
+  metric         topic rescore       mcinr repo     |diff|
+  psnr             29.01642378      29.01642346   3.19e-07
+  ssim              0.51425360       0.51425360   7.96e-09
+  nmse              0.16336781       0.16336770   1.04e-07
+  hfen              1.46249175       1.46249174   9.04e-09
+  head_psnr        31.12912335      31.12912352   1.65e-07
+  head_ssim         0.81352472       0.81352472   0.00e+00
+  head_hfen         0.24062091       0.24062092   1.75e-09
+  sharp             1.06174088       1.06174102   1.49e-07
+  grain             0.02013797       0.02013796   1.51e-08
+  wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/mcinr_T1.json
+  linked /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/recon/mcinr_T1_complex.npy -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou/recon/af16_noise0p5x/mcinr_T1_complex.npy
+[FLAIR] volume (256, 256, 176) complex64
+  metric         topic rescore       mcinr repo     |diff|
+  psnr             31.25223724      31.25223758   3.32e-07
+  ssim              0.58634660       0.58634661   1.63e-08
+  nmse              0.08796733       0.08796730   2.75e-08
+  hfen              1.20517707       1.20517707   1.38e-09
+  head_psnr        31.88120101      31.88120052   4.94e-07
+  head_ssim         0.84103251       0.84103251   0.00e+00
+  head_hfen         0.17881035       0.17881035   4.87e-09
+  sharp             0.92642742       0.92642728   1.42e-07
+  grain             0.01846692       0.01846691   1.36e-08
+  wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/mcinr_FLAIR.json
+  linked /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/recon/mcinr_FLAIR_complex.npy -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou/recon/af16_noise0p5x/mcinr_FLAIR_complex.npy
+
+worst relative disagreement across both contrasts: 1.42e-07
+[T1] gs_joint_p3   dc     head PSNR 35.280  SSIM 0.9336  HFEN 0.1197  sharp 0.879
+[T1] gs_joint_p3   render head PSNR 35.290  SSIM 0.9340  HFEN 0.1204  sharp 0.868
+[T1] gs_single_p3  dc     head PSNR 35.109  SSIM 0.9306  HFEN 0.1245  sharp 0.884
+[T1] gs_single_p3  render head PSNR 35.119  SSIM 0.9309  HFEN 0.1252  sharp 0.874
+[FLAIR] gs_joint_p3   dc     head PSNR 34.617  SSIM 0.9204  HFEN 0.1177  sharp 0.826
+[FLAIR] gs_joint_p3   render head PSNR 34.601  SSIM 0.9204  HFEN 0.1182  sharp 0.816
+[FLAIR] gs_single_p3  dc     head PSNR 34.581  SSIM 0.9193  HFEN 0.1190  sharp 0.828
+[FLAIR] gs_single_p3  render head PSNR 34.564  SSIM 0.9191  HFEN 0.1197  sharp 0.817
+method            PSNR    SSIM     NMSE    HFEN  headPSNR  headSSIM  headHFEN  sharp    grain
+ZF              29.948  0.8247  0.13183  0.9516    25.840    0.6794    0.6950  0.277  0.00338
+CG-SENSE        34.053  0.7294  0.05123  0.9750    32.156    0.8735    0.2280  0.888  0.01506
+CS-SENSE        37.999  0.9447  0.02065  0.7098    34.223    0.9242    0.1583  0.775  0.00907
+CS-SENSE (TV, converged)  38.401  0.9454  0.01883  0.6930    34.636    0.9284    0.1436  0.799  0.00899
+joint CS-SENSE (JTV)  38.270  0.9492  0.01940  0.7064    34.551    0.9264    0.1496  0.823  0.00962
+L1-SPIRiT       36.849  0.9088  0.02691  0.8473    33.404    0.9001    0.1527  0.948  0.01356
+ZS-SSDU         37.479  0.9319  0.02327  0.7910    33.836    0.9166    0.1710  1.024  0.01299
+3D-DIP          34.841  0.8462  0.04273  0.8736    30.898    0.8512    0.3083  0.627  0.00638
+3D-INR          32.641  0.6951  0.07091  1.3179    30.198    0.7889    0.2316  1.282  0.02502
+MC-INR (Niessen 2025)  29.016  0.5143  0.16337  1.4625    31.129    0.8135    0.2406  1.062  0.02014
+MC-GS           38.880  0.9222  0.01686  0.6863    35.280    0.9336    0.1197  0.879  0.01026
+GS-single       38.718  0.9275  0.01750  0.6983    35.109    0.9306    0.1245  0.884  0.01045
+
+=== FLAIR   (nominal AF 16, noise study: measurements + 0.5 sigma0)
+method            PSNR    SSIM     NMSE    HFEN  headPSNR  headSSIM  headHFEN  sharp    grain
+ZF              31.792  0.8425  0.07769  0.9478    27.878    0.7125    0.6596  0.263  0.00344
+CG-SENSE        34.683  0.7520  0.03993  0.9255    32.622    0.8769    0.1662  0.808  0.01487
+CS-SENSE        37.492  0.9329  0.02091  0.7293    33.683    0.9093    0.1405  0.670  0.00907
+CS-SENSE (TV, converged)  37.760  0.9377  0.01966  0.7207    34.071    0.9142    0.1351  0.726  0.00985
+joint CS-SENSE (JTV)  37.901  0.9415  0.01903  0.7092    34.126    0.9140    0.1344  0.751  0.01026
+L1-SPIRiT       37.177  0.9243  0.02249  0.7908    33.394    0.8989    0.1351  0.811  0.01236
+ZS-SSDU         37.671  0.9397  0.02007  0.7507    33.836    0.9135    0.1520  1.000  0.01492
+3D-DIP          34.536  0.8183  0.04130  0.9124    30.591    0.8265    0.2803  0.509  0.00712
+3D-INR          33.089  0.7270  0.05763  1.2278    30.168    0.7841    0.2075  1.127  0.02613
+MC-INR (Niessen 2025)  31.252  0.5863  0.08797  1.2052    31.881    0.8410    0.1788  0.926  0.01847
+MC-GS           38.298  0.9135  0.01737  0.6870    34.617    0.9204    0.1177  0.826  0.01162
+GS-single       38.224  0.8985  0.01767  0.6850    34.581    0.9193    0.1190  0.828  0.01166
+
+wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/summary.tsv  (24 rows)
+refreshed /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/README.md
+wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/figures/t1flair_v3_af16n05_noise_data.png
+wrote /home/congcongliu/figs/t1flair_v3_af16_noise0p5x/t1flair_v3_af16n05_noise_data.png
+  coronal 110 (grey window 0.739): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)
+  sagittal 47 (grey window 0.761): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)
+  coronal 124 (grey window 0.877): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 41.16, best competing 41.23 [cssense_o200], lead -0.069 dB (printed only, not on the figure)
+  sagittal 76 (grey window 0.671): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 41.41, best competing 41.55 [cssense_o200], lead -0.140 dB (printed only, not on the figure)
+  coronal 110 (grey window 0.673): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)
+  sagittal 47 (grey window 0.657): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)
+  coronal 124 (grey window 0.780): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 38.87, best competing 38.18 [jcssense], lead +0.694 dB (printed only, not on the figure)
+  sagittal 76 (grey window 0.648): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 38.74, best competing 38.47 [jcssense], lead +0.272 dB (printed only, not on the figure)
+FINALIZE_NOISE_DONE af16n05_p3_joint_full4k af16n05_p3_singleT1_full4k af16n05_p3_singleFLAIR_full4k

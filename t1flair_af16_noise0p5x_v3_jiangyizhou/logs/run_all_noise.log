@@ -1,0 +1,174 @@
+[09-17 13:44:12] armed: 57 jobs, cards [1, 2, 5, 6], light-only cards [], max 4 GPU jobs, grids {"tv_T1": ["0.00035", "0.0005", "0.0007", "0.001", "0.0014", "0.002", "0.0028"], "tv_FLAIR": ["0.00025", "0.00035", "0.0005", "0.0007", "0.001", "0.0014", "0.002"], "jtv": ["0.00035", "0.0005", "0.0007", "0.001", "0.0014", "0.002", "0.0028"], "spirit": ["0", "0.0005", "0.001", "0.002", "0.004", "0.008"]}
+[09-17 13:44:13] START gs_joint gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/sched_gs_joint.log
+[09-17 13:44:13] START gs_singleFLAIR gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/sched_gs_singleFLAIR.log
+[09-17 13:44:13] START base_T1 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_T1.log
+[09-17 13:44:13] START base_FLAIR gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_FLAIR.log
+[09-17 13:49:50] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.5
+[09-17 13:49:50] DONE base_T1 gpu5 rc=0 result=yes 5.6 min
+[09-17 13:49:50] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 13:49:50] DONE base_FLAIR gpu6 rc=0 result=yes 5.6 min
+[09-17 13:49:50] START gs_singleT1 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/sched_gs_singleT1.log
+[09-17 13:49:50] START tv_T1_0.00035 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_T1_o200_lam0.00035.log
+[09-17 13:54:26] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 13:54:26] DONE tv_T1_0.00035 gpu6 rc=0 result=yes 4.6 min
+[09-17 13:54:26] START tv_T1_0.0005 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_T1_o200_lam0.0005.log
+[09-17 13:59:01] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 13:59:01] DONE tv_T1_0.0005 gpu6 rc=0 result=yes 4.6 min
+[09-17 13:59:02] START tv_T1_0.0007 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_T1_o200_lam0.0007.log
+[09-17 14:03:37] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 14:03:37] DONE tv_T1_0.0007 gpu6 rc=0 result=yes 4.6 min
+[09-17 14:03:38] START tv_T1_0.001 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_T1_o200_lam0.001.log
+[09-17 14:08:13] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 14:08:13] DONE tv_T1_0.001 gpu6 rc=0 result=yes 4.6 min
+[09-17 14:08:13] START tv_T1_0.0014 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_T1_o200_lam0.0014.log
+[09-17 14:12:48] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 14:12:48] DONE tv_T1_0.0014 gpu6 rc=0 result=yes 4.6 min
+[09-17 14:12:49] START tv_T1_0.002 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_T1_o200_lam0.002.log
+[09-17 14:17:24] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 14:17:24] DONE tv_T1_0.002 gpu6 rc=0 result=yes 4.6 min
+[09-17 14:17:25] START tv_T1_0.0028 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_T1_o200_lam0.0028.log
+[09-17 14:22:00] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 14:22:00] DONE tv_T1_0.0028 gpu6 rc=0 result=yes 4.6 min
+[09-17 14:22:00] START tv_FLAIR_0.00025 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.00025.log
+[09-17 14:26:35] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 14:26:35] DONE tv_FLAIR_0.00025 gpu6 rc=0 result=yes 4.6 min
+[09-17 14:26:36] START tv_FLAIR_0.00035 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.00035.log
+[09-17 14:31:11] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 14:31:11] DONE tv_FLAIR_0.00035 gpu6 rc=0 result=yes 4.6 min
+[09-17 14:31:11] START tv_FLAIR_0.0005 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.0005.log
+[09-17 14:35:46] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 14:35:46] DONE tv_FLAIR_0.0005 gpu6 rc=0 result=yes 4.6 min
+[09-17 14:35:47] START tv_FLAIR_0.0007 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.0007.log
+[09-17 14:40:22] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 14:40:22] DONE tv_FLAIR_0.0007 gpu6 rc=0 result=yes 4.6 min
+[09-17 14:40:23] START tv_FLAIR_0.001 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.001.log
+[09-17 14:44:57] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 14:44:57] DONE tv_FLAIR_0.001 gpu6 rc=0 result=yes 4.6 min
+[09-17 14:44:58] START tv_FLAIR_0.0014 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.0014.log
+[09-17 14:48:01] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 14:48:01] DONE gs_singleFLAIR gpu2 rc=0 result=yes 63.8 min
+[09-17 14:48:02] START tv_FLAIR_0.002 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/classical_FLAIR_o200_lam0.002.log
+[09-17 14:49:33] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 14:49:33] DONE tv_FLAIR_0.0014 gpu6 rc=0 result=yes 4.6 min
+[09-17 14:49:33] START jtv_0.00035 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/jcssense_o200_lam0.00035.log
+[09-17 14:51:05] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.1
+[09-17 14:51:05] DONE gs_joint gpu1 rc=0 result=yes 66.9 min
+[09-17 14:51:05] START jtv_0.0005 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/jcssense_o200_lam0.0005.log
+[09-17 14:52:06] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 14:52:06] DONE tv_FLAIR_0.002 gpu2 rc=0 result=yes 4.1 min
+[09-17 14:52:06] START jtv_0.0007 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/jcssense_o200_lam0.0007.log
+[09-17 14:57:12] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.5
+[09-17 14:57:12] DONE gs_singleT1 gpu5 rc=0 result=yes 67.4 min
+[09-17 14:57:12] START jtv_0.001 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/jcssense_o200_lam0.001.log
+[09-17 14:58:13] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 14:58:13] DONE jtv_0.00035 gpu6 rc=0 result=yes 8.7 min
+[09-17 14:58:13] START jtv_0.0014 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/jcssense_o200_lam0.0014.log
+[09-17 14:59:45] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.1
+[09-17 14:59:45] DONE jtv_0.0005 gpu1 rc=0 result=yes 8.7 min
+[09-17 14:59:45] START jtv_0.002 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/jcssense_o200_lam0.002.log
+[09-17 15:00:15] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 15:00:15] DONE jtv_0.0007 gpu2 rc=0 result=yes 8.1 min
+[09-17 15:00:16] START jtv_0.0028 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/jcssense_o200_lam0.0028.log
+[09-17 15:05:52] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.5
+[09-17 15:05:52] DONE jtv_0.001 gpu5 rc=0 result=yes 8.7 min
+[09-17 15:05:52] START zsssdu_T1 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/zsssdu_T1.log
+[09-17 15:06:53] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 15:06:53] DONE jtv_0.0014 gpu6 rc=0 result=yes 8.7 min
+[09-17 15:06:54] START zsssdu_FLAIR gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/zsssdu_FLAIR.log
+[09-17 15:08:25] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.1
+[09-17 15:08:25] DONE jtv_0.002 gpu1 rc=0 result=yes 8.7 min
+[09-17 15:08:25] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 15:08:25] DONE jtv_0.0028 gpu2 rc=0 result=yes 8.1 min
+[09-17 15:08:25] START inr_T1 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/inr_T1.log
+[09-17 15:08:25] START inr_FLAIR gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/inr_FLAIR.log
+[09-17 15:24:13] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.5
+[09-17 15:24:13] DONE zsssdu_T1 gpu5 rc=0 result=yes 18.3 min
+[09-17 15:24:13] START dip_T1 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/dip_T1.log
+[09-17 15:30:19] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 15:30:19] DONE zsssdu_FLAIR gpu6 rc=0 result=yes 23.4 min
+[09-17 15:30:20] START dip_FLAIR gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/dip_FLAIR.log
+[09-17 16:08:00] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 16:08:00] DONE inr_FLAIR gpu2 rc=0 result=yes 59.6 min
+[09-17 16:08:01] START spirit_T1_ks3_lam0 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/T1_ks3_lam0.log
+[09-17 16:08:31] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.1
+[09-17 16:08:31] DONE inr_T1 gpu1 rc=0 result=yes 60.1 min
+[09-17 16:08:31] START spirit_T1_ks3_lam0.0005 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/T1_ks3_lam0.0005.log
+[09-17 16:10:34] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 16:10:34] DONE spirit_T1_ks3_lam0 gpu2 rc=0 result=yes 2.5 min
+[09-17 16:10:34] START spirit_T1_ks3_lam0.001 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/T1_ks3_lam0.001.log
+[09-17 16:12:06] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.1
+[09-17 16:12:06] DONE spirit_T1_ks3_lam0.0005 gpu1 rc=0 result=yes 3.6 min
+[09-17 16:12:06] START spirit_T1_ks3_lam0.002 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/T1_ks3_lam0.002.log
+[09-17 16:14:08] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 16:14:08] DONE spirit_T1_ks3_lam0.001 gpu2 rc=0 result=yes 3.6 min
+[09-17 16:14:09] START spirit_T1_ks3_lam0.004 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/T1_ks3_lam0.004.log
+[09-17 16:15:40] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.1
+[09-17 16:15:40] DONE spirit_T1_ks3_lam0.002 gpu1 rc=0 result=yes 3.6 min
+[09-17 16:15:41] START spirit_T1_ks3_lam0.008 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/T1_ks3_lam0.008.log
+[09-17 16:17:12] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.5
+[09-17 16:17:12] DONE dip_T1 gpu5 rc=0 result=yes 53.0 min
+[09-17 16:17:13] START spirit_T1_ks5_lam0 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/T1_ks5_lam0.log
+[09-17 16:17:43] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 16:17:43] DONE spirit_T1_ks3_lam0.004 gpu2 rc=0 result=yes 3.6 min
+[09-17 16:17:43] START spirit_T1_ks5_lam0.0005 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/T1_ks5_lam0.0005.log
+[09-17 16:19:15] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.1
+[09-17 16:19:15] DONE spirit_T1_ks3_lam0.008 gpu1 rc=0 result=yes 3.6 min
+[09-17 16:19:15] START spirit_T1_ks5_lam0.001 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/T1_ks5_lam0.001.log
+[09-17 16:19:46] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.5
+[09-17 16:19:46] DONE spirit_T1_ks5_lam0 gpu5 rc=0 result=yes 2.6 min
+[09-17 16:19:46] START spirit_T1_ks5_lam0.002 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/T1_ks5_lam0.002.log
+[09-17 16:21:18] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 16:21:18] DONE spirit_T1_ks5_lam0.0005 gpu2 rc=0 result=yes 3.6 min
+[09-17 16:21:18] START spirit_T1_ks5_lam0.004 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/T1_ks5_lam0.004.log
+[09-17 16:22:49] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 16:22:49] DONE dip_FLAIR gpu6 rc=0 result=yes 52.5 min
+[09-17 16:22:50] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.1
+[09-17 16:22:50] DONE spirit_T1_ks5_lam0.001 gpu1 rc=0 result=yes 3.6 min
+[09-17 16:22:50] START spirit_T1_ks5_lam0.008 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/T1_ks5_lam0.008.log
+[09-17 16:22:50] START spirit_FLAIR_ks3_lam0 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/FLAIR_ks3_lam0.log
+[09-17 16:23:21] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.5
+[09-17 16:23:21] DONE spirit_T1_ks5_lam0.002 gpu5 rc=0 result=yes 3.6 min
+[09-17 16:23:21] START spirit_FLAIR_ks3_lam0.0005 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/FLAIR_ks3_lam0.0005.log
+[09-17 16:24:53] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 16:24:53] DONE spirit_T1_ks5_lam0.004 gpu2 rc=0 result=yes 3.6 min
+[09-17 16:24:53] START spirit_FLAIR_ks3_lam0.001 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/FLAIR_ks3_lam0.001.log
+[09-17 16:25:24] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 16:25:24] DONE spirit_FLAIR_ks3_lam0 gpu6 rc=0 result=yes 2.6 min
+[09-17 16:25:25] START spirit_FLAIR_ks3_lam0.002 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/FLAIR_ks3_lam0.002.log
+[09-17 16:26:25] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.1
+[09-17 16:26:25] DONE spirit_T1_ks5_lam0.008 gpu1 rc=0 result=yes 3.6 min
+[09-17 16:26:26] START spirit_FLAIR_ks3_lam0.004 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/FLAIR_ks3_lam0.004.log
+[09-17 16:26:56] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.5
+[09-17 16:26:56] DONE spirit_FLAIR_ks3_lam0.0005 gpu5 rc=0 result=yes 3.6 min
+[09-17 16:26:57] START spirit_FLAIR_ks3_lam0.008 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/FLAIR_ks3_lam0.008.log
+[09-17 16:28:28] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 16:28:28] DONE spirit_FLAIR_ks3_lam0.001 gpu2 rc=0 result=yes 3.6 min
+[09-17 16:28:29] START spirit_FLAIR_ks5_lam0 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/FLAIR_ks5_lam0.log
+[09-17 16:28:59] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 16:28:59] DONE spirit_FLAIR_ks3_lam0.002 gpu6 rc=0 result=yes 3.6 min
+[09-17 16:28:59] START spirit_FLAIR_ks5_lam0.0005 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/FLAIR_ks5_lam0.0005.log
+[09-17 16:30:00] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.1
+[09-17 16:30:00] DONE spirit_FLAIR_ks3_lam0.004 gpu1 rc=0 result=yes 3.6 min
+[09-17 16:30:01] START spirit_FLAIR_ks5_lam0.001 gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/FLAIR_ks5_lam0.001.log
+[09-17 16:30:31] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.5
+[09-17 16:30:31] DONE spirit_FLAIR_ks3_lam0.008 gpu5 rc=0 result=yes 3.6 min
+[09-17 16:30:32] START spirit_FLAIR_ks5_lam0.002 gpu5 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/FLAIR_ks5_lam0.002.log
+[09-17 16:31:02] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 16:31:02] DONE spirit_FLAIR_ks5_lam0 gpu2 rc=0 result=yes 2.6 min
+[09-17 16:31:03] START spirit_FLAIR_ks5_lam0.004 gpu2 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/FLAIR_ks5_lam0.004.log
+[09-17 16:32:34] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 16:32:34] DONE spirit_FLAIR_ks5_lam0.0005 gpu6 rc=0 result=yes 3.6 min
+[09-17 16:32:34] START spirit_FLAIR_ks5_lam0.008 gpu6 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/spirit/FLAIR_ks5_lam0.008.log
+[09-17 16:33:35] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.1
+[09-17 16:33:35] DONE spirit_FLAIR_ks5_lam0.001 gpu1 rc=0 result=yes 3.6 min
+[09-17 16:33:36] START mcinr gpu1 (free 79 GB) -> /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/logs/mcinr_noise0p5x.log
+[09-17 16:34:06] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.5
+[09-17 16:34:06] DONE spirit_FLAIR_ks5_lam0.002 gpu5 rc=0 result=yes 3.6 min
+[09-17 16:34:37] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.2
+[09-17 16:34:37] DONE spirit_FLAIR_ks5_lam0.004 gpu2 rc=0 result=yes 3.6 min
+[09-17 16:36:08] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.6
+[09-17 16:36:08] DONE spirit_FLAIR_ks5_lam0.008 gpu6 rc=0 result=yes 3.6 min
+[09-17 16:47:18] released lock /data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work/.gpulock.1
+[09-17 16:47:18] DONE mcinr gpu1 rc=0 result=yes 13.7 min
+[09-17 16:47:18] QUEUE EMPTY. failures: {}. finalize ...
+[09-17 17:21:51] FINALIZE rc=0

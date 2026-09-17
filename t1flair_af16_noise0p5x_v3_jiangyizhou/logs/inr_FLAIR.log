@@ -1,0 +1,38 @@
+[FLAIR] coils=26 grid=(256, 256, 176) AF_rect=15.1908 scale=9.8512e+01
+lines: total 2966  fit 2818  held-out 148 (5.0 %)  -> fit pts 721408  ho pts 37888
+[inr] hash L=16 T=2^19 F=2 res 16..512 MLP 64x3 params=16.79M
+[inr] lr=0.005 iters=1500 tv=0.0
+[inr/FLAIR it     1/1500] fit=1.1613e+00 tv=0.00e+00 kres_fit=0.99988 kres_ho=0.99749  *  (5s)
+[inr/FLAIR it    50/1500] fit=4.4510e-02 tv=0.00e+00 kres_fit=0.23600 kres_ho=0.36114  *  (118s)
+[inr/FLAIR it   100/1500] fit=2.3177e-02 tv=0.00e+00 kres_fit=0.15009 kres_ho=0.24291  *  (234s)
+[inr/FLAIR it   150/1500] fit=1.5175e-02 tv=0.00e+00 kres_fit=0.17553 kres_ho=0.24395  (350s)
+[inr/FLAIR it   200/1500] fit=1.7886e-02 tv=0.00e+00 kres_fit=0.13277 kres_ho=0.21664  *  (465s)
+[inr/FLAIR it   250/1500] fit=1.2417e-02 tv=0.00e+00 kres_fit=0.11240 kres_ho=0.20412  *  (580s)
+[inr/FLAIR it   300/1500] fit=1.1613e-02 tv=0.00e+00 kres_fit=0.10770 kres_ho=0.20031  *  (696s)
+[inr/FLAIR it   350/1500] fit=1.1059e-02 tv=0.00e+00 kres_fit=0.10514 kres_ho=0.19841  *  (811s)
+[inr/FLAIR it   400/1500] fit=1.0681e-02 tv=0.00e+00 kres_fit=0.10331 kres_ho=0.19763  *  (926s)
+[inr/FLAIR it   450/1500] fit=1.0382e-02 tv=0.00e+00 kres_fit=0.10187 kres_ho=0.19750  *  (1042s)
+[inr/FLAIR it   500/1500] fit=1.0219e-02 tv=0.00e+00 kres_fit=0.10128 kres_ho=0.19773  (1158s)
+[inr/FLAIR it   550/1500] fit=1.0113e-02 tv=0.00e+00 kres_fit=0.10063 kres_ho=0.19827  (1273s)
+[inr/FLAIR it   600/1500] fit=1.0167e-02 tv=0.00e+00 kres_fit=0.10095 kres_ho=0.19918  (1389s)
+[inr/FLAIR it   650/1500] fit=1.0504e-02 tv=0.00e+00 kres_fit=0.10278 kres_ho=0.20039  (1504s)
+[inr/FLAIR it   700/1500] fit=9.8253e-03 tv=0.00e+00 kres_fit=0.09932 kres_ho=0.20000  (1620s)
+[inr/FLAIR it   750/1500] fit=9.6428e-03 tv=0.00e+00 kres_fit=0.09828 kres_ho=0.20056  (1736s)
+[inr/FLAIR it   800/1500] fit=9.8534e-03 tv=0.00e+00 kres_fit=0.10000 kres_ho=0.20183  (1851s)
+[inr/FLAIR it   850/1500] fit=9.8962e-03 tv=0.00e+00 kres_fit=0.10009 kres_ho=0.20245  (1967s)
+[inr/FLAIR it   900/1500] fit=9.5108e-03 tv=0.00e+00 kres_fit=0.09746 kres_ho=0.20267  (2083s)
+[inr/FLAIR it   950/1500] fit=9.4482e-03 tv=0.00e+00 kres_fit=0.09739 kres_ho=0.20271  (2198s)
+[inr/FLAIR it  1000/1500] fit=9.7975e-03 tv=0.00e+00 kres_fit=0.09959 kres_ho=0.20395  (2313s)
+[inr/FLAIR it  1050/1500] fit=1.1014e-02 tv=0.00e+00 kres_fit=0.10184 kres_ho=0.20527  (2429s)
+[inr/FLAIR it  1100/1500] fit=9.8362e-03 tv=0.00e+00 kres_fit=0.09898 kres_ho=0.20553  (2545s)
+[inr/FLAIR it  1150/1500] fit=9.3966e-03 tv=0.00e+00 kres_fit=0.09716 kres_ho=0.20620  (2660s)
+[inr/FLAIR it  1200/1500] fit=9.5107e-03 tv=0.00e+00 kres_fit=0.09818 kres_ho=0.20703  (2776s)
+[inr/FLAIR it  1250/1500] fit=9.2742e-03 tv=0.00e+00 kres_fit=0.09629 kres_ho=0.20733  (2892s)
+[inr/FLAIR it  1300/1500] fit=9.5187e-03 tv=0.00e+00 kres_fit=0.09781 kres_ho=0.20737  (3007s)
+[inr/FLAIR it  1350/1500] fit=9.2391e-03 tv=0.00e+00 kres_fit=0.09639 kres_ho=0.20757  (3123s)
+[inr/FLAIR it  1400/1500] fit=9.2683e-03 tv=0.00e+00 kres_fit=0.09651 kres_ho=0.20998  (3239s)
+[inr/FLAIR it  1450/1500] fit=9.3012e-03 tv=0.00e+00 kres_fit=0.09691 kres_ho=0.21010  (3355s)
+[inr/FLAIR it  1500/1500] fit=9.1462e-03 tv=0.00e+00 kres_fit=0.09560 kres_ho=0.21028  (3470s)
+[inr/FLAIR] best held-out kres 0.19750 @ iter 450
+[FLAIR] inr psnr=33.089 ssim=0.7270 nmse=0.05763 hfen=1.2278 head_psnr=30.168 head_ssim=0.7841 (3470 s)
+DONE

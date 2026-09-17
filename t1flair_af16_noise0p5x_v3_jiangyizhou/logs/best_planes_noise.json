@@ -1,0 +1,669 @@
+{
+ "min_area": 0.5,
+ "gauge": "head-masked slice PSNR at volume max|GT|; 7x7 uniform SSIM over head pixels",
+ "per_contrast": {
+  "T1": {
+   "transverse": {
+    "n_eligible": 180,
+    "n_first_psnr": 180,
+    "n_first_both": 180,
+    "candidates": [
+     {
+      "slice": 171,
+      "psnr": 36.5887,
+      "psnr_lead": 0.2848,
+      "psnr_runner": "GS-single",
+      "ssim": 0.94508,
+      "ssim_lead": 0.00397,
+      "ssim_runner": "CS-SENSE"
+     },
+     {
+      "slice": 158,
+      "psnr": 36.3693,
+      "psnr_lead": 0.2641,
+      "psnr_runner": "GS-single",
+      "ssim": 0.93918,
+      "ssim_lead": 0.00405,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 104,
+      "psnr": 34.0218,
+      "psnr_lead": 0.264,
+      "psnr_runner": "GS-single",
+      "ssim": 0.89369,
+      "ssim_lead": 0.00666,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 177,
+      "psnr": 36.6413,
+      "psnr_lead": 0.2586,
+      "psnr_runner": "GS-single",
+      "ssim": 0.94802,
+      "ssim_lead": 0.00259,
+      "ssim_runner": "CS-SENSE"
+     },
+     {
+      "slice": 164,
+      "psnr": 36.3595,
+      "psnr_lead": 0.2568,
+      "psnr_runner": "GS-single",
+      "ssim": 0.94006,
+      "ssim_lead": 0.00373,
+      "ssim_runner": "CS-SENSE"
+     },
+     {
+      "slice": 146,
+      "psnr": 35.8419,
+      "psnr_lead": 0.2433,
+      "psnr_runner": "GS-single",
+      "ssim": 0.93703,
+      "ssim_lead": 0.00412,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 152,
+      "psnr": 36.0757,
+      "psnr_lead": 0.2321,
+      "psnr_runner": "GS-single",
+      "ssim": 0.93683,
+      "ssim_lead": 0.00334,
+      "ssim_runner": "CS-SENSE"
+     },
+     {
+      "slice": 118,
+      "psnr": 34.079,
+      "psnr_lead": 0.2269,
+      "psnr_runner": "GS-single",
+      "ssim": 0.91767,
+      "ssim_lead": 0.005,
+      "ssim_runner": "GS-single"
+     }
+    ]
+   },
+   "coronal": {
+    "n_eligible": 135,
+    "n_first_psnr": 135,
+    "n_first_both": 135,
+    "candidates": [
+     {
+      "slice": 99,
+      "psnr": 36.3436,
+      "psnr_lead": 0.2531,
+      "psnr_runner": "GS-single",
+      "ssim": 0.91875,
+      "ssim_lead": 0.00496,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 83,
+      "psnr": 35.2381,
+      "psnr_lead": 0.2495,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92508,
+      "ssim_lead": 0.00499,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 120,
+      "psnr": 36.0626,
+      "psnr_lead": 0.2329,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92024,
+      "ssim_lead": 0.00443,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 91,
+      "psnr": 35.7482,
+      "psnr_lead": 0.2329,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92066,
+      "ssim_lead": 0.00408,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 113,
+      "psnr": 36.4769,
+      "psnr_lead": 0.2251,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92412,
+      "ssim_lead": 0.00413,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 69,
+      "psnr": 34.3916,
+      "psnr_lead": 0.2143,
+      "psnr_runner": "GS-single",
+      "ssim": 0.9223,
+      "ssim_lead": 0.00445,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 106,
+      "psnr": 36.4026,
+      "psnr_lead": 0.213,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92232,
+      "ssim_lead": 0.0043,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 77,
+      "psnr": 34.813,
+      "psnr_lead": 0.2101,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92003,
+      "ssim_lead": 0.00482,
+      "ssim_runner": "GS-single"
+     }
+    ]
+   },
+   "sagittal": {
+    "n_eligible": 128,
+    "n_first_psnr": 128,
+    "n_first_both": 128,
+    "candidates": [
+     {
+      "slice": 96,
+      "psnr": 36.6171,
+      "psnr_lead": 0.2589,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92306,
+      "ssim_lead": 0.00363,
+      "ssim_runner": "CS-SENSE"
+     },
+     {
+      "slice": 82,
+      "psnr": 36.7215,
+      "psnr_lead": 0.2544,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92637,
+      "ssim_lead": 0.00294,
+      "ssim_runner": "CS-SENSE"
+     },
+     {
+      "slice": 103,
+      "psnr": 36.5462,
+      "psnr_lead": 0.2536,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92407,
+      "ssim_lead": 0.00318,
+      "ssim_runner": "CS-SENSE"
+     },
+     {
+      "slice": 75,
+      "psnr": 36.3834,
+      "psnr_lead": 0.2117,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92643,
+      "ssim_lead": 0.00357,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 147,
+      "psnr": 34.4381,
+      "psnr_lead": 0.2072,
+      "psnr_runner": "GS-single",
+      "ssim": 0.91576,
+      "ssim_lead": 0.00444,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 138,
+      "psnr": 34.8666,
+      "psnr_lead": 0.2045,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92196,
+      "ssim_lead": 0.00402,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 89,
+      "psnr": 35.8188,
+      "psnr_lead": 0.2044,
+      "psnr_runner": "GS-single",
+      "ssim": 0.90877,
+      "ssim_lead": 0.00489,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 126,
+      "psnr": 35.7945,
+      "psnr_lead": 0.1952,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92432,
+      "ssim_lead": 0.00338,
+      "ssim_runner": "GS-single"
+     }
+    ]
+   }
+  },
+  "FLAIR": {
+   "transverse": {
+    "n_eligible": 178,
+    "n_first_psnr": 148,
+    "n_first_both": 136,
+    "candidates": [
+     {
+      "slice": 170,
+      "psnr": 34.5735,
+      "psnr_lead": 0.1,
+      "psnr_runner": "GS-single",
+      "ssim": 0.91672,
+      "ssim_lead": 0.00251,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 157,
+      "psnr": 34.777,
+      "psnr_lead": 0.0919,
+      "psnr_runner": "GS-single",
+      "ssim": 0.91806,
+      "ssim_lead": 0.00211,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 151,
+      "psnr": 34.6505,
+      "psnr_lead": 0.0861,
+      "psnr_runner": "GS-single",
+      "ssim": 0.91831,
+      "ssim_lead": 0.00221,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 164,
+      "psnr": 34.5107,
+      "psnr_lead": 0.0858,
+      "psnr_runner": "GS-single",
+      "ssim": 0.9149,
+      "ssim_lead": 0.00202,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 176,
+      "psnr": 34.8199,
+      "psnr_lead": 0.083,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92661,
+      "ssim_lead": 0.00227,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 109,
+      "psnr": 33.854,
+      "psnr_lead": 0.0826,
+      "psnr_runner": "GS-single",
+      "ssim": 0.88285,
+      "ssim_lead": 0.00235,
+      "ssim_runner": "ZS-SSDU"
+     },
+     {
+      "slice": 182,
+      "psnr": 34.4914,
+      "psnr_lead": 0.0715,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92295,
+      "ssim_lead": 0.00195,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 141,
+      "psnr": 33.8901,
+      "psnr_lead": 0.0707,
+      "psnr_runner": "GS-single",
+      "ssim": 0.9068,
+      "ssim_lead": 0.00196,
+      "ssim_runner": "GS-single"
+     }
+    ]
+   },
+   "coronal": {
+    "n_eligible": 140,
+    "n_first_psnr": 137,
+    "n_first_both": 129,
+    "candidates": [
+     {
+      "slice": 166,
+      "psnr": 34.6703,
+      "psnr_lead": 0.0619,
+      "psnr_runner": "GS-single",
+      "ssim": 0.91278,
+      "ssim_lead": 0.0014,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 114,
+      "psnr": 36.4176,
+      "psnr_lead": 0.0594,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92053,
+      "ssim_lead": 0.00112,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 156,
+      "psnr": 35.0686,
+      "psnr_lead": 0.0546,
+      "psnr_runner": "GS-single",
+      "ssim": 0.91524,
+      "ssim_lead": 0.00169,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 105,
+      "psnr": 36.5192,
+      "psnr_lead": 0.0541,
+      "psnr_runner": "GS-single",
+      "ssim": 0.92361,
+      "ssim_lead": 0.00109,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 150,
+      "psnr": 35.0844,
+      "psnr_lead": 0.0506,
+      "psnr_runner": "GS-single",
+      "ssim": 0.91653,
+      "ssim_lead": 0.00178,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 92,
+      "psnr": 35.9813,
+      "psnr_lead": 0.0471,
+      "psnr_runner": "GS-single",
+      "ssim": 0.91474,
+      "ssim_lead": 0.00115,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 181,
+      "psnr": 33.5323,
+      "psnr_lead": 0.0466,
+      "psnr_runner": "GS-single",
+      "ssim": 0.90308,
+      "ssim_lead": 0.00151,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 125,
+      "psnr": 36.0309,
+      "psnr_lead": 0.0447,
+      "psnr_runner": "GS-single",
+      "ssim": 0.91528,
+      "ssim_lead": 0.00123,
+      "ssim_runner": "GS-single"
+     }
+    ]
+   },
+   "sagittal": {
+    "n_eligible": 128,
+    "n_first_psnr": 127,
+    "n_first_both": 127,
+    "candidates": [
+     {
+      "slice": 147,
+      "psnr": 34.092,
+      "psnr_lead": 0.0827,
+      "psnr_runner": "GS-single",
+      "ssim": 0.907,
+      "ssim_lead": 0.00262,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 127,
+      "psnr": 34.7592,
+      "psnr_lead": 0.0708,
+      "psnr_runner": "GS-single",
+      "ssim": 0.90584,
+      "ssim_lead": 0.00185,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 118,
+      "psnr": 35.0031,
+      "psnr_lead": 0.0686,
+      "psnr_runner": "GS-single",
+      "ssim": 0.90378,
+      "ssim_lead": 0.00231,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 101,
+      "psnr": 35.3037,
+      "psnr_lead": 0.0683,
+      "psnr_runner": "GS-single",
+      "ssim": 0.90831,
+      "ssim_lead": 0.00207,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 112,
+      "psnr": 35.0717,
+      "psnr_lead": 0.0671,
+      "psnr_runner": "GS-single",
+      "ssim": 0.90467,
+      "ssim_lead": 0.00221,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 54,
+      "psnr": 35.0987,
+      "psnr_lead": 0.0554,
+      "psnr_runner": "GS-single",
+      "ssim": 0.9111,
+      "ssim_lead": 0.00162,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 69,
+      "psnr": 35.3393,
+      "psnr_lead": 0.0544,
+      "psnr_runner": "GS-single",
+      "ssim": 0.90966,
+      "ssim_lead": 0.00124,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 87,
+      "psnr": 34.6753,
+      "psnr_lead": 0.0533,
+      "psnr_runner": "GS-single",
+      "ssim": 0.89993,
+      "ssim_lead": 0.00174,
+      "ssim_runner": "GS-single"
+     }
+    ]
+   }
+  }
+ },
+ "paired": {
+  "transverse": {
+   "n_first_both": 136,
+   "candidates": [
+    {
+     "slice": 170,
+     "t1_lead": 0.2398,
+     "flair_lead": 0.1,
+     "t1_ssim_lead": 0.00352,
+     "flair_ssim_lead": 0.00251
+    },
+    {
+     "slice": 157,
+     "t1_lead": 0.2464,
+     "flair_lead": 0.0919,
+     "t1_ssim_lead": 0.00292,
+     "flair_ssim_lead": 0.00211
+    },
+    {
+     "slice": 151,
+     "t1_lead": 0.2268,
+     "flair_lead": 0.0861,
+     "t1_ssim_lead": 0.00273,
+     "flair_ssim_lead": 0.00221
+    },
+    {
+     "slice": 164,
+     "t1_lead": 0.2568,
+     "flair_lead": 0.0858,
+     "t1_ssim_lead": 0.00373,
+     "flair_ssim_lead": 0.00202
+    },
+    {
+     "slice": 176,
+     "t1_lead": 0.228,
+     "flair_lead": 0.083,
+     "t1_ssim_lead": 0.0032,
+     "flair_ssim_lead": 0.00227
+    },
+    {
+     "slice": 109,
+     "t1_lead": 0.2022,
+     "flair_lead": 0.0826,
+     "t1_ssim_lead": 0.00498,
+     "flair_ssim_lead": 0.00235
+    },
+    {
+     "slice": 182,
+     "t1_lead": 0.2178,
+     "flair_lead": 0.0715,
+     "t1_ssim_lead": 0.00237,
+     "flair_ssim_lead": 0.00195
+    },
+    {
+     "slice": 141,
+     "t1_lead": 0.2096,
+     "flair_lead": 0.0707,
+     "t1_ssim_lead": 0.00423,
+     "flair_ssim_lead": 0.00196
+    }
+   ]
+  },
+  "coronal": {
+   "n_first_both": 127,
+   "candidates": [
+    {
+     "slice": 166,
+     "t1_lead": 0.1504,
+     "flair_lead": 0.0619,
+     "t1_ssim_lead": 0.00222,
+     "flair_ssim_lead": 0.0014
+    },
+    {
+     "slice": 114,
+     "t1_lead": 0.2229,
+     "flair_lead": 0.0594,
+     "t1_ssim_lead": 0.00398,
+     "flair_ssim_lead": 0.00112
+    },
+    {
+     "slice": 156,
+     "t1_lead": 0.1881,
+     "flair_lead": 0.0546,
+     "t1_ssim_lead": 0.00355,
+     "flair_ssim_lead": 0.00169
+    },
+    {
+     "slice": 105,
+     "t1_lead": 0.2117,
+     "flair_lead": 0.0541,
+     "t1_ssim_lead": 0.00385,
+     "flair_ssim_lead": 0.00109
+    },
+    {
+     "slice": 150,
+     "t1_lead": 0.1616,
+     "flair_lead": 0.0506,
+     "t1_ssim_lead": 0.00304,
+     "flair_ssim_lead": 0.00178
+    },
+    {
+     "slice": 92,
+     "t1_lead": 0.2122,
+     "flair_lead": 0.0471,
+     "t1_ssim_lead": 0.00383,
+     "flair_ssim_lead": 0.00115
+    },
+    {
+     "slice": 181,
+     "t1_lead": 0.1161,
+     "flair_lead": 0.0466,
+     "t1_ssim_lead": 0.00274,
+     "flair_ssim_lead": 0.00151
+    },
+    {
+     "slice": 125,
+     "t1_lead": 0.1982,
+     "flair_lead": 0.0447,
+     "t1_ssim_lead": 0.0038,
+     "flair_ssim_lead": 0.00123
+    }
+   ]
+  },
+  "sagittal": {
+   "n_first_both": 127,
+   "candidates": [
+    {
+     "slice": 147,
+     "t1_lead": 0.2072,
+     "flair_lead": 0.0827,
+     "t1_ssim_lead": 0.00444,
+     "flair_ssim_lead": 0.00262
+    },
+    {
+     "slice": 127,
+     "t1_lead": 0.1553,
+     "flair_lead": 0.0708,
+     "t1_ssim_lead": 0.00311,
+     "flair_ssim_lead": 0.00185
+    },
+    {
+     "slice": 118,
+     "t1_lead": 0.1653,
+     "flair_lead": 0.0686,
+     "t1_ssim_lead": 0.0032,
+     "flair_ssim_lead": 0.00231
+    },
+    {
+     "slice": 101,
+     "t1_lead": 0.2124,
+     "flair_lead": 0.0683,
+     "t1_ssim_lead": 0.00304,
+     "flair_ssim_lead": 0.00207
+    },
+    {
+     "slice": 112,
+     "t1_lead": 0.1565,
+     "flair_lead": 0.0671,
+     "t1_ssim_lead": 0.00144,
+     "flair_ssim_lead": 0.00221
+    },
+    {
+     "slice": 54,
+     "t1_lead": 0.1349,
+     "flair_lead": 0.0554,
+     "t1_ssim_lead": 0.00273,
+     "flair_ssim_lead": 0.00162
+    },
+    {
+     "slice": 69,
+     "t1_lead": 0.1509,
+     "flair_lead": 0.0544,
+     "t1_ssim_lead": 0.00108,
+     "flair_ssim_lead": 0.00124
+    },
+    {
+     "slice": 87,
+     "t1_lead": 0.2056,
+     "flair_lead": 0.0533,
+     "t1_ssim_lead": 0.00446,
+     "flair_ssim_lead": 0.00174
+    }
+   ]
+  }
+ }
+}
