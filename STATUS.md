@@ -1,11 +1,13 @@
 # STATUS — 2026-09-17（分支 `16yo-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`）
 
-本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。一至五期已完成（五期 09-17 上午收尾，最终配方已登记为 `gs_joint_p5`）；**本线没有训练在跑；待用户看图、定推送**。
+本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。一至五期已完成（五期 09-17 收尾，提出的臂 = `gs_joint_p5`）；**本线没有训练在跑；已推 origin 并打 tag `handoff/2026-09-17-16yo-mtp-stage5`；待用户定论文图与 HFEN 写法（第 2 节）**。
 
 英文总结：一期 `docs/superpowers/records/2026-09-12-16yo-mtp-reference-dataset.md`，
 二期 `docs/superpowers/records/2026-09-13-16yo-mtp-af12.md`，
-**三期 `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md`（先读这份）**，
-四期（中文，另一会话 claude-eb 写）`docs/superpowers/records/2026-09-15-16yo-mtp-stage4-lesion-slice.md`。
+三期 `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md`，
+四期（中文，另一会话 claude-eb 写）`docs/superpowers/records/2026-09-15-16yo-mtp-stage4-lesion-slice.md`，
+L1-SPIRiT 换臂 `.../2026-09-15-16yo-mtp-l1spirit-arm.md`，选层 `.../2026-09-16-16yo-mtp-one-slice-all-first.md`，
+**五期 `docs/superpowers/records/2026-09-16-16yo-mtp-stage5-levers.md`（先读这份）**；课题 README 的 "Stage 5" 一节是给外人看的版本。
 设计：一期 `.../specs/2026-09-12-peds-tsc-mtp-grappa-design.md`，二期 `.../specs/2026-09-12-16yo-mtp-stage2-af12-design.md`
 与 `.../plans/2026-09-12-16yo-mtp-stage2-af12.md`，**三期 `.../specs/2026-09-14-peds-af12-mcgs-autoresearch-design.md`**。
 回合日志 `autoresearch_peds.md`，账本 `autoresearch_peds.tsv`。
@@ -61,6 +63,18 @@ T1w PSNR +0.010（对已登记 9.6M 单臂）/ +0.005（对未登记的 6000 步
 整卷 PSNR/NMSE 两列也第一。**T1w HFEN 0.0758 输 L1-SPIRiT 0.0679**，十一个运行没有一个让它动过 0.001。
 逐层：T1w 234/578、T2s 517/561 三项全第一，**两对比度同层全第一 227 层**（三期只有 10 层）。
 **种子检验（09-17，`p5_final_seed1`，seed 1，不登记）**：T1w 39.001 / 0.9692 / 0.0759，T2s 34.322 / 0.9111 / 0.1765，五格照样第一；两种子差 T1w 0.0026 dB、T2s 0.001 dB，T1w PSNR 余量（+0.008 到 +0.010）是种子差的三到四倍。记录 §5。
+复核（09-17 21:1x 重跑，写到 scratch 文件、不动登记 json）：
+```
+cd /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro
+CUDA_VISIBLE_DEVICES= ./scripts/py scripts/rescore.py --only gs_joint_p5 gs_single_p3f spirit --jobs 5 --out /tmp/verify_p5.json
+# T1w L1-SPIRiT    head_psnr  38.310 ssim 0.9607 hfen 0.0679 psnr  41.225 nmse 0.00374 sharp 0.982
+# T1w GS-single (tuned, 9.6M) head_psnr  38.993 ssim 0.9687 hfen 0.0764 psnr  41.803 nmse 0.00327 sharp 0.880
+# T1w MC-GS (phase TV, 8000 it.) head_psnr  39.003 ssim 0.9693 hfen 0.0758 psnr  41.865 nmse 0.00323 sharp 0.884
+# T2s L1-SPIRiT    head_psnr  32.017 ssim 0.8630 hfen 0.2264 psnr  34.971 nmse 0.01625 sharp 0.951
+# T2s MC-GS (phase TV, 8000 it.) head_psnr  34.323 ssim 0.9111 hfen 0.1765 psnr  37.233 nmse 0.00965 sharp 0.807
+# 与 logs/rescore.json 登记值最大差 2.8e-17（约 2 分钟 CPU）
+```
+T2s 的门槛 GS-single = `gs_single_ar`（34.175 / 0.9052 / 0.1855），见 README 主表。
 正式图（ZF 列 + 大写方法名 + 横向放大框，claude-64 加的 `--with_zf --caps`）：
 `peds_af12_{T1w,T2s}_row3planes_compact_53_158_150_inset48x48x16_headerr_allfirst_p5_zf_caps.{png,pdf}`（两对比度三平面全第一）、
 `..._53_160_152_..._p5_zf_caps`（解剖质心视角，T1w 冠/矢状 PSNR 第二）、
@@ -112,15 +126,16 @@ T1w +0.007 dB / SSIM +0.00002（面板四位小数下 0.9608 平），T2s +0.058
 图（最终配置，最后两列 = MC-GS 与 GS-single）：
 `http://localhost:8765/peds_tsc_af12/peds_af12_{T1w,T2s}_row3planes_compact_53_160_152_headerr_p3f.png`
 
-### GPU 名额：与并行会话的约定（09-15）
+### 并行会话（截至 09-17）
 
-同分支的 stage 4 会话（claude-eb，跑 `p4_*`）自 09-15 起占用本线两个训练名额，因为我这边已收尾、没有排队。
-**本线同时最多两个训练的规矩不变**，它的调度器把我的运行也计入。若本会话（或后续会话）要在本线再开运行，
-**先给它发消息**，它会先退回一个名额，再由我们开始——不要直接起调度器，否则会变成三个。
-它的地址见 `docs/superpowers/records/2026-09-14-16yo-mtp-stage3.md` 里引用的消息记录；
-它只写 `autoresearch_peds_p4.md` 与 `p4_*` 行，不动 STATUS / CLAUDE / 本记录。
+- claude-eb（四期）：已收尾，p4 调度器停（`logs/.p4_stop`），不再起训练；它只写 `autoresearch_peds_p4.md`、`p4_*` 行和
+  课题里的 `analysis_2026-09-15_stage4_lesion_slice/`（四期归档，244 MB，带 MANIFEST md5）。
+- claude-64：给 `fig_three_planes_inset.py` 加了 `--with_zf`、`--caps`（默认不变）和 `scripts/figs_three_planes_zf_caps.sh`；
+  09-17 按用户要求推过本分支。
+- claude-e7（本 STATUS 的维护者）：拥有 STATUS / CLAUDE.md / 登记（summarize、rescore、README 表）。
+- **本线同时最多两个训练**（计入所有会话）；要起训练先确认没有别的会话在本线跑（`pgrep -fa "cycle.py --exp .*peds_"`）。
 
-## 2. 用户拍板（09-15 16:30 前后，本会话 claude-e7）
+## 2. 用户拍板（09-15 起，已定）与待定
 
 1. **四期：1 dB 达不到，接受 0.15 dB。** 即矢状 172 的 +0.153（`p4_ue_k05`）/ +0.150（`p4_r3_edge0005`），
    对所有臂含 GS-single；不算 GS-single 是 +0.55。四期到此收尾，p4 队列里剩下的探针不再跑。
@@ -140,16 +155,23 @@ T1w +0.007 dB / SSIM +0.00002（面板四位小数下 0.9608 平），T2s +0.058
 
 另（09-15 16:05，用户）：**L1-SPIRiT 替换 L1-ESPIRiT，GS-single 仍算对比方法**，与 jyz 线同日的口径一致。
 L1-ESPIRiT 的行留在表里、标为不计入，所以它的 T1w HFEN 0.0756 不再是门槛；L1-SPIRiT 已登记（第 1 节），它接过了 T1w HFEN 的门槛。
+8. （09-17）用户经 claude-64 要求把本分支推到 origin；之后的提交已跟推。
+
+**待用户拍板**：
+- A. 论文图用哪组（候选：`_53_158_150_*_allfirst_p5_zf_caps` 与 `_46_149_171_*_lesionB_allfirst_p5_zf_caps`，两对比度三平面全第一）。
+- B. T1w HFEN 输 L1-SPIRiT（0.0758 对 0.0679）怎么写。数据事实：k 空间插值保留含噪声的颗粒，HFEN 奖励它；MC-GS 仍超过所有 GS-single（0.0764）。
+- C. 一期其余八个对比度的 23 GB 仍未删（第 4 条，暂不删）。
 
 ## 3. 下一步
 
 **本线没有训练在跑**（p5 调度器已停 `logs/.p5_stop`；claude-eb、claude-64 也没有训练）。五期收尾工作已做完：登记、两个口径重评分、
 README 表与 Stage 5 一节、四组正式图、逐层搜索、记录。
 
-1. 用户看新图（第 1 节五期块的四组），定哪组做论文图。
-2. 已推 origin（09-17，用户经 claude-64 要求；之后的记录提交也已跟推）；是否打 handoff tag 待定。
-3. T1w HFEN 那格对 L1-SPIRiT 的写法（数据事实：k 空间插值保留含噪声的颗粒，HFEN 奖励它；MC-GS 在 HFEN 上仍超过所有 GS-single）。
-4. T1w 余量已做过一次种子检验（记录 §5），五格稳；杠杆已穷尽。
+1. 新会话先重跑第 1 节五期块的复核命令（2 分钟 CPU），对上登记值再动手。
+2. 等第 2 节 A / B 的拍板；定了图就出论文版（字号、裁切等按用户要求）。
+3. 杠杆已穷尽（记录 §2 表 + §4），种子检验已做（§5）。没有待跑的训练。
+4. 尾巴（下次用到时做）：`slice_quality.py` / `find_mcgs_first_slice.py` / `best_slice_mcgs.py` 仍列 L1-ESPIRiT；README 的
+   "MC-GS minus GS-single" 小表仍是二期的 `gs_joint_ar − gs_single_ar`。
 
 ## 4. 已知的坑与别重做
 
@@ -157,8 +179,10 @@ README 表与 Stage 5 一节、四组正式图、逐层搜索、记录。
   返回真值（`p3_ceiling` 就是这么废掉的，头内 PSNR 150.3、SSIM 1.0，**别再跑**）；（b）“某臂更好地拟合了已采样数据”
   这种话不成立。要问容量用 `--save_render`（新加），它另存纯渲染体 `recT1_render` / `recFL_render`。
 - **`peds_sched.sh` 的作业日志名曾把 config 路径里的 `/` 带入**，导致每次启动秒退 rc=1 并空转；已修（`tr ' ./' '___'`）。
-- **加给联合臂的杠杆必须同样加给单臂**，否则“联合赢单臂”是靠不等设置赢的。T2s 单臂例外：三期没动过它自己的权重，
-  `gs_single_ar` 就是它的调参版本（`rescore.py` 里有注释）。
+- **三期的规矩"加给联合臂的杠杆同样加给单臂"在五期被用户改了**（第 2 节第 7 条）：GS-single 按已发表基线对待，已登记的
+  每个版本都算门槛，但相位 TV、8000 步不再给单臂，也**不要再跑新的单臂对照**。写文章时要写明这一点。
+  （T2s 单臂 `gs_single_ar` 就是它的调参版本，三期没动过它自己的权重。）
+- **别把对比方法调差去凑余量**（09-16 用户提过"调 GS-single 让 MC-GS 超 0.8 dB"，已拒；0.8 dB 在 T1w 上卡的是 L1-SPIRiT）。
 - **方位**：体积 (RO 320, PE 304, SPE 104)，**轴 2 = 横断、轴 0 = 冠状、轴 1 = 矢状**（厂商 DICOM 判定）。体素各向异性 0.7×0.7×1.35 mm。
 - **`grain_ratio` 在 T2s 上不可用**（白质掩膜只剩 664 体素）。
 - **选层别用 `best_slice_mcgs.py` 的判据**（按 MC-GS 领先幅度排序 = 自我美化）。
@@ -184,3 +208,8 @@ README 表与 Stage 5 一节、四组正式图、逐层搜索、记录。
 - **两个调参臂另起 key 进表**（`*_p3`），不覆盖二期的行：二期回答的是“原样迁移的配方能否领先”，三期回答的是
   “在本受试者上调到最优能否领先”，两个问题都要留在表里。
 - **AF 按整格算（2635 点）**、**已知零区给所有臂**、**主表用中间 80 分区**：见二期记录，未改动。
+- **相位 TV 分对比度权重**（五期）：共享权重下 T1w 在 0.01 最好、T2s 在 0.02–0.03 最好，同三期几何权重的道理；拆开后 T1w 不变、
+  T2s 三格都涨。
+- **最终配方选 T2s 0.02 而不是 0.03**：0.03 的 T2s SSIM/HFEN 更好但 PSNR 少 0.03 dB；0.02 三格都有余量，是共享扫描里 T2s PSNR 的最优。
+- **种子检验只跑一个、不登记**：目的是回答"T1w +0.010 dB 是不是单次运行碰巧"，两个种子的差 0.0026 dB，够回答这个问题；
+  要报分布需要更多种子，那是新实验。
