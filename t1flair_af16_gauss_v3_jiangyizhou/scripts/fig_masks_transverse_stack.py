@@ -18,6 +18,10 @@ image and error panel and pastes it magnified into the --inset_corner corner (sa
 fig_three_planes_compact.py; no numbers inside the zoom, as the figures of record). One box for all three rows. The default
 centre (124, 76) is the in-plane centre of the figure-of-record 48^3 box (180 / 124 / 76); find_zoom_box_all_masks.py reports
 how MC-GS stands inside it. With --inset the pattern label of the GT panel goes on two lines so it stays clear of the zoom.
+Zoom rows (2026-09-17, optional, the user found the corner zoom too small): --zoom_rows W draws the same W x W box on every
+full image / error panel and adds, under each pattern's image row and under its error row, a row of the magnified box (square
+panels as wide as the full ones, nearest-neighbour, orange-yellow frame); every row keeps its own colorbar. --inset_center gives
+the box centre; the T1 and FLAIR figures may use different boxes (find_zoom_box_visible.py picks them).
 Reads the three topics only; writes to this (Gaussian) topic's figures/, the home of the cross-pattern comparison,
 and to /home/congcongliu/figs/t1flair_v3_af16_diffmask/ (served at http://localhost:8765/t1flair_v3_af16_diffmask/).
 """
@@ -57,11 +61,16 @@ ap.add_argument("--tag", default="_p3_zf_caps", help="suffix of the output file 
 ap.add_argument("--inset", type=int, default=0, metavar="W",
                 help="W x W zoom box outlined on every image / error panel and magnified into a corner; 0 = no zoom (default); "
                      "adds _inset<W> to the file name")
+ap.add_argument("--zoom_rows", type=int, default=0, metavar="W",
+                help="W x W box outlined on every full panel plus a magnified row under each image row and each error row; "
+                     "0 = off (default); adds _zoomrows<W> to the file name; not together with --inset")
 ap.add_argument("--inset_center", type=int, nargs=2, default=[124, 76], metavar=("J", "K"),
                 help="box centre in the transverse slice, volume axes 1 and 2 (default = the figure-of-record 48^3 box centre)")
 ap.add_argument("--inset_corner", default="tr", choices=["bl", "br", "tl", "tr"],
                 help="panel corner that holds the magnified box (default top-right, as the transverse row of the figures of record)")
 args = ap.parse_args()
+assert not (args.inset and args.zoom_rows), "--inset and --zoom_rows are alternatives"
+ZW = args.inset or args.zoom_rows
 c = args.contrast
 CAPS = not args.no_caps
 
@@ -160,14 +169,14 @@ for name, R in TOPICS:
     assert mask3.shape == gt.shape and np.all(mask3 == mask3[:1]), f"{R.name}: expected a readout-separable 3-D mask"
     af = json.load(open(R / "logs/prep_04_export.json"))["contrasts"][c]["AF_vs_full_rect"]
     zoom = None
-    if args.inset:
+    if ZW:
         # the box is defined in volume coordinates and pushed through the same D(), so it lands where the panel shows it
-        _hw, (_J, _K) = args.inset // 2, args.inset_center
+        _hw, (_J, _K) = ZW // 2, args.inset_center
         bm = np.zeros(g2.shape, bool)
         bm[_J - _hw:_J + _hw, _K - _hw:_K + _hw] = True
-        assert bm.sum() == args.inset ** 2, "zoom box leaves the slice"
+        assert bm.sum() == ZW ** 2, "zoom box leaves the slice"
         rr, cc = np.nonzero(D(bm))
-        zoom = dict(x0=int(cc.min()), y0=int(rr.min()), w=int(args.inset))
+        zoom = dict(x0=int(cc.min()), y0=int(rr.min()), w=int(ZW))
         bz = bm & m2
         zoom["head_frac"] = float(bz.sum() / bm.sum())
         zoom["psnr"] = {key: 20 * np.log10(gmax) - 10 * np.log10(float(((vols[key][bz].astype(np.float64) - g64[bz]) ** 2).mean()))
@@ -184,7 +193,8 @@ top_in, cbpad, cbw, cbroom = 1.15, 0.06, 0.13, 0.60
 H, W = D(ROWS[0]["g2"]).shape
 ph = pw * H / W                                  # every panel is a transverse slice: one height
 fw = ncol * pw + (ncol - 1) * gap + cbpad + cbw + cbroom
-fh = top_in + 6 * ph + 5 * gap + 0.16
+pz = pw                                          # zoom rows: square panels as wide as the full ones
+fh = top_in + (6 * ph + 5 * gap if not args.zoom_rows else 6 * ph + 6 * pz + 11 * gap) + 0.16
 fig = plt.figure(figsize=(fw, fh))
 
 
@@ -235,9 +245,70 @@ def put_inset(parent, img, z, x0_in, y0_in, pw_in, h_in, corner="tr", **imkw):
     return a
 
 
+def outline(ax_, z):
+    ax_.add_patch(Rectangle((z["x0"] - 0.5, z["y0"] - 0.5), z["w"], z["w"], fill=False, ec=ZC, lw=ZLW))
+
+
+def zoom_panel(x0_in, y0_in, img, z, **imkw):
+    a = axes_at(x0_in, y0_in, pw, pz)
+    for sp in a.spines.values():
+        sp.set_visible(True); sp.set_edgecolor(ZC); sp.set_linewidth(ZLW + 0.6)
+    a.imshow(img[z["y0"]:z["y0"] + z["w"], z["x0"]:z["x0"] + z["w"]], origin="lower", aspect="auto",
+             interpolation="nearest", **imkw)
+    return a
+
+
 y = top_in
 x_cb = (ncol * pw + (ncol - 1) * gap + cbpad) / fw
-for k, p in enumerate(ROWS):
+CBT = 0.08
+
+
+def bar(handle, top, height, ticks):
+    cax = fig.add_axes([x_cb, 1 - (top + height - CBT) / fh, cbw / fw, (height - 2 * CBT) / fh])
+    cb = fig.colorbar(handle, cax=cax, ticks=ticks)
+    cb.ax.tick_params(labelsize=9.5)
+
+
+for k, p in enumerate(ROWS if args.zoom_rows else []):
+    z = p["zoom"]
+    y_img, y_zi = y, y + ph + gap
+    y_err, y_ze = y + ph + pz + 2 * gap, y + 2 * ph + pz + 3 * gap
+    gim = zim = im = zem = None
+    for j in range(ncol):
+        x = j * (pw + gap)
+        a = axes_at(x, y_img, pw, ph)
+        b = axes_at(x, y_err, pw, ph)
+        if j == 0:
+            gim = a.imshow(D(p["g2"]), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
+            outline(a, z)
+            label(a, p["name"], bold=True)
+            label(a, f"{p['af']:.2f}x", bold=True, line=1, h=ph)
+            zim = zoom_panel(x, y_zi, D(p["g2"]), z, cmap="gray", vmin=0, vmax=p["vmax"]).images[0]
+            b.imshow(D(p["kmask"]), cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto", interpolation="nearest")
+            if k == 0:
+                a.set_title(f"GT ({c})", fontsize=14, pad=4)
+            continue
+        key, lab, _ = p["arms"][j - 1]
+        v = p["vols"][key]
+        a.imshow(D(v), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
+        outline(a, z)
+        if not args.no_metrics:
+            for i, (txt, met) in enumerate(((f"{p['ps'][key]:.2f} dB", "psnr"), (f"SSIM {p['ss'][key]:.4f}", "ssim"),
+                                             (f"NMSE {p['nm'][key]:.5f}", "nmse"))):
+                label(a, txt, bold=key == p["best"][met], line=i, fs=10.5, h=ph, color=METRIC_COLOR)
+        zoom_panel(x, y_zi, D(v), z, cmap="gray", vmin=0, vmax=p["vmax"])
+        emap = D(np.abs(v - p["g2"]) / p["gmax"] * p["emask"])
+        im = b.imshow(emap, cmap="jet", vmin=0.0, vmax=args.err_vmax, origin="lower", aspect="auto")
+        outline(b, z)
+        zem = zoom_panel(x, y_ze, emap, z, cmap="jet", vmin=0.0, vmax=args.err_vmax).images[0]
+        if k == 0:
+            a.set_title(title_text(lab), fontsize=14, pad=4)
+    for handle, top, height, tk in ((gim, y_img, ph, MaxNLocator(5)), (zim, y_zi, pz, MaxNLocator(5)),
+                                    (im, y_err, ph, _err_ticks(args.err_vmax)), (zem, y_ze, pz, _err_ticks(args.err_vmax))):
+        bar(handle, top, height, tk)
+    y += 2 * ph + 2 * pz + 4 * gap
+
+for k, p in enumerate([] if args.zoom_rows else ROWS):
     gim = im = None
     for j in range(ncol):
         x = j * (pw + gap)
@@ -289,12 +360,17 @@ _cap.append(f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]   (inside
 _cap.append("left of each error row: that pattern's (ky, kz) sampling mask")
 _cap.append("grey bar right of each image row: the slice window (P99.9 of the GT slice, the same for the three rows); "
             "AF label = PE-plane points / sampled points carrying this contrast's data")
+if args.zoom_rows:
+    _cap[2] = "left of each error row: that pattern's (ky, kz) sampling mask"
+    _cap[3] += (f";   the {args.zoom_rows}x{args.zoom_rows} box outlined on every panel is magnified in the row under it "
+                f"(grey zoom under the image row, error zoom under the error row, the same scales)")
 if args.inset:
     _CN = {"tr": "top-right", "tl": "top-left", "br": "bottom-right", "bl": "bottom-left"}
     _cap[3] += (f";   in every panel the {args.inset}x{args.inset} box (the same in all rows) is outlined and magnified into the "
                 f"{_CN[args.inset_corner]} corner")
 fig.text(0.5, 1 - 0.40 / fh, ";   ".join(_cap[:3]) + "\n" + _cap[3], ha="center", va="top", fontsize=11)
-name = f"t1flair_v3_af16_masks_stack_{c}_tra{args.tra}{f'_inset{args.inset}' if args.inset else ''}_headerr{args.tag}.png"
+name = (f"t1flair_v3_af16_masks_stack_{c}_tra{args.tra}{f'_inset{args.inset}' if args.inset else ''}"
+        f"{f'_zoomrows{args.zoom_rows}' if args.zoom_rows else ''}_headerr{args.tag}.png")
 if INSETS:
     # no panel text may run under a zoom: compare every text's rendered box with every zoom's box
     _r = fig.canvas.get_renderer()
@@ -322,7 +398,7 @@ for p in ROWS:
         bo = max(oth, key=oth.get)
         ngs = {k: v for k, v in oth.items() if k != args.single_key}
         bn = max(ngs, key=ngs.get)
-        line += (f"  |  {args.inset}-box (head {p['zoom']['head_frac']:.2f}) PSNR: MC-GS {zp[args.mcgs_key]:.2f}, "
+        line += (f"  |  {ZW}-box (head {p['zoom']['head_frac']:.2f}) PSNR: MC-GS {zp[args.mcgs_key]:.2f}, "
                  f"best other {oth[bo]:.2f} ({bo}), lead {zp[args.mcgs_key] - oth[bo]:+.3f}; "
                  f"best non-GS {ngs[bn]:.2f} ({bn}), lead {zp[args.mcgs_key] - ngs[bn]:+.3f}")
     print(line)

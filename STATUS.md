@@ -17,6 +17,10 @@ FLAIR +0.042/+0.023/+0.093。六格里五格三指标（头内 PSNR/SSIM/HFEN）
   （最小领先 205 层 +0.154 dB、180 层 +0.082 dB，`scripts/find_zoom_box_all_masks.py`）。说明在 gauss 课题 README「叠放图加放大框」一节。
   用户要"差别更大的"：203–206 层逐像素重搜，最优仍是 205 层、框中心 (138, 76)，最弱行领先 +0.219 dB（原框 +0.154），其余五行有升有降；
   出图 `..._tra205_inset48_headerr_p3_zf_caps_box138_76`，原框版本保留。已提交，未推 origin。
+  用户又说差异和放大都不够明显：改成**放大行版式**（`--zoom_rows W`，每种掩膜下加放大图像行与放大误差行，放大格与原面板同宽），
+  T1 与 FLAIR 各选各的框（按对最强非 GS 列的可见差距排序，MC-GS 仍对所有列第一）：T1 40×40 于 (160, 131)，FLAIR 32×32 于 (148, 146)，都在 205 层。
+  出图 `..._tra205_zoomrows40_headerr_p3_zf_caps_box160_131` 与 `..._tra205_zoomrows32_headerr_p3_zf_caps_box148_146`。
+  限制：任何框里 MC-GS 对 GS-single 的误差只低 2% 到 9%，放大行里看得出的是对非 GS 方法的差距。说明在 gauss 课题 README「放大行版式」一节。
 - （09-16 晚追加）三图案横断位叠放图：`T1FLAIR_AF16_gauss_v3_jiangyizhou/scripts/fig_masks_transverse_stack.py`，三行（vd-Poisson / Gaussian / 伪径向）× 灰度加误差，每行各带 colorbar，层 180，T1 与 FLAIR 各一张（PNG+PDF），`http://localhost:8765/t1flair_v3_af16_diffmask/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra180_headerr_p3_zf_caps.png`；说明在该课题 README 末节。逐层搜索（`scripts/find_slice_all_masks.py`）：两对比度、三项指标、三图案 MC-GS 全第一的横断位只有 203 到 206，205 层余量最大（最小 +0.050 dB），已出 205 层版叠放图。
 
 - 两个课题各 11 臂 × 2 对比度，全部重建、打分、出图，零失败。图在

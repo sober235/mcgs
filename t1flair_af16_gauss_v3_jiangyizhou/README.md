@@ -237,3 +237,28 @@ served 于 `http://localhost:8765/t1flair_v3_af16_diffmask/`；无放大框的�
 FLAIR +0.55 / +0.75 / +1.65，六行里五行变大。按"GS-single 算对比臂、六行都第一"的规则，这四层找不到最弱行超过 +0.22 dB 的 48 框。
 图 `figures/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra205_inset48_headerr_p3_zf_caps_box138_76.{png,pdf}`（`scripts/figs_masks_stack_inset_box138.sh`），
 原框版本保留；四层读数 `logs/find_zoom_box_all_masks_tra{203,204,205,206}_step1.{json,txt}`。
+
+### 放大行版式（2026-09-17，用户："选的那张差异不够明显，zoom-in view 也不够明显"）
+
+角上的小放大图太小（约面板宽的 0.38），改成**放大行**：`fig_masks_transverse_stack.py --zoom_rows W --inset_center J K`（新开关，默认关闭；
+不加时出图仍与原图逐像素相同，`scripts/figs_masks_stack_zoomrows.sh` 第一步再次核对）。每种掩膜占四行：原图行（框橙黄描边）、放大图像行、
+误差行（框描边）、放大误差行；放大格与原面板同宽，最近邻放大（40 框约 13 倍、32 框约 16 倍），橙黄边框；每行各有 colorbar，放大误差仍是固定 jet [0, 0.1]；
+放大区不写数字。
+
+选框改为按"看得见的差距"：`scripts/find_zoom_box_visible.py --contrast T1|FLAIR --rank nongs`，T1 图与 FLAIR 图各选各的框（两张图本来分开），
+范围 203 到 206 层、框边长 32 / 40 / 48、逐像素；条件 = 框内头部占比 ≥ 0.95、避开左上文字、GT 边缘量不低于中位数（框里要有沟回结构）、
+三种掩膜下 MC-GS 在框内 PSNR 与 SSIM 都对所有列第一（GS-single 算对比臂）；排序 = 三行里对最强非 GS 列的最小领先。逐框复核用 `scripts/eval_zoom_box.py`。
+为了两张图同层，都取 205 层（最好的在 206 层，只比 205 多 0.08 dB）：
+
+| 图 | 框 | 框内对所有列的领先（vd-Poisson / Gaussian / 伪径向） | 对最强非 GS 列 |
+|---|---|---|---|
+| T1 | 40×40，中心 (160, 131) | +0.233 / +0.230 / +0.443（最近的都是 GS-single） | +0.616 / +0.611 / +0.614 |
+| FLAIR | 32×32，中心 (148, 146) | +0.142 / +0.155 / +0.285（同上） | +0.795 / +0.838 / +0.796 |
+
+限制：候选框里 MC-GS 的均方根误差最多只比 GS-single 低 2% 到 9%（比值 0.91 到 0.98），在固定 [0, 0.1] 色标下看不出来；放大行里看得出的差距
+是对非 GS 列的。没有一个框能让两个对比度同时拉开对非 GS 列的差距（`eval_zoom_box.py` 试过的共用框，最好的一个 T1 对非 GS 只有 +0.27）。
+这些框是在本数据上挑的，框内数字只打印不上图，对外仍引全层与全体积余量。
+
+输出 `figures/t1flair_v3_af16_masks_stack_T1_tra205_zoomrows40_headerr_p3_zf_caps_box160_131.{png,pdf}` 与
+`figures/t1flair_v3_af16_masks_stack_FLAIR_tra205_zoomrows32_headerr_p3_zf_caps_box148_146.{png,pdf}`，served 于 `http://localhost:8765/t1flair_v3_af16_diffmask/`；
+读数 `logs/find_zoom_box_visible_{T1,FLAIR}{,_nongs}.{json,txt}`。角上小放大图的各版本保留。
