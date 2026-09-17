@@ -11,6 +11,7 @@ from pathlib import Path
 import h5py
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io as sio
@@ -41,5 +42,6 @@ for a in axes:
 fig.suptitle("jiangyizhou retrospective AF 16: one mask, two contrasts", fontsize=12.5, fontweight="bold")
 fig.tight_layout(w_pad=2.5)
 for d in (Path("/home/congcongliu/figs/t1flair_v3_af16"), R / "figures"):
-    fig.savefig(d / "t1flair_v3_af16_mask_T1_vs_FLAIR.png", dpi=140)
+    fig.savefig(d / "t1flair_v3_af16_mask_T1_vs_FLAIR.png", dpi=600)
+    fig.savefig(d / "t1flair_v3_af16_mask_T1_vs_FLAIR.pdf")
 print("wrote", R / "figures/t1flair_v3_af16_mask_T1_vs_FLAIR.png")
