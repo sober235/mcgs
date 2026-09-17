@@ -22,6 +22,12 @@
   SPIRiT、DIP、INR、MC-INR 在 0σ0 与 1σ0 下六格都远落后，不影响判定；决定性方法到齐就定下一档。
 - 0.75σ0 已提前备好（不占卡）：配置 `configs/t1flair_v3_af16n075_jyz*.yaml`（96ee660），课题 `T1FLAIR_AF16_noise0p75x_v3_jiangyizhou/`，
   测量检查全过（`nested_vs_1x` 0.29 / 0.28），README 骨架已写。0.5σ0 若不是六格全胜则改搭 0.25σ0，0.75σ0 课题不启动。
+- 15:20 判定（待 0.5σ0 finalize 后复核）：除 ZS-SSDU 外强方法都已到齐，六格全是 MC-GS 第一、GS-single 第二
+  （T1 +0.171 / +0.0030 / +0.0048，FLAIR +0.036 / +0.0012 / +0.0013）；ZS-SSDU 即使不掉，零噪声值也低于这些（最近 FLAIR SSIM 0.9185 对 0.9204）。
+  按规则 15:21 启动 0.75σ0：`setsid nohup bash <0.75σ0 课题>/scripts/launch_noise.sh --cards 1,2,5,6 --max_gpu_jobs 4 ...`，
+  两个调度器共用 1、2、5、6（卡锁、每卡一个作业）；预计 23:00 左右都跑完。已通知 claude-01、claude-e7。
+- 两档都 finalize 后：读 `<0.75σ0 课题>/logs/compare_noise_levels_head_{psnr,ssim,hfen}.md`（含 0、0.5、0.75、1、2σ0），
+  确定有利范围上界（0.75σ0 六格全胜 → 上界在 0.75 到 1σ0 之间；否则在 0.5 到 0.75 之间），看图，写 README、记录、总结，镜像、提交。
 - 推送与 tag（`handoff/2026-09-17-af16-noise`）仍等用户一句“推”。
 
 一句话：冻结的 AF16 三期配方扛不住 2σ0 的测量噪声，头内 PSNR 掉 5.9 / 5.0 dB，名次掉到 T1 第 8、7、5，FLAIR 第 9、9、7
