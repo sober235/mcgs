@@ -12,6 +12,7 @@ An arm missing at some AF (MC-INR was not run at AF 24) is judged on the steps i
 import json, os, shutil
 import numpy as np
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+matplotlib.rcParams["pdf.fonttype"] = 42
 
 T = "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_16_20_24_trend_v3_jiangyizhou"
 OUTFIG = f"{T}/figures/jyz_t1flair_af12_16_20_24_metric_steps.png"
@@ -110,7 +111,8 @@ fig.text(0.01, 0.948, "whole-plane AF  T1 " + " → ".join(f"{WP['T1'][af]:.2f}"
          + " → ".join(f"{WP['FLAIR'][af]:.2f}" for af in AFS) + "   ·   left of 0 = the metric got worse at that step; labelled marks did not",
          fontsize=9.5, color=INK2)
 fig.tight_layout(rect=(0, 0, 1, 0.905))
-fig.savefig(OUTFIG, dpi=150); os.makedirs(SERVED, exist_ok=True); shutil.copy2(OUTFIG, SERVED)
+fig.savefig(OUTFIG, dpi=600); os.makedirs(SERVED, exist_ok=True); shutil.copy2(OUTFIG, SERVED)
+fig.savefig(OUTFIG.replace('.png', '.pdf')); shutil.copy2(OUTFIG.replace('.png', '.pdf'), SERVED)
 print("wrote", OUTFIG)
 
 # 4. compact summary: per method, per contrast
