@@ -1,6 +1,23 @@
-# STATUS — 2026-09-17 09:45（worktree `mcgs_noise_wt`，分支 `jyz-af16-noise`，从 `jyz-af16-diffmask` bbba53b 切出）
+# STATUS — 2026-09-17 14:00（worktree `mcgs_noise_wt`，分支 `jyz-af16-noise`，从 `jyz-af16-diffmask` bbba53b 切出）
 
-## 噪声鲁棒性研究（本分支）：2σ0、1σ0 两档全部完成
+## 噪声鲁棒性研究（本分支）：2σ0、1σ0 两档完成；“MC-GS 有利噪声范围”搜索进行中（0.5σ0 13:44 起跑）
+
+### 0. 正在做（用户 09-17 13:3x 拍板）
+
+- 用户要“挑选出对 MC-GS 有利的噪声范围”。拍板：先跑 0.5σ0；0.5σ0 六格全第一就补 0.75σ0 找上界，否则补 0.25σ0；
+  判据 = 头内 PSNR/SSIM/HFEN × T1/FLAIR 六格都超过所有对比方法（含 GS-single，经典方法照常重选 λ）；卡用 1、2、5、6。
+  设计附录：spec 末尾“Addendum (2026-09-17 13:40)”。报告时所有档位都保留（0、新档、1σ0、2σ0），范围连同上界和超出后的情况一起写。
+- 0.5σ0 课题 `Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/`（`scripts/scaffold_level.py noise0p5x 0.5 af16n05 noise1x` 从 1σ0 课题复制），
+  前缀 `af16n05_`，MC-INR 标签 `_noise0p5x`，配置 `configs/t1flair_v3_af16n05_jyz*.yaml`，提交 d42dd0e。测量检查全过，
+  `nested_vs_1x` 0.29 / 0.29；空气噪声 T1 预期 0.01574 / 实测 0.01574，FLAIR 0.01433 / 0.01433。
+- 队列 13:44 起：`setsid nohup bash <0.5σ0 课题>/scripts/launch_noise.sh --cards 1,2,5,6 --max_gpu_jobs 4 > /dev/null 2>&1 < /dev/null &`。
+  GS 联合作业日志已确认读 `noise0p5x/data/meas_<c>.h5`，FLAIR `zero_lines=233/2966`。finalize 会顺带写 `logs/compare_noise_levels_<metric>.md`（含所有已有档位）。
+  已通知 claude-01（CE）与 claude-e7（儿科）避开 1、2、5、6；跑完要通知它们。7 号卡上有同账号别的会话的 arc/cycle.py。
+- 看进度：`tail -20 <0.5σ0 课题>/logs/run_all_noise.log`；调度器没了而 `logs/RUN_ALL_NOISE_DONE` 不存在时原样重启（已完成的会跳过）。
+- 跑完后：读 `<0.5σ0 课题>/logs/compare_noise_levels_head_{psnr,ssim,hfen}.md` 的名次表判断六格；再按规则搭下一档：
+  `python <1σ0 课题>/scripts/scaffold_level.py noise0p75x 0.75 af16n075 noise1x`（或 `noise0p25x 0.25 af16n025 noise0p5x`），
+  先在 worktree 加对应 `configs/t1flair_v3_<前缀>_jyz*.yaml`（运行脚本已接受 af16n025_/af16n075_），写 README、生成测量、空跑、启动。
+- 推送与 tag（`handoff/2026-09-17-af16-noise`）仍等用户一句“推”；目前本地提交到 d42dd0e 之后。
 
 一句话：冻结的 AF16 三期配方扛不住 2σ0 的测量噪声，头内 PSNR 掉 5.9 / 5.0 dB，名次掉到 T1 第 8、7、5，FLAIR 第 9、9、7
 （PSNR、SSIM、HFEN，共 12 个方法）。1σ0 下 PSNR 和 HFEN 基本守住：T1 PSNR 第二，比收敛 TV 低 0.003 dB；FLAIR PSNR 第一，
