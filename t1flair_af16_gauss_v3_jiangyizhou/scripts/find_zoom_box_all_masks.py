@@ -11,7 +11,7 @@ of the top-right zoom inset and the top-left text of the rendered panel (display
 Reports (1) the reference box --ref J K (default 124 76 = the in-plane centre of the figure-of-record 48^3 box), and
 (2) the boxes where MC-GS is first on box PSNR AND box SSIM in all six rows (3 patterns x 2 contrasts), ranked by the
 smallest box-PSNR lead over the best other column. Selection is done on these data; quote whole-slice / whole-volume numbers.
-Writes logs/find_zoom_box_all_masks_tra<I>.json.
+Writes logs/find_zoom_box_all_masks_tra<I>.json (with _step<S> appended when --step is not 2).
 """
 import argparse, json, re
 from pathlib import Path
@@ -33,7 +33,7 @@ args = ap.parse_args()
 RES = Path("/data0/congcong/code/GS/Results_20260908")
 TOPICS = [("vd-Poisson", RES / "T1FLAIR_AF16_v3_jiangyizhou"), ("Gaussian", RES / "T1FLAIR_AF16_gauss_v3_jiangyizhou"),
           ("Pseudo-radial", RES / "T1FLAIR_AF16_radial_v3_jiangyizhou")]
-OUT = RES / "T1FLAIR_AF16_gauss_v3_jiangyizhou" / "logs" / f"find_zoom_box_all_masks_tra{args.tra}.json"
+OUT = RES / "T1FLAIR_AF16_gauss_v3_jiangyizhou" / "logs" / f"find_zoom_box_all_masks_tra{args.tra}{'' if args.step == 2 else f'_step{args.step}'}.json"
 
 
 def arms_for(R, c):

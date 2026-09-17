@@ -230,3 +230,10 @@ SSIM 第一。这是单层读数；全体积头内 PSNR 三种图案 MC-GS 仍�
 
 输出 `figures/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra{205,180}_inset48_headerr_p3_zf_caps.{png,pdf}`（200 dpi PNG；PDF 面板 300 dpi 栅格），
 served 于 `http://localhost:8765/t1flair_v3_af16_diffmask/`；无放大框的四张保留。重出：`bash scripts/figs_masks_stack_inset.sh`（CPU，逐张）。
+
+**差距更大的框（2026-09-17，用户"挑一张差别更大的"）。** 在整层全第一的四个层（203 到 206）上逐像素重搜（`scripts/run_zoom_box_search_203_206.sh`，
+`--step 1`），最弱一行的领先最大的仍是 205 层，框中心换到 (138, 76)：六行最小领先 +0.219 dB（原框 +0.154），其余五行有升有降，六行平均基本持平
+（+0.396 对 +0.405）。对最强非 GS 方法的框内领先，新框 T1 +0.32 / +0.93 / +0.98、FLAIR +0.64 / +0.79 / +1.36（三图案），原框 T1 +0.30 / +0.80 / +0.77、
+FLAIR +0.55 / +0.75 / +1.65，六行里五行变大。按"GS-single 算对比臂、六行都第一"的规则，这四层找不到最弱行超过 +0.22 dB 的 48 框。
+图 `figures/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra205_inset48_headerr_p3_zf_caps_box138_76.{png,pdf}`（`scripts/figs_masks_stack_inset_box138.sh`），
+原框版本保留；四层读数 `logs/find_zoom_box_all_masks_tra{203,204,205,206}_step1.{json,txt}`。

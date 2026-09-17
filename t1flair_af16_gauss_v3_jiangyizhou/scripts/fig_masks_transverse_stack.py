@@ -320,6 +320,9 @@ for p in ROWS:
         zp = p["zoom"]["psnr"]
         oth = {k: v for k, v in zp.items() if k != args.mcgs_key}
         bo = max(oth, key=oth.get)
+        ngs = {k: v for k, v in oth.items() if k != args.single_key}
+        bn = max(ngs, key=ngs.get)
         line += (f"  |  {args.inset}-box (head {p['zoom']['head_frac']:.2f}) PSNR: MC-GS {zp[args.mcgs_key]:.2f}, "
-                 f"best other {oth[bo]:.2f} ({bo}), lead {zp[args.mcgs_key] - oth[bo]:+.3f}")
+                 f"best other {oth[bo]:.2f} ({bo}), lead {zp[args.mcgs_key] - oth[bo]:+.3f}; "
+                 f"best non-GS {ngs[bn]:.2f} ({bn}), lead {zp[args.mcgs_key] - ngs[bn]:+.3f}")
     print(line)
