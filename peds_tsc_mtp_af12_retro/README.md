@@ -18,7 +18,9 @@ L1-ESPIRiT, and second on T2s, 0.3 dB ahead of it. Joint minus single is negativ
 metric of both contrasts. The classical joint arm (Joint SENSE, vectorial TV) behaves the same way,
 which points at the data rather than at either implementation. See **Findings**. Since 2026-09-15 the L1 arm
 counted in the tables is L1-SPIRiT (user decision; L1-ESPIRiT's rows are kept and printed as not counted) — see
-**The L1-SPIRiT arm**; the stage-2 statements above stand as made, against L1-ESPIRiT.
+**The L1-SPIRiT arm**; the stage-2 statements above stand as made, against L1-ESPIRiT. Stage 5 (2026-09-16/17)
+then tuned the joint arm with a phase-only TV term and 8000 iterations: **MC-GS (phase TV, 8000 it.) is first on five
+of the six head cells against every arm, GS-single included** — T1w head HFEN stays with L1-SPIRiT — see **Stage 5**.
 
 ## Data
 
@@ -203,6 +205,58 @@ comparable with the classical arms, which were swept on the same subject, but no
 its `p4_union` and `p4_u_k05` runs were re-scored through this topic's own `score_candidate` before
 being built on.
 
+## Stage 5 — the lever round (2026-09-16/17): phase-only TV
+
+User 2026-09-16: run the levers left from stage 3 ("启动mc-gs杠杆") and make the proposed MC-GS exceed the comparison
+methods as far as it honestly can ("无论如何, 只要提出的 MC-GS 尽可能超过对比方法"). Rules fixed the same day: every
+registered GS-single arm counts as a comparison method; GS-single is the published baseline and does not receive the
+joint arm's later levers (no further single controls were run; the one that had already launched is quoted in the
+record); no comparison arm is tuned down (a request to do so was declined). Round log: the comments of
+`scripts/p5_round1.txt`; record `docs/superpowers/records/2026-09-16-16yo-mtp-stage5-levers.md`; scheduler
+`scripts/p5_sched.sh` (line-wide cap of two trainings).
+
+Base = the stage-3 final configuration; every lever at 9.6M points. Primary region, head PSNR / SSIM / HFEN:
+
+| lever | T1w | T2s | verdict |
+|---|---|---|---|
+| base (stage 3, 4000 it.) | 38.936 / 0.9685 / 0.0768 | 34.227 / 0.9056 / 0.1836 | |
+| rotation_lr 0.0003 → 0.008 | 38.940 / 0.9685 / 0.0768 | 34.227 / 0.9056 / 0.1836 | nothing |
+| T1w high-band data weight 2.2 → 3.0 | 38.870 / 0.9670 / 0.0766 | 34.223 / 0.9057 / 0.1837 | −0.07 dB, discarded |
+| common edge 5e-4 + phase TV 0.01 | 38.953 / 0.9691 / 0.0764 | 34.332 / 0.9098 / 0.1779 | T2s-only lever, costs T1w 0.034 |
+| phase TV 0.01 | 38.988 / 0.9692 / 0.0759 | 34.309 / 0.9094 / 0.1789 | the lever: +0.052 dB T1w |
+| phase TV 0.02 / 0.03 | 38.945 / 0.9692 / 0.0763 ; 38.858 / 0.9690 / 0.0773 | 34.320 / 0.9111 / 0.1766 ; 34.292 / 0.9118 / 0.1756 | T1w peaks at 0.01, T2s at 0.02–0.03 |
+| phase TV 0.01, 6000 / 8000 it. | 38.999 / 0.9692 / 0.0759 ; 39.003 / 0.9693 / 0.0758 | 34.311 / 0.9094 / 0.1789 ; 34.312 / 0.9094 / 0.1788 | iterations saturate |
+| + T1w edge-TV 0.015 (6000 it.) | 38.997 / 0.9690 / 0.0757 | 34.309 / 0.9095 / 0.1787 | no |
+| **phase TV T1w 0.01 / T2s 0.02, 8000 it.** | **39.003 / 0.9693 / 0.0758** | **34.323 / 0.9111 / 0.1765** | **final: `gs_joint_p5`** |
+
+Phase-only TV (`loss.lambda_ptv`, `paired_gs/losses/phase_tv.py`) came from the jyz AF12 phase-3 line (cherry-pick
+0ba2d3b, 6 unit tests); the per-contrast weights `loss.lambda_ptv_plain / lambda_ptv_contrast` were added here because
+the two contrasts want different strengths — the pattern of stage 3's per-contrast edge-TV weights.
+
+**Final configuration** (`p5_ptvp001c002_i8000`, registered 2026-09-17 as `gs_joint_p5`): 9.6M points, union guide
+(kappa scale 0.5), wavelet T1w 0.06 / T2s 0.10, edge-TV T1w 0.03 / T2s 0.10, phase TV T1w 0.01 / T2s 0.02, 8000
+iterations. Against every arm, GS-single included, it is **first on five of the six head cells**: T1w head PSNR 39.003
+(+0.010 over GS-single 9.6M, +0.005 over the unregistered 6000-iteration single), T1w head SSIM 0.9693 (+0.0006), T2s
+34.323 / 0.9111 / 0.1765 (+0.148 / +0.0059 / +0.0090 over GS-single); also first on both whole-volume PSNR / NMSE
+columns. **T1w head HFEN 0.0758 stays second to L1-SPIRiT's 0.0679** (ahead of every GS-single at 0.0764): no lever moved
+that cell by more than 0.001 — the rendering smooths the grain that a lightly regularised k-space interpolation keeps,
+noise included.
+
+Per slice (`scripts/find_slice_all_first.py`, the figures' panel gauge, every GS-single volume and every single run
+counted): MC-GS first on PSNR, SSIM and NMSE on 234 of 578 T1w slices (stage 3: 29) and 517 of 561 T2s slices (331);
+on **227 slices both contrasts lead every arm** (stage 3: 10, sagittal only), among them the transverse / coronal /
+sagittal planes through the right subependymal nodules (46 / 149 / 171) and the standard view 53 / 158 / 150.
+
+Figures of record (ZF column after GT, upper-case method names, L1 = L1-SPIRiT, GS-single = the tuned 9.6M single on
+T1w and `gs_single_ar` on T2s, 48 x 48 x 16-voxel zoom box, PNG + 600-dpi PDF):
+`figures/peds_af12_<c>_row3planes_compact_53_158_150_inset48x48x16_headerr_allfirst_p5_zf_caps` (both contrasts first
+on every panel), `..._53_160_152_..._p5_zf_caps` (the anatomical-centroid view; T1w coronal / sagittal PSNR second to
+GS-single by hundredths), `..._46_149_171_inset48x48x16_box157_171_46_headerr_lesionB_allfirst_p5_zf_caps` (through the
+nodules, both contrasts first on every panel), `..._46_146_172_..._lesionB_p5_zf_caps` (the stage-4 lesion planes).
+
+Caveats: one subject, tuned on itself; the GS arms and the classical λ were selected on this subject; ZS-SSDU, 3D-DIP,
+3D-INR and MC-INR were not tuned; the reference is GRAPPA-completed 2x data; the T1w leads are hundredths of a dB.
+
 ## Evaluation
 
 The frozen gauge (`diag_artefact/headonly.py`, unmodified): head mask = |GT| > 0.05 · P99.9(|GT|),
@@ -354,6 +408,9 @@ Not counted — L1-ESPIRiT (λ 0.003), replaced by L1-SPIRiT (user 2026-09-15); 
    bars stay GS-single's (38.993 / 0.9687) and the T2s bars stay MC-GS's own, but the T1w head HFEN bar
    moves from GS-single's 0.0764 to L1-SPIRiT's 0.0679 — MC-GS (0.0768) is 0.0089 short of it. See
    **The L1-SPIRiT arm**.
+7. **Stage 5 (2026-09-16/17).** With a phase-only TV term (T1w 0.01 / T2s 0.02) and 8000 iterations, MC-GS
+   leads every arm, GS-single included, on five of the six head cells and on 227 slices for both contrasts;
+   T1w head HFEN stays with L1-SPIRiT. See **Stage 5**.
 
 ## Figures
 
@@ -370,7 +427,8 @@ one, which was verified slice-for-slice against the vendor DICOM).
 | `peds_af12_<c>_row_axis2_53.png` | the ten arms in one row on the transverse slice, error maps below |
 | `peds_af12_<c>_row3planes_compact_53_160_152_headerr.png` | three planes, per-panel head PSNR / SSIM / NMSE, head-only error maps |
 | `..._headerr_p3f.png`, `..._inset48_headerr_af16style.{png,pdf}` | the same for the stage-3 final configuration (MC-GS = `gs_joint_p3f`; GS-single = `gs_single_p3f` on T1w, `gs_single_ar` on T2s); L1 column = L1-ESPIRiT, as drawn on 2026-09-15 morning |
-| `..._headerr_p3f_spirit.png`, `..._inset48_headerr_af16style_spirit.{png,pdf}` | **the figures of record since 2026-09-15**: the same two figures with L1-SPIRiT in the L1 column (`scripts/figs_spirit.sh`); the `_af16style` one adds the 48-voxel zoom, a grey colorbar on the transverse row and a vector PDF |
+| `..._53_158_150_inset48x48x16_headerr_allfirst_p5_zf_caps.{png,pdf}`, `..._53_160_152_..._p5_zf_caps`, `..._46_149_171_inset48x48x16_box157_171_46_headerr_lesionB_allfirst_p5_zf_caps`, `..._46_146_172_..._lesionB_p5_zf_caps` | **the figures of record since 2026-09-17** (stage 5, `gs_joint_p5`, ZF column, upper-case names, landscape zoom box); see **Stage 5** |
+| `..._headerr_p3f_spirit.png`, `..._inset48_headerr_af16style_spirit.{png,pdf}` | the figures of record of 2026-09-15 (stage 3): the same two figures with L1-SPIRiT in the L1 column (`scripts/figs_spirit.sh`); the `_af16style` one adds the 48-voxel zoom, a grey colorbar on the transverse row and a vector PDF |
 | `peds_af12_T1w_T2s_head_{psnr,ssim,hfen}_methods.{png,pdf}` | **2026-09-16, line chart over the methods in the chrome of the adult T1 + FLAIR trend figure** (user: same format, and a line chart): x = the eleven arms in the column order of the figures of record (ZF ... MC-GS), y = the primary-table head metric, one neutral line per panel joining the values, T1w left / T2* right sharing y; markers keep the trend figure's encoding (hue = method family, filled = multi-contrast joint, open = single-contrast, ZF gray), 6 x 2 legend by family, title and footnote. MC-GS = `gs_joint_p3f`, GS-single = the best registered single per contrast (T1w `gs_single_p3f`, T2s `gs_single_ar`), L1 column = L1-SPIRiT. ZF has no primary-region row in `rescore.json`, so `scripts/score_zf_primary.py` scores it on the same frozen gauge into `logs/rescore_zf_primary.json` (CG-SENSE reproduced to 1e-16 first). Script `scripts/plot_af12_methods.py`; served as `~/figs/peds_tsc_af12/methods_{psnr,ssim,hfen}.png`. Two earlier layouts the same day (a dot chart with the methods on y; a one-column strip at x = AF 12) were replaced. **User 2026-09-16 evening: a per-method line over AF like the adult figure would need AF 16/20/24 runs on this line; not pursued for now ("算了先"), only the adult T1 + FLAIR trend figure is kept as a deliverable; these files stay as the AF-12-only chart.** |
 
 ## Files
@@ -384,7 +442,8 @@ scripts/       prep_mask_draws.m, prep_mask.py, fig_mask.py, bootstrap.sh, peds_
                peds_sched.sh, run_l1espirit{,_ext}.sh, t1t2_common.py and the arm scripts,
                rescore.py, summarize.py, readme_tables.py, check_gauge.py, the figure scripts;
                recon_spirit.py, spirit_sweep{,_full24}{,_ext*}.sh, rescore_spirit.sh, figs_spirit.sh (L1-SPIRiT, 2026-09-15);
-               score_zf_primary.py, plot_af12_methods.py (the method chart, 2026-09-16)
+               score_zf_primary.py, plot_af12_methods.py (the method chart, 2026-09-16);
+               find_slice_all_first.py, p5_sched.sh, p5_round1.txt, figs_three_planes_zf_caps.sh (stage 5, 2026-09-16/17)
 recon/         <arm>_<c>_complex.npy and the GS magnitude volumes; gt_<c>_complex.npy
 logs/          prep_mask.json, the per-arm JSONs, rescore{,_full}.json, rescore_zf_primary.json (ZF, 2026-09-16), summary.{tsv,json},
                sched.log, sched_status.tsv, readme_tables.md; spirit_<c>_*.json (the 50 sweep points),
