@@ -132,6 +132,16 @@ converged TV's by 2.4 and 2.4. The GS render takes in more noise as the level ri
 The same files are in `figures/` (served from `/home/congcongliu/figs/t1flair_v3_af16_noise1x/`); columns, slices,
 box, error maps and the three-line caption as in the 2 sigma0 topic.
 
+**The slice with the largest MC-GS lead** (`scripts/best_planes_noise.py`, `logs/best_planes_noise.{json,log}`; the panel
+gauge of the compact figure, every slice of every plane whose head area is at least half the largest, all ten comparison
+columns including GS-single). MC-GS is first on slice PSNR and SSIM (hence NMSE) on 3 T1 and 12 FLAIR transverse slices,
+1 FLAIR sagittal slice and no coronal slice; no slice is first in both contrasts, so no three-plane figure shows MC-GS
+ahead everywhere. The largest lead: **T1 transverse 107** (skull base), PSNR 32.99 dB, +0.246 dB over GS-single, SSIM
+0.8797, +0.0013 over CS-SENSE; FLAIR's best is transverse 124, +0.062 dB. At 2 sigma0 MC-GS is first on PSNR on no slice
+(`../T1FLAIR_AF16_noise2x_v3_jiangyizhou/logs/best_planes_noise.log`). Figure (single plane, `--planes 0`):
+`http://localhost:8765/t1flair_v3_af16_noise1x/t1flair_v3_af16n1_T1_compact_tra107_headerr_p3_mcinr_spirit_zf_caps.png`
+(also `.pdf`, 600 dpi).
+
 ## Known limitations
 
 As in the 2 sigma0 topic, and:

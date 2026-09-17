@@ -1,0 +1,56 @@
+  scored T1 ZF
+  scored T1 CG-SENSE
+  scored T1 CS-SENSE
+  scored T1 Joint SENSE
+  scored T1 L1-SPIRiT
+  scored T1 ZS-SSDU
+  scored T1 3D-DIP
+  scored T1 3D-INR
+  scored T1 MC-INR
+  scored T1 GS-single
+  scored T1 MC-GS
+  scored FLAIR ZF
+  scored FLAIR CG-SENSE
+  scored FLAIR CS-SENSE
+  scored FLAIR Joint SENSE
+  scored FLAIR L1-SPIRiT
+  scored FLAIR ZS-SSDU
+  scored FLAIR 3D-DIP
+  scored FLAIR 3D-INR
+  scored FLAIR MC-INR
+  scored FLAIR GS-single
+  scored FLAIR MC-GS
+
+T1 transverse: eligible 180, MC-GS first on PSNR 80, on PSNR and SSIM 3
+  slice 107: PSNR 32.992 lead +0.246 over GS-single     SSIM 0.8797 lead +0.0013 over CS-SENSE
+  slice 113: PSNR 32.830 lead +0.225 over GS-single     SSIM 0.8908 lead +0.0008 over CS-SENSE
+
+T1 coronal: eligible 135, MC-GS first on PSNR 41, on PSNR and SSIM 0
+
+T1 sagittal: eligible 128, MC-GS first on PSNR 10, on PSNR and SSIM 0
+
+FLAIR transverse: eligible 178, MC-GS first on PSNR 43, on PSNR and SSIM 12
+  slice 124: PSNR 32.592 lead +0.062 over GS-single     SSIM 0.8739 lead +0.0003 over CS-SENSE
+  slice 200: PSNR 32.138 lead +0.022 over GS-single     SSIM 0.9013 lead +0.0009 over GS-single
+  slice 209: PSNR 31.953 lead +0.021 over GS-single     SSIM 0.8997 lead +0.0019 over GS-single
+  slice 194: PSNR 32.506 lead +0.021 over GS-single     SSIM 0.9025 lead +0.0006 over GS-single
+  slice 188: PSNR 33.038 lead +0.018 over GS-single     SSIM 0.9018 lead +0.0009 over GS-single
+
+FLAIR coronal: eligible 140, MC-GS first on PSNR 17, on PSNR and SSIM 0
+
+FLAIR sagittal: eligible 128, MC-GS first on PSNR 49, on PSNR and SSIM 1
+  slice  26: PSNR 32.316 lead +0.007 over GS-single     SSIM 0.8784 lead +0.0005 over GS-single
+
+paired transverse: first on PSNR and SSIM in both contrasts on 0 slices
+
+paired coronal: first on PSNR and SSIM in both contrasts on 0 slices
+
+paired sagittal: first on PSNR and SSIM in both contrasts on 0 slices
+check T1 transverse 180: ZF 27.27/0.7344  CG-SENSE 32.47/0.8531  CS-SENSE 35.26/0.9332  Joint SENSE 35.25/0.9343  L1-SPIRiT 33.93/0.9090  ZS-SSDU 35.01/0.9291  3D-DIP 32.97/0.8964  3D-INR 30.43/0.7678  MC-INR 31.63/0.8150  GS-single 34.82/0.9193  MC-GS 35.07/0.9241
+check T1 coronal 124: ZF 28.15/0.7205  CG-SENSE 32.32/0.8160  CS-SENSE 34.54/0.8963  Joint SENSE 34.41/0.8945  L1-SPIRiT 33.35/0.8686  ZS-SSDU 34.50/0.8913  3D-DIP 31.82/0.8284  3D-INR 30.10/0.7175  MC-INR 29.87/0.6931  GS-single 34.47/0.8865  MC-GS 34.70/0.8920
+check T1 sagittal 76: ZF 27.41/0.7390  CG-SENSE 32.35/0.8243  CS-SENSE 35.08/0.9083  Joint SENSE 34.99/0.9083  L1-SPIRiT 33.85/0.8852  ZS-SSDU 34.99/0.9038  3D-DIP 32.19/0.8513  3D-INR 30.06/0.7157  MC-INR 29.97/0.7014  GS-single 34.95/0.8954  MC-GS 35.19/0.9003
+check FLAIR transverse 180: ZF 26.88/0.6750  CG-SENSE 31.76/0.8422  CS-SENSE 33.55/0.9090  Joint SENSE 33.60/0.9093  L1-SPIRiT 32.59/0.8809  ZS-SSDU 33.34/0.9009  3D-DIP 30.57/0.8319  3D-INR 29.58/0.7448  MC-INR 30.77/0.7922  GS-single 33.64/0.9034  MC-GS 33.67/0.9044
+check FLAIR coronal 124: ZF 29.86/0.7366  CG-SENSE 33.31/0.8351  CS-SENSE 34.97/0.8970  Joint SENSE 34.98/0.8972  L1-SPIRiT 34.06/0.8712  ZS-SSDU 34.11/0.8832  3D-DIP 32.25/0.8303  3D-INR 30.74/0.7414  MC-INR 31.37/0.7515  GS-single 34.72/0.8885  MC-GS 34.73/0.8888
+check FLAIR sagittal 76: ZF 29.70/0.7652  CG-SENSE 32.79/0.8253  CS-SENSE 34.43/0.8941  Joint SENSE 34.49/0.8934  L1-SPIRiT 33.80/0.8737  ZS-SSDU 34.08/0.8853  3D-DIP 31.71/0.8289  3D-INR 30.38/0.7304  MC-INR 31.18/0.7446  GS-single 34.41/0.8823  MC-GS 34.41/0.8827
+wrote /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou/logs/best_planes_noise.json
+RC=0

@@ -1,0 +1,135 @@
+{
+ "min_area": 0.5,
+ "gauge": "head-masked slice PSNR at volume max|GT|; 7x7 uniform SSIM over head pixels",
+ "per_contrast": {
+  "T1": {
+   "transverse": {
+    "n_eligible": 180,
+    "n_first_psnr": 80,
+    "n_first_both": 3,
+    "candidates": [
+     {
+      "slice": 107,
+      "psnr": 32.9923,
+      "psnr_lead": 0.2463,
+      "psnr_runner": "GS-single",
+      "ssim": 0.87971,
+      "ssim_lead": 0.00134,
+      "ssim_runner": "CS-SENSE"
+     },
+     {
+      "slice": 113,
+      "psnr": 32.8297,
+      "psnr_lead": 0.2252,
+      "psnr_runner": "GS-single",
+      "ssim": 0.89076,
+      "ssim_lead": 0.00077,
+      "ssim_runner": "CS-SENSE"
+     }
+    ]
+   },
+   "coronal": {
+    "n_eligible": 135,
+    "n_first_psnr": 41,
+    "n_first_both": 0,
+    "candidates": []
+   },
+   "sagittal": {
+    "n_eligible": 128,
+    "n_first_psnr": 10,
+    "n_first_both": 0,
+    "candidates": []
+   }
+  },
+  "FLAIR": {
+   "transverse": {
+    "n_eligible": 178,
+    "n_first_psnr": 43,
+    "n_first_both": 12,
+    "candidates": [
+     {
+      "slice": 124,
+      "psnr": 32.5923,
+      "psnr_lead": 0.0616,
+      "psnr_runner": "GS-single",
+      "ssim": 0.87387,
+      "ssim_lead": 0.00033,
+      "ssim_runner": "CS-SENSE"
+     },
+     {
+      "slice": 200,
+      "psnr": 32.1383,
+      "psnr_lead": 0.0218,
+      "psnr_runner": "GS-single",
+      "ssim": 0.90132,
+      "ssim_lead": 0.00088,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 209,
+      "psnr": 31.9531,
+      "psnr_lead": 0.0206,
+      "psnr_runner": "GS-single",
+      "ssim": 0.89973,
+      "ssim_lead": 0.00185,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 194,
+      "psnr": 32.5061,
+      "psnr_lead": 0.0205,
+      "psnr_runner": "GS-single",
+      "ssim": 0.90247,
+      "ssim_lead": 0.00062,
+      "ssim_runner": "GS-single"
+     },
+     {
+      "slice": 188,
+      "psnr": 33.0384,
+      "psnr_lead": 0.0181,
+      "psnr_runner": "GS-single",
+      "ssim": 0.90179,
+      "ssim_lead": 0.00088,
+      "ssim_runner": "GS-single"
+     }
+    ]
+   },
+   "coronal": {
+    "n_eligible": 140,
+    "n_first_psnr": 17,
+    "n_first_both": 0,
+    "candidates": []
+   },
+   "sagittal": {
+    "n_eligible": 128,
+    "n_first_psnr": 49,
+    "n_first_both": 1,
+    "candidates": [
+     {
+      "slice": 26,
+      "psnr": 32.3156,
+      "psnr_lead": 0.0065,
+      "psnr_runner": "GS-single",
+      "ssim": 0.87844,
+      "ssim_lead": 0.00055,
+      "ssim_runner": "GS-single"
+     }
+    ]
+   }
+  }
+ },
+ "paired": {
+  "transverse": {
+   "n_first_both": 0,
+   "candidates": []
+  },
+  "coronal": {
+   "n_first_both": 0,
+   "candidates": []
+  },
+  "sagittal": {
+   "n_first_both": 0,
+   "candidates": []
+  }
+ }
+}

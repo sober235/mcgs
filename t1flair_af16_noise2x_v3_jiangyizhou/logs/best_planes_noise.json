@@ -1,0 +1,60 @@
+{
+ "min_area": 0.5,
+ "gauge": "head-masked slice PSNR at volume max|GT|; 7x7 uniform SSIM over head pixels",
+ "per_contrast": {
+  "T1": {
+   "transverse": {
+    "n_eligible": 180,
+    "n_first_psnr": 0,
+    "n_first_both": 0,
+    "candidates": []
+   },
+   "coronal": {
+    "n_eligible": 135,
+    "n_first_psnr": 0,
+    "n_first_both": 0,
+    "candidates": []
+   },
+   "sagittal": {
+    "n_eligible": 128,
+    "n_first_psnr": 0,
+    "n_first_both": 0,
+    "candidates": []
+   }
+  },
+  "FLAIR": {
+   "transverse": {
+    "n_eligible": 178,
+    "n_first_psnr": 0,
+    "n_first_both": 0,
+    "candidates": []
+   },
+   "coronal": {
+    "n_eligible": 140,
+    "n_first_psnr": 0,
+    "n_first_both": 0,
+    "candidates": []
+   },
+   "sagittal": {
+    "n_eligible": 128,
+    "n_first_psnr": 0,
+    "n_first_both": 0,
+    "candidates": []
+   }
+  }
+ },
+ "paired": {
+  "transverse": {
+   "n_first_both": 0,
+   "candidates": []
+  },
+  "coronal": {
+   "n_first_both": 0,
+   "candidates": []
+  },
+  "sagittal": {
+   "n_first_both": 0,
+   "candidates": []
+  }
+ }
+}

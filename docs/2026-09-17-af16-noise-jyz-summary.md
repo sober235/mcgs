@@ -119,6 +119,15 @@ MC-GS 在十二个方法中的名次：
 
 图片文件在 `/home/congcongliu/figs/t1flair_v3_af16_noise1x/` 和 `/home/congcongliu/figs/t1flair_v3_af16_noise2x/`，各课题的 `figures/` 里也有一份。误差图一律是 `|recon − GT| / max(GT)`，jet，范围 [0, 0.1]，只显示头内。
 
+MC-GS 领先最多的一层（09-17 补充，`scripts/best_planes_noise.py`，口径与三面图面板相同，只看头部面积不小于最大值一半的层，
+对比方法共 10 个，含 GS-single）：
+- 2σ0 下，任何方向、任何一层 MC-GS 的 PSNR 都不是第一。
+- 1σ0 下，PSNR 和 SSIM 都第一的层有 T1 横断 3 层、FLAIR 横断 12 层、FLAIR 矢状 1 层，冠状位没有；两个对比度同一层都第一的一层也没有。
+  所以三个方向都领先的三面图做不出来。
+- 领先最多的是 1σ0 的 T1 横断 107 层（颅底）：PSNR 32.99 dB，比 GS-single 高 0.246 dB；SSIM 0.8797，比 CS-SENSE 高 0.0013。
+  FLAIR 最好的是横断 124 层，高 0.062 dB。
+- 图：`http://localhost:8765/t1flair_v3_af16_noise1x/t1flair_v3_af16n1_T1_compact_tra107_headerr_p3_mcinr_spirit_zf_caps.png`（另有 600 dpi PDF）。
+
 ## 5. 局限
 
 - 只有一个受试者，只抽了一次噪声，没有量抽样间的波动。

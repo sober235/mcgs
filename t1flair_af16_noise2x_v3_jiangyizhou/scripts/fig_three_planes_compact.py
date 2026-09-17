@@ -70,6 +70,9 @@ ap.add_argument("--inset", type=int, default=0, metavar="W",
                      "is outlined on the slice and its own PSNR is printed in the inset")
 ap.add_argument("--with_zf", action="store_true",
                 help="add a zero-filled column right after GT (user 2026-09-16); appends _zf to the file name")
+ap.add_argument("--planes", type=int, nargs="+", default=[0, 1, 2], choices=[0, 1, 2],
+                help="which planes to draw (default all three, 0 transverse / 1 coronal / 2 sagittal); a subset is named "
+                     "compact_<tra|cor|sag><slice>... instead of row3planes_compact_<t>_<c>_<s> (noise study 2026-09-17)")
 ap.add_argument("--caps", action="store_true",
                 help="typography (user 2026-09-16): plane names capitalised, method names in the first row upper case; appends _caps")
 args = ap.parse_args()
@@ -195,6 +198,8 @@ if args.inset:
     BOX[_i - _hw:_i + _hw, _j - _hw:_j + _hw, _k - _hw:_k + _hw] = True
 planes = []
 for axis, idx in enumerate(args.slices):
+    if axis not in args.planes:
+        continue
     sl = [slice(None)] * 3; sl[axis] = idx; sl = tuple(sl)
     cr = CROP[axis] if CROP else (slice(None), slice(None))
     g2, m2 = gt[sl][cr], head[sl][cr]
@@ -234,10 +239,10 @@ if args.inset:
         p["zoom"]["psnr"] = zp
         p["zoom"]["best"] = max(zp, key=zp.get)
         p["zoom"]["head_frac"] = float(mz.mean())
-ratio = float(np.mean([p["med"] / p["vmax"] for p in planes if p["axis"] != 2]))
+ratio = float(np.mean([p["med"] / p["vmax"] for p in planes if p["axis"] != 2])) if any(p["axis"] != 2 for p in planes) else None
 for p in planes:
     p["vmax_p999"] = p["vmax"]
-    if p["axis"] == 2:
+    if p["axis"] == 2 and ratio is not None:
         p["vmax"] = p["med"] / ratio
 
 
@@ -346,7 +351,7 @@ if not args.gray_cbar:                       # with --gray_cbar every row alread
     cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=10)
 _cube_txt = f"  --  {args.cube[3]}^3 box centred ({args.cube[0]}, {args.cube[1]}, {args.cube[2]})" if args.cube else ""
 _P = [ANAT[i].capitalize() if args.caps else ANAT[i] for i in (0, 1, 2)]
-fig.suptitle(f"{c}  jiangyizhou  {AF_LABEL}  --  {_P[0]} {args.slices[0]} / {_P[1]} {args.slices[1]} / {_P[2]} {args.slices[2]}" + _cube_txt,
+fig.suptitle(f"{c}  jiangyizhou  {AF_LABEL}  --  " + " / ".join(f"{_P[a]} {args.slices[a]}" for a in args.planes) + _cube_txt,
              fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
 _cap = []
 if not args.no_metrics:
@@ -370,7 +375,8 @@ _cap2 = (f"in every panel, the {args.inset}x{args.inset} box outlined on the sli
 _lines = [";   ".join(_cap[:2]), ";   ".join(_cap[2:])] + ([_cap2] if _cap2 else [])
 fig.text(0.5, 1 - 0.30 / fh, "\n".join(_lines), ha="center", va="top", fontsize=10)
 name = (f"t1flair_v3_af16n_{c}_cube{args.cube[3]}_{args.cube[0]}_{args.cube[1]}_{args.cube[2]}" if args.cube else
-        f"t1flair_v3_af16n_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}" + (f"_inset{args.inset}" if args.inset else "")) + f"{'_headerr' if args.mask_error else ''}{args.tag}.png"
+        (f"t1flair_v3_af16n_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}" if sorted(args.planes) == [0, 1, 2] else
+         f"t1flair_v3_af16n_{c}_compact_" + "_".join(f"{ANAT[a][:3]}{args.slices[a]}" for a in sorted(args.planes))) + (f"_inset{args.inset}" if args.inset else "")) + f"{'_headerr' if args.mask_error else ''}{args.tag}.png"
 for d in (F, R / "figures"):
     fig.savefig(d / name, dpi=args.png_dpi)
     if args.pdf:

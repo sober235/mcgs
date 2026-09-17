@@ -99,6 +99,10 @@
   （表头行省略；完整输出与 SSIM、HFEN 版本在 `logs/compare_noise_levels_<metric>.md`。）
 - 图（每档五张，全部看过）：`http://localhost:8765/t1flair_v3_af16_noise2x/`、`http://localhost:8765/t1flair_v3_af16_noise1x/`，
   文件在 `/home/congcongliu/figs/t1flair_v3_af16_noise{2x,1x}/`。两张正式图另有 600 dpi PDF。
+- MC-GS 领先最多的层（09-17 用户要，`scripts/best_planes_noise.py`，两档都跑了，口径与面板数字逐位一致）：2σ0 没有任何一层 PSNR 第一；
+  1σ0 PSNR 和 SSIM 都第一的只有 T1 横断 3 层、FLAIR 横断 12 层、FLAIR 矢状 1 层，冠状 0 层，两对比度同层 0 层。
+  最大的是 T1 横断 107 层（颅底）：32.99 dB，比 GS-single 高 0.246 dB，SSIM 比 CS-SENSE 高 0.0013。单平面图（新加 `--planes 0`，
+  默认三平面输出与改动前逐字节相同）：`http://localhost:8765/t1flair_v3_af16_noise1x/t1flair_v3_af16n1_T1_compact_tra107_headerr_p3_mcinr_spirit_zf_caps.png`（另有 PDF）。
 
 ### 2. 待用户拍板
 

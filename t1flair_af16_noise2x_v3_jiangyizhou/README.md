@@ -124,6 +124,9 @@ GS-single, MC-GS; slices and box as in the AF16 topic; error maps `|recon - GT| 
 head. The caption is set on three lines here: the one-line caption of the AF16 topic's `_zf_caps` figures runs past
 both edges of the image.
 
+Slice search (`scripts/best_planes_noise.py`, `logs/best_planes_noise.log`): at this level MC-GS is first on slice PSNR
+on no eligible slice of any plane in either contrast.
+
 ## Known limitations
 
 - One subject and one realization (the 1 sigma0 topic uses the same draws, halved); the spread over realizations is
