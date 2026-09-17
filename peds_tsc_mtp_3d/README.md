@@ -144,3 +144,44 @@ Rerun everything: `bash scripts/run_stage1.sh --overwrite` (about 2 minutes on a
 GPU 2 only when no other process is on it (GPU 1 carries the user's own training, 0 and 3-7 the other
 reconstruction lines); no BART on the CPU in this stage; nothing written outside this folder, the worktree,
 `~/figs/peds_tsc_age16/` and the session scratchpad.
+
+## Acquisition parameters of the T1w + T2* pair (compiled 2026-09-17)
+
+Read from this exam's own headers: the protocol XML embedded in the raw file
+(`rawdata/UID_..._mtp_cartesian_.7x.7x1.raw`, 57.7 kB `UProtocol` block) and the vendor DICOM of
+`dicom/mtp_cartesian_.7x.7x1_M_802` (800 images = 10 contrasts x 80 slices, which is where the TE and flip-angle list
+below is enumerated from). Unlike the adult T1 + FLAIR pair, nothing here is inferred from another session.
+**The headers carry the patient's name; it is not reproduced anywhere in this folder.**
+
+Both contrasts come from **one** multi-echo acquisition, so every parameter except flip angle and TE is shared.
+
+| item | T1w | T2* |
+|---|---|---|
+| scanner | UIH uMR 790, 3.0 T, 128.185 MHz, software R002 | same |
+| receive / transmit coil | 32-channel head coil (HC32; `ReconChannelNum` 32) / body coil (VTC) | same |
+| protocol / sequence | `mtp_cartesian_.7x.7x1`: 3-D multi-echo spoiled gradient echo, vendor "MTP" mapping sequence (`gre_mtp`, `gre_mtp_ufi__3d.para`) | same acquisition |
+| TR | 40.9 ms | same |
+| echoes | 5 per TR: TE 3.25 / 9.29 / 15.33 / 21.37 / 27.41 ms (dTE 6.04 ms) | same |
+| **this contrast** | **flip angle 16 deg, TE 3.25 ms** (echo 0 of the 16 deg pass) | **flip angle 4 deg, TE 27.41 ms** (echo 4 of the 4 deg pass) |
+| flip angles acquired | 4 deg and 16 deg, one full pass each (4 deg first), 5 echoes per pass -> 10 contrasts | same |
+| bandwidth | 230 Hz/px (readout digitised with 2x oversampling, 640 samples) | same |
+| orientation | oblique transverse slab (TRA > COR -7.7 deg > SAG 2.9 deg); readout A-P, phase encode R-L, partition (slab) H-F | same |
+| FOV | 224 (RO) x 210 (PE) mm, slab 108 mm | same |
+| acquisition matrix | 320 (RO) x 300 (PE) x 80 (SPE); 1.5 % PE and 30.75 % slab oversampling -> the 320 x 304 x 104 k-space grid, DC at (160, 152, 52) | same |
+| voxel | 0.7 x 0.7 x 1.35 mm | same |
+| k-space coverage | prospectively undersampled: PPA 2 along PE, 0.75 partial Fourier along PE (PE 0..226 acquired, 227..303 never), elliptical corner cut, ACS = PE 140..163 fully sampled (24 lines). 11257 of the 31616 (PE, SPE) positions carry data | same (one sampling pattern for the whole acquisition) |
+| acceleration | 2.10x against the 227 x 104 partial-Fourier band, 2.81x against the full 304 x 104 grid; vendor labels it "PPA 2, CombinedAccel 1.8" | same |
+| fat suppression | off (water saturation and water excitation both off) | same |
+| averages | 1 | same |
+| scan time | 15:18 (918.5 s) for the whole acquisition, i.e. both flip angles and all 5 echoes | same |
+| SAR | 2.06 W/kg, first-level controlled mode | same |
+| vendor DICOM | magnitude, 300 x 320 per slice, 80 slices, no interpolation; the vendor also exports SWI / QSM / T1 map / PD map / R2* / T2* / T1W / PDW / B1 / phase from the same data | same |
+
+**No fully sampled reference exists.** The "ground truth" of the retrospective study is the GRAPPA-completed prospective
+2x k-space of this stage (ACS hold-out error 0.096 / 0.188 against a noise floor of 0.067 / 0.144), with the partial-Fourier
+block and the elliptical corners (11702 positions) left at zero. Absolute metric values are therefore not comparable with the
+adult T1 + FLAIR topics, whose reference is a genuinely full k-space.
+
+The pair used here (FA 16 / TE 3.25 as T1w, FA 4 / TE 27.41 as T2*) is the pair of the ten that differs most in tissue
+contrast (brain-mask Pearson r = 0.57). Same session, not used here: `t2_fse_tra`, `t2_fse_flair_tra_fs`, `t1_fse_flair_tra`,
+`t1_fse_flair_sag` (all 2-D FSE with ACS), `tof3d_tra_uCS`, and a wave-encoded 1 mm isotropic MTP (`mtp_wave_iso1`).
