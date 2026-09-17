@@ -92,7 +92,7 @@ sim/meta.json               种子、σ、kres 复现值、掩膜统计、脚本
 
 ## 7. 图
 
-- 正式三面图：`fig_three_planes_compact.py` 版式（误差只画头内、jet 固定 0–0.1、格内橙黄 PSNR/SSIM/NMSE、放大框无数字、横断眼睛朝上、色条只在横断行、PDF 600 dpi），11 列 ZF…MC-GS，层 z201 / y131 / x48（病灶层）。文件 `figures/ce_retro_af16_three_planes_201_131_48.{png,pdf}`。
+- 正式三面图：`fig_three_planes_compact.py` 版式（误差只画头内、jet 固定 0–0.1、格内橙黄 PSNR/SSIM/NMSE、放大框无数字、横断眼睛朝上、色条只在横断行、PDF 600 dpi），11 列 ZF…MC-GS，层 z201 / y131 / x48（病灶层）。**每个扫描各一张**（脚本按 `--scan pre|post` 出图）：`figures/ce_retro_af16_three_planes_pre_201_131_48.{png,pdf}` 与 `..._post_...`。
 - 强化图：CE 课题 `ce_figure_paper.py --diff` 的 9 行版式（每面加 增强−平扫，列底四个参考区数值）。文件 `figures/ce_retro_af16_enhancement.{png,pdf}`。
 - 掩膜图：`figures/mask_af16.png`（第 3 节审批门）。
 
