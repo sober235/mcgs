@@ -1,0 +1,18 @@
+{
+ "mask2d_shape": [
+  232,
+  176
+ ],
+ "mask2d_samples": 2552,
+ "mask2d_AF_rect": 16.0,
+ "contrasts": {
+  "pre": {
+   "AF_vs_own_support": 16.0,
+   "AF_vs_full_rect": 16.0
+  },
+  "post": {
+   "AF_vs_own_support": 16.0,
+   "AF_vs_full_rect": 16.0
+  }
+ }
+}

@@ -1,0 +1,41 @@
+{
+ "grid": [
+  256,
+  232,
+  176
+ ],
+ "pe_points": 2552,
+ "pe_total": 40832,
+ "af": 16.0,
+ "scans": {
+  "pre": {
+   "alpha_re": 0.9999999714782271,
+   "alpha_im": -3.271005280901867e-11,
+   "kres_on_prospective_mask": 0.1848679770153558,
+   "kres_ref": 0.18487,
+   "sigma": 1.3668591627482325,
+   "sigma_measured_first_two_coils": 1.3668558597564697,
+   "noise_seed": 100,
+   "wm_snr_sense_adjoint": 34.44544219970703,
+   "scale_p999": 183.57667347717228,
+   "csm": "/data0/congcong/code/NV-Generate-CTMR/recon_real/work_ce_t1_16887049370010/csm.npy"
+  },
+  "post": {
+   "alpha_re": 1.0000000588261955,
+   "alpha_im": 3.2851007423591947e-10,
+   "kres_on_prospective_mask": 0.14968995552374928,
+   "kres_ref": 0.14969,
+   "sigma": 1.4452258068243002,
+   "sigma_measured_first_two_coils": 1.4454681873321533,
+   "noise_seed": 200,
+   "wm_snr_sense_adjoint": 33.098114013671875,
+   "scale_p999": 243.4532769927959,
+   "csm": "/data0/congcong/code/NV-Generate-CTMR/recon_real/work_ce_t1_16887049370060/csm.npy"
+  }
+ },
+ "gt": {
+  "pre": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/tv_sense/cssense_o200_lam0.002_full_pre_complex.npy",
+  "post": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/tv_sense/cssense_o200_lam0.002_full_post_complex.npy"
+ },
+ "fft": "centred orthonormal (ce_common.fft3c)"
+}
