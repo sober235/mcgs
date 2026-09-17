@@ -18,6 +18,7 @@ volume) averaged over the head pixels, as slice_quality.py; NMSE = compute_nmse 
 sum (recon - GT)^2 / sum GT^2.
 Title: nominal AF 16 and the actual acceleration against the contrast's own acquired support (logs/prep_04_export.json).
 Writes t1flair_v3_af16_<contrast>_row3planes_compact_<tra>_<cor>_<sag>.png to the served figs folder and figures/.
+Task 16 copies/renames the two figures/*.png this writes to figures/ce_retro_af16_three_planes_<scan>_201_131_48.{png,pdf} after generation; this script's own naming is untouched.
 """
 import argparse, json, re
 from pathlib import Path

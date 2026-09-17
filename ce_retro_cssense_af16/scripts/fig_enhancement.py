@@ -49,8 +49,7 @@ plt.rcParams["font.sans-serif"] = ["Noto Sans CJK JP", "DejaVu Sans"]
 plt.rcParams["axes.unicode_minus"] = False
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from arms import arm_files, LABEL                                            # noqa: E402
-R = Path(os.environ.get("RETRO_TOPIC", "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16"))
+from arms import arm_files                                                   # noqa: E402
 ROI_NPZ = "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/lesion_candidates/enhance_rois_cssense.npz"
 mag = {}
 with np.load(R / "sim/gt.npz") as g:
@@ -159,7 +158,14 @@ if ROI:                                            # enhancement of the referenc
         e = enh_units(label)                                        # each scan in its own white-matter units
         last[label].set_xlabel(f"血管 {e[ROI['血管/静脉窦']].mean():+.2f}   脉络丛 {e[ROI['脉络丛']].mean():+.2f}\n"
                                f"病灶 {e[ROI['病灶核心']].mean():+.3f}   白质 {e[wmm].mean():+.3f}", fontsize=6.5, labelpad=3)
-    wmu = float(np.median(mag[("pre", COLS[1][0])][wmm]))           # one white-matter unit on the common scale
+    _col_labels = [l for l, _ in COLS]
+    # anchor by label, not position: COLS[0] is "GT" here (ce_figure_paper.py had no truth column, so its
+    # COLS[1] was "CG-SENSE"; a positional lookup here would silently resolve to "ZF", the worst possible
+    # white-matter reference at AF16). Prefer CS-SENSE; fall back to the first non-ZF, non-GT arm.
+    _wm_ref = "CS-SENSE" if "CS-SENSE" in _col_labels else next((l for l in _col_labels if l not in ("ZF", "GT")), None)
+    if _wm_ref is None:
+        raise SystemExit("fig_enhancement.py: no arm besides ZF/GT available to anchor the white-matter unit on")
+    wmu = float(np.median(mag[("pre", _wm_ref)][wmm]))               # one white-matter unit on the common scale
     fig.text(0.5, 0.010, "每列下方 = 该方法的「增强 − 平扫」在参考区的均值，两次扫描各按自身白质中位数归一（白质 = 1）。"
              "血管/静脉窦与脉络丛是血池和无血脑屏障的结构，本该强化；病灶核心与正常白质接近 0 表示没有漏出。"
              f"橙线 = 病灶核心。差值行与图像行共用同一强度尺度，色标 0–{args.dvmax:g} 相当于 {args.dvmax / wmu:.1f} 个白质单位，"
