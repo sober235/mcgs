@@ -26,6 +26,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--exp", required=True)
 ap.add_argument("--gpu", type=int, default=1)
 ap.add_argument("--iters", type=int, default=1500)
+ap.add_argument("--seed", type=int, default=42)              # 2026-09-17: a second seed of the final configuration is a variance check, not a new arm
 # --- tunable knobs (defaults = vdpois r8 baseline) ---
 ap.add_argument("--lambda_geo", type=float, default=0.03)        # loss.tv_weight (-> lambda_geo); SECONDARY
 ap.add_argument("--warmup", type=int, default=500)               # training.shared_warmup_iters; PRIMARY (guard <0.5*iters)
@@ -156,6 +157,7 @@ def build_cfg():
     cfg["loss"]["dtv_eta_scale"] = args.dtv_eta_scale
     cfg["loss"]["lambda_edge"] = args.lambda_edge
     cfg["loss"]["lambda_ptv"] = args.lambda_ptv
+    cfg.setdefault("training", {})["seed"] = args.seed        # the trainer re-seeds from training.seed
     cfg["loss"]["edge_p"] = args.edge_p
     cfg["loss"]["edge_kappa"] = args.edge_kappa
     cfg["loss"]["lambda_vtv"] = args.lambda_vtv
@@ -262,7 +264,7 @@ def score_contrast(tr, which, dev):
 def main():
     t0 = time.time()
     dev = torch.device("cuda", 0)
-    set_seed(42, deterministic=False)
+    set_seed(args.seed, deterministic=False)
     assert args.warmup < args.iters * 0.5, f"warmup {args.warmup} must be < 0.5*iters {args.iters}"
     cfg = build_cfg()
     name_p = cfg["data"]["plain"].get("name", "plain")       # display name for the plain channel

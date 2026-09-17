@@ -30,7 +30,7 @@ Read in this order: this file → `STATUS.md` (current state, what to re-run fir
   `af12-to-af10` → `t1t2-af12-retro` → `autoresearch-t1t2` (current). `main` / `origin/main`
   are an unrelated earlier snapshot plus the CE work; never merge across the two lineages.
 
-## Pediatric TSC MTP line (branch `16yo-mtp`, this worktree) — stages 1-4 done, next round pending the user's figure review
+## Pediatric TSC MTP line (branch `16yo-mtp`, this worktree) — stages 1-5 done (2026-09-17); the proposed arm is `gs_joint_p5`
 Read `STATUS.md` first. Stage 1 built the reference k-space (spec `docs/superpowers/specs/2026-09-12-peds-tsc-mtp-grappa-design.md`,
 topic `Results_20260908/Peds_TSC_MTP_3D/`, dataset `/data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT/`).
 Stage 2 is the retrospective AF-12 ten-arm comparison (spec `...2026-09-12-16yo-mtp-stage2-af12-design.md`,
@@ -53,7 +53,12 @@ lesion slice 1 dB ahead of every arm and plateaued at +0.15 dB (T2s sagittal 172
 GS-single, so the T1w cells are still to be closed by real runs; no new training until the user has reviewed the figures;
 L1-SPIRiT replaces L1-ESPIRiT (registered 2026-09-15 23:06: primary T1w 38.310 / 0.9607 / 0.0679, T2s 32.017 — it takes
 the T1w head HFEN bar from GS-single, so MC-GS is 0.0089 short there); the 23 GB of stage-1 output for the other eight
-contrasts stays.**
+contrasts stays.** Stage 5 (2026-09-16/17, record `...2026-09-16-16yo-mtp-stage5-levers.md`, README section
+"Stage 5"): phase-only TV (cherry-pick 0ba2d3b; per-contrast weights `loss.lambda_ptv_plain / _contrast` added here) + 8000
+iterations → `gs_joint_p5`, first on five of the six head cells against every arm incl. every GS-single (T1w 39.003 / 0.9693 /
+0.0758, T2s 34.323 / 0.9111 / 0.1765; T1w HFEN stays with L1-SPIRiT 0.0679) and both-contrast first on 227 slices; figures of
+record `*_53_158_150_*_allfirst_p5_zf_caps` and `*_46_149_171_*_lesionB_allfirst_p5_zf_caps` (ZF column, upper-case names).
+GS-single is the published baseline: every registered version counts, none receives the joint arm's later levers (user).
 Code: `uih_mtp/` (raw reader, 3D GRAPPA, `retro_mask`, `rescore`), configs `configs/peds_af12_*.yaml`, runner
 `autoresearch_peds.sh`. GPU policy for this line (user, 2026-09-14): any card with no compute process and utilisation
 at most 10 %, at most two of this line's trainings at once (two scheduler instances with disjoint `ALLOWED` lists);
