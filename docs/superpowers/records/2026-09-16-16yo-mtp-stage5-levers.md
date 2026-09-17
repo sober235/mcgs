@@ -87,3 +87,17 @@ looked at): `_allfirst_p5_zf_caps` at 53 / 158 / 150 (both contrasts first on ev
 Pitfalls met: a queue line commented out after the scheduler has launched it changes nothing (the single control of
 16:37); the tool shell is zsh, so an unquoted `$files` is one word for `git add`; cards that another study is loading
 data onto look free for 1–2 minutes (claude-71, cards 1 / 2 / 5) — the scheduler was restarted with `ALLOWED="6 0 3 4 7"`.
+
+## 5. Seed check of the final configuration (2026-09-17)
+
+`p5_final_seed1`: `p5_ptvp001c002_i8000` with `--seed 1` (new `arc/cycle.py` flag, default 42 = unchanged behaviour),
+card 7, 10:59–16:5x (352 min on a shared card). A variance check, not an arm: not registered.
+
+| run | T1w PSNR / SSIM / HFEN | T1w margins | T2s PSNR / SSIM / HFEN | T2s margins |
+|---|---|---|---|---|
+| seed 42 (`gs_joint_p5`) | 39.003 / 0.9693 / 0.0758 | +0.010 / +0.0006 / −0.0080 | 34.323 / 0.9111 / 0.1765 | +0.148 / +0.0059 / +0.0090 |
+| seed 1 | 39.001 / 0.9692 / 0.0759 | +0.008 / +0.0006 / −0.0080 | 34.322 / 0.9111 / 0.1765 | +0.147 / +0.0059 / +0.0089 |
+
+Seed spread: T1w PSNR 0.0026 dB, T2s 0.001 dB, SSIM / HFEN in the fourth decimal. The five cells MC-GS leads stay led
+under the second seed; the T1w PSNR margin (+0.008 to +0.010) is three to four times the seed spread. Two seeds are
+not a distribution — the statement this supports is "the lead is not a single-seed accident", no more.
