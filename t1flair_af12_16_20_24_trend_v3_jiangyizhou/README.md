@@ -102,3 +102,20 @@ PYTHONNOUSERSITE=1 PYTHONPATH= $PY $T/scripts/slice_summary.py > $T/logs/slice_t
 - 显示哪些方法由各脚本的 `ORDER` 决定；L1-ESPIRiT 的重打分留在 json 里，别当成漏算。
 - `analyze_af_trend.py` 会覆盖出图目录里的同名图（`/home/congcongliu/figs/t1flair_v3_af_trend/`）。
 - AF24 课题的 `logs/` 里有掩膜抽样的 L1 结果（`l1espirit_*_d{b,c,d}_lam*.json`），`lambda_grid_check.py` 按文件名排除。
+
+## 6. 折线图：头内指标随加速倍数的走势（2026-09-16）
+
+`scripts/plot_af_trend_lines.py` → `figures/jyz_t1flair_af12_16_20_24_head_{psnr,ssim,nmse,hfen}_lines.{png,pdf}`（PNG 300 dpi；PDF 矢量，Arial 子集嵌入），同步拷到 `/home/congcongliu/figs/t1flair_v3_af_trend/`（另存短名 `lines_{psnr,ssim,nmse,hfen}.{png,pdf}`）。主图是 PSNR，SSIM / NMSE 两张同版式配套（用户 09-16 晚：第三个指标是 NMSE，与三面图面板一致），HFEN 作为第四张保留。
+- **头内 NMSE**：冻结打分器没有 NMSE，`scripts/head_nmse.py` 用打分器同一头部掩膜（|GT| > 0.05·P99.9）对 96 个存盘重建体直接算 Σ头内|rec−gt|² / Σ头内|gt|²，写 `logs/head_nmse_af*_*.json`；由同一误差和反推的头内 PSNR 与打分器记录差 ≤ 5e-6 dB（自检）。MC-GS 四档两对比度头内 NMSE 均为最小。
+
+- 版式：左 T1、右 FLAIR，共用 y 轴；x 为 AF 标签 11.71 / 15.19 / 18.56 / 24.00（线性刻度，刻度上一行写课题名 AF 12 / 16 / 20 / 24），顶部一行标题，面板下方 6 × 2 图例按方法族分列，图底三行注释写 AF 定义与 FLAIR 带数据线数。
+- 方法 = 09-16 高分辨率定稿图的十一列：ZF、CG-SENSE、CS-SENSE（收敛 TV）、Joint SENSE、L1-SPIRiT、ZS-SSDU、3D-DIP、3D-INR、MC-INR、GS-single、MC-GS。CS-SENSE 35 步与 L1-ESPIRiT 留在 json 里不画。
+- 编码：同色 = 同一方法族（GS 蓝、SENSE+TV 橙、INR 绿、ZS-SSDU 青、L1-SPIRiT 黄、CG-SENSE 品红、3D-DIP 紫、ZF 灰）；实线 + 实心点 = 多对比度联合（MC-GS、Joint SENSE、MC-INR），虚线 + 空心点 = 单对比度。七个分类色按 dataviz 调色板在白底上跑过验证器（色觉缺陷相邻对 ΔE ≥ 9.1；黄、青、品红对白底低于 3:1，靠图例上的点形与 §2 / `logs/af_trend_tables.md` 的数值表兜底）。
+- 数据直接读 `logs/rescore_af*.json`，与 §2 表同源；图里只给 MC-GS 一个直接标注，其余靠图例。
+- 读图：MC-GS 与 GS-single 两条蓝线几乎重合（余量 T1 +0.15 ~ +0.18、FLAIR +0.04 ~ +0.07 dB，见 §3），看余量要用表；3D-DIP 最平（AF16 → AF20 持平），ZS-SSDU 在 AF20 → AF24 掉得最少，其余方法四档近乎平行地逐级下降。
+- **暗色版**（用户 09-16 晚）：`scripts/plot_af_trend_lines.py --dark` → 同名加 `_dark` 后缀（`figures/…_lines_dark.{png,pdf}`，served 短名 `lines_{psnr,ssim,hfen}_dark.{png,pdf}`）。底色 #1a1a19，文字白/浅灰，七个方法族色换成同一色相在深色底上的档位（蓝 #3987e5、橙 #d95926、青 #199e70、黄 #c98500、品红 #d55181、绿 #008300、紫 #9085e9，验证器在 #1a1a19 上五项全过，对底色对比度都 ≥ 3:1），线宽 2.2 / 1.7 pt、点 6 pt 让折线突出；数字、排版与浅色版相同。
+- **别重做**：同日试过"线尾直接标名、无逐方法图例、面板字母 a/b、无标题"的期刊样式版，用户看后选回本版；样式差异只在排版，数字相同。
+
+```
+PYTHONNOUSERSITE=1 PYTHONPATH= $PY $T/scripts/plot_af_trend_lines.py   # 三张图，覆盖 figures/ 与出图目录里的同名文件
+```

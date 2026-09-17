@@ -1,0 +1,113 @@
+{
+ "af": "24",
+ "contrast": "FLAIR",
+ "head_voxels": 4175161,
+ "head_energy": 505841.90625,
+ "gmax": 2.2738189697265625,
+ "rows": [
+  {
+   "key": "zf",
+   "label": "ZF",
+   "file": "zf_FLAIR_complex.npy",
+   "head_nmse": 0.07944608712665352,
+   "head_psnr_rescored": 27.30097796130726,
+   "psnr_from_nmse": 27.300976801572382
+  },
+  {
+   "key": "cgsense",
+   "label": "CG-SENSE",
+   "file": "cgsense_FLAIR_complex.npy",
+   "head_nmse": 0.03193409312173313,
+   "head_psnr_rescored": 31.25915424597192,
+   "psnr_from_nmse": 31.259156049991937
+  },
+  {
+   "key": "cssense",
+   "label": "CS-SENSE (35 it)",
+   "file": "cssense_FLAIR_complex.npy",
+   "head_nmse": 0.025921777391416944,
+   "head_psnr_rescored": 32.1650523385948,
+   "psnr_from_nmse": 32.165054156792166
+  },
+  {
+   "key": "cssense_o200",
+   "label": "CS-SENSE (converged TV)",
+   "file": "cssense_o200_lam0.0005_FLAIR_complex.npy",
+   "head_nmse": 0.02359709286640385,
+   "head_psnr_rescored": 32.57311455961667,
+   "psnr_from_nmse": 32.57311690679363
+  },
+  {
+   "key": "jcssense",
+   "label": "Joint SENSE",
+   "file": "jcssense_o200_lam0.0007_FLAIR_complex.npy",
+   "head_nmse": 0.02342541898435288,
+   "head_psnr_rescored": 32.60482935534753,
+   "psnr_from_nmse": 32.60482825014219
+  },
+  {
+   "key": "l1espirit",
+   "label": "L1-ESPIRiT",
+   "file": "l1espirit_lam0.002_FLAIR_complex.npy",
+   "head_nmse": 0.02249084423981035,
+   "head_psnr_rescored": 32.781643822779,
+   "psnr_from_nmse": 32.78164434512022
+  },
+  {
+   "key": "spirit",
+   "label": "L1-SPIRiT",
+   "file": "spirit_ks5_lam0.001_FLAIR_complex.npy",
+   "head_nmse": 0.02817855416597861,
+   "head_psnr_rescored": 31.802514779488753,
+   "psnr_from_nmse": 31.80251486572559
+  },
+  {
+   "key": "zsssdu",
+   "label": "ZS-SSDU",
+   "file": "zsssdu_FLAIR_complex.npy",
+   "head_nmse": 0.02627094968098049,
+   "head_psnr_rescored": 32.10694622431281,
+   "psnr_from_nmse": 32.106944197983196
+  },
+  {
+   "key": "dip",
+   "label": "3D-DIP",
+   "file": "dip_FLAIR_complex.npy",
+   "head_nmse": 0.03927836025349076,
+   "head_psnr_rescored": 30.360170369005864,
+   "psnr_from_nmse": 30.360168433035376
+  },
+  {
+   "key": "inr",
+   "label": "3D-INR",
+   "file": "inr_FLAIR_complex.npy",
+   "head_nmse": 0.05195296396644678,
+   "head_psnr_rescored": 29.14559831223535,
+   "psnr_from_nmse": 29.145598628677902
+  },
+  {
+   "key": "mcinr",
+   "label": "MC-INR",
+   "file": "mcinr_FLAIR_complex.npy",
+   "head_nmse": 0.03431245517605828,
+   "head_psnr_rescored": 30.947183942540207,
+   "psnr_from_nmse": 30.947183979290763
+  },
+  {
+   "key": "gs_single_p3",
+   "label": "GS-single",
+   "file": "gs_single_p3_FLAIR_mag.npy",
+   "head_nmse": 0.020851638984784093,
+   "head_psnr_rescored": 33.110300011632006,
+   "psnr_from_nmse": 33.11029995229744
+  },
+  {
+   "key": "gs_joint_p3",
+   "label": "MC-GS",
+   "file": "gs_joint_p3_FLAIR_mag.npy",
+   "head_nmse": 0.02051157897900536,
+   "head_psnr_rescored": 33.181712138507436,
+   "psnr_from_nmse": 33.181710987899116
+  }
+ ]
+}

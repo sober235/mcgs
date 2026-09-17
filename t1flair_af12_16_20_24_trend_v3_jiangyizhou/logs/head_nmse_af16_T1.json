@@ -1,0 +1,113 @@
+{
+ "af": "16",
+ "contrast": "T1",
+ "head_voxels": 4246728,
+ "head_energy": 461096.125,
+ "gmax": 2.287307024002075,
+ "rows": [
+  {
+   "key": "zf",
+   "label": "ZF",
+   "file": "zf_T1_complex.npy",
+   "head_nmse": 0.12556207775547887,
+   "head_psnr_rescored": 25.84053644442773,
+   "psnr_from_nmse": 25.840534067849596
+  },
+  {
+   "key": "cgsense",
+   "label": "CG-SENSE",
+   "file": "cgsense_T1_complex.npy",
+   "head_nmse": 0.028023879290760684,
+   "head_psnr_rescored": 32.353834565503846,
+   "psnr_from_nmse": 32.35383646772859
+  },
+  {
+   "key": "cssense",
+   "label": "CS-SENSE (35 it)",
+   "file": "cssense_T1_complex.npy",
+   "head_nmse": 0.017456824053295288,
+   "head_psnr_rescored": 34.40946796537292,
+   "psnr_from_nmse": 34.409466657225586
+  },
+  {
+   "key": "cssense_o200",
+   "label": "CS-SENSE (converged TV)",
+   "file": "cssense_o200_lam0.0007_T1_complex.npy",
+   "head_nmse": 0.01543130818167253,
+   "head_psnr_rescored": 34.94509151168015,
+   "psnr_from_nmse": 34.94509155691114
+  },
+  {
+   "key": "jcssense",
+   "label": "Joint SENSE",
+   "file": "jcssense_o200_lam0.001_T1_complex.npy",
+   "head_nmse": 0.015840489401748932,
+   "head_psnr_rescored": 34.83143443401975,
+   "psnr_from_nmse": 34.83143305160906
+  },
+  {
+   "key": "l1espirit",
+   "label": "L1-ESPIRiT",
+   "file": "l1espirit_lam0.0015_T1_complex.npy",
+   "head_nmse": 0.014520921266349289,
+   "head_psnr_rescored": 35.20917468099474,
+   "psnr_from_nmse": 35.20917729771362
+  },
+  {
+   "key": "spirit",
+   "label": "L1-SPIRiT",
+   "file": "spirit_ks5_lam0.001_T1_complex.npy",
+   "head_nmse": 0.02014350010803062,
+   "head_psnr_rescored": 33.78777151599665,
+   "psnr_from_nmse": 33.78776965207872
+  },
+  {
+   "key": "zsssdu",
+   "label": "ZS-SSDU",
+   "file": "zsssdu_T1_complex.npy",
+   "head_nmse": 0.01853146588333398,
+   "head_psnr_rescored": 34.15002103469452,
+   "psnr_from_nmse": 34.15002126007806
+  },
+  {
+   "key": "dip",
+   "label": "3D-DIP",
+   "file": "dip_T1_complex.npy",
+   "head_nmse": 0.038325776837747225,
+   "head_psnr_rescored": 30.9942086112141,
+   "psnr_from_nmse": 30.994209339461605
+  },
+  {
+   "key": "inr",
+   "label": "3D-INR",
+   "file": "inr_T1_complex.npy",
+   "head_nmse": 0.04420244514497926,
+   "head_psnr_rescored": 30.374659139648813,
+   "psnr_from_nmse": 30.374656065542148
+  },
+  {
+   "key": "mcinr",
+   "label": "MC-INR",
+   "file": "mcinr_T1_complex.npy",
+   "head_nmse": 0.03341564243721957,
+   "head_psnr_rescored": 31.589620872045405,
+   "psnr_from_nmse": 31.58962085288416
+  },
+  {
+   "key": "gs_single_p3",
+   "label": "GS-single",
+   "file": "gs_single_p3_T1_mag.npy",
+   "head_nmse": 0.013400202072832428,
+   "head_psnr_rescored": 35.55800625539817,
+   "psnr_from_nmse": 35.558005529159615
+  },
+  {
+   "key": "gs_joint_p3",
+   "label": "MC-GS",
+   "file": "gs_joint_p3_T1_mag.npy",
+   "head_nmse": 0.012950816468176782,
+   "head_psnr_rescored": 35.70614639668903,
+   "psnr_from_nmse": 35.706147515813186
+  }
+ ]
+}
