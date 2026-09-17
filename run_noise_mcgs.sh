@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # One MC-GS run of the noise study on the jiangyizhou T1+FLAIR pair (2026-09-16).
 #   run_noise_mcgs.sh EXP GPU ITERS [extra arc/cycle.py args...]
-#   EXP must start with af16n_ (2 sigma0) or af16n1_ (1 sigma0, spec addendum 2026-09-16).  SINGLE=T1|FLAIR picks that
+#   EXP must start with af16n_ (2 sigma0), af16n1_ (1 sigma0, spec addendum 2026-09-16) or af16n05_ / af16n025_ /
+#   af16n075_ (0.5 / 0.25 / 0.75 sigma0, spec addendum 2026-09-17).  SINGLE=T1|FLAIR picks that
 #   contrast's single-arm config (configs/t1flair_v3_<prefix>_jyz*.yaml).  SAVE_VOLUMES=1 dumps the npz.
 #
 # The study varies ONE thing against T1FLAIR_AF16_v3_jiangyizhou: the measurements carry 2 sigma0 of added complex
@@ -24,7 +25,10 @@ EXP=$1; GPU=$2; ITERS=$3; shift 3
 case "$EXP" in
   af16n_*)  SHORT=af16n ;;     # 2 sigma0 level
   af16n1_*) SHORT=af16n1 ;;    # 1 sigma0 level
-  *) echo "EXP must start with af16n_ (2 sigma0) or af16n1_ (1 sigma0); keeps the noise study apart: $EXP" >&2; exit 2 ;;
+  af16n05_*)  SHORT=af16n05 ;;    # 0.5 sigma0 level
+  af16n025_*) SHORT=af16n025 ;;   # 0.25 sigma0 level
+  af16n075_*) SHORT=af16n075 ;;   # 0.75 sigma0 level
+  *) echo "EXP must start with af16n_, af16n1_, af16n05_, af16n025_ or af16n075_; keeps the noise study apart: $EXP" >&2; exit 2 ;;
 esac
 WARMUP=${WARMUP:-500}
 ROOT=$(cd "$(dirname "$0")" && pwd)

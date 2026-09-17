@@ -209,3 +209,25 @@ run again** (not a noise-retuned GS arm).
   runner accepts `af16n1_` and reads `configs/t1flair_v3_af16n1_jyz*.yaml`.
 - The two queues share cards 1, 2 and 5 (one job of this user per card; both schedulers take the same locks).
 - Final comparison: no noise / 1 sigma0 / 2 sigma0 side by side (`compare_noise_levels.py` in the 1 sigma0 topic).
+
+## Addendum (2026-09-17 13:40): the noise range in which MC-GS leads
+
+After the two levels, the user asked for the noise range that favours MC-GS. Decisions (chat, 2026-09-17):
+- run 0.5 sigma0 first; if MC-GS is first on all six head cells there, add 0.75 sigma0 to bracket the upper end,
+  otherwise add 0.25 sigma0;
+- "favourable" = first on all six head cells (head PSNR / SSIM / HFEN x T1 / FLAIR) against every comparison arm,
+  GS-single included, with the classical lambdas re-selected per level (the convention of every table of the series);
+- cards 1, 2, 5 and 6, one job of this user per card.
+
+Reporting: every level stays in the record (0, the new levels, 1 and 2 sigma0); the range is reported with its upper
+end and with what happens beyond it, never as the only levels run.
+
+Implementation, as for 1 sigma0: topic `Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/` (then `noise0p25x` or
+`noise0p75x`), experiment prefix `af16n05_` (`af16n025_`, `af16n075_`), MC-INR tag `_noise0p5x`, configs
+`configs/t1flair_v3_af16n05_jyz*.yaml`; the same seed and draws scaled (sigma = 0.5 sigma0_k), so the generator's
+nested check compares against the 1 sigma0 files (meas_1x - clean = 2 (meas_0.5x - clean) before single-precision
+rounding). `compare_noise_levels.py` lists every level present.
+
+Expectation, NOT_EVIDENCE: interpolating the head-SSIM margin against the converged TV between zero noise
+(+0.0079 / +0.0081) and 1 sigma0 (-0.0066 / -0.0061) puts its sign change between about 0.55 sigma0 (linear in sigma)
+and 0.75 sigma0 (linear in sigma^2); head PSNR changes sign near 1 sigma0.
