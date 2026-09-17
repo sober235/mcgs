@@ -5,6 +5,12 @@ complex Gaussian noise with per-sample std 2 sigma0 and 1 sigma0 (sigma0 = the d
 the 2 sigma0 draw halved); ground truth and scale stay on the clean k-space. **Status 2026-09-17: both levels complete.**
 The frozen AF16 phase-3 MC-GS recipe is not robust at 2 sigma0 (head PSNR -5.9 / -5.0 dB, ranks 8/7/5 and 9/9/7 of 12);
 at 1 sigma0 it keeps head PSNR (T1 2nd by 0.003 dB, FLAIR 1st by +0.007) and head HFEN (1st), and is 5th on head SSIM.
+Favourable-range search (user, 2026-09-17 afternoon): 0.5 sigma0 and 0.75 sigma0 added; MC-GS is first on all six head
+cells at 0.5 sigma0 and on five at 0.75 sigma0 (FLAIR head SSIM second by 0.0005), so the six-cell range ends between
+0.5 and 0.75 sigma0 (record section 9). Topics `T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/` (prefix `af16n05_`) and
+`T1FLAIR_AF16_noise0p75x_v3_jiangyizhou/` (`af16n075_`); new levels are cloned with the 1 sigma0 topic's
+`scripts/scaffold_level.py`; the single-slice figures the user asked for are `scripts/fig_tra_t1_flair_noise.py` and
+`scripts/fig_tra_t1_flair_zoom3d.py` in the 0.5 sigma0 topic.
 Worktree `/data0/congcong/code/GS/mcgs_noise_wt`; topics `Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/` and
 `Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou/` (mirrored here as `t1flair_af16_noise{2x,1x}_v3_jiangyizhou/`,
 without volumes or data). Read in this order: `STATUS.md` (top section) -> `docs/2026-09-17-af16-noise-jyz-summary.md`

@@ -1,40 +1,27 @@
-# STATUS — 2026-09-17 17:30（worktree `mcgs_noise_wt`，分支 `jyz-af16-noise`，从 `jyz-af16-diffmask` bbba53b 切出）
+# STATUS — 2026-09-17 20:45（worktree `mcgs_noise_wt`，分支 `jyz-af16-noise`，从 `jyz-af16-diffmask` bbba53b 切出）
 
-## 噪声鲁棒性研究（本分支）：2σ0、1σ0 两档完成；“MC-GS 有利噪声范围”搜索进行中（0.5σ0 13:44 起跑）
+## 噪声鲁棒性研究（本分支）：0.5、0.75、1、2σ0 四档完成；MC-GS 六格全胜的范围上界在 0.5σ0 到 0.75σ0 之间
 
-### 0. 正在做（用户 09-17 13:3x 拍板）
+### 0. 有利噪声范围（用户 09-17 13:3x 起）
 
-- 用户要“挑选出对 MC-GS 有利的噪声范围”。拍板：先跑 0.5σ0；0.5σ0 六格全第一就补 0.75σ0 找上界，否则补 0.25σ0；
-  判据 = 头内 PSNR/SSIM/HFEN × T1/FLAIR 六格都超过所有对比方法（含 GS-single，经典方法照常重选 λ）；卡用 1、2、5、6。
-  设计附录：spec 末尾“Addendum (2026-09-17 13:40)”。报告时所有档位都保留（0、新档、1σ0、2σ0），范围连同上界和超出后的情况一起写。
-- 0.5σ0 课题 `Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/`（`scripts/scaffold_level.py noise0p5x 0.5 af16n05 noise1x` 从 1σ0 课题复制），
-  前缀 `af16n05_`，MC-INR 标签 `_noise0p5x`，配置 `configs/t1flair_v3_af16n05_jyz*.yaml`，提交 d42dd0e。测量检查全过，
-  `nested_vs_1x` 0.29 / 0.29；空气噪声 T1 预期 0.01574 / 实测 0.01574，FLAIR 0.01433 / 0.01433。
-- 队列 13:44 起：`setsid nohup bash <0.5σ0 课题>/scripts/launch_noise.sh --cards 1,2,5,6 --max_gpu_jobs 4 > /dev/null 2>&1 < /dev/null &`。
-  GS 联合作业日志已确认读 `noise0p5x/data/meas_<c>.h5`，FLAIR `zero_lines=233/2966`。finalize 会顺带写 `logs/compare_noise_levels_<metric>.md`（含所有已有档位）。
-  已通知 claude-01（CE）与 claude-e7（儿科）避开 1、2、5、6；跑完要通知它们。7 号卡上有同账号别的会话的 arc/cycle.py。
-- 看进度：`tail -20 <0.5σ0 课题>/logs/run_all_noise.log`；调度器没了而 `logs/RUN_ALL_NOISE_DONE` 不存在时原样重启（已完成的会跳过）。
-- 跑完后：读 `<0.5σ0 课题>/logs/compare_noise_levels_head_{psnr,ssim,hfen}.md` 的名次表判断六格；再按规则搭下一档：
-  `python <1σ0 课题>/scripts/scaffold_level.py noise0p75x 0.75 af16n075 noise1x`（或 `noise0p25x 0.25 af16n025 noise0p5x`），
-  先在 worktree 加对应 `configs/t1flair_v3_<前缀>_jyz*.yaml`（运行脚本已接受 af16n025_/af16n075_），写 README、生成测量、空跑、启动。
-- 14:50 初判（`<0.5σ0 课题>/scripts/six_cells_now.py`，只读，按 summarize 规则在内存里汇总已完成的方法；对 1σ0、2σ0 复算与表逐位一致）：
-  MC-GS 联合 T1 35.280 / 0.9336 / 0.1197，FLAIR 34.617 / 0.9204 / 0.1177，已算的格子全第一（还缺 T1 GS-single、JTV、ZS-SSDU 及弱臂）。
-  SPIRiT、DIP、INR、MC-INR 在 0σ0 与 1σ0 下六格都远落后，不影响判定；决定性方法到齐就定下一档。
-- 0.75σ0 已提前备好（不占卡）：配置 `configs/t1flair_v3_af16n075_jyz*.yaml`（96ee660），课题 `T1FLAIR_AF16_noise0p75x_v3_jiangyizhou/`，
-  测量检查全过（`nested_vs_1x` 0.29 / 0.28），README 骨架已写。0.5σ0 若不是六格全胜则改搭 0.25σ0，0.75σ0 课题不启动。
-- 15:20 判定（待 0.5σ0 finalize 后复核）：除 ZS-SSDU 外强方法都已到齐，六格全是 MC-GS 第一、GS-single 第二
-  （T1 +0.171 / +0.0030 / +0.0048，FLAIR +0.036 / +0.0012 / +0.0013）；ZS-SSDU 即使不掉，零噪声值也低于这些（最近 FLAIR SSIM 0.9185 对 0.9204）。
-  按规则 15:21 启动 0.75σ0：`setsid nohup bash <0.75σ0 课题>/scripts/launch_noise.sh --cards 1,2,5,6 --max_gpu_jobs 4 ...`，
-  两个调度器共用 1、2、5、6（卡锁、每卡一个作业）；预计 23:00 左右都跑完。已通知 claude-01、claude-e7。
-- 两档都 finalize 后：读 `<0.75σ0 课题>/logs/compare_noise_levels_head_{psnr,ssim,hfen}.md`（含 0、0.5、0.75、1、2σ0），
-  确定有利范围上界（0.75σ0 六格全胜 → 上界在 0.75 到 1σ0 之间；否则在 0.5 到 0.75 之间），看图，写 README、记录、总结，镜像、提交。
-- 17:22 0.5σ0 完成（57 个作业全成功，finalize rc 0，λ 全在网格内部），正式表复核：六格全是 MC-GS 第一，最强对手都是 GS-single，
-  余量 T1 +0.171 / +0.0030 / +0.0048，FLAIR +0.036 / +0.0012 / +0.0013（PSNR / SSIM / HFEN）；对最强非 GS 方法 T1 +0.644 dB、FLAIR +0.491 dB。
-  MC-GS 比零噪声掉 0.43 / 0.31 dB；锐度比 0.879 / 0.826。ZS-SSDU T1 33.836 低于它 1σ0 的 33.950（单次训练波动）。
-  四张标准三面图（180/124/76 带框、174/110/47，两对比度）每个方向三项数字都是 MC-GS 第一。
-  逐层搜索：T1 三个方向所有合格层 PSNR+SSIM 都第一；两对比度同层都第一：横断 136、冠状 127、矢状 127 层。
-  领先最多的配对层 170 / 166 / 147（FLAIR +0.100 / +0.062 / +0.083，T1 +0.240 / +0.150 / +0.207），图已出（另渲 PDF）；矢状 147 偏外侧。
+- 用户要“挑选出对 MC-GS 有利的噪声范围”。拍板：先跑 0.5σ0；六格全第一就补 0.75σ0，否则补 0.25σ0；判据 = 头内 PSNR/SSIM/HFEN × T1/FLAIR
+  六格都超过所有对比方法（含 GS-single，经典方法照常重选 λ）；卡 1、2、5、6。设计附录：spec 末尾“Addendum (2026-09-17 13:40)”。
+  已答应：所有档位都保留在记录里，范围连同上界和超出后的情况一起写。
+- 结果（`<0.75σ0 课题>/logs/compare_noise_levels_head_{psnr,ssim,hfen}.md`，含 0、0.5、0.75、1、2σ0）：
+  0σ0、0.5σ0 六格全第一；0.75σ0 五格第一，FLAIR 头内 SSIM 第二（0.9121 对 ZS-SSDU 0.9126）；1σ0 三格加 T1 PSNR 持平；2σ0 全输。
+  0.5σ0 对 GS-single 余量 T1 +0.171 / +0.0030 / +0.0048，FLAIR +0.036 / +0.0012 / +0.0013；0.75σ0 T1 +0.194 / +0.0011（对 TV）/ +0.0051，
+  FLAIR +0.025 / -0.0005（对 ZS-SSDU）/ +0.0010。ZS-SSDU 结果不随噪声单调（T1 33.836 / 33.710 / 33.950），输掉的那格在它的单次波动内。
+- 两档课题：`Results_20260908/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/`（前缀 `af16n05_`）、`.../T1FLAIR_AF16_noise0p75x_v3_jiangyizhou/`（`af16n075_`），
+  各 57 个作业全成功，λ 全在网格内部，嵌套检查 0.29/0.29、0.29/0.28。搭档：`<1σ0 课题>/scripts/scaffold_level.py`；初判：`scripts/six_cells_now.py`。
+  0.75σ0 在 15:21 按初判启动（当时 0.5σ0 只缺 ZS-SSDU 和弱臂），17:22 0.5σ0 正式表复核一致；0.75σ0 20:21 完成。GPU 作业已全部结束，已通知 claude-01、claude-e7。
+- 0.5σ0 的图（`http://localhost:8765/t1flair_v3_af16_noise0p5x/`）：四张标准三面图每个方向三项都是 MC-GS 第一；逐层搜索
+  （`scripts/best_planes_noise.py`）两对比度同层全胜：横断 136、冠状 127、矢状 127 层，配对最大 170 / 166 / 147（三面图已出）。
+  用户要的单层图：`scripts/fig_tra_t1_flair_noise.py`（横断 170，上 T1 下 FLAIR，误差行左格是加入的噪声，版本 `_noisescale0.01` 噪声格用 [0, 0.01]）；
+  `scripts/fig_tra_t1_flair_zoom3d.py`（再加 48×48 放大框，中心 (88, 136)，T1 +0.245 / FLAIR +0.190 dB；T1 误差行左格为采样掩膜；
+  左下角 FLAIR 噪声的 3D 曲面，纵轴强度，jet [0, 0.01]）。都已出 PNG 和 600 dpi PDF。
+- 记录第 9 节、中文总结第 7 节已写；两档课题已镜像（0.75σ0 待本次提交）。
 - 推送与 tag（`handoff/2026-09-17-af16-noise`）仍等用户一句“推”。
+- 若要再细化上界：可加 0.6σ0（`scaffold_level.py noise0p6x ...` 需先在运行脚本与 PREFIX 表里加前缀），或对 0.75σ0 的 FLAIR 做多次种子（MC-GS 与 ZS-SSDU 同等对待）。
 
 一句话：冻结的 AF16 三期配方扛不住 2σ0 的测量噪声，头内 PSNR 掉 5.9 / 5.0 dB，名次掉到 T1 第 8、7、5，FLAIR 第 9、9、7
 （PSNR、SSIM、HFEN，共 12 个方法）。1σ0 下 PSNR 和 HFEN 基本守住：T1 PSNR 第二，比收敛 TV 低 0.003 dB；FLAIR PSNR 第一，

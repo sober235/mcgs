@@ -1,0 +1,26 @@
+{
+ "contrast": "FLAIR",
+ "rows": [
+  {
+   "method": "mcinr",
+   "contrast": "FLAIR",
+   "psnr": 29.89091116826006,
+   "ssim": 0.5364513862971381,
+   "nmse": 0.1203521341085434,
+   "hfen": 1.3381860256195068,
+   "sharp": 0.9741302728652954,
+   "grain": 0.02024993486702442,
+   "seconds": 752.0409679412842,
+   "head_psnr": 31.413624855841867,
+   "head_ssim": 0.8175546526908875,
+   "head_hfen": 0.18903605549117675,
+   "grain_ratio": 1.33544911558372,
+   "head_frac": 0.36197671023282135,
+   "gmax": 2.2738187313079834
+  }
+ ],
+ "scale_p999": 98.51180175781201,
+ "coils": 26,
+ "source": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_MCINR_Niessen2025_v3_jiangyizhou/recon/af16_noise0p75x/mcinr_FLAIR_complex.npy",
+ "note": "multi-contrast INR of Niessen et al. 2025, per-slice 2-D, paper recipe; one network outputs both contrasts, so `seconds` is the whole two-contrast run"
+}
