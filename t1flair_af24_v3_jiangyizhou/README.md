@@ -172,7 +172,18 @@ margin, MC-GS − GS-single, was not measured (GS-single was not run on draws b�
 
 ## Figures
 
-- **Figure set of record** (as in the AF 12 / 16 / 20 topics since 2026-09-15):
+- **Figure set of record since 2026-09-16: the `_zf_caps` variant at publication resolution.**
+  `figures/t1flair_v3_af24_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit_zf_caps.{png,pdf}`
+  — the same slices, 48-voxel box, grey windows, error scale, arms and gauge as the `_mcinr_spirit` set described
+  below, which it supersedes without overwriting: every plane's PSNR / SSIM / NMSE line is identical. What changed
+  is a zero-filling column after GT and the caps typography (user 2026-09-16, `--with_zf --caps`, with labels
+  containing `SPIRiT` exempt from upper-casing), the PNG at `--png_dpi 200` (6453 x 4352 px, which is 911 dpi at a
+  180 mm page width) and TrueType fonts in the PDF (`pdf.fonttype = 42`; matplotlib's Type 3 default is rejected by
+  IEEE and Elsevier submission systems). All four topics' copies are gathered in
+  `Results_20260908/T1FLAIR_AF12_16_20_24_figures_hires/`; verification and the render command are in
+  `mcgs_af16_wt/docs/handoff/2026-09-16-figures-hires.md`.
+
+- **Previous figure set of record**, kept and not overwritten (as in the AF 12 / 16 / 20 topics since 2026-09-15):
   `figures/t1flair_v3_af24_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit.{png,pdf}` — the AF 16 layout,
   slices and 48-voxel box; ten method columns with L1-SPIRiT in the L1 column and MC-INR added; title
   `nominal AF 24, actual 24.00x` on both contrasts (user 2026-09-16), with the FLAIR panel note "1766 sampled points carry FLAIR

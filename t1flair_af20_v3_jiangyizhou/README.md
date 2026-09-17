@@ -207,6 +207,17 @@ Same grid as the other two topics (kernel size 3 and 5 x lambda in {0, 5e-4, 1e-
   T1 35.017 -> 33.788 -> 32.882, FLAIR 35.103 -> 33.720 -> 32.824.
 - **It changes no margin.** MC-GS and GS-single keep the top two rows on both contrasts.
 
+**Figure set of record since 2026-09-16: the `_zf_caps` variant at publication resolution.**
+`figures/t1flair_v3_af20_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit_zf_caps.{png,pdf}`
+— the same slices, 48-voxel box, grey windows, error scale, arms and gauge as the `_mcinr_spirit` set described
+below, which it supersedes without overwriting: every plane's PSNR / SSIM / NMSE line is identical. What changed
+is a zero-filling column after GT and the caps typography (user 2026-09-16, `--with_zf --caps`, with labels
+containing `SPIRiT` exempt from upper-casing), the PNG at `--png_dpi 200` (6453 x 4352 px, which is 911 dpi at a
+180 mm page width) and TrueType fonts in the PDF (`pdf.fonttype = 42`; matplotlib's Type 3 default is rejected by
+IEEE and Elsevier submission systems). All four topics' copies are gathered in
+`Results_20260908/T1FLAIR_AF12_16_20_24_figures_hires/`; verification and the render command are in
+`mcgs_af16_wt/docs/handoff/2026-09-16-figures-hires.md`.
+
 **Figures with the k-space arm in the L1 column** (user request 2026-09-15). The figure of record
 re-rendered with `--l1_arm spirit` (L1-SPIRiT replaces L1-ESPIRiT in that column), same slices,
 style, gauge and recipe keys. An eleven-column `--l1_arm both` render was made first and then
