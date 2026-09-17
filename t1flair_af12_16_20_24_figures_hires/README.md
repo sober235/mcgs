@@ -43,6 +43,13 @@ MC-INR、GS-single、MC-GS。
 其余一律未动：切片、放大框、灰度窗、误差色标、朝向（横断眼睛朝上）、方法、参数、打分口径。
 三面的 PSNR/SSIM/NMSE 排名与改动前的 `_mcinr_spirit` 定稿图逐位一致。
 
+## 第一行方法名字号（2026-09-16 晚，用户要求放大）
+
+四个出图脚本（AF12 `fig_three_planes_inset.py`，AF16/20/24 `fig_three_planes_compact.py`）新增 `--title_fs`（默认 14 = 此前的定稿字号），
+驱动脚本 `render_hires_final.sh` 通过 `TITLE_FS`（默认 22）传入。本文件夹的八张图已按 **22 pt** 重出并覆盖，manifest 同步刷新；
+其余版式、切片、指标、色标一律未动。要复现旧字号：`TITLE_FS=14 bash scripts/render_hires_final.sh`。
+served 目录 `~/figs/t1flair_v3_af_hires/` 另有短名副本 `af<AF>_<T1|FLAIR>.png`（同内容，便于终端点开）。
+
 ## 加速倍数标注
 
 标题里的 AF = **整平面相位编码点数 ÷ 该掩膜采样点数**（用户 2026-09-14 定，两对比度同一数字）：
@@ -55,6 +62,19 @@ MC-INR、GS-single、MC-GS。
 | AF24 | 24.00× | 1877 | 24.00 / 25.51 |
 
 ⚠️ AF24 的 FLAIR 标签（A 案 24.00× 还是 B 案 25.51×）用户尚未拍板，见该课题 README。
+
+## 怎么浏览
+
+八张图一张 21 MB、6453 px 宽，逐个打开很笨。浏览用现成的索引页：
+
+```
+http://localhost:8765/spirit_index.html
+```
+
+每档两行（T1 / FLAIR），缩略图可点开全尺寸 PNG，旁边有矢量 PDF 链接和各臂的头内 PSNR。
+缩略图由本文件夹的 `scripts/refresh_thumbs.py` 从当前图重建（1900 px 宽 JPEG，写进
+`~/figs/spirit_thumbs/`）——图重渲之后**必须重跑它**，否则页面显示的还是旧图。
+索引页 `~/figs/spirit_index.html` 本身是手写的，不在 git 里。
 
 ## 怎么重出
 
