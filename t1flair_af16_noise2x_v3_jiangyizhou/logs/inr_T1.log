@@ -1,0 +1,38 @@
+[T1] coils=26 grid=(256, 256, 176) AF_rect=15.1908 scale=9.9251e+01
+lines: total 2966  fit 2818  held-out 148 (5.0 %)  -> fit pts 721408  ho pts 37888
+[inr] hash L=16 T=2^19 F=2 res 16..512 MLP 64x3 params=16.79M
+[inr] lr=0.005 iters=1500 tv=0.0
+[inr/T1 it     1/1500] fit=1.2334e+00 tv=0.00e+00 kres_fit=0.99997 kres_ho=0.99993  *  (12s)
+[inr/T1 it    50/1500] fit=1.1315e-01 tv=0.00e+00 kres_fit=0.31598 kres_ho=0.45044  *  (421s)
+[inr/T1 it   100/1500] fit=6.0961e-02 tv=0.00e+00 kres_fit=0.25646 kres_ho=0.36646  *  (839s)
+[inr/T1 it   150/1500] fit=7.3411e-02 tv=0.00e+00 kres_fit=0.29547 kres_ho=0.36771  (1256s)
+[inr/T1 it   200/1500] fit=7.9213e-02 tv=0.00e+00 kres_fit=0.26378 kres_ho=0.35341  *  (1673s)
+[inr/T1 it   250/1500] fit=5.6151e-02 tv=0.00e+00 kres_fit=0.24746 kres_ho=0.34468  *  (2090s)
+[inr/T1 it   300/1500] fit=5.0748e-02 tv=0.00e+00 kres_fit=0.22519 kres_ho=0.33753  *  (2507s)
+[inr/T1 it   350/1500] fit=4.9410e-02 tv=0.00e+00 kres_fit=0.22224 kres_ho=0.33793  (2924s)
+[inr/T1 it   400/1500] fit=4.8781e-02 tv=0.00e+00 kres_fit=0.22028 kres_ho=0.33893  (3140s)
+[inr/T1 it   450/1500] fit=4.7878e-02 tv=0.00e+00 kres_fit=0.21866 kres_ho=0.34196  (3256s)
+[inr/T1 it   500/1500] fit=5.6054e-02 tv=0.00e+00 kres_fit=0.21776 kres_ho=0.34330  (3371s)
+[inr/T1 it   550/1500] fit=6.2827e-02 tv=0.00e+00 kres_fit=0.22187 kres_ho=0.33754  (3487s)
+[inr/T1 it   600/1500] fit=4.7053e-02 tv=0.00e+00 kres_fit=0.21760 kres_ho=0.34257  (3603s)
+[inr/T1 it   650/1500] fit=4.7045e-02 tv=0.00e+00 kres_fit=0.21610 kres_ho=0.34611  (3718s)
+[inr/T1 it   700/1500] fit=4.6321e-02 tv=0.00e+00 kres_fit=0.21607 kres_ho=0.34950  (3834s)
+[inr/T1 it   750/1500] fit=4.7598e-02 tv=0.00e+00 kres_fit=0.21781 kres_ho=0.35311  (3949s)
+[inr/T1 it   800/1500] fit=4.5903e-02 tv=0.00e+00 kres_fit=0.21458 kres_ho=0.35513  (4065s)
+[inr/T1 it   850/1500] fit=4.6005e-02 tv=0.00e+00 kres_fit=0.21432 kres_ho=0.35847  (4181s)
+[inr/T1 it   900/1500] fit=4.5914e-02 tv=0.00e+00 kres_fit=0.21401 kres_ho=0.36086  (4296s)
+[inr/T1 it   950/1500] fit=4.5233e-02 tv=0.00e+00 kres_fit=0.21265 kres_ho=0.36380  (4411s)
+[inr/T1 it  1000/1500] fit=4.6906e-02 tv=0.00e+00 kres_fit=0.21681 kres_ho=0.36695  (4527s)
+[inr/T1 it  1050/1500] fit=4.6172e-02 tv=0.00e+00 kres_fit=0.21782 kres_ho=0.36827  (4643s)
+[inr/T1 it  1100/1500] fit=4.7709e-02 tv=0.00e+00 kres_fit=0.21802 kres_ho=0.37005  (4759s)
+[inr/T1 it  1150/1500] fit=4.5153e-02 tv=0.00e+00 kres_fit=0.21259 kres_ho=0.37079  (4874s)
+[inr/T1 it  1200/1500] fit=4.5617e-02 tv=0.00e+00 kres_fit=0.21412 kres_ho=0.37312  (4990s)
+[inr/T1 it  1250/1500] fit=4.4939e-02 tv=0.00e+00 kres_fit=0.21231 kres_ho=0.37413  (5106s)
+[inr/T1 it  1300/1500] fit=4.5026e-02 tv=0.00e+00 kres_fit=0.21283 kres_ho=0.37645  (5221s)
+[inr/T1 it  1350/1500] fit=4.5698e-02 tv=0.00e+00 kres_fit=0.21449 kres_ho=0.37947  (5337s)
+[inr/T1 it  1400/1500] fit=4.7631e-02 tv=0.00e+00 kres_fit=0.21340 kres_ho=0.38148  (5452s)
+[inr/T1 it  1450/1500] fit=4.4337e-02 tv=0.00e+00 kres_fit=0.21032 kres_ho=0.38194  (5568s)
+[inr/T1 it  1500/1500] fit=4.4220e-02 tv=0.00e+00 kres_fit=0.21086 kres_ho=0.38304  (5684s)
+[inr/T1] best held-out kres 0.33753 @ iter 300
+[T1] inr psnr=30.229 ssim=0.5442 nmse=0.12356 hfen=1.5258 head_psnr=28.698 head_ssim=0.7224 (5684 s)
+DONE

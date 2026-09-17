@@ -1,0 +1,53 @@
+[T1] coils=26 vol=(256, 256, 176) mask frac=0.06583 AF_rect=15.191  measurements=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/data/ksp_T1.h5
+[T1] P99.9 |GT| scale = 9.925055e+01; |GT| max = 2.2873
+[T1] cgsense  psnr=34.559 ssim=0.7621 nmse=0.04559 hfen=0.9278 head_psnr=32.354 head_ssim=0.8825 sharp=0.859 grain=0.01410 (117 s)
+WROTE /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/logs/classical_T1_gaugecheck_clean.json  total 127 s
+  OK  recon_classical psnr       house=34.559489 here=34.559489 d=0.00e+00
+  OK  recon_classical ssim       house=0.762097 here=0.762097 d=0.00e+00
+  OK  recon_classical nmse       house=0.045589 here=0.045589 d=0.00e+00
+  OK  recon_classical hfen       house=0.927785 here=0.927785 d=0.00e+00
+  OK  recon_classical head_psnr  house=32.353835 here=32.353835 d=0.00e+00
+  OK  recon_classical head_ssim  house=0.882462 here=0.882462 d=0.00e+00
+  OK  recon_classical head_hfen  house=0.223894 here=0.223894 d=0.00e+00
+  OK  recon_classical sharp      house=0.859246 here=0.859246 d=0.00e+00
+  OK  recon_classical grain      house=0.014100 here=0.014100 d=0.00e+00
+  scale house=9.925055e+01 here=9.925055e+01 rel=0.00e+00
+[Pair] T1: measurement override T1T2_MEAS_T1=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/data/ksp_T1.h5
+  OK  Pair.score      psnr       house=34.559489 here=34.559489 d=0.00e+00
+  OK  Pair.score      ssim       house=0.762097 here=0.762097 d=0.00e+00
+  OK  Pair.score      nmse       house=0.045589 here=0.045589 d=0.00e+00
+  OK  Pair.score      hfen       house=0.927785 here=0.927785 d=0.00e+00
+  OK  Pair.score      head_psnr  house=32.353835 here=32.353835 d=0.00e+00
+  OK  Pair.score      head_ssim  house=0.882462 here=0.882462 d=0.00e+00
+  OK  Pair.score      head_hfen  house=0.223894 here=0.223894 d=0.00e+00
+  OK  Pair.score      sharp      house=0.859246 here=0.859246 d=0.00e+00
+  OK  Pair.score      grain      house=0.014100 here=0.014100 d=0.00e+00
+  default measurements /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/data/meas_T1.h5: max |noisy - clean| = 1.2586e-01; ground truth and scale unchanged: True
+GAUGE CHECK OK (T1): clean measurements reproduce T1FLAIR_AF16_v3_jiangyizhou; the default fits data/meas_T1.h5
+[FLAIR] coils=26 vol=(256, 256, 176) mask frac=0.06583 AF_rect=15.191  measurements=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/data/ksp_FLAIR.h5
+[FLAIR] P99.9 |GT| scale = 9.851180e+01; |GT| max = 2.2738
+[FLAIR] cgsense  psnr=35.220 ssim=0.7873 nmse=0.03528 hfen=0.8854 head_psnr=32.826 head_ssim=0.8860 sharp=0.783 grain=0.01395 (115 s)
+WROTE /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/logs/classical_FLAIR_gaugecheck_clean.json  total 123 s
+  OK  recon_classical psnr       house=35.220132 here=35.220132 d=0.00e+00
+  OK  recon_classical ssim       house=0.787343 here=0.787343 d=0.00e+00
+  OK  recon_classical nmse       house=0.035280 here=0.035280 d=0.00e+00
+  OK  recon_classical hfen       house=0.885388 here=0.885388 d=0.00e+00
+  OK  recon_classical head_psnr  house=32.826455 here=32.826455 d=0.00e+00
+  OK  recon_classical head_ssim  house=0.886002 here=0.886002 d=0.00e+00
+  OK  recon_classical head_hfen  house=0.160757 here=0.160757 d=0.00e+00
+  OK  recon_classical sharp      house=0.783324 here=0.783324 d=0.00e+00
+  OK  recon_classical grain      house=0.013954 here=0.013954 d=0.00e+00
+  scale house=9.851180e+01 here=9.851180e+01 rel=0.00e+00
+[Pair] FLAIR: measurement override T1T2_MEAS_FLAIR=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/data/ksp_FLAIR.h5
+  OK  Pair.score      psnr       house=35.220132 here=35.220132 d=0.00e+00
+  OK  Pair.score      ssim       house=0.787343 here=0.787343 d=0.00e+00
+  OK  Pair.score      nmse       house=0.035280 here=0.035280 d=0.00e+00
+  OK  Pair.score      hfen       house=0.885388 here=0.885388 d=0.00e+00
+  OK  Pair.score      head_psnr  house=32.826455 here=32.826455 d=0.00e+00
+  OK  Pair.score      head_ssim  house=0.886002 here=0.886002 d=0.00e+00
+  OK  Pair.score      head_hfen  house=0.160757 here=0.160757 d=0.00e+00
+  OK  Pair.score      sharp      house=0.783324 here=0.783324 d=0.00e+00
+  OK  Pair.score      grain      house=0.013954 here=0.013954 d=0.00e+00
+  default measurements /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/data/meas_FLAIR.h5: max |noisy - clean| = 1.2630e-01; ground truth and scale unchanged: True
+GAUGE CHECK OK (FLAIR): clean measurements reproduce T1FLAIR_AF16_v3_jiangyizhou; the default fits data/meas_FLAIR.h5
+RC=0

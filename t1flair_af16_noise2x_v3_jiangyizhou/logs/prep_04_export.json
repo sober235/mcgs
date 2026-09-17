@@ -1,0 +1,47 @@
+{
+ "mask2d_shape": [
+  256,
+  176
+ ],
+ "mask2d_samples": 2966,
+ "mask2d_frac": 0.06582918763160706,
+ "mask2d_AF_rect": 15.190830025067218,
+ "contrasts": {
+  "T1": {
+   "src": "/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/t1_fsp_train_jiangyizhou_cc",
+   "dims": [
+    256,
+    256,
+    176,
+    26
+   ],
+   "support_frac": 1.0,
+   "sampled_frac_of_plane": 0.06582919034090909,
+   "AF_vs_full_rect": 15.19082939986514,
+   "AF_vs_own_support": 15.19082939986514,
+   "acs24_kept": 0.8194444444444444,
+   "ksp_h5": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/data/ksp_T1.h5",
+   "ksp_h5_target": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/ksp_T1.h5",
+   "meas_h5": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/data/meas_T1.h5"
+  },
+  "FLAIR": {
+   "src": "/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/flair_train_jiangyizhou_cc",
+   "dims": [
+    256,
+    256,
+    176,
+    26
+   ],
+   "support_frac": 0.7577015269886364,
+   "sampled_frac_of_plane": 0.06065784801136364,
+   "AF_vs_full_rect": 16.485912916209294,
+   "AF_vs_own_support": 12.491401390413465,
+   "acs24_kept": 0.8194444444444444,
+   "ksp_h5": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/data/ksp_FLAIR.h5",
+   "ksp_h5_target": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/ksp_FLAIR.h5",
+   "meas_h5": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/data/meas_FLAIR.h5"
+  }
+ },
+ "mask3d_path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/data/mask_af16_3d.h5",
+ "note": "copied from T1FLAIR_AF16_v3_jiangyizhou/logs/prep_04_export.json on 2026-09-16 for the noise study: same k-space, same mask; the arms fit data/meas_<c>.h5 (see logs/make_noisy_kspace.json)"
+}
