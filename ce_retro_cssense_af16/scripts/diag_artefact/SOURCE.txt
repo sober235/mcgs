@@ -1,0 +1,1 @@
+verbatim copies of mcgs_af16_wt/diag_artefact/{__init__,headonly,volumes}.py (the frozen head-only gauge); do not edit
