@@ -17,7 +17,12 @@
 - 跑完后：读 `<0.5σ0 课题>/logs/compare_noise_levels_head_{psnr,ssim,hfen}.md` 的名次表判断六格；再按规则搭下一档：
   `python <1σ0 课题>/scripts/scaffold_level.py noise0p75x 0.75 af16n075 noise1x`（或 `noise0p25x 0.25 af16n025 noise0p5x`），
   先在 worktree 加对应 `configs/t1flair_v3_<前缀>_jyz*.yaml`（运行脚本已接受 af16n025_/af16n075_），写 README、生成测量、空跑、启动。
-- 推送与 tag（`handoff/2026-09-17-af16-noise`）仍等用户一句“推”；目前本地提交到 d42dd0e 之后。
+- 14:50 初判（`<0.5σ0 课题>/scripts/six_cells_now.py`，只读，按 summarize 规则在内存里汇总已完成的方法；对 1σ0、2σ0 复算与表逐位一致）：
+  MC-GS 联合 T1 35.280 / 0.9336 / 0.1197，FLAIR 34.617 / 0.9204 / 0.1177，已算的格子全第一（还缺 T1 GS-single、JTV、ZS-SSDU 及弱臂）。
+  SPIRiT、DIP、INR、MC-INR 在 0σ0 与 1σ0 下六格都远落后，不影响判定；决定性方法到齐就定下一档。
+- 0.75σ0 已提前备好（不占卡）：配置 `configs/t1flair_v3_af16n075_jyz*.yaml`（96ee660），课题 `T1FLAIR_AF16_noise0p75x_v3_jiangyizhou/`，
+  测量检查全过（`nested_vs_1x` 0.29 / 0.28），README 骨架已写。0.5σ0 若不是六格全胜则改搭 0.25σ0，0.75σ0 课题不启动。
+- 推送与 tag（`handoff/2026-09-17-af16-noise`）仍等用户一句“推”。
 
 一句话：冻结的 AF16 三期配方扛不住 2σ0 的测量噪声，头内 PSNR 掉 5.9 / 5.0 dB，名次掉到 T1 第 8、7、5，FLAIR 第 9、9、7
 （PSNR、SSIM、HFEN，共 12 个方法）。1σ0 下 PSNR 和 HFEN 基本守住：T1 PSNR 第二，比收敛 TV 低 0.003 dB；FLAIR PSNR 第一，
