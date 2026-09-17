@@ -15,9 +15,11 @@ exactly the two situations the prospective pair can only ask about qualitatively
   situation as the non-enhancing lesion of the prospective pair;
 - label 2 is oedema, not used for scoring.
 
-Four cases were picked to span the range: 0004 (enhancing 15.7 mL), 0023 (8.8 mL, small), 0031 (3.7 mL, a thin rim
-with a 45 mL necrotic core) and 0053 (64.6 mL, the largest). 0031's label 4 turns out to enhance by only -0.046 in
-white-matter units, so it cannot score "uptake kept" and is excluded from that average (the scorer marks it).
+Eight cases span the range: 0004 (enhancing 15.7 mL), 0012 (48.9), 0017 (24.3), 0023 (8.8, the smallest), 0026
+(19.2), 0031 (3.7, a thin rim with a 45 mL necrotic core), 0041 (32.5) and 0053 (64.6, the largest). The first four
+were picked by enhancing volume alone; the second four were additionally screened for a genuinely enhancing label 4
+and a genuinely non-enhancing core. 0031's label 4 turns out to enhance by only -0.046 in white-matter units, so it
+cannot score "uptake kept" and is excluded from that average (the scorer marks it).
 
 ## The simulation (`scripts/retro_sim.py`)
 
@@ -47,8 +49,10 @@ It writes `work_{pre,post}/{ksp_full,csm,mask2d}.npy` (what the reconstruction s
 Every arm runs the *prospective topic's own script*, pointed at a simulated case through environment variables
 (`CE_WORK_PRE/POST` for `ce_classical.py`, `ce_tv_sense.py`, `ce_dip_inr.py`; `CE_GS_PRE/POST` for `ce_gs.py`;
 `CE_SPLIT` for the held-out split), so the code path is identical to the prospective work and only the data differ.
-Arms: ZF, CG-SENSE, CS-SENSE (ADMM-TV, 200 outer), 3D-DIP (5000 iters), 3D-INR (1500 iters), GS-single, MC-GS, with
-the same hyper-parameters as the prospective runs. One job per card; a card is taken only when no process of this
+Arms: ZF, CG-SENSE, CS-SENSE (ADMM-TV, 200 outer), 3D-DIP (5000 iters), 3D-INR (1500 iters), GS-single and MC-GS in
+`retro_run.py`; Joint SENSE, L1-SPIRiT, ZS-SSDU (60 epochs) and MC-INR in `scripts/retro_more_arms.py`, which was
+added on 2026-09-17 after the first pass had left them out -- the registered comparison set is nine methods besides
+ZF, plus MC-INR. All hyper-parameters are the prospective ones except the lambdas, which are re-selected here. One job per card; a card is taken only when no process of this
 user is on it, its utilisation is below 30%, it is not in `--exclude`, and it holds no live lock from another
 session's scheduler (`--lockglob`, see Gotchas). Jobs write pid files, so a restart adopts what is still running.
 
@@ -70,45 +74,55 @@ Against truth, after the best complex scale per volume:
 `scripts/retro_figure.py` draws one case at the slice with the largest enhancing cross-section: truth plus every arm,
 pre / post / post minus pre, with the enhancing label in cyan and the necrotic core in orange.
 
-## Results (8 cases, 2026-09-17)
+## Results (8 cases, 10 arms, 2026-09-17)
 
-`retro_scores.json`, printed by `scripts/retro_score.py`. CS-SENSE uses the lambda selected per case on held-out
-lines (2.5e-05 in all eight cases, an interior minimum every time); every other arm uses the prospective settings.
+`retro_scores.json`, printed by `scripts/retro_score.py`. The column set is the prospective topic's: ZF plus the
+nine registered comparison methods, plus MC-INR. Every lambda is selected on this data on 5% held-out lines, never
+on truth (CS-SENSE and Joint SENSE per case, both 2.5e-05 everywhere; L1-SPIRiT's kernel and lambda settled once on
+UCSF-PDGM-0004 with the full kernel 3/5 x lambda grid -- kernel 5, 1e-4 -- and reused for the other seven, since the
+grid costs about 3 h per case under contention and every other selection had been identical across cases).
 
 ```
 arm            PSNR    kept  |uptake err|  false(nec)   Dice     (mean of 8 cases; kept over the 7 with real uptake)
 ZF            23.18     80%         0.121      +0.138  0.664
 CG-SENSE      27.97     92%         0.049      +0.063  0.829
 CS-SENSE      32.88     96%         0.024      +0.034  0.894
+Joint SENSE   32.59     96%         0.026      +0.037  0.890
+L1-SPIRiT     31.32     97%         0.019      +0.025  0.880
+ZS-SSDU       30.35    105%         0.031      -0.042  0.884
 3D-DIP        29.23    100%         0.005      +0.015  0.833
 3D-INR        31.48     98%         0.012      +0.011  0.896
+MC-INR        30.69     95%         0.030      +0.028  0.846
 GS-single     32.62     99%         0.008      +0.010  0.906
 MC-GS         31.47     99%         0.006      +0.012  0.880
 ```
 
 What it says:
 
-- **Undersampling biases the derived quantity, not just the noise.** At AF 5.34 zero-filling keeps only 80% of the
-  true uptake and reports +0.138 of uptake inside a necrotic core that does not enhance; CG-SENSE 92% and +0.063.
-  Both failure modes come from the same blur across the rim-core boundary, and both change what a reader would call
-  the lesion.
-- **The arms with an image model keep both errors small**: 3D-INR, GS-single and MC-GS all keep 98-99% of the uptake
-  with +0.010 to +0.012 of false uptake. GS-single has the best Dice (0.906) and the lowest false uptake (+0.010).
-- **CS-SENSE, once its lambda is selected on this data, is the strongest classical arm** (PSNR 32.88, Dice 0.894) but
-  still smooths some uptake into the core (+0.034, three times the GS arms).
-- **Joint is not better than single here.** MC-GS equals GS-single on uptake kept (99%) and false uptake
-  (+0.012 vs +0.010) but is 1.15 dB lower in PSNR and 0.026 lower in Dice. Together with the prospective held-out
-  kres (MC-GS 0.30510 vs GS-single 0.30343) and the seed null test (identical), four independent checks say the same:
-  in a pre/post pair the two scans differ only by uptake, so a shared geometry adds little. What MC-GS does buy is
-  compute: one joint run (about 21 min here) produces both volumes, against about 42 min for two single runs.
+- **Undersampling biases the derived quantity, not just the noise.** Zero-filling keeps 80% of the true uptake and
+  reports +0.138 of uptake inside a necrotic core that does not enhance; CG-SENSE 92% and +0.063. Both failure modes
+  come from the same blur across the rim-core boundary, and both change what a reader would call the lesion.
+- **GS-single is the most faithful arm on the enhancement itself**: the highest Dice (0.906) and the lowest false
+  uptake (+0.010), with PSNR second (32.62) behind CS-SENSE (32.88). 3D-INR is close behind on both.
+- **ZS-SSDU trades the two errors against each other**: it exaggerates uptake in the enhancing label (105%) and
+  under-reports it in the core (-0.042), i.e. it sharpens the contrast in both directions rather than reproducing it.
+- **Coupling the two scans does not help, in either family.** Joint SENSE against CS-SENSE: PSNR 32.59 vs 32.88,
+  false +0.037 vs +0.034, Dice 0.890 vs 0.894. MC-GS against GS-single: 31.47 vs 32.62, +0.012 vs +0.010, 0.880 vs
+  0.906, with identical uptake (99%). Two independent joint-versus-single comparisons agree, and so do the
+  prospective held-out kres (MC-GS 0.30510 vs GS-single 0.30343, Joint SENSE 0.29210 vs CS-SENSE 0.29159) and the
+  seed null test. In a pre/post pair the two scans differ only by uptake, so a shared prior adds little; what MC-GS
+  does buy is compute -- one joint run (about 21 min here) produces both volumes, against about 42 min for two
+  single runs.
 
 Figures (`/home/congcongliu/figs/ce_retro/`): `retro_UCSF-PDGM-0053_z134.png` (largest enhancing volume),
-`retro_UCSF-PDGM-0017_z117.png`, `retro_UCSF-PDGM-0031_z141.png` (thin rim, large necrotic core).
+`retro_UCSF-PDGM-0017_z117.png`, `retro_UCSF-PDGM-0031_z141.png` (thin rim, large necrotic core). Twelve columns:
+truth plus the eleven arms, pre / post / post minus pre.
 
 Caveats to carry into any write-up: synthetic phase, simulated coils, Gaussian noise, no motion between the two
 scans and perfect registration -- none of the real pre/post difficulties are here. The truth itself is two separate
 acquisitions, so its own difference map has edge structure that enters the "false uptake" number. PSNR is not
-diagnostic quality; there is no reader study.
+diagnostic quality; there is no reader study. L1-SPIRiT's kernel and lambda are transferred within the simulation
+family rather than selected per case.
 
 ## Gotchas (do not re-discover)
 
