@@ -3,9 +3,13 @@
 GPU lane: a card is taken when a poll finds no compute process of this user on it, utilisation < 30 % and >= need MB free;
 at most MAX_GPU jobs at once, one per card. Restartable: finished work is recognised from its output files; pids in logs/orch/jobs/.
 Lambda families extend one step (x1.4 / /1.4, at most 2 times per scan) when the best value sits on a grid edge.
-Before launching anything, a job whose command (script + key arguments, GPU index ignored) already matches a running
+Before launching a GPU-lane job, a command (script + key arguments, GPU index ignored) already matching a running
 process of this user is skipped -- 2026-09-17: MC-GS joint, GS-single pre/post, ZS-SSDU pre/post and 3D-DIP pre were
-started by hand before this scheduler existed, so their output files do not exist yet but the jobs must not be duplicated.
+started by hand before this scheduler existed, so their output files do not exist yet but the jobs must not be
+duplicated. The guard is GPU-lane only (nothing hand-launches the cpu-lane `summarize` job) and refuses to act on
+a pattern with no argument token beyond the script name (too loose to trust against a same-user `pgrep -f` search
+on a machine that routinely runs 8+ sessions of this user) -- both matter because a job skipped this way is never
+counted as a try, so it would stay "pending" forever rather than ever reach "failed" and trip the STOPPED branch.
   cd $TOPIC && setsid nohup env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID python scripts/retro_orchestrate.py > logs/orch/orchestrate.log 2>&1 &
   python scripts/retro_orchestrate.py --dry      # print the job graph and exit"""
 import json, os, re, subprocess, sys, time
@@ -169,7 +173,10 @@ def _job_pattern(cmd):
     """The command's script + arguments as a pgrep -f regex: basename'd (a hand launch may use a relative script
     path where this builds an absolute one) starting at the script itself (drop the interpreter/wrapper before it,
     which a hand launch may not share), with whichever token selects the GPU wildcarded (a hand launch may have
-    used a different card)."""
+    used a different card). None if nothing beyond the script name would remain to distinguish this job from any
+    other run of the same script (e.g. summarize.py, called with no arguments at all) -- such a bare pattern would
+    match any same-user process that merely contains the script name, which on a shared machine with routinely
+    8+ concurrent sessions of this user is not a safe thing to search for."""
     toks = [str(t) for t in cmd]
     i = next((k for k, t in enumerate(toks) if "/" in t and (t.endswith(".py") or t.endswith(".sh"))), 0)
     toks = toks[i:]
@@ -178,19 +185,32 @@ def _job_pattern(cmd):
         toks[toks.index("--gpu") + 1] = None
     elif toks[0] == "run_gs.sh":
         toks[2] = None                                  # bash run_gs.sh EXP GPU ITERS: GPU is positional
+    if len(toks) < 2:                                    # just the script name, nothing to distinguish this job
+        return None
     return " ".join(r"[0-9]+" if t is None else re.escape(t) for t in toks)
 
 
 def already_running(cmd):
     """True if a process of this user matching this job's command is already alive, whichever GPU it is on: the
     production arms of 2026-09-17 were started by hand outside this scheduler, before any output file exists, so
-    `done()` alone would not stop a duplicate launch."""
+    `done()` alone would not stop a duplicate launch. False (with a warning logged) if the command has no
+    pattern worth searching for -- see _job_pattern."""
     pattern = _job_pattern(cmd)
     if not pattern:
+        log(f"already_running: no distinguishing argument in {cmd!r}; treating as not running")
         return False
     out = subprocess.run(["pgrep", "-u", str(os.getuid()), "-af", pattern], capture_output=True, text=True).stdout
     me = os.getpid()
     return any(tok.isdigit() and int(tok) != me for tok in (line.split(None, 1)[0] for line in out.strip().splitlines()))
+
+
+def should_skip_as_running(job):
+    """True if `job` should be skipped this round because a matching process is already running outside the
+    scheduler. GPU-lane only: the controller's ruling (2026-09-17) was about six specific hand-launched GPU jobs;
+    nothing hand-launches a cpu-lane job like `summarize`, and a false positive there (or on any future cpu-lane
+    job) would be worse than on a GPU job -- a skipped job is never counted as a try and never promoted to
+    "failed", so it would stay "pending" forever and the run would never reach ALL_DONE_retro16."""
+    return job["lane"] == "gpu" and already_running(job["cmd"](0))
 
 
 if __name__ == "__main__":
@@ -258,7 +278,7 @@ if __name__ == "__main__":
         mine = {j["gpu"] for j in running if j["lane"] == "gpu"}
         stable = {g for g, f in free.items() if g not in busy and g not in mine}
         for j in ready:
-            if already_running(j["cmd"](0)):
+            if should_skip_as_running(j):
                 log(f"skip {j['name']}: a matching process is already running outside the scheduler")
                 continue
             if j["lane"] == "gpu":

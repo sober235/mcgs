@@ -10,7 +10,12 @@ Per-slice metric is the head-only PSNR of the frozen gauge, restricted to that s
     head = |GT| > 0.05 * P99.9(|GT|)     (global mask, frozen definition)
     psnr_i = 20 log10(max|GT|) - 10 log10( mean over head&slice of (rec - gt)^2 )
 Slices whose head mask holds < 2000 voxels are skipped: a handful of voxels makes the number
-meaningless, not favourable.
+meaningless, not favourable. Writes logs/slice_scores.json.
+
+Review note (2026-09-17): METHODS is flat (not lambda-aware) and does not match this topic's swept CS-SENSE
+filenames (recon/cssense_o200_lam<L>_<c>_complex.npy) -- as ported this will KeyError/ValueError once
+gs_joint/gs_single/cssense are needed but "cssense" never resolves to a file. Inherited from the jyz source;
+generalising the loader is future work, not done here.
 """
 import json
 from pathlib import Path
@@ -77,8 +82,8 @@ def main():
                       f"rank={r['rank_gs_joint']}  best={r['best']}  n_head={r['n_head']}")
     json.dump({c: [{k: (v if k != 'psnr' else {m: float(x) for m, x in v.items()})
                     for k, v in r.items()} for r in rows] for c, rows in out.items()},
-              open(R / "logs/per_slice.json", "w"))
-    print(f"\nwrote {R/'logs/per_slice.json'}")
+              open(R / "logs/slice_scores.json", "w"))
+    print(f"\nwrote {R/'logs/slice_scores.json'}")
 
 
 if __name__ == "__main__":

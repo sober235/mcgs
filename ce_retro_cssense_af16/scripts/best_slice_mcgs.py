@@ -10,6 +10,9 @@ One slice for both contrasts: the eligible slice with the largest min(margin_T1,
 Also lists distinct candidates (at least --gap slices apart): by that score, and, among the slices where MC-GS is first
 on both contrasts, by its lead over the best method outside the GS family (GS-single left out).
 Writes logs/best_slice_mcgs.json (axis 0) or logs/best_slice_mcgs_axis<k>.json.
+
+Review note (2026-09-17): arms(c) below covers 8 of this topic's 11 registered arms -- no zf, L1-SPIRiT (spirit)
+or MC-INR row. Inherited from the jyz source (Step 7 only asked to drop its L1-ESPIRiT row); left as is.
 """
 import argparse, json, re
 from pathlib import Path
