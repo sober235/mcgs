@@ -16,7 +16,7 @@
    "sigma": 1.3668591627482325,
    "sigma_measured_first_two_coils": 1.3668558597564697,
    "noise_seed": 100,
-   "wm_snr_sense_adjoint": 34.44544219970703,
+   "wm_snr_sense_adjoint": 34.44544580365239,
    "scale_p999": 183.57667347717228,
    "csm": "/data0/congcong/code/NV-Generate-CTMR/recon_real/work_ce_t1_16887049370010/csm.npy"
   },
@@ -28,7 +28,7 @@
    "sigma": 1.4452258068243002,
    "sigma_measured_first_two_coils": 1.4454681873321533,
    "noise_seed": 200,
-   "wm_snr_sense_adjoint": 33.098114013671875,
+   "wm_snr_sense_adjoint": 33.09811600231404,
    "scale_p999": 243.4532769927959,
    "csm": "/data0/congcong/code/NV-Generate-CTMR/recon_real/work_ce_t1_16887049370060/csm.npy"
   }
@@ -37,5 +37,7 @@
   "pre": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/tv_sense/cssense_o200_lam0.002_full_pre_complex.npy",
   "post": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/tv_sense/cssense_o200_lam0.002_full_post_complex.npy"
  },
- "fft": "centred orthonormal (ce_common.fft3c)"
+ "fft": "centred orthonormal (same as t1t2_common.fft3c)",
+ "noise_chunk": 6,
+ "noise_device": "cuda:0"
 }

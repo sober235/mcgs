@@ -82,7 +82,9 @@ def main():
         wm = r["roi2"]
     (R / "sim/gs").mkdir(parents=True, exist_ok=True)
     gt_out, meta = {"mask2d": mask2d}, dict(grid=[NX, NY, NZ], pe_points=int(mask2d.sum()), pe_total=NY * NZ,
-                                           af=NY * NZ / int(mask2d.sum()), scans={}, gt=GT_str(), fft="centred orthonormal (ce_common.fft3c)")
+                                           af=NY * NZ / int(mask2d.sum()), scans={}, gt=GT_str(),
+                                           fft="centred orthonormal (same as t1t2_common.fft3c)",
+                                           noise_chunk=6, noise_device=str(dev))
     for scan in ("pre", "post"):
         x = torch.from_numpy(np.load(GT[scan])).to(torch.complex64)
         S = torch.from_numpy(np.load(MEAS[scan] / "csm.npy")).to(torch.complex64)
@@ -91,6 +93,8 @@ def main():
         assert x.shape == (NX, NY, NZ) and S.shape == y_meas.shape == (42, NX, NY, NZ)
         alpha, kres, sigma = sigma_from_residual(S, x, y_meas, m0, dev)
         print(f"[{scan}] alpha={alpha:.5f} kres={kres:.5f} (ref {KRES_REF[scan]}) sigma={sigma:.5e}  {time.time() - t0:.0f}s", flush=True)
+        if abs(alpha - 1) >= 1e-3:
+            raise SystemExit(f"[{scan}] alpha {alpha:.6f} is not 1: the truth is not on the measured scale")
         if abs(kres - KRES_REF[scan]) >= 1e-3:
             raise SystemExit(f"[{scan}] kres {kres:.5f} does not reproduce the archived {KRES_REF[scan]}: FFT/CSM convention mismatch")
         del y_meas
@@ -108,7 +112,7 @@ def main():
         np.save(w / "mask2d.npy", np.broadcast_to(mask2d[None], (NX, NY, NZ)).astype(np.float32))
         xa = x.abs().numpy()
         sos = torch.sqrt((S.abs() ** 2).sum(0)).numpy()
-        snr_wm = float(np.median(xa[wm]) / np.median(sigma * sos[wm]))
+        snr_wm = float(np.median(xa[wm] * sos[wm]) / sigma)
         gt_out[scan] = x.numpy(); gt_out[f"scale_{scan}"] = float(np.quantile(xa, 0.999))
         meta["scans"][scan] = dict(alpha_re=alpha.real, alpha_im=alpha.imag, kres_on_prospective_mask=kres, kres_ref=KRES_REF[scan],
                                    sigma=sigma, sigma_measured_first_two_coils=sigma_meas, noise_seed=NOISE_SEED[scan],

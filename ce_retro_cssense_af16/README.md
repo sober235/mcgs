@@ -14,6 +14,10 @@ CS-SENSE kres (0.18487 pre / 0.14969 post) to < 1e-3 -- the FFT/CSM convention g
 Result (2026-09-17): kres 0.184868 pre / 0.149690 post (both within 2e-6 of reference); sigma 1.36686
 pre / 1.44523 post; WM SNR 34.4 pre / 33.1 post.
 
+Sigma is the data-consistency residual of a TV-regularised truth, so it upper-bounds the thermal
+noise; the pre/post spread (kres 0.185 vs 0.150 at nearly equal sigma) bounds the model-error
+contamination at roughly 6% in amplitude.
+
 ## check_sim.py operator gates (Task 5)
 
 `scripts/check_sim.py` checks, on one GPU: (a) the noiseless adjoint identity `x_hat == x_GT` inside
