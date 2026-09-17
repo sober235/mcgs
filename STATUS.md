@@ -1,12 +1,19 @@
-# STATUS — 2026-09-16 22:00（worktree `mcgs_noise_wt`，分支 `jyz-af16-noise`，从 `jyz-af16-diffmask` bbba53b 切出）
+# STATUS — 2026-09-17 09:45（worktree `mcgs_noise_wt`，分支 `jyz-af16-noise`，从 `jyz-af16-diffmask` bbba53b 切出）
 
-## 噪声鲁棒性研究（本分支）：准备完成，57 个作业 21:48 起在卡 1、2、5 上跑
+## 噪声鲁棒性研究（本分支）：2σ0、1σ0 两档全部完成
 
-用户 09-16 的要求：jyz 数据、AF16、泊松盘三维掩膜、全部方法，给测量加高斯噪声，验证鲁棒性。
-拍板：一档噪声，每个采样点的复噪声标准差 = 2 × 数据本底 σ0；设计与计划照批准执行；卡用 1、2、5。
-先读设计 `docs/superpowers/specs/2026-09-16-jyz-af16-noise-robustness-design.md`，再读计划
-`docs/superpowers/plans/2026-09-16-jyz-af16-noise-robustness.md`（任务 1–9 已做完，剩任务 10、11），
-课题 `Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/`（README 有噪声表）。
+一句话：冻结的 AF16 三期配方扛不住 2σ0 的测量噪声，头内 PSNR 掉 5.9 / 5.0 dB，名次掉到 T1 第 8、7、5，FLAIR 第 9、9、7
+（PSNR、SSIM、HFEN，共 12 个方法）。1σ0 下 PSNR 和 HFEN 基本守住：T1 PSNR 第二，比收敛 TV 低 0.003 dB；FLAIR PSNR 第一，
+比 GS-single 高 0.007 dB；HFEN 两个对比度都第一。SSIM 两个对比度都第五。
+
+用户 09-16 的要求：jyz 数据、AF16、泊松盘三维掩膜、全部方法，给测量加高斯噪声，验证鲁棒性。拍板：先做 2σ0 一档；
+设计照批准执行；卡用 1、2、5；看到 2σ0 中途数字后加 1σ0 一档，全部方法再跑一遍，不加噪声下重调的 GS。
+
+阅读顺序：中文总结 `docs/2026-09-17-af16-noise-jyz-summary.md` → 英文记录 `docs/superpowers/records/2026-09-17-jyz-af16-noise.md`
+→ 交接 `docs/handoff/2026-09-17-jyz-af16-noise.md` → 设计 `docs/superpowers/specs/2026-09-16-jyz-af16-noise-robustness-design.md`
+→ 计划 `docs/superpowers/plans/2026-09-16-jyz-af16-noise-robustness.md` → 两个课题的 README。
+课题：`Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/`、`Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou/`；
+仓库镜像 `t1flair_af16_noise2x_v3_jiangyizhou/`、`t1flair_af16_noise1x_v3_jiangyizhou/`（不含数据和体积，只有 PNG）。
 
 ### 1. 已完成且已验证
 
@@ -16,9 +23,9 @@
     /home/congcongliu/anaconda3/envs/GSTMI/bin/python -m pytest tests -q --ignore=tests/smoke_test.py
   # 211 passed, 1 warning in 421.30s
   ```
-- 带噪测量 `data/meas_{T1,FLAIR}.h5`（`scripts/make_noisy_kspace.py`，种子 20260916，拒绝覆盖），六项检查全过：
+- 带噪测量（`scripts/make_noisy_kspace.py`，种子 20260916，拒绝覆盖），两档检查全过。2σ0：
   ```
-  $ grep -E "sigma0|OK|BAD|DONE|RC=" <课题>/logs/make_noisy_kspace.log
+  $ grep -E "sigma0|OK|BAD|DONE|RC=" /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou/logs/make_noisy_kspace.log
   [T1] scale 9.925056e+01  f_acq 1.000000 (45056 lines)  sigma0_img 0.014076  sigma0_k 0.014076  sigma 0.028153 (raw 2.794153e+00)
   [T1]   OK  support_exact   True (limit True)
   [T1]   OK  mean_z          2.293684753898831 (limit 4.0)
@@ -36,70 +43,102 @@
   MAKE_NOISY_KSPACE DONE
   RC=0
   ```
-  加噪后全采图像空气噪声：T1 预期 0.03148 / 实测 0.03147，FLAIR 0.02866 / 0.02865（`logs/make_noisy_kspace.json`）。
-- 口径检查（`logs/gauge_check_clean.log`）：把测量指回干净文件，`recon_classical` 与 `Pair.score` 两条路径的 CG-SENSE
-  九项指标与 AF16 课题记录的差全是 0.00e+00，尺度相对差 0；不设覆盖时读 `meas_<c>.h5`，带噪减干净最大 0.126，真值与尺度不变。
-  两个对比度都 `GAUGE CHECK OK`。检查用的体积已删，json 在 `logs/gauge_check/`。
-- GS 冒烟（60 步，NOT_EVIDENCE）：`[Measurement] fitting to .../meas_T1.h5`、FLAIR `zero_lines=233/2966`（与干净数据相同）、
-  `actual acceleration: 15.19x`、npz 含 `recT1_render_complex`/`recFL_render_complex`。
-- MC-INR：仓库测试改动前后都是 28 passed；单层冒烟 RC=0，meta 的 `ksp` 指向两个带噪文件（提交 726a0b6，本地仓库不推送）。
-- 队列空跑：57 个作业，顺序 gs_joint → gs_singleFLAIR → base → gs_singleT1 → TV → JTV → ZS-SSDU → INR → DIP → SPIRiT → MC-INR。
-
-### 1b. 追加：1σ0 一档（用户 09-16 23:1x 选定）
-
-- 起因（中途数字，非最终）：2σ0 下冻结配方的 GS-single 头内 PSNR T1 29.57（零噪声 35.56）、FLAIR 30.06（34.89），锐度比 1.35 / 1.22；
-  硬替换只占 0.06 dB（CPU 临时核对，`scratchpad` 脚本，未入账）；CG-SENSE 约 −2.5 dB，TV 随 λ 增大回升。用户选“再加一档 1×σ0”，不加重调 GS。
-- 课题 `Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou/`，脚本从 2σ0 课题复制，只换课题路径、倍数、实验前缀 `af16n1_`、MC-INR 标签 `_noise1x`。
-  噪声与 2σ0 同种子同抽样，恰为其一半（`nested_vs_2x` 0.29 / 0.29，限 1）；其余六项检查全过（`logs/make_noisy_kspace.log`）。
-  CPU 核对：该课题 `Pair` 读 `meas_T1.h5`，带噪减干净最大 0.0629（2σ0 为 0.1259）。
-- 运行脚本 `run_noise_mcgs.sh` 增加 `af16n1_` 分支（原子替换，配方段落 diff 一致），配置 `configs/t1flair_v3_af16n1_jyz*.yaml`，提交 79e2b97。
-- 第二个调度器 23:37 起：`launch_noise.sh --cards 2,1,5`（1σ0 课题），与 2σ0 调度器共用卡 1、2、5，各守每卡一个作业与卡锁。
-- 三档对比脚本 `T1FLAIR_AF16_noise1x_v3_jiangyizhou/scripts/compare_noise_levels.py`（两队列都结束后跑）。
+  1σ0（同一组抽样减半，另加嵌套检查）：
+  ```
+  $ grep -E "sigma0|OK|BAD|DONE|RC=" /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou/logs/make_noisy_kspace.log
+  [T1] scale 9.925056e+01  f_acq 1.000000 (45056 lines)  sigma0_img 0.014076  sigma0_k 0.014076  sigma 0.014076 (raw 1.397076e+00)
+  [T1]   OK  support_exact   True (limit True)
+  [T1]   OK  mean_z          2.293684796217816 (limit 4.0)
+  [T1]   OK  std_rel         0.0007078130051578757 (limit 0.005)
+  [T1]   OK  air_noise_rel   0.00012724057550406176 (limit 0.02)
+  [T1]   OK  gt_vs_house     3.7762638748974465e-07 (limit 0.0001)
+  [T1]   OK  scale_vs_house  8.430551444632068e-08 (limit 1e-05)
+  [T1]   OK  nested_vs_2x    0.29203131211992756 (limit 1.0)
+  [FLAIR] scale 9.851180e+01  f_acq 0.757702 (34139 lines)  sigma0_img 0.012815  sigma0_k 0.014722  sigma 0.014722 (raw 1.450322e+00)
+  [FLAIR]   OK  support_exact   True (limit True)
+  [FLAIR]   OK  mean_z          2.5866291044951644 (limit 4.0)
+  [FLAIR]   OK  std_rel         0.0006435401995374956 (limit 0.005)
+  [FLAIR]   OK  air_noise_rel   0.00025065954769332155 (limit 0.02)
+  [FLAIR]   OK  gt_vs_house     4.7587603710187855e-07 (limit 0.0001)
+  [FLAIR]   OK  scale_vs_house  3.222210176661274e-10 (limit 1e-05)
+  [FLAIR]   OK  nested_vs_2x    0.2895754328279813 (limit 1.0)
+  MAKE_NOISY_KSPACE DONE
+  RC=0
+  ```
+- 口径检查（2σ0 课题 `logs/gauge_check_clean.log`）：测量指回干净文件时，CG-SENSE 九项指标与 AF16 课题记录的差全是 0.00e+00，两条代码路径都是。
+- MC-INR：仓库测试改动前后都是 28 passed；`run_volume.py --ksp_T1/--ksp_FLAIR`，提交 726a0b6（本地仓库，不推送），两档标签 `_noise2x`、`_noise1x`。
+- 队列：2σ0 共 61 个作业（57 个加 4 个扩网格），1σ0 共 57 个，都没有失败，`logs/RUN_ALL_NOISE_DONE` 里 `finalize_rc` 都是 0。
+  2σ0 的三个上界最优 λ 上扩两档后没变；1σ0 的最优 λ 全在网格内部。
+- 尺度核对（只读，几秒）：
+  ```
+  $ cd /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou && PYTHONNOUSERSITE=1 PYTHONPATH= /home/congcongliu/anaconda3/envs/GSTMI/bin/python scripts/check_scale_levels.py
+  noise1x: 26 per-contrast job files checked; worst rel 0.00e+00; scale mismatches: []
+    summary rows: 24; arms (12): ['cgsense', 'cssense', 'cssense_o200', 'dip', 'gs_joint_p3', 'gs_single_p3', 'inr', 'jcssense', 'mcinr', 'spirit', 'zf', 'zsssdu']
+    ref scale T1 99.25054698943967 FLAIR 98.51180175781201
+  noise2x: 28 per-contrast job files checked; worst rel 0.00e+00; scale mismatches: []
+    summary rows: 24; arms (12): ['cgsense', 'cssense', 'cssense_o200', 'dip', 'gs_joint_p3', 'gs_single_p3', 'inr', 'jcssense', 'mcinr', 'spirit', 'zf', 'zsssdu']
+    ref scale T1 99.25054698943967 FLAIR 98.51180175781201
+  ```
+- 三档对比（只读，几秒）：
+  ```
+  $ cd /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou && PYTHONNOUSERSITE=1 PYTHONPATH= /home/congcongliu/anaconda3/envs/GSTMI/bin/python \
+      scripts/compare_noise_levels.py --metric head_psnr | sed -n '/strongest comparison/,/^## Lambda/p'
+  | T1 | no noise | 35.706 | GS-single 35.558 | +0.1481 |
+  | T1 | 1 sigma0 | 34.016 | CS-SENSE (TV, converged) 34.018 | -0.0026 |
+  | T1 | 2 sigma0 | 29.802 | ZS-SSDU 33.131 | -3.3283 |
+  | FLAIR | no noise | 34.928 | GS-single 34.886 | +0.0417 |
+  | FLAIR | 1 sigma0 | 33.635 | GS-single 33.628 | +0.0073 |
+  | FLAIR | 2 sigma0 | 29.946 | Joint SENSE (JTV) 32.553 | -2.6063 |
+  | T1 | no noise | 1/12 | 1/12 | 1/12 |
+  | T1 | 1 sigma0 | 2/12 | 5/12 | 1/12 |
+  | T1 | 2 sigma0 | 8/12 | 7/12 | 5/12 |
+  | FLAIR | no noise | 1/12 | 1/12 | 1/12 |
+  | FLAIR | 1 sigma0 | 1/12 | 5/12 | 1/12 |
+  | FLAIR | 2 sigma0 | 9/12 | 9/12 | 7/12 |
+  ```
+  （表头行省略；完整输出与 SSIM、HFEN 版本在 `logs/compare_noise_levels_<metric>.md`。）
+- 图（每档五张，全部看过）：`http://localhost:8765/t1flair_v3_af16_noise2x/`、`http://localhost:8765/t1flair_v3_af16_noise1x/`，
+  文件在 `/home/congcongliu/figs/t1flair_v3_af16_noise{2x,1x}/`。两张正式图另有 600 dpi PDF。
 
 ### 2. 待用户拍板
 
-- 暂无。结果出来后按设计第 1 节读数。
-- 可选：0、3、4、7 号卡空闲时如允许使用，两档总耗时可明显缩短（目前只用已批准的 1、2、5，5 号卡与他人共用、慢约 5 倍）。
+- 要不要做噪声下重调的 GS 臂（像经典方法一样在带噪数据上重选正则）。没开始。
+- AF16 课题 `_zf_caps` 正式图的一行说明文字超出图宽；噪声课题已改成三行，AF16 那边要不要改。
+- 可选：零噪声 JTV 只扫了 0.0007、0.001 两点，要不要补 0.0005、0.0014，让零噪声一列严格。
 
-### 3. 下一步（正在跑）
+### 3. 下一步
 
-- 两个调度器（见坑 1、6、8 的重启经过）。看进度：
-  ```
-  N=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise2x_v3_jiangyizhou
-  tail -20 $N/logs/run_all_noise.log; cat $N/logs/run_all_noise_status.json; nvidia-smi
-  ```
-- 调度器进程没了而 `logs/RUN_ALL_NOISE_DONE` 不存在：原样重启即可（已有结果跳过，在跑的作业会被等待）：
-  `setsid nohup bash $N/scripts/launch_noise.sh --cards 1,2,5 --light_only_cards 5 > /dev/null 2>&1 < /dev/null &`（1σ0 课题用 `--cards 2,1,5 --light_only_cards 5`）
-- 队列空了会自动跑 `finalize_noise.sh`（登记 GS 臂、MC-INR 打分、渲染诊断、汇总表、对比表、图）。之后做计划的任务 10（查边缘 λ、
-  看图、读数）和任务 11（记录、镜像、提交、推送、打 tag、记忆）。
+- 没有在跑的作业，卡 1、2、5 已空出。
+- 向用户汇报后：推送 `jyz-af16-noise`，打 tag `handoff/2026-09-17-af16-noise`；MC-INR 仓库打同名本地 tag（不推送）。
+- 用户拍板后按第 2 段执行。
 
 ### 4. 已知的坑与别重做
 
-1. 卡：1、2 号在 17:00 后被另一会话的超参数敏感性研究（`mcgs_hparam_wt`）接走，它 20:56 跑完；用户 09-16 21:4x 定“先用 5 号卡开跑，
-   等它完了再加 1、2”，所以 21:48 先 `--cards 5` 启动，21:50 发现它已跑完，杀掉调度器进程（只杀调度器，作业不动）后用 `--cards 1,2,5` 重启。
-   儿科五期的 `p5_sched.sh` 可用卡是全部 8 张且不看 `.gpulock`，已发消息请它避开 1、2、5。
-2. 别覆盖 `data/meas_*.h5`：生成器拒绝覆盖；要重做先删两个 meas 文件和 `recon/fullnoisy_*`、`logs/make_noisy_kspace.json`。
+1. 卡：1、2 号在 09-16 17:00 后被另一会话的超参数敏感性研究（`mcgs_hparam_wt`）接走，它 20:56 已跑完；21:48 先用 5 号卡启动，
+   21:50 改为 1、2、5 重启（只杀调度器，作业不动）。儿科五期的 `p5_sched.sh` 不看 `.gpulock`，已发消息请它避开 1、2、5。
+2. 别覆盖 `data/meas_*.h5`（每个 2.4 GB，不在 git 里）：生成器拒绝覆盖。1σ0 的嵌套检查要读 2σ0 的测量文件，两个课题的 `data/` 都别删，
+   也别只重生成其中一档。
 3. 训练器的尺度用 torch 单精度分位数（99.251015），`Pair` 用 numpy（99.25055），相对差 4.6e-6，PSNR 影响约 4e-5 dB；GS 主表行取训练器自己的打分，与以往课题一致。
-4. zsh 不拆分 `$VAR`、未加引号的 `--include=*.py` 会报错：多参数命令一律写 bash 脚本（本会话踩了两次）。
+4. zsh 不拆分 `$VAR`，未加引号的 `--include=*.py` 会报错，`=====` 也会被当成展开：多参数命令一律写 bash 脚本。
 5. `--l1_arm` 默认是 espirit，出图必须传 `--l1_arm spirit`（finalize 里已写）。
-6. 撞卡（09-17 00:30）：我们的作业要先在 CPU 上读 1–2 分钟数据才建 CUDA 上下文，别的线的调度器（CE 回顾研究的
-   `CE_retro_gt/scripts/retro_run.py`、儿科 `p5_sched.sh`）不看 `.gpulock`，在这段空窗把作业派到同一张卡：1 号卡上
-   `inr_T1` 与 CE 的 INR 同时跑，各约 8 s/it。已给 CE 会话（进程 1044409）发消息请它避开 1、2、5，对方随后撤走了 1 号卡上的作业。
-   我们这边在两份 `run_all_noise.py` 里加了占位进程：每派一个作业，同卡起一个只建上下文的小进程（`HOLD_S=240`，
-   远低于 MC-INR 让卡的 1500 MiB 门槛），作业回收时一并结束。01:22 两个调度器按原参数重启（只杀调度器进程，作业不动）。
-7. 两个调度器实际是先后跑：2σ0 调度器回收作业后立刻在同一轮里派下一个，总先拿到空出的卡；1σ0 只在 2σ0 没有合适作业时才拿到卡。
-8. 5 号卡与他人满载作业共用，重作业在上面慢得不可用：2σ0 的 `inr_FLAIR` 17 s/it（空卡 2.3 s/it，1500 步要 7 小时）。
-   03:25 给两份 `run_all_noise.py` 加 `--light_only_cards 5`（GS、INR、DIP、ZS-SSDU、MC-INR 不上 5 号卡，只放 base/TV/JTV/SPIRiT），
-   两个调度器带此参数重启，随后杀掉 5 号卡上的 `inr_FLAIR`（已跑 57 分钟，200/1500），它被重排到 2 号卡重跑。
-   现在的启动命令：2σ0 `launch_noise.sh --cards 1,2,5 --light_only_cards 5`，1σ0 `launch_noise.sh --cards 2,1,5 --light_only_cards 5`。
+6. 撞卡（09-17 00:30）：我们的作业要先在 CPU 上读 1–2 分钟数据才建 CUDA 上下文，CE 回顾研究的 `retro_run.py` 在这段空窗把作业派到 1 号卡。
+   对方会话已撤走作业，并改为排除 1、2、5、按目录锁判断。我们在两份 `run_all_noise.py` 里加了占位进程（`HOLD_S=240`），01:22 重启调度器。
+7. 两个调度器实际是先后跑：2σ0 调度器回收作业后在同一轮里派下一个，总先拿到空出的卡。
+8. 5 号卡与他人满载作业共用，重作业慢 5 到 7 倍（`inr_FLAIR` 17 s/it，空卡 2.3 s/it）。03:25 起两份调度器都带 `--light_only_cards 5`。
+   启动命令：2σ0 `launch_noise.sh --cards 1,2,5 --light_only_cards 5`，1σ0 `launch_noise.sh --cards 2,1,5 --light_only_cards 5`。
+9. `compare_noise_levels.py` 读三个课题，两档都 finalize 完再跑。
+10. 600 dpi PDF 渲染一张占约 140 GB 内存，最多两张并行。
+11. 噪声示意图原先用 constrained_layout，列间有空隙；09-17 改成按英寸摆放坐标轴，两档都已重出。
 
 ### 5. 为什么
 
-- 真值与尺度用干净数据：否则噪声同时进了参考，"鲁棒性"无从谈起；这样零噪声列（AF16 课题）与本课题逐位同口径（口径检查已证）。
+- 真值与尺度用干净数据：否则噪声也进了参考，"鲁棒性"无从谈起；这样零噪声列（AF16 课题）与噪声课题逐位同口径（口径检查已证）。
 - 噪声只加在实际采集的位置：FLAIR 厂商视野外本来就没采，加了会破坏视野检测，也不符合物理。
+- 两档共用一次抽样（1σ0 = 2σ0 的一半）：两档的差别只来自噪声幅度，不混入抽样差异。
 - 均值检查放宽到 4 个标准误、真值比对放宽到 1e-4：前者是 52 个检验的多重比较，后者因为 AF16 的真值是单精度算的（设计文档已写明）。
-- TV/JTV 网格上扩两档：噪声会把最优 λ 往大推；仍落边界就再扩，最多两次。
-- GS 渲染体诊断：GS 打分时把实测数据硬替换回采样点，加噪后这一步不利于 GS，单列出来说明代价，不改主表口径。
+- TV/JTV 网格上扩：噪声会把最优 λ 往大推；落上界就再扩，最多两次（2σ0 扩了一次，最优没变）。
+- MC-GS 冻结、经典方法重选 λ：问题是"现有配方的鲁棒性"；冻结 λ 视角（英文记录 3.6 节）给出了重选 λ 对经典方法值多少。
+- GS 渲染体诊断：GS 打分时把实测数据硬替换回采样点，加噪后这一步不利于 GS，单列出来说明代价（最多 0.06 dB），不改主表口径。
 
 ---
 

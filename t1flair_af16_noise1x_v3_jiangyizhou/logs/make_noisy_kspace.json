@@ -1,0 +1,141 @@
+{
+ "spec": "/data0/congcong/code/GS/mcgs_noise_wt/docs/superpowers/specs/2026-09-16-jyz-af16-noise-robustness-design.md",
+ "seed": 20260916,
+ "multiplier": 1.0,
+ "contrasts": {
+  "T1": {
+   "shape": [
+    26,
+    256,
+    256,
+    176
+   ],
+   "dtype": "complex64",
+   "chunks": [
+    1,
+    32,
+    256,
+    176
+   ],
+   "support_lines": 45056,
+   "f_acq": 1.0,
+   "scale": 99.25055535680809,
+   "house_scale": 99.25054698943967,
+   "sigma0_img": 0.014076258344769877,
+   "sigma0_k": 0.014076258344769877,
+   "sigma": 0.014076258344769877,
+   "sigma_raw": 1.3970764580643145,
+   "air_noise_noisy": 0.019904302501440794,
+   "air_noise_expected": 0.019906835458641015,
+   "air_voxels": 2756641,
+   "checks": {
+    "support_exact": {
+     "value": true,
+     "limit": true,
+     "ok": true
+    },
+    "mean_z": {
+     "value": 2.293684796217816,
+     "limit": 4.0,
+     "ok": true
+    },
+    "std_rel": {
+     "value": 0.0007078130051578757,
+     "limit": 0.005,
+     "ok": true
+    },
+    "air_noise_rel": {
+     "value": 0.00012724057550406176,
+     "limit": 0.02,
+     "ok": true
+    },
+    "gt_vs_house": {
+     "value": 3.7762638748974465e-07,
+     "limit": 0.0001,
+     "ok": true
+    },
+    "scale_vs_house": {
+     "value": 8.430551444632068e-08,
+     "limit": 1e-05,
+     "ok": true
+    },
+    "nested_vs_2x": {
+     "value": 0.29203131211992756,
+     "limit": 1.0,
+     "ok": true
+    }
+   },
+   "ok": true,
+   "md5_src": "108805b17f6f36665d9d04711810d0c4",
+   "md5_meas": "4e39120e309998e810bcef96a491085d",
+   "seconds": 95.54832315444946
+  },
+  "FLAIR": {
+   "shape": [
+    26,
+    256,
+    256,
+    176
+   ],
+   "dtype": "complex64",
+   "chunks": [
+    1,
+    32,
+    256,
+    176
+   ],
+   "support_lines": 34139,
+   "f_acq": 0.7577015269886364,
+   "scale": 98.51180178955458,
+   "house_scale": 98.51180175781201,
+   "sigma0_img": 0.01281519773358266,
+   "sigma0_k": 0.014722319224870132,
+   "sigma": 0.014722319224870132,
+   "sigma_raw": 1.4503221933629553,
+   "air_noise_noisy": 0.01811888362945161,
+   "air_noise_expected": 0.018123426439325546,
+   "air_voxels": 2830479,
+   "checks": {
+    "support_exact": {
+     "value": true,
+     "limit": true,
+     "ok": true
+    },
+    "mean_z": {
+     "value": 2.5866291044951644,
+     "limit": 4.0,
+     "ok": true
+    },
+    "std_rel": {
+     "value": 0.0006435401995374956,
+     "limit": 0.005,
+     "ok": true
+    },
+    "air_noise_rel": {
+     "value": 0.00025065954769332155,
+     "limit": 0.02,
+     "ok": true
+    },
+    "gt_vs_house": {
+     "value": 4.7587603710187855e-07,
+     "limit": 0.0001,
+     "ok": true
+    },
+    "scale_vs_house": {
+     "value": 3.222210176661274e-10,
+     "limit": 1e-05,
+     "ok": true
+    },
+    "nested_vs_2x": {
+     "value": 0.2895754328279813,
+     "limit": 1.0,
+     "ok": true
+    }
+   },
+   "ok": true,
+   "md5_src": "3a97e0fc7cb0a2fb672b18c60ed860af",
+   "md5_meas": "39722b5241992f7cc0af8b8ed1c14998",
+   "seconds": 80.60231971740723
+  }
+ }
+}

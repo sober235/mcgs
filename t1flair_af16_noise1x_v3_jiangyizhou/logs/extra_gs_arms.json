@@ -1,0 +1,27 @@
+[
+ {
+  "key": "gs_joint_p3",
+  "label": "MC-GS",
+  "exp": "af16n1_p3_joint_full4k",
+  "map": {
+   "T1": "plain",
+   "FLAIR": "contrast"
+  }
+ },
+ {
+  "key": "gs_single_p3",
+  "label": "GS-single",
+  "exp": "af16n1_p3_singleT1_full4k",
+  "map": {
+   "T1": "plain"
+  }
+ },
+ {
+  "key": "gs_single_p3",
+  "label": "GS-single",
+  "exp": "af16n1_p3_singleFLAIR_full4k",
+  "map": {
+   "FLAIR": "plain"
+  }
+ }
+]

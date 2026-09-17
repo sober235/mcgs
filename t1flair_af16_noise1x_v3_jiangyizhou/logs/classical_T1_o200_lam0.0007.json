@@ -1,0 +1,30 @@
+{
+  "contrast": "T1",
+  "scale_p999": 99.25054698943967,
+  "coils": 26,
+  "measurements": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou/data/meas_T1.h5",
+  "mask_frac": 0.06582919508218765,
+  "rows": [
+    {
+      "method": "cssense_o200_lam0.0007",
+      "contrast": "T1",
+      "lam": 0.0007,
+      "mu": 0.1,
+      "tik": 0.01,
+      "psnr": 37.01965515742428,
+      "ssim": 0.9002888792795769,
+      "nmse": 0.025872813537716866,
+      "hfen": 0.8040323853492737,
+      "sharp": 0.8765314221382141,
+      "grain": 0.011315105482935905,
+      "seconds": 230.92379236221313,
+      "head_psnr": 33.81567321840804,
+      "head_ssim": 0.9108960628509521,
+      "head_hfen": 0.16404299660111246,
+      "grain_ratio": 1.1264172729686424,
+      "head_frac": 0.3681814020330256,
+      "gmax": 2.287307024002075
+    }
+  ],
+  "total_seconds": 238.2939248085022
+}

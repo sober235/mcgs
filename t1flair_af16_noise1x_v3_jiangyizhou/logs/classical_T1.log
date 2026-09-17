@@ -1,0 +1,6 @@
+[T1] coils=26 vol=(256, 256, 176) mask frac=0.06583 AF_rect=15.191  measurements=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou/data/meas_T1.h5
+[T1] P99.9 |GT| scale = 9.925055e+01; |GT| max = 2.2873
+[T1] zf       psnr=29.946 ssim=0.8257 nmse=0.13188 hfen=0.9527 head_psnr=25.839 head_ssim=0.6792 sharp=0.279 grain=0.00349 (92 s)
+[T1] cgsense  psnr=32.770 ssim=0.6558 nmse=0.06883 hfen=1.1030 head_psnr=31.613 head_ssim=0.8481 sharp=0.966 grain=0.01765 (97 s)
+[T1] cssense  psnr=37.343 ssim=0.9324 nmse=0.02402 hfen=0.7613 head_psnr=33.730 head_ssim=0.9140 sharp=0.800 grain=0.01003 (117 s)
+WROTE /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou/logs/classical_T1.json  total 313 s

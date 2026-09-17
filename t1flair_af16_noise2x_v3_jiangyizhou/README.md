@@ -11,6 +11,9 @@ AF16 phase-3 MC-GS recipe are documented there and not repeated here. Spec:
 the zero-noise column of this study and is not re-run. `data/ksp_<c>.h5` (symlinks into the AF12 topic) stay the
 clean reference and define only the ground truth and the scale; `data/meas_<c>.h5` are what every arm fits.
 
+A second, milder level (1 sigma0, the same draws halved) is `../T1FLAIR_AF16_noise1x_v3_jiangyizhou/`; the
+three-level tables (no noise, 1 sigma0, 2 sigma0) are in its `logs/compare_noise_levels_<metric>.md`.
+
 ### The noise
 
 Complex Gaussian noise, independent over coils and samples, added only on the acquired samples (T1 the whole PE plane,
@@ -123,7 +126,10 @@ both edges of the image.
 
 ## Known limitations
 
-- One subject, one noise level, one realization; the spread over realizations is not measured.
+- One subject and one realization (the 1 sigma0 topic uses the same draws, halved); the spread over realizations is
+  not measured.
+- The zero-noise JTV column comes from a two-point sweep in `T1FLAIR_AF16_v3_jiangyizhou` (lambda 0.0007 and 0.001),
+  so its zero-noise value is a lower bound; it is not the strongest comparison arm at zero noise on any cell.
 - The added noise is white and independent across coils; the scanner's own noise is correlated across coils.
 - Maps and ground truth are clean; only L1-SPIRiT's kernel sees the noisy calibration block.
 - The ground truth carries the scanner's own noise sigma0.
@@ -142,3 +148,5 @@ setsid nohup bash scripts/launch_noise.sh > /dev/null 2>&1 < /dev/null &
 ## Status
 
 2026-09-17 08:05: complete. 61 jobs (57 + 4 grid extensions), no failures; finalized twice (after the extension).
+2026-09-17 09:21: the noise figure re-laid out (axes placed in inches, no column slack). 09:30: the 1 sigma0 level is complete
+(`../T1FLAIR_AF16_noise1x_v3_jiangyizhou/`).
