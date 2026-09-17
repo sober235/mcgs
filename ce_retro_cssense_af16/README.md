@@ -139,10 +139,16 @@ http://localhost:8765/ce_retro_af16/mask_af16.png
 `/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16/figures/mask_af16.png`
 
 **Three-plane comparison** (design §7; 11 columns ZF...MC-GS, slices z201/y131/x48, jet error 0-0.1 head-only,
-PDF 600 dpi) -- `figures/ce_retro_af16_three_planes_201_131_48.{png,pdf}`:
+PDF 600 dpi) -- one file **per scan** (`fig_three_planes_compact.py` takes `--scan {pre,post}`; it is not one
+scan-less figure):
+
+`figures/ce_retro_af16_three_planes_pre_201_131_48.{png,pdf}`:
 `NOT_RUN_YET` (not generated yet; needs every arm's volume registered first)
 
-**Enhancement figure** (design §7, `fig_enhancement.py --diff` 9-row layout) --
+`figures/ce_retro_af16_three_planes_post_201_131_48.{png,pdf}`:
+`NOT_RUN_YET` (not generated yet; needs every arm's volume registered first)
+
+**Enhancement figure** (design §7, `fig_enhancement.py` 9-row layout) --
 `figures/ce_retro_af16_enhancement.{png,pdf}`:
 `NOT_RUN_YET` (not generated yet)
 
@@ -195,9 +201,16 @@ $PY scripts/best_slice_mcgs.py           # -> logs/best_slice_mcgs.json
 # 7. README tables (paste the stdout into §4 above)
 $PY scripts/readme_tables.py
 
-# 8. figures
-$PY scripts/fig_three_planes_compact.py --scan pre --slices 201 131 48 --pdf --mask_error
+# 8. figures -- one file per scan (--scan {pre,post}); flags per the Task 16 brief
+for s in pre post; do
+  $PY scripts/fig_three_planes_compact.py --scan $s --slices 201 131 48 --inset 48 --inset_corner tr bl bl \
+    --mask_error --gray_cbar --cbar_planes 0 --tra_rot 1 --err_vmax 0.1 --with_zf --caps --l1_arm spirit \
+    --pdf --pdf_dpi 600 --tag _201_131_48
+done
 $PY scripts/fig_enhancement.py --slices 201,131,48
+# fig_three_planes_compact.py writes its own native name (t1flair_v3_af16_<scan>_row3planes_compact_...) into
+# figures/ and into /home/congcongliu/figs/ce_retro_af16/ (see its docstring) -- copy/rename the two PNG+PDF
+# pairs it wrote to figures/ce_retro_af16_three_planes_<scan>_201_131_48.{png,pdf} before citing them in §5.
 
 # 9. export bundle (--no_raw skips ~14 GB of h5 / work_* k-space)
 $PY scripts/export_bundle.py --no_raw
