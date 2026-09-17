@@ -7,7 +7,8 @@
 set -u
 R=/data0/congcong/code/GS/Results_20260908
 PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
-C="--slices 180 124 76 --inset 48 --inset_corner tr bl bl --mask_error --gray_cbar --cbar_planes 0 --tra_rot 1 --err_vmax 0.1 --pdf --png_dpi 200 --l1_arm spirit --with_zf --caps"
+TITLE_FS=${TITLE_FS:-22}   # first-row method-name font size (user 2026-09-16 evening: enlarged from 14)
+C="--slices 180 124 76 --inset 48 --inset_corner tr bl bl --mask_error --gray_cbar --cbar_planes 0 --tra_rot 1 --err_vmax 0.1 --pdf --png_dpi 200 --l1_arm spirit --with_zf --caps --title_fs $TITLE_FS"
 
 one() {  # topic script contrast extra...
   local t=$1 s=$2 c=$3; shift 3

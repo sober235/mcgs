@@ -70,6 +70,8 @@ ap.add_argument("--with_zf", action="store_true",
                 help="add a zero-filled column right after GT (user 2026-09-16); appends _zf to the file name")
 ap.add_argument("--caps", action="store_true",
                 help="typography (user 2026-09-16): plane names capitalised, method names in the first row upper case; appends _caps")
+ap.add_argument("--title_fs", type=float, default=14.0,
+                help="font size of the first-row method names and the GT title (user 2026-09-16 evening: enlarged; 14 = the earlier renders)")
 args = ap.parse_args()
 args.tag += {"espirit": "", "spirit": "_spirit", "both": "_bothl1"}[args.l1_arm]
 if args.with_zf:
@@ -310,7 +312,7 @@ for k, p in enumerate(planes):
             label(a, ANAT[ax_].capitalize() if args.caps else ANAT[ax_], bold=True)          # plane name only (user 2026-09-13); the slice indices are in the title
             b.imshow(D(p["kmask"], ax_), cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto", interpolation="nearest")
             if k == 0:
-                a.set_title(f"GT ({c})", fontsize=14, pad=4)
+                a.set_title(f"GT ({c})", fontsize=args.title_fs, pad=4)
             continue
         key, lab, _ = ARMS[j - 1]
         v = vols[key][p["sl"]][p["cr"]]
@@ -327,7 +329,7 @@ for k, p in enumerate(planes):
             put_inset(b, emap, p["zoom"], x, y + h + gap, pw, h, corner=args.inset_corner[ax_], cmap="jet", vmin=0.0, vmax=args.err_vmax)
         if k == 0:
             a.set_title((lab if "SPIRiT" in lab else lab.upper()) if args.caps else lab,
-                        fontsize=14, pad=4)
+                        fontsize=args.title_fs, pad=4)
     if args.gray_cbar and ax_ in args.cbar_planes:
         x_cb = (ncol * pw + (ncol - 1) * gap + cbpad) / fw
         # the outer end of each bar is flush with its row; the two ends that face each other are pulled in by CBTRIM so
