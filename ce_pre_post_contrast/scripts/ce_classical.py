@@ -41,7 +41,10 @@ import torch.fft as tfft
 torch.manual_seed(0); np.random.seed(0)
 dev = torch.device("cuda:0")
 RR = Path("/data0/congcong/code/NV-Generate-CTMR/recon_real")
-WORK = {"pre": RR / "work_ce_t1_16887049370010", "post": RR / "work_ce_t1_16887049370060"}[args.scan]
+# 2026-09-16: CE_WORK_PRE / CE_WORK_POST override the source, so the retrospective simulation
+# (Results_20260908/CE_retro_gt) runs through exactly this code path.
+WORK = {"pre": Path(os.environ.get("CE_WORK_PRE", RR / "work_ce_t1_16887049370010")),
+        "post": Path(os.environ.get("CE_WORK_POST", RR / "work_ce_t1_16887049370060"))}[args.scan]
 OUT = Path(args.out); OUT.mkdir(parents=True, exist_ok=True)
 log = lambda *a: print(*a, flush=True)
 

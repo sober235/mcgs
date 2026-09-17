@@ -56,6 +56,14 @@ POST = dict(name="post",
             csm_path=str(CE / "t1_3D_gre_fsp_sag_iso_ACS_16887049370060/csm2.mat"),
             mask_path=str(CE / "t1_3D_gre_fsp_sag_iso_ACS_16887049370060/mask2.mat"))
 
+if os.environ.get("CE_GS_PRE") and os.environ.get("CE_GS_POST"):
+    # 2026-09-16: a directory with ksp.h5 / csm.h5 / mask.h5 in this layout, so the retrospective simulation
+    # (Results_20260908/CE_retro_gt) trains through exactly this code path.
+    def _src(name, d):
+        d = Path(d)
+        return dict(name=name, data_path=str(d / "ksp.h5"), csm_path=str(d / "csm.h5"), mask_path=str(d / "mask.h5"))
+    PRE, POST = _src("pre", os.environ["CE_GS_PRE"]), _src("post", os.environ["CE_GS_POST"])
+
 if args.fit:
     # 2026-09-14: the k-space with the 5% held-out lines zeroed (ce_make_fit_kspace.py, same layout as ksp*.mat).
     # The presampled loader infers its mask from the non-zero samples, so the held-out lines never enter the fit,
