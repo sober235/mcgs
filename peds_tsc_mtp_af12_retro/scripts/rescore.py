@@ -61,7 +61,8 @@ def arms(c):
     # T2s's own weights were not changed by the tuning, so gs_single_ar is already its tuned single
     for key, label in (("gs_joint_p3", "MC-GS (tuned)"), ("gs_single_p3", "GS-single (tuned)"),
                        ("gs_joint_p3f", "MC-GS (tuned, 9.6M + union guide)"),
-                       ("gs_single_p3f", "GS-single (tuned, 9.6M)")):
+                       ("gs_single_p3f", "GS-single (tuned, 9.6M)"),
+                       ("gs_joint_p5", "MC-GS (phase TV, 8000 it.)")):      # stage 5 final (2026-09-17)
         v = R / f"recon/{key}_{c}_complex.npy"
         if v.exists():
             a.append((key, label, v, None))

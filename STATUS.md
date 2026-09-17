@@ -1,6 +1,6 @@
-# STATUS — 2026-09-16（分支 `16yo-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`）
+# STATUS — 2026-09-17（分支 `16yo-mtp`，worktree `/data0/congcong/code/GS/mcgs_peds_wt`）
 
-本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。一至四期已完成，L1-SPIRiT 臂已登记（09-15 23:06）；**下一轮等用户看图后拍板（第 2、3 节）；本线没有训练在跑**。
+本分支 = 儿童 TSC（age16）UIH 3D MTP 数据线。一至五期已完成（五期 09-17 上午收尾，最终配方已登记为 `gs_joint_p5`）；**本线没有训练在跑；待用户看图、定推送**。
 
 英文总结：一期 `docs/superpowers/records/2026-09-12-16yo-mtp-reference-dataset.md`，
 二期 `docs/superpowers/records/2026-09-13-16yo-mtp-af12.md`，
@@ -53,7 +53,20 @@ full24：T1w ks5 λ2.5e-4，T2s ks3 λ5e-4，最优点都在 λ 网格内部。`
   四期病灶脚本已由 claude-eb 换（43bfe56）。
 - 记录：`docs/superpowers/records/2026-09-15-16yo-mtp-l1spirit-arm.md`。
 
-### 一张 MC-GS 全超所有对比方法的层（09-16，用户要求）
+### 五期：杠杆轮（09-16/17，已收尾）——最终配方 `gs_joint_p5`
+
+相位 TV（jyz af12 三期 cherry-pick）是唯一动 T1w 的杠杆；分对比度权重（本线新加）让 T2s 取 0.02、T1w 取 0.01；8000 步。
+**主区域：T1w 39.003 / 0.9693 / 0.0758，T2s 34.323 / 0.9111 / 0.1765。六格对所有臂（含所有 GS-single）过五格**：
+T1w PSNR +0.010（对已登记 9.6M 单臂）/ +0.005（对未登记的 6000 步单臂）、SSIM +0.0006，T2s +0.148 / +0.0059 / +0.0090；
+整卷 PSNR/NMSE 两列也第一。**T1w HFEN 0.0758 输 L1-SPIRiT 0.0679**，十一个运行没有一个让它动过 0.001。
+逐层：T1w 234/578、T2s 517/561 三项全第一，**两对比度同层全第一 227 层**（三期只有 10 层）。
+正式图（ZF 列 + 大写方法名 + 横向放大框，claude-64 加的 `--with_zf --caps`）：
+`peds_af12_{T1w,T2s}_row3planes_compact_53_158_150_inset48x48x16_headerr_allfirst_p5_zf_caps.{png,pdf}`（两对比度三平面全第一）、
+`..._53_160_152_..._p5_zf_caps`（解剖质心视角，T1w 冠/矢状 PSNR 第二）、
+`..._46_149_171_inset48x48x16_box157_171_46_headerr_lesionB_allfirst_p5_zf_caps`（过结节，两对比度三平面全第一）、
+`..._46_146_172_..._lesionB_p5_zf_caps`。记录 `docs/superpowers/records/2026-09-16-16yo-mtp-stage5-levers.md`。
+
+### 一张 MC-GS 全超所有对比方法的层（09-16，用户要求；已被五期的 227 层超越）
 
 `scripts/find_slice_all_first.py`：三个平面逐层，图面板同一口径（头内 PSNR / SSIM 7×7 / NMSE），MC-GS = `gs_joint_p3f`，
 对手 = 计数表行 + 该对比度**所有** GS-single 体（含 results_arc 里五个 T1w 单臂运行）。计数：T1w 29/578（横断 1 层颅底碎片、
@@ -129,37 +142,13 @@ L1-ESPIRiT 的行留在表里、标为不计入，所以它的 T1w HFEN 0.0756 �
 
 ## 3. 下一步
 
-**五期在跑（09-16 11:38 起）**：调度器 `scripts/p5_sched.sh`（claude-eb 的 p4_sched2 复制版，全线最多两个训练、计入所有会话），
-队列 `scripts/p5_round1.txt`，ALLOWED 全部卡、OWN_MAX 2。基线 = 三期最终配置 p3_n96_union_k05。第一轮六个运行，每个 9.6M 点约 100 分钟：
-`p5_rot008`（rotation_lr 0.008）、`p5_ptv001`（相位 TV 0.01，代码从 jyz af12 三期 cherry-pick 0ba2d3b，6 测试过）、
-`p5_khp30`（T1w 高频数据权重 2.2→3.0，唯一对着 HFEN 的旋钮）、`p5_e0005_ptv001`（共同边缘 0.0005 + 相位 TV 0.01）、
-`p5_ptv003`、`p5_single_T1w_rot008`（单臂公平对照）。预期：PSNR/SSIM 两格有机会（jyz 上 +0.02–0.05），HFEN 差 0.0089 大概率补不上
-（3.6M 时 edge-TV 0.03→0.015 只动 0.0006）。
-**第一、二轮结果（19:50，主区域）**：相位 TV 0.01 是唯一动 T1w 的杠杆（+0.052 dB，SSIM 过线，HFEN 也降 0.0009）；rotation_lr 无效；
-T1w 高频权重 3.0 掉 0.07；共同边缘只涨 T2s、T1w 付 0.034；相位 TV 0.02/0.03 T1w 反降但 T2s 更好。
-**`p5_ptv001_i6000`（相位 TV 0.01 + 6000 步）= 当前最好：T1w 38.999 / 0.9692 / 0.0759，T2s 34.311 / 0.9094 / 0.1789，
-六格过五格**——T1w PSNR +0.006（对已登记单臂）、+0.001（对 16:37 已起跑的 6000 步单臂对照 38.998，未登记）、SSIM +0.0006、
-T2s 三格 +0.136 / +0.0042 / +0.0066；只剩 T1w HFEN 输 L1-SPIRiT（0.0759 对 0.0679），所有杠杆都没让它动过 0.001。
-在跑 / 排队：`p5_ptv001_i8000`、`p5_ptvp001c003_i6000`（新加的分对比度权重：T1w 0.01 / T2s 0.03）、`p5_ptv001_i6000_gp0015`。
-记录 `docs/superpowers/records/2026-09-16-16yo-mtp-stage5-levers.md`。
-```
-cat /data0/congcong/code/GS/Results_20260908/Peds_TSC_MTP_AF12_retro/logs/p5_sched.log          # 启动/停止
-grep -E "^p5_" /data0/congcong/code/GS/mcgs_peds_wt/autoresearch_peds.tsv | cut -f1,2,7,8,9,10,12,14   # 完成的行（主区域）
-touch .../logs/.p5_pause | .../logs/.p5_stop                                                      # 暂停 / 结束调度器
-```
-调度器没了就原样重起：`cd $T && ALLOWED="6 0 1 3 4 5 7 2" OWN_MAX=2 setsid nohup bash scripts/p5_sched.sh scripts/p5_round1.txt > /dev/null 2>&1 < /dev/null &`
-（已有 `results_arc/<exp>.log` 的行会跳过）。第二轮把赢的杠杆叠起来，并给单臂补同样的旋钮。
+**本线没有训练在跑**（p5 调度器已停 `logs/.p5_stop`；claude-eb、claude-64 也没有训练）。五期收尾工作已做完：登记、两个口径重评分、
+README 表与 Stage 5 一节、四组正式图、逐层搜索、记录。
 
-1. 用户看图（清单见第 1 节末尾与四期记录 §6），拍板下一轮动不动、动哪个杠杆。
-2. L1-SPIRiT 已登记（第 1 节）。尾巴：三个逐层分析脚本换臂（下次用时）；四期病灶图 claude-eb 已换。
-3. 补 T1w 三格的候选杠杆（都没在本受试者试过，按 jyz 线的值排）：
-   - 相位 TV：jyz AF12 三期 P14 = 共同边缘 0.001 + 相位 TV 0.01，把 FLAIR 联合减单臂从 −0.038 翻到 +0.036；
-     本分支没有，需从 `autoresearch-jyz-af12-phase3` cherry-pick `paired_gs/losses/phase_tv.py`（同血脉）。
-   - 优化器 `rotation_lr 0.008`：jyz +0.025 / +0.046。
-   - 共同边缘小 λ：本线单用 0.0005 是 T1w −0.035，jyz 上与相位 TV 合用才翻正。
-   - 步数 6000：本线 3.6M 上联合 +0.071、单臂 +0.041（整卷口径），净 +0.03；9.6M 上没试。
-   容量已尽（19.2M：T1w 不再涨，T2s 掉）。加给联合臂的杠杆同样加给单臂（第 4 节规矩）。
-4. 要开训练先给 claude-eb 发消息退名额（第 1 节的约定），本线同时最多两个训练。
+1. 用户看新图（第 1 节五期块的四组），定哪组做论文图。
+2. 是否推 origin / 打 tag（本地领先 origin 十几个提交，自 09-15 起未推）。
+3. T1w HFEN 那格对 L1-SPIRiT 的写法（数据事实：k 空间插值保留含噪声的颗粒，HFEN 奖励它；MC-GS 在 HFEN 上仍超过所有 GS-single）。
+4. 若还要拉大 T1w 余量：剩下的只有种子/多次运行取稳（余量是百分之一 dB 量级，种子方差可能同量级）；杠杆已穷尽。
 
 ## 4. 已知的坑与别重做
 
@@ -180,7 +169,10 @@ touch .../logs/.p5_pause | .../logs/.p5_stop                                    
 - **图必须自己看过再发**：三期在移植 AF16 版式时出过三个只有看图才能发现的错——放大框越界压住下一行、
   放大图与框比例不一致（本课题 0.7 / 1.35 mm 各向异性）、纯重建图把冠矢状面拉伸到与横断同高（解剖比例失真）。
   指标一个都抓不到。已修；脚本 `fig_three_planes_inset.py`（AF16 版式）与 `fig_recon_only.py`。
-- 测试基线 **225**（`--ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py`）。
+- 测试基线 **225**（`--ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py`）；`pytest tests -k ...` 会 SystemExit 2（某测试文件解析 argv），按文件跑。
+- **调度器已启动的行事后注释无效**（16:37 的单臂对照就是这么跑起来的）；zsh 里未加引号的 `$files` 是一个词，`git add` 用 glob。
+- **别的研究正在往卡上读数据的 1–2 分钟里显卡看起来是空的**（claude-71 的 1/2/5 号卡），要改 ALLOWED 只能停掉重起调度器。
+- `rescore.py --only KEY` 只算新臂并合并（约 2 分钟），不必全表重跑。
 
 ## 5. 关键决定的“为什么”
 

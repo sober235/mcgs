@@ -234,7 +234,8 @@ Retrospective AF 12.00 of the 31616-point phase-encode matrix (7.56x of the 1991
 
 | method | head PSNR | head SSIM | head HFEN | PSNR | NMSE | sharp |
 |---|---|---|---|---|---|---|
-| GS-single (tuned, 9.6M) | **38.993** | **0.9687** | 0.0764 | **41.803** | **0.00327** | 0.880 |
+| MC-GS (phase TV, 8000 it.) | **39.003** | **0.9693** | 0.0758 | **41.865** | **0.00323** | 0.884 |
+| GS-single (tuned, 9.6M) | 38.993 | 0.9687 | 0.0764 | 41.803 | 0.00327 | 0.880 |
 | MC-GS (tuned, 9.6M + union guide) | 38.936 | 0.9685 | 0.0768 | 41.739 | 0.00332 | 0.875 |
 | GS-single (tuned) | 38.848 | 0.9681 | 0.0761 | 41.721 | 0.00334 | 0.885 |
 | MC-GS (tuned) | 38.516 | 0.9668 | 0.0774 | 41.404 | 0.00359 | 0.876 |
@@ -255,9 +256,10 @@ Not counted — L1-ESPIRiT (λ 0.001), replaced by L1-SPIRiT (user 2026-09-15); 
 
 | method | head PSNR | head SSIM | head HFEN | PSNR | NMSE | sharp |
 |---|---|---|---|---|---|---|
-| MC-GS (tuned, 9.6M + union guide) | **34.227** | **0.9056** | **0.1836** | 36.893 | 0.01044 | 0.782 |
+| MC-GS (phase TV, 8000 it.) | **34.323** | **0.9111** | **0.1765** | **37.233** | **0.00965** | 0.807 |
+| MC-GS (tuned, 9.6M + union guide) | 34.227 | 0.9056 | 0.1836 | 36.893 | 0.01044 | 0.782 |
 | GS-single | 34.175 | 0.9052 | 0.1855 | 36.991 | 0.01021 | 0.774 |
-| MC-GS (tuned) | 34.163 | 0.9047 | 0.1857 | **36.999** | **0.01019** | 0.760 |
+| MC-GS (tuned) | 34.163 | 0.9047 | 0.1857 | 36.999 | 0.01019 | 0.760 |
 | MC-GS | 34.160 | 0.9047 | 0.1858 | 36.995 | 0.01020 | 0.759 |
 | ZS-SSDU | 32.846 | 0.8960 | 0.2376 | 36.056 | 0.01266 | 0.896 |
 | Joint SENSE (JTV) (λ 0.0014) | 32.821 | 0.8911 | 0.2424 | 35.949 | 0.01298 | 0.794 |
@@ -278,7 +280,8 @@ The same gauge over all 104 partitions, taken from each arm's own JSON; the cros
 
 | method | head PSNR | head SSIM | head HFEN | PSNR | NMSE |
 |---|---|---|---|---|---|
-| GS-single (tuned, 9.6M) | **39.087** | **0.9704** | 0.0767 | **42.217** | **0.00358** |
+| GS-single (tuned, 9.6M) | **39.087** | 0.9704 | 0.0767 | 42.217 | 0.00358 |
+| MC-GS (phase TV, 8000 it.) | 39.083 | **0.9709** | 0.0762 | **42.272** | **0.00354** |
 | MC-GS (tuned, 9.6M + union guide) | 39.032 | 0.9703 | 0.0770 | 42.155 | 0.00363 |
 | GS-single (tuned) | 38.928 | 0.9699 | 0.0764 | 42.132 | 0.00365 |
 | MC-GS (tuned) | 38.602 | 0.9686 | 0.0777 | 41.825 | 0.00392 |
@@ -299,9 +302,10 @@ Not counted — L1-ESPIRiT (λ 0.001), replaced by L1-SPIRiT (user 2026-09-15); 
 
 | method | head PSNR | head SSIM | head HFEN | PSNR | NMSE |
 |---|---|---|---|---|---|
-| MC-GS (tuned, 9.6M + union guide) | **34.375** | 0.9063 | **0.1874** | 37.431 | 0.01173 |
-| GS-single | 34.320 | **0.9065** | 0.1891 | 37.575 | 0.01135 |
-| MC-GS (tuned) | 34.315 | 0.9061 | 0.1893 | **37.588** | **0.01131** |
+| MC-GS (phase TV, 8000 it.) | **34.445** | **0.9119** | **0.1804** | **37.813** | **0.01074** |
+| MC-GS (tuned, 9.6M + union guide) | 34.375 | 0.9063 | 0.1874 | 37.431 | 0.01173 |
+| GS-single | 34.320 | 0.9065 | 0.1891 | 37.575 | 0.01135 |
+| MC-GS (tuned) | 34.315 | 0.9061 | 0.1893 | 37.588 | 0.01131 |
 | MC-GS | 34.312 | 0.9060 | 0.1894 | 37.583 | 0.01133 |
 | Joint SENSE (JTV) (λ 0.0014) | 32.974 | 0.8920 | 0.2461 | 36.578 | 0.01428 |
 | ZS-SSDU | 32.941 | 0.8960 | 0.2430 | 36.689 | 0.01391 |
@@ -367,6 +371,7 @@ one, which was verified slice-for-slice against the vendor DICOM).
 | `peds_af12_<c>_row3planes_compact_53_160_152_headerr.png` | three planes, per-panel head PSNR / SSIM / NMSE, head-only error maps |
 | `..._headerr_p3f.png`, `..._inset48_headerr_af16style.{png,pdf}` | the same for the stage-3 final configuration (MC-GS = `gs_joint_p3f`; GS-single = `gs_single_p3f` on T1w, `gs_single_ar` on T2s); L1 column = L1-ESPIRiT, as drawn on 2026-09-15 morning |
 | `..._headerr_p3f_spirit.png`, `..._inset48_headerr_af16style_spirit.{png,pdf}` | **the figures of record since 2026-09-15**: the same two figures with L1-SPIRiT in the L1 column (`scripts/figs_spirit.sh`); the `_af16style` one adds the 48-voxel zoom, a grey colorbar on the transverse row and a vector PDF |
+| `peds_af12_T1w_T2s_head_{psnr,ssim,hfen}_methods.{png,pdf}` | **2026-09-16, line chart over the methods in the chrome of the adult T1 + FLAIR trend figure** (user: same format, and a line chart): x = the eleven arms in the column order of the figures of record (ZF ... MC-GS), y = the primary-table head metric, one neutral line per panel joining the values, T1w left / T2* right sharing y; markers keep the trend figure's encoding (hue = method family, filled = multi-contrast joint, open = single-contrast, ZF gray), 6 x 2 legend by family, title and footnote. MC-GS = `gs_joint_p3f`, GS-single = the best registered single per contrast (T1w `gs_single_p3f`, T2s `gs_single_ar`), L1 column = L1-SPIRiT. ZF has no primary-region row in `rescore.json`, so `scripts/score_zf_primary.py` scores it on the same frozen gauge into `logs/rescore_zf_primary.json` (CG-SENSE reproduced to 1e-16 first). Script `scripts/plot_af12_methods.py`; served as `~/figs/peds_tsc_af12/methods_{psnr,ssim,hfen}.png`. Two earlier layouts the same day (a dot chart with the methods on y; a one-column strip at x = AF 12) were replaced. **User 2026-09-16 evening: a per-method line over AF like the adult figure would need AF 16/20/24 runs on this line; not pursued for now ("算了先"), only the adult T1 + FLAIR trend figure is kept as a deliverable; these files stay as the AF-12-only chart.** |
 
 ## Files
 
@@ -378,9 +383,10 @@ data/          symlinks to the reference dataset; mask_af12_2d.mat (Ω), mask_af
 scripts/       prep_mask_draws.m, prep_mask.py, fig_mask.py, bootstrap.sh, peds_queue.txt,
                peds_sched.sh, run_l1espirit{,_ext}.sh, t1t2_common.py and the arm scripts,
                rescore.py, summarize.py, readme_tables.py, check_gauge.py, the figure scripts;
-               recon_spirit.py, spirit_sweep{,_full24}{,_ext*}.sh, rescore_spirit.sh, figs_spirit.sh (L1-SPIRiT, 2026-09-15)
+               recon_spirit.py, spirit_sweep{,_full24}{,_ext*}.sh, rescore_spirit.sh, figs_spirit.sh (L1-SPIRiT, 2026-09-15);
+               score_zf_primary.py, plot_af12_methods.py (the method chart, 2026-09-16)
 recon/         <arm>_<c>_complex.npy and the GS magnitude volumes; gt_<c>_complex.npy
-logs/          prep_mask.json, the per-arm JSONs, rescore{,_full}.json, summary.{tsv,json},
+logs/          prep_mask.json, the per-arm JSONs, rescore{,_full}.json, rescore_zf_primary.json (ZF, 2026-09-16), summary.{tsv,json},
                sched.log, sched_status.tsv, readme_tables.md; spirit_<c>_*.json (the 50 sweep points),
                archive_pre_spirit_20260915/ (summary / rescore / readme_tables as they were before the L1 swap)
 figures/

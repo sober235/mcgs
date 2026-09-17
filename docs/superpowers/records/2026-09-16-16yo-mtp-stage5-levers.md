@@ -52,3 +52,38 @@ the rendering against a lightly regularised k-space interpolation that keeps noi
 weights, 6000 iterations), `p5_ptv001_i6000_gp0015` (T1w edge-TV 0.015 + phase TV 0.01, 6000 iterations). After them:
 register the best as `gs_joint_p5` (add_gs_arm, rescore both gauges, README tables, figures of record, the one-slice
 search re-run on the new volume), record, STATUS.
+
+## 4. Rounds 3–4 and the final (2026-09-17)
+
+| run | lever | T1w PSNR / SSIM / HFEN | T1w margins | T2s PSNR / SSIM / HFEN | T2s margins |
+|---|---|---|---|---|---|
+| p5_ptv001_i8000 | phase TV 0.01, 8000 it. | 39.003 / 0.9693 / 0.0758 | +0.010 / +0.0006 / −0.0079 | 34.312 / 0.9094 / 0.1788 | +0.137 / +0.0042 / +0.0067 |
+| p5_ptvp001c003_i6000 | T1w 0.01 / T2s 0.03, 6000 it. | 38.998 / 0.9692 / 0.0759 | +0.005 / +0.0006 / −0.0080 | 34.294 / 0.9118 / 0.1756 | +0.119 / +0.0065 / +0.0099 |
+| p5_ptv001_i6000_gp0015 | + T1w edge-TV 0.015, 6000 it. | 38.997 / 0.9690 / 0.0757 | +0.005 / +0.0004 / −0.0078 | 34.309 / 0.9095 / 0.1787 | +0.135 / +0.0043 / +0.0068 |
+| **p5_ptvp001c002_i8000** | **T1w 0.01 / T2s 0.02, 8000 it.** | **39.003 / 0.9693 / 0.0758** | **+0.010 / +0.0006 / −0.0080** | **34.323 / 0.9111 / 0.1765** | **+0.148 / +0.0059 / +0.0090** |
+
+Iterations saturate (6000 → 8000: +0.004 dB T1w); the T2s phase-TV weight leaves T1w untouched and trades T2s PSNR for
+SSIM / HFEN, with 0.02 the balance (the shared-weight scan's T2s PSNR optimum). Final = `p5_ptvp001c002_i8000`,
+registered 09:3x as `gs_joint_p5` ("MC-GS (phase TV, 8000 it.)"; `add_gs_arm.py`, `rescore.py --only gs_joint_p5`
+on both gauges — the full-volume rows reproduce the run's own scorer — `readme_tables.py`, README refreshed). claude-64's
+preview files `recon/gs_joint_p5pre_*` (the p5_ptv001_i6000 volumes it drew before the final run existed) were removed.
+
+Six cells against every arm, GS-single included: five first (T1w PSNR +0.010 over the registered 9.6M single and +0.005
+over the unregistered 6000-iteration single; T1w SSIM +0.0006; T2s +0.148 / +0.0059 / +0.0090); T1w HFEN second to
+L1-SPIRiT (0.0758 vs 0.0679). No lever of the eleven moved that cell by more than 0.001.
+
+Per slice (`find_slice_all_first.py --key gs_joint_p5`, the stage-3 jsons kept as `*_p3f.json`): T1w 234 of 578 slices
+all-first (transverse 50 / 96, coronal 95 / 256, sagittal 89 / 226; stage 3: 29), T2s 517 of 561 (stage 3: 331); both
+contrasts on the same slice: **227** (stage 3: 10). The lesion planes: transverse 46 (+0.040 / +0.220 dB), coronal 149
+(+0.018 / +0.068) and sagittal 171 (+0.006 / +0.201) through the right nodules all lead on both contrasts; coronal 146
+and sagittal 172 / 173 lose T1w PSNR by 0.002–0.018.
+
+Figures (all with claude-64's `--with_zf --caps`, box 48 x 48 x 16, L1-SPIRiT, singles gs_single_p3f / gs_single_ar;
+looked at): `_allfirst_p5_zf_caps` at 53 / 158 / 150 (both contrasts first on every panel), `_p5_zf_caps` at 53 / 160 /
+152 (T1w coronal / sagittal PSNR second to GS-single by 0.01–0.02 dB), `_lesionB_allfirst_p5_zf_caps` at 46 / 149 / 171
+(both contrasts first on every panel, both nodules in the transverse and sagittal insets), `_lesionB_p5_zf_caps` at
+46 / 146 / 172. Served at `http://localhost:8765/peds_tsc_af12/`.
+
+Pitfalls met: a queue line commented out after the scheduler has launched it changes nothing (the single control of
+16:37); the tool shell is zsh, so an unquoted `$files` is one word for `git add`; cards that another study is loading
+data onto look free for 1–2 minutes (claude-71, cards 1 / 2 / 5) — the scheduler was restarted with `ALLOWED="6 0 3 4 7"`.

@@ -19,7 +19,8 @@ LABEL = {"cgsense": "CG-SENSE", "cssense_o200": "CS-SENSE (TV, converged)", "jcs
          "mcinr": "MC-INR (Niessen 2025)",
          "gs_single_ar": "GS-single", "gs_joint_ar": "MC-GS",
          "gs_single_p3": "GS-single (tuned)", "gs_joint_p3": "MC-GS (tuned)",
-         "gs_single_p3f": "GS-single (tuned, 9.6M)", "gs_joint_p3f": "MC-GS (tuned, 9.6M + union guide)"}
+         "gs_single_p3f": "GS-single (tuned, 9.6M)", "gs_joint_p3f": "MC-GS (tuned, 9.6M + union guide)",
+         "gs_joint_p5": "MC-GS (phase TV, 8000 it.)"}
 ORDER = list(LABEL)
 # User decision 2026-09-15 (the jyz topics made the same swap that day): L1-SPIRiT replaces L1-ESPIRiT as the
 # L1 arm of the shown tables. L1-ESPIRiT's rows stay in rescore.json / summary.json and are printed under
