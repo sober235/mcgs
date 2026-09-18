@@ -16,6 +16,10 @@ Review note (2026-09-17): METHODS is flat (not lambda-aware) and does not match 
 filenames (recon/cssense_o200_lam<L>_<c>_complex.npy) -- as ported this will KeyError/ValueError once
 gs_joint/gs_single/cssense are needed but "cssense" never resolves to a file. Inherited from the jyz source;
 generalising the loader is future work, not done here.
+
+Task 16 fix (2026-09-18): all eight methods are now needed, so the predicted KeyError above was hit. "cssense"
+is resolved through logs/summary.json's "cssense_o200" row (the lambda summarize.py kept for that scan), the
+same lam_file() pattern arms.py/best_slice_mcgs.py already use -- everything else in METHODS is unchanged.
 """
 import json
 from pathlib import Path
@@ -25,9 +29,16 @@ import numpy as np
 R = Path(__import__("os").environ.get("RETRO_TOPIC", "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16"))
 METHODS = ["zf", "cgsense", "cssense", "zsssdu", "dip", "inr", "gs_single", "gs_joint"]
 MIN_HEAD = 2000
+SUMMARY = {(r["contrast"], r["method"]): r for r in json.load(open(R / "logs/summary.json"))}
 
 
 def load(method, c):
+    if method == "cssense":
+        row = SUMMARY.get((c, "cssense_o200"))
+        if row is None or row.get("lam") is None:
+            return None
+        p = R / f"recon/cssense_o200_lam{row['lam']:g}_{c}_complex.npy"
+        return np.abs(np.load(p)).astype(np.float32) if p.exists() else None
     for suf in ("_complex.npy", "_mag.npy"):
         p = R / f"recon/{method}_{c}{suf}"
         if p.exists():

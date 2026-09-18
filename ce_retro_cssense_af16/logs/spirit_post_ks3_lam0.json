@@ -1,0 +1,41 @@
+{
+  "contrast": "post",
+  "rows": [
+    {
+      "method": "spirit_ks3_lam0",
+      "contrast": "post",
+      "psnr": 31.224668458610005,
+      "ssim": 0.7462580354320699,
+      "nmse": 0.08684954047203064,
+      "hfen": 1.6408183574676514,
+      "sharp": 1.8064912557601929,
+      "grain": 0.03272717818617821,
+      "seconds": 56.02601909637451,
+      "head_psnr": 29.15318185953206,
+      "head_ssim": 0.6921109557151794,
+      "head_hfen": 0.3236356882493489,
+      "grain_ratio": 2.4213916911917854,
+      "head_frac": 0.4325056404903017,
+      "gmax": 1.8922460079193115,
+      "head_nmse": 0.06064311632595342,
+      "psnr_cplx": 25.884058712246702,
+      "lam": 0.0,
+      "ksize": 3,
+      "solver": "fista",
+      "tyk": 0.01,
+      "iters": 150,
+      "levels": 4,
+      "acs": "24x24",
+      "calib": "acquired",
+      "npatch": 484,
+      "ncols": 378
+    }
+  ],
+  "lam": 0.0,
+  "ksize": 3,
+  "tyk": 0.01,
+  "iters": 150,
+  "levels": 4,
+  "solver": "fista",
+  "calib": "acquired"
+}

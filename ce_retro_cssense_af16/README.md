@@ -70,9 +70,9 @@ x_GT` inside the head, and CG-SENSE (Tikhonov 1e-6, 60 iters) head PSNR > 60 dB.
 | pre | 3.81e-7 | 69.19 dB | 4.27e-5 |
 | post | 3.84e-7 | 75.91 dB | 1.64e-5 |
 
-(`check_sim.json` also records a ZF-on-AF16 head PSNR "for the record" -- left out of this table and out of §4:
-it is a real per-arm quality number, the same kind §4 defers until every arm is summarised, so it is `NOT_RUN_YET`
-here too rather than reported early just because it happens to sit next to the gate fields.)
+(`check_sim.json` also records a ZF-on-AF16 head PSNR "for the record" -- left out of this table since it duplicates
+the ZF row of §4's results table below, now that every arm is summarised there: 24.250 dB pre / 25.829 dB post,
+identical to `check_sim.json`'s `zf_af16_head_psnr`, as it should be -- both come from the same `Pair.score`.)
 
 The adjoint gate is restricted to head voxels where coil coverage `sum_c|S_c|^2 > 0.25` -- see §7 for why, and how
 small that restriction is (< 0.006% of the head either way).
@@ -117,20 +117,77 @@ Live footnote on the MC-GS row above: the archive actually lives at `trainer/_tr
 
 ## 4. Results
 
-`NOT_RUN_YET` -- production GPU runs are still in flight (see STATUS.md for a timestamped snapshot of what has
-finished). `logs/summary.json` today has only 4 of the eventual ~40+ rows (zf/cgsense, both scans); running
-`readme_tables.py` against it now would crash on the `MC-GS minus GS-single` step (no `gs_joint`/`gs_single` rows
-yet) and would not be representative even if it didn't. Once every arm has a row in `logs/summary.json` and
-`logs/enhancement_fidelity.json` exists, replace this whole section with the literal output of:
+All eleven arms are scored on both scans; every gauge cross-check (`scripts/score_volume.py --check`, CPU, double
+precision) prints `GAUGE OK` against the arm's own recorded json (14/14: cgsense, zsssdu, dip, inr, mcinr,
+gs_single, gs_joint x pre/post -- the seven arms scored outside `recon_classical.py`'s own internal check). Literal
+output of `readme_tables.py` (2026-09-18), not hand-edited:
+
+**pre** (sorted by head-only PSNR; truth = CS-SENSE of the prospective pair)
+
+| method | head PSNR | head SSIM | head NMSE | head HFEN | complex PSNR | whole PSNR | λ / kernel |
+|---|---|---|---|---|---|---|---|
+| MC-GS | **33.623** | **0.9034** | **0.01305** | **0.2505** | 30.796 | 36.811 |  |
+| GS-single | 33.429 | 0.8997 | 0.01365 | 0.2557 | 30.647 | 36.578 |  |
+| ZS-SSDU | 32.096 | 0.8910 | 0.01855 | 0.3012 | 29.442 | 35.105 |  |
+| L1-SPIRiT | 31.657 | 0.8489 | 0.02052 | 0.2731 | 28.750 | 34.405 | 0.0005 / ks5 |
+| CS-SENSE | 31.031 | 0.8633 | 0.02371 | 0.3712 | 28.282 | 34.048 | 0.001 |
+| Joint SENSE | 30.975 | 0.8616 | 0.02401 | 0.3744 | 28.238 | 34.009 | 0.0014 |
+| 3D-DIP | 29.324 | 0.8093 | 0.03511 | 0.4215 | 26.485 | 18.444 |  |
+| CG-SENSE | 28.937 | 0.7859 | 0.03839 | 0.4488 | 26.233 | 31.418 |  |
+| 3D-INR | 28.084 | 0.6937 | 0.04672 | 0.4245 | 25.112 | 26.287 |  |
+| MC-INR | 27.444 | 0.6837 | 0.05414 | 0.5532 | 24.454 | 28.661 |  |
+| ZF | 24.250 | 0.6416 | 0.11296 | 0.8222 | 21.415 | 27.383 |  |
+
+**post** (sorted by head-only PSNR; truth = CS-SENSE of the prospective pair)
+
+| method | head PSNR | head SSIM | head NMSE | head HFEN | complex PSNR | whole PSNR | λ / kernel |
+|---|---|---|---|---|---|---|---|
+| MC-GS | **35.657** | **0.9253** | **0.01356** | **0.2335** | 32.941 | 38.865 |  |
+| GS-single | 35.302 | 0.9196 | 0.01472 | 0.2495 | 32.675 | 38.481 |  |
+| L1-SPIRiT | 34.069 | 0.8925 | 0.01955 | 0.2571 | 31.285 | 36.913 | 0.0005 / ks5 |
+| ZS-SSDU | 33.504 | 0.9070 | 0.02227 | 0.3119 | 30.955 | 36.687 |  |
+| CS-SENSE | 32.725 | 0.8829 | 0.02664 | 0.3614 | 30.093 | 35.766 | 0.001 |
+| Joint SENSE | 32.605 | 0.8796 | 0.02739 | 0.3807 | 29.935 | 35.499 | 0.001 |
+| CG-SENSE | 30.643 | 0.8232 | 0.04303 | 0.4663 | 28.191 | 33.239 |  |
+| 3D-INR | 30.609 | 0.7677 | 0.04337 | 0.3644 | 27.680 | 27.968 |  |
+| 3D-DIP | 30.235 | 0.7949 | 0.04728 | 0.4534 | 27.525 | 21.062 |  |
+| MC-INR | 29.739 | 0.7496 | 0.05299 | 0.5193 | 26.681 | 31.120 |  |
+| ZF | 25.829 | 0.6466 | 0.13038 | 0.8418 | 23.289 | 28.937 |  |
+
+**MC-GS minus GS-single** (the headline margin)
+
+| scan | head PSNR | head SSIM | head NMSE | head HFEN |
+|---|---|---|---|---|
+| pre | +0.194 | +0.0036 | -0.00060 | -0.0052 |
+| post | +0.354 | +0.0057 | -0.00115 | -0.0160 |
+
+MC-GS also leads the best non-GS arm on head PSNR: pre +1.527 dB over ZS-SSDU (32.096); post +1.588 dB over
+L1-SPIRiT (34.069). L1-SPIRiT kernel 5 (calibration-underdetermined per §7) did not diverge -- it beat kernel 3 at
+every swept λ except one (post, λ=0, a negligible 0.09 dB gap far from the winning λ=0.0005) and was the kernel
+`summarize.py` kept for both scans; kept as-is, not dropped from the tables (resolves the §7/STATUS open question).
+
+**Enhancement (post − pre, white-matter units); err = arm − truth**
+
+| arm | vessels | plexus | cortex | WM | lesion core | rim 0–3 mm | background(post) |
+|---|---|---|---|---|---|---|---|
+| truth (CS-SENSE) | +2.841 | +1.080 | +0.104 | +0.003 | +0.021 | +0.028 | 0.007 |
+| ZF | +1.544 (-1.297) | +0.362 (-0.718) | +0.097 (-0.007) | +0.009 (+0.006) | +0.018 (-0.003) | +0.021 (-0.006) | 0.024 |
+| CG-SENSE | +2.190 (-0.651) | +0.657 (-0.423) | +0.098 (-0.006) | +0.004 (+0.001) | +0.024 (+0.003) | +0.030 (+0.002) | 0.040 |
+| CS-SENSE | +2.550 (-0.291) | +0.715 (-0.365) | +0.104 (-0.000) | +0.008 (+0.005) | +0.019 (-0.003) | +0.027 (-0.001) | 0.018 |
+| Joint SENSE | +2.469 (-0.372) | +0.676 (-0.404) | +0.100 (-0.005) | +0.007 (+0.004) | +0.018 (-0.004) | +0.027 (-0.001) | 0.022 |
+| L1-SPIRiT | +2.648 (-0.193) | +0.788 (-0.292) | +0.103 (-0.002) | +0.004 (+0.001) | +0.019 (-0.002) | +0.028 (+0.000) | 0.018 |
+| ZS-SSDU | +3.103 (+0.262) | +0.814 (-0.266) | +0.103 (-0.001) | +0.002 (-0.001) | +0.014 (-0.007) | +0.030 (+0.003) | 0.043 |
+| 3D-DIP | +2.337 (-0.504) | +0.481 (-0.599) | +0.103 (-0.002) | +0.004 (+0.001) | +0.012 (-0.009) | +0.028 (+0.000) | 0.783 |
+| 3D-INR | +2.429 (-0.411) | +0.723 (-0.358) | +0.096 (-0.008) | +0.003 (-0.000) | +0.037 (+0.016) | +0.042 (+0.015) | 0.369 |
+| MC-INR | +2.290 (-0.551) | +0.693 (-0.387) | +0.099 (-0.006) | +0.005 (+0.001) | +0.028 (+0.006) | +0.030 (+0.002) | 0.162 |
+| GS-single | +2.695 (-0.145) | +0.764 (-0.316) | +0.098 (-0.006) | +0.003 (-0.000) | +0.019 (-0.002) | +0.028 (-0.000) | 0.010 |
+| MC-GS | +2.715 (-0.126) | +0.833 (-0.247) | +0.100 (-0.004) | +0.005 (+0.001) | +0.021 (-0.000) | +0.026 (-0.002) | 0.009 |
+
+Reproduce with:
 
 ```
 cd $WT/ce_retro_cssense_af16 && env PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/readme_tables.py
 ```
-
-That prints, per scan (pre, post): the eleven arms sorted by head-only PSNR with the best value per column in
-**bold**, then the MC-GS-minus-GS-single line (the headline margin), then the enhancement-fidelity table
-(post - pre in white-matter units, arm error vs the truth in six reference regions plus extracranial background).
-Paste it here verbatim -- do not hand-edit the numbers.
 
 ## 5. Figures
 
@@ -142,15 +199,23 @@ http://localhost:8765/ce_retro_af16/mask_af16.png
 PDF 600 dpi) -- one file **per scan** (`fig_three_planes_compact.py` takes `--scan {pre,post}`; it is not one
 scan-less figure):
 
-`figures/ce_retro_af16_three_planes_pre_201_131_48.{png,pdf}`:
-`NOT_RUN_YET` (not generated yet; needs every arm's volume registered first)
+`figures/ce_retro_af16_three_planes_pre_201_131_48.{png,pdf}` (copied/renamed from
+`fig_three_planes_compact.py`'s own `t1flair_v3_af16_pre_row3planes_compact_201_131_48_inset48_headerr_201_131_48_spirit_zf_caps.{png,pdf}`,
+left alongside it under both names):
+http://localhost:8765/ce_retro_af16/ce_retro_af16_three_planes_pre_201_131_48.png
+`/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16/figures/ce_retro_af16_three_planes_pre_201_131_48.png`
 
-`figures/ce_retro_af16_three_planes_post_201_131_48.{png,pdf}`:
-`NOT_RUN_YET` (not generated yet; needs every arm's volume registered first)
+`figures/ce_retro_af16_three_planes_post_201_131_48.{png,pdf}` (same renaming, `_post_`):
+http://localhost:8765/ce_retro_af16/ce_retro_af16_three_planes_post_201_131_48.png
+`/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16/figures/ce_retro_af16_three_planes_post_201_131_48.png`
+
+MC-GS ranks #1 of all eleven arms on PSNR, SSIM and NMSE on every one of the six panels (3 planes x 2 scans) at
+these slices.
 
 **Enhancement figure** (design §7, `fig_enhancement.py` 9-row layout) --
-`figures/ce_retro_af16_enhancement.{png,pdf}`:
-`NOT_RUN_YET` (not generated yet)
+`figures/ce_retro_af16_enhancement.{png,pdf}` (this script writes the final name directly):
+http://localhost:8765/ce_retro_af16/ce_retro_af16_enhancement.png
+`/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16/figures/ce_retro_af16_enhancement.png`
 
 ## 6. Reproduction commands
 
@@ -212,8 +277,9 @@ $PY scripts/fig_enhancement.py --slices 201,131,48
 # figures/ and into /home/congcongliu/figs/ce_retro_af16/ (see its docstring) -- copy/rename the two PNG+PDF
 # pairs it wrote to figures/ce_retro_af16_three_planes_<scan>_201_131_48.{png,pdf} before citing them in §5.
 
-# 9. export bundle (--no_raw skips ~14 GB of h5 / work_* k-space)
+# 9. export bundle (--no_raw skips ~26 GB of h5 / work_* k-space; the design doc's "~14 GB" guess was low -- see §7)
 $PY scripts/export_bundle.py --no_raw
+$PY scripts/export_bundle.py               # full bundle, raw k-space included: 113 files, 28.36 GiB (Task 16)
 ```
 
 The lambda grids and per-scan/per-kernel invocations are exactly what `retro_orchestrate.py --dry` prints (job
@@ -251,14 +317,35 @@ sketch put it under `scripts/`; the actual `git archive` in commit `18c9aac` lan
 match the sketch.
 
 **`logs/summary.json` is a stale partial snapshot while production is in flight -- do not run `readme_tables.py`
-against it as-is.** As of this task it has 4 rows (zf/cgsense x pre/post) from an early `summarize.py` run;
-`recon/` already has more arms finished than that (CS-SENSE's full lambda grid, most of L1-SPIRiT, ZS-SSDU, one
-DIP) that just haven't been re-summarised. Re-run `scripts/summarize.py` after the GPU queue drains, not before.
+against it as-is.** As of Task 15 it had 4 rows (zf/cgsense x pre/post) from an early `summarize.py` run;
+`recon/` already had more arms finished than that (CS-SENSE's full lambda grid, most of L1-SPIRiT, ZS-SSDU, one
+DIP) that just hadn't been re-summarised. Re-run `scripts/summarize.py` after the GPU queue drains, not before.
+**Resolved (Task 16):** the scheduler ran to completion (`logs/orch/ALL_DONE_retro16`); `summarize.py` now writes
+22 rows (11 arms x 2 scans), matching the §4 tables above.
 
 **42-coil L1-SPIRiT kernel 5 is calibration-underdetermined (known risk, not yet observed).** ACS is a true 24x24;
 at 42 coils the kernel-5 calibration has `(24-5+1)^2 = 400` equations for `42*25 = 1050` unknowns. Kernel 3 is
 fine (`378` unknowns, `484` equations). Both kernels are run; if kernel 5 diverges or is clearly worse once scored,
-say so in §4/§8 rather than silently dropping it.
+say so in §4/§8 rather than silently dropping it. **Resolved (Task 16):** it did not diverge -- ks5 beat ks3 at
+every swept λ except one negligible point (post, λ=0, 0.09 dB, nowhere near the winning λ), and `summarize.py` kept
+ks5 for both scans' L1-SPIRiT row. Both kernels stay in the raw per-lambda logs; only the winning one is tabulated.
+
+**`find_best_slice.py`'s "cssense" never resolved to a file (found and fixed, Task 16).** Flagged as a review note
+in the script itself since 2026-09-17: `METHODS` includes `"cssense"`, but this topic's CS-SENSE volumes are named
+`recon/cssense_o200_lam<L>_<c>_complex.npy` (swept lambda), and the flat loader only ever tried
+`recon/cssense_<c>_complex.npy`, which does not exist. Harmless while `gs_joint`/`gs_single` were not yet
+registered (the script would have hit a different missing key first); once every arm existed this raised
+`KeyError: 'cssense'` exactly as predicted. Fixed by resolving "cssense" through `logs/summary.json`'s
+`cssense_o200` row for that scan (the λ `summarize.py` kept), the same pattern `arms.py`/`best_slice_mcgs.py`
+already use -- the other seven methods in `METHODS` were already fine. After the fix: MC-GS joint ranks first on
+602/604 scored slices (pre) and 604/604 (post); on axis 0 alone it leads GS-single on all 190/190 eligible slices,
+both scans (`logs/best_slice_mcgs.json`; best slice 218, margin +0.402 dB pre / +0.646 dB post over GS-single).
+
+**The design doc's "~14 GB" for `export_bundle.py --no_raw`'s skipped raw data was a guess, not a measurement.**
+The real raw payload (`sim/gs/` 4 files + `sim/work_{pre,post}/` 3 files each) is ~26 GB, not 14 -- confirmed by
+running both bundle variants (Task 16): `--no_raw` is 103 files / 2.11 GiB, the full bundle is 113 files / 28.36
+GiB, so raw itself is 28.36 - 2.11 = 26.25 GiB. Both `export_bundle.py`'s docstring and this README's §6 are
+corrected; the number was never load-bearing for any gate, only for deciding whether `/data0` has room (it does).
 
 **Shell is zsh.** Quote every variable (`"$TOPIC"`, `"$PY"`, ...); an unquoted `$VAR:more/path` silently eats
 everything after the colon.

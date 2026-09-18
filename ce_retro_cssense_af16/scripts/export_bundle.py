@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """export_bundle.py -- the results bundle of this study: every registered volume (both scans), the simulation inputs
-(mask, truth, meta), logs and figures, with MANIFEST.tsv and md5sums. --no_raw skips the 14 GB of h5 / work_* k-space.
+(mask, truth, meta), logs and figures, with MANIFEST.tsv and md5sums. --no_raw skips the ~26 GB of h5 / work_* k-space.
   python scripts/export_bundle.py [--no_raw]   -> export/ce_retro_af16_<YYYYMMDD>/"""
 import argparse, hashlib, os, shutil, time
 from pathlib import Path
