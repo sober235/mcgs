@@ -73,6 +73,9 @@ K_SHELL = 2
 MIN_SHELL = 50
 MIN_HEAD = 2000
 MCGS, GSSINGLE = "gs_joint", "gs_single"
+# display only: the grey window top is divided by this, so >1 is brighter. Every metric is computed on the
+# unscaled data (user chose 1.5 for the figures of record, 2026-09-18). Override with RETRO_BRIGHTNESS.
+BRIGHTNESS = float(os.environ.get("RETRO_BRIGHTNESS", "1.5"))
 MEASURES = [("psnr", True), ("rmse", False), ("gerr", False)]   # (name, higher_is_better)
 
 
@@ -292,7 +295,7 @@ def make_figure(row, keys, gt, head, gmax, vols, core, shell):
     for r_i, (c, kind) in enumerate(panel_rows):
         y = top_in + r_i * (ph + gap)
         g2 = crop(gt[c][sl])
-        vmax_c = float(np.quantile(g2, 0.999))
+        vmax_c = float(np.quantile(g2, 0.999)) / BRIGHTNESS
         h2 = crop(head[c][sl].astype(float)) > 0.5
         for j in range(ncol):
             x = j * (pw + gap)
