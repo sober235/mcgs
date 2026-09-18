@@ -267,12 +267,14 @@ $PY scripts/best_slice_mcgs.py           # -> logs/best_slice_mcgs.json
 $PY scripts/readme_tables.py
 
 # 8. figures -- one file per scan (--scan {pre,post}); flags per the Task 16 brief
+# grey windows lifted 1.5x for legibility (user, 2026-09-18): --brightness 1.5 divides the P99.9 window;
+# fig_enhancement.py takes the equivalent as --vmax 0.667. Display only -- every metric is on the unscaled data.
 for s in pre post; do
   $PY scripts/fig_three_planes_compact.py --scan $s --slices 201 131 48 --inset 48 --inset_corner tr bl bl \
     --mask_error --gray_cbar --cbar_planes 0 --tra_rot 1 --err_vmax 0.1 --with_zf --caps --l1_arm spirit \
-    --pdf --pdf_dpi 600 --tag _201_131_48
+    --brightness 1.5 --pdf --pdf_dpi 600 --tag _201_131_48
 done
-$PY scripts/fig_enhancement.py --slices 201,131,48
+$PY scripts/fig_enhancement.py --slices 201,131,48 --vmax 0.667
 # fig_three_planes_compact.py writes its own native name (t1flair_v3_af16_<scan>_row3planes_compact_...) into
 # figures/ and into /home/congcongliu/figs/ce_retro_af16/ (see its docstring) -- copy/rename the two PNG+PDF
 # pairs it wrote to figures/ce_retro_af16_three_planes_<scan>_201_131_48.{png,pdf} before citing them in §5.
