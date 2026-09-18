@@ -278,3 +278,18 @@ FLAIR +0.55 / +0.75 / +1.65，六行里五行变大。按"GS-single 算对比臂
 文件 `figures/t1flair_v3_af16_masks_stack_T1_tra104_zoomrows32_headerr_p3_zf_caps_maxgap.{png,pdf}` 与
 `figures/t1flair_v3_af16_masks_stack_FLAIR_tra148_zoomrows32_headerr_p3_zf_caps_maxgap.{png,pdf}`。205 层的两张（同层同框）保留，
 要"一张图同时覆盖两个对比度"时用它。层是在本数据上按余量挑的，这一点在对外写作时要说明。
+
+### 放大区里"看得见"的差距最大的一版（2026-09-18，用户："换个区域让 zoom-in 的差异更明显"）
+
+读者在放大区里能分辨的是 MC-GS 与**非 GS 方法**的差距（对 GS-single 任何框里都只低 2–9% 误差，看不出）。因此改按
+"对最强非 GS 列的最小领先"挑层与框，条件不变：MC-GS 在整层九项与框内 PSNR/SSIM 上仍要对所有列（含 GS-single）第一。
+- 层：`scripts/find_slice_nongs_gap.py`（178 个合格层逐层重打分，72 个体积；22 层满足"六行对所有列第一"）。按对非 GS 的最小领先，
+  T1 最好的层是 126（三图案 +0.68 / +0.58 / +0.62，整层口径），FLAIR 最好的仍是 205（+0.70 / +0.41 / +0.29）。
+- 框：`scripts/find_zoom_box_visible.py --rank nongs --edge_q 0.75`（框边长 32 / 40，结构量前 25%）。
+  T1 在 126 层取 32×32 @ (146, 29)：框内对最强非 GS 列 **+1.250 / +1.126 / +1.118 dB**（vd-Poisson / Gaussian / 伪径向，
+  对手是 Joint SENSE 或收敛 TV），对所有列 +0.225 / +0.093 / +0.314。比 205 层那版（对非 GS +0.61）差不多翻倍。
+  FLAIR 留在 205 层的 32×32 @ (148, 146)（对非 GS +0.795 / +0.838 / +0.796），它在 126 层只能到 +0.568。
+
+图：`figures/t1flair_v3_af16_masks_stack_T1_tra126_zoomrows32_headerr_p3_zf_caps_nongsmax.{png,pdf}`（T1）与既有的
+`..._FLAIR_tra205_zoomrows32_headerr_p3_zf_caps_box148_146.{png,pdf}`（FLAIR）。两张层号不同，标题各自写明。
+读数 `logs/find_slice_nongs_gap.json`、`logs/find_zoom_box_visible_*_nongs*.{json,txt}`。
