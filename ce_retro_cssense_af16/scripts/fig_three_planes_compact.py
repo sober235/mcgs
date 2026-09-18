@@ -52,6 +52,9 @@ ap.add_argument("--err_vmax", type=float, default=0.1,
                 help="top of the fixed jet scale of the error maps, as a fraction of max|GT| (default 0.1, the house "
                      "convention). 0.05 uses the full colour range: 99 percent of the in-head error is under 0.054 for "
                      "every arm but CG-SENSE, so at 0.1 the panels are all dark blue. Fixed for every panel either way.")
+ap.add_argument("--brightness", type=float, default=1.0,
+                help="multiplies the grey windows: >1 makes the images brighter (the window top is divided by it). "
+                     "Affects display only; every metric is computed on the unscaled data. 1.0 = the P99.9 window.")
 ap.add_argument("--tra_rot", type=int, default=1, choices=[0, 1, 2, 3],
                 help="quarter turns applied to the TRANSVERSE panel on top of the historical transpose. Default 1 puts "
                      "the eyes up (user 2026-09-13); 0 is the orientation the older figures of this topic use.")
@@ -241,6 +244,7 @@ for p in planes:
     p["vmax_p999"] = p["vmax"]
     if p["axis"] == 2:
         p["vmax"] = p["med"] / ratio
+    p["vmax"] /= args.brightness                # display only; --brightness > 1 lifts every panel of this plane
 
 
 ncol = len(ARMS) + 1
