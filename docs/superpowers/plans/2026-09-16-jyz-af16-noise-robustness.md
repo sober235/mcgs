@@ -2168,3 +2168,40 @@ cd /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_noise1x_v3_jiangyizhou 
     --metric $m --out logs/compare_noise_levels_$m.md > /dev/null; done
 ```
 and mirror both topics into the repo (`t1flair_af16_noise1x_v3_jiangyizhou/`, `t1flair_af16_noise2x_v3_jiangyizhou/`).
+
+---
+
+### Task 13 (added 2026-09-17 13:40, spec addendum): the noise range in which MC-GS leads
+
+Done in the session, in this order (commands as run):
+- `run_noise_mcgs.sh` accepts `af16n05_`, `af16n025_`, `af16n075_` (atomic replace), configs
+  `configs/t1flair_v3_af16n05_jyz*.yaml` and `configs/t1flair_v3_af16n075_jyz*.yaml` (commits d42dd0e, 96ee660).
+- `scripts/scaffold_level.py` (kept with the 1 sigma0 topic) clones that topic into a new level: data symlinks,
+  `logs/prep_04_export.json`, every script with the level strings replaced, `MULT` set, the nested check pointed at the
+  reference level, the finalize step extended with `compare_noise_levels.py`. Level-independent helpers
+  (`compare_noise_levels.py`, `check_scale_levels.py`, `best_planes_noise.py`, `six_cells_now.py`, `scaffold_level.py`)
+  are copied unchanged.
+  ```
+  python <1 sigma0 topic>/scripts/scaffold_level.py noise0p5x 0.5 af16n05 noise1x
+  python <1 sigma0 topic>/scripts/scaffold_level.py noise0p75x 0.75 af16n075 noise1x
+  ```
+- `compare_noise_levels.py` and `check_scale_levels.py` now take every level present (no noise, 0.25, 0.5, 0.75, 1, 2).
+- Measurements: `python scripts/make_noisy_kspace.py` in each new topic; all checks pass, `nested_vs_1x` 0.29 / 0.29
+  (0.5 sigma0) and 0.29 / 0.28 (0.75 sigma0).
+- Queues: `setsid nohup bash scripts/launch_noise.sh --cards 1,2,5,6 --max_gpu_jobs 4 …` — 0.5 sigma0 13:44 to 17:22,
+  0.75 sigma0 15:21 to 20:21 (both queues shared the four cards through the shared locks). 57 jobs each, no failures,
+  every selected lambda interior, finalize rc 0.
+- `scripts/six_cells_now.py` reads the six head cells from whatever has finished (it reproduces the finalized tables of
+  the other levels exactly); it carried the 0.75 sigma0 go-decision at 15:20, confirmed on the finalized 0.5 sigma0
+  tables at 17:22.
+- Result: first on all six head cells at zero noise and 0.5 sigma0, five of six at 0.75 sigma0 (FLAIR head SSIM second by
+  0.0005), three at 1 sigma0, none at 2 sigma0 -> the six-cell range ends between 0.5 and 0.75 sigma0. Record section 9,
+  summary section 7, handoff section 1b.
+- Figures at 0.5 sigma0: the four standard compact figures, the largest-lead paired slices 170 / 166 / 147
+  (`scripts/best_planes_noise.py`), and on the user's request two single-slice figures,
+  `scripts/fig_tra_t1_flair_noise.py` (T1 over FLAIR with error rows, the added noise in the left cell of each error row;
+  `--noise_vmax 0.01` for the version of record) and `scripts/fig_tra_t1_flair_zoom3d.py` (48x48 zoom in every panel,
+  the sampling mask under T1, the added FLAIR noise as a 3-D surface with intensity as height).
+
+Open, if the user wants it: a 0.6 sigma0 level to place the upper end; several seeds of MC-GS and ZS-SSDU on the
+0.75 sigma0 FLAIR cell; the noise-aware GS arm (Task 11 open items).
