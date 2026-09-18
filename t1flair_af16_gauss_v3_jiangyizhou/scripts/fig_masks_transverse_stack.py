@@ -66,6 +66,8 @@ ap.add_argument("--zoom_rows", type=int, default=0, metavar="W",
                      "0 = off (default); adds _zoomrows<W> to the file name; not together with --inset")
 ap.add_argument("--inset_center", type=int, nargs=2, default=[124, 76], metavar=("J", "K"),
                 help="box centre in the transverse slice, volume axes 1 and 2 (default = the figure-of-record 48^3 box centre)")
+ap.add_argument("--inset_frac", type=float, default=0.38,
+                help="side of the corner zoom as a fraction of the panel width (default 0.38, the figures of record)")
 ap.add_argument("--inset_corner", default="tr", choices=["bl", "br", "tl", "tr"],
                 help="panel corner that holds the magnified box (default top-right, as the transverse row of the figures of record)")
 args = ap.parse_args()
@@ -206,9 +208,10 @@ def axes_at(x0, y0, w, h):
     return a
 
 
-def label(a, text, bold=False, line=0, fs=12, h=None, color="white"):
+def label(a, text, bold=False, line=0, fs=12, h=None, color="white", bottom=False):
     dy = line * fs * 1.28 / 72 / h if line else 0.0
-    t = a.text(0.025, 0.975 - dy, text, transform=a.transAxes, ha="left", va="top", color=color, fontsize=fs,
+    y, va = (0.025 + dy, "bottom") if bottom else (0.975 - dy, "top")
+    t = a.text(0.025, y, text, transform=a.transAxes, ha="left", va=va, color=color, fontsize=fs,
                fontweight="bold" if bold else "normal")
     t.set_path_effects([pe.withStroke(linewidth=2.5, foreground="black")])
 
@@ -233,7 +236,7 @@ INSETS = []                                      # the zoom axes, for the text-o
 def put_inset(parent, img, z, x0_in, y0_in, pw_in, h_in, corner="tr", **imkw):
     """outline the zoom box on `parent` and paste the magnified box into the given corner of the panel"""
     parent.add_patch(Rectangle((z["x0"] - 0.5, z["y0"] - 0.5), z["w"], z["w"], fill=False, ec=ZC, lw=ZLW))
-    side, pad = 0.38 * pw_in, 0.012 * pw_in
+    side, pad = args.inset_frac * pw_in, 0.012 * pw_in
     left = x0_in + (pad if corner in ("bl", "tl") else pw_in - pad - side)
     top = y0_in + (pad if corner in ("tl", "tr") else h_in - pad - side)
     a = fig.add_axes([left / fw, 1 - (top + side) / fh, side / fw, side / fh])
@@ -318,8 +321,9 @@ for k, p in enumerate([] if args.zoom_rows else ROWS):
             gim = a.imshow(D(p["g2"]), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
             if p["zoom"]:
                 put_inset(a, D(p["g2"]), p["zoom"], x, y, pw, ph, corner=args.inset_corner, cmap="gray", vmin=0, vmax=p["vmax"])
-                label(a, p["name"], bold=True)
-                label(a, f"{p['af']:.2f}x", bold=True, line=1, h=ph)
+                _bot = args.inset_corner in ("tl", "tr") and args.inset_frac > 0.42   # a wide top inset reaches the label
+                label(a, f"{p['af']:.2f}x" if _bot else p["name"], bold=True, bottom=_bot)
+                label(a, p["name"] if _bot else f"{p['af']:.2f}x", bold=True, line=1, h=ph, bottom=_bot)
             else:
                 label(a, f"{p['name']}  {p['af']:.2f}x", bold=True)
             b.imshow(D(p["kmask"]), cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto", interpolation="nearest")

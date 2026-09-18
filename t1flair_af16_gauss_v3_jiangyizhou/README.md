@@ -293,3 +293,9 @@ FLAIR +0.55 / +0.75 / +1.65，六行里五行变大。按"GS-single 算对比臂
 图：`figures/t1flair_v3_af16_masks_stack_T1_tra126_zoomrows32_headerr_p3_zf_caps_nongsmax.{png,pdf}`（T1）与既有的
 `..._FLAIR_tra205_zoomrows32_headerr_p3_zf_caps_box148_146.{png,pdf}`（FLAIR）。两张层号不同，标题各自写明。
 读数 `logs/find_slice_nongs_gap.json`、`logs/find_zoom_box_visible_*_nongs*.{json,txt}`。
+
+同一选择也出了"放大贴在图上"的版本（用户 2026-09-18："将这里的 zoom-in view 放在图上"）：`scripts/figs_masks_stack_inset_nongsmax.sh`，
+即 `--inset 32 --inset_center … --inset_frac 0.5`。新开关 `--inset_frac` 控制角上放大图的边长占面板宽的比例，默认 0.38（与既有正式图一致），
+这里用 0.5 以便看清；贴图变宽后 GT 面板的图案标签会被压住，脚本在 `--inset_frac > 0.42` 且贴图在上方时自动把标签移到左下角（出图后的文字重叠自检从
+`['Pseudo-radial']` 变为 `none`）。文件 `figures/t1flair_v3_af16_masks_stack_T1_tra126_inset32_headerr_p3_zf_caps_nongsmax.{png,pdf}` 与
+`..._FLAIR_tra205_inset32_headerr_p3_zf_caps_nongsmax.{png,pdf}`；放大行版本同时保留，两种版式数字完全相同。
