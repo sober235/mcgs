@@ -262,3 +262,19 @@ FLAIR +0.55 / +0.75 / +1.65，六行里五行变大。按"GS-single 算对比臂
 输出 `figures/t1flair_v3_af16_masks_stack_T1_tra205_zoomrows40_headerr_p3_zf_caps_box160_131.{png,pdf}` 与
 `figures/t1flair_v3_af16_masks_stack_FLAIR_tra205_zoomrows32_headerr_p3_zf_caps_box148_146.{png,pdf}`，served 于 `http://localhost:8765/t1flair_v3_af16_diffmask/`；
 读数 `logs/find_zoom_box_visible_{T1,FLAIR}{,_nongs}.{json,txt}`。角上小放大图的各版本保留。
+
+### 差距最大的层，两个对比度各一层（2026-09-18，用户："重新给出最大差异的结果图"）
+
+`logs/find_slice_all_masks.json` 的 176 个合格层按几种口径重排（口径 = 头内层 PSNR，MC-GS 对最强对比臂，GS-single 算对比臂）：
+- **两对比度合看**：九项（三指标 × 三图案 × 两对比度）全第一的只有 203–206，其中 205 层按最小余量和按平均余量都排第一（最小 +0.050、平均 +0.120）。
+  只要求六行 PSNR 第一时 205 仍第一。所以 205 已经是两对比度合看的最大差距层，之前选它是对的。
+- **各对比度分开看**（两张图本来分开，这样能再大一点）：T1 最好是 **104 层**（三图案三指标全第一，最小余量 **+0.178**，对比 205 层的 +0.122；
+  三图案 +0.252 / +0.178 / +0.200），FLAIR 最好是 **148 层**（最小 **+0.063**，对比 205 层的 +0.050；+0.076 / +0.063 / +0.115）。
+
+据此出的图（放大行版式，框按该层重挑，规则同上一节）：`scripts/figs_masks_stack_maxgap.sh`
+- T1：横断 104（颅底层，小脑与颞叶），框 32×32 @ (107, 34)。框内对所有列 +0.316 / +0.100 / +0.181，对最强非 GS 列 +0.743 / +0.830 / +0.714。
+- FLAIR：横断 148（基底节层），框 32×32 @ (141, 139)。框内对所有列 +0.149 / +0.252 / +0.474，对最强非 GS 列 +0.586 / +0.499 / +1.086。
+
+文件 `figures/t1flair_v3_af16_masks_stack_T1_tra104_zoomrows32_headerr_p3_zf_caps_maxgap.{png,pdf}` 与
+`figures/t1flair_v3_af16_masks_stack_FLAIR_tra148_zoomrows32_headerr_p3_zf_caps_maxgap.{png,pdf}`。205 层的两张（同层同框）保留，
+要"一张图同时覆盖两个对比度"时用它。层是在本数据上按余量挑的，这一点在对外写作时要说明。

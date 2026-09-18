@@ -21,6 +21,9 @@ FLAIR +0.042/+0.023/+0.093。六格里五格三指标（头内 PSNR/SSIM/HFEN）
   T1 与 FLAIR 各选各的框（按对最强非 GS 列的可见差距排序，MC-GS 仍对所有列第一）：T1 40×40 于 (160, 131)，FLAIR 32×32 于 (148, 146)，都在 205 层。
   出图 `..._tra205_zoomrows40_headerr_p3_zf_caps_box160_131` 与 `..._tra205_zoomrows32_headerr_p3_zf_caps_box148_146`。
   限制：任何框里 MC-GS 对 GS-single 的误差只低 2% 到 9%，放大行里看得出的是对非 GS 方法的差距。说明在 gauss 课题 README「放大行版式」一节。
+- （09-18）用户要"最大差异的结果图"：176 层重排确认 **205 是两对比度合看的最大差距层**（最小余量 +0.050、平均 +0.120，两种排序都第一）；
+  各对比度分开则 **T1 = 104 层（最小 +0.178）**、**FLAIR = 148 层（最小 +0.063）**。按后者出了放大行版图（框 32×32，T1 @(107,34)、FLAIR @(141,139)），
+  文件 `..._T1_tra104_zoomrows32_headerr_p3_zf_caps_maxgap.png` 与 `..._FLAIR_tra148_zoomrows32_headerr_p3_zf_caps_maxgap.png`；205 层两张保留。
 - （09-16 晚追加）三图案横断位叠放图：`T1FLAIR_AF16_gauss_v3_jiangyizhou/scripts/fig_masks_transverse_stack.py`，三行（vd-Poisson / Gaussian / 伪径向）× 灰度加误差，每行各带 colorbar，层 180，T1 与 FLAIR 各一张（PNG+PDF），`http://localhost:8765/t1flair_v3_af16_diffmask/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra180_headerr_p3_zf_caps.png`；说明在该课题 README 末节。逐层搜索（`scripts/find_slice_all_masks.py`）：两对比度、三项指标、三图案 MC-GS 全第一的横断位只有 203 到 206，205 层余量最大（最小 +0.050 dB），已出 205 层版叠放图。
 
 - 两个课题各 11 臂 × 2 对比度，全部重建、打分、出图，零失败。图在
