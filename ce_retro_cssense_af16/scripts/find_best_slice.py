@@ -2,7 +2,7 @@
 """find_best_slice.py -- per-slice head-masked PSNR for every method, every plane, every slice.
 
 Answers two different questions and keeps them apart:
-  (a) where does MC-GS joint beat ALL SEVEN other arms?
+  (a) where does MC-GS joint beat ALL TEN other arms?
   (b) where does MC-GS joint beat MC-GS single by the most? -- the apples-to-apples pair
       (same model class, same 600k budget, same loss; only the shared geometry differs)
 
@@ -20,29 +20,34 @@ generalising the loader is future work, not done here.
 Task 16 fix (2026-09-18): all eight methods are now needed, so the predicted KeyError above was hit. "cssense"
 is resolved through logs/summary.json's "cssense_o200" row (the lambda summarize.py kept for that scan), the
 same lam_file() pattern arms.py/best_slice_mcgs.py already use -- everything else in METHODS is unchanged.
+
+Whole-branch review fix (2026-09-18): METHODS still only covered 8 of this topic's 11 registered arms (missing
+Joint SENSE, L1-SPIRiT, MC-INR), so the "MC-GS ranks first on N/604" claim this script printed was never a
+comparison against the whole field. Every method is now resolved through arms.arm_files() (arms.py's ORDER/LABEL,
+the single source of truth for which file each arm's registered result lives in) instead of a hand-written path;
+"cssense" is kept as this script's own name for arms.py's "cssense_o200" key so joint_minus_cssense below still
+means the same thing.
 """
 import json
+import os
 from pathlib import Path
 
 import numpy as np
 
-R = Path(__import__("os").environ.get("RETRO_TOPIC", "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16"))
-METHODS = ["zf", "cgsense", "cssense", "zsssdu", "dip", "inr", "gs_single", "gs_joint"]
+from arms import arm_files
+
+R = Path(os.environ.get("RETRO_TOPIC", "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16"))
+METHODS = ["zf", "cgsense", "cssense", "jcssense", "spirit", "zsssdu", "dip", "inr", "mcinr", "gs_single", "gs_joint"]
+ARM_KEY = {"cssense": "cssense_o200"}          # this script's method name -> arms.py's arm_files() key, where they differ
 MIN_HEAD = 2000
-SUMMARY = {(r["contrast"], r["method"]): r for r in json.load(open(R / "logs/summary.json"))}
+SUMMARY = json.load(open(R / "logs/summary.json"))
 
 
 def load(method, c):
-    if method == "cssense":
-        row = SUMMARY.get((c, "cssense_o200"))
-        if row is None or row.get("lam") is None:
-            return None
-        p = R / f"recon/cssense_o200_lam{row['lam']:g}_{c}_complex.npy"
-        return np.abs(np.load(p)).astype(np.float32) if p.exists() else None
-    for suf in ("_complex.npy", "_mag.npy"):
-        p = R / f"recon/{method}_{c}{suf}"
-        if p.exists():
-            return np.abs(np.load(p)).astype(np.float32)
+    arm_key = ARM_KEY.get(method, method)
+    for key, _label, p in arm_files(c, summary=SUMMARY):
+        if key == arm_key:
+            return np.abs(np.load(p)).astype(np.float32) if p.exists() else None
     return None
 
 
@@ -91,10 +96,13 @@ def main():
             for r in top:
                 print(f"      axis{r['axis']} idx {r['index']:3d}  d={r[key]:+.3f} dB  "
                       f"rank={r['rank_gs_joint']}  best={r['best']}  n_head={r['n_head']}")
+    dest = R / "logs/slice_scores.json"
+    tmp = dest.with_suffix(".json.tmp")
     json.dump({c: [{k: (v if k != 'psnr' else {m: float(x) for m, x in v.items()})
                     for k, v in r.items()} for r in rows] for c, rows in out.items()},
-              open(R / "logs/slice_scores.json", "w"))
-    print(f"\nwrote {R/'logs/slice_scores.json'}")
+              open(tmp, "w"))
+    os.replace(tmp, dest)          # atomic: a concurrent reader never sees a half-written file
+    print(f"\nwrote {dest}")
 
 
 if __name__ == "__main__":

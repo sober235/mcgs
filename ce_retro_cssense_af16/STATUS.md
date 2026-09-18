@@ -23,7 +23,11 @@ done; done
 ```
 
 输出：**14/14 `GAUGE OK`，0 个 MISMATCH**（cgsense/zsssdu/dip/inr/mcinr/gs_single/gs_joint × pre/post）。逐项
-`recorded=` 与 `rescored=` 在小数点后 5～6 位内完全一致；完整逐项输出在 `task-16-report.md`。
+`recorded=` 与 `rescored=` 在小数点后 5～6 位内完全一致；完整逐项输出在 `task-16-report.md`。**（whole-branch
+review 2026-09-18）** 这份"14/14 GAUGE OK"此前唯一的痕迹是 `task-16-report.md`，而那份文件在
+`.superpowers/sdd/.gitignore` 里被通配符排除、不进 git；已重跑同一套 `--gpu -1` 循环（完整 stdout，不只
+`tail -1`），落盘到 `logs/gauge_check.txt` 并进了 git（本次结果同样 14/14 `GAUGE OK`、0 MISMATCH，数字与上面
+逐字一致，容差没有改动过）。
 
 **汇总 / 强化保真 / 最优层**：
 
@@ -37,11 +41,18 @@ env PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/best_slice_mcgs.py --axis 0   # -
 
 输出：`summary.json` 22 行（11 臂 × 2 扫描），与 README §4 表格逐字一致。头条余量 **MC-GS − GS-single：pre
 +0.194 dB / post +0.354 dB**（head PSNR）；MC-GS 对最强非 GS 臂：pre 比 ZS-SSDU 高 +1.527 dB，post 比 L1-SPIRiT
-高 +1.588 dB。`find_best_slice.py`（全部三轴、逐层、8 法比较）：pre 604 个可评层中 MC-GS 排第一的有 602 层
-（另 2 层第二，胜者分别是 gs_single 和 zsssdu 各 1 层）；post 604/604 层全部第一。`best_slice_mcgs.py --axis 0`
-（横断面，190 个合格层，头部面积 ≥ 最大值一半）：MC-GS 在 190/190 层上都超过 GS-single 与全部其余七臂，两个扫描
-皆然；最优层 218：对 GS-single 余量 pre +0.402 / post +0.646 dB，对最强非 GS 臂余量 pre +1.517（ZS-SSDU）/
-post +2.409（CS-SENSE）dB。
+高 +1.588 dB。
+
+**（whole-branch review 2026-09-18 修复）** `find_best_slice.py`/`best_slice_mcgs.py` 原来各自的臂列表都只覆盖
+8/11 臂（前者缺 Joint SENSE、L1-SPIRiT、MC-INR；后者缺 ZF、L1-SPIRiT、MC-INR），下面这段逐层数字之前其实只跟
+8 臂比过，不是全场。两个脚本现在都改成走 `arms.arm_files()`（arms.py 的 ORDER/LABEL，唯一权威）取文件，重跑：
+`find_best_slice.py`（全部三轴、逐层、11 法比较）：pre 604 个可评层中 MC-GS 排第一的仍是 602 层（另 2 层第二，
+胜者分别是 gs_single 和 zsssdu 各 1 层）；post 仍 604/604 层全部第一——新增的 Joint SENSE/L1-SPIRiT/MC-INR 一层
+都没抢到第一，两个计数都不变。`best_slice_mcgs.py --axis 0`（横断面，190 个合格层，头部面积 ≥ 最大值一半）：
+MC-GS 在 190/190 层上都超过 GS-single 与其余十臂，两个扫描皆然，也不变；最优层仍是 218，对 GS-single 余量
+pre +0.402 / post +0.646 dB 不变。但"对最强非 GS 臂"的余量变了：pre 仍是 ZS-SSDU +1.517 dB（不变）；**post
+原来写的 CS-SENSE +2.409 dB 是错的——CS-SENSE 根本没有跟 L1-SPIRiT 比过。11 臂全部算上后，218 层 post 的最强
+非 GS 臂是 L1-SPIRiT（35.399 dB），MC-GS 对它的余量是 +1.550 dB。**
 
 **两张图（brief Step 4，纯 CPU，无 `--gpu` 参数可传——三个绘图脚本本来就不含 GPU/torch 代码）**：
 
@@ -94,7 +105,9 @@ cd $WT/ce_retro_cssense_af16 && env PYTHONNOUSERSITE=1 PYTHONPATH= $PY -m pytest
 ```
 
 输出：`29 passed in 157.78s (0:02:37)`（和 Task 15 记的 29 个一致，没有新增/删除测试——`find_best_slice.py`
-本来就没有专门的单测覆盖它）。
+本来就没有专门的单测覆盖它）。**（whole-branch review 2026-09-18 修复后重跑）** 同一条命令再跑一次，
+`29 passed in 159.08s (0:02:39)`，数量不变，`export_bundle.py` 的假 topic 测试也单独确认过仍然通过
+（改动是把 `figures/*.p*` glob 换成显式 `FIGURES` 列表，两个用例都没碰）。
 
 ## 待用户拍板
 
@@ -143,6 +156,14 @@ Task 16 是这个课题目前规划的最后一步（brief 五步全部做完：
   `KeyError: 'cssense'`，和 docstring 预言的一模一样。修法：让 `"cssense"` 走 `logs/summary.json` 里
   `cssense_o200` 那一行记录的 λ 去拼文件名，和 `arms.py`/`best_slice_mcgs.py` 现成的 `lam_file()` 套路一样，
   别的七个方法没动。改动只有 `scripts/find_best_slice.py` 这一处，改后跑通，全量 pytest（29 个）照样全过。
+- **上面这个修法本身没修全：两个逐层脚本各自的臂列表都只有 8/11（whole-branch review 2026-09-18 发现并修复）。**
+  `find_best_slice.py` 的 `METHODS` 修完 cssense 之后仍缺 Joint SENSE、L1-SPIRiT、MC-INR；`best_slice_mcgs.py`
+  的 `arms()` 是完全独立的另一份硬编码列表，缺 ZF、L1-SPIRiT、MC-INR。两处都不是同一次疏漏，是两份列表各自
+  维护、各自漏掉不同的臂——这正是 README/STATUS 敢说"排第一"却从没跟 L1-SPIRiT 比过的根源。改法：两个脚本都
+  不再手写文件名列表，统一走 `arms.arm_files()`（`arms.py` 的 `ORDER`/`LABEL`，本课题唯一权威的"某臂某扫描的
+  文件在哪"来源），以后两个脚本不会再互相漏成不一样的子集。重跑后 `find_best_slice.py`/`best_slice_mcgs.py`
+  的计数本身没变（见上一条"已完成且已验证"），但 `best_slice_mcgs.py` 218 层 post 的"最强非 GS 臂"从
+  CS-SENSE 变成了 L1-SPIRiT——这才是真正被吃掉的错误。
 - **导出包两次调用写到同一个目录，不是两份独立的包。** `export_bundle.py` 的输出目录只按日期命名
   （`export/ce_retro_af16_<YYYYMMDD>/`），不区分 `--no_raw`；今天先跑 `--no_raw`（103 文件/2.11 GiB）、
   再跑不带参数的全量版（113 文件/28.36 GiB）后，目录里实际是全量版覆盖 + 追加的结果，`--no_raw` 那份"小包"
@@ -152,6 +173,14 @@ Task 16 是这个课题目前规划的最后一步（brief 五步全部做完：
   k 空间（`sim/gs/` 4 个 h5 + `sim/work_{pre,post}/` 各 3 个文件）合计约 26.25 GiB，接近两倍于原估计。已经在
   两处文档里改成实测数字（见 README §7 新增条目）；这个数字从来没有被任何门槛用到，只影响"/data0 装不装得下"
   的判断——装得下（当时可用 4.6 TB）。
+- **`figures/` 里混进了亮度实验图，`export_bundle.py` 原来的 `figures/*.p*` glob 会连它们一起打进包
+  （whole-branch review 2026-09-18 发现并修复）。** `fig_three_planes_compact.py` 不管 `--tag` 传什么都写进
+  同一个 `figures/` 目录，亮度扫的 `t1flair_v3_af16_post_row3planes_compact_..._b1.25/_b1.5/_b1.8/_b2.2_...png`
+  四个文件（其中 1.25/1.5 已经挑定、拷贝改名进了 git 仓库自己的 `figures/`，1.8/2.2 只是散在 topic 的
+  `figures/` 里，没人挑）就跟正式图存在同一层。改法：`export_bundle.py` 不再 glob，改成显式列出这个课题自己
+  的 11 个图文件名（`FIGURES` 常量），不存在就跳过——以后不管往 `figures/` 里扔什么标签的一次性渲染图，不主动
+  把文件名加进 `FIGURES` 就不会被打包。没有动那 4 个亮度实验 png 本身（server 数据，不进 git），只改了打包
+  脚本怎么选文件。
 - 以下是 Task 1–15 已经踩过、这次继续遵守、没有重犯的坑（细节见 README §7，这里不重复）：`check_sim.py` 伴随
   恒等式在低线圈覆盖处的奇异性限制、`sigma_from_residual` 的读出轴漏算 bug、trainer 快照的真实路径
   `trainer/_trainer_e778bf2/`、zsh 变量必须加引号。

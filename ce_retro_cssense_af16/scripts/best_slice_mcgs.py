@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """best_slice_mcgs.py -- the slices (transverse; --axis 1 coronal, --axis 2 sagittal) on which MC-GS leads every other method of the row figure by the most.
 
-Methods = the nine of fig_row_final.py (same volumes, same lambdas) and the same gauge: head mask |GT| > 0.05 * P99.9
-of the volume, PSNR peak = max|GT| of the volume, MSE over the head voxels of the slice.
+Methods = all eleven registered arms of this topic (arms.py's ORDER/LABEL, same volumes, same lambdas) and the
+same gauge: head mask |GT| > 0.05 * P99.9 of the volume, PSNR peak = max|GT| of the volume, MSE over the head
+voxels of the slice.
 Eligible: slices along --axis whose head area is at least --min_area of the largest slice, in both contrasts (keeps the ends
 of the head out, where a handful of voxels decides the number).
-margin(slice, contrast) = PSNR(MC-GS) - max over the other eight (GS-single included).
+margin(slice, contrast) = PSNR(MC-GS) - max over the other ten (GS-single included).
 One slice for both contrasts: the eligible slice with the largest min(margin_T1, margin_FLAIR).
 Also lists distinct candidates (at least --gap slices apart): by that score, and, among the slices where MC-GS is first
 on both contrasts, by its lead over the best method outside the GS family (GS-single left out).
@@ -13,11 +14,22 @@ Writes logs/best_slice_mcgs.json (axis 0) or logs/best_slice_mcgs_axis<k>.json.
 
 Review note (2026-09-17): arms(c) below covers 8 of this topic's 11 registered arms -- no zf, L1-SPIRiT (spirit)
 or MC-INR row. Inherited from the jyz source (Step 7 only asked to drop its L1-ESPIRiT row); left as is.
+
+Whole-branch review fix (2026-09-18): the gap above meant every "MC-GS first on N/M" and margin number this
+script produced was a comparison against 8 of 11 arms, not the whole field. arms(c) now returns all eleven via
+arms.arm_files() (arms.py's ORDER/LABEL, the single source of truth for which file each arm's registered result
+lives in) instead of a hand-written list; this file's own lam_file() (which re-derived the same swept-lambda
+lookup from logs/summary.json by matching a filename glob) is retired in favour of arm_files(), which already
+does this for summarize.py/export_bundle.py/readme_tables.py.
 """
-import argparse, json, re
+import argparse
+import json
+import os
 from pathlib import Path
 
 import numpy as np
+
+from arms import arm_files
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--min_area", type=float, default=0.5)
@@ -31,30 +43,20 @@ ap.add_argument("--tag", default="", help="suffix for the output json, e.g. _p3"
 args = ap.parse_args()
 red = tuple(a for a in range(3) if a != args.axis)          # the two in-plane axes
 
-R = Path(__import__("os").environ.get("RETRO_TOPIC", "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16"))
+R = Path(os.environ.get("RETRO_TOPIC", "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16"))
 out = R / (f"logs/best_slice_mcgs{args.tag}.json" if args.axis == 0 else f"logs/best_slice_mcgs_axis{args.axis}{args.tag}.json")
 summary = json.load(open(R / "logs/summary.json"))
 
 
 def arms(c):
-    rows = {r["method"]: r for r in summary if r["contrast"] == c}
-
-    def lam_file(row_key, prefix):
-        lam = rows.get(row_key, {}).get("lam")
-        for p in R.glob(f"recon/{prefix}_lam*_{c}_complex.npy"):
-            m = re.fullmatch(re.escape(prefix) + r"_lam([0-9.]+)_" + c + r"_complex\.npy", p.name)
-            if lam is not None and m and abs(float(m.group(1)) - float(lam)) < 1e-12:
-                return p
-        raise FileNotFoundError(f"{prefix} {c} lam={lam}")
-
-    return [("CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
-            ("CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
-            ("Joint SENSE", lam_file("jcssense", "jcssense_o200")),
-            ("ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
-            ("3D-DIP", R / f"recon/dip_{c}_complex.npy"),
-            ("3D-INR", R / f"recon/inr_{c}_complex.npy"),
-            ("GS-single", R / f"recon/{args.single_key}_{c}_mag.npy"),
-            ("MC-GS", R / f"recon/{args.mcgs_key}_{c}_mag.npy")]
+    result = []
+    for key, label, path in arm_files(c, summary=summary):
+        if key == "gs_single" and args.single_key != "gs_single":
+            path = R / f"recon/{args.single_key}_{c}_complex.npy"
+        elif key == "gs_joint" and args.mcgs_key != "gs_joint":
+            path = R / f"recon/{args.mcgs_key}_{c}_complex.npy"
+        result.append((label, path))
+    return result
 
 
 psnr, margin, runner, lead, leader, elig = {}, {}, {}, {}, {}, None
@@ -122,8 +124,9 @@ for s, tag in ((best, "CHOSEN"), (ref, "reference")):
     print(f"{tag} slice {s}:")
     for c in ("pre", "post"):
         print(f"  {c:5s} " + "  ".join(f"{k} {psnr[c][k][s]:.3f}" for k in psnr[c]))
+tmp = out.with_suffix(".json.tmp")
 json.dump({"axis": args.axis, "criterion": "max over eligible slices along the axis of min(margin_T1, margin_FLAIR); margin = PSNR(MC-GS) - "
-                        "max over the other eight methods; head-masked slice PSNR, volume peak",
+                        "max over the other ten methods; head-masked slice PSNR, volume peak",
            "min_area": args.min_area, "eligible": idx.tolist(), "best_slice": best, "both_first": both.tolist(),
            "gap": args.gap, "candidates_all": cand_a, "candidates_non_gs": cand_b,
            "psnr": {c: {k: np.round(v, 4).tolist() for k, v in psnr[c].items()} for c in psnr},
@@ -131,5 +134,6 @@ json.dump({"axis": args.axis, "criterion": "max over eligible slices along the a
            "runner_up": {c: runner[c].tolist() for c in runner},
            "lead_non_gs": {c: np.round(lead[c], 4).tolist() for c in lead},
            "leader_non_gs": {c: leader[c].tolist() for c in leader}},
-          open(out, "w"))
+          open(tmp, "w"))
+os.replace(tmp, out)               # atomic: a concurrent reader never sees a half-written file
 print("wrote", out)

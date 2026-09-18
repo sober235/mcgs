@@ -1,0 +1,249 @@
+# gauge cross-check (whole-branch review fix wave, 2026-09-18)
+# re-run of the loop recorded in STATUS.md: score_volume.py --check, cgsense/zsssdu/dip/inr/mcinr/gs_single/gs_joint x pre/post, --gpu -1 (CPU, double precision)
+# command:
+#   cd $TOPIC
+#   for s in pre post; do for k in cgsense zsssdu dip inr mcinr gs_single gs_joint; do
+#     f=recon/${k}_${s}_complex.npy
+#     jf=logs/$( [ $k = cgsense ] && echo classical_$s || echo ${k}_$s ).json
+#     env PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/score_volume.py --scan $s --file $f --method $k --check $jf --gpu -1
+#   done; done
+# result: 14/14 GAUGE OK, 0 MISMATCH
+
+=== pre cgsense ===
+{
+ "head_psnr": 28.937355980600802,
+ "head_ssim": 0.7859214544296265,
+ "head_nmse": 0.03838727520174651,
+ "head_hfen": 0.44880390483119076,
+ "psnr_cplx": 26.233162160941692,
+ "psnr": 31.418032858302134,
+ "ssim": 0.8000970549785491,
+ "nmse": 0.050314453189327146
+}
+  OK       head_psnr  recorded=28.937356 rescored=28.937356
+  OK       head_ssim  recorded=0.785921 rescored=0.785921
+  OK       head_nmse  recorded=0.038387 rescored=0.038387
+  OK       head_hfen  recorded=0.448804 rescored=0.448804
+  OK       psnr       recorded=31.418033 rescored=31.418033
+GAUGE OK
+=== pre zsssdu ===
+{
+ "head_psnr": 32.09632768950835,
+ "head_ssim": 0.8910134434700012,
+ "head_nmse": 0.018547702247126475,
+ "head_hfen": 0.30120220266994424,
+ "psnr_cplx": 29.441754909246054,
+ "psnr": 35.104757237742824,
+ "ssim": 0.842910793946921,
+ "nmse": 0.02152905475909144
+}
+  OK       head_psnr  recorded=32.096328 rescored=32.096328
+  OK       head_ssim  recorded=0.891013 rescored=0.891013
+  OK       head_nmse  recorded=0.018548 rescored=0.018548
+  OK       head_hfen  recorded=0.301202 rescored=0.301202
+  OK       psnr       recorded=35.104757 rescored=35.104757
+GAUGE OK
+=== pre dip ===
+{
+ "head_psnr": 29.324368683944652,
+ "head_ssim": 0.8092669248580933,
+ "head_nmse": 0.03511446173563251,
+ "head_hfen": 0.42148373233481035,
+ "psnr_cplx": 26.485302559187556,
+ "psnr": 18.44432911408215,
+ "ssim": 0.5610068145316437,
+ "nmse": 1.1402001760178422
+}
+  OK       head_psnr  recorded=29.324369 rescored=29.324369
+  OK       head_ssim  recorded=0.809267 rescored=0.809267
+  OK       head_nmse  recorded=0.035114 rescored=0.035114
+  OK       head_hfen  recorded=0.421484 rescored=0.421484
+  OK       psnr       recorded=18.444329 rescored=18.444329
+GAUGE OK
+=== pre inr ===
+{
+ "head_psnr": 28.08405052736357,
+ "head_ssim": 0.6936774849891663,
+ "head_nmse": 0.04672161339610331,
+ "head_hfen": 0.4245365026380623,
+ "psnr_cplx": 25.112091488547122,
+ "psnr": 26.286599575230525,
+ "ssim": 0.4156470030673235,
+ "nmse": 0.16399706870410494
+}
+  OK       head_psnr  recorded=28.084051 rescored=28.084051
+  OK       head_ssim  recorded=0.693677 rescored=0.693677
+  OK       head_nmse  recorded=0.046722 rescored=0.046722
+  OK       head_hfen  recorded=0.424537 rescored=0.424537
+  OK       psnr       recorded=26.286600 rescored=26.286600
+GAUGE OK
+=== pre mcinr ===
+{
+ "head_psnr": 27.44408115654367,
+ "head_ssim": 0.6836776733398438,
+ "head_nmse": 0.054139565804780534,
+ "head_hfen": 0.5531680891658194,
+ "psnr_cplx": 24.45381302364607,
+ "psnr": 28.660876477018146,
+ "ssim": 0.47948818260608045,
+ "nmse": 0.0949310742288006
+}
+  OK       head_psnr  recorded=27.444081 rescored=27.444081
+  OK       head_ssim  recorded=0.683678 rescored=0.683678
+  OK       head_nmse  recorded=0.054140 rescored=0.054140
+  OK       head_hfen  recorded=0.553168 rescored=0.553168
+  OK       psnr       recorded=28.660876 rescored=28.660876
+GAUGE OK
+=== pre gs_single ===
+{
+ "head_psnr": 33.42868360831845,
+ "head_ssim": 0.8997282981872559,
+ "head_nmse": 0.013647544635361995,
+ "head_hfen": 0.2556720556388419,
+ "psnr_cplx": 30.64693588251453,
+ "psnr": 36.57798152923216,
+ "ssim": 0.9333797451470907,
+ "nmse": 0.015335498226656731
+}
+  OK       head_psnr  recorded=33.428684 rescored=33.428684
+  OK       head_ssim  recorded=0.899728 rescored=0.899728
+  OK       head_nmse  recorded=0.013648 rescored=0.013648
+  OK       head_hfen  recorded=0.255672 rescored=0.255672
+  OK       psnr       recorded=36.577982 rescored=36.577982
+GAUGE OK
+=== pre gs_joint ===
+{
+ "head_psnr": 33.6231297096988,
+ "head_ssim": 0.903375506401062,
+ "head_nmse": 0.01304998201454136,
+ "head_hfen": 0.25048250816738626,
+ "psnr_cplx": 30.796414756259633,
+ "psnr": 36.81069879681917,
+ "ssim": 0.9380429246581511,
+ "nmse": 0.014535372412054482
+}
+  OK       head_psnr  recorded=33.623130 rescored=33.623130
+  OK       head_ssim  recorded=0.903376 rescored=0.903376
+  OK       head_nmse  recorded=0.013050 rescored=0.013050
+  OK       head_hfen  recorded=0.250483 rescored=0.250483
+  OK       psnr       recorded=36.810699 rescored=36.810699
+GAUGE OK
+=== post cgsense ===
+{
+ "head_psnr": 30.64341020276592,
+ "head_ssim": 0.8231881260871887,
+ "head_nmse": 0.04302874236702203,
+ "head_hfen": 0.46633889148842184,
+ "psnr_cplx": 28.190772382226157,
+ "psnr": 33.239119064808456,
+ "ssim": 0.8301579813080916,
+ "nmse": 0.05461632828591761
+}
+  OK       head_psnr  recorded=30.643411 rescored=30.643410
+  OK       head_ssim  recorded=0.823188 rescored=0.823188
+  OK       head_nmse  recorded=0.043029 rescored=0.043029
+  OK       head_hfen  recorded=0.466339 rescored=0.466339
+  OK       psnr       recorded=33.239119 rescored=33.239119
+GAUGE OK
+=== post zsssdu ===
+{
+ "head_psnr": 33.50426608944444,
+ "head_ssim": 0.9070324897766113,
+ "head_nmse": 0.022267582202453513,
+ "head_hfen": 0.3119265211825293,
+ "psnr_cplx": 30.95517611746913,
+ "psnr": 36.68663610559746,
+ "ssim": 0.900720452556692,
+ "nmse": 0.024708943683090033
+}
+  OK       head_psnr  recorded=33.504267 rescored=33.504266
+  OK       head_ssim  recorded=0.907032 rescored=0.907032
+  OK       head_nmse  recorded=0.022268 rescored=0.022268
+  OK       head_hfen  recorded=0.311927 rescored=0.311927
+  OK       psnr       recorded=36.686636 rescored=36.686636
+GAUGE OK
+=== post dip ===
+{
+ "head_psnr": 30.234558201844457,
+ "head_ssim": 0.7948939800262451,
+ "head_nmse": 0.04727634060978366,
+ "head_hfen": 0.4533705342455063,
+ "psnr_cplx": 27.525244466822002,
+ "psnr": 21.06245760596149,
+ "ssim": 0.5693732266347983,
+ "nmse": 0.9051667644895893
+}
+  OK       head_psnr  recorded=30.234559 rescored=30.234558
+  OK       head_ssim  recorded=0.794894 rescored=0.794894
+  OK       head_nmse  recorded=0.047276 rescored=0.047276
+  OK       head_hfen  recorded=0.453371 rescored=0.453371
+  OK       psnr       recorded=21.062457 rescored=21.062458
+GAUGE OK
+=== post inr ===
+{
+ "head_psnr": 30.609311390051964,
+ "head_ssim": 0.7676663398742676,
+ "head_nmse": 0.043367914113317585,
+ "head_hfen": 0.36441507637374454,
+ "psnr_cplx": 27.680440258320438,
+ "psnr": 27.96833376875604,
+ "ssim": 0.47201265678931287,
+ "nmse": 0.18382349961233135
+}
+  OK       head_psnr  recorded=30.609312 rescored=30.609311
+  OK       head_ssim  recorded=0.767666 rescored=0.767666
+  OK       head_nmse  recorded=0.043368 rescored=0.043368
+  OK       head_hfen  recorded=0.364415 rescored=0.364415
+  OK       psnr       recorded=27.968334 rescored=27.968334
+GAUGE OK
+=== post mcinr ===
+{
+ "head_psnr": 29.738716588460406,
+ "head_ssim": 0.7496246099472046,
+ "head_nmse": 0.05299416020516517,
+ "head_hfen": 0.5193136676747394,
+ "psnr_cplx": 26.680924114031683,
+ "psnr": 31.120238209945732,
+ "ssim": 0.5629584224562971,
+ "nmse": 0.08896323886309276
+}
+  OK       head_psnr  recorded=29.738717 rescored=29.738717
+  OK       head_ssim  recorded=0.749625 rescored=0.749625
+  OK       head_nmse  recorded=0.052994 rescored=0.052994
+  OK       head_hfen  recorded=0.519314 rescored=0.519314
+  OK       psnr       recorded=31.120238 rescored=31.120238
+GAUGE OK
+=== post gs_single ===
+{
+ "head_psnr": 35.30246156796063,
+ "head_ssim": 0.9196335673332214,
+ "head_nmse": 0.01471815988417769,
+ "head_hfen": 0.24946268990862747,
+ "psnr_cplx": 32.67539673692257,
+ "psnr": 38.48099253463226,
+ "ssim": 0.9487140354859537,
+ "nmse": 0.01633560236012005
+}
+  OK       head_psnr  recorded=35.302462 rescored=35.302462
+  OK       head_ssim  recorded=0.919634 rescored=0.919634
+  OK       head_nmse  recorded=0.014718 rescored=0.014718
+  OK       head_hfen  recorded=0.249463 rescored=0.249463
+  OK       psnr       recorded=38.480992 rescored=38.480993
+GAUGE OK
+=== post gs_joint ===
+{
+ "head_psnr": 35.65691012303307,
+ "head_ssim": 0.9253492951393127,
+ "head_nmse": 0.013564652131921935,
+ "head_hfen": 0.23348863338784054,
+ "psnr_cplx": 32.94149248910201,
+ "psnr": 38.86536540816596,
+ "ssim": 0.9539937452397999,
+ "nmse": 0.014951951028887902
+}
+  OK       head_psnr  recorded=35.656911 rescored=35.656910
+  OK       head_ssim  recorded=0.925349 rescored=0.925349
+  OK       head_nmse  recorded=0.013565 rescored=0.013565
+  OK       head_hfen  recorded=0.233489 rescored=0.233489
+  OK       psnr       recorded=38.865365 rescored=38.865365
+GAUGE OK

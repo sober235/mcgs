@@ -56,9 +56,8 @@ itself, only in its derivation -- see §7); the white-matter mask is the "正常
 seeds above, then the AF16 mask is applied when writing `sim/work_{pre,post}/ksp_full.npy` -- this is equivalent to
 masking first for what the arms see, but also lets the trainer's non-presampled data path read a full, noisy grid.
 
-Sigma is the data-consistency residual of a TV-regularised truth, so it upper-bounds the thermal noise; the
-pre/post spread (kres 0.185 vs 0.150 at nearly equal sigma) bounds the model-error contamination (CSM error + detail
-the TV prior removed) at roughly 6% in amplitude. This is the user-selected noise convention, not a bug.
+Sigma is the data-consistency residual of a TV-regularised truth, so it upper-bounds the thermal noise. This is
+the user-selected noise convention, not a bug.
 
 **Operator gates** (`logs/check_sim.json`, `scripts/check_sim.py`, one GPU, design §10 items 1-2): on the
 noiseless, fully-sampled k-space, the adjoint identity `x_hat = sum_c conj(S_c) ifft3c(F(S_c x)) / sum_c|S_c|^2 ==
@@ -119,7 +118,8 @@ Live footnote on the MC-GS row above: the archive actually lives at `trainer/_tr
 
 All eleven arms are scored on both scans; every gauge cross-check (`scripts/score_volume.py --check`, CPU, double
 precision) prints `GAUGE OK` against the arm's own recorded json (14/14: cgsense, zsssdu, dip, inr, mcinr,
-gs_single, gs_joint x pre/post -- the seven arms scored outside `recon_classical.py`'s own internal check). Literal
+gs_single, gs_joint x pre/post -- the seven arms scored outside `recon_classical.py`'s own internal check; full
+stdout in `logs/gauge_check.txt`). Literal
 output of `readme_tables.py` (2026-09-18), not hand-edited:
 
 **pre** (sorted by head-only PSNR; truth = CS-SENSE of the prospective pair)
@@ -255,7 +255,7 @@ SINGLE=post bash scripts/run_gs.sh ce_retro_af16_single_post <gpu> 4000        #
 # 5. pull the GS npz results into recon/<key>_<scan>_complex.npy (CPU)
 $PY scripts/extract_gs_volumes.py --exp ce_retro_af16_joint       --key gs_joint  --map pre:plain,post:contrast
 $PY scripts/extract_gs_volumes.py --exp ce_retro_af16_single_pre  --key gs_single --map pre:plain
-$PY scripts/extract_gs_volumes.py --exp ce_retro_af16_single_post --key gs_single --map post:contrast
+$PY scripts/extract_gs_volumes.py --exp ce_retro_af16_single_post --key gs_single --map post:plain
 
 # 6. aggregate (CPU)
 $PY scripts/summarize.py                 # -> logs/summary.json, logs/summary.tsv
@@ -337,9 +337,23 @@ in the script itself since 2026-09-17: `METHODS` includes `"cssense"`, but this 
 registered (the script would have hit a different missing key first); once every arm existed this raised
 `KeyError: 'cssense'` exactly as predicted. Fixed by resolving "cssense" through `logs/summary.json`'s
 `cssense_o200` row for that scan (the λ `summarize.py` kept), the same pattern `arms.py`/`best_slice_mcgs.py`
-already use -- the other seven methods in `METHODS` were already fine. After the fix: MC-GS joint ranks first on
-602/604 scored slices (pre) and 604/604 (post); on axis 0 alone it leads GS-single on all 190/190 eligible slices,
-both scans (`logs/best_slice_mcgs.json`; best slice 218, margin +0.402 dB pre / +0.646 dB post over GS-single).
+already use -- the other seven methods in `METHODS` were already fine.
+
+**Both per-slice scripts still only covered 8 of 11 registered arms (found and fixed, whole-branch review
+2026-09-18).** The cssense fix above resolved the `KeyError` but `find_best_slice.py`'s `METHODS` and
+`best_slice_mcgs.py`'s `arms()` were each their own hand-written list, and each separately dropped a different
+subset of the field (`find_best_slice.py` was also missing Joint SENSE, L1-SPIRiT and MC-INR; `best_slice_mcgs.py`
+was also missing ZF, L1-SPIRiT and MC-INR) -- so every per-slice claim below had silently been a comparison
+against 8 of this topic's 11 arms, not the whole field. Both scripts now resolve every arm through
+`arms.arm_files()` (arms.py's `ORDER`/`LABEL`, the single source of truth for which file each arm's registered
+result lives in) instead of a hand-written list. Re-run against all eleven: MC-GS joint ranks first on 602/604
+scored slices (pre) and 604/604 (post) of all ten other arms -- unchanged from the 8-arm count; Joint SENSE,
+L1-SPIRiT and MC-INR do not win any additional slice on either scan. On axis 0 it still leads every other arm
+(GS-single included) on all 190/190 eligible slices, both scans, also unchanged (`logs/best_slice_mcgs.json`;
+best slice still 218, margin +0.402 dB pre / +0.646 dB post over GS-single). What *did* change at slice 218: the
+strongest non-GS arm is ZS-SSDU on pre (+1.517 dB, unchanged) but **L1-SPIRiT** on post (+1.550 dB) -- the
+previously reported post figure (CS-SENSE, +2.409 dB) had simply never been compared against L1-SPIRiT, which
+beats CS-SENSE by 1.34 dB on post at the volume level (§4).
 
 **The design doc's "~14 GB" for `export_bundle.py --no_raw`'s skipped raw data was a guess, not a measurement.**
 The real raw payload (`sim/gs/` 4 files + `sim/work_{pre,post}/` 3 files each) is ~26 GB, not 14 -- confirmed by
@@ -361,3 +375,18 @@ everything after the colon.
   single margin.
 - Not permitted: "better than the prospective experiment" (different gauge entirely), any perfusion language,
   lesion-detection claims.
+- The truth is a CS-SENSE reconstruction of a prospective AF 5.33 acquisition whose PE support covers only
+  7663/40832 = 18.8% of the plane; 1599 of the 2552 AF16 sample locations (62.7%) were never measured in that
+  acquisition. In k-space energy terms this is much less severe: 20.3% (pre) / 21.9% (post) of the truth volume's
+  own k-space energy lies outside that original support, and only 1.7% (pre) / 1.8% (post) of the energy the AF16
+  mask actually samples falls at those never-measured locations. At those (mostly high-frequency) locations the
+  synthetic measurement is the TV-ADMM truth's own extrapolation, not independently acquired data -- and those
+  are precisely the locations HFEN, SSIM and sharpness respond to.
+- The synthesis and every SENSE-based arm use the identical coil maps: `sim_cssense_af16.py` writes
+  `sim/gs/<scan>_csm.h5` straight from the same `work_ce_t1_*/csm.npy` that `t1t2_common.Pair` reads for every
+  arm (verified byte-identical), and those maps are unit sum-of-squares everywhere they have coil coverage. So
+  the forward operator here has no coil-map mismatch at all, one of the two dominant real-world error sources --
+  this favours every model-based arm uniformly, not just MC-GS. L1-SPIRiT is the only arm whose reconstruction
+  does not consume the maps: it calibrates its interpolation kernel from the ACS alone, and only touches the maps
+  in the final linear coil combine (the same step every multi-coil method needs to go from coil images to one
+  image).
