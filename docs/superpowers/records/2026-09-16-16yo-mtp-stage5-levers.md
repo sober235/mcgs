@@ -101,3 +101,29 @@ card 7, 10:59–16:5x (352 min on a shared card). A variance check, not an arm: 
 Seed spread: T1w PSNR 0.0026 dB, T2s 0.001 dB, SSIM / HFEN in the fourth decimal. The five cells MC-GS leads stay led
 under the second seed; the T1w PSNR margin (+0.008 to +0.010) is three to four times the seed spread. Two seeds are
 not a distribution — the statement this supports is "the lead is not a single-seed accident", no more.
+
+## 6. The figure of the paper (user, 2026-09-18)
+
+Chosen from the two candidate sets on which both contrasts lead every arm in all three planes:
+`figures/peds_af12_{T1w,T2s}_row3planes_compact_46_149_171_inset48x48x16_box157_171_46_headerr_lesionB_allfirst_p5_zf_caps.{png,pdf}`
+— transverse 46 / coronal 149 / sagittal 171 through the two right subependymal nodules, zoom box 48 x 48 x 16 voxels
+centred at (RO 157, PE 171, SPE 46), between the nodules; ZF column after GT, upper-case method names, L1 = L1-SPIRiT,
+GS-single = `gs_single_p3f` (T1w) / `gs_single_ar` (T2s), MC-GS = `gs_joint_p5`, error maps inside the head only.
+
+Per-panel margins over the best other arm (the runner-up is a GS-single in every cell):
+
+| plane | T1w | T2s |
+|---|---|---|
+| transverse 46 | 39.81 dB (+0.040), SSIM +0.0006 | 34.74 dB (+0.220), SSIM +0.0071 |
+| coronal 149 | 39.07 dB (+0.018), SSIM +0.0007 | 33.88 dB (+0.068), SSIM +0.0044 |
+| sagittal 171 | 39.25 dB (+0.006), SSIM +0.0005 | 33.86 dB (+0.201), SSIM +0.0084 |
+
+The alternative (53 / 158 / 150, the anatomical-centroid view, its zoom box on the slice intersection rather than a
+lesion) stays on disk as `..._allfirst_p5_zf_caps`. What the figure shows and what it does not: on T2*w the two nodules
+are distinct dark foci in GT, MC-GS and GS-single, blurred by 3D-DIP and grainy in ZF / CG-SENSE / L1-SPIRiT / ZS-SSDU /
+3D-INR / MC-INR; on T1w they are faint grey dots. The lead over GS-single is hundredths of a dB on T1w — visible in the
+numbers, not to the eye; the visible gain is over the other arms. The slices were selected on the reported metric, so
+the evidence is the counts (227 slices both-first, README "Stage 5"), not this figure.
+
+Paper styling (font sizes, cropping, one- or two-column, caption) is not fixed yet; re-render with
+`scripts/figs_three_planes_zf_caps.sh` after changing `--slices 46 149 171 --inset_center 157 -1 -1 --mcgs_key gs_joint_p5`.

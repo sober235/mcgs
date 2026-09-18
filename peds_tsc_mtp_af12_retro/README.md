@@ -251,8 +251,11 @@ Figures of record (ZF column after GT, upper-case method names, L1 = L1-SPIRiT, 
 T1w and `gs_single_ar` on T2s, 48 x 48 x 16-voxel zoom box, PNG + 600-dpi PDF):
 `figures/peds_af12_<c>_row3planes_compact_53_158_150_inset48x48x16_headerr_allfirst_p5_zf_caps` (both contrasts first
 on every panel), `..._53_160_152_..._p5_zf_caps` (the anatomical-centroid view; T1w coronal / sagittal PSNR second to
-GS-single by hundredths), `..._46_149_171_inset48x48x16_box157_171_46_headerr_lesionB_allfirst_p5_zf_caps` (through the
-nodules, both contrasts first on every panel), `..._46_146_172_..._lesionB_p5_zf_caps` (the stage-4 lesion planes).
+GS-single by hundredths), **`..._46_149_171_inset48x48x16_box157_171_46_headerr_lesionB_allfirst_p5_zf_caps` — the figure of the paper
+(user 2026-09-18)**: the three planes through the right subependymal nodules, both contrasts first on every panel
+(T1w +0.040 / +0.018 / +0.006 dB, T2s +0.220 / +0.068 / +0.201 dB over the best other arm, GS-single in every cell),
+the 48 x 48 x 16-voxel zoom box centred between the two nodules; `..._46_146_172_..._lesionB_p5_zf_caps` (the
+stage-4 lesion planes).
 
 Caveats: one subject, tuned on itself; the GS arms and the classical λ were selected on this subject; ZS-SSDU, 3D-DIP,
 3D-INR and MC-INR were not tuned; the reference is GRAPPA-completed 2x data; the T1w leads are hundredths of a dB.

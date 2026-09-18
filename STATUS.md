@@ -158,7 +158,10 @@ L1-ESPIRiT 的行留在表里、标为不计入，所以它的 T1w HFEN 0.0756 �
 8. （09-17）用户经 claude-64 要求把本分支推到 origin；之后的提交已跟推。
 
 **待用户拍板**：
-- A. 论文图用哪组（候选：`_53_158_150_*_allfirst_p5_zf_caps` 与 `_46_149_171_*_lesionB_allfirst_p5_zf_caps`，两对比度三平面全第一）。
+- ~~A. 论文图用哪组~~ **已定（09-18）：`peds_af12_{T1w,T2s}_row3planes_compact_46_149_171_inset48x48x16_box157_171_46_headerr_lesionB_allfirst_p5_zf_caps.{png,pdf}`**
+  ——过右侧两个室管膜下结节的横断 46 / 冠状 149 / 矢状 171，两对比度在三个平面上 MC-GS 三项全第一
+  （T1w +0.040 / +0.018 / +0.006 dB，T2s +0.220 / +0.068 / +0.201 dB，每格的第二名都是某个 GS-single），
+  放大框 48×48×16 体素、框心 (RO157, PE171, SPE46) 在两个结节中间。论文版的字号/裁切/图注还没定，用户要什么再改。
 - B. T1w HFEN 输 L1-SPIRiT（0.0758 对 0.0679）怎么写。数据事实：k 空间插值保留含噪声的颗粒，HFEN 奖励它；MC-GS 仍超过所有 GS-single（0.0764）。
 - C. 一期其余八个对比度的 23 GB 仍未删（第 4 条，暂不删）。
 
@@ -168,7 +171,8 @@ L1-ESPIRiT 的行留在表里、标为不计入，所以它的 T1w HFEN 0.0756 �
 README 表与 Stage 5 一节、四组正式图、逐层搜索、记录。
 
 1. 新会话先重跑第 1 节五期块的复核命令（2 分钟 CPU），对上登记值再动手。
-2. 等第 2 节 A / B 的拍板；定了图就出论文版（字号、裁切等按用户要求）。
+2. 论文图已定（第 2 节 A）。要出论文版（字号、裁切、单栏/双栏、图注）时在现有 PNG + 600 dpi PDF 上改；
+   重画命令见 `scripts/figs_three_planes_zf_caps.sh`（改 `--slices 46 149 171 --inset_center 157 -1 -1` 与 `--mcgs_key gs_joint_p5`）。等第 2 节 B。
 3. 杠杆已穷尽（记录 §2 表 + §4），种子检验已做（§5）。没有待跑的训练。
 4. 尾巴（下次用到时做）：`slice_quality.py` / `find_mcgs_first_slice.py` / `best_slice_mcgs.py` 仍列 L1-ESPIRiT；README 的
    "MC-GS minus GS-single" 小表仍是二期的 `gs_joint_ar − gs_single_ar`。
