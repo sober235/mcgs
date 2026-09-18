@@ -47,6 +47,9 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--contrast", required=True, choices=["T1", "FLAIR"])
 ap.add_argument("--tra", type=int, default=180, help="transverse slice (axis 0); 180 = the figure-of-record slice")
 ap.add_argument("--tra_rot", type=int, default=1, choices=[0, 1, 2, 3], help="quarter turns after the transpose; 1 = eyes up")
+ap.add_argument("--grey_scale", type=float, default=1.0,
+                help="multiplies the grey window (P99.9 of the GT slice); < 1 brightens the images and the zooms, the error "
+                     "maps are unaffected (they are normalised by max|GT|); 1.0 = the figures of record")
 ap.add_argument("--err_vmax", type=float, default=0.1, help="top of the fixed jet scale, as a fraction of max|GT|")
 ap.add_argument("--gap", type=float, default=0.025, help="gap between neighbouring panels, inches")
 ap.add_argument("--ssim", choices=["uniform", "gaussian"], default="uniform")
@@ -184,7 +187,8 @@ for name, R in TOPICS:
         zoom["psnr"] = {key: 20 * np.log10(gmax) - 10 * np.log10(float(((vols[key][bz].astype(np.float64) - g64[bz]) ** 2).mean()))
                         for key, _, _ in arms}
     ROWS.append(dict(name=name, af=af, arms=arms, g2=g2, gmax=gmax, vols=vols, ps=ps, ss=ss, nm=nm, zoom=zoom,
-                     emask=head_region(m2), vmax=float(np.quantile(g2, 0.999)), kmask=mask3[mask3.shape[0] // 2],
+                     emask=head_region(m2), vmax=args.grey_scale * float(np.quantile(g2, 0.999)),
+                     kmask=mask3[mask3.shape[0] // 2],
                      best=dict(psnr=max(ps, key=ps.get), ssim=max(ss, key=ss.get), nmse=min(nm, key=nm.get))))
 
 ARM_LABELS = [lab for _, lab, _ in ROWS[0]["arms"]]
@@ -362,7 +366,7 @@ if not args.no_metrics:
     _cap.append(f"head-masked slice PSNR / SSIM ({_win}) / NMSE in each panel, the best of each row in bold")
 _cap.append(f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]   (inside the head only)")
 _cap.append("left of each error row: that pattern's (ky, kz) sampling mask")
-_cap.append("grey bar right of each image row: the slice window (P99.9 of the GT slice, the same for the three rows); "
+_cap.append(f"grey bar right of each image row: the slice window ({'P99.9 of the GT slice' if args.grey_scale == 1 else f'{args.grey_scale:g} x P99.9 of the GT slice'}, the same for the three rows); "
             "AF label = PE-plane points / sampled points carrying this contrast's data")
 if args.zoom_rows:
     _cap[2] = "left of each error row: that pattern's (ky, kz) sampling mask"

@@ -30,6 +30,7 @@ FLAIR +0.042/+0.023/+0.093。六格里五格三指标（头内 PSNR/SSIM/HFEN）
   FLAIR 保持 205 层 @(148,146)（+0.795 / +0.838 / +0.796，它在 126 层只有 +0.568）。图 `..._T1_tra126_zoomrows32_headerr_p3_zf_caps_nongsmax.png`。
   用户要求把放大放回图上：同一选择出了角上贴图版（`--inset 32 --inset_frac 0.5`，新开关，默认 0.38 不变），
   `..._T1_tra126_inset32_headerr_p3_zf_caps_nongsmax.png` 与 `..._FLAIR_tra205_inset32_headerr_p3_zf_caps_nongsmax.png`；贴图变宽后图案标签自动移到左下角。
+  又按用户要求调亮：`--grey_scale 0.8`（新开关，默认 1.0 不变；试过 1.0 / 0.8 / 0.65），误差图与指标不变。
 - （09-16 晚追加）三图案横断位叠放图：`T1FLAIR_AF16_gauss_v3_jiangyizhou/scripts/fig_masks_transverse_stack.py`，三行（vd-Poisson / Gaussian / 伪径向）× 灰度加误差，每行各带 colorbar，层 180，T1 与 FLAIR 各一张（PNG+PDF），`http://localhost:8765/t1flair_v3_af16_diffmask/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra180_headerr_p3_zf_caps.png`；说明在该课题 README 末节。逐层搜索（`scripts/find_slice_all_masks.py`）：两对比度、三项指标、三图案 MC-GS 全第一的横断位只有 203 到 206，205 层余量最大（最小 +0.050 dB），已出 205 层版叠放图。
 
 - 两个课题各 11 臂 × 2 对比度，全部重建、打分、出图，零失败。图在

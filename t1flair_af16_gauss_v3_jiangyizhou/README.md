@@ -299,3 +299,5 @@ FLAIR +0.55 / +0.75 / +1.65，六行里五行变大。按"GS-single 算对比臂
 这里用 0.5 以便看清；贴图变宽后 GT 面板的图案标签会被压住，脚本在 `--inset_frac > 0.42` 且贴图在上方时自动把标签移到左下角（出图后的文字重叠自检从
 `['Pseudo-radial']` 变为 `none`）。文件 `figures/t1flair_v3_af16_masks_stack_T1_tra126_inset32_headerr_p3_zf_caps_nongsmax.{png,pdf}` 与
 `..._FLAIR_tra205_inset32_headerr_p3_zf_caps_nongsmax.{png,pdf}`；放大行版本同时保留，两种版式数字完全相同。
+这两张按用户 2026-09-18 的要求调亮：新开关 `--grey_scale`（灰度窗 = 系数 × 该层 GT 的 P99.9，默认 1.0 与既有图一致）取 **0.8**，
+三档试过 1.0 / 0.8 / 0.65，0.65 已经发灰、背景噪声明显。误差图不受影响（仍按 max|GT| 归一、固定 jet [0, 0.1]），指标也不变。
