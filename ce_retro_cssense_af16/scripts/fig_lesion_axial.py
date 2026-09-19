@@ -175,10 +175,11 @@ def main():
     pw = 1.9
     ph = pw * H / W
     gap = 0.05
-    top_in, cb_room = 1.05, 1.0        # room for a two-line caption above the column titles
+    top_in, cb_room = 1.05, 0.06       # room for a two-line caption; the colourbar is no longer on the right
+    cb_h, cb_gap = 0.17, 0.10          # a horizontal bar under the last column, one panel wide
     rows_spec = [(c, kind) for c in SCANS for kind in ("img", "err")]
     fw = ncol * pw + (ncol - 1) * gap + cb_room
-    fh = top_in + len(rows_spec) * ph + (len(rows_spec) - 1) * gap + 0.30
+    fh = top_in + len(rows_spec) * ph + (len(rows_spec) - 1) * gap + cb_gap + cb_h + 0.52   # tick labels plus the bar's own label
     fig = plt.figure(figsize=(fw, fh))
 
     def axes_at(x0, y0, w, h):
@@ -229,10 +230,6 @@ def main():
                     # it lives in the phase-encode plane, so the anatomical rotation and the lesion box do not
                     # apply to it.
                     ax.imshow(mask_pe, cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto")
-                    label(ax, f"AF {mask_pe.size / mask_pe.sum():.2f} mask", bold=True, color="white", bottom=True,
-                          line=1)
-                    label(ax, f"{int(mask_pe.sum())} / {mask_pe.size} PE points", color="white", bottom=True,
-                          line=0, fs=8.5)
                 if r_i == 0:
                     ax.set_title("GT", fontsize=12, pad=4)
                 continue
@@ -260,11 +257,12 @@ def main():
                 label(ax, f"edge {ge[key]:.4f}", bold=key == min(ge, key=ge.get), line=0, bottom=True)
                 label(ax, f"shell {rm[key]:.4f}", bold=key == min(rm, key=rm.get), line=1, bottom=True)
 
-    cax = fig.add_axes([(ncol * pw + (ncol - 1) * gap + 0.15) / fw,
-                        1 - (top_in + len(rows_spec) * ph + (len(rows_spec) - 1) * gap) / fh,
-                        0.16 / fw, (len(rows_spec) * ph + (len(rows_spec) - 1) * gap) / fh])
-    cb = fig.colorbar(im_err, cax=cax); cb.ax.tick_params(labelsize=9)
-    cb.set_label("|err| / max|GT|", fontsize=9)
+    # the error bar sits in the bottom-right corner, exactly as wide as one error panel
+    cb_y = top_in + len(rows_spec) * ph + (len(rows_spec) - 1) * gap + cb_gap
+    cax = fig.add_axes([((ncol - 1) * (pw + gap)) / fw, 1 - (cb_y + cb_h) / fh, pw / fw, cb_h / fh])
+    cb = fig.colorbar(im_err, cax=cax, orientation="horizontal")
+    cb.ax.tick_params(labelsize=8.5)
+    cb.set_label("|err| / max|GT|", fontsize=9, labelpad=2)
 
     fig.suptitle(f"CE retro AF 16.00 -- axial slice {idx}; rows: pre image / pre error / post image / post error.  "
                  f"Truth = CS-SENSE reconstruction of the AF 5.33 acquisition",
