@@ -253,9 +253,8 @@ def main():
                 if a.contour != "none":
                     ax.contour(core2d, levels=[0.5], colors=LESION_COLOR, linewidths=1.1)
                 put_zoom(x, y, e2, cmap="jet", vmin=0.0, vmax=a.err_vmax)
-                rm, ge = meas[c]["rmse"], meas[c]["gerr"]
-                label(ax, f"edge {ge[key]:.4f}", bold=key == min(ge, key=ge.get), line=0, bottom=True)
-                label(ax, f"shell {rm[key]:.4f}", bold=key == min(rm, key=rm.get), line=1, bottom=True)
+                # the error panels carry no text: the colour is the message, and the boundary numbers they used
+                # to print live in logs/lesion_preservation.json and in the profile figure
 
     # the error bar sits in the bottom-right corner, exactly as wide as one error panel
     cb_y = top_in + len(rows_spec) * ph + (len(rows_spec) - 1) * gap + cb_gap
@@ -271,8 +270,7 @@ def main():
              ("" if a.contour == "none" else "magenta = lesion core; ") +
              "orange-yellow box = the zoom inset in the top-right of every panel, error panels and the truth "
              "included; errors are head-masked, jet [0, %.2f].\n"
-             "Image panels: head-masked slice PSNR / SSIM / NMSE.  Error panels: edge / shell = the RMSE of this "
-             "slice's gradient field and of its boundary band.  Bold = best of the %d arms shown."
+             "Image panels: head-masked slice PSNR / SSIM / NMSE, bold = best of the %d arms shown."
              % (a.err_vmax, len(keys)),
              ha="center", va="top", fontsize=8.5)
 
