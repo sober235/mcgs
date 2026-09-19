@@ -1,0 +1,43 @@
+{
+  "region": "head inside partitions 12..92",
+  "lo": 12,
+  "hi": 92,
+  "rows": {
+    "zf|T1w": {
+      "head_psnr": 24.064667608750877,
+      "head_ssim": 0.6825367212295532,
+      "head_hfen": 0.6503627497663124,
+      "grain_ratio": 1.0723946336398287,
+      "head_frac": 0.44976344058388157,
+      "gmax": 2.1974189281463623,
+      "psnr": 27.272431830939755,
+      "ssim": 0.7242031532859475,
+      "nmse": 0.0929216327137012,
+      "sharp": 0.3829773252722089,
+      "n_voxels": 7782400,
+      "method": "zf",
+      "label": "ZF",
+      "contrast": "T1w",
+      "lam": null,
+      "volume": "zf_T1w_complex.npy"
+    },
+    "zf|T2s": {
+      "head_psnr": 22.311449252155292,
+      "head_ssim": 0.5254687070846558,
+      "head_hfen": 0.8269099600561218,
+      "grain_ratio": 1.366303663503387,
+      "head_frac": 0.4262502569901316,
+      "gmax": 2.1965646743774414,
+      "psnr": 25.81268596482581,
+      "ssim": 0.6638813460369168,
+      "nmse": 0.13388792036719288,
+      "sharp": 0.3500342748584719,
+      "n_voxels": 7782400,
+      "method": "zf",
+      "label": "ZF",
+      "contrast": "T2s",
+      "lam": null,
+      "volume": "zf_T2s_complex.npy"
+    }
+  }
+}

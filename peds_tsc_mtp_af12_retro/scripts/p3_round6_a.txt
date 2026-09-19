@@ -1,0 +1,10 @@
+# Stage 3 round 6 (revised 03:55): capacity for T1w and the union guide for T2s, in one run.
+# Capacity: joint 38.516 / 38.791 / 38.936 against single 38.848 / 38.989 / 38.993 at 3.6M / 6.0M /
+# 9.6M -- the single saturates, the joint does not, gap -0.332 -> -0.057. But capacity costs T2s
+# (SSIM and HFEN fell below their bars at 9.6M), and it is the one knob that cannot be split per
+# contrast, because the joint arm has a single cloud.
+# Union guide (claude-eb's lever, commit a22073f; verified here by scoring p4_union on this gauge):
+# each T2s edge-TV weight becomes min(its own, the plain render's), so T1w edges can only lower T2s
+# smoothing. All three T2s cells above their bars at zero T1w cost, and unlike capacity it is
+# joint-only: a single-contrast arm has no second contrast to borrow edges from.
+p3 p3_n192_union configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=19200000 --set loss.edge_tv_union_guide=true

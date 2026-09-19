@@ -1,0 +1,4 @@
+# Stage 3 round 2, half B: the common-edge coupling at the round-1c working point. This is the only
+# lever aimed at the joint-minus-single difference itself; on the jiangyizhou AF12 line the pair
+# (common edge 0.001 + phase TV 0.01) moved it by about +0.08 dB. Phase TV is not on this branch yet.
+p3 p3_edge0010 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.001

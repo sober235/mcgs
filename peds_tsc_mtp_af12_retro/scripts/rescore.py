@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""rescore.py -- the primary table: every arm rescored on the frozen gauge, averaged over the head
+inside the vendor's central 80 partitions (SPE 12..92). The secondary table is each arm's own JSON
+over all 104 partitions; --full reproduces it here as the cross-check.
+"""
+import argparse, json, re, sys
+from pathlib import Path
+
+import numpy as np
+
+sys.path.insert(0, "/data0/congcong/code/GS/mcgs_peds_wt")
+from uih_mtp.rescore import partition_region, score_region
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--lo", type=int, default=12)
+ap.add_argument("--hi", type=int, default=92)
+ap.add_argument("--full", action="store_true", help="score all 104 partitions (the cross-check)")
+ap.add_argument("--out", default=None)
+ap.add_argument("--jobs", type=int, default=10,
+                help="arms scored in parallel; the 15^3 LoG convolution is single-threaded and dominates")
+ap.add_argument("--only", nargs="+", default=None, metavar="KEY",
+                help="score only these arm keys and merge them into the existing output json; the other rows are kept "
+                     "(the gauge is deterministic, so a new arm does not need the old ones rescored)")
+args = ap.parse_args()
+
+R = Path(__file__).resolve().parents[1]
+CONTRASTS = ("T1w", "T2s")
+summary = json.load(open(R / "logs/summary.json"))
+
+
+def lam_file(c, row_key, prefix):
+    lam = next((r.get("lam") for r in summary if r["contrast"] == c and r["method"] == row_key), None)
+    if lam is None:
+        return None, None
+    for p in sorted(R.glob(f"recon/{prefix}_lam*_{c}_complex.npy")):
+        m = re.fullmatch(re.escape(prefix) + r"_lam([0-9.]+)_" + c + r"_complex\.npy", p.name)
+        if m and abs(float(m.group(1)) - float(lam)) < 1e-12:
+            return p, float(lam)
+    return None, float(lam)
+
+
+def arms(c):
+    a = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy", None)]
+    for key, label, prefix in (("cssense_o200", "CS-SENSE", "cssense_o200"),
+                               ("jcssense", "Joint SENSE", "jcssense_o200"),
+                               ("l1espirit", "L1-ESPIRiT", "l1espirit")):
+        p, lam = lam_file(c, key, prefix)
+        a.append((key, label, p, lam))
+    # L1-SPIRiT (2026-09-15): summarize.py keeps the best point of the sweep per contrast, over both
+    # calibrations and both kernel sizes, and records the run it kept as `src`, which names the volume
+    sp = next((r for r in summary if r["contrast"] == c and r["method"] == "spirit"), None)
+    if sp is not None:
+        a.append(("spirit", "L1-SPIRiT", R / f"recon/{sp['src']}_{c}_complex.npy", sp.get("lam")))
+    a += [("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy", None),
+          ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy", None),
+          ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy", None),
+          ("mcinr", "MC-INR (Niessen 2025)", R / f"recon/mcinr_{c}_complex.npy", None),
+          ("gs_single_ar", "GS-single", R / f"recon/gs_single_ar_{c}_complex.npy", None),
+          ("gs_joint_ar", "MC-GS", R / f"recon/gs_joint_ar_{c}_complex.npy", None)]
+    # stage 3 (tuned on this subject): the joint arm on both contrasts, the single arm on T1w only --
+    # T2s's own weights were not changed by the tuning, so gs_single_ar is already its tuned single
+    for key, label in (("gs_joint_p3", "MC-GS (tuned)"), ("gs_single_p3", "GS-single (tuned)"),
+                       ("gs_joint_p3f", "MC-GS (tuned, 9.6M + union guide)"),
+                       ("gs_single_p3f", "GS-single (tuned, 9.6M)"),
+                       ("gs_joint_p5", "MC-GS (phase TV, 8000 it.)")):      # stage 5 final (2026-09-17)
+        v = R / f"recon/{key}_{c}_complex.npy"
+        if v.exists():
+            a.append((key, label, v, None))
+    return a
+
+
+def score_one(job):
+    """One (arm, contrast). Loads its own volumes so the work parallelises across processes: the
+    frozen LoG convolution and the two SSIM maps are single-threaded and dominate the run time."""
+    c, key, label, path, lam = job
+    gt = np.load(R / f"recon/gt_{c}_complex.npy")
+    region = None if args.full else partition_region(gt.shape, 2, args.lo, args.hi)
+    row = score_region(np.load(path), gt, region)
+    row.update(method=key, label=label, contrast=c, lam=lam, volume=str(Path(path).name))
+    return f"{key}|{c}", row
+
+
+jobs = []
+for c in CONTRASTS:
+    for key, label, path, lam in arms(c):
+        if args.only and key not in args.only:
+            continue
+        assert path is not None and Path(path).exists(), f"missing volume for {label} {c}: {path}"
+        jobs.append((c, key, label, path, lam))
+assert jobs, f"no arm matches --only {args.only}"
+
+out = {}
+if args.jobs > 1:
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(max_workers=args.jobs) as ex:
+        for k, row in ex.map(score_one, jobs):
+            out[k] = row
+            print(f"{row['contrast']} {row['label']:12s} head_psnr {row['head_psnr']:7.3f} "
+                  f"ssim {row['head_ssim']:.4f} hfen {row['head_hfen']:.4f} psnr {row['psnr']:7.3f} "
+                  f"nmse {row['nmse']:.5f} sharp {row['sharp']:.3f}", flush=True)
+else:
+    for job in jobs:
+        k, row = score_one(job)
+        out[k] = row
+        print(f"{row['contrast']} {row['label']:12s} head_psnr {row['head_psnr']:7.3f} "
+              f"ssim {row['head_ssim']:.4f} hfen {row['head_hfen']:.4f} psnr {row['psnr']:7.3f} "
+              f"nmse {row['nmse']:.5f} sharp {row['sharp']:.3f}", flush=True)
+
+p = Path(args.out) if args.out else (R / ("logs/rescore_full.json" if args.full else "logs/rescore.json"))
+region = "full volume" if args.full else f"head inside partitions {args.lo}..{args.hi}"
+if args.only and p.exists():
+    prev = json.load(open(p))
+    assert prev.get("region") == region, f"{p} holds region '{prev.get('region')}', this run scores '{region}'"
+    prev["rows"].update(out)
+    out = prev["rows"]
+    print(f"merged {len(jobs)} rescored rows into {p} ({len(out)} rows now)")
+json.dump(dict(region=region, lo=args.lo, hi=args.hi, rows=out), open(p, "w"), indent=2)
+print("wrote", p)

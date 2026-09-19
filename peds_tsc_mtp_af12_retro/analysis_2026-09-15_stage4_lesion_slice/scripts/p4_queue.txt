@@ -1,0 +1,87 @@
+# Stage 4, REVISED TARGET (user 2026-09-14 ~20:40): one slice that contains a lesion, on which MC-GS beats every
+# other arm by >= 1 dB (per-slice head PSNR as in the figures). Lesions are visible on T2*w only (nodules on vendor
+# slices 38/46 = SPE 53/45; calcified focus at RO 166, PE 196, SPE 68-70). On every lesion slice the arm to beat
+# is GS-single, within +-0.1 dB of MC-GS, so the queue now leads with cross-contrast levers that can move T2s.
+# All lines start from the stage-3 working point c1. Order = priority.
+ITERS=60 p4_smoke_newlevers configs/peds_af12_T1w_T2s.yaml --warmup 20 --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.05 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.05 --set loss.dc_weight_contrast=0.5 --set loss.wav_group=true --set loss.contrast_reg_frozen_geometry=true --set gaussian.contrast_scale_offset=true --set loss.lambda_sgtv=0.05
+#
+# Structure-guided directional TV (new loss.lambda_sgtv, Ehrhardt & Betcke 2016): 47-51 % of GS-single's T2s error
+# sits on edges T1w shares. Swap T2s's own edge-TV for it at the same strength, and add it on top.
+p4_sgtv010 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.0 --set loss.lambda_sgtv=0.10
+# dropped 22:45: p4_sgtv010 (structure-guided TV replacing T2s edge-TV) cost T2s 1.0 dB volume-wide, best lesion margin -0.654;
+# any added smoothing on T2s loses (p4_dtv005 too), so the additive version is not run
+#p4_sgtv005add configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.lambda_sgtv=0.05
+#
+# Common-edge coupling: 0.001 gave the best lesion-slice margin so far (+0.096 dB, T2s transverse 69) at a T1w cost.
+# Union-of-edges TV for T2s (new loss.edge_tv_union_guide, 22:55): T2s's edge-TV weight also drops at T1w's edges,
+# never rises, so T1w's structure can only remove smoothing from T2s. The one T1w-guided lever that adds none.
+p4_union configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true
+# group wavelet at unchanged weights only ever lowers T2s's shrinkage (where T1w's coefficient is large): moved up 23:35
+# superseded 03:55 by the union base: p4_gwav
+# superseded 03:55 by the union base: p4_edge0020
+# common edge below 0.001 too (claude-e7, 23:45: on the jyz AF12 line the useful value sat 20x below the one declared dead)
+# superseded 03:55 by the union base: p4_edge0005
+# T2s's own weights were never scanned (stage 3 tuned T1w's); p4_dtv005 says T2s does not want more smoothing.
+# Generic levers: a candidate built on them needs the single T2s re-run at the same weights before it counts.
+# superseded 03:55 by the union base: p4_T2s_geo007
+# superseded 03:55 by the union base: p4_T2s_wav006
+# T1w drives the shared geometry, so T2s inherits the sharper contrast's cloud.
+# superseded 03:55 by the union base: p4_dcw02
+# Joint (group) wavelet sparsity.
+# Half of T2s's own edge-TV replaced by T1w-guided directional TV; and a stronger guide.
+# dropped 21:32: p4_dtv005 (weighted dTV 0.05 on top) lost T2s 0.15 dB volume-wide, best lesion margin -0.014
+#p4_dtv020 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.05 --lambda_dtv 0.20
+# T2s's regularisers kept off the shared geometry; T2s's own scale offset.
+# superseded 03:55 by the union base: p4_regfrz
+# superseded 03:55 by the union base: p4_scaleoff
+# superseded 03:55 by the union base: p4_edge0040
+# dropped 23:35 (adds shrinkage or smoothing to T2s, which lost twice): p4_gwav_x14
+#p4_gwav_x14 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_plain=0.084 --set loss.lambda_wav_contrast=0.14 --set loss.lambda_geo_contrast=0.10 --set loss.wav_group=true
+#
+# weighted dTV swap, demoted 21:32
+# dropped 23:35 (adds shrinkage or smoothing to T2s, which lost twice): p4_dtvswap
+#p4_dtvswap configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.05 --lambda_dtv 0.05
+#
+# Parked (whole-volume target, dropped): capacity fairness and T1w-side runs. p4_single_T2s_n60 comes back if a 6.0M
+# candidate is ever the pick.
+#p4_single_T1w_n60 configs/peds_af12_single_T1w.yaml --lambda_geo 0.03 --set loss.lambda_wav=0.06 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.06 --set gaussian.initial_num_points=6000000
+#p4_n100 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=10000000
+#p4_single_T2s_n60 configs/peds_af12_single_T2s.yaml --set gaussian.initial_num_points=6000000
+#p4_dcw05 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.05 --set loss.lambda_geo_contrast=0.05 --set loss.dc_weight_contrast=0.5
+#
+# ===== Round 2 (2026-09-15 03:55): p4_union is KEPT and is the new base (T2s 34.195 / 0.9054 / 0.1842, all three
+# above GS-single, T1w unchanged at 38.517; best lesion slice +0.104 over all arms, transverse 69). Everything below
+# stacks on it (c1 weights + edge_tv_union_guide). Order = priority.
+p4_u_gwav configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.wav_group=true
+p4_u_edge0010 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --lambda_edge 0.001
+p4_u_k05 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5
+p4_u_edge0020 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --lambda_edge 0.002
+# 08:35: p4_u_k05 (guide kappa x0.5) = T2s 34.208 / 0.9063 / 0.1826 with T1w unchanged, lesion +0.123. Stack it with
+# common edge 0.001 and push the scale further, before the probes below (which get rebased on the winner).
+p4_ue_k05 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --lambda_edge 0.001
+p4_ue_k025 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.25 --lambda_edge 0.001
+# 10:25: the same one-way relaxation for T2s's wavelet term (new loss.wav_union_guide; T1w's wavelet untouched),
+# on the zero-T1w-cost base union + guide kappa x0.5.
+# superseded 10:55 by the round-3 base (union + kappa x0.5 + common edge 0.001): p4_uk_wavg
+# rebased 07:30 onto union + common edge 0.001: p4_u_T2s_geo007
+# superseded 10:55 by the round-3 base (union + kappa x0.5 + common edge 0.001): p4_ue_T2s_geo007
+# rebased 07:30 onto union + common edge 0.001: p4_u_T2s_wav006
+# superseded 10:55 by the round-3 base (union + kappa x0.5 + common edge 0.001): p4_ue_T2s_wav006
+# superseded 10:55 by the round-3 base (union + kappa x0.5 + common edge 0.001): p4_u_edge0005
+# rebased 07:30 onto union + common edge 0.001: p4_u_k025
+# rebased 07:30 onto union + common edge 0.001: p4_u_dcw02
+# superseded 10:55 by the round-3 base (union + kappa x0.5 + common edge 0.001): p4_ue_dcw02
+# rebased 07:30 onto union + common edge 0.001: p4_u_regfrz
+# superseded 10:55 by the round-3 base (union + kappa x0.5 + common edge 0.001): p4_ue_regfrz
+#
+# ===== Round 3 (2026-09-15 10:55): base = p4_ue_k05 = union + guide kappa x0.5 + common edge 0.001.
+# T2s 34.230 / 0.9066 / 0.1815, T1w 38.386; best lesion slice +0.153 (sagittal 172), +0.550 over the non-GS arms.
+# (p4_ue_k025, already queued above, is the kappa x0.25 point on this same base.)
+p4_r3_wavg configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.001 --set loss.wav_union_guide=true
+p4_r3_geo007 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.07 --lambda_edge 0.001
+p4_r3_edge0005 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.0005
+# 12:45: p4_r3_wavg (T2s wavelet relaxed at T1w coefficients) lost T2s 0.18 dB, so T2s wants its wavelet
+# shrinkage; the wavelet scan goes up instead of down (a generic lever: the T2s single must follow if it wins)
+p4_r3_wav014 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_wav_contrast=0.14 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.001
+p4_r3_regfrz configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_contrast=0.10 --lambda_edge 0.001 --set loss.contrast_reg_frozen_geometry=true
+p4_r3_dcw02 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_geo_plain=0.03 --set loss.edge_tv_union_guide=true --set loss.edge_tv_union_kappa_scale=0.5 --set loss.lambda_wav_contrast=0.02 --set loss.lambda_geo_contrast=0.02 --lambda_edge 0.001 --set loss.dc_weight_contrast=0.2

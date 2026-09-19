@@ -1,0 +1,4 @@
+# Stage 3 round 4, half B: the single-contrast T1w arm at 6.0M points. Fairness: whatever the joint
+# arm gets, the single gets. If the single gains as much as the joint did, the T1w bar moves up with
+# it and the gap is unchanged; if it gains less, capacity is where the joint arm catches up.
+p3 p3_single_T1w_n60 configs/peds_af12_single_T1w.yaml --lambda_geo 0.03 --set loss.lambda_wav=0.06 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.06 --set gaussian.initial_num_points=6000000

@@ -1,0 +1,9 @@
+# Stage 3 round 1, half A (spec 2026-09-14): the T1w wavelet weight, swept down from P10's 0.12.
+# Everything else stays at P10. The T2s weight (loss.lambda_wav_contrast) is pinned at its P10 value
+# so that a shared knob cannot move the contrast that is already at its bar.
+p3 p3_wavT1_006 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10
+p3 p3_wavT1_003 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.03 --set loss.lambda_wav_contrast=0.10
+# Round 2 prerequisite, queued behind the two wavelet runs: the representation ceiling. Every
+# acquirable position is given to the trainer, so its head PSNR is what this cloud can carry at
+# 3.6M points -- the number no lambda sweep can pass. Not an arm; its ledger row is a reference.
+p3 p3_ceiling configs/peds_full_support_T1w_T2s.yaml

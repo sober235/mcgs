@@ -1,0 +1,7 @@
+# Stage 3 round 1c: the working point round 1 pointed at, with the geometry weight split per contrast
+# (lambda_geo_plain / lambda_geo_contrast, added 2026-09-14 because the two contrasts of this exam
+# want different amounts of smoothing: T1w keeps improving down to 0.03 while T2s degrades).
+# Wavelet at its interior optimum (T1w 0.06, T2s pinned 0.10); the base lambda_geo stays 0.10 and is
+# only the divisor of the reported R_geo. T2s is held at 0.10, its PSNR-best value, while T1w's own
+# weight is scanned below the 0.03 that was the edge of round 1's grid.
+p3 p3_c1_wav006_gp003 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10

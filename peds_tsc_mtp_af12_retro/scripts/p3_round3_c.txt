@@ -1,0 +1,5 @@
+# Stage 3 round 3, half C: the single-contrast T1w arm at 6000 iterations. Whatever lever the joint
+# arm gets, the single arm gets, or "joint beats single" would be won by an unequal setting. The
+# joint gained +0.072 dB from 4000 -> 6000; this says what the single gains, and therefore whether
+# the bar moves with it.
+p3 p3_single_T1w_i6000 configs/peds_af12_single_T1w.yaml --lambda_geo 0.03 --set loss.lambda_wav=0.06 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.06

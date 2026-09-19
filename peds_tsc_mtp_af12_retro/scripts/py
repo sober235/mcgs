@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# GSTMI python for this topic. The code lives in the peds worktree (uih_mtp package); the GPU is chosen by
+# the launcher through CUDA_VISIBLE_DEVICES (empty = CPU, at most 8 threads so the shared host is not loaded).
+export PYTHONNOUSERSITE=1 PYTHONPATH=/data0/congcong/code/GS/mcgs_peds_wt CUDA_DEVICE_ORDER=PCI_BUS_ID
+export OMP_NUM_THREADS=${OMP_NUM_THREADS:-8} MKL_NUM_THREADS=${MKL_NUM_THREADS:-8}
+exec nice -n 10 /home/congcongliu/anaconda3/envs/GSTMI/bin/python "$@"

@@ -1,0 +1,3 @@
+# Stage 3 round 3, half B: more iterations at the round-1c working point. With the prior weights this
+# much lighter the fit may simply not be converged at 4000; 6000 says whether it is.
+p3 p3_i6000 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10

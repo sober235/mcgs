@@ -1,0 +1,30 @@
+MC-GS best-slice figure, 16yo TSC MTP, retrospective AF 12.00 (31616 / 2635), made 2026-09-14 from the registered stage-2 arms
+of Results_20260908/Peds_TSC_MTP_AF12_retro (read-only; MC-GS = gs_joint_ar, GS-single = gs_single_ar).
+
+How the slice was chosen (peds_mcgs_best_slice.py -> peds_slice_metrics.json):
+  every slice of the three planes with head area >= 25 % of that plane's largest, head = |GT| > 0.05 * P99.9 inside
+  partitions SPE 12..91; per slice head PSNR / SSIM (7x7) / NMSE for all ten arms; GS-single counts as a comparison arm.
+MC-GS first on all three metrics:
+  T1w: 0 of 559 slices (never first on any single metric either)
+  T2s: 67 of 551 slices (transverse 13 of 80, coronal 39 of 249, sagittal 15 of 222)
+Largest lead: T2s coronal 35 (+0.234 dB over GS-single), a thin edge cap (26 % of the largest head area), not shown.
+First pick, T2s transverse 91 (skull base, +0.090 dB), was rejected by the user on 2026-09-14: too little brain structure.
+Candidates among large sections (head area >= 90 %) where MC-GS leads all three: transverse 69 / 71 (+0.051 / +0.052 dB),
+sagittal 169 (+0.047), coronal 119 (+0.047). Sagittal and coronal panels are thin strips at 1.35 mm partitions.
+Figure: T2s transverse 69 = vendor slice 22 (97 % of the largest transverse head area): temporal lobes, midbrain,
+orbitofrontal cortex, sylvian fissures.
+  MC-GS 33.50 dB / 0.8723 / 0.01007 vs GS-single 33.45 / 0.8710 / 0.01019 vs L1-ESPIRiT 33.09 / 0.8717 / 0.01107.
+This is a selected slice, not representative: over the volume (primary table) MC-GS is behind L1-ESPIRiT on T1w and level
+with GS-single on T2s.
+Re-draw: python peds_fig_row_best.py --contrast T2s --axis 2 --index 69 --note "..."
+
+Lesion check of the figure slice (2026-09-14, visual plus vendor SWI / QSM; not a radiological reading):
+  vendor slice 22 (SPE 69, z 6.2 mm) is below the stage-1 survey's findings (nodules at vendor slices 38 / 46, tubers on
+  FLAIR z 40-66 mm). One focal finding on it: a dark focus at row 166, col 194 of the 320 x 300 vendor frame, image right,
+  medial temporal region lateral to the midbrain. T2*w core-ring -1.86 SD, dark on SWI, QSM core -730 against a ring of
+  +22 (slice P1..P99 = -78..+62). QSM sign checked on the same slice: SWI-dark vessel-like pixels near the focus average
+  +23, elongated vessel-like components median +23.5, so paramagnetic is positive here and the focus is strongly
+  diamagnetic, the appearance of a calcification, not a vein. Focal through-plane: T2*w dark on vendor slices 21-23,
+  QSM negative on 19-25 (about 7 mm). Visible in the MC-GS AF 12 reconstruction. Patient left/right was not verified.
+  Figures: lesion_focus_vendor22.png (marked, with zoom), lesion_check_vendor22.png (SWI, GT, MC-GS, nearest FLAIR).
+  Scripts: peds_slice22_lesion_check.py, peds_focus22.py, peds_qsm_sign.py (copied here).

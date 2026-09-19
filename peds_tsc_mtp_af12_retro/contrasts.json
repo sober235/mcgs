@@ -1,0 +1,6 @@
+{
+  "T1w": {"acquired": "FA16_TE3.25", "flip_angle_deg": 16, "te_ms": 3.25, "weighting": "T1-weighted"},
+  "T2s": {"acquired": "FA4_TE27.41", "flip_angle_deg": 4, "te_ms": 27.41, "weighting": "PD/T2*-weighted"},
+  "source": "/data1/data1_congcong/data/3D/Peds_TSC_age16_MTP_GT",
+  "note": "topic-local short names; the dataset keeps the acquisition names"
+}

@@ -1,0 +1,4 @@
+# Stage 3 round 3, half A: capacity at the round-1c working point. Round 0 said the gap is unsampled
+# high spatial frequency, which is either a prior that is too heavy (round 1 answered that) or a cloud
+# that cannot carry the band. 3.6M -> 6.0M points asks the second question on the real task.
+p3 p3_n60 configs/peds_af12_T1w_T2s.yaml --set loss.lambda_wav=0.10 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.10 --set loss.lambda_geo_plain=0.03 --set loss.lambda_geo_contrast=0.10 --set gaussian.initial_num_points=6000000

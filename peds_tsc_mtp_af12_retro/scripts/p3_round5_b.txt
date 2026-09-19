@@ -1,0 +1,2 @@
+# Stage 3 round 5, half B: the single-contrast T1w arm at 9.6M points, the matched control.
+p3 p3_single_T1w_n96 configs/peds_af12_single_T1w.yaml --lambda_geo 0.03 --set loss.lambda_wav=0.06 --set loss.lambda_wav_plain=0.06 --set loss.lambda_wav_contrast=0.06 --set gaussian.initial_num_points=9600000
