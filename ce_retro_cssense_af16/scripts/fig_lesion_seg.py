@@ -317,7 +317,8 @@ def main():
 
     FIGDIR.mkdir(parents=True, exist_ok=True)
     FIGDIR_SERVED.mkdir(parents=True, exist_ok=True)
-    name = f"ce_retro_af16_lesion_seg_{axis}{idx:03d}"
+    # a non-default dpi gets its own file so a high-resolution render never replaces the screen-sized one
+    name = f"ce_retro_af16_lesion_seg_{axis}{idx:03d}" + (f"_{a.dpi}dpi" if a.dpi != ap.get_default("dpi") else "")
     png = FIGDIR / f"{name}.png"
     fig.savefig(png, dpi=a.dpi)
     if a.pdf:
