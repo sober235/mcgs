@@ -78,12 +78,25 @@ def main():
                          "unchanged, so the lesion is still read at full magnification in the corner")
     ap.add_argument("--inset", type=int, default=4, help="zoom box = the boundary shell grown by this many voxels")
     ap.add_argument("--inset_corner", default="tr", choices=["bl", "br", "tl", "tr"])
+    ap.add_argument("--contour", default="all", choices=["all", "err", "none"],
+                    help="where to draw the magenta lesion outline. 'all' is the inherited style; 'err' keeps it on "
+                         "the truth column and the error panels only, because on an arm's image panel the line "
+                         "covers the very boundary the reader is being asked to judge, and the orange box already "
+                         "says where the lesion is; 'none' leaves the box to do that job alone")
+    ap.add_argument("--arms", default="",
+                    help="comma-separated subset of the eleven arm keys, in the order they should appear "
+                         "(default: all of them, in the topic's column order). 'best of' bolding is then computed "
+                         "over the arms actually shown, not over the eleven, and the caption says so")
     ap.add_argument("--brightness", type=float, default=1.5)
     ap.add_argument("--err_vmax", type=float, default=0.1)
     ap.add_argument("--dpi", type=int, default=140)
     ap.add_argument("--pdf", action="store_true")
     ap.add_argument("--pdf_dpi", type=int, default=600)
     a = ap.parse_args()
+    keys = ORDER if not a.arms else [k.strip() for k in a.arms.split(",") if k.strip()]
+    unknown = [k for k in keys if k not in ORDER]
+    if unknown:
+        raise SystemExit(f"unknown arm key(s) {unknown}; choose from {ORDER}")
 
     import matplotlib
     matplotlib.use("Agg")
@@ -108,6 +121,8 @@ def main():
         gg[c] = gmag(g)
         vols[c], ga[c] = {}, {}
         for key, _, path in arm_files(c, summary):
+            if key not in keys:
+                continue
             v = np.abs(np.load(path)).astype(np.float64)
             vols[c][key] = v
             ga[c][key] = gmag(v)
@@ -140,7 +155,7 @@ def main():
         peak_db = 20 * np.log10(gmax[c])
         e_gt = float((g_head ** 2).sum())
         psnr, ssim, nmse, rmse, gerr = {}, {}, {}, {}, {}
-        for k in ORDER:
+        for k in keys:
             v2d = vols[c][k][sl]
             e = v2d[h] - g_head
             mse = float((e * e).mean())
@@ -154,11 +169,11 @@ def main():
             gerr[k] = float(np.sqrt((gd * gd).mean()))
         meas[c] = dict(psnr=psnr, ssim=ssim, nmse=nmse, rmse=rmse, gerr=gerr)
 
-    ncol = 1 + len(ORDER)
+    ncol = 1 + len(keys)
     pw = 1.9
     ph = pw * H / W
     gap = 0.05
-    top_in, cb_room = 0.60, 1.0
+    top_in, cb_room = 1.05, 1.0        # room for a two-line caption above the column titles
     rows_spec = [(c, kind) for c in SCANS for kind in ("img", "err")]
     fw = ncol * pw + (ncol - 1) * gap + cb_room
     fh = top_in + len(rows_spec) * ph + (len(rows_spec) - 1) * gap + 0.30
@@ -202,7 +217,8 @@ def main():
             if j == 0:
                 if kind == "img":
                     ax.imshow(g2, cmap="gray", vmin=0, vmax=vmax_c, origin="lower", aspect="auto")
-                    ax.contour(core2d, levels=[0.5], colors=LESION_COLOR, linewidths=1.1)
+                    if a.contour != "none":
+                        ax.contour(core2d, levels=[0.5], colors=LESION_COLOR, linewidths=1.1)
                     ax.add_patch(Rectangle((ix0, iy0), ix1 - ix0, iy1 - iy0, fill=False, ec=METRIC_COLOR, lw=1.6))
                     put_zoom(x, y, g2, cmap="gray", vmin=0, vmax=vmax_c)
                     label(ax, f"GT ({c})", bold=True)
@@ -213,11 +229,12 @@ def main():
                 if r_i == 0:
                     ax.set_title("GT", fontsize=12, pad=4)
                 continue
-            key = ORDER[j - 1]
+            key = keys[j - 1]
             v2 = crop(vols[c][key][sl])
             if kind == "img":
                 ax.imshow(v2, cmap="gray", vmin=0, vmax=vmax_c, origin="lower", aspect="auto")
-                ax.contour(core2d, levels=[0.5], colors=LESION_COLOR, linewidths=1.1)
+                if a.contour == "all":
+                    ax.contour(core2d, levels=[0.5], colors=LESION_COLOR, linewidths=1.1)
                 ax.add_patch(Rectangle((ix0, iy0), ix1 - ix0, iy1 - iy0, fill=False, ec=METRIC_COLOR, lw=1.6))
                 put_zoom(x, y, v2, cmap="gray", vmin=0, vmax=vmax_c)
                 ps, ss, nm = meas[c]["psnr"], meas[c]["ssim"], meas[c]["nmse"]
@@ -229,7 +246,8 @@ def main():
             else:
                 e2 = np.abs(v2 - g2) / gmax[c] * h2
                 im_err = ax.imshow(e2, cmap="jet", vmin=0.0, vmax=a.err_vmax, origin="lower", aspect="auto")
-                ax.contour(core2d, levels=[0.5], colors=LESION_COLOR, linewidths=1.1)
+                if a.contour != "none":
+                    ax.contour(core2d, levels=[0.5], colors=LESION_COLOR, linewidths=1.1)
                 put_zoom(x, y, e2, cmap="jet", vmin=0.0, vmax=a.err_vmax)
                 rm, ge = meas[c]["rmse"], meas[c]["gerr"]
                 label(ax, f"edge {ge[key]:.4f}", bold=key == min(ge, key=ge.get), line=0, bottom=True)
@@ -244,17 +262,21 @@ def main():
     fig.suptitle(f"CE retro AF 16.00 -- axial slice {idx}; rows: pre image / pre error / post image / post error.  "
                  f"Truth = CS-SENSE reconstruction of the AF 5.33 acquisition",
                  fontsize=11.5, fontweight="bold", y=1 - 0.06 / fh)
-    fig.text(0.5, 1 - (top_in - 0.28) / fh,
-             "magenta = lesion core; orange-yellow box = the zoom inset in the top-right of every panel, error "
-             "panels and the truth included; errors are head-masked, jet [0, %.2f]. Image panels: head-masked "
-             "slice PSNR / SSIM / NMSE; error panels: edge / shell = the RMSE of this slice's gradient field and "
-             "of its boundary band. Bold = best of the eleven arms for that scan and measure." % a.err_vmax,
+    fig.text(0.5, 1 - 0.34 / fh,
+             ("" if a.contour == "none" else "magenta = lesion core; ") +
+             "orange-yellow box = the zoom inset in the top-right of every panel, error panels and the truth "
+             "included; errors are head-masked, jet [0, %.2f].\n"
+             "Image panels: head-masked slice PSNR / SSIM / NMSE.  Error panels: edge / shell = the RMSE of this "
+             "slice's gradient field and of its boundary band.  Bold = best of the %d arms shown."
+             % (a.err_vmax, len(keys)),
              ha="center", va="top", fontsize=8.5)
 
     FIGDIR.mkdir(parents=True, exist_ok=True)
     FIGDIR_SERVED.mkdir(parents=True, exist_ok=True)
     name = (f"ce_retro_af16_lesion_axial_{idx}" + ("_whole" if a.whole else "")
             + (f"_b{a.brightness:g}" if a.brightness != ap.get_default("brightness") else "")
+            + (f"_c{a.contour}" if a.contour != ap.get_default("contour") else "")
+            + (f"_a{len(keys)}" if len(keys) != len(ORDER) else "")
             + (f"_{a.dpi}dpi" if a.dpi != ap.get_default("dpi") else ""))
     png = FIGDIR / f"{name}.png"
     fig.savefig(png, dpi=a.dpi)
