@@ -38,6 +38,9 @@ SCANS = ("pre", "post")
 MM = 6                      # how far either side of the boundary the profile runs
 MCGS = "gs_joint"
 PALETTE = ["#1f77b4", "#2ca02c", "#9467bd", "#8c564b", "#e377c2", "#ff7f0e", "#d62728"]
+# one marker per method, so the scatter panel names its own colours
+MARKER = {"cssense_o200": "s", "jcssense": "D", "zsssdu": "^", "inr": "v", "mcinr": "P",
+          "gs_single": "o", "gs_joint": "*"}
 
 
 def main():
@@ -46,11 +49,22 @@ def main():
                     help="arm keys to draw, in order (default: the seven of the axial figure)")
     ap.add_argument("--dpi", type=int, default=200)
     ap.add_argument("--pdf", action="store_true")
+    ap.add_argument("--title", default="Lesion boundary fidelity at 16-fold retrospective undersampling")
+    ap.add_argument("--subtitle", default=(
+        "What was done: seven reconstructions of the same undersampled pre/post pair, scored across the lesion "
+        "boundary in regions fixed on the truth, with no segmentation model.\n"
+        "What it verifies: MC-GS stays closest to the truth on both scans, while the implicit-neural arms fill "
+        "the lesion in and lose 9-10% of its contrast and 21-25% of its CNR."))
     a = ap.parse_args()
 
     import matplotlib
     matplotlib.use("Agg")
     matplotlib.rcParams["pdf.fonttype"] = 42
+    # per-glyph fallback, so a Chinese --title renders beside the Latin method names without a second figure
+    # CJK first: Matplotlib's per-glyph fallback did not reach a later entry for Han characters, and this font
+    # carries the Latin glyphs too, so one family covers a mixed Chinese/English figure
+    matplotlib.rcParams["font.sans-serif"] = ["Noto Sans CJK JP", "DejaVu Sans", "sans-serif"]
+    matplotlib.rcParams["axes.unicode_minus"] = False
     import matplotlib.pyplot as plt
 
     from arms import LABEL, arm_files
@@ -83,7 +97,7 @@ def main():
             vv = (v / float(np.median(v[wm])))[sel]
             prof[(scan, key)] = np.array([vv[bins[x]].mean() if bins[x].any() else np.nan for x in xs])
 
-    fig = plt.figure(figsize=(15.5, 6.2))
+    fig = plt.figure(figsize=(15.5, 6.7))
     gs = fig.add_gridspec(2, 3, width_ratios=[1, 1, 1.05], height_ratios=[2.1, 1.0], hspace=0.08, wspace=0.26)
     for j, scan in enumerate(SCANS):
         ax = fig.add_subplot(gs[0, j])
@@ -112,43 +126,57 @@ def main():
         if j == 0:
             ax.legend(fontsize=8, frameon=False, loc="upper left", ncol=2)
 
+    # Marker shape and colour name the method, fill names the scan, so this panel can be read without looking
+    # back at the line legend on the left. The earlier encoding used shape for the scan, which left the colours
+    # unexplained inside this panel.
     ax = fig.add_subplot(gs[:, 2])
     ax.axhline(0, color="0.5", lw=1.0, zorder=1)
     ax.axvline(0, color="0.5", lw=1.0, zorder=1)
-    for i, k in enumerate(keys):
-        for scan, mk in zip(SCANS, ("o", "s")):
-            r = rows[(scan, k)]
-            xy = (100 * r["contrast_err"], 100 * r["cnr_err"])
-            ax.scatter(*xy, marker="*" if k == MCGS else mk, s=300 if k == MCGS else 60,
-                       color=PALETTE[i % len(PALETTE)], zorder=4 if k == MCGS else 3,
-                       edgecolor="black", linewidth=0.5)
-    ax.scatter([0], [0], marker="P", s=130, color="black", zorder=5)
+
+    def draw_points(axis, big, small):
+        for i, k in enumerate(keys):
+            col = PALETTE[i % len(PALETTE)]
+            for scan, filled in zip(SCANS, (True, False)):
+                r = rows[(scan, k)]
+                axis.scatter(100 * r["contrast_err"], 100 * r["cnr_err"], marker=MARKER[k],
+                             s=big if k == MCGS else small, zorder=4 if k == MCGS else 3,
+                             facecolor=col if filled else "white", edgecolor=col, linewidth=1.0)
+        axis.scatter([0], [0], marker="P", s=big * 0.45, color="black", zorder=5)
+
+    draw_points(ax, 300, 70)
     ax.annotate("truth", (0, 0), textcoords="offset points", xytext=(9, 4), fontsize=9)
     ax.set_xlabel("lesion contrast error (%)", fontsize=10)
     ax.set_ylabel("lesion CNR error (%)", fontsize=10)
-    ax.set_title("distance from the truth  (circle = pre, square = post)", fontsize=11)
+    ax.set_title("distance from the truth", fontsize=11)
     ax.grid(color="0.92", lw=0.8)
     ax.set_axisbelow(True)
     for sp in ("top", "right"):
         ax.spines[sp].set_visible(False)
+    method_handles = [plt.Line2D([], [], ls="", marker=MARKER[k], ms=11 if k == MCGS else 7,
+                                 markerfacecolor=PALETTE[i % len(PALETTE)],
+                                 markeredgecolor=PALETTE[i % len(PALETTE)], label=LABEL[k])
+                      for i, k in enumerate(keys)]
+    scan_handles = [plt.Line2D([], [], ls="", marker="o", ms=7, markerfacecolor="0.35",
+                               markeredgecolor="0.35", label="pre-contrast (filled)"),
+                    plt.Line2D([], [], ls="", marker="o", ms=7, markerfacecolor="white",
+                               markeredgecolor="0.35", label="post-contrast (open)")]
+    leg = ax.legend(handles=method_handles + scan_handles, fontsize=8, frameon=False,
+                    loc="upper left", handletextpad=0.4, labelspacing=0.45, borderaxespad=0.4)
+    ax.add_artist(leg)
     # the useful arms crowd the corner next to the truth, so the corner gets its own inset
     axi = ax.inset_axes([0.50, 0.07, 0.47, 0.47])   # the lower-right of this panel is empty
-    for i, k in enumerate(keys):
-        for scan, mk in zip(SCANS, ("o", "s")):
-            r = rows[(scan, k)]
-            axi.scatter(100 * r["contrast_err"], 100 * r["cnr_err"], marker="*" if k == MCGS else mk,
-                        s=260 if k == MCGS else 55, color=PALETTE[i % len(PALETTE)],
-                        zorder=4 if k == MCGS else 3, edgecolor="black", linewidth=0.5)
-    axi.scatter([0], [0], marker="P", s=110, color="black", zorder=5)
+    draw_points(axi, 260, 60)
     axi.set_xlim(-3.6, 0.4); axi.set_ylim(-6.0, 0.7)
     axi.axhline(0, color="0.5", lw=0.8); axi.axvline(0, color="0.5", lw=0.8)
     axi.tick_params(labelsize=8)
     axi.set_title("the corner, enlarged", fontsize=8.5, pad=3)
     ax.indicate_inset_zoom(axi, edgecolor="0.4")
 
-    fig.suptitle("CE retro AF 16.00 -- the lesion boundary as a profile: step height = contrast, slope = boundary "
-                 "width, distance from the truth = error", fontsize=11.5, fontweight="bold")
-    fig.tight_layout(rect=[0, 0, 1, 0.94])
+    # Title states what was done; the line under it states what the panels verify. Keeping the claim out of the
+    # bold line stops the figure from asserting more than the panels show.
+    fig.suptitle(a.title, fontsize=12.5, fontweight="bold", y=0.988)
+    fig.text(0.5, 0.955, a.subtitle, ha="center", va="top", fontsize=9.5, linespacing=1.5)
+    fig.tight_layout(rect=[0, 0, 1, 0.855])
 
     FIGDIR.mkdir(parents=True, exist_ok=True)
     FIGDIR_SERVED.mkdir(parents=True, exist_ok=True)
