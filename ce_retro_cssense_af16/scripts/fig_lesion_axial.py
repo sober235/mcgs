@@ -126,22 +126,33 @@ def main():
     core2d = crop(core[sl].astype(float))
     H, W = my1 - my0, mx1 - mx0
 
-    # per-slice numbers, the same definitions best_slice_lesion.py ranks slices with
+    # per-slice numbers on the FULL slice, so they do not change with --whole or the crop padding.
+    # PSNR / SSIM / NMSE follow diag_artefact/headonly.py's frozen head-only definitions, applied to one slice:
+    # head = |GT| > 0.05 * P99.9(|GT|) of the volume, peak = max|GT| of the volume, SSIM averaged over the head
+    # voxels of the slice's 2-D map (a 7x7 window here against the volume metric's 7^3, so slice and volume SSIM
+    # are not interchangeable -- the ranking is what carries over).
+    from skimage.metrics import structural_similarity
     meas = {}
     for c in SCANS:
         h, sh = head[c][sl], shell[sl]
-        g_head, gsh = gt[c][sl][h], gt[c][sl][sh]
+        g2d = gt[c][sl]
+        g_head, gsh = g2d[h], g2d[sh]
         peak_db = 20 * np.log10(gmax[c])
-        psnr, rmse, gerr = {}, {}, {}
+        e_gt = float((g_head ** 2).sum())
+        psnr, ssim, nmse, rmse, gerr = {}, {}, {}, {}, {}
         for k in ORDER:
-            e = vols[c][k][sl][h] - g_head
+            v2d = vols[c][k][sl]
+            e = v2d[h] - g_head
             mse = float((e * e).mean())
             psnr[k] = float(peak_db - 10 * np.log10(mse)) if mse > 0 else float("inf")
-            d = vols[c][k][sl][sh] - gsh
+            nmse[k] = float((e * e).sum() / e_gt)
+            _, smap = structural_similarity(v2d, g2d, data_range=gmax[c], full=True)
+            ssim[k] = float(smap[h].mean())
+            d = v2d[sh] - gsh
             rmse[k] = float(np.sqrt((d * d).mean()))
             gd = ga[c][k][sl][sh] - gg[c][sl][sh]
             gerr[k] = float(np.sqrt((gd * gd).mean()))
-        meas[c] = dict(psnr=psnr, rmse=rmse, gerr=gerr)
+        meas[c] = dict(psnr=psnr, ssim=ssim, nmse=nmse, rmse=rmse, gerr=gerr)
 
     ncol = 1 + len(ORDER)
     pw = 1.9
@@ -209,8 +220,10 @@ def main():
                 ax.contour(core2d, levels=[0.5], colors=LESION_COLOR, linewidths=1.1)
                 ax.add_patch(Rectangle((ix0, iy0), ix1 - ix0, iy1 - iy0, fill=False, ec=METRIC_COLOR, lw=1.6))
                 put_zoom(x, y, v2, cmap="gray", vmin=0, vmax=vmax_c)
-                ps = meas[c]["psnr"]
-                label(ax, f"{ps[key]:.2f} dB", bold=key == max(ps, key=ps.get))
+                ps, ss, nm = meas[c]["psnr"], meas[c]["ssim"], meas[c]["nmse"]
+                label(ax, f"{ps[key]:.2f} dB", bold=key == max(ps, key=ps.get), line=0)
+                label(ax, f"SSIM {ss[key]:.4f}", bold=key == max(ss, key=ss.get), line=1)
+                label(ax, f"NMSE {nm[key]:.4f}", bold=key == min(nm, key=nm.get), line=2)
                 if r_i == 0:
                     ax.set_title(LABEL[key], fontsize=12, pad=4)
             else:
@@ -233,14 +246,15 @@ def main():
                  fontsize=11.5, fontweight="bold", y=1 - 0.06 / fh)
     fig.text(0.5, 1 - (top_in - 0.28) / fh,
              "magenta = lesion core; orange-yellow box = the zoom inset in the top-right of every panel, error "
-             "panels and the truth included; errors are head-masked, jet [0, %.2f]; on the error panels "
-             "edge / shell = the RMSE of this slice's gradient field and of its boundary band. "
-             "Bold = best of the eleven arms for that scan and measure." % a.err_vmax,
+             "panels and the truth included; errors are head-masked, jet [0, %.2f]. Image panels: head-masked "
+             "slice PSNR / SSIM / NMSE; error panels: edge / shell = the RMSE of this slice's gradient field and "
+             "of its boundary band. Bold = best of the eleven arms for that scan and measure." % a.err_vmax,
              ha="center", va="top", fontsize=8.5)
 
     FIGDIR.mkdir(parents=True, exist_ok=True)
     FIGDIR_SERVED.mkdir(parents=True, exist_ok=True)
     name = (f"ce_retro_af16_lesion_axial_{idx}" + ("_whole" if a.whole else "")
+            + (f"_b{a.brightness:g}" if a.brightness != ap.get_default("brightness") else "")
             + (f"_{a.dpi}dpi" if a.dpi != ap.get_default("dpi") else ""))
     png = FIGDIR / f"{name}.png"
     fig.savefig(png, dpi=a.dpi)
