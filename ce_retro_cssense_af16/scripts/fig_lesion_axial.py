@@ -35,6 +35,7 @@ from arms import ORDER, LABEL, arm_files
 R = Path(os.environ.get("RETRO_TOPIC", "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16"))
 PROS = Path(os.environ.get("CE_TOPIC", "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast"))
 ROI_NPZ = PROS / "lesion_candidates/enhance_rois_cssense.npz"
+MASK_PE = R / "sim/mask/mask_af16_pe.npy"
 FIGDIR = R / "figures_seg"
 FIGDIR_SERVED = Path("/home/congcongliu/figs/ce_retro_seg")
 
@@ -107,6 +108,7 @@ def main():
 
     core = np.load(ROI_NPZ, allow_pickle=True)["core"]
     shell = ndi.binary_dilation(core, iterations=K_SHELL) & ~ndi.binary_erosion(core, iterations=K_SHELL)
+    mask_pe = np.load(MASK_PE).astype(float)      # the phase-encode plane actually sampled, (PE2, PE1)
     idx = a.index
     sl = [slice(None)] * 3; sl[AXIS] = idx; sl = tuple(sl)
     if core[sl].sum() == 0:
@@ -223,9 +225,14 @@ def main():
                     put_zoom(x, y, g2, cmap="gray", vmin=0, vmax=vmax_c)
                     label(ax, f"GT ({c})", bold=True)
                 else:
-                    ax.imshow(core2d, cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto")
-                    put_zoom(x, y, core2d, cmap="gray", vmin=0, vmax=1)
-                    label(ax, "lesion core", bold=True, color="white", bottom=True)
+                    # the undersampling mask that produced every arm in this figure. Drawn raw, with no zoom inset:
+                    # it lives in the phase-encode plane, so the anatomical rotation and the lesion box do not
+                    # apply to it.
+                    ax.imshow(mask_pe, cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto")
+                    label(ax, f"AF {mask_pe.size / mask_pe.sum():.2f} mask", bold=True, color="white", bottom=True,
+                          line=1)
+                    label(ax, f"{int(mask_pe.sum())} / {mask_pe.size} PE points", color="white", bottom=True,
+                          line=0, fs=8.5)
                 if r_i == 0:
                     ax.set_title("GT", fontsize=12, pad=4)
                 continue
