@@ -19,7 +19,7 @@ sum (recon - GT)^2 / sum GT^2.
 Title: nominal AF 20 and the actual acceleration against the contrast's own acquired support (logs/prep_04_export.json).
 Writes t1flair_v3_af20_<contrast>_row3planes_compact_<tra>_<cor>_<sag>.png to the served figs folder and figures/.
 """
-import argparse, json, re
+import argparse, json, re, textwrap
 from pathlib import Path
 
 ap = argparse.ArgumentParser()
@@ -43,6 +43,8 @@ ap.add_argument("--no_metrics", action="store_true",
                      "ranking still goes to stdout")
 ap.add_argument("--pdf", action="store_true", help="also write a vector PDF next to the PNG")
 ap.add_argument("--pdf_dpi", type=int, default=600, help="raster resolution of the image panels inside that PDF")
+ap.add_argument("--png_dpi", type=int, default=130,
+                help="resolution of the PNG (default 130, the value every figure of record was made at)")
 ap.add_argument("--err_vmax", type=float, default=0.1,
                 help="top of the fixed jet scale of the error maps, as a fraction of max|GT| (default 0.1, the house "
                      "convention). 0.05 uses the full colour range: 99 percent of the in-head error is under 0.054 for "
@@ -64,8 +66,23 @@ ap.add_argument("--inset", type=int, default=0, metavar="W",
                 help="full slices plus a WxW zoom inset in the bottom-left of every method panel, the box centred on "
                      "the point where the three slices meet (the face of the WxWxW cube of best_cube_mcgs.py); the box "
                      "is outlined on the slice and its own PSNR is printed in the inset")
+ap.add_argument("--with_zf", action="store_true",
+                help="add a zero-filled column right after GT (user 2026-09-16); appends _zf to the file name")
+ap.add_argument("--caps", action="store_true",
+                help="typography (user 2026-09-16): plane names capitalised, method names in the first row upper case; appends _caps")
+ap.add_argument("--title_fs", type=float, default=14.0,
+                help="font size of the first-row method names and the GT title (user 2026-09-16 evening: enlarged; 14 = the earlier renders)")
+ap.add_argument("--keep", nargs="+", metavar="LABEL",
+                help="keep only these method columns, named by their label (e.g. CS-SENSE 'Joint SENSE' ZS-SSDU "
+                     "3D-INR MC-INR GS-single MC-GS). GT keeps its column (the error maps are against it and the "
+                     "sampling mask sits under it) and the surviving columns keep their order; the in-panel bold "
+                     "marks the best of what is shown. Appends _sel<N> to the file name.")
 args = ap.parse_args()
 args.tag += {"espirit": "", "spirit": "_spirit", "both": "_bothl1"}[args.l1_arm]
+if args.with_zf:
+    args.tag += "_zf"
+if args.caps:
+    args.tag += "_caps"
 if (args.slices is None) == (args.cube is None):
     ap.error("give either --slices TRA COR SAG or --cube I J K W")
 CROP = None
@@ -79,6 +96,7 @@ if args.cube:
 import h5py
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42
 import matplotlib.patheffects as pe
 from matplotlib.patches import Rectangle
 from matplotlib.ticker import MaxNLocator
@@ -94,11 +112,15 @@ c = args.contrast
 METRIC_COLOR = "#FFC23D"          # orange-yellow for the in-panel metrics (user request 2026-09-11); best of each plane in bold
 SSIM_KW = (dict(win_size=7) if args.ssim == "uniform"
            else dict(gaussian_weights=True, sigma=1.5, use_sample_covariance=False))
-_af = json.load(open(R / "logs/prep_04_export.json"))["contrasts"][c]    # nominal AF 20 label (user decision 2026-09-11)
+_ex = json.load(open(R / "logs/prep_04_export.json"))
+_af = _ex["contrasts"][c]    # nominal AF 20 label (user decision 2026-09-11)
 # AF label gauge (user 2026-09-14): whole phase-encode plane / the points this contrast actually
 # has data on = AF_vs_full_rect = BART's Acc. AF_vs_own_support (against the contrast's own
 # vendor shutter) is the superseded one and read 9.74 / 12.49 / 15.13 on FLAIR at AF 12/16/20.
-AF_LABEL = f"nominal AF 20, actual {_af['AF_vs_full_rect']:.2f}x"
+# AF label gauge (user 2026-09-16, as in the AF 24 topic): whole PE plane / the points the mask samples -- one number for
+# both contrasts, since both read the same mask; how many sampled points carry this contrast's data goes under the panels.
+# Replaces the per-contrast gauge of 2026-09-14 (AF_vs_full_rect), which in turn replaced AF_vs_own_support on 2026-09-15.
+AF_LABEL = f"nominal AF 20, actual {_ex['mask2d_AF_rect']:.2f}x"
 rows = {r["method"]: r for r in json.load(open(R / "logs/summary.json")) if r["contrast"] == c}
 
 
@@ -128,7 +150,8 @@ L1_ARMS = {"espirit": [("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espi
            "both": [("l1espirit", "L1-ESPIRiT", lam_file("l1espirit", "l1espirit")),
                     ("spirit", "L1-SPIRiT", spirit_file())]}[args.l1_arm]
 
-ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
+ARMS = [*([("zf", "ZF", R / f"recon/zf_{c}_complex.npy")] if args.with_zf else []),
+        ("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         ("cssense_o200", "CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
         ("jcssense", "Joint SENSE", lam_file("jcssense", "jcssense_o200")),
         *L1_ARMS,
@@ -138,6 +161,11 @@ ARMS = [("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
         *([("mcinr", "MC-INR", R / f"recon/mcinr_{c}_complex.npy")] if args.with_mcinr else []),
         (args.single_key, "GS-single", R / f"recon/{args.single_key}_{c}_mag.npy"),
         (args.mcgs_key, "MC-GS", R / f"recon/{args.mcgs_key}_{c}_mag.npy")]
+if args.keep:
+    unknown = [w for w in args.keep if w not in [lab for _, lab, _ in ARMS]]
+    assert not unknown, f"--keep: no such column {unknown}; this call builds {[lab for _, lab, _ in ARMS]}"
+    ARMS = [a for a in ARMS if a[1] in args.keep]
+    args.tag += f"_sel{len(ARMS)}"
 missing = [lab for _, lab, p in ARMS if p is None or not Path(p).exists()]
 assert not missing, f"missing volumes for {c}: {missing}"
 
@@ -232,6 +260,40 @@ for p in planes:
     H, W = D(p["g2"], p["axis"]).shape
     row_h += [pw * H / W] * 2
 fw = ncol * pw + (ncol - 1) * gap + cbpad + cbw + cbroom
+
+# the caption, built before the figure so the header can be made tall enough for it when --keep
+# leaves too few columns to carry it on one line (without --keep nothing below changes)
+_cap = []
+if not args.no_metrics:
+    _win = "7x7 window" if args.ssim == "uniform" else "Gaussian window, sigma 1.5"
+    _cap.append(f"head-masked slice PSNR / SSIM ({_win}) / NMSE in each panel, the best of each plane in bold")
+_cap.append(f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]" + ("   (inside the head only)" if args.mask_error else ""))
+_cap.append("left of each error row: the sampling mask in that plane (k-space, never cropped)")
+NPL = int(_ex["mask2d_shape"][0]) * int(_ex["mask2d_shape"][1])
+_cap.append(f"AF = {NPL} plane points / {_ex['mask2d_samples']} sampled points, the same on both contrasts (one mask)"
+            + ("" if _af["support_frac"] >= 1 else
+               f";   this scan acquired {round(_af['support_frac'] * NPL)} of the {NPL} lines, so {round(_af['sampled_frac_of_plane'] * NPL)} "
+               f"sampled points carry {c} data"))
+if args.gray_cbar:
+    _cap.append("grey bar right of the " + " / ".join(ANAT[a] for a in sorted(args.cbar_planes))
+            + " image row: that plane's window (each plane has its own)")
+_CN = {"bl": "bottom-left", "br": "bottom-right", "tl": "top-left", "tr": "top-right"}
+_cap2 = (f"in every panel, the {args.inset}x{args.inset} box outlined on the slice, magnified into the "
+         + " / ".join(f"{_CN[args.inset_corner[a]]} ({ANAT[a]})" for a in (0, 1, 2)) if args.inset else "")
+CAPTION = ";   ".join(_cap) + ("\n" + _cap2 if _cap2 else "")
+if args.keep:
+    _meas = plt.figure(figsize=(1, 1))                      # measure it at matplotlib's default 100 dpi
+    _rend, _lines_out = _meas.canvas.get_renderer(), []
+    _lim = 0.98 * fw * 100.0        # the caption is centred, so it is clipped once it is wider than the figure
+    for _ln in CAPTION.split("\n"):                          # each line the caption already has, wrapped on its own
+        _wpx = _meas.text(0, 0, _ln, fontsize=11).get_window_extent(_rend).width
+        _lines_out += (textwrap.wrap(_ln, width=int(np.ceil(len(_ln) / np.ceil(_wpx / _lim))))
+                       if _wpx > _lim else [_ln])
+    plt.close(_meas)
+    CAPTION = "\n".join(_lines_out)
+    # header room: the caption starts y_off in below the top and must clear the first row's method names
+    top_in = max(top_in, 0.4 + len(_lines_out) * 11 * 1.28 / 72 + 0.06 + (args.title_fs * 1.2 + 4) / 72)
+
 fh = top_in + sum(row_h) + (len(row_h) - 1) * gap + 0.16            # room below for the last colorbar label
 fig = plt.figure(figsize=(fw, fh))
 
@@ -291,10 +353,10 @@ for k, p in enumerate(planes):
             gim = a.imshow(D(p["g2"], ax_), cmap="gray", vmin=0, vmax=p["vmax"], origin="lower", aspect="auto")
             if p["zoom"]:
                 put_inset(a, D(p["g2"], ax_), p["zoom"], x, y, pw, h, corner=args.inset_corner[ax_], cmap="gray", vmin=0, vmax=p["vmax"])
-            label(a, ANAT[ax_], bold=True)          # plane name only (user 2026-09-13); the slice indices are in the title
+            label(a, ANAT[ax_].capitalize() if args.caps else ANAT[ax_], bold=True)          # plane name only (user 2026-09-13); the slice indices are in the title
             b.imshow(D(p["kmask"], ax_), cmap="gray", vmin=0, vmax=1, origin="lower", aspect="auto", interpolation="nearest")
             if k == 0:
-                a.set_title(f"GT ({c})", fontsize=14, pad=4)
+                a.set_title(f"GT ({c})", fontsize=args.title_fs, pad=4)
             continue
         key, lab, _ = ARMS[j - 1]
         v = vols[key][p["sl"]][p["cr"]]
@@ -310,7 +372,8 @@ for k, p in enumerate(planes):
         if p["zoom"]:
             put_inset(b, emap, p["zoom"], x, y + h + gap, pw, h, corner=args.inset_corner[ax_], cmap="jet", vmin=0.0, vmax=args.err_vmax)
         if k == 0:
-            a.set_title(lab, fontsize=14, pad=4)
+            a.set_title((lab if "SPIRiT" in lab else lab.upper()) if args.caps else lab,
+                        fontsize=args.title_fs, pad=4)
     if args.gray_cbar and ax_ in args.cbar_planes:
         x_cb = (ncol * pw + (ncol - 1) * gap + cbpad) / fw
         # the outer end of each bar is flush with its row; the two ends that face each other are pulled in by CBTRIM so
@@ -326,26 +389,14 @@ if not args.gray_cbar:                       # with --gray_cbar every row alread
     cax = fig.add_axes([(ncol * pw + (ncol - 1) * gap + cbpad) / fw, 1 - (last_top + row_h[-1]) / fh, cbw / fw, row_h[-1] / fh])
     cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=10)
 _cube_txt = f"  --  {args.cube[3]}^3 box centred ({args.cube[0]}, {args.cube[1]}, {args.cube[2]})" if args.cube else ""
-fig.suptitle(f"{c}  jiangyizhou  {AF_LABEL}  --  transverse {args.slices[0]} / coronal {args.slices[1]} / sagittal {args.slices[2]}" + _cube_txt,
+_P = [ANAT[i].capitalize() if args.caps else ANAT[i] for i in (0, 1, 2)]
+fig.suptitle(f"{c}  jiangyizhou  {AF_LABEL}  --  {_P[0]} {args.slices[0]} / {_P[1]} {args.slices[1]} / {_P[2]} {args.slices[2]}" + _cube_txt,
              fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
-_cap = []
-if not args.no_metrics:
-    _win = "7x7 window" if args.ssim == "uniform" else "Gaussian window, sigma 1.5"
-    _cap.append(f"head-masked slice PSNR / SSIM ({_win}) / NMSE in each panel, the best of each plane in bold")
-_cap.append(f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]" + ("   (inside the head only)" if args.mask_error else ""))
-_cap.append("left of each error row: the sampling mask in that plane (k-space, never cropped)")
-if args.gray_cbar:
-    _cap.append("grey bar right of the " + " / ".join(ANAT[a] for a in sorted(args.cbar_planes))
-            + " image row: that plane's window (each plane has its own)")
-_CN = {"bl": "bottom-left", "br": "bottom-right", "tl": "top-left", "tr": "top-right"}
-_cap2 = (f"in every panel, the {args.inset}x{args.inset} box outlined on the slice, magnified into the "
-         + " / ".join(f"{_CN[args.inset_corner[a]]} ({ANAT[a]})" for a in (0, 1, 2)) if args.inset else "")
-fig.text(0.5, 1 - 0.40 / fh, ";   ".join(_cap) + ("\n" + _cap2 if _cap2 else ""),
-         ha="center", va="top", fontsize=11)
+fig.text(0.5, 1 - 0.40 / fh, CAPTION, ha="center", va="top", fontsize=11)
 name = (f"t1flair_v3_af20_{c}_cube{args.cube[3]}_{args.cube[0]}_{args.cube[1]}_{args.cube[2]}" if args.cube else
         f"t1flair_v3_af20_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}" + (f"_inset{args.inset}" if args.inset else "")) + f"{'_headerr' if args.mask_error else ''}{args.tag}.png"
 for d in (F, R / "figures"):
-    fig.savefig(d / name, dpi=130)
+    fig.savefig(d / name, dpi=args.png_dpi)
     if args.pdf:
         # vector PDF: text, boxes and colorbar frames stay vector; the image panels are rasterised at --pdf_dpi
         for im_ in fig.findobj(mimage.AxesImage):

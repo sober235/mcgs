@@ -18,6 +18,7 @@ SENSE-combined images, drawn as a surface whose height is that intensity (jet [0
 Writes t1flair_v3_af16<prefix>_T1FLAIR_tra<slice>_zoom<W>_noise3d_headerr_p3_mcinr_spirit_zf_caps.png (+ .pdf).
 """
 import argparse
+import textwrap
 import json
 import re
 from pathlib import Path
@@ -37,6 +38,11 @@ ap.add_argument("--err_vmax", type=float, default=0.1)
 ap.add_argument("--png_dpi", type=int, default=130)
 ap.add_argument("--pdf", action="store_true")
 ap.add_argument("--pdf_dpi", type=int, default=600)
+ap.add_argument("--keep", nargs="+", metavar="LABEL",
+                help="keep only these method columns, named by their label (e.g. CS-SENSE 'Joint SENSE' ZS-SSDU "
+                     "3D-INR MC-INR GS-single MC-GS). GT keeps its column, with the sampling mask under T1 and the "
+                     "3-D noise surface under FLAIR; the surviving columns keep their order and the in-panel bold "
+                     "marks the best of what is shown. The file name then reads _sel<N> and drops _spirit_zf.")
 args = ap.parse_args()
 
 import h5py
@@ -86,7 +92,7 @@ def columns(c):
         raise FileNotFoundError(f"{prefix} {c} lam={lam}")
 
     sp = rows["spirit"]
-    return [("zf", "ZF", R / f"recon/zf_{c}_complex.npy"),
+    arms = [("zf", "ZF", R / f"recon/zf_{c}_complex.npy"),
             ("cgsense", "CG-SENSE", R / f"recon/cgsense_{c}_complex.npy"),
             ("cssense_o200", "CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
             ("jcssense", "Joint SENSE", lam_file("jcssense", "jcssense_o200")),
@@ -97,6 +103,11 @@ def columns(c):
             ("mcinr", "MC-INR", R / f"recon/mcinr_{c}_complex.npy"),
             (args.single_key, "GS-single", R / f"recon/{args.single_key}_{c}_mag.npy"),
             (args.mcgs_key, "MC-GS", R / f"recon/{args.mcgs_key}_{c}_mag.npy")]
+    if args.keep:
+        unknown = [w for w in args.keep if w not in [lab for _, lab, _ in arms]]
+        assert not unknown, f"--keep: no such column {unknown}; this call builds {[lab for _, lab, _ in arms]}"
+        arms = [a for a in arms if a[1] in args.keep]
+    return arms
 
 
 def window_sums(a):
@@ -149,7 +160,7 @@ rows_, cols_ = np.nonzero(D(BOX))
 ZOOM = dict(x0=int(cols_.min()), y0=int(rows_.min()), w=W)
 Hd, Wd = D(BOX).shape
 
-ncol = 12
+ncol = len(blocks[0]["cols"]) + 1                              # GT plus the arms --keep left
 pw, gap = 2.6, 0.025
 h = pw * Hd / Wd
 side, pad = 0.38 * pw, 0.012 * pw                             # inset side and margin (inches), as the compact figures
@@ -174,6 +185,43 @@ print(f"inset corner {CORNER}")
 top_in, cbpad, cbw, cbroom, CBTRIM = 1.15, 0.06, 0.13, 0.60, 0.10
 LM = 0.75                                                     # left margin for the 3-D panel's z labels (inches)
 fw = LM + ncol * pw + (ncol - 1) * gap + cbpad + cbw + cbroom
+
+# the caption, built before the figure so the header can be made tall enough for it when --keep
+# leaves too few columns to carry its lines (without --keep nothing below changes)
+NPL = int(_ex["mask2d_shape"][0]) * int(_ex["mask2d_shape"][1])
+fl = _ex["contrasts"]["FLAIR"]
+_CN = {"bl": "bottom-left", "br": "bottom-right", "tr": "top-right"}
+lines = ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the best of each row in bold;   "
+         f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]   (inside the head only);   "
+         f"the {W}x{W} box outlined on the slice is magnified into the {_CN[CORNER]} corner",
+         "left column: under T1 the sampling mask (k-space, one mask for both contrasts); bottom-left: the complex "
+         f"Gaussian noise added to the FLAIR measurements, |noisy - clean| / max(GT) of the fully sampled images, "
+         f"as a surface (height = intensity, jet [0, {args.noise_vmax:g}]"
+         + (", whole slice, every 2nd pixel)" if args.noise3d == "slice" else f", the {W}x{W} box)"),
+         f"AF = {NPL} plane points / {_ex['mask2d_samples']} sampled points, the same on both contrasts;   "
+         f"the FLAIR scan acquired {round(fl['support_frac'] * NPL)} of the {NPL} lines, so "
+         f"{round(fl['sampled_frac_of_plane'] * NPL)} sampled points carry FLAIR data;   grey bars: each contrast's window"]
+CAPTION = "\n".join(lines)
+if args.keep:
+    _meas = plt.figure(figsize=(1, 1))                      # measure it at matplotlib's default 100 dpi
+    _rend, _lines_out = _meas.canvas.get_renderer(), []
+    _lim = 0.98 * fw * 100.0        # the caption is centred, so it is clipped once it is wider than the figure
+    for _ln in CAPTION.split("\n"):
+        _wpx = _meas.text(0, 0, _ln, fontsize=10).get_window_extent(_rend).width
+        if _wpx <= _lim:
+            _lines_out += [_ln]
+            continue
+        # smallest column width that still fits in as many lines as the figure needs: balances the greedy fill
+        _n = int(np.ceil(_wpx / _lim))
+        _w = max(1, len(_ln) // _n)
+        while len(textwrap.wrap(_ln, width=_w)) > _n:
+            _w += 1
+        _lines_out += textwrap.wrap(_ln, width=_w)
+    plt.close(_meas)
+    CAPTION = "\n".join(_lines_out)
+    # header room: the caption starts 0.30 in below the top and must clear the first row's method names
+    top_in = max(top_in, 0.30 + len(_lines_out) * 10 * 1.28 / 72 + 0.06 + (14.0 * 1.2 + 4) / 72)
+
 fh = top_in + 4 * h + 3 * gap + 0.16
 fig = plt.figure(figsize=(fw, fh))
 
@@ -268,24 +316,11 @@ for bi, b in enumerate(blocks):
         cb.ax.tick_params(labelsize=9.5)
     y += 2 * h + 2 * gap
 
-NPL = int(_ex["mask2d_shape"][0]) * int(_ex["mask2d_shape"][1])
-fl = _ex["contrasts"]["FLAIR"]
-_CN = {"bl": "bottom-left", "br": "bottom-right", "tr": "top-right"}
 fig.suptitle(f"jiangyizhou  nominal AF 16, actual {_ex['mask2d_AF_rect']:.2f}x, measurements + {MULT:g}σ0 noise  --  "
              f"Transverse {S}  (T1 top, FLAIR bottom)", fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
-lines = ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the best of each row in bold;   "
-         f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]   (inside the head only);   "
-         f"the {W}x{W} box outlined on the slice is magnified into the {_CN[CORNER]} corner",
-         "left column: under T1 the sampling mask (k-space, one mask for both contrasts); bottom-left: the complex "
-         f"Gaussian noise added to the FLAIR measurements, |noisy - clean| / max(GT) of the fully sampled images, "
-         f"as a surface (height = intensity, jet [0, {args.noise_vmax:g}]"
-         + (", whole slice, every 2nd pixel)" if args.noise3d == "slice" else f", the {W}x{W} box)"),
-         f"AF = {NPL} plane points / {_ex['mask2d_samples']} sampled points, the same on both contrasts;   "
-         f"the FLAIR scan acquired {round(fl['support_frac'] * NPL)} of the {NPL} lines, so "
-         f"{round(fl['sampled_frac_of_plane'] * NPL)} sampled points carry FLAIR data;   grey bars: each contrast's window"]
-fig.text(0.5, 1 - 0.30 / fh, "\n".join(lines), ha="center", va="top", fontsize=10)
+fig.text(0.5, 1 - 0.30 / fh, CAPTION, ha="center", va="top", fontsize=10)
 name = (f"t1flair_v3_{PREFIX}_T1FLAIR_tra{S}_zoom{W}_noise3d" + ("" if args.noise3d == "box" else "slice")
-        + "_headerr_p3_mcinr_spirit_zf_caps.png")
+        + (f"_headerr_p3_mcinr_caps_sel{ncol - 1}.png" if args.keep else "_headerr_p3_mcinr_spirit_zf_caps.png"))
 for d in (F, R / "figures"):
     fig.savefig(d / name, dpi=args.png_dpi)
     if args.pdf:

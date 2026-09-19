@@ -337,6 +337,17 @@ other users are also on -- this machine is shared, and the arm is bound by memor
   head cells is GS-single before and after; the strongest non-GS comparison arm is now CS-SENSE
   (TV, converged) on T1 and joint CS-SENSE on FLAIR.
 
+**Figure set of record since 2026-09-16: the `_zf_caps` variant at publication resolution.**
+`figures/t1flair_v3_af16_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit_zf_caps.{png,pdf}`
+— the same slices, 48-voxel box, grey windows, error scale, arms and gauge as the `_mcinr_spirit` set described
+below, which it supersedes without overwriting: every plane's PSNR / SSIM / NMSE line is identical. What changed
+is a zero-filling column after GT and the caps typography (user 2026-09-16, `--with_zf --caps`, with labels
+containing `SPIRiT` exempt from upper-casing), the PNG at `--png_dpi 200` (6453 x 4352 px, which is 911 dpi at a
+180 mm page width) and TrueType fonts in the PDF (`pdf.fonttype = 42`; matplotlib's Type 3 default is rejected by
+IEEE and Elsevier submission systems). All four topics' copies are gathered in
+`Results_20260908/T1FLAIR_AF12_16_20_24_figures_hires/`; verification and the render command are in
+`mcgs_af16_wt/docs/handoff/2026-09-16-figures-hires.md`.
+
 **Figures with the k-space arm in the L1 column** (user request 2026-09-15). The figure of record
 re-rendered with `fig_three_planes_compact.py --l1_arm spirit`, same slices, style, gauge and
 recipe keys. **The existing `_p3_mcinr` pair is untouched** — the flag appends its own suffix:
@@ -386,3 +397,31 @@ snapshot of this topic in the framework worktree (`mcgs_af16_p3_wt/t1flair_af16_
 `export/` bundle (the PDFs the worktree does not carry), then the verification above was run against
 the recovered files. The script is fixed. Older renders of this topic (the 174/110/47 pairs)
 still carry the old FLAIR label and were not touched.
+
+## Seven-method cut of the figure of record (user, 2026-09-18)
+
+The user asked for the same figure with only **CS-SENSE, Joint SENSE, ZS-SSDU, 3D-INR, MC-INR,
+GS-single and MC-GS**. ZF, CG-SENSE, the L1 arm and 3D-DIP are dropped; **GT keeps its column** --
+it is what the error maps are taken against, and the sampling mask of each plane sits in its cell of
+the error rows. Slices, zoom box, grey window, error colour scale, orientation, typography, metrics
+and resolution are the figure of record's, unchanged.
+
+```
+figures/t1flair_v3_af16_<c>_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_caps_sel7.{png,pdf}
+bash scripts/render_sel7.sh
+```
+
+served from `http://localhost:8765/t1flair_v3_af16/`, mirrored in `/home/congcongliu/figs/t1flair_v3_af16/`.
+**The figure of record is untouched** -- the new `--keep` flag appends `_sel7` to the file name.
+
+**The numbers did not move.** Each panel's PSNR / SSIM / NMSE is that arm against the ground truth
+and does not depend on which other arms are on the figure; dropping columns only changes which panel
+the bold marks, since bold is the best of what is shown. Within these seven arms:
+
+- **FLAIR** -- MC-GS is first on all three metrics in all three planes (transverse 180: PSNR #1, SSIM #1, NMSE #1; coronal 124: PSNR #1, SSIM #1, NMSE #1; sagittal 76: PSNR #1, SSIM #1, NMSE #1)
+- **T1** -- MC-GS is first on all three metrics in all three planes (transverse 180: PSNR #1, SSIM #1, NMSE #1; coronal 124: PSNR #1, SSIM #1, NMSE #1; sagittal 76: PSNR #1, SSIM #1, NMSE #1)
+
+`--keep` and the caption fix that comes with it are described in
+`../T1FLAIR_AF20_v3_jiangyizhou/README.md` (same patch, applied by one generator to all ten scripts).
+Without `--keep` the script is byte-for-byte the old one: re-rendering this topic's figure of record
+reproduces it exactly.

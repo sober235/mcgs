@@ -135,3 +135,69 @@ setsid nohup bash scripts/launch_noise.sh --cards 1,2,5,6 --max_gpu_jobs 4 > /de
 2026-09-17 17:22: complete. 57 jobs, no failures, every selected lambda interior, finalize rc 0; MC-GS first on all six
 head cells. 18:00: slice search and the largest-lead figures (170 / 166 / 147). The next level, 0.75 sigma0, started
 15:21 on the decision rule (`../T1FLAIR_AF16_noise0p75x_v3_jiangyizhou/`).
+
+## Seven-method cut of the figure of record (user, 2026-09-18)
+
+The user asked for the same figure with only **CS-SENSE, Joint SENSE, ZS-SSDU, 3D-INR, MC-INR,
+GS-single and MC-GS**. ZF, CG-SENSE, the L1 arm and 3D-DIP are dropped; **GT keeps its column** --
+it is what the error maps are taken against, and the sampling mask of each plane sits in its cell of
+the error rows. Slices, zoom box, grey window, error colour scale, orientation, typography, metrics
+and resolution are the figure of record's, unchanged.
+
+```
+figures/t1flair_v3_af16n05_<c>_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_caps_sel7.{png,pdf}
+bash scripts/render_sel7.sh
+```
+
+served from `http://localhost:8765/t1flair_v3_af16_noise0p5x/`, mirrored in `/home/congcongliu/figs/t1flair_v3_af16_noise0p5x/`.
+**The figure of record is untouched** -- the new `--keep` flag appends `_sel7` to the file name.
+
+**The numbers did not move.** Each panel's PSNR / SSIM / NMSE is that arm against the ground truth
+and does not depend on which other arms are on the figure; dropping columns only changes which panel
+the bold marks, since bold is the best of what is shown. Within these seven arms:
+
+- **FLAIR** -- MC-GS is first on all three metrics in all three planes (transverse 180: PSNR #1, SSIM #1, NMSE #1; coronal 124: PSNR #1, SSIM #1, NMSE #1; sagittal 76: PSNR #1, SSIM #1, NMSE #1)
+- **T1** -- MC-GS is first on all three metrics in all three planes (transverse 180: PSNR #1, SSIM #1, NMSE #1; coronal 124: PSNR #1, SSIM #1, NMSE #1; sagittal 76: PSNR #1, SSIM #1, NMSE #1)
+
+`--keep` and the caption fix that comes with it are described in
+`../T1FLAIR_AF20_v3_jiangyizhou/README.md` (same patch, applied by one generator to all ten scripts).
+Without `--keep` the script is byte-for-byte the old one: re-rendering this topic's figure of record
+reproduces it exactly.
+
+### The T1 / FLAIR noise figure with the 3-D noise surface, same seven-method cut (user, 2026-09-18)
+
+The robustness figure the user asked to keep -- one transverse slice, **T1 on the first row, FLAIR on
+the second**, each with its error row, the sampling mask under the T1 ground truth and **the added
+complex Gaussian noise as a 3-D surface in the bottom-left corner** -- cut to **CS-SENSE, Joint SENSE,
+ZS-SSDU, 3D-INR, MC-INR, GS-single, MC-GS**. GT keeps its column (it carries the mask and the noise
+surface); ZF, CG-SENSE, L1-SPIRiT and 3D-DIP are dropped, so the name drops `_spirit_zf`.
+
+```
+figures/t1flair_v3_af16n05_T1FLAIR_tra170_zoom48_noise3d_headerr_p3_mcinr_caps_sel7.{png,pdf}
+bash scripts/fig_noise3d_sel7.sh
+```
+
+served from `http://localhost:8765/t1flair_v3_af16_noise0p5x/`, and as `noise3d_T1FLAIR.png` in
+`/home/congcongliu/figs/sel7_2026-09-18/`. PDF text is CID TrueType.
+
+**The zoom box is held fixed at the figure of record's.** The box is normally chosen as the window
+where MC-GS leads the best *other* column by the most, so it would move when the column set changes
+and the two figures would show different anatomy. `scripts/fig_noise3d_sel7.sh` therefore renders the
+record figure first, reads the box it picked (centre (88, 136), 48x48, transverse 170) out of its
+stdout, and passes it to the cut with `--box`. That first render doubles as the check that the patch
+is inert: it returns md5 `1011e3ce9514882693d8148d337bdd86`, the md5 the figure of record had before
+(`logs/sel7/noise3d_record_rerun.log`).
+
+`scripts/fig_tra_t1_flair_zoom3d.py` got the same `--keep` patch as the other figure scripts, plus two
+things its shape needed: the column count now follows the arms instead of the literal 12, and the file
+name reads `_sel<N>` instead of `_spirit_zf_caps` when the cut is on.
+
+MC-GS is first on PSNR, SSIM and NMSE on **both** rows (T1 36.56 dB / 0.9445 / 0.00977, FLAIR
+34.57 / 0.9167 / 0.01103); in the box its squared error is 1.956 against 2.070 for the best other
+column on T1 and 2.858 against 2.985 on FLAIR (`logs/sel7/noise3d_sel7.log`) -- the same numbers as
+the twelve-column figure, they do not depend on which columns are drawn.
+
+**Only this noise level has the figure.** `fig_tra_t1_flair_zoom3d.py` lives in this topic alone,
+though it is level-aware (its `PREFIX` map covers 0.25 / 0.5 / 1 / 2 sigma0) and the other three noise
+topics have the `recon/fullnoisy_*` volumes and `logs/make_noisy_kspace.json` it needs -- copying the
+script and this driver across is all it would take.

@@ -762,6 +762,17 @@ interior to it (T1 at ksize 5 / lambda 2e-3, FLAIR at ksize 5 / lambda 1e-3).
   The arm is sharper and noisier than the SENSE-type arms at every acceleration in this series.
 - **It changes no margin.** The binding arm for every MC-GS head cell here is GS-single, as before.
 
+**Figure set of record since 2026-09-16: the `_zf_caps` variant at publication resolution.**
+`figures/t1flair_v3_af12_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p14_mcinr_spirit_zf_caps.{png,pdf}`
+— the same slices, 48-voxel box, grey windows, error scale, arms and gauge as the `_mcinr_spirit` set described
+below, which it supersedes without overwriting: every plane's PSNR / SSIM / NMSE line is identical. What changed
+is a zero-filling column after GT and the caps typography (user 2026-09-16, `--with_zf --caps`, with labels
+containing `SPIRiT` exempt from upper-casing), the PNG at `--png_dpi 200` (6453 x 4352 px, which is 911 dpi at a
+180 mm page width) and TrueType fonts in the PDF (`pdf.fonttype = 42`; matplotlib's Type 3 default is rejected by
+IEEE and Elsevier submission systems). All four topics' copies are gathered in
+`Results_20260908/T1FLAIR_AF12_16_20_24_figures_hires/`; verification and the render command are in
+`mcgs_af16_wt/docs/handoff/2026-09-16-figures-hires.md`.
+
 **Figures with the k-space arm in the L1 column** (user request 2026-09-15). The figure of record
 re-rendered with `--l1_arm spirit` (L1-SPIRiT replaces L1-ESPIRiT in that column), same slices,
 style, gauge and recipe keys. An eleven-column `--l1_arm both` render was made first and then
@@ -807,3 +818,105 @@ snapshot of this topic in the framework worktree (`mcgs_af12_wt/t1flair_af12_v3_
 `export/` bundle (the PDFs the worktree does not carry), then the verification above was run against
 the recovered files. The script is fixed. Older renders of this topic (the 174/110/47 pairs and the phase-2 `_p2` / `_p2_af105` design-B renders)
 still carry the old FLAIR label and were not touched.
+
+## Reconstruction time (2026-09-16 evening, user: "how long does one pair take per method")
+
+Reconstruction time per arm, one T1 + FLAIR pair, jiangyizhou AF 12 (26 coils, 256 x 256 x 176), one NVIDIA A800 80GB per job, solver only (data loading 5.04 s / 4.95 s and scoring excluded). Fast arms re-timed on an exclusive card; long arms from the runs of record (one card per job). No foreign process on the card during the fast-arm timing.
+
+| method | contrast coupling | T1 | FLAIR | one T1 + FLAIR pair | notes |
+|---|---|---|---|---|---|
+| ZF | single | 0.04 s | 0.04 s | **0.09 s** | adjoint SENSE of the zero-filled k-space; median of 3 |
+| CG-SENSE | single | 5.24 s | 5.26 s | **11 s** | 60 CG iterations, Tikhonov 0.01; median of 3 |
+| CS-SENSE | single | 145 s | 145 s | **289 s** | ADMM isotropic 3-D TV, 200 outer x 8 CG, lambda 7e-4 |
+| Joint SENSE | joint | -- | -- | **289 s** | vectorial TV over both contrasts, 200 outer x 8 CG, lambda 1e-3; one run for the pair |
+| L1-SPIRiT | single | 93 s | 93 s | **186 s** | FISTA, 150 iterations, kernel 5, lambda 2e-3 / 1e-3, per-readout calibration included; re-timed on the exclusive card |
+| ZS-SSDU | single | 21.9 min | 36.1 min | **57.9 min** | self-supervised training to early stop (epochs 40 / 66) + inference; run of record minus the measured load; spot check T1 1331 s |
+| 3D-DIP | single | 50.3 min | 50.2 min | **100.5 min** | 5000 iterations of the convolutional decoder, held-out selection online; run of record |
+| 3D-INR | single | 57.2 min | 57.2 min | **114.4 min** | 1500 iterations of the hash-grid INR, held-out selection online; run of record |
+| MC-INR | joint | -- | -- | **11.5 min** | Niessen 2025 per-slice 2-D multi-contrast INR, 256 readout slices x 200 epochs; run of record (A800, torch 1.13) |
+| GS-single | single | 62.8 min | 59.2 min | **122.0 min** | P14 recipe, 4000 iterations, 3.6M Gaussians; training loop of the run of record (FLAIR single ran on an A100) |
+| MC-GS | joint | -- | -- | **61.2 min** | P14 recipe, 4000 iterations, 3.6M Gaussians, both contrasts in one run; training loop of the run of record; spot check on the exclusive card 3712 s |
+
+How the numbers were obtained (`scripts/bench_fast_arms.py`, `scripts/run_bench_time.sh`, `scripts/bench_table.py`; outputs in `logs/bench/`):
+
+- **Why the recorded `seconds` of the arm JSONs are not reconstruction times.** `recon_classical.py` times solver *and* scoring
+  (ZF reads 93 s; the solver is 0.04 s, the rest is the head-only scoring, 92 s measured), `recon_joint_cssense.py` times loading
+  plus solver, `arc/cycle.py`'s `elapsed_s` adds loading and scoring to the training loop, and the AF 16 / 20 / 24 topics' learned and GS
+  arms mostly ran on shared cards (AF 16 3D-INR: 418 s per 50 iterations against 119 s here; GS training 3739–20929 s across runs).
+  Only this topic's runs of record were one card per job, so the table is AF 12 only.
+- **Fast arms** (ZF, CG-SENSE, CS-SENSE converged, Joint SENSE) re-timed on an exclusive A800 with the solver code of the scripts of
+  record copied verbatim (same iteration counts and lambdas), `torch.cuda.synchronize()` around every block, loading and scoring timed
+  apart; the re-timed solutions reproduce the recorded head PSNRs (36.162 / 35.581 CS-SENSE, 36.070 / 35.624 Joint SENSE). L1-SPIRiT
+  re-run with `--suffix _bench --save 0` (its own timer covers calibration and FISTA only; recorded 355 / 1077 s were shared-card runs).
+- **Long arms** from the runs of record: GS = the "joint training done in" line of the P14 logs (loading and scoring excluded),
+  3D-DIP / 3D-INR = their optimisation-loop timer, ZS-SSDU = its timer minus the measured 5 s load, MC-INR = `seconds_loop` of its
+  run (A800, both contrasts in one pass). Two spot checks on the exclusive card reproduce the records to 1–2 %: MC-GS P14 3712 s
+  (record 3673 s), ZS-SSDU T1 1331 s (record 1312 s, early stop at epoch 40 both times).
+- The table is the time of the one run that produced the reported number; the lambda sweeps that chose it (CS-SENSE 5–6 values per
+  contrast, Joint SENSE 5, L1-SPIRiT 12 per contrast) and the 3D-INR / 3D-DIP held-out selection budget are not multiplied in.
+- Hardware: NVIDIA A800 80GB PCIe (the FLAIR GS-single of record ran on an A100 80GB, same chip), Xeon Gold 6258R host.
+
+## Acquisition parameters of the T1 + FLAIR pair (compiled 2026-09-17)
+
+The subject's own raw file is not on this machine (only the coil-compressed CFL export and the older 12-channel h5). The
+numbers below are read from the **same session's** protocol: the raw file of the subject scanned 51 minutes later on the same
+scanner (`MC_Jia/Train_3dBrain_huangyuwei_20230705-160927-1451_161015/`, protocol XML embedded in the `.raw`) and its DICOM
+headers, whose protocol names (`t1_gre_fsp_3d_sag_1mm`, `t2_mx3d_flair_sag_1mm`) and raw data size (256 x 256 x 220 x 12 in
+`3D/patient_data_sizes.xlsx`) match this subject's exam (2023-07-05 15:28, exam 1450) exactly. Inferred, not read from this
+subject's header.
+
+| item | T1 | FLAIR |
+|---|---|---|
+| scanner | UIH uPMR 790 (PET/MR), 3.0 T, 128.31 MHz, software R002 | same |
+| receive / transmit coil | 32-channel head coil (HC32, all 32 elements, `ReconChannelNum` 32) / body coil (VTC) | same |
+| protocol / sequence | `t1_gre_fsp_3d_sag_1mm`: 3-D IR-prepared fast spoiled gradient echo (`gre_fsp`, GR/IR), MPRAGE-type | `t2_mx3d_flair_sag_1mm`: 3-D IR-prepared fast spin echo with modulated refocusing flip angles (`fse_mx_3d`, SE/IR), SPACE-type |
+| TR / TE / TI | 7.48 ms / 4.0 ms / 750 ms; shot interval 1900 ms | 5000 ms / 433.84 ms / 1569 ms |
+| flip angle | 10 deg | refocusing control angle 54 deg (excitation 90 deg) |
+| echo train | 176 echoes per inversion (one partition train), 256 shots | 250 echoes per shot, 142 shots |
+| bandwidth | 250 Hz/px | 750 Hz/px |
+| orientation | sagittal; readout S-I, phase A-P, partition (slab) L-R | same |
+| FOV | 256 x 256 mm, slab 176 mm | same |
+| acquisition matrix | 256 (RO) x 256 (PE) x 176 (SPE), 25 % slab oversampling (220 partitions encoded) | same |
+| voxel | 1.0 x 1.0 x 1.0 mm | same |
+| k-space coverage | full rectangular PE plane (45056 lines), no elliptical shutter, no partial Fourier | elliptical shutter + partial Fourier along PE (236 of 256 lines, the 20 lowest ky rows unacquired): 34139 of 45056 lines carry data (75.8 %) |
+| parallel imaging | none (fully sampled) | none in the exported data; scan time matches full elliptical sampling |
+| fat suppression | off | on (fat sat) |
+| averages | 1 | 1 |
+| scan time | 8:04 (484.7 s) | 11:48 (708.6 s) |
+| vendor DICOM | interpolated to 384 x 384 x 264 at 0.667 mm (zero-filling x 1.5; not the acquisition) | same |
+
+Data as used here: `MC_Jia/Train_SpiritDiffusion_CFL/vol3_jiangyizhou/{t1_fsp,flair}_train_jiangyizhou_cc` (BART CFL,
+256 x 256 x 176 x 26 complex64; slab oversampling removed; 26 virtual channels after offline coil compression of the 32 physical
+ones, suffix `_cc`); ESPIRiT maps `bart ecalib -r 24 -m1 -t 0.001 -c 0.0` from the full k-space of each contrast; the DC sits at
+the array centre (128, 88) of the (ky, kz) plane. Header caveat: the FLAIR protocol XML lists `PPAFactorPE 2` while the T1 XML
+lists 1; the FLAIR timing (142 shots x 5 s = 11.8 min for the 35.4k lines of the ellipse) and the exported k-space (every line of
+the ellipse present) show that no parallel-imaging undersampling was applied. A T2 (`t2_mx3d_sag_1mm_avg2`) was acquired in the
+same session and is not used here.
+
+## Seven-method cut of the figure of record (user, 2026-09-18)
+
+The user asked for the same figure with only **CS-SENSE, Joint SENSE, ZS-SSDU, 3D-INR, MC-INR,
+GS-single and MC-GS**. ZF, CG-SENSE, the L1 arm and 3D-DIP are dropped; **GT keeps its column** --
+it is what the error maps are taken against, and the sampling mask of each plane sits in its cell of
+the error rows. Slices, zoom box, grey window, error colour scale, orientation, typography, metrics
+and resolution are the figure of record's, unchanged.
+
+```
+figures/t1flair_v3_af12_<c>_row3planes_compact_180_124_76_inset48_headerr_p14_mcinr_caps_sel7.{png,pdf}
+bash scripts/render_sel7.sh
+```
+
+served from `http://localhost:8765/t1flair_v3_af12/`, mirrored in `/home/congcongliu/figs/t1flair_v3_af12/`.
+**The figure of record is untouched** -- the new `--keep` flag appends `_sel7` to the file name.
+
+**The numbers did not move.** Each panel's PSNR / SSIM / NMSE is that arm against the ground truth
+and does not depend on which other arms are on the figure; dropping columns only changes which panel
+the bold marks, since bold is the best of what is shown. Within these seven arms:
+
+- **FLAIR** -- MC-GS is first on all three metrics in all three planes (transverse 180: PSNR #1, SSIM #1, NMSE #1; coronal 124: PSNR #1, SSIM #1, NMSE #1; sagittal 76: PSNR #1, SSIM #1, NMSE #1)
+- **T1** -- MC-GS is first on all three metrics in all three planes (transverse 180: PSNR #1, SSIM #1, NMSE #1; coronal 124: PSNR #1, SSIM #1, NMSE #1; sagittal 76: PSNR #1, SSIM #1, NMSE #1)
+
+`--keep` and the caption fix that comes with it are described in
+`../T1FLAIR_AF20_v3_jiangyizhou/README.md` (same patch, applied by one generator to all ten scripts).
+Without `--keep` the script is byte-for-byte the old one: re-rendering this topic's figure of record
+reproduces it exactly.

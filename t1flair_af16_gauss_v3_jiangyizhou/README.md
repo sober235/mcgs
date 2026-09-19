@@ -188,3 +188,180 @@ setsid nohup bash scripts/launch_diffmask.sh > /dev/null 2>&1 < /dev/null &
 ## Status
 
 2026-09-16: complete. Eleven arms x two contrasts reconstructed, scored and figured; MC-INR re-scored through this topic's own gauge with a worst disagreement of 1e-7 against the reproduction's own numbers (the gauge is mask-independent, so this is the expected result and it confirms the three topics' numbers are directly comparable).
+
+## 三图案横断位叠放图（2026-09-16 晚，用户要求）
+
+`scripts/fig_masks_transverse_stack.py --contrast T1|FLAIR --pdf`：三种图案从上到下（vd-Poisson / Gaussian / 伪径向）各占一行灰度图
+加一行误差图，横断位 180（图 of record 的层，眼睛朝上）；列 = GT、ZF、九个方法、GS-single、MC-GS（p3 配方，各图案自己的 λ）。
+每行灰度图右侧一条灰度 colorbar（窗 = GT 该层的 P99.9，三行相同），误差图右侧一条 jet colorbar（固定 0 到 0.1，只显示头内）；
+误差行左格 = 该图案的 (ky, kz) 掩膜；面板内橙黄的头内层 PSNR / SSIM / NMSE，每行最好者加粗。
+输出 `figures/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra180_headerr_p3_zf_caps.{png,pdf}`（200 dpi PNG；PDF 面板 300 dpi 栅格、字体 TrueType），
+served 于 `http://localhost:8765/t1flair_v3_af16_diffmask/`。
+该层读数：vd-Poisson 与 Gaussian 两行 MC-GS 三项都第一；伪径向行 T1 三项第二（ZS-SSDU 第一，32.10 对 31.87 dB），FLAIR 的 PSNR / NMSE 第二、
+SSIM 第一。这是单层读数；全体积头内 PSNR 三种图案 MC-GS 仍第一（`logs/compare_masks_head_psnr.md`）。换层用 `--tra`。
+
+### 三种图案全超的层（2026-09-16 晚，用户问"难道没有三个 mask 都超过对比方法的层"）
+
+`scripts/find_slice_all_masks.py`（口径与叠放图相同：头内层 PSNR / SSIM / NMSE，12 列，GS-single 算对比臂；合格层 = 头内面积
+不低于最大层一半，两对比度都满足，48 到 223 共 176 层；读数 `logs/find_slice_all_masks.json`）：
+- T1 三项、三图案全第一：106 层（48 到 138 连续，加 203 到 223 里的一段），最小余量最大的是 104 层（+0.178 dB）。
+- FLAIR 三项、三图案全第一：25 层，最好 148（+0.063）、192（+0.062）、205（+0.050）。
+- **两对比度、三项、三图案全第一：只有 203 到 206 四层，205 层余量最大**（最小余量 +0.050 dB；T1 三图案 +0.131 / +0.122 / +0.140，
+  FLAIR +0.050 / +0.079 / +0.197）。只看 PSNR 时两对比度全超的有 22 层（含 122 到 132 一段，129 层最小余量 +0.041）。
+- 叠放图 205 层版：`figures/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra205_headerr_p3_zf_caps.{png,pdf}`。180 层版保留作图 of record 层的对照
+（那一层伪径向行 T1 是 ZS-SSDU 第一）。
+
+### 叠放图加放大框（2026-09-17，用户"补充 zoom-in view"）
+
+`scripts/fig_masks_transverse_stack.py` 新增三个默认关闭的开关：`--inset W`（W×W 框在每个灰度与误差面板上橙黄描边，框内放大贴到面板一角，
+放大区不写数字，与正式图一致；文件名加 `_inset<W>`）、`--inset_center J K`（框在横断层内的中心，体积第 1、2 轴，默认 124 76）、
+`--inset_corner`（默认右上）。三行掩膜用同一个框；掩膜格不放大；开放大框时 GT 面板的图案标签分两行写，避开放大区（脚本出图后逐个核对
+文字与放大区不重叠）。不加这些开关时出图与原图逐像素相同（`scripts/figs_masks_stack_inset.sh` 第一步：T1 205 层重出后与已提交的图比对，全等）。
+
+框的位置没有另挑：中心 (124, 76) 就是正式图 48³ 框（180 / 124 / 76）的层内中心。`scripts/find_zoom_box_all_masks.py --tra 205|180`
+按叠放图的口径（框内头部像素的 PSNR 与 SSIM，12 列，GS-single 算对比臂）查了这个框：
+- 205 层：三图案、两对比度六行 MC-GS 框内 PSNR 与 SSIM 全第一，最小 PSNR 领先 +0.154 dB（FLAIR vd-Poisson，对 GS-single）；
+  T1 三图案 +0.299 / +0.335 / +0.703，FLAIR +0.154 / +0.220 / +0.719。
+- 180 层：六行同样全第一，最小领先 +0.082 dB（FLAIR vd-Poisson）；T1 +0.336 / +0.375 / +0.585，FLAIR +0.082 / +0.140 / +0.484。
+
+同一脚本也搜了全层（步长 2，框内头部占比 ≥ 0.95，避开右上放大区与左上文字）：205 层有 1114 个中心六行全第一，最好的 (138, 76) 最小领先
++0.219 dB；180 层 1911 个，最好 (172, 92) +0.171 dB。没有换用，框与正式图保持一致；读数在 `logs/find_zoom_box_all_masks_tra{205,180}.json`。
+框内数字只打印不上图，而且只代表这一块区域，对外仍引全层与全体积余量。
+
+输出 `figures/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra{205,180}_inset48_headerr_p3_zf_caps.{png,pdf}`（200 dpi PNG；PDF 面板 300 dpi 栅格），
+served 于 `http://localhost:8765/t1flair_v3_af16_diffmask/`；无放大框的四张保留。重出：`bash scripts/figs_masks_stack_inset.sh`（CPU，逐张）。
+
+**差距更大的框（2026-09-17，用户"挑一张差别更大的"）。** 在整层全第一的四个层（203 到 206）上逐像素重搜（`scripts/run_zoom_box_search_203_206.sh`，
+`--step 1`），最弱一行的领先最大的仍是 205 层，框中心换到 (138, 76)：六行最小领先 +0.219 dB（原框 +0.154），其余五行有升有降，六行平均基本持平
+（+0.396 对 +0.405）。对最强非 GS 方法的框内领先，新框 T1 +0.32 / +0.93 / +0.98、FLAIR +0.64 / +0.79 / +1.36（三图案），原框 T1 +0.30 / +0.80 / +0.77、
+FLAIR +0.55 / +0.75 / +1.65，六行里五行变大。按"GS-single 算对比臂、六行都第一"的规则，这四层找不到最弱行超过 +0.22 dB 的 48 框。
+图 `figures/t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra205_inset48_headerr_p3_zf_caps_box138_76.{png,pdf}`（`scripts/figs_masks_stack_inset_box138.sh`），
+原框版本保留；四层读数 `logs/find_zoom_box_all_masks_tra{203,204,205,206}_step1.{json,txt}`。
+
+### 放大行版式（2026-09-17，用户："选的那张差异不够明显，zoom-in view 也不够明显"）
+
+角上的小放大图太小（约面板宽的 0.38），改成**放大行**：`fig_masks_transverse_stack.py --zoom_rows W --inset_center J K`（新开关，默认关闭；
+不加时出图仍与原图逐像素相同，`scripts/figs_masks_stack_zoomrows.sh` 第一步再次核对）。每种掩膜占四行：原图行（框橙黄描边）、放大图像行、
+误差行（框描边）、放大误差行；放大格与原面板同宽，最近邻放大（40 框约 13 倍、32 框约 16 倍），橙黄边框；每行各有 colorbar，放大误差仍是固定 jet [0, 0.1]；
+放大区不写数字。
+
+选框改为按"看得见的差距"：`scripts/find_zoom_box_visible.py --contrast T1|FLAIR --rank nongs`，T1 图与 FLAIR 图各选各的框（两张图本来分开），
+范围 203 到 206 层、框边长 32 / 40 / 48、逐像素；条件 = 框内头部占比 ≥ 0.95、避开左上文字、GT 边缘量不低于中位数（框里要有沟回结构）、
+三种掩膜下 MC-GS 在框内 PSNR 与 SSIM 都对所有列第一（GS-single 算对比臂）；排序 = 三行里对最强非 GS 列的最小领先。逐框复核用 `scripts/eval_zoom_box.py`。
+为了两张图同层，都取 205 层（最好的在 206 层，只比 205 多 0.08 dB）：
+
+| 图 | 框 | 框内对所有列的领先（vd-Poisson / Gaussian / 伪径向） | 对最强非 GS 列 |
+|---|---|---|---|
+| T1 | 40×40，中心 (160, 131) | +0.233 / +0.230 / +0.443（最近的都是 GS-single） | +0.616 / +0.611 / +0.614 |
+| FLAIR | 32×32，中心 (148, 146) | +0.142 / +0.155 / +0.285（同上） | +0.795 / +0.838 / +0.796 |
+
+限制：候选框里 MC-GS 的均方根误差最多只比 GS-single 低 2% 到 9%（比值 0.91 到 0.98），在固定 [0, 0.1] 色标下看不出来；放大行里看得出的差距
+是对非 GS 列的。没有一个框能让两个对比度同时拉开对非 GS 列的差距（`eval_zoom_box.py` 试过的共用框，最好的一个 T1 对非 GS 只有 +0.27）。
+这些框是在本数据上挑的，框内数字只打印不上图，对外仍引全层与全体积余量。
+
+输出 `figures/t1flair_v3_af16_masks_stack_T1_tra205_zoomrows40_headerr_p3_zf_caps_box160_131.{png,pdf}` 与
+`figures/t1flair_v3_af16_masks_stack_FLAIR_tra205_zoomrows32_headerr_p3_zf_caps_box148_146.{png,pdf}`，served 于 `http://localhost:8765/t1flair_v3_af16_diffmask/`；
+读数 `logs/find_zoom_box_visible_{T1,FLAIR}{,_nongs}.{json,txt}`。角上小放大图的各版本保留。
+
+### 差距最大的层，两个对比度各一层（2026-09-18，用户："重新给出最大差异的结果图"）
+
+`logs/find_slice_all_masks.json` 的 176 个合格层按几种口径重排（口径 = 头内层 PSNR，MC-GS 对最强对比臂，GS-single 算对比臂）：
+- **两对比度合看**：九项（三指标 × 三图案 × 两对比度）全第一的只有 203–206，其中 205 层按最小余量和按平均余量都排第一（最小 +0.050、平均 +0.120）。
+  只要求六行 PSNR 第一时 205 仍第一。所以 205 已经是两对比度合看的最大差距层，之前选它是对的。
+- **各对比度分开看**（两张图本来分开，这样能再大一点）：T1 最好是 **104 层**（三图案三指标全第一，最小余量 **+0.178**，对比 205 层的 +0.122；
+  三图案 +0.252 / +0.178 / +0.200），FLAIR 最好是 **148 层**（最小 **+0.063**，对比 205 层的 +0.050；+0.076 / +0.063 / +0.115）。
+
+据此出的图（放大行版式，框按该层重挑，规则同上一节）：`scripts/figs_masks_stack_maxgap.sh`
+- T1：横断 104（颅底层，小脑与颞叶），框 32×32 @ (107, 34)。框内对所有列 +0.316 / +0.100 / +0.181，对最强非 GS 列 +0.743 / +0.830 / +0.714。
+- FLAIR：横断 148（基底节层），框 32×32 @ (141, 139)。框内对所有列 +0.149 / +0.252 / +0.474，对最强非 GS 列 +0.586 / +0.499 / +1.086。
+
+文件 `figures/t1flair_v3_af16_masks_stack_T1_tra104_zoomrows32_headerr_p3_zf_caps_maxgap.{png,pdf}` 与
+`figures/t1flair_v3_af16_masks_stack_FLAIR_tra148_zoomrows32_headerr_p3_zf_caps_maxgap.{png,pdf}`。205 层的两张（同层同框）保留，
+要"一张图同时覆盖两个对比度"时用它。层是在本数据上按余量挑的，这一点在对外写作时要说明。
+
+### 放大区里"看得见"的差距最大的一版（2026-09-18，用户："换个区域让 zoom-in 的差异更明显"）
+
+读者在放大区里能分辨的是 MC-GS 与**非 GS 方法**的差距（对 GS-single 任何框里都只低 2–9% 误差，看不出）。因此改按
+"对最强非 GS 列的最小领先"挑层与框，条件不变：MC-GS 在整层九项与框内 PSNR/SSIM 上仍要对所有列（含 GS-single）第一。
+- 层：`scripts/find_slice_nongs_gap.py`（178 个合格层逐层重打分，72 个体积；22 层满足"六行对所有列第一"）。按对非 GS 的最小领先，
+  T1 最好的层是 126（三图案 +0.68 / +0.58 / +0.62，整层口径），FLAIR 最好的仍是 205（+0.70 / +0.41 / +0.29）。
+- 框：`scripts/find_zoom_box_visible.py --rank nongs --edge_q 0.75`（框边长 32 / 40，结构量前 25%）。
+  T1 在 126 层取 32×32 @ (146, 29)：框内对最强非 GS 列 **+1.250 / +1.126 / +1.118 dB**（vd-Poisson / Gaussian / 伪径向，
+  对手是 Joint SENSE 或收敛 TV），对所有列 +0.225 / +0.093 / +0.314。比 205 层那版（对非 GS +0.61）差不多翻倍。
+  FLAIR 留在 205 层的 32×32 @ (148, 146)（对非 GS +0.795 / +0.838 / +0.796），它在 126 层只能到 +0.568。
+
+图：`figures/t1flair_v3_af16_masks_stack_T1_tra126_zoomrows32_headerr_p3_zf_caps_nongsmax.{png,pdf}`（T1）与既有的
+`..._FLAIR_tra205_zoomrows32_headerr_p3_zf_caps_box148_146.{png,pdf}`（FLAIR）。两张层号不同，标题各自写明。
+读数 `logs/find_slice_nongs_gap.json`、`logs/find_zoom_box_visible_*_nongs*.{json,txt}`。
+
+同一选择也出了"放大贴在图上"的版本（用户 2026-09-18："将这里的 zoom-in view 放在图上"）：`scripts/figs_masks_stack_inset_nongsmax.sh`，
+即 `--inset 32 --inset_center … --inset_frac 0.5`。新开关 `--inset_frac` 控制角上放大图的边长占面板宽的比例，默认 0.38（与既有正式图一致），
+这里用 0.5 以便看清；贴图变宽后 GT 面板的图案标签会被压住，脚本在 `--inset_frac > 0.42` 且贴图在上方时自动把标签移到左下角（出图后的文字重叠自检从
+`['Pseudo-radial']` 变为 `none`）。文件 `figures/t1flair_v3_af16_masks_stack_T1_tra126_inset32_headerr_p3_zf_caps_nongsmax.{png,pdf}` 与
+`..._FLAIR_tra205_inset32_headerr_p3_zf_caps_nongsmax.{png,pdf}`；放大行版本同时保留，两种版式数字完全相同。
+这两张按用户 2026-09-18 的要求调亮：新开关 `--grey_scale`（灰度窗 = 系数 × 该层 GT 的 P99.9，默认 1.0 与既有图一致）取 **0.8**，
+三档试过 1.0 / 0.8 / 0.65，0.65 已经发灰、背景噪声明显。误差图不受影响（仍按 max|GT| 归一、固定 jet [0, 0.1]），指标也不变。
+
+## Seven-method cut of the figure of record (user, 2026-09-18)
+
+The user asked for the same figure with only **CS-SENSE, Joint SENSE, ZS-SSDU, 3D-INR, MC-INR,
+GS-single and MC-GS**. ZF, CG-SENSE, the L1 arm and 3D-DIP are dropped; **GT keeps its column** --
+it is what the error maps are taken against, and the sampling mask of each plane sits in its cell of
+the error rows. Slices, zoom box, grey window, error colour scale, orientation, typography, metrics
+and resolution are the figure of record's, unchanged.
+
+```
+figures/t1flair_v3_af16g_<c>_row3planes_compact_180_124_76_inset48_headerr_p3_sel7.{png,pdf}
+bash scripts/render_sel7.sh
+```
+
+served from `http://localhost:8765/t1flair_v3_af16_diffmask_gauss/`, mirrored in `/home/congcongliu/figs/t1flair_v3_af16_diffmask_gauss/`.
+**The figure of record is untouched** -- the new `--keep` flag appends `_sel7` to the file name.
+
+**The MC-INR column is new in this topic.** The figure of record predates it; the volumes (`recon/mcinr_*`) and the `mcinr` rows of `logs/summary.json` were already there, so the cut adds `--with_mcinr` to show the column the user asked for. Nothing else about the arm changed.
+
+**The numbers did not move.** Each panel's PSNR / SSIM / NMSE is that arm against the ground truth
+and does not depend on which other arms are on the figure; dropping columns only changes which panel
+the bold marks, since bold is the best of what is shown. Within these seven arms:
+
+- **FLAIR** -- MC-GS is first on all three metrics in all three planes (transverse 180: PSNR #1, SSIM #1, NMSE #1; coronal 124: PSNR #1, SSIM #1, NMSE #1; sagittal 76: PSNR #1, SSIM #1, NMSE #1)
+- **T1** -- MC-GS is first on all three metrics in all three planes (transverse 180: PSNR #1, SSIM #1, NMSE #1; coronal 124: PSNR #1, SSIM #1, NMSE #1; sagittal 76: PSNR #1, SSIM #1, NMSE #1)
+
+`--keep` and the caption fix that comes with it are described in
+`../T1FLAIR_AF20_v3_jiangyizhou/README.md` (same patch, applied by one generator to all ten scripts).
+Without `--keep` the script is byte-for-byte the old one: re-rendering this topic's figure of record
+reproduces it exactly.
+
+### The three-mask generalisation figure, same seven-method cut (user, 2026-09-18)
+
+The stacked figure is the one that carries the generalisation claim -- one frozen MC-GS recipe against
+three sampling patterns -- so it got the same cut as the per-topic figures: **CS-SENSE, Joint SENSE,
+ZS-SSDU, 3D-INR, MC-INR, GS-single, MC-GS**, GT keeping its column and the pattern's (ky, kz) mask
+keeping its cell at the left of each error row. ZF, CG-SENSE, L1-SPIRiT and 3D-DIP are dropped, so the
+name drops the `_zf` the record figure's tag carried. Everything else is the 2026-09-18 figure of
+record unchanged: T1 transverse 126 with the 32x32 box at (146, 29), FLAIR transverse 205 with the
+32x32 box at (148, 146), `--inset_frac 0.5`, `--grey_scale 0.8`, same metrics, 200 dpi PNG, TrueType PDF.
+
+```
+figures/t1flair_v3_af16_masks_stack_T1_tra126_inset32_headerr_p3_caps_nongsmax_sel7.{png,pdf}
+figures/t1flair_v3_af16_masks_stack_FLAIR_tra205_inset32_headerr_p3_caps_nongsmax_sel7.{png,pdf}
+bash scripts/figs_masks_stack_sel7.sh
+```
+
+served from `http://localhost:8765/t1flair_v3_af16_diffmask/`, and as `masks_stack_{T1,FLAIR}.png` in
+`/home/congcongliu/figs/sel7_2026-09-18/`.
+
+`scripts/fig_masks_transverse_stack.py` got the same `--keep` patch as the ten three-plane scripts
+(the arms are filtered inside `arms_for()`, once per pattern; the file-name tag is appended once). It
+is inert without `--keep`: re-rendering the T1 figure of record with the patched script returns md5
+`56b0612ece9d5b1ecf7509c944a6332c`, the md5 it had before -- checked, not assumed.
+
+**MC-GS is first on PSNR, SSIM and NMSE in all three pattern rows, on both contrasts**, within these
+seven arms (`logs/sel7/masks_stack_{T1,FLAIR}.log`), which is the same verdict the twelve-column
+figure gives; the cut removes no arm that was ahead of it. In the zoom box the lead over the best
+non-GS column is +1.250 / +1.126 / +1.118 dB on T1 (vd-Poisson / Gaussian / pseudo-radial) and
++0.795 / +0.838 / +0.796 dB on FLAIR -- unchanged numbers, they do not depend on which columns are drawn.
+
+One cosmetic difference from the other ten scripts: this one balances the wrapped caption lines
+(smallest column width that still fits the required number of lines) because the greedy fill left a
+one-word orphan line here. The other ten keep the wrap that produced the figures already delivered.

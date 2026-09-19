@@ -1,0 +1,5 @@
+box 48x48: centre (j, k) = (88, 136); lead of MC-GS over the best other column T1 +0.245 dB, FLAIR +0.190 dB
+inset corner br
+wrote /home/congcongliu/figs/t1flair_v3_af16_noise0p5x/t1flair_v3_af16n05_T1FLAIR_tra170_zoom48_noise3d_headerr_p3_mcinr_caps_sel7.png
+  T1   : slice PSNR first gs_joint_p3, SSIM first gs_joint_p3, NMSE first gs_joint_p3; in the box MC-GS SE 1.956, best other gs_single_p3 2.07
+  FLAIR: slice PSNR first gs_joint_p3, SSIM first gs_joint_p3, NMSE first gs_joint_p3; in the box MC-GS SE 2.858, best other gs_single_p3 2.985

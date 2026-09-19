@@ -25,7 +25,7 @@ the box centre; the T1 and FLAIR figures may use different boxes (find_zoom_box_
 Reads the three topics only; writes to this (Gaussian) topic's figures/, the home of the cross-pattern comparison,
 and to /home/congcongliu/figs/t1flair_v3_af16_diffmask/ (served at http://localhost:8765/t1flair_v3_af16_diffmask/).
 """
-import argparse
+import argparse, textwrap
 import json
 import re
 from pathlib import Path
@@ -73,6 +73,11 @@ ap.add_argument("--inset_frac", type=float, default=0.38,
                 help="side of the corner zoom as a fraction of the panel width (default 0.38, the figures of record)")
 ap.add_argument("--inset_corner", default="tr", choices=["bl", "br", "tl", "tr"],
                 help="panel corner that holds the magnified box (default top-right, as the transverse row of the figures of record)")
+ap.add_argument("--keep", nargs="+", metavar="LABEL",
+                help="keep only these method columns, named by their label (e.g. CS-SENSE 'Joint SENSE' ZS-SSDU "
+                     "3D-INR MC-INR GS-single MC-GS). GT keeps its column (the error maps are against it and the "
+                     "pattern's sampling mask sits under it) and the surviving columns keep their order; the "
+                     "in-panel bold marks the best of what is shown. Appends _sel<N> to the file name.")
 args = ap.parse_args()
 assert not (args.inset and args.zoom_rows), "--inset and --zoom_rows are alternatives"
 ZW = args.inset or args.zoom_rows
@@ -126,6 +131,10 @@ def arms_for(R: Path):
             ("mcinr", "MC-INR", R / f"recon/mcinr_{c}_complex.npy"),
             (args.single_key, "GS-single", R / f"recon/{args.single_key}_{c}_mag.npy"),
             (args.mcgs_key, "MC-GS", R / f"recon/{args.mcgs_key}_{c}_mag.npy")]
+    if args.keep:
+        unknown = [w for w in args.keep if w not in [lab for _, lab, _ in arms]]
+        assert not unknown, f"--keep: no such column {unknown}; this call builds {[lab for _, lab, _ in arms]}"
+        arms = [a for a in arms if a[1] in args.keep]
     missing = [lab for _, lab, p in arms if p is None or not Path(p).exists()]
     assert not missing, f"{R.name}: missing volumes for {c}: {missing}"
     return arms
@@ -192,6 +201,8 @@ for name, R in TOPICS:
                      best=dict(psnr=max(ps, key=ps.get), ssim=max(ss, key=ss.get), nmse=min(nm, key=nm.get))))
 
 ARM_LABELS = [lab for _, lab, _ in ROWS[0]["arms"]]
+if args.keep:
+    args.tag += f"_sel{len(ARM_LABELS)}"
 ncol = len(ARM_LABELS) + 1
 pw, gap = 2.6, args.gap
 CBTRIM = 0.10
@@ -200,6 +211,47 @@ H, W = D(ROWS[0]["g2"]).shape
 ph = pw * H / W                                  # every panel is a transverse slice: one height
 fw = ncol * pw + (ncol - 1) * gap + cbpad + cbw + cbroom
 pz = pw                                          # zoom rows: square panels as wide as the full ones
+
+# the caption, built before the figure so the header can be made tall enough for it when --keep
+# leaves too few columns to carry it on one line (without --keep nothing below changes)
+_cap = []
+if not args.no_metrics:
+    _win = "7x7 window" if args.ssim == "uniform" else "Gaussian window, sigma 1.5"
+    _cap.append(f"head-masked slice PSNR / SSIM ({_win}) / NMSE in each panel, the best of each row in bold")
+_cap.append(f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]   (inside the head only)")
+_cap.append("left of each error row: that pattern's (ky, kz) sampling mask")
+_cap.append(f"grey bar right of each image row: the slice window ({'P99.9 of the GT slice' if args.grey_scale == 1 else f'{args.grey_scale:g} x P99.9 of the GT slice'}, the same for the three rows); "
+            "AF label = PE-plane points / sampled points carrying this contrast's data")
+if args.zoom_rows:
+    _cap[2] = "left of each error row: that pattern's (ky, kz) sampling mask"
+    _cap[3] += (f";   the {args.zoom_rows}x{args.zoom_rows} box outlined on every panel is magnified in the row under it "
+                f"(grey zoom under the image row, error zoom under the error row, the same scales)")
+if args.inset:
+    _CN = {"tr": "top-right", "tl": "top-left", "br": "bottom-right", "bl": "bottom-left"}
+    _cap[3] += (f";   in every panel the {args.inset}x{args.inset} box (the same in all rows) is outlined and magnified into the "
+                f"{_CN[args.inset_corner]} corner")
+CAPTION = ";   ".join(_cap[:3]) + "\n" + _cap[3]
+if args.keep:
+    _meas = plt.figure(figsize=(1, 1))                      # measure it at matplotlib's default 100 dpi
+    _rend, _lines_out = _meas.canvas.get_renderer(), []
+    _lim = 0.98 * fw * 100.0        # the caption is centred, so it is clipped once it is wider than the figure
+    for _ln in CAPTION.split("\n"):                          # each line the caption already has, wrapped on its own
+        _wpx = _meas.text(0, 0, _ln, fontsize=11).get_window_extent(_rend).width
+        if _wpx <= _lim:
+            _lines_out += [_ln]
+            continue
+        # the smallest column width that still fits in as many lines as the figure needs: greedy filling
+        # at exactly len/n leaves the last line nearly empty (a one-word orphan), this balances them
+        _n = int(np.ceil(_wpx / _lim))
+        _w = max(1, len(_ln) // _n)
+        while len(textwrap.wrap(_ln, width=_w)) > _n:
+            _w += 1
+        _lines_out += textwrap.wrap(_ln, width=_w)
+    plt.close(_meas)
+    CAPTION = "\n".join(_lines_out)
+    # header room: the caption starts 0.40 in below the top and must clear the first row's method names
+    top_in = max(top_in, 0.40 + len(_lines_out) * 11 * 1.28 / 72 + 0.06 + (14.0 * 1.2 + 4) / 72)
+
 fh = top_in + (6 * ph + 5 * gap if not args.zoom_rows else 6 * ph + 6 * pz + 11 * gap) + 0.16
 fig = plt.figure(figsize=(fw, fh))
 
@@ -360,23 +412,7 @@ for k, p in enumerate([] if args.zoom_rows else ROWS):
 fig.suptitle(f"{c}  jiangyizhou  nominal AF 16  --  {'Transverse' if CAPS else 'transverse'} {args.tra}  --  "
              f"three sampling patterns, one frozen MC-GS recipe, classical lambdas re-selected per pattern",
              fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
-_cap = []
-if not args.no_metrics:
-    _win = "7x7 window" if args.ssim == "uniform" else "Gaussian window, sigma 1.5"
-    _cap.append(f"head-masked slice PSNR / SSIM ({_win}) / NMSE in each panel, the best of each row in bold")
-_cap.append(f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]   (inside the head only)")
-_cap.append("left of each error row: that pattern's (ky, kz) sampling mask")
-_cap.append(f"grey bar right of each image row: the slice window ({'P99.9 of the GT slice' if args.grey_scale == 1 else f'{args.grey_scale:g} x P99.9 of the GT slice'}, the same for the three rows); "
-            "AF label = PE-plane points / sampled points carrying this contrast's data")
-if args.zoom_rows:
-    _cap[2] = "left of each error row: that pattern's (ky, kz) sampling mask"
-    _cap[3] += (f";   the {args.zoom_rows}x{args.zoom_rows} box outlined on every panel is magnified in the row under it "
-                f"(grey zoom under the image row, error zoom under the error row, the same scales)")
-if args.inset:
-    _CN = {"tr": "top-right", "tl": "top-left", "br": "bottom-right", "bl": "bottom-left"}
-    _cap[3] += (f";   in every panel the {args.inset}x{args.inset} box (the same in all rows) is outlined and magnified into the "
-                f"{_CN[args.inset_corner]} corner")
-fig.text(0.5, 1 - 0.40 / fh, ";   ".join(_cap[:3]) + "\n" + _cap[3], ha="center", va="top", fontsize=11)
+fig.text(0.5, 1 - 0.40 / fh, CAPTION, ha="center", va="top", fontsize=11)
 name = (f"t1flair_v3_af16_masks_stack_{c}_tra{args.tra}{f'_inset{args.inset}' if args.inset else ''}"
         f"{f'_zoomrows{args.zoom_rows}' if args.zoom_rows else ''}_headerr{args.tag}.png")
 if INSETS:

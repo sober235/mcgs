@@ -1,0 +1,4 @@
+wrote /home/congcongliu/figs/t1flair_v3_af16/t1flair_v3_af16_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_caps_sel7.png k-space centre (kx, ky, kz) = (128, 121, 84)
+  transverse 180 (grey window 0.984): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 40.26, best competing 39.36 [cssense_o200], lead +0.894 dB (printed only, not on the figure)
+  coronal 124 (grey window 0.780): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 39.47, best competing 38.17 [jcssense], lead +1.301 dB (printed only, not on the figure)
+  sagittal 76 (grey window 0.648): PSNR MC-GS #1 (first: gs_joint_p3); SSIM MC-GS #1 (first: gs_joint_p3); NMSE MC-GS #1 (first: gs_joint_p3)  |  48-box PSNR: MC-GS 39.57, best competing 38.51 [jcssense], lead +1.060 dB (printed only, not on the figure)

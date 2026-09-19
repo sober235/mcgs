@@ -21,7 +21,7 @@ logs/prep_04_export.json): T1 24.00, FLAIR 25.51.
 Writes t1flair_v3_af16<g|r>_<contrast>_row3planes_compact_<tra>_<cor>_<sag>.png to that topic's served figs folder
 and its figures/ (both derived from the topic path, so the two diff-mask topics cannot overwrite each other).
 """
-import argparse, json, re
+import argparse, json, re, textwrap
 from pathlib import Path
 
 ap = argparse.ArgumentParser()
@@ -67,6 +67,11 @@ ap.add_argument("--inset", type=int, default=0, metavar="W",
                 help="full slices plus a WxW zoom inset in the bottom-left of every method panel, the box centred on "
                      "the point where the three slices meet (the face of the WxWxW cube of best_cube_mcgs.py); the box "
                      "is outlined on the slice and its own PSNR is printed in the inset")
+ap.add_argument("--keep", nargs="+", metavar="LABEL",
+                help="keep only these method columns, named by their label (e.g. CS-SENSE 'Joint SENSE' ZS-SSDU "
+                     "3D-INR MC-INR GS-single MC-GS). GT keeps its column (the error maps are against it and the "
+                     "sampling mask sits under it) and the surviving columns keep their order; the in-panel bold "
+                     "marks the best of what is shown. Appends _sel<N> to the file name.")
 args = ap.parse_args()
 args.tag += {"espirit": "", "spirit": "_spirit", "both": "_bothl1"}[args.l1_arm]
 if (args.slices is None) == (args.cube is None):
@@ -146,6 +151,11 @@ ARMS = [*([("zf", "Zero-filling", R / f"recon/zf_{c}_complex.npy")] if args.with
         *([("mcinr", "MC-INR", R / f"recon/mcinr_{c}_complex.npy")] if args.with_mcinr else []),
         (args.single_key, "GS-single", R / f"recon/{args.single_key}_{c}_mag.npy"),
         (args.mcgs_key, "MC-GS", R / f"recon/{args.mcgs_key}_{c}_mag.npy")]
+if args.keep:
+    unknown = [w for w in args.keep if w not in [lab for _, lab, _ in ARMS]]
+    assert not unknown, f"--keep: no such column {unknown}; this call builds {[lab for _, lab, _ in ARMS]}"
+    ARMS = [a for a in ARMS if a[1] in args.keep]
+    args.tag += f"_sel{len(ARMS)}"
 missing = [lab for _, lab, p in ARMS if p is None or not Path(p).exists()]
 assert not missing, f"missing volumes for {c}: {missing}"
 
@@ -240,6 +250,35 @@ for p in planes:
     H, W = D(p["g2"], p["axis"]).shape
     row_h += [pw * H / W] * 2
 fw = ncol * pw + (ncol - 1) * gap + cbpad + cbw + cbroom
+
+# the caption, built before the figure so the header can be made tall enough for it when --keep
+# leaves too few columns to carry it on one line (without --keep nothing below changes)
+_cap = []
+if not args.no_metrics:
+    _win = "7x7 window" if args.ssim == "uniform" else "Gaussian window, sigma 1.5"
+    _cap.append(f"head-masked slice PSNR / SSIM ({_win}) / NMSE in each panel, the best of each plane in bold")
+_cap.append(f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]" + ("   (inside the head only)" if args.mask_error else ""))
+_cap.append("left of each error row: the sampling mask in that plane (k-space, never cropped)")
+if args.gray_cbar:
+    _cap.append("grey bar right of the " + " / ".join(ANAT[a] for a in sorted(args.cbar_planes))
+            + " image row: that plane's window (each plane has its own)")
+_CN = {"bl": "bottom-left", "br": "bottom-right", "tl": "top-left", "tr": "top-right"}
+_cap2 = (f"in every panel, the {args.inset}x{args.inset} box outlined on the slice, magnified into the "
+         + " / ".join(f"{_CN[args.inset_corner[a]]} ({ANAT[a]})" for a in (0, 1, 2)) if args.inset else "")
+CAPTION = ";   ".join(_cap) + ("\n" + _cap2 if _cap2 else "")
+if args.keep:
+    _meas = plt.figure(figsize=(1, 1))                      # measure it at matplotlib's default 100 dpi
+    _rend, _lines_out = _meas.canvas.get_renderer(), []
+    _lim = 0.98 * fw * 100.0        # the caption is centred, so it is clipped once it is wider than the figure
+    for _ln in CAPTION.split("\n"):                          # each line the caption already has, wrapped on its own
+        _wpx = _meas.text(0, 0, _ln, fontsize=11).get_window_extent(_rend).width
+        _lines_out += (textwrap.wrap(_ln, width=int(np.ceil(len(_ln) / np.ceil(_wpx / _lim))))
+                       if _wpx > _lim else [_ln])
+    plt.close(_meas)
+    CAPTION = "\n".join(_lines_out)
+    # header room: the caption starts y_off in below the top and must clear the first row's method names
+    top_in = max(top_in, 0.4 + len(_lines_out) * 11 * 1.28 / 72 + 0.06 + (14.0 * 1.2 + 4) / 72)
+
 fh = top_in + sum(row_h) + (len(row_h) - 1) * gap + 0.16            # room below for the last colorbar label
 fig = plt.figure(figsize=(fw, fh))
 
@@ -336,20 +375,7 @@ if not args.gray_cbar:                       # with --gray_cbar every row alread
 _cube_txt = f"  --  {args.cube[3]}^3 box centred ({args.cube[0]}, {args.cube[1]}, {args.cube[2]})" if args.cube else ""
 fig.suptitle(f"{c}  jiangyizhou  {AF_LABEL}  --  transverse {args.slices[0]} / coronal {args.slices[1]} / sagittal {args.slices[2]}" + _cube_txt,
              fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
-_cap = []
-if not args.no_metrics:
-    _win = "7x7 window" if args.ssim == "uniform" else "Gaussian window, sigma 1.5"
-    _cap.append(f"head-masked slice PSNR / SSIM ({_win}) / NMSE in each panel, the best of each plane in bold")
-_cap.append(f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]" + ("   (inside the head only)" if args.mask_error else ""))
-_cap.append("left of each error row: the sampling mask in that plane (k-space, never cropped)")
-if args.gray_cbar:
-    _cap.append("grey bar right of the " + " / ".join(ANAT[a] for a in sorted(args.cbar_planes))
-            + " image row: that plane's window (each plane has its own)")
-_CN = {"bl": "bottom-left", "br": "bottom-right", "tl": "top-left", "tr": "top-right"}
-_cap2 = (f"in every panel, the {args.inset}x{args.inset} box outlined on the slice, magnified into the "
-         + " / ".join(f"{_CN[args.inset_corner[a]]} ({ANAT[a]})" for a in (0, 1, 2)) if args.inset else "")
-fig.text(0.5, 1 - 0.40 / fh, ";   ".join(_cap) + ("\n" + _cap2 if _cap2 else ""),
-         ha="center", va="top", fontsize=11)
+fig.text(0.5, 1 - 0.40 / fh, CAPTION, ha="center", va="top", fontsize=11)
 name = (f"t1flair_v3_{_PREFIX}_{c}_cube{args.cube[3]}_{args.cube[0]}_{args.cube[1]}_{args.cube[2]}" if args.cube else
         f"t1flair_v3_{_PREFIX}_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}" + (f"_inset{args.inset}" if args.inset else "")) + f"{'_headerr' if args.mask_error else ''}{args.tag}.png"
 for d in (F, R / "figures"):

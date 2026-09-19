@@ -475,3 +475,33 @@ that arm alone on both gauges and merges it), `scripts/readme_tables.py . > logs
 GPU 2 only and only when empty (one training per card); BART on the CPU with `nice 10` and 8 threads.
 Nothing was written outside this folder, the worktree, `~/figs/peds_tsc_af12/` and the session
 scratchpad. 26 queued jobs, all returned 0.
+
+## Seven-method cut of the figure of record (user, 2026-09-18)
+
+The user asked for the same figure with only **CS-SENSE, Joint SENSE, ZS-SSDU, 3D-INR, MC-INR,
+GS-single and MC-GS**. ZF, CG-SENSE, the L1 arm and 3D-DIP are dropped; **GT keeps its column** --
+it is what the error maps are taken against, and the sampling mask of each plane sits in its cell of
+the error rows. Slices, zoom box, grey window, error colour scale, orientation, typography, metrics
+and resolution are the figure of record's, unchanged.
+
+```
+figures/peds_af12_<c>_row3planes_compact_46_149_171_inset48x48x16_box157_171_46_headerr_lesionB_allfirst_p5_caps_sel7.{png,pdf}
+bash scripts/render_sel7.sh
+```
+
+served from `http://localhost:8765/peds_tsc_af12/`, mirrored in `/home/congcongliu/figs/peds_tsc_af12/`.
+**The figure of record is untouched** -- the new `--keep` flag appends `_sel7` to the file name.
+
+**Which figure this is:** the figure of the paper, the three planes through the right subependymal nodules (transverse 46 / coronal 149 / sagittal 171, zoom box centred between the two nodules). The other three stage-5 figures of record are one `bash scripts/render_sel7.sh` away -- edit the slices and the tag in that script.
+
+**The numbers did not move.** Each panel's PSNR / SSIM / NMSE is that arm against the ground truth
+and does not depend on which other arms are on the figure; dropping columns only changes which panel
+the bold marks, since bold is the best of what is shown. Within these seven arms:
+
+- **T1w** -- MC-GS is first on all three metrics in all three planes (transverse 46: PSNR #1, SSIM #1, NMSE #1; coronal 149: PSNR #1, SSIM #1, NMSE #1; sagittal 171: PSNR #1, SSIM #1, NMSE #1)
+- **T2s** -- MC-GS is first on all three metrics in all three planes (transverse 46: PSNR #1, SSIM #1, NMSE #1; coronal 149: PSNR #1, SSIM #1, NMSE #1; sagittal 171: PSNR #1, SSIM #1, NMSE #1)
+
+`--keep` and the caption fix that comes with it are described in
+`../T1FLAIR_AF20_v3_jiangyizhou/README.md` (same patch, applied by one generator to all ten scripts).
+Without `--keep` the script is byte-for-byte the old one: re-rendering this topic's figure of record
+reproduces it exactly.

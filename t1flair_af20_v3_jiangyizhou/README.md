@@ -207,6 +207,17 @@ Same grid as the other two topics (kernel size 3 and 5 x lambda in {0, 5e-4, 1e-
   T1 35.017 -> 33.788 -> 32.882, FLAIR 35.103 -> 33.720 -> 32.824.
 - **It changes no margin.** MC-GS and GS-single keep the top two rows on both contrasts.
 
+**Figure set of record since 2026-09-16: the `_zf_caps` variant at publication resolution.**
+`figures/t1flair_v3_af20_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit_zf_caps.{png,pdf}`
+— the same slices, 48-voxel box, grey windows, error scale, arms and gauge as the `_mcinr_spirit` set described
+below, which it supersedes without overwriting: every plane's PSNR / SSIM / NMSE line is identical. What changed
+is a zero-filling column after GT and the caps typography (user 2026-09-16, `--with_zf --caps`, with labels
+containing `SPIRiT` exempt from upper-casing), the PNG at `--png_dpi 200` (6453 x 4352 px, which is 911 dpi at a
+180 mm page width) and TrueType fonts in the PDF (`pdf.fonttype = 42`; matplotlib's Type 3 default is rejected by
+IEEE and Elsevier submission systems). All four topics' copies are gathered in
+`Results_20260908/T1FLAIR_AF12_16_20_24_figures_hires/`; verification and the render command are in
+`mcgs_af16_wt/docs/handoff/2026-09-16-figures-hires.md`.
+
 **Figures with the k-space arm in the L1 column** (user request 2026-09-15). The figure of record
 re-rendered with `--l1_arm spirit` (L1-SPIRiT replaces L1-ESPIRiT in that column), same slices,
 style, gauge and recipe keys. An eleven-column `--l1_arm both` render was made first and then
@@ -252,3 +263,51 @@ snapshot of this topic in the framework worktree (`mcgs_af16_wt/t1flair_af20_v3_
 `export/` bundle (the PDFs the worktree does not carry), then the verification above was run against
 the recovered files. The script is fixed. Older renders of this topic (the 174/110/47 pairs)
 still carry the old FLAIR label and were not touched.
+
+## Seven-method cut of the figure of record (user, 2026-09-18)
+
+The user asked for the same figure with only **CS-SENSE, Joint SENSE, ZS-SSDU, 3D-INR, MC-INR,
+GS-single and MC-GS**. ZF, CG-SENSE, L1-SPIRiT and 3D-DIP are dropped; **GT keeps its column** --
+it is what the error maps are taken against, and the sampling mask of each plane sits in its cell
+of the error rows. Eight columns instead of twelve; everything else is the figure of record
+unchanged: slices 180 / 124 / 76, 48x48 inset (top-right / bottom-left / bottom-left), head-only
+error maps in jet on the fixed [0, 0.1] scale, per-plane grey window, transverse eyes-up, caps
+typography, `--title_fs 22`, the same MC-GS and GS-single keys (`gs_joint_p3` / `gs_single_p3`).
+
+```
+figures/t1flair_v3_af20_{T1,FLAIR}_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_caps_sel7.{png,pdf}
+bash scripts/render_sel7.sh          # both contrasts, PNG 200 dpi + vector PDF, panels rasterised at 600 dpi
+```
+
+served from `http://localhost:8765/t1flair_v3_af20/`, mirrored in `/home/congcongliu/figs/t1flair_v3_af20/`,
+short names `af20_{T1,FLAIR}_sel7.png` in `/home/congcongliu/figs/t1flair_v3_af_hires/`.
+**The twelve-column `_spirit_zf_caps` pair is untouched** -- the new `--keep` flag appends `_sel7`.
+
+**The numbers did not move.** Each panel's PSNR / SSIM / NMSE is that arm against the ground truth
+and does not depend on which other arms are on the figure; dropping four columns only changes which
+panel the bold marks, since bold is the best of what is shown. Verified independently of the figure
+code: MC-GS at transverse 180 is 36.25 dB on T1 (GS-single 36.03), the number the user quoted.
+Within these seven arms MC-GS is first on all three metrics in all three planes on **both**
+contrasts (`logs/sel7/fig_{T1,FLAIR}.log`) -- which it also is in the twelve-column figure on T1;
+what the cut removes on FLAIR is no arm that was ahead of it in these planes.
+
+**Resolution.** 4353 x 4416 px at 200 dpi = 614 dpi at a 180 mm page width (the twelve-column set
+reaches 911 dpi only because that figure is 32.3 in wide). PDF text is CID TrueType, not Type 3.
+
+**One layout fix came with it.** The caption under the title is one long line sized for nothing in
+particular. At twelve columns it is already ~65 px wider than the figure and is clipped at *both*
+ends (`head-masked` prints as `d-masked`, `has its own` as `has its o`) -- a real defect of the wide
+figures, visible in `figures/..._p3_mcinr_spirit_zf_caps.png`. At eight columns it loses a third of
+itself. With `--keep`, `scripts/fig_three_planes_compact.py` now measures the caption, wraps each of
+its lines to the figure width, and sizes the header from the resulting line count and `--title_fs`
+instead of the hard-coded 1.15 in (1.15 stays the floor, and the formula reproduces it for a
+two-line caption at `--title_fs 14`, the original design point).
+
+**Without `--keep` not one line of that runs**, so every existing figure of this topic and of the
+eight other topics that got the same patch re-renders byte for byte -- checked, not assumed:
+re-rendering `T1FLAIR_AF16_noise1x_v3_jiangyizhou`'s figure of record with its patched script
+returns md5 `c0ec35a2f5a6b6734e301d6e77fb0703`, the md5 it had before. The wide figures therefore
+keep their clipped caption until someone decides to fix it there too. The patch was applied by one
+generator to all ten scripts (`--keep`, the ARMS filter, the caption block moved above the layout);
+that generator reproduces this topic's hand-written patch exactly, and the figure it renders is md5
+`4c8f5bb3b258a5c16e784002c3304a6f`, the T1 PNG delivered above.

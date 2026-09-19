@@ -19,7 +19,7 @@ sum (recon - GT)^2 / sum GT^2.
 Title: AF 12 of the full phase-encode matrix and the actual acceleration against the acquired support.
 Writes peds_af12_<contrast>_row3planes_compact_<tra>_<cor>_<sag>.png to the served figs folder and figures/.
 """
-import argparse, json, re
+import argparse, json, re, textwrap
 from pathlib import Path
 
 ap = argparse.ArgumentParser()
@@ -60,6 +60,11 @@ ap.add_argument("--with_zf", action="store_true",
                 help="a zero-filled column right after GT (recon/zf_<c>_complex.npy; user 2026-09-16); appends _zf to the file name")
 ap.add_argument("--caps", action="store_true",
                 help="typography (user 2026-09-16): plane names capitalised, method names in the first row upper case (SPIRiT kept); appends _caps")
+ap.add_argument("--keep", nargs="+", metavar="LABEL",
+                help="keep only these method columns, named by their label (e.g. CS-SENSE 'Joint SENSE' ZS-SSDU "
+                     "3D-INR MC-INR GS-single MC-GS). GT keeps its column (the error maps are against it and the "
+                     "sampling mask sits under it) and the surviving columns keep their order; the in-panel bold "
+                     "marks the best of what is shown. Appends _sel<N> to the file name.")
 args = ap.parse_args()
 if args.with_zf:
     args.tag += "_zf"
@@ -141,6 +146,11 @@ ARMS = [*([("zf", "ZF", R / f"recon/zf_{c}_complex.npy")] if args.with_zf else [
         ("mcinr", "MC-INR", R / f"recon/mcinr_{c}_complex.npy"),
         (args.single_key, "GS-single", R / f"recon/{args.single_key}_{c}_mag.npy"),
         (args.mcgs_key, "MC-GS", R / f"recon/{args.mcgs_key}_{c}_mag.npy")]
+if args.keep:
+    unknown = [w for w in args.keep if w not in [lab for _, lab, _ in ARMS]]
+    assert not unknown, f"--keep: no such column {unknown}; this call builds {[lab for _, lab, _ in ARMS]}"
+    ARMS = [a for a in ARMS if a[1] in args.keep]
+    args.tag += f"_sel{len(ARMS)}"
 missing = [lab for _, lab, p in ARMS if p is None or not Path(p).exists()]
 assert not missing, f"missing volumes for {c}: {missing}"
 
@@ -243,6 +253,25 @@ for p in planes:
     H, W = phys_shape(p["axis"], D(p["g2"], p["axis"]).shape)     # mm, not pixels
     row_h += [pw * H / W] * 2
 fw = ncol * pw + (ncol - 1) * gap + cbpad + cbw + cbroom
+
+# the caption, built before the figure so the header can be made tall enough for it when --keep
+# leaves too few columns to carry it on one line (without --keep nothing below changes)
+CAPTION = (f"head-masked slice PSNR / SSIM ({'7x7 window' if args.ssim == 'uniform' else 'Gaussian window, sigma 1.5'}) / NMSE "
+         f"in each panel, the best of each plane in bold;   error |recon - GT| / max(GT), jet [0, 0.1];   "
+         f"left of each error row: the sampling mask in that plane" + ("   (error shown inside the head only)" if args.mask_error else ""))
+if args.keep:
+    _meas = plt.figure(figsize=(1, 1))                      # measure it at matplotlib's default 100 dpi
+    _rend, _lines_out = _meas.canvas.get_renderer(), []
+    _lim = 0.98 * fw * 100.0        # the caption is centred, so it is clipped once it is wider than the figure
+    for _ln in CAPTION.split("\n"):                          # each line the caption already has, wrapped on its own
+        _wpx = _meas.text(0, 0, _ln, fontsize=11).get_window_extent(_rend).width
+        _lines_out += (textwrap.wrap(_ln, width=int(np.ceil(len(_ln) / np.ceil(_wpx / _lim))))
+                       if _wpx > _lim else [_ln])
+    plt.close(_meas)
+    CAPTION = "\n".join(_lines_out)
+    # header room: the caption starts y_off in below the top and must clear the first row's method names
+    top_in = max(top_in, 0.4 + len(_lines_out) * 11 * 1.28 / 72 + 0.06 + (14.0 * 1.2 + 4) / 72)
+
 fh = top_in + sum(row_h) + (len(row_h) - 1) * gap + 0.16            # room below for the last colorbar label
 fig = plt.figure(figsize=(fw, fh))
 
@@ -345,9 +374,7 @@ if not args.gray_cbar:
     cb = fig.colorbar(im, cax=cax); cb.ax.tick_params(labelsize=10)
 fig.suptitle(f"{c}  16yo MTP  {AF_LABEL}  --  " + " / ".join(f"{PLANE_NAME[p['axis']]} {p['idx']}" for p in planes),
              fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
-fig.text(0.5, 1 - 0.40 / fh, f"head-masked slice PSNR / SSIM ({'7x7 window' if args.ssim == 'uniform' else 'Gaussian window, sigma 1.5'}) / NMSE "
-         f"in each panel, the best of each plane in bold;   error |recon - GT| / max(GT), jet [0, 0.1];   "
-         f"left of each error row: the sampling mask in that plane" + ("   (error shown inside the head only)" if args.mask_error else ""), ha="center", va="top", fontsize=11)
+fig.text(0.5, 1 - 0.40 / fh, CAPTION, ha="center", va="top", fontsize=11)
 name = (f"peds_af12_{c}_row3planes_compact_{'_'.join(map(str, args.slices))}" + ("" if len(planes) == 3 else "_planes-" + "-".join(args.planes))
         + ((f"_inset{INSET[0]}" if len(set(INSET)) == 1 else f"_inset{'x'.join(map(str, INSET))}") + BOX_TAG if INSET[0] > 0 else "")
         + f"{'_headerr' if args.mask_error else ''}{args.tag}.png")

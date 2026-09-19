@@ -1,0 +1,4 @@
+wrote /home/congcongliu/figs/peds_tsc_af12/peds_af12_T2s_row3planes_compact_46_149_171_inset48x48x16_box157_171_46_headerr_lesionB_allfirst_p5_caps_sel7.png k-space centre (kx, ky, kz) = (160, 155, 52)
+  transverse 46 (grey window 0.962): PSNR MC-GS #1 (first: gs_joint_p5); SSIM MC-GS #1 (first: gs_joint_p5); NMSE MC-GS #1 (first: gs_joint_p5)
+  coronal 149 (grey window 1.039): PSNR MC-GS #1 (first: gs_joint_p5); SSIM MC-GS #1 (first: gs_joint_p5); NMSE MC-GS #1 (first: gs_joint_p5)
+  sagittal 171 (grey window 0.976): PSNR MC-GS #1 (first: gs_joint_p5); SSIM MC-GS #1 (first: gs_joint_p5); NMSE MC-GS #1 (first: gs_joint_p5)
