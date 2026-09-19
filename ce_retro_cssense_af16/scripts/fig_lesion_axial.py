@@ -73,6 +73,9 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--index", type=int, default=201, help="axial slice (the topic's lesion slice is 201)")
     ap.add_argument("--pad", type=int, default=15, help="crop padding around the dilated lesion core")
+    ap.add_argument("--whole", action="store_true",
+                    help="show the whole axial slice instead of the lesion crop; the zoom box and its inset are "
+                         "unchanged, so the lesion is still read at full magnification in the corner")
     ap.add_argument("--inset", type=int, default=4, help="zoom box = the boundary shell grown by this many voxels")
     ap.add_argument("--inset_corner", default="tr", choices=["bl", "br", "tl", "tr"])
     ap.add_argument("--brightness", type=float, default=1.5)
@@ -109,7 +112,11 @@ def main():
             vols[c][key] = v
             ga[c][key] = gmag(v)
 
-    my0, my1, mx0, mx1 = transformed_box(ndi.binary_dilation(core, iterations=K_SHELL)[sl], AXIS, pad=a.pad)
+    if a.whole:
+        fh_, fw_ = Dfun(gt[SCANS[0]][sl], AXIS).shape
+        my0, my1, mx0, mx1 = 0, fh_, 0, fw_
+    else:
+        my0, my1, mx0, mx1 = transformed_box(ndi.binary_dilation(core, iterations=K_SHELL)[sl], AXIS, pad=a.pad)
     iy0, iy1, ix0, ix1 = transformed_box(shell[sl], AXIS, pad=a.inset)
     iy0, iy1, ix0, ix1 = iy0 - my0, iy1 - my0, ix0 - mx0, ix1 - mx0
 
@@ -233,7 +240,8 @@ def main():
 
     FIGDIR.mkdir(parents=True, exist_ok=True)
     FIGDIR_SERVED.mkdir(parents=True, exist_ok=True)
-    name = f"ce_retro_af16_lesion_axial_{idx}" + (f"_{a.dpi}dpi" if a.dpi != ap.get_default("dpi") else "")
+    name = (f"ce_retro_af16_lesion_axial_{idx}" + ("_whole" if a.whole else "")
+            + (f"_{a.dpi}dpi" if a.dpi != ap.get_default("dpi") else ""))
     png = FIGDIR / f"{name}.png"
     fig.savefig(png, dpi=a.dpi)
     if a.pdf:
