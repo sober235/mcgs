@@ -1,0 +1,9 @@
+# coupling-attribution Stage 1 (spec docs/superpowers/specs/2026-09-20-coupling-attribution-design.md)
+# format: [KEY=VAL ...] EXP ITERS CONFIG LAMBDA_EDGE [extra run_ca_mcgs.sh args]; consumed by scripts/ca_queue.sh, top first.
+# The joint anchor J1 is hp_n36 (already in results_arc/, 35.706 / 34.928) and is NOT re-run.
+# S1 anchors first -- they gate the whole study: within 0.02 dB of 35.558 (T1) / 34.886 (FLAIR).
+SAVE_VOLUMES=1 ca_s_t1_p3 4000 configs/t1flair_v3_af16_jyz_singleT1.yaml 0.001
+SAVE_VOLUMES=1 ca_s_fl_p3 4000 configs/t1flair_v3_af16_jyz_singleFLAIR.yaml 0.001
+SAVE_VOLUMES=1 ca_j_edge0 4000 configs/t1flair_v3_af16_jyz.yaml 0
+SAVE_VOLUMES=1 ca_s_t1_edge0 4000 configs/t1flair_v3_af16_jyz_singleT1.yaml 0
+SAVE_VOLUMES=1 ca_s_fl_edge0 4000 configs/t1flair_v3_af16_jyz_singleFLAIR.yaml 0
