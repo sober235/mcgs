@@ -150,7 +150,7 @@ def write_csv(cells: dict, path: Path) -> None:
             w.writerow(row)
 
 
-def main(argv=None) -> int:
+def main() -> int:
     arc = ROOT / "results_arc"
     cells = build_cells(arc)
     margin_rows = {key: {c: v["head_psnr"] for c, v in per_contrast.items()} for key, per_contrast in cells.items()}
