@@ -122,7 +122,9 @@ EOF
   coupled terms (`R_dtv`, `R_vtv`) are off in every registered run. Everything else is per channel and identical in
   both arms, so λ_edge = 0 isolates the question without disturbing any tuned knob.
 - **The single arms were re-run in this worktree rather than read from `mcgs_af16_wt`** so that all four cells of the
-  2×2 come out of one code tree; the anchor gate is what makes that claim checkable, and it passed to 6 decimal places.
+  2×2 come out of one code tree; the anchor gate is what makes that claim checkable, and it passed to the three decimals
+  the topic registers (the reference 35.558 / 34.886 is itself published to three decimals, so the comparison resolves
+  to about 5e-4 dB — against a 0.02 dB tolerance).
 - **The decision rule was written before the runs** (spec §4) precisely so that the FLAIR outcome could not be
   reinterpreted after the fact. Per the spec, none of the outcomes is a failure of the study — the one failure mode is
   running it and then not writing down the unflattering cell.

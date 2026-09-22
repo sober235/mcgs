@@ -101,8 +101,11 @@ pay back what shared geometry took. The percentage framing is not usable on FLAI
 
 Both single-arm re-runs reproduce the registered GS-single values far inside the 0.02 dB tolerance:
 `ca_s_t1_p3` = 35.55799935 against the registered 35.558 (delta −0.00000065 dB) and `ca_s_fl_p3` = 34.88640392 against
-34.886 (delta +0.00040 dB). M1 = +0.148 / +0.042 reproduces the topic's registered margin exactly. So the four cells
-come out of one code tree and are comparable with each other and with the AF 16 record.
+34.886 (delta +0.00040 dB). M1 = +0.148 / +0.042 reproduces the topic's registered margin **to the three decimals the
+topic registers**, which is the resolution the comparison actually has: the reference values 35.558 / 34.886 are
+themselves published to three decimals, so the T1 delta of −6.5e-7 dB is an artefact of the reference's own rounding
+and the FLAIR delta of +0.0004 dB shows the real resolution (about 5e-4 dB). So the four cells come out of one code
+tree and are comparable with each other and with the AF 16 record.
 
 ### Are these numbers above noise?
 
@@ -120,7 +123,7 @@ measured. And each of the four λ_edge-0 and S1 cells is a single run.
 ### The other three metrics agree (not pre-registered)
 
 The spec reports head PSNR; SSIM, HFEN and head NMSE are in the table above and were computed by the same summariser.
-All three move the same way as PSNR in all four margins and in all eight per-arm λ_edge effects. In particular the
+All three move the same way as PSNR in all four margins and in all four per-arm λ_edge effects. In particular the
 FLAIR M0 is negative on every one of them — SSIM −0.00021, HFEN +0.00063 worse, head NMSE +0.00009 worse — so the
 unflattering FLAIR cell is not an artefact of the PSNR gauge.
 
@@ -214,6 +217,12 @@ regularisation gain that happened to be tuned on the joint arm. A knob that mere
 arm would have no reason to be actively harmful in the single arm, which runs the same code, the same recipe, the same
 iterations and the same capacity.
 
+That inference holds **on this subject, at this acceleration, with λ_edge sampled at two points**. The alternative a
+referee will raise is that 0.001 is simply too strong for a differently-conditioned arm whose own optimum is above 0
+but below 0.001 — in which case the single arm's loss would be a step-size effect rather than evidence that the term
+is contrast-specific. Two sample points cannot exclude that; **Stage 2 is what closes it**, by measuring the shape of
+each arm's curve in λ_edge.
+
 What it does **not** show: it does not show that the effect needs *shared anatomy* rather than merely a second,
 differently-conditioned channel. That is exactly what the spec's Stage 3 placebo (a real but grossly misregistered
 flipped FLAIR) was designed to test, and Stage 3 is not run.
@@ -252,8 +261,15 @@ densities, the term's value at iteration 150 is 4.06e-01 there (spec §2.1), and
 0.041 dB on T1 and 0.018 dB on FLAIR (§7.1). The README's *conclusion* survives and is in fact strengthened — the term
 does flip the sign of joint − single — but it does so by **two** mechanisms, lifting the joint arm and lowering the
 single arm, and the second one is the one a reviewer will ask about, because it is the reason M1 overstates the
-equal-budget margin. This record does not edit the AF 12 topic; the sentence should be corrected when that topic is
-next touched.
+equal-budget margin.
+
+The premise is false in the AF 12 line too, not merely in this one. That line's GS-single uses the same
+duplicated-channel construction: `configs/t1flair_v3_af12_hyw_singleT1.yaml` and `…_singleFLAIR.yaml` put the same
+contrast in both the `plain` and `contrast` slots, with identical `name`, `data_path` and `csm_path` in each — so
+there too `R_edge` compares two independently-densitied reconstructions rather than an image with itself, and is not
+inert. What has not been measured is the *size* of the AF 12 single-arm penalty; only the AF 16 penalty
+(0.041 / 0.018 dB) is measured here. This record does not edit the AF 12 topic; the sentence should be corrected when
+that topic is next touched.
 
 ## 9. What this does not cover
 
@@ -287,7 +303,9 @@ At AF 16 on jiangyizhou, the published MC-GS − GS-single margin of +0.148 / +0
 contribute and the split should be reported, with `R_edge` named as part of the method rather than as a tuning detail.
 On FLAIR the shared-geometry claim must be dropped: one shared geometry costs FLAIR 0.029 dB at this acceleration, and
 the margin exists because the coupling prior more than pays that back — the same sign flip the AF 12 line recorded when
-the term was added. The prior is nonetheless a cross-contrast mechanism and not a tuning artefact: it improves the
-joint arm on both contrasts and degrades both single arms, which run the identical recipe with one contrast in both
-channel slots. Because λ_edge is bad for the single arm, the equal-budget margin for that one knob is +0.107 / +0.024
-dB rather than +0.148 / +0.042; a full equal-budget search on the single arm (spec Stage 4) has not been run.
+the term was added. The prior nonetheless behaves as a cross-contrast mechanism rather than a tuning artefact: it
+improves the joint arm on both contrasts and degrades both single arms, which run the identical recipe with one
+contrast in both channel slots — shown here at two λ_edge values on one subject, so a step-size explanation is not
+yet excluded and the dose-response of spec Stage 2 is what would close it. Because λ_edge is bad for the single
+arm, the equal-budget margin for that one knob is +0.107 / +0.024 dB rather than +0.148 / +0.042; a full
+equal-budget search on the single arm (spec Stage 4) has not been run.
