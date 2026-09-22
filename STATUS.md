@@ -1,3 +1,136 @@
+# STATUS — 2026-09-22（worktree `mcgs_hparam_wt`, branch `coupling-attribution`）— Stage 1 complete, stopped for the user
+
+**Read first:** the record `docs/superpowers/records/2026-09-20-coupling-attribution.md`, then the spec
+`docs/superpowers/specs/2026-09-20-coupling-attribution-design.md` (§4 is the decision table this was read against,
+§5 is what the study does not cover). Plan: `docs/superpowers/plans/2026-09-20-coupling-attribution.md`, Tasks 1–4 done.
+
+## 1. Done and verified
+
+Stage 1: five runs (`scripts/ca_queue_stage1.txt`), all rc=0, queue drained 2026-09-20 20:23, ~62–66 min each on cards
+1/2/3/6/7. Both arms re-run with the recipe's only tunable cross-contrast term — the common-edge prior `R_edge` — set
+to 0, so the published MC-GS − GS-single margin splits into shared geometry and coupling prior. Re-run 2026-09-22 from
+the saved score jsons and volumes; `ca_summary.md` and `ca_summary.csv` came back byte-identical to Task 3's:
+
+```
+$ cd /data0/congcong/code/GS/mcgs_hparam_wt
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= /home/congcongliu/anaconda3/envs/GSTMI/bin/python scripts/ca_summarize.py | tail -5
+| T1 | +0.148 | +0.046 | +0.102 |
+| FLAIR | +0.042 | -0.029 | +0.070 |
+
+Anchor gate (single arm at lambda_edge 0.001 vs registered GS-single, tolerance 0.02 dB): ca_s_t1_p3 T1 35.558 vs 35.558 (delta -0.000); ca_s_fl_p3 FLAIR 34.886 vs 34.886 (delta +0.000) -> PASS
+```
+
+The three numbers per contrast, head-only PSNR in dB:
+
+| | M1 published margin | M0 shared geometry alone | delta = what `R_edge` buys |
+|---|---|---|---|
+| T1 | +0.148154 | **+0.045714** | +0.102439 |
+| FLAIR | +0.041676 | **−0.028535** | +0.070211 |
+
+- **Anchor gate PASS**, with room to spare: `ca_s_t1_p3` = 35.55799935 vs the registered 35.558 (−0.0000006 dB),
+  `ca_s_fl_p3` = 34.88640392 vs 34.886 (+0.0004 dB), tolerance 0.02. M1 reproduces the topic's registered
+  +0.148 / +0.042 exactly, so the four cells are comparable with the AF 16 record.
+- **Decision rows applied (spec §4, written before the runs).** T1 → row 2, `0.02 < M0 < 0.6·M1`
+  (0.02 < 0.045714 < 0.088892): *both mechanisms contribute*; report the split and name `R_edge` as part of the method,
+  not as a tuning detail. FLAIR → row 4, `M0 < 0`: *shared geometry costs that contrast, the prior pays it back*;
+  report it, and (row 3, also satisfied) drop the shared-geometry claim for FLAIR. Row 1 is ruled out on both contrasts.
+- **FLAIR's M0 is negative and that is the finding, not a glitch.** Sharing one geometry costs FLAIR 0.029 dB at AF 16;
+  the +0.042 margin exists because the prior adds +0.070 on top of that deficit. It is above the pre-registered 0.02 dB
+  band, far above the seed floor (0.001 / 0.000 dB, `T1FLAIR_AF16_v3_jiangyizhou/README.md:195`), and agrees in sign on
+  SSIM, HFEN and head NMSE. Precedent: the same sign flip at AF 12, joint − single +0.066 / **−0.038** (P13) →
+  +0.150 / **+0.036** (P14) when common-edge and phase TV were added (`T1FLAIR_AF12_v3_jiangyizhou/README.md:643`).
+- **`R_edge` moves the two arms in opposite directions** — joint T1 35.645→35.706 and FLAIR 34.876→34.928, both single
+  arms *worse* (T1 35.599→35.558, FLAIR 34.904→34.886). A knob that pays off only when the two channels carry different
+  contrasts is a cross-contrast mechanism, not a generic tuning gain. This answers the reviewer's question more directly
+  than M0 does.
+- **Partial equal-budget margin, for this one knob:** at each arm's own best λ_edge of the two measured, T1 +0.107 and
+  FLAIR +0.024 (against the published +0.148 / +0.042). The gap is exactly what λ_edge costs the single arm. **This is
+  one knob only and does not substitute for Stage 4.**
+
+## 2. Waiting on the user (nothing runs until one of these is chosen)
+
+The spec gates Stages 2–4 on the user reading Stage 1. All three are specified, none is started.
+
+1. **Stage 2, λ_edge dose-response** (5 runs, ~5.5 GPU·h, ~70 min on five free cards; plan Task 5). Joint at
+   λ_edge ∈ {0.0003, 0.003, 0.01} and both singles at 0.003. Worth running because Stage 1 has only two λ points:
+   a margin that peaks exactly at the tuned 0.001 and falls off both sides is the signature the reviewer is worried
+   about, and Stage 1 cannot see it.
+2. **Stage 3, the placebo** (1 run + data prep; plan Task 6). Joint with a real but grossly misregistered FLAIR
+   (flipped on PE axis 1), read on the T1 channel. Tests whether the gain needs shared *anatomy* or merely a second
+   well-posed channel — which §7.1 of the record explicitly does **not** establish.
+3. **Stage 4, equal-budget search on the single arm** (~13 GPU·h, gated, spec §3). Six trials × 2 contrasts over
+   λ_geo, wavelet λ, λ_ptv, edge-TV `w_floor` / κ_q. This is the strict form of the reviewer's question; §7.2's
+   +0.107 / +0.024 covers one knob out of five.
+
+Also for the user, not experimental:
+- **How the paper states the mechanism.** Row 1 is out on both contrasts, so "the gain is structural: one geometry,
+  two densities" does not stand as written. The record §10 drafts one paragraph; the wording is the user's call.
+- **A correction is owed to the AF 12 topic.** `T1FLAIR_AF12_v3_jiangyizhou/README.md:652-654` says `R_edge` "is inert"
+  in a single-contrast run. It is not — it costs the single arm 0.041 / 0.018 dB. The conclusion there survives, the
+  stated reason does not. This study did not edit that topic (record §8).
+- Whether Stage 1's five volumes (~0.7 GB each) in `results_arc/` get packed into a topic folder (that is plan Task 7,
+  not started; nothing has been written into `Results_20260908/`).
+
+## 3. Next step
+
+No jobs running, nothing queued. Resume commands, exactly:
+
+```bash
+# Stage 2 — plan Task 5 writes scripts/ca_queue_stage2.txt first (it does not exist yet), then:
+bash <<'EOF'
+cd /data0/congcong/code/GS/mcgs_hparam_wt
+CA_DRY=1 bash scripts/ca_queue.sh scripts/ca_queue_stage2.txt          # dry run, touches no GPU
+nvidia-smi --query-gpu=index,memory.used --format=csv,noheader          # pick genuinely free cards
+ALLOWED="1 2 3 5 6 7" setsid nohup bash scripts/ca_queue.sh scripts/ca_queue_stage2.txt \
+    > results_arc/ca_queue_stage2.log 2>&1 < /dev/null &
+sleep 5; tail -3 results_arc/ca_queue_stage2.log
+EOF
+
+# re-read Stage 1 at any time (no GPU, ~1 min; rewrites ca_summary.{md,csv} identically)
+bash <<'EOF'
+cd /data0/congcong/code/GS/mcgs_hparam_wt
+env PYTHONNOUSERSITE=1 PYTHONPATH= /home/congcongliu/anaconda3/envs/GSTMI/bin/python scripts/ca_summarize.py
+EOF
+
+# pause a running queue: touch results_arc/.ca_queue_pause
+# stop the runner:      pkill -f "scripts/ca_queue.sh"     (trainers keep going)
+# stop one trainer:     pkill -f "cycle.py --exp ca_j_e003"  (then delete its results_arc/ca_j_e003* to requeue)
+```
+
+## 4. Traps, and what not to redo
+
+- **Both arms must be re-run at λ_edge 0, never the joint arm alone.** `R_edge` is not inert in GS-single (that config
+  is the joint config with the same contrast in both slots, and its two channels carry independent densities): value
+  4.06e-01 at iteration 150 against the joint arm's 6.60e-01, and switching it on costs the single arm 0.041 / 0.018 dB.
+  A joint-only ablation would compare against a baseline still paying a prior the joint arm no longer pays.
+- **`hp_n36` is the J1 anchor and is not re-run** — it already reproduces the registered `gs_joint_p3` to 0.000 dB.
+- The summariser asserts each cell's channel name against the ground truth (`ca_s_fl_p3`'s `plain` channel really is
+  FLAIR); the negative FLAIR M0 is **not** a channel swap. Verified independently in Task 3; do not re-litigate it.
+- Smoke runs `ca_smoke_*` (in `results_arc/ca_runs.log`, 17:09–17:18) are feasibility checks, never results.
+- The queue runner skips any item that already has a score json, a log or a launcher log — a crashed item is **not**
+  retried automatically; delete its `results_arc/<exp>*` to requeue it.
+- `TORCH_EXTENSIONS_DIR` is inert for this code (the CUDA extension compiles into each worktree's own
+  `paired_gs/gaussian/build/`), so worktrees do not fight over a cache. Cards and the `.gpulock.<card>` directory under
+  `Cardiac_FreeRunning_MCGS/work/` **are** shared with other sessions — check before launching.
+- Outputs stay in the gitignored `results_arc/`. Nothing has been written into `mcgs_af16_wt` or into any
+  `Results_20260908/` topic, and nothing should be before plan Task 7.
+
+## 5. Why the key decisions were made this way
+
+- **Only `R_edge` is ablated** because spec §2 read the trainer and found it is the recipe's only *tunable* coupling:
+  shared geometry has no λ and cannot be switched off without making MC-GS two independent clouds, and the other two
+  coupled terms (`R_dtv`, `R_vtv`) are off in every registered run. Everything else is per channel and identical in
+  both arms, so λ_edge = 0 isolates the question without disturbing any tuned knob.
+- **The single arms were re-run in this worktree rather than read from `mcgs_af16_wt`** so that all four cells of the
+  2×2 come out of one code tree; the anchor gate is what makes that claim checkable, and it passed to 6 decimal places.
+- **The decision rule was written before the runs** (spec §4) precisely so that the FLAIR outcome could not be
+  reinterpreted after the fact. Per the spec, none of the outcomes is a failure of the study — the one failure mode is
+  running it and then not writing down the unflattering cell.
+
+Below is the previous STATUS (branch `hparam-sensitivity`), kept as-is.
+
+---
+
 # STATUS — 2026-09-16 21:10（worktree `mcgs_hparam_wt`，分支 `hparam-sensitivity`）— 超参数敏感性研究已完成
 
 ## 1. 已完成且已验证
