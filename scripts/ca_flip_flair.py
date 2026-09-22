@@ -37,8 +37,10 @@ def flip_pair(ksp, csm, axis):
     which multiplies k-space by a unit-modulus linear phase and therefore cannot move a zero.
     (The brief's `np.roll(..., 1)` was meant to "re-centre DC"; it only translates the object by
     one voxel and costs the `np.flip` identity above, so it is dropped.)  The FFT round trip
-    leaves ~1e-16 of round-off in the shuttered samples, so the reflected zero set is re-imposed
-    exactly -- otherwise the output has no zeros at all.
+    leaves round-off in the shuttered samples -- order 1e-13 absolute, 1e-17 relative to max|k|
+    (9.969e-14 / 1.480e-17 on coil 0 of this data; it is coil-dependent, so check it with
+    scripts/ca_verify_placebo.py [3] rather than trusting the constant) -- so the reflected zero
+    set is re-imposed exactly; otherwise the output has no exact zeros at all.
 
     Consequence: a shutter symmetric about the DC sample comes back sample-for-sample and
     `known_zero` stays valid; a shutter that is not (e.g. a one-sided partial-Fourier cut) comes
@@ -82,6 +84,9 @@ if __name__ == "__main__":
          h5py.File(f"{OUT}/{pairs[0][2]}", "w") as gk, h5py.File(f"{OUT}/{pairs[1][2]}", "w") as gc:
         k_in, c_in = fk[pairs[0][1]], fc[pairs[1][1]]
         assert k_in.shape == c_in.shape, (k_in.shape, c_in.shape)
+        # coil-FIRST input: a coil-last array would loop 256 times and write a plausible-looking
+        # wrong file rather than fail, which is the one outcome this script must not produce.
+        assert k_in.shape[0] <= 64, f"axis 0 must be the coil axis, got shape {k_in.shape}"
         C = k_in.shape[0]
         k_out = gk.create_dataset(pairs[0][1], shape=k_in.shape, dtype=k_in.dtype)
         c_out = gc.create_dataset(pairs[1][1], shape=c_in.shape, dtype=c_in.dtype)
