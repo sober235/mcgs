@@ -1,0 +1,8 @@
+# coupling-attribution Stage 2: dose-response on lambda_edge.
+# The joint curve gets five points with Stage 1 (0, 0.0003, 0.001=hp_n36, 0.003, 0.01);
+# the margin gets three (0 and 0.001 from Stage 1, 0.003 here).
+SAVE_VOLUMES=1 ca_j_e0003 4000 configs/t1flair_v3_af16_jyz.yaml 0.0003
+SAVE_VOLUMES=1 ca_j_e003 4000 configs/t1flair_v3_af16_jyz.yaml 0.003
+SAVE_VOLUMES=1 ca_j_e01 4000 configs/t1flair_v3_af16_jyz.yaml 0.01
+SAVE_VOLUMES=1 ca_s_t1_e003 4000 configs/t1flair_v3_af16_jyz_singleT1.yaml 0.003
+SAVE_VOLUMES=1 ca_s_fl_e003 4000 configs/t1flair_v3_af16_jyz_singleFLAIR.yaml 0.003

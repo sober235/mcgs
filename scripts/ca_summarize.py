@@ -11,6 +11,12 @@ Input : results_arc/<exp>_score.json (arc/cycle.py) for the six Stage-1 experime
         |GT| > 0.05 * P99.9|GT| (diag_artefact.headonly.head_mask) -- same method as scripts/hp_summarize.py.
 Output: results_arc/ca_summary.md and ca_summary.csv; exit 1 if either single-arm anchor
         (ca_s_t1_p3, ca_s_fl_p3) is more than 0.02 dB from its registered GS-single value.
+
+Also builds the Stage 2 dose-response table (spec section 3, Stage 2): the joint arm's five
+lambda_edge values (0, 0.0003, 0.001, 0.003, 0.01) and the single arm's three (0, 0.001, 0.003),
+plus the margin (joint - single) at the three lambda_edge values where both arms were run.
+Output: results_arc/ca_dose.md and ca_dose.csv (one row per lambda_edge / arm / contrast, plus
+margin rows), written regardless of the Stage 1 anchor gate above.
 usage: ca_summarize.py
 """
 from __future__ import annotations
@@ -41,6 +47,31 @@ CELLS = [
     ("single", 0.0, "T1", "ca_s_t1_edge0", "plain"),
     ("single", 0.0, "FLAIR", "ca_s_fl_edge0", "plain"),
 ]
+
+# Stage 2 (spec section 3, Stage 2): the joint arm's five lambda_edge values and the single arm's
+# three. Same (arm, lambda_edge, contrast, exp, channel) shape as CELLS above, read with the same
+# load_cell(). The three lambda_edge values common to both arms (0, 0.001, 0.003) are where the
+# dose-response margin is defined; 0.0003 and 0.01 are joint-only.
+DOSE_CELLS = [
+    ("joint", 0.0, "T1", "ca_j_edge0", "plain"),
+    ("joint", 0.0, "FLAIR", "ca_j_edge0", "contrast"),
+    ("joint", 0.0003, "T1", "ca_j_e0003", "plain"),
+    ("joint", 0.0003, "FLAIR", "ca_j_e0003", "contrast"),
+    ("joint", 0.001, "T1", "hp_n36", "plain"),
+    ("joint", 0.001, "FLAIR", "hp_n36", "contrast"),
+    ("joint", 0.003, "T1", "ca_j_e003", "plain"),
+    ("joint", 0.003, "FLAIR", "ca_j_e003", "contrast"),
+    ("joint", 0.01, "T1", "ca_j_e01", "plain"),
+    ("joint", 0.01, "FLAIR", "ca_j_e01", "contrast"),
+    ("single", 0.0, "T1", "ca_s_t1_edge0", "plain"),
+    ("single", 0.0, "FLAIR", "ca_s_fl_edge0", "plain"),
+    ("single", 0.001, "T1", "ca_s_t1_p3", "plain"),
+    ("single", 0.001, "FLAIR", "ca_s_fl_p3", "plain"),
+    ("single", 0.003, "T1", "ca_s_t1_e003", "plain"),
+    ("single", 0.003, "FLAIR", "ca_s_fl_e003", "plain"),
+]
+DOSE_LAMBDAS = [0.0, 0.0003, 0.001, 0.003, 0.01]
+DOSE_METRICS = ("head_psnr", "head_ssim", "head_hfen", "head_nmse")
 
 # cycle.py's fixed npz keys, by channel (add_gs_arm.py) -- independent of which contrast that
 # channel actually holds.
@@ -99,6 +130,16 @@ def build_cells(arc: Path) -> dict:
     return out
 
 
+def build_dose_cells(arc: Path) -> dict:
+    """(arm, lambda_edge) -> {"T1": {...metrics...}, "FLAIR": {...metrics...}} for the Stage-2
+    dose-response cells (DOSE_CELLS). Separate from build_cells/CELLS above -- same shape, different
+    experiments -- so Stage 1's cells and gate are untouched by Stage 2."""
+    out = {}
+    for arm, lam, contrast, exp, channel in DOSE_CELLS:
+        out.setdefault((arm, lam), {})[contrast] = load_cell(Path(arc), exp, channel, contrast)
+    return out
+
+
 def anchor_check(cells: dict) -> dict:
     out = {}
     for c in ("T1", "FLAIR"):
@@ -150,6 +191,52 @@ def write_csv(cells: dict, path: Path) -> None:
             w.writerow(row)
 
 
+def dose_rows(dose_cells: dict) -> list:
+    """Flatten dose_cells (build_dose_cells) into one row per (lambda_edge, arm, contrast), plus a
+    margin row (joint - single, all four head metrics) at every lambda_edge where both arms exist
+    (0, 0.001, 0.003) -- spec section 3, Stage 2."""
+    rows = []
+    for lam in DOSE_LAMBDAS:
+        for arm in ("joint", "single"):
+            per_contrast = dose_cells.get((arm, lam))
+            if per_contrast is None:
+                continue
+            for c in ("T1", "FLAIR"):
+                v = per_contrast[c]
+                rows.append({"lambda_edge": lam, "arm": arm, "contrast": c,
+                             **{k: v[k] for k in DOSE_METRICS}})
+        joint = dose_cells.get(("joint", lam))
+        single = dose_cells.get(("single", lam))
+        if joint is not None and single is not None:
+            for c in ("T1", "FLAIR"):
+                rows.append({"lambda_edge": lam, "arm": "margin", "contrast": c,
+                             **{k: joint[c][k] - single[c][k] for k in DOSE_METRICS}})
+    return rows
+
+
+def render_dose_md(rows: list) -> str:
+    lines = ["| lambda_edge | arm | contrast | head_psnr | head_ssim | head_hfen | head_nmse |",
+             "|---|---|---|---|---|---|---|"]
+    for r in rows:
+        lines.append(f"| {r['lambda_edge']} | {r['arm']} | {r['contrast']} | "
+                     f"{_f(r['head_psnr'])} | {_f(r['head_ssim'], 4)} | {_f(r['head_hfen'], 4)} | "
+                     f"{_f(r['head_nmse'], 5)} |")
+    lines.append("")
+    lines.append("margin rows are joint - single (head_psnr/head_ssim/head_hfen/head_nmse) at the "
+                 "lambda_edge values where both arms were run (0, 0.001, 0.003); the joint arm alone "
+                 "also has 0.0003 and 0.01.")
+    return "\n".join(lines) + "\n"
+
+
+def write_dose_csv(rows: list, path: Path) -> None:
+    cols = ["lambda_edge", "arm", "contrast"] + list(DOSE_METRICS)
+    with open(path, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        for r in rows:
+            w.writerow(r)
+
+
 def main() -> int:
     arc = ROOT / "results_arc"
     cells = build_cells(arc)
@@ -160,6 +247,14 @@ def main() -> int:
     (arc / "ca_summary.md").write_text(md)
     write_csv(cells, arc / "ca_summary.csv")
     print(md)
+
+    dose_cells = build_dose_cells(arc)
+    rows = dose_rows(dose_cells)
+    dose_md = render_dose_md(rows)
+    (arc / "ca_dose.md").write_text(dose_md)
+    write_dose_csv(rows, arc / "ca_dose.csv")
+    print(dose_md)
+
     if not (gate["T1"]["passed"] and gate["FLAIR"]["passed"]):
         print("ANCHOR GATE FAILED -- the single-arm anchors do not reproduce; stop and investigate.",
               file=sys.stderr)
