@@ -103,7 +103,10 @@ EOF
   is the joint config with the same contrast in both slots, and its two channels carry independent densities): value
   4.06e-01 at iteration 150 against the joint arm's 6.60e-01, and switching it on costs the single arm 0.041 / 0.018 dB.
   A joint-only ablation would compare against a baseline still paying a prior the joint arm no longer pays.
-- **`hp_n36` is the J1 anchor and is not re-run** — it already reproduces the registered `gs_joint_p3` to 0.000 dB.
+- **`hp_n36` is the J1 anchor and is not re-run** — it already reproduces the registered `gs_joint_p3` (35.706 / 34.928)
+  to the three decimals the topic registers: measured 35.706153 / 34.928080, deltas +0.00015 / +0.00008 dB, inside that
+  reference's own ~5e-4 dB resolution. The "0.000 / 0.000" phrasing in the hparam block below is that rounding, not
+  measured precision.
 - The summariser asserts each cell's channel name against the ground truth (`ca_s_fl_p3`'s `plain` channel really is
   FLAIR); the negative FLAIR M0 is **not** a channel swap. Verified independently in Task 3; do not re-litigate it.
 - Smoke runs `ca_smoke_*` (in `results_arc/ca_runs.log`, 17:09–17:18) are feasibility checks, never results.

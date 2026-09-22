@@ -49,8 +49,11 @@ launches 90 s apart). All `rc=0`; queue drained 2026-09-20 20:23.
 | `ca_s_t1_edge0` | single T1 | `…_singleT1.yaml` | 0 | 6 | 64.8 min |
 | `ca_s_fl_edge0` | single FLAIR | `…_singleFLAIR.yaml` | 0 | 7 | 62.3 min |
 
-The joint anchor J1 is `hp_n36` from the hyper-parameter study (already in `results_arc/`, 65.4 min), which reproduced
-the registered `gs_joint_p3` to 0.000 / 0.000 dB across worktrees, so it was not re-run. Everything else is fixed:
+The joint anchor J1 is `hp_n36` from the hyper-parameter study (already in `results_arc/`, 65.4 min), which reproduces
+the registered `gs_joint_p3` (35.706 / 34.928) **to the three decimals the topic registers**, so it was not re-run.
+Measured, it is 35.706153 / 34.928080 — deltas +0.00015 / +0.00008 dB, inside that reference's own ~5e-4 dB rounding
+resolution; the "0.000 / 0.000 dB" quoted for this anchor in the hparam study is the reference's rounding rather than
+a demonstrated zero. Everything else is fixed:
 jiangyizhou T1+FLAIR, the AF 16 house vd-Poisson mask (md5 `d08179b8…`, T1 15.19× / FLAIR 16.49×), the phase-3 recipe
 with its recipe block byte-identical to `run_hp_mcgs.sh` except λ_edge, 4000 iterations, 3.6M points, seed 42,
 `SAVE_VOLUMES=1`. Metrics are head-only (`|GT| > 0.05 · P99.9|GT|`), the same scorer as the hparam study.
