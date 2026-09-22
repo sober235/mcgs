@@ -110,20 +110,57 @@ tuned 0.001 and falls off on both sides is the signature the reviewer is worried
 Stage 1 and 2 separate "shared geometry" from "coupling prior", but both are still joint modelling.
 What they do not test is whether the gain needs **shared anatomy** at all, or merely a second
 well-posed channel. Placebo: keep jiangyizhou's own FLAIR k-space, coils, SNR and elliptical support,
-but flip the FLAIR volume along PE axis 1 so that it is a real brain that does not register to T1.
+but flip the FLAIR volume so that it is a real brain that does not register to T1.
 
-Built in image space so the flip is self-consistent:
+Built in image space so the flip is self-consistent (arrays coil-last):
 
 ```
-ksp_flip = fft3c( flip(ifft3c(ksp_FLAIR), axis=1) )
-csm_flip = flip(csm_FLAIR, axis=1)
+ksp_flip = fft3c( flip(ifft3c(ksp_FLAIR), axis=AXIS) )
+csm_flip = flip(csm_FLAIR, axis=AXIS)
 ```
 
-which makes the SENSE-combined ground truth exactly `flip(GT_FLAIR, axis=1)`. Axis 1 (ky, 256) is an
-in-plane axis of this sagittal acquisition, so the flip is grossly misaligned; axis 2 (kz, 176) is the
-left-right stack direction and would be near-symmetric, which is why it is not used. A one-sample
-re-centring roll keeps the elliptical support identical, so `known_zero` stays valid — asserted by test,
-not by eye.
+which makes the SENSE-combined ground truth exactly `flip(GT_FLAIR, axis=AXIS)`.
+
+**Which axis — corrected 2026-09-22, against the measured shutter.** This section first said axis 1
+(ky) and claimed "a one-sample re-centring roll keeps the elliptical support identical, so
+`known_zero` stays valid". **That claim is false on this data and the sentence is withdrawn.** Two
+measurements, both made before any Stage-3 reconstruction was scored:
+
+- FLAIR's acquired support on the PE plane is 34139 of 45056 lines (frac 0.757702) and is modelled to
+  **1 line in 45056** by `ellipse(centre 128, 88; half-axes 128, 88) ∧ ky ≥ 20`. So the shutter is a
+  DC-centred ellipse **with a one-sided partial-Fourier cut** in ky, and is *not* symmetric about the
+  DC sample in ky.
+- An image-space flip always sends the k-space support to its reflection about the **DC sample**, not
+  to `np.flip` of it: the two differ by a one-voxel image translation, which multiplies k-space by a
+  unit-modulus linear phase and therefore cannot move a zero. Under that reflection **2454 ky lines
+  move** (2806 under a plain flip). No placement of a roll rescues it — a roll in image space is a
+  translation and cannot move a zero; a roll in k-space would move DC off the array centre, which is
+  the ACS/DC misregistration this line has already paid ~1 dB for once.
+
+The axis actually used is the **readout** — array axis 0 once the coil axis is moved last, i.e. the
+axis this config records as `readout_axis: 0`. FLAIR's support is complete along it (34139 PE points
+at every one of the 256 x indices), so it is trivially symmetric about that axis' DC sample and the
+flip returns it with **0 differing samples**; the trainer's `[physics:contrast]` line for the placebo
+is then character-identical to the real-FLAIR anchor's. The `x = const` plane is axial, so the readout
+is the superior–inferior direction and the flip is a **head–foot flip** — the most adversarial of the
+three axes, not the least: NCC(|T1|, flipped |FLAIR|) is 0.349 for readout, 0.427 for ky, 0.678 for
+kz, against 0.801 unflipped (head-masked: −0.096 readout vs 0.058 ky).
+
+kz is in fact the one PE axis whose support *is* DC-symmetric, so it would pass the support test —
+but it is still rejected for the reason already given above: at NCC 0.678 it is nearly registered,
+because it is the left–right stack direction of this sagittal acquisition and a head is near-symmetric
+across it. A placebo that still registers would make the stage meaningless while looking fine.
+
+**Controller ruling, 2026-09-22 — recorded before any Stage-3 score existed.**
+
+- **`ca_j_placebo` (readout flip) is the primary arm.** The §4 Stage-3 row applies to it and to it
+  alone.
+- **`ca_j_placebo_ky` (ky flip) is secondary and is reported as context, not against the §4 rule.**
+  Its support is demonstrably not preserved (2454 PE lines move; its `[physics:contrast]` line
+  explains 199 of 229 zero lines against the anchor's 233 of 233, frac_z 0.2151 vs 0.2423), so it
+  cannot satisfy a rule that assumes a valid `known_zero`.
+- The primary arm was chosen on support preservation and NCC measured **before** any Stage-3
+  reconstruction scored, and it is the more adversarial of the two.
 
 Run `ca_j_placebo` (joint, λ_edge 0.001, channel 2 = flipped FLAIR) and read the **T1** channel only.
 If T1 still beats `ca_s_t1_p3` by something close to +0.148 dB, the margin is not coming from shared
@@ -151,7 +188,7 @@ measured seed floor).
 | 0.02 dB < M0 < 0.6 · M1 | both mechanisms contribute | report the split; name R_edge as part of the method, not as a tuning detail |
 | M0 ≤ 0.02 dB on a contrast | on that contrast the margin **is** the common-edge prior | say so. It is still cross-contrast modelling, but the mechanism sentence changes and the shared-geometry claim must be dropped for that contrast |
 | M0 < 0 on a contrast | shared geometry costs that contrast, the prior pays it back | report it; this is the AF 12 FLAIR story (−0.038 → +0.036) and must not be hidden |
-| Stage 3: placebo T1 margin within 0.02 dB of M1 | the second channel's anatomy is irrelevant | the joint-modelling claim fails; the effect is regularisation / conditioning |
+| Stage 3, **primary arm `ca_j_placebo` only**: placebo T1 margin within 0.02 dB of M1 | the second channel's anatomy is irrelevant | the joint-modelling claim fails; the effect is regularisation / conditioning |
 
 None of these outcomes is a failure of the study. The one failure mode is running it and then not
 writing down the unflattering cell.
@@ -167,6 +204,15 @@ writing down the unflattering cell.
   belongs in the rebuttal as-is.
 - **Noise.** The frozen recipe already fails at 2σ₀ (`T1FLAIR_AF16_noise2x_v3_jiangyizhou`). Attribution
   is measured at 1σ₀ here.
+- **Stage 3 cannot separate "wrong anatomy" from "twice the support to cover".** `init_mode=head` draws
+  the shared cloud from the union of the two channels' ZF head supports, so both placebo arms grow it
+  from `support_frac` 0.4264 to **0.4801** — the same 3.6 M points must now cover ~12.6 % more volume.
+  This is intrinsic to any misregistered partner and is axis-independent (both arms measure 0.4801 /
+  0.4802), not an artefact of how the flip was built. So a negative Stage-3 result reads as **"the
+  margin needs the two volumes to register"**, which is broader than "needs the partner's anatomy",
+  and the write-up must use the broader wording. For this model the two are arguably the same
+  statement — one geometry shared between two volumes only helps if they occupy the same geometry —
+  but the spec should not claim the narrower one.
 - Lesion contrast: the T1+FLAIR subjects are healthy volunteers, as in the hparam study.
 
 ## 6. Fixed factors
