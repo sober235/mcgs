@@ -2,28 +2,34 @@
 """ca_fig_dose.py -- Stage 2 dose-response figure for the coupling-attribution study
 (spec docs/superpowers/specs/2026-09-20-coupling-attribution-design.md, section 3, Stage 2).
 
-Two panels, T1 and FLAIR. x = lambda_edge, log-scaled, with 0 placed at a fixed offset left of the
+Small multiples, 2 rows x 2 columns, columns T1 / FLAIR sharing the x-axis top-to-bottom. Row 1 =
+head PSNR (dB): the joint arm (5 points: 0, 0.0003, 0.001, 0.003, 0.01) and the single arm (3 points:
+0, 0.001, 0.003 -- drawn only where a run exists, not interpolated across the two lambda_edge values
+the single arm never ran). Row 2 = the margin joint - single head PSNR, at the 3 lambda_edge values
+where both arms exist -- its own axis, not a twin of row 1, so a reader can read the margin curve's
+shape (monotonic vs. peak-and-fall) without it sharing pixels with two absolute-PSNR curves ~150x
+larger. x = lambda_edge, log-scaled in every panel, with 0 placed at a fixed offset left of the
 smallest run value (0.0003) since a log axis cannot represent zero -- a dotted separator marks that
 gap as an axis break, not a to-scale distance, and the tick is still labelled "0" so the point is
-never silently dropped. y (left) = head PSNR (dB) for the joint arm (5 points: 0, 0.0003, 0.001,
-0.003, 0.01) and the single arm (3 points: 0, 0.001, 0.003 -- drawn only where a run exists, not
-interpolated across the two lambda_edge values the single arm never ran). y (right, twin axis) =
-the margin joint - single head PSNR, at the 3 lambda_edge values where both arms exist. A vertical
-grey line marks the published lambda_edge 0.001.
+never silently dropped. A vertical grey line marks the published lambda_edge 0.001 in every panel.
 
-The margin's twin axis is a deliberate departure from this skill's default "no dual-axis" rule: the
-margin is not an independent measure but a difference of the two curves already on the primary axis,
-and the dose-response question this figure exists to answer (spec section 3) is exactly whether that
-difference moves with lambda_edge -- reading it off a third, separately-scaled panel would hide the
-lambda_edge alignment the reader needs to check. Colour is otherwise by the book: two categorical
-slots for the two identity series (joint, single) validated with the dataviz skill's checker --
-node scripts/validate_palette.js "#2a78d6,#eb6834" --mode light -> ALL CHECKS PASS (worst adjacent
-CVD dE 24.7, normal-vision dE 33.6, both >> the 8 / 15 targets) -- and a third, deliberately
-non-categorical neutral grey (#6b6a63, WCAG contrast 5.43:1 on the #ffffff surface) for the margin,
-since it is a derived quantity rather than a third identity (dataviz color-formula.md's documented
-scope: the six-check validator covers categorical identity palettes, not a lone status/derived
-colour, which is instead checked for WCAG contrast). Palette and marks otherwise follow
-scripts/hp_fig_curves.py (house style for this topic).
+Revision note (previous version used a twin axis for the margin, matched to the primary axis's
+dB-per-pixel scale to keep slopes comparable -- see git history). That fixed the slope-comparison
+hazard but left a second one: positional confusability, where two quantities on independently
+re-centred axes could land at the same pixel height by coincidence, and the margin curve's own shape
+in isolation (the thing the spec's decision rule turns on) was harder to read sharing a panel with two
+other curves. Small multiples put the margin on its own axis and its own row instead, which removes
+both problems without dropping the "same x, aligned across quantities" property -- that is exactly
+what sharing the x-axis column-wise gives.
+
+Colour: two categorical slots for the two identity series (joint, single) validated with the dataviz
+skill's checker -- node scripts/validate_palette.js "#2a78d6,#eb6834" --mode light -> ALL CHECKS PASS
+(worst adjacent CVD dE 24.7, normal-vision dE 33.6, both >> the 8 / 15 targets) -- and a third,
+deliberately non-categorical neutral grey (#6b6a63, WCAG contrast 5.43:1 on the #ffffff surface) for
+the margin, since it is a derived quantity rather than a third identity (dataviz color-formula.md's
+documented scope: the six-check validator covers categorical identity palettes, not a lone
+status/derived colour, which is instead checked for WCAG contrast). Palette and marks otherwise
+follow scripts/hp_fig_curves.py (house style for this topic).
 
 Input : results_arc/ca_dose.csv (scripts/ca_summarize.py).
 Output: figures/ca_dose_lambda_edge.{png,pdf} (200 dpi PNG, TrueType PDF).
@@ -73,26 +79,35 @@ def xpos(lam: float, zero_x: float) -> float:
     return zero_x if lam == 0.0 else math.log10(lam)
 
 
-def shared_span(primary_vals, margin_vals, pad=1.4, floor=0.02):
-    """Equal dB-per-pixel span for the primary and twin axes (both are dB: absolute head PSNR and a
-    difference of two head-PSNR curves), so a reader can compare slopes across the two axes without
-    the arbitrary rescaling a plain twinx() would introduce -- see the module docstring."""
-    span = max(max(primary_vals) - min(primary_vals), max(margin_vals) - min(margin_vals), floor) * pad
-    p_c = (max(primary_vals) + min(primary_vals)) / 2
-    m_c = (max(margin_vals) + min(margin_vals)) / 2
-    return span, p_c, m_c
-
-
-def panel(ax, ax2, data, contrast, zero_x, lam_ticks, xlim):
-    joint = data[contrast]["joint"]
-    single = data[contrast]["single"]
-    margin = data[contrast]["margin"]
-
+def axis_cosmetics(ax, zero_x, lam_ticks, xlim, show_xlabel, ylabel, yfmt):
+    """Shared x-axis treatment (published marker, zero-offset tick, axis-break separator) and grid /
+    spine / label chrome, common to every panel regardless of which quantity it plots."""
     ax.axvline(xpos(PUBLISHED, zero_x), color=BASE, lw=1.0, zorder=1)
     ax.text(xpos(PUBLISHED, zero_x), 1.0, " published", transform=ax.get_xaxis_transform(),
             ha="left", va="bottom", fontsize=7, color=INK2)
     break_x = (zero_x + xpos(min(l for l in lam_ticks if l > 0), zero_x)) / 2
     ax.axvline(break_x, color=GRID, lw=1.0, linestyle=":", zorder=1)
+
+    ax.set_xlim(*xlim)
+    ax.set_xticks([xpos(l, zero_x) for l in lam_ticks])
+    ax.minorticks_off()
+    if show_xlabel:
+        ax.set_xticklabels([("0" if l == 0.0 else f"{l:g}") for l in lam_ticks])
+        ax.set_xlabel(r"$\lambda_{edge}$ (log scale; 0 offset left of 0.0003, axis break)")
+    else:
+        ax.tick_params(labelbottom=False)
+    ax.set_ylabel(ylabel)
+    ax.grid(True, axis="y", color=GRID, lw=0.8, linestyle="-", zorder=0)
+    ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.tick_params(length=2.5, width=0.8)
+    ax.yaxis.set_major_formatter(matplotlib.ticker.FormatStrFormatter(yfmt))
+
+
+def panel_psnr(ax, data, contrast, zero_x, lam_ticks, xlim, show_xlabel, ylabel, title=None):
+    joint = data[contrast]["joint"]
+    single = data[contrast]["single"]
 
     jx = [xpos(l, zero_x) for l, _ in joint]
     jy = [v for _, v in joint]
@@ -110,35 +125,23 @@ def panel(ax, ax2, data, contrast, zero_x, lam_ticks, xlim):
         ax.annotate("single", (sx[-1], sy[-1]), xytext=(6, -8), textcoords="offset points",
                      va="center", fontsize=7.5, color=INK)
 
+    if title:
+        ax.set_title(title, fontsize=9.5, color=INK, loc="left")
+    axis_cosmetics(ax, zero_x, lam_ticks, xlim, show_xlabel, ylabel, "%.2f")
+
+
+def panel_margin(ax, data, contrast, zero_x, lam_ticks, xlim, show_xlabel, ylabel):
+    margin = data[contrast]["margin"]
+
     mx = [xpos(l, zero_x) for l, _ in margin]
     my = [v for _, v in margin]
-    ax2.plot(mx, my, ":", color=MARGIN, lw=1.6, zorder=2)
-    ax2.plot(mx, my, linestyle="none", marker="D", ms=6, mfc=MARGIN, mec=SURF, mew=1.2, zorder=4)
+    ax.plot(mx, my, ":", color=MARGIN, lw=1.6, zorder=3)
+    ax.plot(mx, my, linestyle="none", marker="D", ms=6, mfc=MARGIN, mec=SURF, mew=1.2, zorder=4)
     if mx:
-        ax2.annotate("margin", (mx[-1], my[-1]), xytext=(6, 0), textcoords="offset points",
-                      va="center", fontsize=7.5, color=INK)
+        ax.annotate("margin", (mx[-1], my[-1]), xytext=(6, 0), textcoords="offset points",
+                     va="center", fontsize=7.5, color=INK)
 
-    span, p_c, m_c = shared_span(jy + sy, my)
-    ax.set_ylim(p_c - span / 2, p_c + span / 2)
-    ax2.set_ylim(m_c - span / 2, m_c + span / 2)
-
-    ax.set_xlim(*xlim)
-    ax.set_xticks([xpos(l, zero_x) for l in lam_ticks])
-    ax.set_xticklabels([("0" if l == 0.0 else f"{l:g}") for l in lam_ticks])
-    ax.minorticks_off()
-    ax.set_title(contrast, fontsize=9.5, color=INK, loc="left")
-    ax.set_xlabel(r"$\lambda_{edge}$ (log scale; 0 offset left of 0.0003, axis break)")
-    ax.set_ylabel("head PSNR (dB)")
-    ax2.set_ylabel("margin, joint − single (dB)", color=INK2)
-    ax.grid(True, axis="y", color=GRID, lw=0.8, linestyle="-", zorder=0)
-    ax.set_axisbelow(True)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)   # ax2 (twinx) owns the right edge instead
-    ax2.spines["top"].set_visible(False)
-    ax.tick_params(length=2.5, width=0.8)
-    ax2.tick_params(length=2.5, width=0.8)
-    ax.yaxis.set_major_formatter(matplotlib.ticker.FormatStrFormatter("%.2f"))
-    ax2.yaxis.set_major_formatter(matplotlib.ticker.FormatStrFormatter("%.3f"))
+    axis_cosmetics(ax, zero_x, lam_ticks, xlim, show_xlabel, ylabel, "%.3f")
 
 
 def main() -> int:
@@ -147,27 +150,31 @@ def main() -> int:
     zero_x = min(math.log10(l) for l in lam_ticks if l > 0) - GAP
     xlim = (zero_x - 0.35, max(math.log10(l) for l in lam_ticks if l > 0) + 0.35)
 
-    fig, axes = plt.subplots(1, 2, figsize=(9.0, 4.3), dpi=200)
-    twins = [ax.twinx() for ax in axes]
-    for ax, ax2, contrast in zip(axes, twins, ("T1", "FLAIR")):
-        panel(ax, ax2, data, contrast, zero_x, lam_ticks, xlim)
+    fig, axes = plt.subplots(2, 2, figsize=(9.0, 7.2), dpi=200, sharex="col")
+    for col, contrast in enumerate(("T1", "FLAIR")):
+        panel_psnr(axes[0, col], data, contrast, zero_x, lam_ticks, xlim, show_xlabel=False,
+                   ylabel=("head PSNR (dB)" if col == 0 else ""), title=contrast)
+        panel_margin(axes[1, col], data, contrast, zero_x, lam_ticks, xlim, show_xlabel=True,
+                     ylabel=("margin, joint − single (dB)" if col == 0 else ""))
 
     handles = [
         Line2D([], [], color=JOINT, marker="o", ms=7, mfc=JOINT, mec=SURF, mew=1.2, lw=1.6, linestyle="-", label="joint"),
         Line2D([], [], color=SINGLE, marker="s", ms=7, mfc=SINGLE, mec=SURF, mew=1.2, lw=1.6, linestyle="--", label="single"),
-        Line2D([], [], color=MARGIN, marker="D", ms=6, mfc=MARGIN, mec=SURF, mew=1.2, lw=1.6, linestyle=":", label="margin (joint − single, right axis)"),
+        Line2D([], [], color=MARGIN, marker="D", ms=6, mfc=MARGIN, mec=SURF, mew=1.2, lw=1.6, linestyle=":", label="margin (joint − single)"),
     ]
-    fig.legend(handles=handles, loc="upper right", bbox_to_anchor=(0.99, 0.985), frameon=False, ncol=3,
+    fig.legend(handles=handles, loc="upper right", bbox_to_anchor=(0.99, 0.99), frameon=False, ncol=3,
                handlelength=2.6, numpoints=1, fontsize=8)
-    fig.text(0.01, 0.985, "MC-GS dose-response on the common-edge prior weight " + r"$\lambda_{edge}$",
+    fig.text(0.01, 0.99, "MC-GS dose-response on the common-edge prior weight " + r"$\lambda_{edge}$",
               ha="left", va="top", fontsize=10, color=INK, weight="medium")
     fig.text(0.01, 0.005,
               "jiangyizhou T1 + FLAIR, nominal AF 16 house vd-Poisson mask, frozen phase-3 recipe, 4000 iterations, "
-              "seed 42. Head-masked PSNR (|GT| > 0.05 P99.9). Joint: 5 lambda_edge values; single: 3 (0, 0.001, "
-              "0.003) -- drawn only where run, not interpolated. Margin: the 3 lambda_edge values where both arms "
-              "exist. Numbers: results_arc/ca_dose.md.",
+              "seed 42. Head-masked PSNR (|GT| > 0.05 P99.9). Top row: joint (5 lambda_edge values) vs single (3: "
+              "0, 0.001, 0.003 -- drawn only where run, not interpolated). Bottom row: the margin at the 3 "
+              "lambda_edge values where both arms exist, sharing the x-axis with the row above. "
+              "Numbers: results_arc/ca_dose.md.",
               ha="left", va="bottom", fontsize=6.5, color=INK2)
-    fig.tight_layout(rect=(0, 0.06, 1, 0.94))
+    fig.tight_layout(rect=(0, 0.03, 1, 0.94))
+    fig.subplots_adjust(hspace=0.3)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for ext in ("png", "pdf"):
