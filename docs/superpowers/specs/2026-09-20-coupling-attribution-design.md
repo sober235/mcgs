@@ -141,7 +141,10 @@ The axis actually used is the **readout** — array axis 0 once the coil axis is
 axis this config records as `readout_axis: 0`. FLAIR's support is complete along it (34139 PE points
 at every one of the 256 x indices), so it is trivially symmetric about that axis' DC sample and the
 flip returns it with **0 differing samples**; the trainer's `[physics:contrast]` line for the placebo
-is then character-identical to the real-FLAIR anchor's. The `x = const` plane is axial, so the readout
+is then identical to the real-FLAIR anchor's **in every known-zero field** (`cuts`, `ellipse`,
+`frac_z_used`, `zero_lines`, `explained`, `nonzero_in_z`, `outliers`). Exactly one of its fifteen
+fields differs — `noise_level_used`, 5.1730e-04 relative, from the float32 FFT round trip — and it
+carries no known-zero content. The `x = const` plane is axial, so the readout
 is the superior–inferior direction and the flip is a **head–foot flip** — the most adversarial of the
 three axes, not the least: NCC(|T1|, flipped |FLAIR|) is 0.349 for readout, 0.427 for ky, 0.678 for
 kz, against 0.801 unflipped (head-masked: −0.096 readout vs 0.058 ky).

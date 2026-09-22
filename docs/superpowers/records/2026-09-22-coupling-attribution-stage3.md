@@ -25,9 +25,13 @@ The readout axis is the primary because FLAIR's shutter is a DC-centred ellipse 
 partial-Fourier cut at ky ≥ 20** (support 34139/45056 lines, modelled to 1 line in 45056 by
 `ellipse(128,88; 128,88) ∧ ky ≥ 20`), so it is not DC-symmetric in ky and a ky flip must mirror it.
 FLAIR's support is complete along the readout (34139 PE points at every one of the 256 x indices), so
-that flip returns it untouched and the placebo's `[physics:contrast]` line is character-identical to
-the real-FLAIR anchor's (`axis0_lo=20`, ellipse `(128.0, 88.0, 1.0)`, `frac_z_used=0.2423`,
-233/233 zero lines explained). The ky arm's is not (`cuts` all `None`, `0.2151`, 199/229).
+that flip returns it untouched and the placebo's `[physics:contrast]` line is **identical to the
+real-FLAIR anchor's in every known-zero field** — `cuts` `axis0_lo=20`, ellipse `(128.0, 88.0, 1.0)`,
+`frac_z_used=0.2423`, `zero_lines=233/2966`, `explained=233`, `nonzero_in_z=0`, `outliers=0/0`.
+Field-by-field, exactly one of the fifteen differs: `noise_level_used`, 0.0003062865580432117 for
+`hp_n36` against 0.00030644499929621816 for `ca_j_placebo`, **5.1730e-04 relative**, which is the
+float32 FFT round trip and carries no known-zero content. The ky arm's line differs where it matters
+(`cuts` all `None`, `frac_z_used=0.2151`, 199/229 explained).
 The readout flip is also the more adversarial: head-masked NCC to T1 **−0.0957** vs **+0.0581** for ky
 (whole-volume 0.349 vs 0.427; unflipped 0.801 / head-masked +0.5628).
 
@@ -82,8 +86,20 @@ written as one: the two are measured at different λ_edge, their single-arm base
 
 **Ordering (free consistency check, two points only).** 35.617065 (NCC −0.0957) < 35.628940 (+0.0581)
 < 35.706153 (+0.5628): monotone in measured registration quality, and the ky arm achieves its higher
-score *despite* a weaker `known_zero`. The readout→ky gap is only 0.011875 dB (12× seed floor) against
-77× for ky→real, so it is thin. One sentence at most; not a dose-response curve.
+score *despite* a weaker `known_zero`. But the two steps are not of the same standing, and they must
+be read against **this study's own 0.02 dB indistinguishability band**, not against the seed floor:
+
+| step | Δ | vs seed floor 0.001 | vs the 0.02 dB band | standing |
+|---|---|---|---|---|
+| readout → ky | +0.011875 | 11.9× | **0.59×** | **below the band — the two placebo arms are indistinguishable from each other by the standard this record applies to every other comparison** |
+| ky → real FLAIR | +0.077213 | 77.2× | 3.86× | above the band, solid |
+
+So the honest reading is: the *placebo-to-real* step is established; the *placebo-to-placebo* step is
+**suggestive only** and cannot be claimed, because it falls below the tolerance this study
+pre-registered. The observation is kept because it points the right way and costs nothing, but quoting
+it against the seed floor while quoting M0, M1 and the Stage-3 verdict against the band would be two
+yardsticks in one document with the more favourable one chosen where the evidence is thinnest. It is
+not a dose-response curve and it rests on two points.
 
 ## The limit of the claim
 
@@ -118,11 +134,23 @@ invisibly is re-imposing the *original* support instead of the reflected one. Th
 because for a support complete along that axis the two sets coincide — not because the code took a
 shortcut. Same code path, opposite answers, both correct.
 
-## Known gaps
+## Known gaps and open questions
 
 - One subject, one mask, one acceleration, one seed per arm; the seed floor (0.001 dB) is carried over
   from the AF16 line, not re-measured for the placebo.
-- Two placebo points, so the registration ordering is a consistency check, not a curve.
+- Two placebo points, and the step between them (0.011875 dB) is below the 0.02 dB band, so the
+  registration ordering is suggestive, not a curve.
+- **Open, not analysed here: λ_edge costs the single arm.** `ca_s_t1_edge0` (λ_edge 0) is
+  35.598942 against `ca_s_t1_p3` (λ_edge 0.001) 35.557999 — the prior makes the single arm
+  **0.040943 dB worse**, which is 27.6 % of M1 and 2.05× the band. This record cites both baselines as
+  reason (b) for refusing an additive split but does not comment on the direction or the size. It
+  bears on how M1 itself should be read, and it is already carried in the Stage-1/2 ledger as the
+  equal-budget number; no new runs are needed, but someone should write down what it means.
+- **Open: "39.9 % survives" is arguably a lower bound.** The placebo pays a cloud-dilution handicap
+  its comparator does not — `support_frac` 0.4801 against the single arm's 0.4219 and `hp_n36`'s
+  0.4264 — so the surviving fraction measured here may understate what a misregistered partner is
+  worth at matched cloud density. This record already treats the mirror-image fact as making the
+  60 % figure compound; the same caveat applies to the 40 %.
 - This dataset's readout k-space DC sits at x = 127, one sample off the array centre (masked readout
   energy 1.000 at 127 vs 0.701 at 126 and 0.674 at 128). Pre-existing, affects every run in this line;
   the flip moves it to 129, equal and opposite. It does not enter `Z` (verified bit-identical),
