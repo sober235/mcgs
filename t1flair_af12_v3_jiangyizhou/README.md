@@ -920,3 +920,103 @@ the bold marks, since bold is the best of what is shown. Within these seven arms
 `../T1FLAIR_AF20_v3_jiangyizhou/README.md` (same patch, applied by one generator to all ten scripts).
 Without `--keep` the script is byte-for-byte the old one: re-rendering this topic's figure of record
 reproduces it exactly.
+
+## Why FLAIR reads lower than T1 at AF 12 — it is mostly the gauge (user question, 2026-09-19)
+
+Head PSNR at AF 12 is T1 37.015 / FLAIR 36.360, a 0.655 dB gap, and the same sign appears in every
+regularised arm (CS-SENSE +0.581, ZS-SSDU +0.690, L1-ESPIRiT +0.668, GS-single +0.541). It is **not**
+a property of MC-GS and it is **not** FLAIR being harder to reconstruct. Three measurements, all on
+this topic's own volumes (`scripts/` not needed; the one-off probes are quoted here in full):
+
+**1. The gap decomposes exactly, and only a fifth of it is accuracy.** PSNR here is normalised by
+`max|GT|`, not by the signal:
+
+```
+dPSNR(T1 - FLAIR) = 20log10(maxT1/maxFL) + 10log10(E_head_FL/E_head_T1) + 10log10(NMSE_FL/NMSE_T1)
+
+GS-single :  +0.051  +0.476  +0.013  =  +0.541 dB
+MC-GS     :  +0.051  +0.476  +0.128  =  +0.655 dB
+```
+
+The middle term is the whole story: FLAIR's head carries **11.6 % more signal energy at the same peak
+brightness** (head RMS 0.3481 against 0.3295, max|GT| 2.2738 against 2.2873). Same relative error,
+larger absolute error, lower PSNR-at-max.
+
+Where that extra energy comes from, measured rather than assumed (an earlier draft of this section
+guessed "FLAIR is a flat, uniformly bright brain" — **that is wrong**): normalised by its own peak,
+FLAIR's head histogram is *wider*, not flatter — CV 0.687 against 0.605, (p95 − p5)/p50 2.49 against
+2.04, p25 0.054 against 0.065 and p95 0.292 against 0.259. Both peaks are set by a handful of outlier
+voxels (p99.9/max 0.487 and 0.498), but FLAIR has nearly twice as much tissue high up against that
+peak (1.88 % of head voxels above 0.35 max against 1.08 %). A fatter bright tail, not a flatter brain,
+is what lifts the mean square.
+
+**2. On an energy-normalised gauge the two contrasts are level.** Head NMSE: GS-single 0.00992 (T1)
+against 0.00995 (FLAIR), **0.3 % apart**; MC-GS 0.00958 against 0.00987, 3 % apart. Head HFEN is
+0.0928 against 0.0935. So detail fidelity and relative error are the same; only the joint arm keeps a
+real 0.128 dB, which is the same asymmetry the P14 section reports (joint − single is +0.150 on T1 but
++0.036 on FLAIR).
+
+**3. The sampling side runs the other way and is much bigger.** One mask, but the two contrasts do not
+see it the same way — FLAIR's PE plane carries data on only 77.2 % of its points (vendor elliptical
+shutter), so its spectrum is narrower and the mask keeps **86.2 % of FLAIR's k-space energy against
+73.7 % of T1's**. At zero-filling FLAIR is therefore **2.06 dB better** (26.130 / 28.193), NMSE
+0.0647 against 0.1175. Reconstruction then recovers **90.3 % of T1's unobserved energy but only
+81.7 % of FLAIR's**, because 34.9 % of FLAIR's missing energy sits at normalised radius > 0.6, where
+the variable-density mask samples 4–6 % of points, against 17.1 % for T1 (the per-band recovery rates
+themselves are within a point or two of each other; it is the weighting that differs). The two effects
+very nearly cancel: the residual is 2.56 % of T1's total k-space energy and 2.52 % of FLAIR's.
+
+So the honest statement is: **T1 gains 10.9 dB from zero-filling to MC-GS and FLAIR only 8.2 dB, and
+they finish at the same relative accuracy** — FLAIR starts easier and has less headroom, T1 starts
+harder and the prior has more structured, recoverable content to work with. Reporting "FLAIR is worse"
+off the max-normalised PSNR is the gauge trap this project already documented for the winner-v2 line,
+where the same trap pointed the other way.
+
+Caveat: everything above is one subject (jiangyizhou) and one mask draw. The residual-energy and
+recovery-fraction numbers are whole-volume k-space quantities; the PSNR / NMSE / HFEN numbers are the
+head-masked slice gauge of `logs/summary.json`.
+
+### Tested and rejected: "FLAIR has weaker contrast, so the model captures it less well" (user hypothesis, 2026-09-19)
+
+Head voxels split into five equal-count bins by **local contrast** (std in a 5x5x5 window, divided by
+the head RMS of that contrast so the two are on one scale); relative RMS error of MC-GS in each bin,
+both contrasts normalised by their own head RMS:
+
+| bin (mean local contrast) | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| T1    | lc 0.076, err 5.98 % | 0.149, 7.99 % | 0.220, 9.32 % | 0.334, 11.21 % | 0.621, 12.93 % |
+| FLAIR | lc 0.067, err 6.36 % | 0.135, 7.92 % | 0.205, 9.80 % | 0.311, 11.35 % | 0.583, 12.86 % |
+| FLAIR / T1 | 1.064 | 0.991 | 1.051 | 1.013 | 0.995 |
+
+Within each contrast the error **grows** with local contrast, from ~6 % in the flattest fifth to ~13 %
+in the most structured fifth: smooth tissue is the easy part for both, edges and texture are where the
+error lives. That is the opposite of the hypothesis's mechanism. The premise fails too — FLAIR's
+within-head contrast is wider than T1's, not weaker (histogram numbers above).
+
+**Corrected at ten bins (same day).** Five bins were too coarse and the first version of this section
+concluded "within 6 %, no trend". Re-binned into deciles the flattest one separates:
+
+| decile | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| local contrast | 0.053 | 0.090 | 0.126 | 0.158 | 0.193 | 0.233 | 0.283 | 0.361 | 0.484 | 0.720 |
+| T1 err % | 5.14 | 6.44 | 7.47 | 8.21 | 8.86 | 9.52 | 10.38 | 11.68 | 12.72 | 13.05 |
+| FLAIR err % | 6.20 | 6.66 | 7.64 | 8.54 | 9.52 | 10.41 | 11.14 | 11.72 | 12.33 | 13.46 |
+| FLAIR / T1 | **1.207** | 1.034 | 1.024 | 1.040 | 1.075 | 1.093 | 1.073 | 1.004 | 0.970 | 1.032 |
+| bin's \|GT\| RMS, T1 | 0.271 | 0.245 | 0.252 | 0.271 | 0.289 | 0.306 | 0.312 | 0.324 | 0.391 | 0.515 |
+| bin's \|GT\| RMS, FLAIR | **0.211** | 0.228 | 0.267 | 0.307 | 0.331 | 0.347 | 0.362 | 0.381 | 0.435 | 0.532 |
+
+So the user's hypothesis has one real foothold and it is narrow: **in the flattest tenth of the head
+FLAIR's error is 21 % above T1's**; over deciles 2–10 the two stay within 9 % with no trend. Even that
+foothold is not a like-for-like comparison — the last two rows show the flattest decile is not the same
+tissue in the two contrasts. T1's flattest voxels are bulk white matter (RMS 0.271); FLAIR's are its
+nulled CSF, 22 % darker (0.211). Normalising each bin by its own signal instead of the head RMS turns
+the 1.207 into 1.64, which is the same confound read the other way round. The flattest decile carries
+about a sixth of the whole NMSE gap.
+
+**Figure**: `figures/t1flair_v3_af12_err_vs_contrast_gs_joint_p14.{png,pdf}` (three panels on one x
+axis: the two error curves, their ratio, and each bin's signal level), served at
+`http://localhost:8765/t1flair_v3_af12/`. Script `scripts/fig_error_vs_contrast.py`, `--arm` to profile
+another arm, `--bins`, `--win`, `--dark`. Categorical pair #2a9d8f / #e76f51, all six palette checks pass.
+
+The headline is unchanged: the 0.655 dB is 0.476 dB of gauge, 0.051 dB of peak and 0.128 dB of accuracy,
+and no contrast-dependence large enough to reorder that.
