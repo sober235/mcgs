@@ -1,0 +1,14 @@
+# round 0b (2026-09-24 17:00): round 0 after the collision with the coupling-attribution Stage 4 queue (cards 1-6 are
+# that queue's); the five runs stopped at 13:47 re-run under a _r suffix. Baselines first.
+wd_af24_s_t1_e0_r 4000 24 T1 0
+wd_af24_s_fl_e0_r 4000 24 FLAIR 0
+wd_af20_s_fl_e0_r 4000 20 FLAIR 0
+wd_af24_j_e001_r 4000 24 joint 0.001
+wd_af24_j_e002 4000 24 joint 0.002
+wd_af24_j_e003 4000 24 joint 0.003
+wd_af20_j_e003 4000 20 joint 0.003
+wd_af16_j_e002_r 4000 16 joint 0.002
+wd_af16_j_dtv001 4000 16 joint 0.001 --lambda_dtv 0.01
+wd_af16_j_dtv003 4000 16 joint 0.001 --lambda_dtv 0.03
+wd_af16_j_gd025 4000 16 joint 0.001 --set loss.edge_tv_guide_alpha=0.25
+wd_af16_j_gd100 4000 16 joint 0.001 --set loss.edge_tv_guide_alpha=1.0

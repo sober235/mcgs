@@ -61,13 +61,36 @@ def tv_magnitude(vol: torch.Tensor, eps: float = 0.0, vector: bool = False) -> t
     return _VECTOR_SCALE * charbonnier(gn, eps).mean()
 
 
+def _guided_edge_weight(g: torch.Tensor, kappa: float, gg: torch.Tensor, guide_kappa: float,
+                        alpha: float, w_floor: float) -> torch.Tensor:
+    """Perona-Malik weight on the summed squared edge strength (g/kappa)^2 + alpha(gg/guide_kappa)^2:
+    the channel's own edges count as before, and an edge the guide sees also relaxes the smoothing here.
+    Both inputs detached."""
+    r2 = (g.detach().abs() / kappa) ** 2 + alpha * (gg.detach().abs() / guide_kappa) ** 2
+    return torch.clamp(1.0 / (1.0 + r2), min=w_floor, max=1.0)
+
+
 def edge_preserving_tv(vol: torch.Tensor, kappa: float, w_floor: float,
-                       eps: float = 0.0, vector: bool = False) -> torch.Tensor:
+                       eps: float = 0.0, vector: bool = False,
+                       guide: torch.Tensor | None = None, guide_kappa: float = 1.0,
+                       guide_alpha: float = 0.0) -> torch.Tensor:
     """Edge-weighted TV of |vol|. Per-axis finite differences (matches
     JointTrainer._tv_loss), each down-weighted at its own sharp gradients -> smoothing
     stays ON along an edge but ~OFF across it. eps/vector as in tv_magnitude; the defaults
-    reproduce the shipped penalty exactly."""
+    reproduce the shipped penalty exactly.
+
+    guide (the other contrast's volume, detached) with guide_alpha > 0 mixes the guide's edges into
+    the weight (per-axis form only), so a boundary the other contrast sees is not smoothed away here."""
     m = vol.abs()
+    if guide is not None and guide_alpha > 0.0:
+        if vector:
+            raise ValueError("guided edge weights are implemented for the per-axis form only")
+        gm = guide.detach().abs()
+        terms = []
+        for g, gg in zip(_axis_grads(m), _axis_grads(gm)):
+            terms.append((_guided_edge_weight(g, kappa, gg, guide_kappa, guide_alpha, w_floor)
+                          * charbonnier(g, eps)).mean())
+        return terms[0] + terms[1] + terms[2]
     if not vector:
         gx, gy, gz = _axis_grads(m)
         return ((_edge_weight(gx, kappa, w_floor) * charbonnier(gx, eps)).mean()

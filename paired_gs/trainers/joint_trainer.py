@@ -871,6 +871,10 @@ class JointTrainer:
         _loss_cfg = self.config.get("loss", {})
         self._edge_tv = bool(_loss_cfg.get("edge_tv", False))
         self._edge_tv_wfloor = float(_loss_cfg.get("edge_tv_wfloor", 0.1))
+        # 0 = off (every earlier run); > 0 mixes the other contrast's edges into each channel's edge-TV weight
+        self._edge_guide_alpha = float(_loss_cfg.get("edge_tv_guide_alpha", 0.0))
+        if self._edge_guide_alpha > 0:
+            print(f"[edge_tv] cross-contrast guide alpha={self._edge_guide_alpha}")
         # TV penalty SHAPE (as opposed to its strength lambda_geo). Both default to the
         # historical anisotropic-L1 behaviour, so leaving them alone reproduces every
         # previous run exactly. See losses/edge_tv.py for what they do and why.
@@ -934,7 +938,15 @@ class JointTrainer:
             # R_geo (renamed from v1 L_tv per INF-05 / A-LOSS-DROP; PDF §1.5
             # casts this term as a geometry regularizer in the ELBO).
             if lambda_geo > 0:
-                if self._edge_tv:
+                if self._edge_tv and self._edge_guide_alpha > 0:
+                    # cross-contrast guided edge weights: each channel's edge-TV also spares the other's edges
+                    l_geo = (edge_preserving_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor,
+                                                self._tv_eps, self._tv_vector, guide=vol_c,
+                                                guide_kappa=self._edge_kappa_c, guide_alpha=self._edge_guide_alpha)
+                             + edge_preserving_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor,
+                                                  self._tv_eps, self._tv_vector, guide=vol_p,
+                                                  guide_kappa=self._edge_kappa_p, guide_alpha=self._edge_guide_alpha))
+                elif self._edge_tv:
                     l_geo = (edge_preserving_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor,
                                                 self._tv_eps, self._tv_vector)
                              + edge_preserving_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor,

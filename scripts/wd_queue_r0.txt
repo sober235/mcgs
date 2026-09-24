@@ -1,0 +1,13 @@
+# round 0 (2026-09-24): GS-single baselines at lambda_edge 0 (user decision), one joint anchor, lambda_edge per AF, lambda_dtv probe
+wd_af20_s_t1_e0 4000 20 T1 0
+wd_af20_s_fl_e0 4000 20 FLAIR 0
+wd_af24_s_t1_e0 4000 24 T1 0
+wd_af24_s_fl_e0 4000 24 FLAIR 0
+wd_af24_j_e001 4000 24 joint 0.001
+wd_af16_j_e002 4000 16 joint 0.002
+wd_af20_j_e002 4000 20 joint 0.002
+wd_af20_j_e003 4000 20 joint 0.003
+wd_af24_j_e002 4000 24 joint 0.002
+wd_af24_j_e003 4000 24 joint 0.003
+wd_af16_j_dtv001 4000 16 joint 0.001 --lambda_dtv 0.01
+wd_af16_j_dtv003 4000 16 joint 0.001 --lambda_dtv 0.03
