@@ -46,3 +46,27 @@ def test_guide_is_detached():
     edge_preserving_tv(vol, 1.0, 0.1, guide=guide, guide_kappa=0.1, guide_alpha=0.5).backward()
     assert guide.grad is None
     assert vol.grad is not None
+
+
+def test_phase_tv_guide_alpha_zero_bit_identical_and_detached():
+    from losses.phase_tv import phase_tv
+    torch.manual_seed(1)
+    vol = torch.randn(9, 10, 11, dtype=torch.complex64)
+    guide = torch.randn(9, 10, 11, dtype=torch.complex64, requires_grad=True)
+    assert torch.equal(phase_tv(vol, 0.3, 0.1, 0.04),
+                       phase_tv(vol, 0.3, 0.1, 0.04, guide=guide, guide_kappa=0.5, guide_alpha=0.0))
+    v = vol.clone().requires_grad_(True)
+    phase_tv(v, 0.3, 0.1, 0.04, guide=guide, guide_kappa=0.5, guide_alpha=0.5).backward()
+    assert guide.grad is None and v.grad is not None
+
+
+def test_phase_tv_guide_edge_relaxes():
+    from losses.phase_tv import phase_tv
+    n = 12
+    ph = torch.zeros(n, n, n)
+    ph[6:] = 1.0                                              # phase step, flat magnitude
+    vol = torch.polar(torch.ones(n, n, n), ph)
+    guide = _step(height=1.0).to(torch.complex64)             # guide has a magnitude edge at the same place
+    own = phase_tv(vol, 1.0, 0.1)
+    guided = phase_tv(vol, 1.0, 0.1, guide=guide, guide_kappa=0.1, guide_alpha=1.0)
+    assert guided < 0.2 * own

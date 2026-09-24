@@ -875,6 +875,10 @@ class JointTrainer:
         self._edge_guide_alpha = float(_loss_cfg.get("edge_tv_guide_alpha", 0.0))
         if self._edge_guide_alpha > 0:
             print(f"[edge_tv] cross-contrast guide alpha={self._edge_guide_alpha}")
+        # same, for the phase-TV edge weight (0 = off)
+        self._ptv_guide_alpha = float(_loss_cfg.get("ptv_guide_alpha", 0.0))
+        if self._ptv_guide_alpha > 0:
+            print(f"[phase-tv] cross-contrast guide alpha={self._ptv_guide_alpha}")
         # TV penalty SHAPE (as opposed to its strength lambda_geo). Both default to the
         # historical anisotropic-L1 behaviour, so leaving them alone reproduces every
         # previous run exactly. See losses/edge_tv.py for what they do and why.
@@ -983,8 +987,10 @@ class JointTrainer:
 
             # R_ptv: phase-only TV — the orthogonal part of the complex gradient (this work).
             if lambda_ptv > 0:
-                l_ptv = (phase_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor, self._tv_eps)
-                         + phase_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor, self._tv_eps))
+                l_ptv = (phase_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor, self._tv_eps,
+                                  guide=vol_c, guide_kappa=self._edge_kappa_c, guide_alpha=self._ptv_guide_alpha)
+                         + phase_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor, self._tv_eps,
+                                    guide=vol_p, guide_kappa=self._edge_kappa_p, guide_alpha=self._ptv_guide_alpha))
                 loss = loss + lambda_ptv * l_ptv
             else:
                 l_ptv = torch.tensor(0.0, device=self.device)
