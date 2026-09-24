@@ -33,5 +33,27 @@ tests `tests/test_edge_tv_guided.py`).
   AF20 lambda_edge 0.002 +0.128 / +0.042, 0.003 +0.100 / +0.015. AF24 lambda_edge 0.002 +0.140 / +0.065, 0.003 +0.118 / +0.045.
 - Stage 4 (other session, GS-single AF16, lambda_edge 0): phase TV 0.01 +0.082 / +0.041 and T1 wavelet 0.18 +0.060 on
   the single arm -> round 1 runs them symmetrically on the joint arm.
-- **Round 1** (queued): symmetric per-channel sweep, phase TV 0.01 / 0.003, T1 wavelet 0.18.
-- **Round 2** (queued): dtv 0.01 + guide 0.25, at lambda_edge 0.001 / 0.002, with phase TV 0.01; AF20/24 transfer; guide 0.1 / 0.5.
+- **Round 1** (symmetric per-channel sweep, AF16): phase TV 0.01 + T1 wavelet 0.18 is best for BOTH arms; GS-single gains
+  more on T1 (35.599 -> 35.744) than MC-GS (35.706 -> 35.817), so the fair T1 margin first shrinks. phase TV 0.003 is worse.
+- **Round 2**: dtv 0.01 + guide 0.25 add up (FLAIR from dtv, T1 from the guide); guide 0.1 ~ 0.25 > 0.5 > 1.0.
+- **Round 3**: on the new per-channel base (`dgpw` = dtv 0.01 + edge guide 0.25 + phase TV 0.01 + T1 wavelet 0.18), and
+  AF20 / AF24 single arms re-run at that base: lambda_edge 0.001 beats 0.002 at every AF; dtv 0.03 and guide 0.1 are level.
+- **Round 4-5**: new knob `loss.ptv_guide_alpha` (the other contrast's edges also spare the phase-TV penalty): alpha 1.0 is
+  best on T1, 0.25 is the balanced choice; phase TV 0.02 with the guide trades T1 for FLAIR. Same ordering at all three AF.
+
+## Result (2026-09-25 07:00): one recipe for AF 16 / 20 / 24
+Recipe = phase-3 recipe + phase TV 0.01 + T1 wavelet 0.18 (per-channel, both arms) + lambda_dtv 0.01 +
+edge_tv_guide_alpha 0.25 + ptv_guide_alpha 0.25 (coupling, MC-GS only), lambda_edge 0.001, 3.6M points, 4000 iterations.
+GS-single = its best single run of the symmetric sweep (phase TV 0.01, T1 wavelet 0.18, lambda_edge 0).
+
+| AF | MC-GS (head PSNR / SSIM) T1 ; FLAIR | GS-single T1 ; FLAIR | fair margin now | fair margin at start | published |
+|---|---|---|---|---|---|
+| 16 | 35.850 / 0.9412 ; 35.009 / 0.9260 | 35.744 / 0.9394 ; 34.945 / 0.9249 | **+0.106 / +0.064** | +0.107 / +0.024 | +0.148 / +0.042 |
+| 20 | 34.975 / 0.9306 ; 34.247 / 0.9135 | 34.863 / 0.9285 ; 34.178 / 0.9124 | **+0.112 / +0.069** | +0.117 / +0.029 | +0.165 / +0.052 |
+| 24 | 33.897 / 0.9148 ; 33.239 / 0.8950 | 33.781 / 0.9122 ; 33.150 / 0.8935 | **+0.117 / +0.089** | +0.126 / +0.045 | +0.179 / +0.071 |
+
+- FLAIR margin x2-2.7 at every AF; T1 margin level with the fair start (-0.001 / -0.005 / -0.009, inside the 0.02 dB band).
+  With ptv_guide_alpha 1.0 instead, T1 +0.110 / +0.116 / +0.119 and FLAIR +0.061 / +0.065 / +0.084.
+- MC-GS first on head PSNR and SSIM in all six cells; every non-GS arm of the AF topics is >= 0.6 dB behind (unchanged).
+- The margin still grows with AF on both contrasts. Single runs, one seed (floor 0.001 dB from the AF16 topic).
+- Not done: volumes of the winners (re-run with SAVE_VOLUMES=1 for figures), registration in the AF topics, other subjects.
