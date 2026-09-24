@@ -46,3 +46,8 @@ wd_af16_j_dgpw_pg100_p002 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_
 wd_af16_j_dgpw_pg025_gd050 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --set loss.edge_tv_guide_alpha=0.5
 wd_af20_j_dgpw 4000 20 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18
 wd_af24_j_dgpw 4000 24 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18
+# round 5 (2026-09-25 05:50): one recipe for all three AF -- the phase-TV guide at AF20 / AF24
+wd_af20_j_dgpw_pg100 4000 20 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=1.0
+wd_af24_j_dgpw_pg100 4000 24 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=1.0
+wd_af20_j_dgpw_pg025 4000 20 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25
+wd_af24_j_dgpw_pg025 4000 24 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25
