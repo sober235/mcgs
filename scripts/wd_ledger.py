@@ -1,6 +1,6 @@
 """Ledger of the widen-the-margin loop: head PSNR / SSIM of every wd_ run and its margin over GS-single at lambda_edge 0.
 
-Margin = MC-GS (joint) - GS-single (lambda_edge 0, the user's 2026-09-24 baseline), per AF and contrast, head-only metrics
+Margin = MC-GS (joint) - GS-single (best single run, lambda_edge 0; user choices A and (1), 2026-09-24), per AF and contrast, head-only metrics
 from the run's score json (the same scorer the AF topics register). Single arms read the plain channel (both channels
 carry the same contrast). AF 16's single baselines are the coupling-attribution study's ca_s_*_edge0 runs.
 """
@@ -46,15 +46,16 @@ for p in sorted(glob.glob(str(ROOT / "results_arc/wd_*_score.json"))):
     if "smoke" in p:
         continue
     runs.append((Path(p).name[:-11],) + load(p))
-for name in ("ca_s_t1_edge0", "ca_s_fl_edge0"):
-    p = CA / f"{name}_score.json"
-    if p.exists():
-        runs.append((name,) + load(p))
+for p in sorted(CA.glob("ca_s_*_edge0_score.json")) + sorted(CA.glob("ca_s4_*_score.json")):
+    runs.append((p.name[:-11],) + load(p))
 
-base = {}
+# choice A: GS-single = the best single run of the symmetric per-channel sweep (coupling knobs are never on in it)
+base, base_exp = {}, {}
 for name, af, arm, rows, kn in runs:
-    if arm != "joint" and "le=0" == kn.split()[0] and len(kn.split()) == 1:
-        base[(af, arm)] = rows[arm]["head_psnr"]
+    if arm != "joint":
+        assert kn.split()[0] == "le=0" and "dtv" not in kn and "guide" not in kn, name
+        if rows[arm]["head_psnr"] > base.get((af, arm), -1):
+            base[(af, arm)], base_exp[(af, arm)] = rows[arm]["head_psnr"], name
 
 print("| exp | AF | arm | knobs | T1 head PSNR / SSIM | FLAIR head PSNR / SSIM | margin T1 | margin FLAIR |")
 print("|---|---|---|---|---|---|---|---|")
@@ -68,4 +69,4 @@ for name, af, arm, rows, kn in sorted(runs, key=lambda r: (r[1], r[2] != "joint"
             mg[c] = ""
     print(f"| {name} | {af} | {arm} | {kn} | {cell['T1']} | {cell['FLAIR']} | {mg['T1']} | {mg['FLAIR']} |")
 print()
-print("GS-single baselines (lambda_edge 0):", {f"AF{k[0]} {k[1]}": round(v, 3) for k, v in sorted(base.items())})
+print("GS-single = best single run:", {f"AF{k[0]} {k[1]}": (round(v, 3), base_exp[k]) for k, v in sorted(base.items())})
