@@ -12,3 +12,19 @@ wd_af16_j_dtv001 4000 16 joint 0.001 --lambda_dtv 0.01
 wd_af16_j_dtv003 4000 16 joint 0.001 --lambda_dtv 0.03
 wd_af16_j_gd025 4000 16 joint 0.001 --set loss.edge_tv_guide_alpha=0.25
 wd_af16_j_gd100 4000 16 joint 0.001 --set loss.edge_tv_guide_alpha=1.0
+# round 1 (2026-09-24 18:40): per-channel knobs Stage 4 found good for GS-single, run SYMMETRICALLY on both arms (user choice A).
+# single ptv 0.01 at AF16 exists (mcgs_hparam_wt ca_s4_{t1,fl}_ptv001); the T1 wavelet only touches the T1 arms.
+wd_af16_j_p001 4000 16 joint 0.001 --lambda_ptv 0.01
+wd_af16_j_p001w18 4000 16 joint 0.001 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18
+wd_af16_s_t1_p001w18 4000 16 T1 0 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18
+wd_af16_j_p0003 4000 16 joint 0.001 --lambda_ptv 0.003
+wd_af16_s_t1_p0003 4000 16 T1 0 --lambda_ptv 0.003
+wd_af16_s_fl_p0003 4000 16 FLAIR 0 --lambda_ptv 0.003
+# round 2 (2026-09-24 22:55): combine the two coupling knobs that each helped one contrast at AF16 (dtv 0.01 -> FLAIR, guide 0.25 -> T1)
+wd_af16_j_dg 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25
+wd_af16_j_dg_e002 4000 16 joint 0.002 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25
+wd_af16_j_dg_p001 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01
+wd_af20_j_dg_e002 4000 20 joint 0.002 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25
+wd_af24_j_dg_e002 4000 24 joint 0.002 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25
+wd_af16_j_gd010 4000 16 joint 0.001 --set loss.edge_tv_guide_alpha=0.1
+wd_af16_j_gd050 4000 16 joint 0.001 --set loss.edge_tv_guide_alpha=0.5
