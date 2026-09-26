@@ -1,0 +1,10 @@
+# 2026-09-25: the nine winners of the one-recipe result, re-run with volumes for figures (seed 42; must reproduce the ledger)
+SAVE_VOLUMES=1 wd_v_af16_j 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25
+SAVE_VOLUMES=1 wd_v_af20_j 4000 20 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25
+SAVE_VOLUMES=1 wd_v_af24_j 4000 24 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25
+SAVE_VOLUMES=1 wd_v_af16_s_t1 4000 16 T1 0 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18
+SAVE_VOLUMES=1 wd_v_af20_s_t1 4000 20 T1 0 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18
+SAVE_VOLUMES=1 wd_v_af24_s_t1 4000 24 T1 0 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18
+SAVE_VOLUMES=1 wd_v_af16_s_fl 4000 16 FLAIR 0 --lambda_ptv 0.01
+SAVE_VOLUMES=1 wd_v_af20_s_fl 4000 20 FLAIR 0 --lambda_ptv 0.01
+SAVE_VOLUMES=1 wd_v_af24_s_fl 4000 24 FLAIR 0 --lambda_ptv 0.01
