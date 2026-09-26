@@ -1158,7 +1158,7 @@ class JointTrainer:
                 msg = (f"[iter {it:5d}/{max_iter}] loss={loss.item():.4e} "
                        f"dc_p={l_dc_p.item():.4e} dc_c={l_dc_c.item():.4e} "
                        f"R_geo={l_geo.item():.4e} R_dtv={l_dtv.item():.4e} "
-                       f"R_edge={l_edge.item():.4e} R_vtv={l_vtv.item():.4e} "
+                       f"R_edge={l_edge.item():.4e} R_vtv={l_vtv.item():.4e} R_dtvp={l_dtvp.item():.4e} "
                        f"R_wav={l_wav.item():.4e} R_nl={l_nl.item():.4e} "
                        f"balance_violation={balance_violation}")
                 print(msg)
