@@ -1,0 +1,16 @@
+# oracle ceilings (2026-09-26, AF16, user choice C: probes on the reconstruction side only). Never registered arms.
+# 1-4: perfect PARTNER DATA (the other contrast fully sampled) -> ceiling of the current coupling family, base and strong
+wd_o_ffull_j 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --base_cfg configs/t1flair_v3_af16_jyz_oracle_flairfull.yaml
+wd_o_ffull_js 4000 16 joint 0.003 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --lambda_dtv 0.03 --set loss.edge_tv_guide_alpha=1.0 --set loss.ptv_guide_alpha=1.0 --base_cfg configs/t1flair_v3_af16_jyz_oracle_flairfull.yaml
+wd_o_t1full_j 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --base_cfg configs/t1flair_v3_af16_jyz_oracle_t1full.yaml
+wd_o_t1full_js 4000 16 joint 0.003 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --lambda_dtv 0.03 --set loss.edge_tv_guide_alpha=1.0 --set loss.ptv_guide_alpha=1.0 --base_cfg configs/t1flair_v3_af16_jyz_oracle_t1full.yaml
+# 5-9: perfect STRUCTURAL GUIDE on the single arm (edge-TV + phase-TV weights from a GT volume, alpha 1); gself = own GT
+wd_o_s_t1_gfl 4000 16 T1 0 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.guide_path_plain=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/gt_FLAIR_complex.npy
+wd_o_s_t1_gself 4000 16 T1 0 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.guide_path_plain=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/gt_T1_complex.npy
+wd_o_s_t1_gself_geo03 4000 16 T1 0 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.guide_path_plain=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/gt_T1_complex.npy --lambda_geo 0.3
+wd_o_s_fl_gt1 4000 16 FLAIR 0 --lambda_ptv 0.01 --set loss.guide_path_plain=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/gt_T1_complex.npy
+wd_o_s_fl_gself 4000 16 FLAIR 0 --lambda_ptv 0.01 --set loss.guide_path_plain=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/gt_FLAIR_complex.npy
+# 10-12: perfect structural guide through Ehrhardt-Betcke directional TV (projection form), guided weights OFF
+wd_o_s_t1_dtvp005_gfl 4000 16 T1 0 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.guide_path_plain=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/gt_FLAIR_complex.npy --set loss.guide_file_alpha=0 --set loss.lambda_dtv_proj=0.05
+wd_o_s_t1_dtvp015_gfl 4000 16 T1 0 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.guide_path_plain=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/gt_FLAIR_complex.npy --set loss.guide_file_alpha=0 --set loss.lambda_dtv_proj=0.15
+wd_o_s_fl_dtvp010_gt1 4000 16 FLAIR 0 --lambda_ptv 0.01 --set loss.guide_path_plain=/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/gt_T1_complex.npy --set loss.guide_file_alpha=0 --set loss.lambda_dtv_proj=0.10

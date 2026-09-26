@@ -49,7 +49,7 @@ from data.transforms import fft3c, ifft3c
 from dataclasses import asdict
 from data.known_zero import (build_fit_tensors, estimate_known_zero, estimate_noise_cov, hard_dc_combine,
                              known_zero_from_support, load_support_map, whitening_matrix)
-from losses.edge_tv import edge_preserving_tv, resolve_edge_kappa, tv_magnitude
+from losses.edge_tv import directional_tv, edge_preserving_tv, load_guide_volume, resolve_edge_kappa, tv_magnitude
 from gaussian.joint_gaussian_model import JointGaussianModel3D
 from gaussian.tile_voxelizer import TileVoxelizer
 from gaussian.voxelizer import Voxelizer
@@ -809,6 +809,12 @@ class JointTrainer:
         edge_kappa = float(loss_cfg.get("edge_kappa", 10.0))
         # R_vtv: vectorial (joint) TV — symmetric edge-LOCATION coupling (this work). Default 0.
         lambda_vtv = float(loss_cfg.get("lambda_vtv", 0.0))
+        # R_dtvp: structure-guided directional TV (Ehrhardt & Betcke 2016 dTV) on |x|, guide = the other channel's
+        # render, or a file guide (oracle probes). Widen loop 2026-09-26; default 0 = never built.
+        lambda_dtvp = float(loss_cfg.get("lambda_dtv_proj", 0.0))
+        dtvp_eta_q = float(loss_cfg.get("dtv_proj_eta_q", 0.5))
+        if lambda_dtvp > 0:
+            print(f"[dtv-proj] lambda_dtv_proj={lambda_dtvp} eta_q={dtvp_eta_q}")
         # R_ptv: phase-only TV (this work, 2026-09-11). Default 0 => no-op, nothing imported.
         lambda_ptv = float(loss_cfg.get("lambda_ptv", 0.0))
         if lambda_ptv > 0:
@@ -907,6 +913,27 @@ class JointTrainer:
             print(f"[edge_tv] kappa_q={_kq} source={_ksrc} refresh_iter={_kappa_refresh} -> "
                   f"kappa_plain={self._edge_kappa_p:.5f} kappa_contrast={self._edge_kappa_c:.5f} "
                   f"w_floor={self._edge_tv_wfloor}")
+        # Oracle / external guide (widen loop, 2026-09-26): loss.guide_path_<channel> = an .npy volume (e.g. the
+        # other contrast's ground truth) that replaces the other channel's render as that channel's edge-TV and
+        # phase-TV guide, at weight loss.guide_file_alpha (default 1). Ceiling probes only; never in a registered arm.
+        self._guide_file = {"plain": None, "contrast": None}
+        self._guide_file_kappa = {"plain": 1.0, "contrast": 1.0}
+        self._guide_file_alpha = float(_loss_cfg.get("guide_file_alpha", 1.0))
+        for _ch in ("plain", "contrast"):
+            _gpath = _loss_cfg.get(f"guide_path_{_ch}")
+            if _gpath:
+                _g, _gk = load_guide_volume(str(_gpath), self.device, float(_loss_cfg.get("edge_tv_kappa_q", 0.75)))
+                self._guide_file[_ch], self._guide_file_kappa[_ch] = _g, _gk
+                print(f"[guide] {_ch} channel guided by file {_gpath}: kappa={_gk:.5f} alpha={self._guide_file_alpha}")
+        # eta of the directional TV per channel = the eta_q gradient quantile of that channel's guide (file, else the
+        # other channel's zero-filled image), resolved once
+        self._dtvp_eta = {}
+        with torch.no_grad():
+            for _ch, _other_zf in (("plain", self.zf_c), ("contrast", self.zf_p)):
+                _gsrc = self._guide_file[_ch] if self._guide_file[_ch] is not None else _other_zf
+                self._dtvp_eta[_ch] = resolve_edge_kappa(_gsrc, dtvp_eta_q)
+        if lambda_dtvp > 0:
+            print(f"[dtv-proj] eta plain={self._dtvp_eta['plain']:.5f} contrast={self._dtvp_eta['contrast']:.5f}")
 
         log_path = self.out_dir / "joint_train.log"
         log_f = open(log_path, "w")
@@ -941,15 +968,20 @@ class JointTrainer:
 
             # R_geo (renamed from v1 L_tv per INF-05 / A-LOSS-DROP; PDF §1.5
             # casts this term as a geometry regularizer in the ELBO).
+            # per-channel guide: a file guide when given (oracle probes), else the other channel's render
+            gd_p = ((self._guide_file["plain"], self._guide_file_kappa["plain"], self._guide_file_alpha)
+                    if self._guide_file["plain"] is not None else (vol_c, self._edge_kappa_c, self._edge_guide_alpha))
+            gd_c = ((self._guide_file["contrast"], self._guide_file_kappa["contrast"], self._guide_file_alpha)
+                    if self._guide_file["contrast"] is not None else (vol_p, self._edge_kappa_p, self._edge_guide_alpha))
             if lambda_geo > 0:
-                if self._edge_tv and self._edge_guide_alpha > 0:
+                if self._edge_tv and (gd_p[2] > 0 or gd_c[2] > 0):
                     # cross-contrast guided edge weights: each channel's edge-TV also spares the other's edges
                     l_geo = (edge_preserving_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor,
-                                                self._tv_eps, self._tv_vector, guide=vol_c,
-                                                guide_kappa=self._edge_kappa_c, guide_alpha=self._edge_guide_alpha)
+                                                self._tv_eps, self._tv_vector, guide=gd_p[0],
+                                                guide_kappa=gd_p[1], guide_alpha=gd_p[2])
                              + edge_preserving_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor,
-                                                  self._tv_eps, self._tv_vector, guide=vol_p,
-                                                  guide_kappa=self._edge_kappa_p, guide_alpha=self._edge_guide_alpha))
+                                                  self._tv_eps, self._tv_vector, guide=gd_c[0],
+                                                  guide_kappa=gd_c[1], guide_alpha=gd_c[2]))
                 elif self._edge_tv:
                     l_geo = (edge_preserving_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor,
                                                 self._tv_eps, self._tv_vector)
@@ -985,12 +1017,26 @@ class JointTrainer:
             else:
                 l_vtv = torch.tensor(0.0, device=self.device)
 
+            # R_dtvp: guided directional TV; when a file guide is present only the file-guided channels carry it
+            if lambda_dtvp > 0:
+                _any_file = any(v is not None for v in self._guide_file.values())
+                l_dtvp = torch.tensor(0.0, device=self.device)
+                for _ch, _vol, _gd in (("plain", vol_p, gd_p), ("contrast", vol_c, gd_c)):
+                    if _any_file and self._guide_file[_ch] is None:
+                        continue
+                    l_dtvp = l_dtvp + directional_tv(_vol, _gd[0], self._dtvp_eta[_ch], self._tv_eps)
+                loss = loss + lambda_dtvp * l_dtvp
+            else:
+                l_dtvp = torch.tensor(0.0, device=self.device)
+
             # R_ptv: phase-only TV — the orthogonal part of the complex gradient (this work).
             if lambda_ptv > 0:
+                pa_p = gd_p[2] if self._guide_file["plain"] is not None else self._ptv_guide_alpha
+                pa_c = gd_c[2] if self._guide_file["contrast"] is not None else self._ptv_guide_alpha
                 l_ptv = (phase_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor, self._tv_eps,
-                                  guide=vol_c, guide_kappa=self._edge_kappa_c, guide_alpha=self._ptv_guide_alpha)
+                                  guide=gd_p[0], guide_kappa=gd_p[1], guide_alpha=pa_p)
                          + phase_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor, self._tv_eps,
-                                    guide=vol_p, guide_kappa=self._edge_kappa_p, guide_alpha=self._ptv_guide_alpha))
+                                    guide=gd_c[0], guide_kappa=gd_c[1], guide_alpha=pa_c))
                 loss = loss + lambda_ptv * l_ptv
             else:
                 l_ptv = torch.tensor(0.0, device=self.device)
@@ -1052,6 +1098,7 @@ class JointTrainer:
                 "loss/R_dtv": float((lambda_dtv * l_dtv).detach().item()),
                 "loss/R_edge": float((lambda_edge * l_edge).detach().item()),
                 "loss/R_vtv": float((lambda_vtv * l_vtv).detach().item()),
+                "loss/R_dtvp": float((lambda_dtvp * l_dtvp).detach().item()),
                 "loss/R_wav": float((lambda_wav * l_wav).detach().item()),
                 "loss/R_ptv": float((lambda_ptv * l_ptv).detach().item()),
                 "loss/R_nl": float(l_nl_term.detach().item()),

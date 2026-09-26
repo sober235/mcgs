@@ -101,6 +101,33 @@ def edge_preserving_tv(vol: torch.Tensor, kappa: float, w_floor: float,
     return _VECTOR_SCALE * (_edge_weight(gn, kappa, w_floor) * charbonnier(gn, eps)).mean()
 
 
+def directional_tv(vol: torch.Tensor, guide: torch.Tensor, eta: float, eps: float = 0.0) -> torch.Tensor:
+    """Structure-guided directional TV (Ehrhardt & Betcke 2016, dTV): the vector TV of |vol| after removing the
+    gradient component along the guide's gradient direction, xi = grad|guide| / sqrt(|grad|guide||^2 + eta^2),
+    penalty = mean || (I - xi xi^T) grad|vol| ||. Where the guide is flat (|grad| << eta) xi ~ 0 and this is the
+    plain vector TV; across a guide edge |xi| ~ 1 and a co-located edge in vol costs nothing. The guide is detached.
+    Colocated forward differences and the _VECTOR_SCALE of tv_magnitude(vector=True), so at xi = 0 the two agree."""
+    m = vol.abs()
+    g = guide.detach().abs()
+    gm = torch.stack(_colocated_grads(m), dim=0)
+    gg = torch.stack(_colocated_grads(g), dim=0)
+    xi = gg / torch.sqrt((gg * gg).sum(dim=0, keepdim=True) + eta * eta)
+    proj = gm - xi * (xi * gm).sum(dim=0, keepdim=True)
+    pn = torch.sqrt((proj * proj).sum(dim=0) + 1e-12)
+    return _VECTOR_SCALE * charbonnier(pn, eps).mean()
+
+
+def load_guide_volume(path: str, device, q: float, percentile: float = 99.9):
+    """An external guide volume (.npy, complex or real) for the guided edge weights: normalised the way the
+    dataset normalises its ground truth (magnitude percentile -> 1), with its edge threshold at quantile q.
+    Returns (complex64 tensor on device, kappa)."""
+    arr = np.load(path)
+    mag = np.abs(arr).astype(np.float32)
+    scale = float(np.quantile(mag.reshape(-1), percentile / 100.0))
+    vol = torch.from_numpy(np.asarray(arr / scale, dtype=np.complex64)).to(device)
+    return vol, resolve_edge_kappa(vol, q)
+
+
 def resolve_edge_kappa(vol: torch.Tensor, q: float, brain_frac: float = 0.05) -> float:
     """Absolute edge threshold = q-quantile of the in-brain per-axis gradient magnitude
     of the (initial) render. Fixed once so the edge bands do not drift during training."""

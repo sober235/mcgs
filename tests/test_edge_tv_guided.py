@@ -70,3 +70,35 @@ def test_phase_tv_guide_edge_relaxes():
     own = phase_tv(vol, 1.0, 0.1)
     guided = phase_tv(vol, 1.0, 0.1, guide=guide, guide_kappa=0.1, guide_alpha=1.0)
     assert guided < 0.2 * own
+
+
+def test_load_guide_volume_normalises_and_thresholds(tmp_path):
+    import numpy as np
+    from losses.edge_tv import load_guide_volume, resolve_edge_kappa
+    vol = (3.0 * _step(height=1.0) + 0.01 * torch.randn(12, 12, 12)).numpy().astype(np.complex64)
+    p = tmp_path / "g.npy"
+    np.save(p, vol)
+    g, kappa = load_guide_volume(str(p), torch.device("cpu"), 0.85)
+    assert g.dtype == torch.complex64 and g.shape == (12, 12, 12)
+    assert abs(float(torch.quantile(g.abs().flatten(), 0.999)) - 1.0) < 1e-4
+    assert abs(kappa - resolve_edge_kappa(g, 0.85)) < 1e-9
+
+
+def test_directional_tv_flat_guide_is_vector_tv():
+    from losses.edge_tv import directional_tv, tv_magnitude
+    torch.manual_seed(2)
+    vol = torch.randn(10, 11, 12)
+    a = directional_tv(vol, torch.zeros_like(vol), eta=0.1, eps=0.04)
+    b = tv_magnitude(vol, eps=0.04, vector=True)
+    assert torch.allclose(a, b, atol=1e-5)
+
+
+def test_directional_tv_colocated_edge_costs_nothing_and_guide_is_detached():
+    from losses.edge_tv import directional_tv
+    vol = _step(height=1.0)
+    guide = _step(height=1.0).requires_grad_(True)
+    own = directional_tv(vol, torch.zeros_like(vol), eta=1e-3)
+    guided = directional_tv(vol.clone().requires_grad_(True), guide, eta=1e-3)
+    assert guided < 1e-3 * own
+    guided.backward()
+    assert guide.grad is None
