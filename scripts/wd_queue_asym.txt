@@ -1,0 +1,10 @@
+# asymmetric-acceleration probe (2026-09-26, user nod): FLAIR at nominal AF32 (probe mask), T1 at AF16 / AF8 / fully sampled
+wd_a_s_fl32 4000 16 FLAIR 0 --lambda_ptv 0.01 --base_cfg configs/t1flair_v3_af16_jyz_asym_singleFLAIR32.yaml
+wd_a_j_tfull_fl32 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --base_cfg configs/t1flair_v3_af16_jyz_asym_tfull_fl32.yaml
+wd_a_j_tfull_fl32_s 4000 16 joint 0.003 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --lambda_dtv 0.03 --set loss.edge_tv_guide_alpha=1.0 --set loss.ptv_guide_alpha=1.0 --base_cfg configs/t1flair_v3_af16_jyz_asym_tfull_fl32.yaml
+wd_a_j_t16_fl32 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --base_cfg configs/t1flair_v3_af16_jyz_asym_t16_fl32.yaml
+wd_a_j_t8_fl32 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --base_cfg configs/t1flair_v3_af16_jyz_asym_t8_fl32.yaml
+# harsher level: FLAIR at the accelx-16 draw (actual AF printed by the loader), T1 fully sampled / AF16
+wd_a_s_fl64 4000 16 FLAIR 0 --lambda_ptv 0.01 --base_cfg configs/t1flair_v3_af16_jyz_asym_singleFLAIR64.yaml
+wd_a_j_tfull_fl64 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --base_cfg configs/t1flair_v3_af16_jyz_asym_tfull_fl64.yaml
+wd_a_j_t16_fl64 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --base_cfg configs/t1flair_v3_af16_jyz_asym_t16_fl64.yaml
