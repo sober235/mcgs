@@ -121,9 +121,25 @@ accelerated contrast; recipes as in §3; the single arm is not re-tuned at these
 | MC-GS, T1 **fully sampled** | 32.802 / 0.8860 / 0.1726 | +0.168 |
 | MC-GS, T1 fully sampled, all coupling knobs up | 32.880 / 0.8857 / 0.1745 | +0.246 |
 
-At 26.7x a fully sampled T1 is worth +0.17 dB to FLAIR (+0.25 with the coupling turned all the way up). The margin
-does grow as the partner improves — the ordering AF16 < AF8 < full is monotone — but the whole range is 0.1 dB wide.
-Below the 1 dB line; closed at this level. 43.3x: (pending, `wd_a_{s_fl64,j_tfull_fl64,j_t16_fl64}`).
+| FLAIR at 43.3x (T1 partner) | FLAIR head PSNR / SSIM / HFEN | vs GS-single FLAIR@43.3x |
+|---|---|---|
+| GS-single | 30.806 / 0.8307 / 0.3076 | — |
+| MC-GS, T1 at AF16 | 31.039 / 0.8393 / 0.2857 | +0.233 |
+| MC-GS, T1 **fully sampled** | 31.068 / 0.8398 / 0.2829 | +0.262 |
+
+The joint gain on the heavily accelerated contrast, as the target gets sparser (T1 partner at AF16 / fully sampled):
+
+| FLAIR AF | dPSNR | dSSIM | HFEN change |
+|---|---|---|---|
+| 16 (fair, current recipe) | +0.064 | +0.0011 | −1.4 % |
+| 26.7 | +0.132 / +0.167 | +0.0031 / +0.0035 | −3.6 % / −5.3 % |
+| 43.3 | +0.233 / +0.262 | +0.0086 / +0.0091 | −7.1 % / −8.0 % |
+
+The gain grows with the target's acceleration and is clearest in HFEN (edges), but PSNR stays at a quarter of a dB
+even at 43x with a perfect partner, and the partner's own quality is nearly irrelevant (AF16 partner gets 89 % of the
+fully-sampled partner's gain at 43x). **Below the 1 dB line at both levels: the asymmetric-acceleration door is closed
+for the current coupling.** Not run: the "all coupling knobs up" variant at 43x (at 26.7x it added +0.08 dB; it cannot
+close a 0.74 dB gap).
 
 ## 4. Verdict (against the pre-registered 0.3 dB / 1 dB rule)
 
@@ -136,6 +152,7 @@ Below the 1 dB line; closed at this level. 43.3x: (pending, `wd_a_{s_fl64,j_tful
 | intensity coupling (ratio field, class mixture / joint entropy, local linear) | ≤ +0.34 / +0.41 even leaking the true residual | §1 | closed |
 | joint / vector TV, non-local RED, private Gaussians, densification, capacity, complementary in-shutter mask | closed on earlier lines (AF16 phase 3, CRISP) | history | closed |
 | more noise / more acceleration as a regime | margin stays at the 0.1–0.2 dB scale | §3b | closed |
+| asymmetric acceleration (FLAIR 26.7x / 43.3x, T1 partner up to fully sampled) | +0.17 / +0.26 dB PSNR, HFEN −5 % / −8 % | §3c | closed (below 1 dB) |
 
 **On this pair (jiangyizhou T1 + FLAIR, 1 mm, one vd-Poisson mask for both contrasts, AF 16–24) there is no
 non-learned cross-contrast prior whose ceiling reaches 0.5 dB over the fair GS-single.** The reason is measurable: the
@@ -143,7 +160,18 @@ residual of a strong single-contrast reconstruction is neither on edges (own-edg
 function of the partner's intensities (§1), and the partner's quality is already irrelevant to the current joint model
 (ceiling 1). Whatever the two contrasts share at this resolution, GS-single already reconstructs from its own data.
 
-What this does not cover: (a) other subjects / pairs — the T1w + T2* peds pair was even less similar (r 0.57, MC-GS
-not ahead); (b) an **asymmetric** protocol, one contrast lightly and the other extremely accelerated, where the target's
-own data may no longer place its edges — ceiling 1 was measured at target AF16 only; (c) learned priors, excluded by
-the user. (b) is the one open door on the acquisition side (user choice C) and is the proposed next probe.
+**Why this pair cannot do better — the counting argument.** A T1-weighted FSPGR and a 3D FSE FLAIR are two
+measurements of a voxel that depends on at least PD, T1, T2 and T2*. Two equations, four unknowns: no physical relation
+ties one image's intensity to the other's, which is exactly what §1 measures (every intensity map from T1 to FLAIR is
+2–5 dB worse than GS-single). What remains shared is edge location, and ceiling 2 shows edge location is worth ≤ 0.13
+dB on top of a strong single-contrast prior. So on T1w + FLAIR a non-learned coupling can only be structural, and
+structure is already recovered by each contrast's own data.
+
+The converse is the one route this record leaves open: a contrast set that **over-determines** its tissue parameters.
+The 16-year-old TSC exam (`Peds_TSC_MTP_3D`) is a 3D multi-echo spoiled GRE with 10 contrasts (5 echoes x FA 4° / 16°)
+from one acquisition, i.e. 10 measurements of (M0, T1, T2*, B1, B0 phase) — about six redundant equations per voxel.
+There a physics-coupled MC-GS (each Gaussian carries tissue parameters; the ten images are rendered through the SPGR /
+multi-echo signal equation, or through a subspace simulated from it) removes most per-image degrees of freedom, which is
+the regime where non-learned joint reconstruction is known to pay at the dB scale. The existing peds topic used only the
+two least similar of the ten (r = 0.57) with shared geometry, and the reference set on disk exports only those two;
+the other eight need the stage-1 GRAPPA prep. Learned priors remain excluded by the user.
