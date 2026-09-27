@@ -60,7 +60,7 @@ REG = {12: ("p3_e0001_ptv001_full4k", "p3_e0001_ptv001_singleT1_full4k", "p3_e00
        24: ("af24_p3_joint_full4k", "af24_p3_singleT1_full4k", "af24_p3_singleFLAIR_full4k")}
 REG_ROOT = {12: A12, 16: A, 20: A, 24: A}
 # fair start = the published recipe with GS-single at lambda_edge 0 (AF12: the P14 recipe, re-run in this tree)
-START = {12: ((W, "wd_af12_p14_j"), (W, "wd_af12_p14_s_t1_e0"), (W, "wd_af12_p14_s_fl_e0")),
+START = {12: ((W, "wd_af12_p14_j"), (W, "wd_af12_p14_s_t1_e0"), (W, "wd_af12_p14_s_fl_e0b")),
          16: ((H, "hp_n36"), (H, "ca_s_t1_edge0"), (H, "ca_s_fl_edge0")),
          20: ((A, "af20_p3_joint_full4k"), (W, "wd_af20_s_t1_e0"), (W, "wd_af20_s_fl_e0_r")),
          24: ((W, "wd_af24_j_e001_r"), (W, "wd_af24_s_t1_e0_r"), (W, "wd_af24_s_fl_e0_r"))}
