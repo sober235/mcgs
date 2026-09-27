@@ -105,6 +105,26 @@ so subtract ~0.04 / 0.02 dB for the fair baseline), MC-GS − GS-single head PSN
 few hundredths and costs FLAIR the margin. Acceleration (this loop, fair): AF16 +0.106 / +0.064, AF20 +0.112 / +0.069,
 AF24 +0.117 / +0.089. Neither regime moves the margin to the 0.5 dB scale.
 
+## 3c. Asymmetric-acceleration probe (acquisition side, user nod 2026-09-26; queue `scripts/wd_queue_asym.txt`)
+
+Hypothesis: when the target's own data is too sparse to place its edges, the partner's structure starts to pay.
+Masks: house generator `vdPoisMex(256,176,256,176, accelx, 4, 24, 0, 1)`, one draw each (`scripts/prep_asym_masks*.m`,
+files in `data/`, not in git): accelx 8 → 1689 points = **26.7x** on the plane, accelx 2 → 5704 = 7.9x, accelx 16 → 1040
+= **43.3x**, accelx 12 → 1246 = 36.2x. Probe masks, not topic masks (no pool / exact-count pick). FLAIR is the heavily
+accelerated contrast; recipes as in §3; the single arm is not re-tuned at these AFs (a ≥ 1 dB verdict does not hinge on it).
+
+| FLAIR at 26.7x (T1 partner) | FLAIR head PSNR / SSIM / HFEN | vs GS-single FLAIR@26.7x |
+|---|---|---|
+| GS-single | 32.634 / 0.8825 / 0.1822 | — |
+| MC-GS, T1 at AF16 | 32.766 / 0.8856 / 0.1757 | +0.132 |
+| MC-GS, T1 at AF8 | 32.784 / 0.8864 / 0.1755 | +0.150 |
+| MC-GS, T1 **fully sampled** | 32.802 / 0.8860 / 0.1726 | +0.168 |
+| MC-GS, T1 fully sampled, all coupling knobs up | 32.880 / 0.8857 / 0.1745 | +0.246 |
+
+At 26.7x a fully sampled T1 is worth +0.17 dB to FLAIR (+0.25 with the coupling turned all the way up). The margin
+does grow as the partner improves — the ordering AF16 < AF8 < full is monotone — but the whole range is 0.1 dB wide.
+Below the 1 dB line; closed at this level. 43.3x: (pending, `wd_a_{s_fl64,j_tfull_fl64,j_t16_fl64}`).
+
 ## 4. Verdict (against the pre-registered 0.3 dB / 1 dB rule)
 
 | prior family (non-learned) | ceiling measured | how | status |
