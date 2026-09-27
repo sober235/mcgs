@@ -20,6 +20,7 @@ matplotlib.rcParams["font.family"] = "DejaVu Sans"
 W = Path("/data0/congcong/code/GS/mcgs_widen_wt/results_arc")
 H = Path("/data0/congcong/code/GS/mcgs_hparam_wt/results_arc")
 A = Path("/data0/congcong/code/GS/mcgs_af16_wt/results_arc")
+A12 = Path("/data0/congcong/code/GS/mcgs_af12_wt/results_arc")      # the AF12 line (its registered arm is P14)
 OUT = Path(__file__).resolve().parents[1] / "figures/widen"
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -52,17 +53,22 @@ def save(fig, name):
 
 
 # ---------------------------------------------------------------- A: the three margins per AF
-AFS = [(16, 15.19), (20, 18.56), (24, 24.00)]          # label = PE-plane points / mask points (user convention)
-REG = {16: ("p3_r3_e0001_ptv003_full4k", "p3_r3_singleT1_full4k", "p3_r3_singleFLAIR_full4k"),
+AFS = [(12, 11.71), (16, 15.19), (20, 18.56), (24, 24.00)]   # label = PE-plane points / mask points (user convention)
+REG = {12: ("p3_e0001_ptv001_full4k", "p3_e0001_ptv001_singleT1_full4k", "p3_e0001_ptv001_singleFLAIR_full4k"),
+       16: ("p3_r3_e0001_ptv003_full4k", "p3_r3_singleT1_full4k", "p3_r3_singleFLAIR_full4k"),
        20: ("af20_p3_joint_full4k", "af20_p3_singleT1_full4k", "af20_p3_singleFLAIR_full4k"),
        24: ("af24_p3_joint_full4k", "af24_p3_singleT1_full4k", "af24_p3_singleFLAIR_full4k")}
-START = {16: ((H, "hp_n36"), (H, "ca_s_t1_edge0"), (H, "ca_s_fl_edge0")),
+REG_ROOT = {12: A12, 16: A, 20: A, 24: A}
+# fair start = the published recipe with GS-single at lambda_edge 0 (AF12: the P14 recipe, re-run in this tree)
+START = {12: ((W, "wd_af12_p14_j"), (W, "wd_af12_p14_s_t1_e0"), (W, "wd_af12_p14_s_fl_e0")),
+         16: ((H, "hp_n36"), (H, "ca_s_t1_edge0"), (H, "ca_s_fl_edge0")),
          20: ((A, "af20_p3_joint_full4k"), (W, "wd_af20_s_t1_e0"), (W, "wd_af20_s_fl_e0_r")),
          24: ((W, "wd_af24_j_e001_r"), (W, "wd_af24_s_t1_e0_r"), (W, "wd_af24_s_fl_e0_r"))}
 rows = []
 for af, lab in AFS:
     j, st, sf = REG[af]
-    pub = (m(A, j, "plain") - m(A, st, "plain"), m(A, j, "contrast") - m(A, sf, "plain"))
+    RR = REG_ROOT[af]
+    pub = (m(RR, j, "plain") - m(RR, st, "plain"), m(RR, j, "contrast") - m(RR, sf, "plain"))
     (rj, ej), (rt, et), (rf, ef) = START[af]
     start = (m(rj, ej, "plain") - m(rt, et, "plain"), m(rj, ej, "contrast") - m(rf, ef, "plain"))
     now = (m(W, f"wd_v_af{af}_j", "plain") - m(W, f"wd_v_af{af}_s_t1", "plain"),
@@ -71,7 +77,7 @@ for af, lab in AFS:
     print(f"AF {lab:5.2f}  published {pub[0]:+.3f}/{pub[1]:+.3f}  fair start {start[0]:+.3f}/{start[1]:+.3f}  "
           f"fair now {now[0]:+.3f}/{now[1]:+.3f}")
 
-fig, axes = plt.subplots(1, 2, figsize=(9.2, 3.9), sharey=True, facecolor=SURF)
+fig, axes = plt.subplots(1, 2, figsize=(10.4, 3.9), sharey=True, facecolor=SURF)
 for ci, (ax, cname) in enumerate(zip(axes, ("T1", "FLAIR"))):
     style(ax)
     for xi, (lab, pub, start, now) in enumerate(rows):
@@ -90,12 +96,13 @@ axes[0].set_ylabel("MC-GS − GS-single, head PSNR (dB)", fontsize=9.5, color=IN
 axes[0].set_ylim(-0.01, 0.2)
 h = [plt.Line2D([], [], marker="D", color=MUTED, linestyle="", markersize=6, label="published (GS-single carries the common-edge prior)"),
      plt.Line2D([], [], marker="o", markerfacecolor=SURF, markeredgecolor=BLUE, markeredgewidth=2, color=BLUE,
-                linestyle="", markersize=7, label="fair baseline, phase-3 recipe (start)"),
+                linestyle="", markersize=7, label="fair baseline, published recipe (start)"),
      plt.Line2D([], [], marker="o", color=BLUE, linestyle="", markersize=7, label="fair baseline, after the loop")]
 fig.legend(handles=h, loc="lower center", ncol=3, frameon=False, fontsize=8.5, bbox_to_anchor=(0.5, -0.06),
            labelcolor=INK2)
 fig.suptitle("Joint margin over single-contrast GS, jiangyizhou T1 + FLAIR", x=0.07, ha="left", fontsize=12, color=INK)
-fig.text(0.07, 0.905, "fair = GS-single at λ_edge 0 with its own best per-channel settings (user choices A / (1))",
+fig.text(0.07, 0.905, "fair = GS-single at λ_edge 0 with its own best per-channel settings (user choices A / (1)); "
+         "published recipe = phase 3 at AF 15.19-24, P14 at AF 11.71",
          fontsize=8.5, color=INK2)
 fig.subplots_adjust(top=0.8, bottom=0.18, wspace=0.08)
 save(fig, "widen_margin_dumbbell")

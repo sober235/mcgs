@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One run of the widen-the-margin loop (branch widen-mcgs-af16-20-24): jiangyizhou T1+FLAIR at AF 16 / 20 / 24.
 #   run_wd_mcgs.sh EXP GPU ITERS AF ARM LAMBDA_EDGE [extra arc/cycle.py args...]
-#   AF = 16 | 20 | 24 (picks that topic's house mask config); ARM = joint | T1 | FLAIR (T1 / FLAIR = GS-single).
+#   AF = 12 | 16 | 20 | 24 (picks that topic's house mask config); ARM = joint | T1 | FLAIR (T1 / FLAIR = GS-single).
 #   SAVE_VOLUMES=1 dumps the recon npz.  WARMUP (default 500) for short smokes.
 #
 # The recipe block is byte-identical to run_ca_mcgs.sh (the AF16 phase-3 recipe); LAMBDA_EDGE is positional because the
@@ -11,7 +11,7 @@ set -uo pipefail
 if [[ $# -lt 6 ]]; then echo "usage: $0 EXP GPU ITERS AF ARM LAMBDA_EDGE [extra cycle.py args...]" >&2; exit 2; fi
 EXP=$1; GPU=$2; ITERS=$3; AF=$4; ARM=$5; LEDGE=$6; shift 6
 [[ "$EXP" == wd_* ]] || { echo "EXP must start with wd_: $EXP" >&2; exit 2; }
-case "$AF" in 16|20|24) ;; *) echo "AF must be 16, 20 or 24: $AF" >&2; exit 2 ;; esac
+case "$AF" in 12|16|20|24) ;; *) echo "AF must be 12, 16, 20 or 24: $AF" >&2; exit 2 ;; esac
 case "$ARM" in
   joint) CONFIG=configs/t1flair_v3_af${AF}_jyz.yaml ;;
   T1|FLAIR) CONFIG=configs/t1flair_v3_af${AF}_jyz_single${ARM}.yaml ;;
