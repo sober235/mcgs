@@ -1,0 +1,7 @@
+# 2026-09-27: the six asymmetric-probe runs re-run with volumes for the image figures (seed 42; must reproduce the scores)
+SAVE_VOLUMES=1 wd_va_s_fl32 4000 16 FLAIR 0 --lambda_ptv 0.01 --base_cfg configs/t1flair_v3_af16_jyz_asym_singleFLAIR32.yaml
+SAVE_VOLUMES=1 wd_va_j_tfull_fl32 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --base_cfg configs/t1flair_v3_af16_jyz_asym_tfull_fl32.yaml
+SAVE_VOLUMES=1 wd_va_j_t16_fl32 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --base_cfg configs/t1flair_v3_af16_jyz_asym_t16_fl32.yaml
+SAVE_VOLUMES=1 wd_va_s_fl64 4000 16 FLAIR 0 --lambda_ptv 0.01 --base_cfg configs/t1flair_v3_af16_jyz_asym_singleFLAIR64.yaml
+SAVE_VOLUMES=1 wd_va_j_tfull_fl64 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --base_cfg configs/t1flair_v3_af16_jyz_asym_tfull_fl64.yaml
+SAVE_VOLUMES=1 wd_va_j_t16_fl64 4000 16 joint 0.001 --lambda_dtv 0.01 --set loss.edge_tv_guide_alpha=0.25 --lambda_ptv 0.01 --set loss.lambda_wav_plain=0.18 --set loss.ptv_guide_alpha=0.25 --base_cfg configs/t1flair_v3_af16_jyz_asym_t16_fl64.yaml
