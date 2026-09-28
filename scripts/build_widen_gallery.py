@@ -34,6 +34,48 @@ def af_table(af):
     return out
 
 
+ORDER = ["cgsense", "cssense", "cssense_o200", "jcssense", "spirit", "ploraks", "zsssdu", "dip", "inr", "mcinr"]
+REF = {12: ("gs_single_p14", "gs_joint_p14", "P14, AF12 line"), 16: ("gs_single_p3", "gs_joint_p3", "phase 3"),
+       20: ("gs_single_p3", "gs_joint_p3", "phase 3"), 24: ("gs_single_p3", "gs_joint_p3", "phase 3")}
+
+
+def sc3(exp, ch):
+    d = json.load(open(W / f"{exp}_score.json"))[ch]
+    return d["head_psnr"], d["head_ssim"], d["head_hfen"]
+
+
+def full_table(af):
+    """every arm of the topic (L1-ESPIRiT retired, as in the topics) + this loop's two GS arms; published GS arms as
+    reference rows; best of each counted column in bold (ZF and the reference rows are not counted)"""
+    rows = json.load(open(R / f"T1FLAIR_AF{af}_v3_jiangyizhou/logs/summary.json"))
+    by = {(r["method"], r["contrast"]): (r["head_psnr"], r["head_ssim"], r["head_hfen"]) for r in rows}
+    body = [(NON_GS[mth], by[(mth, "T1")], by[(mth, "FLAIR")], "arm") for mth in ORDER if (mth, "T1") in by]
+    body.append(("GS-single (fair: lambda_edge 0, own best settings)", sc3(f"wd_v_af{af}_s_t1", "plain"),
+                 sc3(f"wd_v_af{af}_s_fl", "plain"), "arm"))
+    body.append(("MC-GS (this recipe)", sc3(f"wd_v_af{af}_j", "plain"), sc3(f"wd_v_af{af}_j", "contrast"), "arm"))
+    rs, rj, rname = REF[af]
+    ref = [("ZF (zero-filled, reference)", by[("zf", "T1")], by[("zf", "FLAIR")], "ref"),
+           (f"GS-single, published ({rname}, with the common-edge prior)", by[(rs, "T1")], by[(rs, "FLAIR")], "ref"),
+           (f"MC-GS, published ({rname})", by[(rj, "T1")], by[(rj, "FLAIR")], "ref")]
+    counted = [b for b in body if b[3] == "arm"]
+    best = {}
+    for ci in (1, 2):
+        for k, better in ((0, max), (1, max), (2, min)):
+            best[(ci, k)] = better(b[ci][k] for b in counted)
+    trs = []
+    for b in body + ref:
+        cells = []
+        for ci in (1, 2):
+            for k, fmt in ((0, "{:.3f}"), (1, "{:.4f}"), (2, "{:.4f}")):
+                v = fmt.format(b[ci][k])
+                cells.append(f"<td><b>{v}</b></td>" if b[3] == "arm" and b[ci][k] == best[(ci, k)] else f"<td>{v}</td>")
+        cls = ' class="ref"' if b[3] == "ref" else (' class="ours"' if b[0].startswith("MC-GS") else "")
+        trs.append(f"<tr{cls}><td>{html.escape(b[0])}</td>{''.join(cells)}</tr>")
+    return ("<table><thead><tr><th rowspan=2>method</th><th colspan=3>T1 (head)</th><th colspan=3>FLAIR (head)</th></tr>"
+            "<tr><th>PSNR</th><th>SSIM</th><th>HFEN</th><th>PSNR</th><th>SSIM</th><th>HFEN</th></tr></thead><tbody>"
+            + "".join(trs) + "</tbody></table>")
+
+
 def p14_note(af):
     """AF12 only: the AF12 line's own tuned arm (P14, registered in the topic) beside this loop's one recipe"""
     if af != 12:
@@ -65,8 +107,10 @@ for i, (af, act) in enumerate(AFS):
                    f"<td>{html.escape(bn)} {bp:.3f} / {bs:.4f}</td><td>{mc[0] - gs[0]:+.3f}</td><td>{mc[0] - bp:+.3f}</td></tr>")
     panes.append((tid, f"""
 <h2>nominal AF {af}, actual {act}x (PE-plane points / mask points, both contrasts read one mask)</h2>
-<table><thead><tr><th>contrast</th><th>MC-GS head PSNR / SSIM</th><th>GS-single (fair) head PSNR / SSIM</th>
-<th>best non-GS arm</th><th>MC-GS − GS-single</th><th>MC-GS − best non-GS</th></tr></thead><tbody>{''.join(trs)}</tbody></table>
+{full_table(af)}
+<p class="note">MC-GS − GS-single: {" / ".join(f"{c} {mc[0] - gs[0]:+.3f}" for c, mc, gs, _ in af_table(af))} dB;
+MC-GS − best non-GS: {" / ".join(f"{c} {mc[0] - bp:+.3f} ({bn})" for c, mc, gs, (bn, bp, bs) in af_table(af))} dB.
+Bold = best of the counted arms in that column (HFEN: lower is better); grey rows are references, not counted.</p>
 <p class="note">MC-GS = phase-3 recipe + phase TV 0.01 + T1 wavelet 0.18 + dtv 0.01 + guided edge / phase TV 0.25, lambda_edge 0.001.
 GS-single = the same per-channel settings at lambda_edge 0 (its own best). Head-only metrics, 3.6M Gaussians, 4000 iterations, seed 42.</p>
 {p14_note(af)}
@@ -74,7 +118,7 @@ GS-single = the same per-channel settings at lambda_edge 0 (its own best). Head-
 {img(f"af{af}_FLAIR.png", f"FLAIR, AF {act}x, all arms")}"""))
 for lvl, act in ((32, "26.68"), (64, "43.32")):
     tid = f"asym{lvl}"
-    tabs.append((tid, f"FLAIR {act}x (asymmetric)"))
+    tabs.append((tid, f"GS-only analysis: FLAIR {act}x"))
     s = sc(f"wd_va_s_fl{lvl}", "plain") if (W / f"wd_va_s_fl{lvl}_score.json").exists() else None
     rows = ""
     if s:
@@ -87,11 +131,14 @@ for lvl, act in ((32, "26.68"), (64, "43.32")):
     panes.append((tid, f"""
 <h2>FLAIR at nominal AF {lvl}, actual {act}x; T1 as the partner (probe mask, not a topic mask)</h2>
 <table><thead><tr><th>arm</th><th>FLAIR head PSNR / SSIM</th><th>vs GS-single</th></tr></thead><tbody>{rows}</tbody></table>
-<p class="note">Only the GS arms were run at this acceleration; the classical and learned arms exist at AF 11.71 / 15.19 / 18.56 / 24.00 only.</p>
+<p class="note"><b>Incomplete as a comparison:</b> only the two GS arms were run at this probe mask; the classical and learned
+arms exist at AF 11.71 / 15.19 / 18.56 / 24.00 only. Shown as an analysis of the GS model, not as a method comparison.</p>
 {img(f"asym_flair_actual{act}x_compare.png", f"FLAIR {act}x: GS-single vs MC-GS")}"""))
-tabs.append(("summary", "summary charts"))
+tabs.append(("summary", "GS-only analysis: charts"))
 panes.append(("summary", f"""
-<h2>summary charts (every number read from the score files)</h2>
+<h2>analysis charts of the GS model (MC-GS against GS-single; every number read from the score files)</h2>
+<p class="note">These charts study the joint model against its single-contrast counterpart (margins, oracle ceilings,
+asymmetric acceleration); by construction they contain only the GS arms. The method comparison with every arm is in the AF tabs.</p>
 {img("widen_margin_dumbbell.png", "fair vs published margin per AF")}
 {img("widen_ceilings.png", "oracle ceilings at AF 15.19")}
 {img("widen_asym_trend.png", "joint gain as FLAIR gets sparser")}"""))
@@ -111,9 +158,10 @@ h1{{font-size:18px;margin:0 0 8px}} h2{{font-size:15px;margin:10px 0}}
 table{{border-collapse:collapse;margin:6px 0 4px;font-variant-numeric:tabular-nums}}
 th,td{{border-bottom:1px solid var(--line);padding:4px 10px;text-align:left}} th{{color:var(--ink2);font-weight:500}}
 .note,.pending,figcaption{{color:var(--ink2);font-size:12.5px}}
+tr.ref td{{color:var(--ink2)}} tr.ours td:first-child{{font-weight:600}}
 figure{{margin:14px 0}} img{{max-width:100%;height:auto;display:block;border:1px solid var(--line)}}
 </style></head><body>
-<h1>MC-GS vs GS-single and every comparison arm, jiangyizhou T1 + FLAIR (branch widen-mcgs-af16-20-24)</h1>
+<h1>MC-GS against every comparison method, jiangyizhou T1 + FLAIR, AF 11.71 / 15.19 / 18.56 / 24.00</h1>
 <nav>{buttons}</nav>{body}
 <script>
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{{
