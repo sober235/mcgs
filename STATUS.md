@@ -1,3 +1,59 @@
+# STATUS — nonbrain-infra (worktree `mcgs_nb_infra_wt`) — shared layer done, knee next
+
+## 1. Done and verified
+
+```
+$ cd /data0/congcong/code/GS/mcgs_nb_infra_wt
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_VISIBLE_DEVICES=7 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -m pytest tests -q --ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py -p no:cacheprovider | tail -1
+338 passed, 1 warning in 399.87s (0:06:39)
+$ bash scripts/regress_brain_pin.sh 7 | tail -3
+contrast: head_psnr 34.928080 vs 34.928080 (diff +0.00e+00)
+PIN PASS
+score json: /data0/congcong/code/GS/mcgs_nb_infra_wt/results_arc/pin_hp_n36_20260928_195235_score.json
+$ pytest tests/test_scoring_equivalence.py -q | tail -1
+3 passed in 0.02s
+$ git log --oneline 2eef592..HEAD
+f728ad3 tests: pin the brain line's configs, launchers, cycle.py, trainer and scorers to their 2eef592 bytes
+53ddb64 tests: spec_expand's check rejects type changes, added keys and longer lists
+f1e796b arc: spec_expand, one spec per subject from a template, with a check that only {subject} strings differ
+42592b1 run_spec: refuse --audit below 3 iterations, where the trainer's warm-up guard would stop the run
+eb28948 arc: run_spec.py, the strict entry; hp_n36 scored through it equals cycle.py on every metric, and cycle.py itself still reproduces 35.706 / 34.928
+81e8785 arc: spec_scoring -- cycle.py's scorer with the anatomy threshold and the grain metric taken from the spec, numpy quantile above 16M elements
+865cc5b spec_io: refuse non-mapping blocks with SpecError instead of a raw TypeError/AttributeError
+cd594c1 arc: spec_io -- spec file rules (three blocks, absolute paths, prefixed run names, no overwrite), provenance and default filling
+8f8abdf arc: StrictConfig, a config dict that refuses (or records) reads that fall back to a code default
+8e47870 dataset: numpy quantile for ground truths above 16M elements (brain-sized volumes keep the torch path)
+1e20511 plan 0: nonbrain-infra -- quantile gate, StrictConfig, spec_io, spec_scoring, run_spec with the hp_n36 equivalence check, spec_expand, brain file pins, hand-off
+b5880ba spec: multi-anatomy AF16 validation -- overall plan, the shared nonbrain-infra layer and the knee (SKM-TEA) study
+```
+
+All 338 expected tests passed; none skipped. `tests/test_scoring_equivalence.py` (3 cases) did not skip because
+this worktree already carried gitignored artifacts from Task 5's own verification (`results_arc/pin_hp_n36_*_score.json`,
+`results_spec/brainpin_equiv1_score.json`); `test_nonlocal_red.py`'s GPU trainer-smoke case did not skip because
+the AF16 jyz bundle (`Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/ksp_T1.h5`) exists on this server outside
+the worktree. The one warning is `TORCH_CUDA_ARCH_LIST is not set` from the tile-voxelizer CUDA extension's
+first build in this worktree — benign, not a test failure.
+
+## 2. Waiting for the user
+- Push `nonbrain-infra` to GitHub? (not pushed)
+- Plan 1 (knee) execution go-ahead.
+
+## 3. Next
+Write/execute plan 1 (knee, `nb-knee-skmtea`, worktree `mcgs_nb_knee_wt`) per spec §4–§6.
+
+## 4. Pitfalls, and what not to redo
+- `run_spec.py --audit N` shortens warm-up to N//4 and ignores `from_ckpt`; audit runs score nothing.
+- An audit must reach every periodic event the real run hits (eval_every, save_every, densification windows),
+  otherwise a strict run can stop late on a key read only there; audit dataset specs with N >= max(eval_every, save_every).
+- A spec may not hold both `loss.tv_weight` and `loss.lambda_geo` (JointTrainer silently prefers lambda_geo).
+- Runs are never overwritten: a new run needs a new `--exp`.
+
+## 5. Why
+- StrictConfig: every value a study uses is written in its own spec (spec §2.2), so one study cannot move another.
+- spec_scoring is a copy, not an edit, of cycle.py's scorer: the brain line's files stay byte-identical (md5 test).
+
+---
+
 # STATUS — 2026-09-28（worktree `mcgs_widen_wt`, branch `widen-mcgs-af12-16-20-24`）— widen loop, ceilings, AF12; tidied and pushed
 
 **Read first:** `docs/2026-09-28-widen-mcgs-summary.md` (Chinese, the whole story), then `autoresearch_widen.md` (rules,

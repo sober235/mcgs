@@ -1,5 +1,13 @@
 # Paired-ARC-GS / MC-GS framework — session entry
 
+## Branch `nonbrain-infra` (worktree `mcgs_nb_infra_wt`) — shared layer for the multi-anatomy AF16 studies
+Read `docs/superpowers/specs/2026-09-28-nonbrain-af16-infra-knee-design.md`, then
+`docs/superpowers/plans/2026-09-28-nonbrain-infra.md`, then `STATUS.md` (top section). Studies (knee, liver,
+breast, thorax) each live on their own branch cut from here; merges go only nonbrain-infra -> dataset branch.
+Entry: `arc/run_spec.py --spec SPEC --exp <prefix>_<name> --gpu G [--audit N]` (no tuning flags; a key missing
+from the spec stops the run). Brain check after any shared change: `bash scripts/regress_brain_pin.sh G`
+(expects 35.706153 / 34.928080) and `pytest tests/test_brain_files_pinned.py`.
+
 Read in this order: this file → `STATUS.md` (current state, what to re-run first) →
 `autoresearch_t1t2.md` (the live campaign: program, verdicts, round log) →
 `docs/superpowers/records/` (dated session records, newest first) → `.claude/memory.md`
