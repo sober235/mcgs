@@ -89,6 +89,12 @@ def p14_note(af):
             f'{j["contrast"]["head_psnr"] - sf:+.3f} (T1 / FLAIR head PSNR).</p>')
 
 
+def fig_name(af, c):
+    """AF12 carries one more counted arm (P-LORAKS): its figure with that column when rendered (--with_ploraks)"""
+    p = f"af{af}_{c}_ploraks.png"
+    return p if af == 12 and (FIGS / p).exists() else f"af{af}_{c}.png"
+
+
 def img(name, alt):
     p = FIGS / name
     if not p.exists():
@@ -114,8 +120,8 @@ Bold = best of the counted arms in that column (HFEN: lower is better); grey row
 <p class="note">MC-GS = phase-3 recipe + phase TV 0.01 + T1 wavelet 0.18 + dtv 0.01 + guided edge / phase TV 0.25, lambda_edge 0.001.
 GS-single = the same per-channel settings at lambda_edge 0 (its own best). Head-only metrics, 3.6M Gaussians, 4000 iterations, seed 42.</p>
 {p14_note(af)}
-{img(f"af{af}_T1.png", f"T1, AF {act}x, all arms")}
-{img(f"af{af}_FLAIR.png", f"FLAIR, AF {act}x, all arms")}"""))
+{img(fig_name(af, "T1"), f"T1, AF {act}x, all arms")}
+{img(fig_name(af, "FLAIR"), f"FLAIR, AF {act}x, all arms")}"""))
 for lvl, act in ((32, "26.68"), (64, "43.32")):
     tid = f"asym{lvl}"
     tabs.append((tid, f"GS-only analysis: FLAIR {act}x"))

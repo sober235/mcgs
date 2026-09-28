@@ -1,0 +1,28 @@
+--- a/T1FLAIR_AF12_v3_jiangyizhou/scripts/fig_three_planes_inset.py
++++ b/T1FLAIR_AF12_v3_jiangyizhou/scripts/fig_three_planes_inset.py
+@@ -82,6 +82,9 @@
+                 help="typography (user 2026-09-16): plane names capitalised, method names in the first row upper case; appends _caps")
+ ap.add_argument("--title_fs", type=float, default=14.0,
+                 help="font size of the first-row method names and the GT title (user 2026-09-16 evening: enlarged; 14 = the earlier renders)")
++ap.add_argument("--with_ploraks", action="store_true",
++                help="add the P-LORAKS column after the L1 arm (recon/ploraks_<c>_complex.npy, a counted arm of this topic) and "
++                     "'_ploraks' to the file name; off reproduces every earlier figure (user rule 2026-09-28: every method shown)")
+ ap.add_argument("--keep", nargs="+", metavar="LABEL",
+                 help="keep only these method columns, named by their label (e.g. CS-SENSE 'Joint SENSE' ZS-SSDU "
+                      "3D-INR MC-INR GS-single MC-GS). GT keeps its column (the error maps are against it and the "
+@@ -167,12 +170,15 @@
+         ("cssense_o200", "CS-SENSE", lam_file("cssense_o200", "cssense_o200")),
+         ("jcssense", "Joint SENSE", lam_file("jcssense", "jcssense_o200")),
+         *L1_ARMS,
++        *([("ploraks", "P-LORAKS", R / f"recon/ploraks_{c}_complex.npy")] if args.with_ploraks else []),
+         ("zsssdu", "ZS-SSDU", R / f"recon/zsssdu_{c}_complex.npy"),
+         ("dip", "3D-DIP", R / f"recon/dip_{c}_complex.npy"),
+         ("inr", "3D-INR", R / f"recon/inr_{c}_complex.npy"),
+         *([] if args.no_mcinr else [("mcinr", "MC-INR", R / f"recon/mcinr_{c}_complex.npy")]),
+         (args.single_key, "GS-single", R / f"recon/{args.single_key}_{c}_mag.npy"),
+         (args.mcgs_key, "MC-GS", R / f"recon/{args.mcgs_key}_{c}_mag.npy")]
++if args.with_ploraks:
++    args.tag += "_ploraks"
+ if args.keep:
+     unknown = [w for w in args.keep if w not in [lab for _, lab, _ in ARMS]]
+     assert not unknown, f"--keep: no such column {unknown}; this call builds {[lab for _, lab, _ in ARMS]}"
