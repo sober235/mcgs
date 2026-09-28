@@ -37,6 +37,9 @@ def validate_spec(spec: dict) -> None:
     _need(isinstance(spec, dict) and set(spec) == {"spec", "scoring", "trainer"},
           f"top-level blocks must be exactly spec/scoring/trainer, got {sorted(spec) if isinstance(spec, dict) else spec!r}")
     s, sc, tr = spec["spec"], spec["scoring"], spec["trainer"]
+    _need(isinstance(s, dict), f"spec block must be a mapping, got {type(s).__name__}")
+    _need(isinstance(sc, dict), f"scoring block must be a mapping, got {type(sc).__name__}")
+    _need(isinstance(tr, dict), f"trainer block must be a mapping, got {type(tr).__name__}")
     _need(set(s) == SPEC_KEYS, f"spec block keys must be {sorted(SPEC_KEYS)}, got {sorted(s)}")
     _need(set(sc) == SCORING_KEYS, f"scoring block keys must be {sorted(SCORING_KEYS)}, got {sorted(sc)}")
     _need(re.fullmatch(r"[a-z0-9]+", str(s["exp_prefix"])) is not None, "exp_prefix must match [a-z0-9]+")
@@ -47,20 +50,25 @@ def validate_spec(spec: dict) -> None:
           "scoring.anatomy_rel must be in (0, 1)")
     _need(isinstance(sc["grain_ratio"], bool), "scoring.grain_ratio must be a bool")
     data = tr.get("data", {})
+    _need(isinstance(data, dict), f"trainer.data must be a mapping, got {type(data).__name__}")
     for ch in CHANNELS:
         _need(ch in data, f"trainer.data.{ch} is missing")
+        _need(isinstance(data[ch], dict), f"trainer.data.{ch} must be a mapping, got {type(data[ch]).__name__}")
         _need("name" in data[ch], f"trainer.data.{ch}.name is missing")
         for k in PATH_KEYS:
             _need(k in data[ch] and Path(str(data[ch][k])).is_absolute(),
                   f"trainer.data.{ch}.{k} must be an absolute path")
     out = tr.get("output", {})
+    _need(isinstance(out, dict), f"trainer.output must be a mapping, got {type(out).__name__}")
     for k in ("output_dir", "exp_name"):
         _need(k not in out, f"trainer.output.{k} is set by run_spec.py; remove it from the spec")
     loss = tr.get("loss", {})
+    _need(isinstance(loss, dict), f"trainer.loss must be a mapping, got {type(loss).__name__}")
     _need(not ("lambda_geo" in loss and "tv_weight" in loss),
           "trainer.loss has both lambda_geo and tv_weight; JointTrainer would silently use lambda_geo "
           "(joint_trainer.py:781-791); keep tv_weight only")
     training = tr.get("training", {})
+    _need(isinstance(training, dict), f"trainer.training must be a mapping, got {type(training).__name__}")
     for k in ("seed", "deterministic", "max_iterations", "shared_warmup_iters"):
         _need(k in training, f"trainer.training.{k} is missing")
 

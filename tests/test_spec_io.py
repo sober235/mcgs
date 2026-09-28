@@ -104,3 +104,17 @@ def test_fill_defaults_inserts_missing_keys_only(tmp_path):
     assert out["trainer"]["mode"] == {"strict_cuda": False}
     assert out["trainer"]["gaussian"] == {"init": {"scale": 0.008}}
     assert "mode" not in s["trainer"]
+
+
+@pytest.mark.parametrize("mutate, message", [
+    (lambda s: s.update(spec=None), "spec block must be a mapping"),
+    (lambda s: s.update(scoring="notadict"), "scoring block must be a mapping"),
+    (lambda s: s.update(trainer=[]), "trainer block must be a mapping"),
+    (lambda s: s["trainer"].update(loss=["tv_weight", "lambda_geo"]), "trainer.loss must be a mapping"),
+    (lambda s: s["trainer"]["data"].update(plain=None), "trainer.data.plain must be a mapping"),
+])
+def test_non_mapping_blocks_are_refused(tmp_path, mutate, message):
+    s = _spec(tmp_path)
+    mutate(s)
+    with pytest.raises(SpecError, match=message):
+        spec_io.validate_spec(s)
