@@ -8,10 +8,14 @@ Run: env PYTHONNOUSERSITE=1 PYTHONPATH= $PY -m pytest tests/test_spec_scoring.py
 import ast
 import inspect
 import math
+import subprocess
 import sys
+import textwrap
+import types
 from pathlib import Path
 
 import numpy as np
+import pytest
 import torch
 from scipy import ndimage
 
@@ -58,7 +62,7 @@ def test_anatomy_metrics_equal_headonly_at_brain_settings():
     rec, gt = _volume()
     ours = spec_scoring.score_anatomy(rec, gt, 0.05, True)
     ref = score_headonly(rec, gt)
-    assert set(ours) == set(ref)
+    assert set(ours) == set(ref) | {"head_nmse"}          # head_nmse: spec §5.4, not in headonly
     for k in ref:
         a, b = ours[k], ref[k]
         assert (math.isnan(a) and math.isnan(b)) or a == b, k
@@ -70,3 +74,60 @@ def test_anatomy_threshold_and_grain_switch():
     tight = spec_scoring.score_anatomy(rec, gt, 0.40, False)
     assert tight["head_frac"] < loose["head_frac"]
     assert loose["grain_ratio"] is None
+
+
+# --- final review fixes (2026-09-28) ---------------------------------------------------------------------------
+def test_head_nmse_by_hand():
+    gt = np.zeros((16, 16, 16), np.float32)
+    gt[4:12, 4:12, 4:12] = 1.0                 # 512 anatomy voxels; P99.9 = 1, so the mask is exactly this cube
+    rec = gt.copy()
+    assert spec_scoring.score_anatomy(rec, gt, 0.05, False)["head_nmse"] == 0.0
+    rec[5, 5, 5] = 1.5                         # inside the mask: error 0.5
+    rec[0, 0, 0] = 3.0                         # outside the mask: not counted
+    assert spec_scoring.score_anatomy(rec, gt, 0.05, False)["head_nmse"] == pytest.approx(0.25 / 512, rel=1e-12)
+
+
+def test_score_channel_reports_the_ssim_mode(monkeypatch):
+    """evaluate_reconstruction falls back to slice-wise SSIM on any exception and marks it only by ssim_std."""
+    rec, gt = _volume(2, (16, 16, 16))
+    gt_t = torch.from_numpy(gt).to(torch.complex64)
+    csm = torch.ones((1, 16, 16, 16), dtype=torch.complex64)
+    y_full = spec_scoring.fft3c(csm * gt_t.unsqueeze(0))
+    mask = torch.zeros(16, 16, 16)
+    mask[:, ::2, :] = 1.0
+    ds = types.SimpleNamespace(get_data=lambda: {"ground_truth": gt_t}, kspace_multicoil=y_full)
+    tr = types.SimpleNamespace(csm_p=csm, kspace_p=mask * y_full, mask_p=mask, ds_p=ds, mask_fit_p=mask,
+                               kspace_dc_p=mask * y_full, physics_info={},
+                               _render=lambda ch: torch.from_numpy(rec).to(torch.complex64))
+    calls = []
+
+    def fake_evaluate(x, target, compute_extended=False):
+        calls.append(x)
+        met = {"psnr": 30.0, "ssim": 0.9, "nmse": 0.01}
+        if len(calls) == 1:                    # the reconstruction's SSIM fell back to slice-wise
+            met["ssim_std"] = 0.05
+        return met
+
+    monkeypatch.setattr(spec_scoring, "evaluate_reconstruction", fake_evaluate)
+    s = spec_scoring.score_channel(tr, "plain", torch.device("cpu"), 0.05, False)
+    assert len(calls) == 2 and s["ssim_mode"] == "slicewise" and s["zf_ssim_mode"] == "3d"
+    assert "head_nmse" in s
+
+
+@pytest.mark.parametrize("start", ["arc_only", "root_ahead_of_paired_gs"])
+def test_paired_gs_is_searched_before_the_repo_root(start):
+    """A future root-level metrics.py or data/ must not shadow paired_gs, whatever sys.path the importer had."""
+    root, pg, arc = str(ROOT), str(ROOT / "paired_gs"), str(ROOT / "arc")
+    code = textwrap.dedent(f"""
+        import inspect, sys
+        sys.path[:] = [p for p in sys.path if p not in ({root!r}, {pg!r}, {arc!r}, "")]
+        sys.path.insert(0, {arc!r})
+        if {start!r} == "root_ahead_of_paired_gs":
+            sys.path[1:1] = [{root!r}, {pg!r}]
+        import spec_scoring
+        print(sys.path.index({pg!r}) < sys.path.index({root!r}))
+        print(inspect.getsourcefile(spec_scoring.evaluate_reconstruction))
+    """)
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout.splitlines()
+    assert out[0] == "True", "the repo root is searched before paired_gs"
+    assert Path(out[1]).resolve() == ROOT / "paired_gs" / "metrics" / "metrics.py"

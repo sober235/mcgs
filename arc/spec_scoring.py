@@ -6,6 +6,16 @@ the brain white-matter grain metric N is computed -- and with torch.quantile rep
 16M elements. hfen/sharp_ratio/grain are verbatim copies (tests/test_spec_scoring.py compares the source).
 With anatomy_rel=0.05 and grain_ratio=True the numbers equal cycle.py's (tests/test_scoring_equivalence.py).
 arc/cycle.py and diag_artefact/headonly.py are not modified.
+
+The anatomy mask (scoring.anatomy_rel) drives head_psnr, head_ssim, head_hfen, head_nmse, head_frac,
+head_psnr_cplx and cos_phase. comp, beat, sharp and grain use brain constants and ignore anatomy_rel: sharp and
+grain use their own 0.05 * max mask, beat compares whole-volume SSIM / NMSE / HFEN with the zero-filled image,
+and comp weighs whole-volume metrics with weights tuned on the brain. So comp, and the json's combined and
+both_beat built from comp and beat, are not selection criteria outside the brain. grain_ratio (N) is the brain
+white-matter metric with its own masks, switched by scoring.grain_ratio.
+Keys added here that cycle.py does not have: head_nmse (sum over the anatomy mask of (rec - gt)^2 / gt^2, the
+knee's anatomy-region NMSE, spec §5.4), ssim_mode / zf_ssim_mode ("3d", or "slicewise" when
+evaluate_reconstruction fell back to slice-wise SSIM).
 """
 from __future__ import annotations
 
@@ -16,9 +26,10 @@ import numpy as np
 import torch
 
 ROOT = Path(__file__).resolve().parents[1]
-for _p in (ROOT / "paired_gs", ROOT):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
+for _p in (ROOT, ROOT / "paired_gs"):         # paired_gs ends up first: a root-level metrics.py or data/ cannot
+    while str(_p) in sys.path:                # shadow it, whatever sys.path the importer had
+        sys.path.remove(str(_p))
+    sys.path.insert(0, str(_p))
 from data.transforms import fft3c, ifft3c  # noqa: E402
 from metrics import evaluate_reconstruction  # noqa: E402
 from diag_artefact.headonly import grain_ratio as _grain_ratio  # noqa: E402
@@ -88,14 +99,22 @@ def score_anatomy(rec: np.ndarray, gt: np.ndarray, anatomy_rel: float, with_grai
     gt = np.asarray(gt, dtype=np.float32)
     head = gt > anatomy_rel * float(np.quantile(gt, 0.999))
     gmax = float(gt.max())
+    g = gt[head].astype(np.float64)
+    d = rec[head].astype(np.float64) - g
     return {
         "head_psnr": head_psnr(rec, gt, head, gmax),
         "head_ssim": head_ssim(rec, gt, head, gmax),
         "head_hfen": head_hfen(rec, gt, head, gmax),
+        "head_nmse": float(np.sum(d * d) / np.sum(g * g)),
         "grain_ratio": _grain_ratio(rec, gt) if with_grain_ratio else None,
         "head_frac": float(head.mean()),
         "gmax": gmax,
     }
+
+
+def _ssim_mode(met: dict) -> str:
+    """metrics.evaluate_reconstruction switches to slice-wise SSIM on any exception; ssim_std is its only mark."""
+    return "slicewise" if "ssim_std" in met else "3d"
 
 
 def score_channel(tr, which, dev, anatomy_rel, with_grain_ratio):
@@ -147,5 +166,6 @@ def score_channel(tr, which, dev, anatomy_rel, with_grain_ratio):
     return dict(psnr=psnr, ssim=ssim, nmse=nmse, hfen=hf, sharp=sr, grain=gr,
                 head_psnr_cplx=head_psnr_cplx, cos_phase=cos_phase,
                 e_unobs=e_unobs, e_unobs_excl_z=e_unobs_excl_z, nmse_unobs=nmse_unobs, comp=comp, beat=beat,
+                ssim_mode=_ssim_mode(met), zf_ssim_mode=_ssim_mode(mz),
                 zf=(float(mz["psnr"]), float(mz["ssim"]), float(mz["nmse"]), zf_hf),
                 kz_energy=kz_energy, physics=tr.physics_info.get(tag, {}), **ho)
