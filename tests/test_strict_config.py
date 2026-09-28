@@ -37,6 +37,15 @@ def test_missing_keys_recorded_in_record_mode_including_children_of_missing_sect
     assert s.fallbacks == [("loss.lambda_ptv", 0.0), ("mode", {}), ("mode.strict_cuda", False)]
 
 
+def test_record_mode_logs_every_read_of_a_missing_key_with_its_own_default():
+    # voxelizer_config.py:22 reads voxelizer.type with default "chunk", joint_trainer.py:344 with "tile_cuda"
+    s = StrictConfig(CFG, strict=False)
+    v = s.setdefault("voxelizer", {})
+    assert v.get("type", "chunk") == "chunk"
+    assert s.get("voxelizer", {}).get("type", "tile_cuda") == "tile_cuda"
+    assert s.fallbacks == [("voxelizer", {}), ("voxelizer.type", "chunk"), ("voxelizer.type", "tile_cuda")]
+
+
 def test_setdefault_is_tracked_and_stores_a_wrapped_value():
     s = StrictConfig(CFG, strict=False)
     v = s.setdefault("voxelizer", {})

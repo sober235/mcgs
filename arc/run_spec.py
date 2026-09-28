@@ -4,10 +4,30 @@
 One run = one spec file; the command line carries no tuning parameter:
     python arc/run_spec.py --spec specs/<ds>/<run>.yaml --exp <prefix>_<name> --gpu <id>
     python arc/run_spec.py --spec ... --exp ... --gpu ... --audit N
+Run it with PYTHONNOUSERSITE=1 (it refuses otherwise). spec.results_root must lie inside the repository this
+file belongs to. A run name is used once: it is refused when <exp>/, <exp>_score.json, <exp>_audit.json or
+<exp>_volumes.npz exists, and <results_root>/<exp>/ is created right after that check.
+
 The trainer sees spec["trainer"] through StrictConfig. A normal run stops at the first key that is not in
-the spec. --audit N records every fallback instead, trains N iterations (warm-up shortened to N//4 so both
-branches run), writes <exp>_audit.json and scores nothing; merge the result with
-`python arc/spec_io.py fill-defaults`. arc/cycle.py is not used and not modified.
+the spec. --audit N records every fallback instead, trains N iterations (shared_warmup_iters is capped at N//4
+only so that JointTrainer's guard, warm-up < N/2, holds), writes <exp>_audit.json and scores nothing. The
+fallbacks are grouped by key; a key the code read with two or more different defaults carries
+"conflicting_defaults", and `python arc/spec_io.py fill-defaults` refuses it (set it by hand).
+What an audit reaches: evaluation and checkpoint events read no config keys; the only periodic reader is
+densification (only when adaptive_control.enable is true). With densification on, write every densification
+key into the spec, or audit with N >= densify_from_iter + 2 * densify_every.
+
+Outputs in spec.results_root:
+    <exp>/               JointTrainer's run directory
+    <exp>_score.json     provenance (spec sha256, git_commit, git_dirty, git_dirty_paths, data_md5 of every input
+                         file), python / torch / torch_cuda / no_user_site, the voxelizer that rendered the run
+                         (class, backend, type, strict_cuda), the metrics of each channel (plain / contrast),
+                         plain_name / contrast_name, fallbacks and the resolved config
+    <exp>_audit.json     (--audit) the grouped fallbacks and the same environment fields
+    <exp>_volumes.npz    (spec.save_volumes) keyed by slot, never by channel name: rec_plain, gt_plain, zf_plain,
+                         rec_contrast, gt_contrast, zf_contrast (float32 magnitudes), the same six with a
+                         _complex suffix (complex64), and plain_name / contrast_name (0-d unicode arrays)
+arc/cycle.py is not used and not modified.
 """
 import argparse
 import json
@@ -25,6 +45,39 @@ def _jsonable(v):
         return {"__repr__": repr(v)}
 
 
+def _no_user_site() -> bool:
+    """True when this interpreter ignores user site-packages (PYTHONNOUSERSITE=1); tests replace it."""
+    return bool(sys.flags.no_user_site)
+
+
+def _group_fallbacks(log) -> list:
+    """One entry per key in first-read order: {"key", "default": the first default seen}, plus
+    "conflicting_defaults" (each distinct default) when the key was read with two or more different defaults."""
+    by_key = {}
+    for key, default in log:
+        by_key.setdefault(key, {}).setdefault(json.dumps(default, sort_keys=True, default=repr), default)
+    entries = []
+    for key, defaults in by_key.items():
+        values = list(defaults.values())
+        entry = {"key": key, "default": _jsonable(values[0])}
+        if len(values) > 1:
+            entry["conflicting_defaults"] = [_jsonable(v) for v in values]
+        entries.append(entry)
+    return entries
+
+
+def _environment(tr, resolved: dict) -> dict:
+    """Interpreter, torch build and the voxelizer that actually rendered: TileVoxelizer.backend is tile_cuda,
+    tile_cupy or tile (the PyTorch reference it falls back to silently unless mode.strict_cuda is true)."""
+    import torch
+    vox = tr.voxelizer
+    return {"python": sys.executable, "torch": str(torch.__version__), "torch_cuda": torch.version.cuda,
+            "no_user_site": _no_user_site(),
+            "voxelizer": {"class": type(vox).__name__, "backend": getattr(vox, "backend", None),
+                          "type": resolved.get("voxelizer", {}).get("type"),
+                          "strict_cuda": resolved.get("mode", {}).get("strict_cuda")}}
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="strict spec-driven MC-GS run")
     ap.add_argument("--spec", required=True)
@@ -34,10 +87,12 @@ def main(argv=None):
     a = ap.parse_args(argv)
     if a.audit and a.audit < 3:
         ap.error("--audit N needs N >= 3 (JointTrainer requires the warm-up to stay below N/2)")
+    if not _no_user_site():
+        raise SystemExit("run_spec.py: run with PYTHONNOUSERSITE=1 (user site-packages are enabled in this "
+                         "interpreter and could shadow the environment's packages)")
 
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"] = str(a.gpu)
-    os.environ.setdefault("PYTHONNOUSERSITE", "1")
     import numpy as np
     import torch
 
@@ -58,9 +113,9 @@ def main(argv=None):
     spec_path = Path(a.spec).resolve()
     spec = spec_io.load_spec(spec_path)
     spec_io.check_exp(a.exp, spec)
-    spec_io.run_dir(a.exp, spec)
+    spec_io.check_results_root(spec["spec"]["results_root"], root)
+    spec_io.run_dir(a.exp, spec).mkdir(parents=True, exist_ok=False)     # reserves the run name
     res = Path(spec["spec"]["results_root"])
-    res.mkdir(parents=True, exist_ok=True)
     prov = spec_io.provenance(spec_path, spec, root)
     plain_cfg = spec_io.trainer_config(spec, a.exp)
     if a.audit:
@@ -76,15 +131,13 @@ def main(argv=None):
 
     if a.audit:
         tr.train()
-        seen, entries = set(), []
-        for key, default in cfg.fallbacks:
-            if key not in seen:
-                seen.add(key)
-                entries.append({"key": key, "default": _jsonable(default)})
+        entries = _group_fallbacks(cfg.fallbacks)
+        n_conflict = sum("conflicting_defaults" in e for e in entries)
         out = {"exp": a.exp, "spec": str(spec_path), "spec_sha256": prov["spec_sha256"], "iters": a.audit,
-               "fallbacks": entries}
+               **_environment(tr, cfg.to_plain()), "fallbacks": entries}
         (res / f"{a.exp}_audit.json").write_text(json.dumps(out, indent=2))
-        log(f"[run_spec {a.exp}] audit: {len(entries)} fallback(s) -> {res / (a.exp + '_audit.json')}")
+        log(f"[run_spec {a.exp}] audit: {len(entries)} fallback key(s), {n_conflict} with conflicting defaults "
+            f"-> {res / (a.exp + '_audit.json')}")
         return
 
     if spec["spec"]["from_ckpt"]:
@@ -107,16 +160,18 @@ def main(argv=None):
             f"head_psnr={s['head_psnr']:.3f} head_ssim={s['head_ssim']:.4f} head_hfen={s['head_hfen']:.4f} "
             f"N={n} sharp={s['sharp']:.3f} grain={s['grain']:.4f} head_psnr_cplx={s['head_psnr_cplx']:.3f} "
             f"comp={s['comp']:.3f} beat={s['beat']}")
+    resolved = cfg.to_plain()
     row = dict(exp=a.exp, spec=str(spec_path), **prov, argv=sys.argv[1:], elapsed_s=time.time() - t0,
-               npts=int(tr.model.num_points), vram_gb=vram, plain_name=names["plain"],
+               npts=int(tr.model.num_points), vram_gb=vram, **_environment(tr, resolved), plain_name=names["plain"],
                contrast_name=names["contrast"], plain=scores["plain"], contrast=scores["contrast"],
                combined=combined, both_beat=both_beat, fallbacks=[list(f) for f in cfg.fallbacks],
-               resolved_config=cfg.to_plain())
+               resolved_config=resolved)
     (res / f"{a.exp}_score.json").write_text(json.dumps(row, indent=2, default=repr))
     log(f"SCORE combined={combined:.3f} both_beat_zf={both_beat} vram_gb={vram:.1f} elapsed_s={time.time() - t0:.0f}")
 
     if spec["spec"]["save_volumes"]:
-        vols = {}
+        # keyed by slot: a GS-single arm gives both channels one name, and name keys would drop the plain channel
+        vols = {"plain_name": np.array(str(names["plain"])), "contrast_name": np.array(str(names["contrast"]))}
         with torch.no_grad():
             for ch, tag in (("plain", "p"), ("contrast", "c")):
                 csm, y = getattr(tr, f"csm_{tag}"), getattr(tr, f"kspace_{tag}")
@@ -129,8 +184,7 @@ def main(argv=None):
                 k_model = fft3c(csm * x.unsqueeze(0))
                 x_dc = (ifft3c(mf * y_dc + (1.0 - mf) * k_model) * csm.conj()).sum(0)
                 x_zf = (ifft3c(m * y) * csm.conj()).sum(0)
-                n = names[ch]
-                for key, t in ((f"rec_{n}", x_dc), (f"gt_{n}", gt), (f"zf_{n}", x_zf)):
+                for key, t in ((f"rec_{ch}", x_dc), (f"gt_{ch}", gt), (f"zf_{ch}", x_zf)):
                     vols[key] = t.abs().cpu().numpy().astype("float32")
                     vols[key + "_complex"] = t.cpu().numpy().astype("complex64")
         np.savez_compressed(res / f"{a.exp}_volumes.npz", **vols)
