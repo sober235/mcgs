@@ -13,8 +13,8 @@ GS-single is below 0.3 dB is closed on this data; a family with a ceiling of 1 d
 
 Question: how much of a contrast's UNSAMPLED k-space is predictable from the other contrast's *perfect* image through
 a hand-crafted intensity relation (ratio field, K-class piecewise-linear map = the joint-histogram / joint-entropy
-family, local linear map)? Script `scratchpad/predictability{,2,3,4}.py` (session scratch, not committed; the numbers
-below are reproducible from the recipe in this section).
+family, local linear map)? Script `scripts/ceiling_intensity_coupling.py` (it was the session's scratch
+`predictability4.py`; the earlier energy-fraction variants were not kept).
 
 Gauge: predictor gets the target's sampled k-space back (hard DC), phase from the target's GS-single reconstruction,
 scored as head-only PSNR of |x| against |GT| (head = |GT| > 0.05, peak = 1 at the p99.9 normalisation; this gauge sits

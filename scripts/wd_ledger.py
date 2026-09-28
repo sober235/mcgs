@@ -14,7 +14,8 @@ CA = Path("/data0/congcong/code/GS/mcgs_hparam_wt/results_arc")
 
 
 def arm_of(d):
-    cfg = d["argv"][d["argv"].index("--base_cfg") + 1]
+    a = d["argv"]
+    cfg = a[len(a) - 1 - a[::-1].index("--base_cfg") + 1]      # the LAST --base_cfg is the one cycle.py uses
     af = int(re.search(r"_af(\d+)_", cfg).group(1))
     m = re.search(r"single(T1|FLAIR)", cfg)
     return af, (m.group(1) if m else "joint")
@@ -24,7 +25,7 @@ def knobs(d):
     """lambda_edge (last occurrence wins, as in cycle.py) plus every arg after --base_cfg."""
     a = d["argv"]
     le = [j for j, x in enumerate(a) if x == "--lambda_edge"]
-    extra = a[a.index("--base_cfg") + 2:]
+    extra = [x for i, x in enumerate(a[a.index("--base_cfg") + 2:]) if x != "--base_cfg"]
     return " ".join(["le=" + a[le[-1] + 1]]
                     + [x.replace("loss.", "") for x in extra if x not in ("--save_volumes", "--set")])
 
@@ -41,11 +42,13 @@ def load(p):
     return af, arm, rows, knobs(d)
 
 
-runs = []
+PROBE = ("wd_o_", "wd_a_", "wd_va_")       # oracle and asymmetric-mask probes: not part of the fair comparison
+runs, probes = [], []
 for p in sorted(glob.glob(str(ROOT / "results_arc/wd_*_score.json"))):
-    if "smoke" in p:
+    name = Path(p).name[:-11]
+    if "smoke" in name:
         continue
-    runs.append((Path(p).name[:-11],) + load(p))
+    (probes if name.startswith(PROBE) else runs).append((name,) + load(p))
 for p in sorted(CA.glob("ca_s_*_edge0_score.json")) + sorted(CA.glob("ca_s4_*_score.json")):
     runs.append((p.name[:-11],) + load(p))
 
@@ -68,5 +71,12 @@ for name, af, arm, rows, kn in sorted(runs, key=lambda r: (r[1], r[2] != "joint"
         else:
             mg[c] = ""
     print(f"| {name} | {af} | {arm} | {kn} | {cell['T1']} | {cell['FLAIR']} | {mg['T1']} | {mg['FLAIR']} |")
+print()
+print("probe runs (oracle partners / guides, asymmetric probe masks): raw head metrics, no margin -- see the ceiling record")
+print("| exp | arm | knobs | T1 head PSNR / SSIM | FLAIR head PSNR / SSIM |")
+print("|---|---|---|---|---|")
+for name, af, arm, rows, kn in probes:
+    cell = {c: (f"{rows[c]['head_psnr']:.3f} / {rows[c]['head_ssim']:.4f}" if c in rows else "") for c in ("T1", "FLAIR")}
+    print(f"| {name} | {arm} | {kn} | {cell['T1']} | {cell['FLAIR']} |")
 print()
 print("GS-single = best single run:", {f"AF{k[0]} {k[1]}": (round(v, 3), base_exp[k]) for k, v in sorted(base.items())})

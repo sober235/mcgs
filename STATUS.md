@@ -1,3 +1,72 @@
+# STATUS — 2026-09-28（worktree `mcgs_widen_wt`, branch `widen-mcgs-af12-16-20-24`）— widen loop, ceilings, AF12; tidied and pushed
+
+**Read first:** `docs/2026-09-28-widen-mcgs-summary.md` (Chinese, the whole story), then `autoresearch_widen.md` (rules,
+rounds, result, open items), `docs/superpowers/records/2026-09-26-widen-ceiling-probes.md` (ceilings and asymmetric
+probe), `docs/superpowers/records/2026-09-28-widen-ledger.md` (every run). The sections under this one belong to the
+branches this one grew from (coupling-attribution, hparam-sensitivity, the AF lines) and are kept as they were.
+
+## 1. Done and verified (re-run 2026-09-28 in this worktree)
+
+```
+$ cd /data0/congcong/code/GS/mcgs_widen_wt; PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/fig_widen_summary.py | grep ^AF
+AF 11.71  published +0.150/+0.036  fair start +0.109/+0.017  fair now +0.098/+0.021
+AF 15.19  published +0.148/+0.042  fair start +0.107/+0.024  fair now +0.106/+0.064
+AF 18.56  published +0.165/+0.052  fair start +0.117/+0.029  fair now +0.112/+0.068
+AF 24.00  published +0.179/+0.071  fair start +0.126/+0.045  fair now +0.117/+0.090
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/wd_ledger.py | tail -1
+GS-single = best single run: {'AF12 FLAIR': (36.343, 'wd_af12_p14_s_fl_e0b'), 'AF12 T1': (36.942, 'wd_v_af12_s_t1'), 'AF16 FLAIR': (34.945, 'ca_s4_fl_ptv001'), 'AF16 T1': (35.744, 'wd_af16_s_t1_p001w18'), 'AF20 FLAIR': (34.178, 'wd_v_af20_s_fl'), 'AF20 T1': (34.863, 'wd_af20_s_t1_p001w18'), 'AF24 FLAIR': (33.15, 'wd_af24_s_fl_p001'), 'AF24 T1': (33.781, 'wd_v_af24_s_t1')}
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_VISIBLE_DEVICES=7 $PY -m pytest tests -q --ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py -p no:cacheprovider | tail -1
+223 passed, 1 warning in 378.78s (0:06:18)
+```
+
+- MC-GS (one recipe for AF 11.71 / 15.19 / 18.56 / 24.00) is first on head PSNR and SSIM in all 16 cells against every
+  comparison method of the topics, GS-single included; over the best non-GS arm +0.63 to +1.08 dB. Full table in the summary.
+- Reproduction: 15 volume re-runs match their first runs to <= 0.0005 dB; the AF12 line's P14 joint re-run here matches
+  the registered 37.0147 / 36.3597 to 3e-4 dB.
+- Ceilings at AF 15.19 (oracle partner, oracle edge maps, directional TV, intensity coupling) and the asymmetric probe
+  (FLAIR 26.68x / 43.32x): no non-learned cross-contrast prior reaches 0.3 dB over the fair GS-single.
+- Volumes registered as `gs_joint_wd` / `gs_single_wd` in each AF topic's `recon/` (new keys only); figures with every
+  method in `figures/widen/all_methods/` (AF12 includes P-LORAKS, via the opt-in `--with_ploraks` recorded in
+  `docs/patches/2026-09-28-af12-inset-with-ploraks.diff`); viewing page `~/figs/widen_mcgs/index.html` (server only:
+  the figures carry the subject's name; the repo is private).
+
+## 2. Waiting for the user
+
+1. Paper framing: A (method paper) or B (analysis paper, recommended).
+2. Whether to run every comparison method at the two asymmetric probe masks (ZS-SSDU / 3D-DIP / MC-INR need training).
+3. The `rotation_lr` sweep (found at the tidy-up): 0.008 lifts the AF12 FLAIR single by 0.025 dB and was never run on
+   MC-GS with the new coupling, nor at AF16-24 on either arm. Rule A asks for both arms (12 runs); the fair margins are
+   provisional on this knob until then.
+4. One subject only (the first reviewer question under either framing); 16 paired T1+FLAIR exams exist on disk.
+5. A byte-identical `_regcheck` duplicate figure in the AF12 topic's `figures/` can be deleted by hand.
+
+## 3. Next
+
+Depends on 2.1-2.3. If the user says go on 2.3: queue the one recipe + `--set gaussian.rotation_lr=0.008` for the joint
+arm and both singles at AF 12 / 16 / 20 / 24 (`scripts/wd_queue.sh`, free cards only), then re-read the ledger.
+
+## 4. Pitfalls, and what not to redo
+
+- Closed on this pair, do not retry: ratio / class-mixture / joint-entropy intensity priors, cross-contrast edge
+  guidance, directional TV, asymmetric acceleration (plus vector TV, non-local RED, private Gaussians, densification,
+  capacity from earlier lines).
+- Background waits: anchor `pgrep -f` to the python path (a bare "exp wd_v_" matched its own loop; three loops spun for
+  2.5 days). GPUs are shared: two schedulers can take the same card within seconds; stop only your own run.
+- The AF12 line's configs are named `hyw` but read the jiangyizhou AF12 topic; this branch keeps byte-identical
+  `t1flair_v3_af12_jyz*.yaml`. Probe masks under `data/` are not in git and cannot be regenerated (vdPoisMex seeds from time).
+- NOT_EVIDENCE: the 130-dpi figures are previews; the 200-dpi / PDF figures of record were not re-rendered for this recipe.
+
+## 5. Why
+
+- GS-single at lambda_edge 0: the common-edge prior hurts the single arm (coupling attribution Stage 1), so the published
+  margin was partly the baseline being handicapped.
+- Rule A: per-channel knobs are general improvements; only coupling knobs may differ between the arms.
+- Ceilings before designs: measuring what a perfect partner or a perfect edge map can buy showed the margin is bounded by
+  the data (two measurements of >= 4 tissue parameters share only structure), not by the prior's tuning.
+
+---
+
 # STATUS — 2026-09-22（worktree `mcgs_hparam_wt`, branch `coupling-attribution`）— Stage 1 complete, stopped for the user
 
 **Read first:** the record `docs/superpowers/records/2026-09-20-coupling-attribution.md`, then the spec

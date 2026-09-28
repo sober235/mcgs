@@ -5,6 +5,12 @@ Read in this order: this file → `STATUS.md` (current state, what to re-run fir
 `docs/superpowers/records/` (dated session records, newest first) → `.claude/memory.md`
 (the long project memory, §0–19; do not re-derive anything it already closed).
 
+## Branch `widen-mcgs-af12-16-20-24` (this worktree `mcgs_widen_wt`, 2026-09-24/28) — start here for the MC-GS margin work
+Read `STATUS.md` (top section) → `docs/2026-09-28-widen-mcgs-summary.md` → `autoresearch_widen.md` →
+`docs/superpowers/records/2026-09-26-widen-ceiling-probes.md`. Runner `run_wd_mcgs.sh EXP GPU ITERS AF ARM LAMBDA_EDGE`
+(AF 12|16|20|24), queue `scripts/wd_queue.sh`, ledger `scripts/wd_ledger.py` (GS-single = best single run, rule A).
+Display rule (user 2026-09-28): every shown result carries every comparison method.
+
 ## Environment
 - Python: `/home/congcongliu/anaconda3/envs/GSTMI/bin/python` (torch 2.7.1+cu118), always with
   `PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID`.

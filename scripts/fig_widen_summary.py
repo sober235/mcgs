@@ -71,8 +71,11 @@ for af, lab in AFS:
     pub = (m(RR, j, "plain") - m(RR, st, "plain"), m(RR, j, "contrast") - m(RR, sf, "plain"))
     (rj, ej), (rt, et), (rf, ef) = START[af]
     start = (m(rj, ej, "plain") - m(rt, et, "plain"), m(rj, ej, "contrast") - m(rf, ef, "plain"))
-    now = (m(W, f"wd_v_af{af}_j", "plain") - m(W, f"wd_v_af{af}_s_t1", "plain"),
-           m(W, f"wd_v_af{af}_j", "contrast") - m(W, f"wd_v_af{af}_s_fl", "plain"))
+    # fair = the best single run at this AF (rule A); at AF12 the P14-settings single (rotation_lr 0.008) beats the
+    # one-recipe single on FLAIR, so it is the baseline there (see scripts/wd_ledger.py, which picks the same)
+    best_t1 = max(m(W, e, "plain") for e in [f"wd_v_af{af}_s_t1"] + (["wd_af12_p14_s_t1_e0"] if af == 12 else []))
+    best_fl = max(m(W, e, "plain") for e in [f"wd_v_af{af}_s_fl"] + (["wd_af12_p14_s_fl_e0b"] if af == 12 else []))
+    now = (m(W, f"wd_v_af{af}_j", "plain") - best_t1, m(W, f"wd_v_af{af}_j", "contrast") - best_fl)
     rows.append((lab, pub, start, now))
     print(f"AF {lab:5.2f}  published {pub[0]:+.3f}/{pub[1]:+.3f}  fair start {start[0]:+.3f}/{start[1]:+.3f}  "
           f"fair now {now[0]:+.3f}/{now[1]:+.3f}")

@@ -27,7 +27,10 @@ def af_table(af):
     out = []
     for c, jch in (("T1", "plain"), ("FLAIR", "contrast")):
         mc = sc(f"wd_v_af{af}_j", jch)
-        gs = sc(f"wd_v_af{af}_s_{'t1' if c == 'T1' else 'fl'}", "plain")
+        cands = [f"wd_v_af{af}_s_{'t1' if c == 'T1' else 'fl'}"]
+        if af == 12:
+            cands.append("wd_af12_p14_s_t1_e0" if c == "T1" else "wd_af12_p14_s_fl_e0b")
+        gs = max((sc(e, "plain") for e in cands), key=lambda v: v[0])      # rule A: the best single run
         cand = [r for r in rows if r["contrast"] == c and r["method"] in NON_GS]
         best = max(cand, key=lambda r: r["head_psnr"])
         out.append((c, mc, gs, (NON_GS[best["method"]], best["head_psnr"], best["head_ssim"])))
@@ -52,6 +55,9 @@ def full_table(af):
     body = [(NON_GS[mth], by[(mth, "T1")], by[(mth, "FLAIR")], "arm") for mth in ORDER if (mth, "T1") in by]
     body.append(("GS-single (fair: lambda_edge 0, own best settings)", sc3(f"wd_v_af{af}_s_t1", "plain"),
                  sc3(f"wd_v_af{af}_s_fl", "plain"), "arm"))
+    if af == 12:   # a second GS-single setting exists here and is the better single on FLAIR (rule A takes the best)
+        body.append(("GS-single (P14 settings: rotation_lr 0.008, lambda_edge 0; no volume saved, not in the figure)",
+                     sc3("wd_af12_p14_s_t1_e0", "plain"), sc3("wd_af12_p14_s_fl_e0b", "plain"), "arm"))
     body.append(("MC-GS (this recipe)", sc3(f"wd_v_af{af}_j", "plain"), sc3(f"wd_v_af{af}_j", "contrast"), "arm"))
     rs, rj, rname = REF[af]
     ref = [("ZF (zero-filled, reference)", by[("zf", "T1")], by[("zf", "FLAIR")], "ref"),
@@ -145,7 +151,7 @@ panes.append(("summary", f"""
 <h2>analysis charts of the GS model (MC-GS against GS-single; every number read from the score files)</h2>
 <p class="note">These charts study the joint model against its single-contrast counterpart (margins, oracle ceilings,
 asymmetric acceleration); by construction they contain only the GS arms. The method comparison with every arm is in the AF tabs.</p>
-{img("widen_margin_dumbbell.png", "fair vs published margin per AF")}
+{img("widen_margin_dumbbell_v2.png", "fair vs published margin per AF (fair = best single run, rule A)")}
 {img("widen_ceilings.png", "oracle ceilings at AF 15.19")}
 {img("widen_asym_trend.png", "joint gain as FLAIR gets sparser")}"""))
 

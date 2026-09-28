@@ -48,7 +48,7 @@ GS-single = its best single run of the symmetric sweep (phase TV 0.01, T1 wavele
 
 | AF | MC-GS (head PSNR / SSIM) T1 ; FLAIR | GS-single T1 ; FLAIR | fair margin now | fair margin at start | published |
 |---|---|---|---|---|---|
-| 12 | 37.040 / 0.9530 ; 36.364 / 0.9416 | 36.942 / 0.9516 ; 36.318 / 0.9411 | **+0.098 / +0.046** | +0.109 / +0.017 (P14 recipe) | +0.150 / +0.036 (P14) |
+| 12 | 37.040 / 0.9530 ; 36.364 / 0.9416 | 36.942 / 0.9516 ; 36.318 / 0.9411 | **+0.098 / +0.021** (FLAIR vs the P14-settings single, the best single at AF12; +0.046 vs the one-recipe single) | +0.109 / +0.017 (P14 recipe) | +0.150 / +0.036 (P14) |
 | 16 | 35.850 / 0.9412 ; 35.009 / 0.9260 | 35.744 / 0.9394 ; 34.945 / 0.9249 | **+0.106 / +0.064** | +0.107 / +0.024 | +0.148 / +0.042 |
 | 20 | 34.975 / 0.9306 ; 34.247 / 0.9135 | 34.863 / 0.9285 ; 34.178 / 0.9124 | **+0.112 / +0.069** | +0.117 / +0.029 | +0.165 / +0.052 |
 | 24 | 33.897 / 0.9148 ; 33.239 / 0.8950 | 33.781 / 0.9122 ; 33.150 / 0.8935 | **+0.117 / +0.089** | +0.126 / +0.045 | +0.179 / +0.071 |
@@ -59,8 +59,9 @@ GS-single = its best single run of the symmetric sweep (phase TV 0.01, T1 wavele
 mask (3847 points, 11.71x; configs `t1flair_v3_af12_jyz*.yaml` = byte-identical copies of the AF12 line's hyw-named files,
 which read the jiangyizhou AF12 topic). MC-GS first on PSNR / SSIM / NMSE in all three planes of both contrasts; over the
 best non-GS arm +0.878 (CS-SENSE, TV converged) / +0.739 (Joint SENSE); the one recipe edges the AF12 line's own P14
-(37.015 / 36.360). Fair margin across the four AF, T1 / FLAIR: +0.098 / +0.046, +0.106 / +0.064, +0.112 / +0.068,
-+0.117 / +0.090 (full precision) -- it grows monotonically with acceleration on both contrasts. P14 note: P14 used
+(37.015 / 36.360). Fair margin across the four AF, T1 / FLAIR (rule A, best single run): +0.098 / +0.021, +0.106 / +0.064, +0.112 / +0.068,
++0.117 / +0.090 (full precision); against the one-recipe single at AF12 the FLAIR figure is +0.046. The T1 margin grows
+monotonically with acceleration; FLAIR grows from 15.19 on. P14 note: P14 used
 `gaussian.rotation_lr 0.008`, the one recipe keeps the config's 0.0003 (not tested in this loop). The P14 joint re-run in this code tree
 (`wd_af12_p14_j`) reproduces the registered 37.0147 / 36.3597 to +0.0003 / -0.0003 dB; its fair start uses the P14
 singles at lambda_edge 0 (`wd_af12_p14_s_t1_e0`, `wd_af12_p14_s_fl_e0b`; the first FLAIR attempt was stopped after another
@@ -68,3 +69,14 @@ user's job landed on the same card).
 - MC-GS first on head PSNR and SSIM in all six cells; every non-GS arm of the AF topics is >= 0.6 dB behind (unchanged).
 - The margin still grows with AF on both contrasts. Single runs, one seed (floor 0.001 dB from the AF16 topic).
 - Not done: volumes of the winners (re-run with SAVE_VOLUMES=1 for figures), registration in the AF topics, other subjects.
+
+## Open after the 2026-09-28 tidy-up
+
+- **rotation_lr is not swept symmetrically.** The P14-settings single (rotation_lr 0.008) is the best FLAIR single at
+  AF12 (36.343 vs 36.318 for the one-recipe single; the two differ only in rotation_lr), and rule A takes it, which is
+  why AF12 FLAIR reads +0.021. MC-GS with the new coupling has never run at rotation_lr 0.008, at any AF, nor have the
+  AF16-24 singles. Rule A asks for both arms at both values (12 runs); until then every fair margin is provisional on
+  this knob.
+- Display rule (user 2026-09-28): every shown result carries every comparison method. The asymmetric-probe figures and
+  the three summary charts contain only the GS arms and are labelled as GS-model analyses on the viewing page.
+- Chinese summary: `docs/2026-09-28-widen-mcgs-summary.md`; ledger snapshot: `docs/superpowers/records/2026-09-28-widen-ledger.md`.
