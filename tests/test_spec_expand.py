@@ -42,3 +42,17 @@ def test_cli_writes_one_file_per_subject(tmp_path):
     for s in ("MTR_013", "MTR_045"):
         e = yaml.safe_load((tmp_path / "out" / f"joint_{s}.yaml").read_text())
         assert spec_expand.differs_only_by_subject(T, e, s)
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda e: e["trainer"]["loss"]["list"].__setitem__(0, 1.0),  # int 1 -> float 1.0
+    lambda e: e["trainer"]["loss"]["list"].__setitem__(0, True),  # int 1 -> bool True
+    lambda e: e["trainer"]["loss"].update({"extra": 0}),  # added key
+    lambda e: e["trainer"]["loss"]["list"].append(2),  # longer list
+    lambda e: e["trainer"]["data"]["plain"].update({"name": "E2"}),  # changed string without placeholder
+])
+def test_type_and_shape_changes_are_detected(mutate):
+    """Verify that differs_only_by_subject rejects type changes, added keys, and shape changes."""
+    e = spec_expand.expand(T, "MTR_013")
+    mutate(e)
+    assert not spec_expand.differs_only_by_subject(T, e, "MTR_013")
