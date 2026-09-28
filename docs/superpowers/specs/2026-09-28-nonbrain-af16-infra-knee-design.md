@@ -62,6 +62,8 @@ MC-GS 目前只在脑 T1w+FLAIR 上验证过。用户要求在膝、肝、乳腺
 - 结果只写膝工作树和膝课题目录;运行名一律以 `knee_` 开头。
 - 膝分支上有测试钉住共享文件的 md5:脑的配置、`run_*_mcgs.sh`、`arc/cycle.py`、`paired_gs/trainers/joint_trainer.py`、
   `diag_artefact/headonly.py`、`metrics.py` 必须与 2eef592 一致。
+  (2026-09-28 终审补充:钉住范围另含 `paired_gs/losses/`、`paired_gs/gaussian/`(含 CUDA 源文件)、`data/transforms.py`、
+  `data/known_zero.py`、`seed.py`、`trainers/voxelizer_config.py`。)
 
 ## 3. 公共分支 `nonbrain-infra` 的改动
 
@@ -76,7 +78,7 @@ torch 报错,改为此时用 numpy 分位数,写法照同文件 :306–313 已�
 
 ### 3.2 新增文件(脑的流程不使用)
 
-- `paired_gs/utils/strict_config.py`:`StrictConfig`,递归包装嵌套字典。`.get(键, 默认值)` 或 `setdefault` 在键缺失时记录;
+- `arc/strict_config.py`:`StrictConfig`,递归包装嵌套字典。`.get(键, 默认值)` 或 `setdefault` 在键缺失时记录;
   严格模式下立即抛错。键齐全时读出的值与普通字典完全相同。
 - `arc/run_spec.py`:严格入口。
   - 命令行只有 `--spec PATH --exp NAME --gpu ID`,另有 `--audit N`(只跑 N 步,列出读到默认值的键和值,不打分不存体积)。

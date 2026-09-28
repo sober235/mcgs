@@ -2,18 +2,20 @@
 
 ## Branch `nonbrain-infra` (worktree `mcgs_nb_infra_wt`) — shared layer for the multi-anatomy AF16 studies
 Read `docs/superpowers/specs/2026-09-28-nonbrain-af16-infra-knee-design.md`, then
-`docs/superpowers/plans/2026-09-28-nonbrain-infra.md`, then `STATUS.md` (top section). Studies (knee, liver,
-breast, thorax) each live on their own branch cut from here; merges go only nonbrain-infra -> dataset branch.
-Entry: `arc/run_spec.py --spec SPEC --exp <prefix>_<name> --gpu G [--audit N]` (no tuning flags; a key missing
-from the spec stops the run). Brain check after any shared change: `bash scripts/regress_brain_pin.sh G`
-(expects 35.706153 / 34.928080) and `pytest tests/test_brain_files_pinned.py`.
+`docs/superpowers/plans/2026-09-28-nonbrain-infra.md`, then `STATUS.md` (top section). The knee study has its branch
+`nb-knee-skmtea` (worktree `mcgs_nb_knee_wt`); the liver, breast and thorax branches do not exist yet. Each dataset
+branch takes merges only from nonbrain-infra.
+Entry: `env PYTHONNOUSERSITE=1 PYTHONPATH= $PY arc/run_spec.py --spec SPEC --exp <prefix>_<name> --gpu G [--audit N]`
+(no tuning flags; a key missing from the spec stops the run). Brain check after any shared change:
+`bash scripts/regress_brain_pin.sh G` (about 10 min; must print PIN PASS and EQUIV PASS) plus
+`env PYTHONNOUSERSITE=1 PYTHONPATH= $PY -m pytest tests/test_brain_files_pinned.py tests/test_scoring_equivalence.py -q`.
 
 Read in this order: this file → `STATUS.md` (current state, what to re-run first) →
 `autoresearch_t1t2.md` (the live campaign: program, verdicts, round log) →
 `docs/superpowers/records/` (dated session records, newest first) → `.claude/memory.md`
 (the long project memory, §0–19; do not re-derive anything it already closed).
 
-## Branch `widen-mcgs-af12-16-20-24` (this worktree `mcgs_widen_wt`, 2026-09-24/28) — start here for the MC-GS margin work
+## Branch `widen-mcgs-af12-16-20-24` (the widen branch nonbrain-infra was cut from; worktree `mcgs_widen_wt`, 2026-09-24/28) — start here for the MC-GS margin work
 Read `STATUS.md` (top section) → `docs/2026-09-28-widen-mcgs-summary.md` → `autoresearch_widen.md` →
 `docs/superpowers/records/2026-09-26-widen-ceiling-probes.md`. Runner `run_wd_mcgs.sh EXP GPU ITERS AF ARM LAMBDA_EDGE`
 (AF 12|16|20|24), queue `scripts/wd_queue.sh`, ledger `scripts/wd_ledger.py` (GS-single = best single run, rule A).
@@ -22,7 +24,9 @@ Display rule (user 2026-09-28): every shown result carries every comparison meth
 ## Environment
 - Python: `/home/congcongliu/anaconda3/envs/GSTMI/bin/python` (torch 2.7.1+cu118), always with
   `PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID`.
-- Tests: `PYTHONNOUSERSITE=1 PYTHONPATH= $PY -m pytest tests -q --ignore=tests/smoke_test.py` (174, ~2 min, needs a GPU).
+- Tests: `env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES=G $PY -m pytest tests -q
+  --ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py -p no:cacheprovider` (398 passed on nonbrain-infra
+  2026-09-28, ~7 min, needs a GPU).
 - Data roots: `/data0/congcong/code/GS/Results_20260908/<TOPIC>/data` (retrospective AF12 topics:
   k-space h5, ESPIRiT maps, masks); the old T1+FLAIR bundle paths are in `configs/winner_v2*.yaml`.
 - Results archive: `/data0/congcong/code/GS/Results_20260908/` — one topic per folder, README +
