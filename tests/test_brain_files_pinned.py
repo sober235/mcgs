@@ -1,5 +1,8 @@
 """The brain line's files must stay byte-identical to 2eef592 on every branch cut from nonbrain-infra
-(spec 2026-09-28 §2.2): configs/, run_*_mcgs.sh, arc/cycle.py, the joint trainer and the scoring modules.
+(spec 2026-09-28 §2.2): configs/, run_*_mcgs.sh, arc/cycle.py, the joint trainer and the scoring modules, and
+(final review 2026-09-28) what the model trains through: paired_gs/losses/, paired_gs/gaussian/ with the CUDA
+extension sources, data/transforms.py, data/known_zero.py, seed.py and trainers/voxelizer_config.py.
+95 entries in tests/data/brain_pinned_md5.txt (md5 of `git show 2eef592:<path>`).
 
 Run: env PYTHONNOUSERSITE=1 PYTHONPATH= $PY -m pytest tests/test_brain_files_pinned.py -q
 """
@@ -14,11 +17,19 @@ ENTRIES = [line.split("  ", 1) for line in (ROOT / "tests/data/brain_pinned_md5.
 
 
 def test_manifest_covers_the_pinned_set():
-    names = {p for _, p in ENTRIES}
+    names = [p for _, p in ENTRIES]
+    assert len(names) == len(set(names)) == 95
     for f in ("arc/cycle.py", "paired_gs/trainers/joint_trainer.py", "diag_artefact/headonly.py",
-              "diag_artefact/volumes.py", "paired_gs/metrics/metrics.py", "run_wd_mcgs.sh"):
-        assert f in names
+              "diag_artefact/volumes.py", "paired_gs/metrics/metrics.py",
+              "run_af20_mcgs.sh", "run_af24_mcgs.sh", "run_ca_mcgs.sh", "run_hp_mcgs.sh", "run_wd_mcgs.sh",
+              "paired_gs/gaussian/tile_voxelizer.py", "paired_gs/gaussian/cuda_ext/tile_voxelize_cuda.cpp",
+              "paired_gs/gaussian/cuda_ext/tile_voxelize_cuda_kernel.cu", "paired_gs/losses/edge_tv.py",
+              "paired_gs/losses/wavelet_l1.py", "paired_gs/data/transforms.py", "paired_gs/data/known_zero.py",
+              "paired_gs/seed.py", "paired_gs/trainers/voxelizer_config.py"):
+        assert f in names, f
     assert sum(1 for n in names if n.startswith("configs/")) == 57
+    assert sum(1 for n in names if n.startswith("paired_gs/losses/")) == 14
+    assert sum(1 for n in names if n.startswith("paired_gs/gaussian/")) == 10
 
 
 @pytest.mark.parametrize("md5,path", ENTRIES, ids=[p for _, p in ENTRIES])
