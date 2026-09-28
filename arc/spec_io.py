@@ -2,9 +2,13 @@
 
 A spec has exactly three blocks: `spec` (run bookkeeping), `scoring` (the two scoring settings that are
 constants in cycle.py) and `trainer` (the complete JointTrainer config). Nothing here imports torch.
+File inputs: the three PATH_KEYS of each channel must be absolute paths, and so must every FILE_KEYS entry
+that is set (not null, not empty); provenance() refuses any of them that does not exist and md5s them all.
 
 CLI:  python arc/spec_io.py fill-defaults SPEC AUDIT_JSON --out OUT
-      writes SPEC with every fallback recorded by `run_spec.py --audit` inserted under `trainer`.
+      writes SPEC with every fallback recorded by `run_spec.py --audit` inserted under `trainer` (OUT may be
+      SPEC itself). Refuses, writing nothing, when a key was read with conflicting defaults or a default is
+      not YAML-serialisable: those are set by hand.
 """
 from __future__ import annotations
 
@@ -22,6 +26,12 @@ SPEC_KEYS = {"dataset", "exp_prefix", "results_root", "save_volumes", "from_ckpt
 SCORING_KEYS = {"anatomy_rel", "grain_ratio"}
 CHANNELS = ("plain", "contrast")
 PATH_KEYS = ("data_path", "csm_path", "mask_path")
+# other files a run reads when the key is set (joint_trainer.py:189, :223, :307, :923; run_spec.py for from_ckpt)
+FILE_KEYS = (("trainer", "data", "plain", "known_zero_support"), ("trainer", "data", "contrast", "known_zero_support"),
+             ("trainer", "gaussian", "warm_start_checkpoint"), ("trainer", "gaussian", "private_warm_start_checkpoint"),
+             ("trainer", "loss", "guide_path_plain"), ("trainer", "loss", "guide_path_contrast"),
+             ("spec", "from_ckpt"))
+RUN_OUTPUTS = ("{exp}", "{exp}_score.json", "{exp}_audit.json", "{exp}_volumes.npz")
 
 
 class SpecError(ValueError):
@@ -31,6 +41,15 @@ class SpecError(ValueError):
 def _need(cond: bool, msg: str) -> None:
     if not cond:
         raise SpecError(msg)
+
+
+def _lookup(spec: dict, path: Tuple[str, ...]):
+    node = spec
+    for k in path:
+        if not isinstance(node, dict) or k not in node:
+            return None
+        node = node[k]
+    return node
 
 
 def validate_spec(spec: dict) -> None:
@@ -58,6 +77,8 @@ def validate_spec(spec: dict) -> None:
         for k in PATH_KEYS:
             _need(k in data[ch] and Path(str(data[ch][k])).is_absolute(),
                   f"trainer.data.{ch}.{k} must be an absolute path")
+    gaussian = tr.get("gaussian", {})
+    _need(isinstance(gaussian, dict), f"trainer.gaussian must be a mapping, got {type(gaussian).__name__}")
     out = tr.get("output", {})
     _need(isinstance(out, dict), f"trainer.output must be a mapping, got {type(out).__name__}")
     for k in ("output_dir", "exp_name"):
@@ -71,6 +92,9 @@ def validate_spec(spec: dict) -> None:
     _need(isinstance(training, dict), f"trainer.training must be a mapping, got {type(training).__name__}")
     for k in ("seed", "deterministic", "max_iterations", "shared_warmup_iters"):
         _need(k in training, f"trainer.training.{k} is missing")
+    for path in FILE_KEYS:
+        v = _lookup(spec, path)
+        _need(v in (None, "") or Path(str(v)).is_absolute(), f"{'.'.join(path)} must be an absolute path (or null)")
 
 
 def load_spec(path) -> dict:
@@ -85,10 +109,21 @@ def check_exp(exp: str, spec: dict) -> None:
     _need(re.fullmatch(r"[A-Za-z0-9_.-]+", exp) is not None, f"run name has characters outside [A-Za-z0-9_.-]: {exp!r}")
 
 
+def check_results_root(results_root, repo_root) -> None:
+    """run_spec.py writes only below the repository it runs from, so a run started in one worktree never
+    writes into another."""
+    r, repo = Path(results_root).resolve(), Path(repo_root).resolve()
+    _need(repo in r.parents, f"spec.results_root {results_root} is not inside the repository root {repo} that "
+          f"run_spec.py runs from; use a folder of this worktree, e.g. {repo / 'results_spec'}")
+
+
 def run_dir(exp: str, spec: dict) -> Path:
-    d = Path(spec["spec"]["results_root"]) / exp
-    _need(not d.exists(), f"run directory {d} exists; pick a new run name (runs are never overwritten)")
-    return d
+    """The run directory of `exp`; refuses the name when the directory or any of its result files exists."""
+    res = Path(spec["spec"]["results_root"])
+    for pattern in RUN_OUTPUTS:
+        p = res / pattern.format(exp=exp)
+        _need(not p.exists(), f"{p} exists; pick a new run name (runs are never overwritten)")
+    return res / exp
 
 
 def trainer_config(spec: dict, exp: str) -> dict:
@@ -107,16 +142,46 @@ def md5_file(path, chunk: int = 1 << 24) -> str:
     return h.hexdigest()
 
 
+def file_inputs(spec: dict) -> dict:
+    """Every file a run reads, as {dotted key: path}: the PATH_KEYS of both channels and each FILE_KEYS entry that
+    is set."""
+    files = {f"trainer.data.{ch}.{k}": str(spec["trainer"]["data"][ch][k]) for ch in CHANNELS for k in PATH_KEYS}
+    for path in FILE_KEYS:
+        v = _lookup(spec, path)
+        if v not in (None, ""):
+            files[".".join(path)] = str(v)
+    return files
+
+
+def git_dirty_paths(repo_root) -> list:
+    """Sorted paths `git status` reports: modified, staged and untracked files (ignored files excluded)."""
+    out = subprocess.run(["git", "-C", str(repo_root), "status", "--porcelain", "-z", "--untracked-files=all"],
+                         capture_output=True, text=True, check=True).stdout
+    fields, paths, i = out.split("\0"), set(), 0
+    while i < len(fields):
+        entry = fields[i]
+        if entry:
+            paths.add(entry[3:])
+            if "R" in entry[:2] or "C" in entry[:2]:     # a rename / copy entry is followed by its source path
+                i += 1
+                paths.add(fields[i])
+        i += 1
+    return sorted(paths)
+
+
 def provenance(spec_path, spec: dict, repo_root) -> dict:
+    """Spec sha256, git commit, uncommitted paths and the md5 of every file input. A missing file input raises
+    here, before training: a missing warm-start checkpoint would otherwise be a silent cold start."""
     spec_path, repo_root = Path(spec_path), Path(repo_root)
+    files = file_inputs(spec)
+    for key, p in files.items():
+        _need(Path(p).is_file(), f"{key} = {p} is not an existing file")
     commit = subprocess.run(["git", "-C", str(repo_root), "rev-parse", "HEAD"],
                             capture_output=True, text=True, check=True).stdout.strip()
-    dirty = subprocess.run(["git", "-C", str(repo_root), "status", "--porcelain", "--untracked-files=no"],
-                           capture_output=True, text=True, check=True).stdout.strip() != ""
-    paths = sorted({str(spec["trainer"]["data"][ch][k]) for ch in CHANNELS for k in PATH_KEYS})
+    dirty = git_dirty_paths(repo_root)
     return {"spec_sha256": hashlib.sha256(spec_path.read_bytes()).hexdigest(),
-            "git_commit": commit, "git_dirty": dirty,
-            "data_md5": {p: md5_file(p) for p in paths}}
+            "git_commit": commit, "git_dirty": bool(dirty), "git_dirty_paths": dirty,
+            "data_md5": {p: md5_file(p) for p in sorted(set(files.values()))}}
 
 
 def fill_defaults(spec: dict, fallbacks: Iterable[Tuple[str, Any]]) -> dict:
@@ -143,6 +208,11 @@ def _main(argv=None) -> None:
     a = ap.parse_args(argv)
     spec = yaml.safe_load(Path(a.spec).read_text())
     entries = json.loads(Path(a.audit_json).read_text())["fallbacks"]
+    conflicts = [e for e in entries if "conflicting_defaults" in e]
+    if conflicts:
+        lines = "\n".join(f"  {e['key']}: {e['conflicting_defaults']}" for e in conflicts)
+        raise SystemExit("the trainer reads these keys with different defaults, so no single default describes the "
+                         f"audited run; set them by hand in the spec (nothing written):\n{lines}")
     bad = [e["key"] for e in entries if isinstance(e["default"], dict) and "__repr__" in e["default"]]
     if bad:
         raise SystemExit(f"defaults that are not YAML-serialisable, set them by hand: {bad}")
