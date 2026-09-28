@@ -32,6 +32,8 @@ def main(argv=None):
     ap.add_argument("--gpu", type=int, required=True)
     ap.add_argument("--audit", type=int, default=0, help="record config fallbacks over N iterations; no scoring")
     a = ap.parse_args(argv)
+    if a.audit and a.audit < 3:
+        ap.error("--audit N needs N >= 3 (JointTrainer requires the warm-up to stay below N/2)")
 
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"] = str(a.gpu)
