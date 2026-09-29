@@ -1,0 +1,309 @@
+{
+ "generator": "ESPIRiT utils vdPoisMex (MATLAB, unseedable; raw draw kept as vdpoismex_raw.mat)",
+ "call": "vdPoisMex(232, 176, 232, 176, accelx, 4, 24, 0, 1)",
+ "accelx": 4.45,
+ "accely": 4,
+ "calib": 24,
+ "ellipse": 0,
+ "pp": 1,
+ "plane": [
+  232,
+  176
+ ],
+ "target": 2552,
+ "af": 16.0,
+ "acs": 24,
+ "acs_forced_full": true,
+ "nnz_raw": 2477,
+ "acs_frac_raw": 0.8697916666666666,
+ "nnz_after_acs": 2552,
+ "trimmed": 0,
+ "candidates": [
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax3.60_rep1.mat",
+   "accelx": 3.6,
+   "rep": 1,
+   "nnz_raw": 2983,
+   "acs_frac_raw": 0.8767361111111112,
+   "nnz_after_acs": 3054
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax3.60_rep2.mat",
+   "accelx": 3.6,
+   "rep": 2,
+   "nnz_raw": 2983,
+   "acs_frac_raw": 0.8767361111111112,
+   "nnz_after_acs": 3054
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax3.60_rep3.mat",
+   "accelx": 3.6,
+   "rep": 3,
+   "nnz_raw": 2983,
+   "acs_frac_raw": 0.8767361111111112,
+   "nnz_after_acs": 3054
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax3.70_rep1.mat",
+   "accelx": 3.7,
+   "rep": 1,
+   "nnz_raw": 2890,
+   "acs_frac_raw": 0.875,
+   "nnz_after_acs": 2962
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax3.70_rep2.mat",
+   "accelx": 3.7,
+   "rep": 2,
+   "nnz_raw": 2890,
+   "acs_frac_raw": 0.875,
+   "nnz_after_acs": 2962
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax3.70_rep3.mat",
+   "accelx": 3.7,
+   "rep": 3,
+   "nnz_raw": 2890,
+   "acs_frac_raw": 0.875,
+   "nnz_after_acs": 2962
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax3.80_rep1.mat",
+   "accelx": 3.8,
+   "rep": 1,
+   "nnz_raw": 2837,
+   "acs_frac_raw": 0.8697916666666666,
+   "nnz_after_acs": 2912
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax3.80_rep2.mat",
+   "accelx": 3.8,
+   "rep": 2,
+   "nnz_raw": 2837,
+   "acs_frac_raw": 0.8697916666666666,
+   "nnz_after_acs": 2912
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax3.80_rep3.mat",
+   "accelx": 3.8,
+   "rep": 3,
+   "nnz_raw": 2837,
+   "acs_frac_raw": 0.8697916666666666,
+   "nnz_after_acs": 2912
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax3.90_rep1.mat",
+   "accelx": 3.9,
+   "rep": 1,
+   "nnz_raw": 2775,
+   "acs_frac_raw": 0.8715277777777778,
+   "nnz_after_acs": 2849
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax3.90_rep2.mat",
+   "accelx": 3.9,
+   "rep": 2,
+   "nnz_raw": 2775,
+   "acs_frac_raw": 0.8715277777777778,
+   "nnz_after_acs": 2849
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax3.90_rep3.mat",
+   "accelx": 3.9,
+   "rep": 3,
+   "nnz_raw": 2775,
+   "acs_frac_raw": 0.8715277777777778,
+   "nnz_after_acs": 2849
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.00_rep1.mat",
+   "accelx": 4.0,
+   "rep": 1,
+   "nnz_raw": 2719,
+   "acs_frac_raw": 0.8732638888888888,
+   "nnz_after_acs": 2792
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.00_rep2.mat",
+   "accelx": 4.0,
+   "rep": 2,
+   "nnz_raw": 2719,
+   "acs_frac_raw": 0.8732638888888888,
+   "nnz_after_acs": 2792
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.00_rep3.mat",
+   "accelx": 4.0,
+   "rep": 3,
+   "nnz_raw": 2719,
+   "acs_frac_raw": 0.8732638888888888,
+   "nnz_after_acs": 2792
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.10_rep1.mat",
+   "accelx": 4.1,
+   "rep": 1,
+   "nnz_raw": 2643,
+   "acs_frac_raw": 0.8680555555555556,
+   "nnz_after_acs": 2719
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.10_rep2.mat",
+   "accelx": 4.1,
+   "rep": 2,
+   "nnz_raw": 2643,
+   "acs_frac_raw": 0.8680555555555556,
+   "nnz_after_acs": 2719
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.10_rep3.mat",
+   "accelx": 4.1,
+   "rep": 3,
+   "nnz_raw": 2643,
+   "acs_frac_raw": 0.8680555555555556,
+   "nnz_after_acs": 2719
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.20_rep1.mat",
+   "accelx": 4.2,
+   "rep": 1,
+   "nnz_raw": 2618,
+   "acs_frac_raw": 0.8784722222222222,
+   "nnz_after_acs": 2688
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.20_rep2.mat",
+   "accelx": 4.2,
+   "rep": 2,
+   "nnz_raw": 2618,
+   "acs_frac_raw": 0.8784722222222222,
+   "nnz_after_acs": 2688
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.20_rep3.mat",
+   "accelx": 4.2,
+   "rep": 3,
+   "nnz_raw": 2618,
+   "acs_frac_raw": 0.8784722222222222,
+   "nnz_after_acs": 2688
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.30_rep1.mat",
+   "accelx": 4.3,
+   "rep": 1,
+   "nnz_raw": 2537,
+   "acs_frac_raw": 0.8715277777777778,
+   "nnz_after_acs": 2611
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.35_rep1.mat",
+   "accelx": 4.35,
+   "rep": 1,
+   "nnz_raw": 2496,
+   "acs_frac_raw": 0.8836805555555556,
+   "nnz_after_acs": 2563
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.40_rep1.mat",
+   "accelx": 4.4,
+   "rep": 1,
+   "nnz_raw": 2496,
+   "acs_frac_raw": 0.8697916666666666,
+   "nnz_after_acs": 2571
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.45_rep1.mat",
+   "accelx": 4.45,
+   "rep": 1,
+   "nnz_raw": 2477,
+   "acs_frac_raw": 0.8697916666666666,
+   "nnz_after_acs": 2552
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.50_rep1.mat",
+   "accelx": 4.5,
+   "rep": 1,
+   "nnz_raw": 2445,
+   "acs_frac_raw": 0.8715277777777778,
+   "nnz_after_acs": 2519
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.55_rep1.mat",
+   "accelx": 4.55,
+   "rep": 1,
+   "nnz_raw": 2407,
+   "acs_frac_raw": 0.8680555555555556,
+   "nnz_after_acs": 2483
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.60_rep1.mat",
+   "accelx": 4.6,
+   "rep": 1,
+   "nnz_raw": 2400,
+   "acs_frac_raw": 0.8524305555555556,
+   "nnz_after_acs": 2485
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.70_rep1.mat",
+   "accelx": 4.7,
+   "rep": 1,
+   "nnz_raw": 2354,
+   "acs_frac_raw": 0.8767361111111112,
+   "nnz_after_acs": 2425
+  },
+  {
+   "file": "/tmp/claude-1002/-home-congcongliu--claude/9e4f6941-aea4-40f4-b395-2aa9ff1b2ffe/scratchpad/vdpois/vd_ax4.80_rep1.mat",
+   "accelx": 4.8,
+   "rep": 1,
+   "nnz_raw": 2315,
+   "acs_frac_raw": 0.8715277777777778,
+   "nnz_after_acs": 2389
+  }
+ ],
+ "density_profile": {
+  "radius_centres": [
+   0.025,
+   0.07500000000000001,
+   0.125,
+   0.17500000000000002,
+   0.225,
+   0.275,
+   0.32500000000000007,
+   0.375,
+   0.42500000000000004,
+   0.475,
+   0.525,
+   0.5750000000000001,
+   0.625,
+   0.675,
+   0.7250000000000001,
+   0.775,
+   0.8250000000000001,
+   0.875,
+   0.925,
+   0.9750000000000001
+  ],
+  "sampled_fraction": [
+   1.0,
+   1.0,
+   0.7758620689655172,
+   0.3546099290780142,
+   0.23087818696883852,
+   0.16592427616926503,
+   0.13671875,
+   0.09951060358890701,
+   0.09070796460176991,
+   0.06724367509986684,
+   0.06404230317273796,
+   0.04673913043478261,
+   0.04477611940298507,
+   0.038425925925925926,
+   0.030198446937014668,
+   0.0272654370489174,
+   0.025718608169440244,
+   0.022743425728500355,
+   0.021534320323014805,
+   0.018794556059624108
+  ]
+ }
+}

@@ -1,0 +1,34 @@
+{
+ "pre": {
+  "adjoint_rel_err": 3.8104138866401627e-07,
+  "cg_noiseless_head_psnr": 69.18503867234871,
+  "sigma_written": 1.3669174777845847,
+  "sigma_meta": 1.3668591627482325,
+  "sigma_rel_dev": 4.266352960247133e-05,
+  "zf_af16_head_psnr": 25.382007193545586,
+  "adjoint_voxel_condition": "head & (sum_c|S_c|^2 > 0.25)",
+  "adjoint_head_voxels_total": 4495671,
+  "adjoint_head_voxels_used": 4495448,
+  "gates": {
+   "adjoint": true,
+   "cg": true,
+   "sigma": true
+  }
+ },
+ "post": {
+  "adjoint_rel_err": 3.835508834981738e-07,
+  "cg_noiseless_head_psnr": 75.91329398898259,
+  "sigma_written": 1.445249558049051,
+  "sigma_meta": 1.4452258068243002,
+  "sigma_rel_dev": 1.6434265592613073e-05,
+  "zf_af16_head_psnr": 26.931413270884914,
+  "adjoint_voxel_condition": "head & (sum_c|S_c|^2 > 0.25)",
+  "adjoint_head_voxels_total": 4520978,
+  "adjoint_head_voxels_used": 4520904,
+  "gates": {
+   "adjoint": true,
+   "cg": true,
+   "sigma": true
+  }
+ }
+}

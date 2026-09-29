@@ -1,0 +1,72 @@
+{
+ "CG-SENSE": {
+  "corr_full_vs_zf": 0.7210888503484862,
+  "corr_hp_vs_zf_hp": 0.6819452353333262,
+  "frac_energy_lowpass": 0.10397065430879593,
+  "rms_lo_rel": 0.016957894770179352,
+  "rms_hi_rel": 0.04611985976214236
+ },
+ "CS-SENSE": {
+  "corr_full_vs_zf": 0.6383749115189152,
+  "corr_hp_vs_zf_hp": 0.6180944651382787,
+  "frac_energy_lowpass": 0.09471599757671356,
+  "rms_lo_rel": 0.012719112119017582,
+  "rms_hi_rel": 0.03586483916501308
+ },
+ "Joint SENSE": {
+  "corr_full_vs_zf": 0.6502268018462695,
+  "corr_hp_vs_zf_hp": 0.6324003629137879,
+  "frac_energy_lowpass": 0.09415040165185928,
+  "rms_lo_rel": 0.012763057508103151,
+  "rms_hi_rel": 0.03614542431828194
+ },
+ "L1-SPIRiT": {
+  "corr_full_vs_zf": 0.3895583403322433,
+  "corr_hp_vs_zf_hp": 0.3996970746144409,
+  "frac_energy_lowpass": 0.019082549959421158,
+  "rms_lo_rel": 0.0053120006527143,
+  "rms_hi_rel": 0.03740686727768508
+ },
+ "ZS-SSDU": {
+  "corr_full_vs_zf": -0.07690432487476194,
+  "corr_hp_vs_zf_hp": 0.03715277608793387,
+  "frac_energy_lowpass": 0.08275341242551804,
+  "rms_lo_rel": 0.010516251003736486,
+  "rms_hi_rel": 0.03332526394487985
+ },
+ "3D-DIP": {
+  "corr_full_vs_zf": 0.5004037829362349,
+  "corr_hp_vs_zf_hp": 0.5759398590498923,
+  "frac_energy_lowpass": 0.03771306574344635,
+  "rms_lo_rel": 0.009768140033239347,
+  "rms_hi_rel": 0.04809032980702665
+ },
+ "3D-INR": {
+  "corr_full_vs_zf": 0.3624734221663261,
+  "corr_hp_vs_zf_hp": 0.3510762867185158,
+  "frac_energy_lowpass": 0.025203024968504906,
+  "rms_lo_rel": 0.0092110284306739,
+  "rms_hi_rel": 0.056667885630983364
+ },
+ "MC-INR": {
+  "corr_full_vs_zf": 0.48108625225906515,
+  "corr_hp_vs_zf_hp": 0.44863952015073205,
+  "frac_energy_lowpass": 0.05241521820425987,
+  "rms_lo_rel": 0.01429911211749886,
+  "rms_hi_rel": 0.05834633760613174
+ },
+ "GS-single": {
+  "corr_full_vs_zf": 0.49244818017299075,
+  "corr_hp_vs_zf_hp": 0.522028287579256,
+  "frac_energy_lowpass": 0.0455797016620636,
+  "rms_lo_rel": 0.006694774925896623,
+  "rms_hi_rel": 0.029447311066458613
+ },
+ "MC-GS": {
+  "corr_full_vs_zf": 0.4915439844659535,
+  "corr_hp_vs_zf_hp": 0.5218827280958191,
+  "frac_energy_lowpass": 0.04559503495693207,
+  "rms_lo_rel": 0.006547671121290398,
+  "rms_hi_rel": 0.028807144112758275
+ }
+}

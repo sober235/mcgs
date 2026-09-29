@@ -5,6 +5,11 @@
 `$TOPIC` = `/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16`，`$WT` =
 `/data0/congcong/code/GS/mcgs_ce_retro_wt`，`$PY` = `/home/congcongliu/anaconda3/envs/GSTMI/bin/python`。
 
+> **2026-09-29 补充（分支 `ce-af16-mask-audit`，worktree `mcgs_ce_mask_wt`）**：混叠审计与掩膜换口径对照。
+> 先读 `MASK_SWAP.md`，再读 `audit_2026-09-29/ALIASING_AUDIT.md`。要点：没有相干混叠，但 11 臂的非相干残差都重
+> （MC-GS 头内 rms 误差 3.1% 峰值、r 0.2–0.4 带 NMSE 7%）；掩膜是 `bart poisson -v`，ACS 外密度几乎均匀，与 jyz 的
+> vdPoisMex 不是一个口径。下面的正文是 09-18 的状态，未改。
+
 ## 已完成且已验证
 
 Task 16 是收尾：口径互验 → 汇总/强化保真/最优层 → 两张图 → README/STATUS 填数 → 导出包 → 落盘提交。全量调度已在
