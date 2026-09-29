@@ -156,3 +156,39 @@ cd $NEW && setsid nohup env RETRO_TOPIC=$NEW RETRO_TRAINER=$NEW/trainer/_trainer
 收尾计划(完成后):`enhancement_fidelity.py`、`find_best_slice.py`、`best_slice_mcgs.py --axis 0`、`readme_tables.py`、
 `best_slice_lesion.py`、三面图(`--tag _vdpois`,不覆盖原线的图)、强化图(`--suffix _vdpois`)、`compare_masks.py` 扩到
 十一臂;结果写进本文件 §9 与 `VDPOIS_LINE.md`(十一臂全表)。导出包不做,除非用户要。
+
+### 8.1 暂停时的状态(用户 2026-09-29 19:29 要求先落盘暂停)
+
+**调度器没有停**,pid 2154523 继续在后台跑(`logs/orch/orchestrate.log`;暂停时刻的快照在
+`audit_2026-09-29/mask_swap/orchestrate_snapshot_at_pause.log`)。完成 25 项、在跑 4 项、失败 0 项。
+
+- 在跑:L1-SPIRiT 增强 ks5 λ ∈ {0.0005, 0.001, 0.002, 0.004}(GPU 2/0/4/1)。
+- 待跑 9 项:`spirit_post_ks5_lam0.008`、`zs_pre`、`zs_post`、`dip_pre`、`dip_post`、`inr_pre`、`inr_post`、`mcinr`、`summarize`;
+  另有调度器 18:07 自动加的外推点 `joint_lam0.00036`(增强的最优落在网格下边缘 0.0005),完成与否看
+  `logs/jcssense_o200_lam0.00036.json` 在不在。
+- 已出的中途数字(头内 PSNR,新掩膜):Joint SENSE 平扫最优 λ=0.0007 → 33.95、增强 λ=0.0005 → 36.26(原掩膜 30.98 / 32.61);
+  L1-SPIRiT 平扫最优 ks5 λ=0.001 → 32.34、增强目前 ks3 λ=0.0005 → 34.46(原掩膜 31.66 / 34.07),ks5 增强组未完。
+  L1-SPIRiT 从换掩膜得到的远少于 CS-SENSE,新掩膜下落到 CS-SENSE 后面 1.6–1.9 dB。
+
+**恢复步骤(新会话)**
+
+```bash
+N=/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois
+S=/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts
+PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
+E="RETRO_TOPIC=$N RETRO_TRAINER=$N/trainer/_trainer_e778bf2 PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID"
+# 1. 看调度器是否还活着、跑到哪
+pgrep -af scripts/retro_orchestrate.py; tail -5 $N/logs/orch/orchestrate.log; ls $N/logs/orch/ALL_DONE_retro16
+# 2. 若它死了但没 ALL_DONE:原命令重启即可,它按输出文件续跑(§8 的启动命令,三个 RETRO_* 开关照旧)
+# 3. ALL_DONE 之后按 §8 收尾计划跑汇总与图;summarize 调度器已跑,先核对 $N/logs/summary.json 有 22 行
+env $E $PY $S/summarize.py && env $E $PY $S/enhancement_fidelity.py && env $E $PY $S/find_best_slice.py && env $E $PY $S/best_slice_mcgs.py --axis 0
+env $E $PY $S/readme_tables.py            # 十一臂全表 -> 贴进 VDPOIS_LINE.md
+env $E $PY $S/compare_masks.py            # 先把 ARMS 扩到十一臂(现在只列五臂)
+for s in pre post; do env $E $PY $S/fig_three_planes_compact.py --scan $s --slices 201 131 48 --inset 48 --inset_corner tr bl bl \
+  --mask_error --gray_cbar --cbar_planes 0 --tra_rot 1 --err_vmax 0.1 --with_zf --caps --l1_arm spirit --brightness 1.5 --tag _vdpois; done
+env $E $PY $S/fig_enhancement.py --slices 201,131,48 --vmax 0.667 --suffix _vdpois
+env $E $PY $S/best_slice_lesion.py        # 注意:它把图也写到 ~/figs/ce_retro_af16/,同名会盖掉原线的 lesion_slice 图,跑完改名
+```
+坑:`fig_three_planes_compact.py` 的服务目录写死为 `/home/congcongliu/figs/ce_retro_af16`,靠 `--tag _vdpois` 区分文件名;
+`best_slice_lesion.py` 没有 tag 参数,跑完把服务目录里的新图改名加 `_vdpois`,原线那张可从
+`CE_retro_cssense_af16/figures/` 拷回。
