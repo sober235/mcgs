@@ -368,8 +368,15 @@ class MRIDataset(Dataset):
         ground_truth_mag = torch.abs(self.ground_truth_image).reshape(-1)
         if self.normalization_percentile >= 100.0:
             scale = ground_truth_mag.max()
-        else:
+        elif ground_truth_mag.numel() <= 16_000_000:
             scale = torch.quantile(ground_truth_mag, self.normalization_percentile / 100.0)
+        else:
+            # torch.quantile caps at ~16M elements; use numpy for larger tensors (same fallback as the
+            # presampled branch above). Volumes of 16M elements or fewer keep the torch path unchanged.
+            scale = torch.tensor(
+                float(np.quantile(ground_truth_mag.cpu().numpy(), self.normalization_percentile / 100.0)),
+                dtype=ground_truth_mag.dtype, device=ground_truth_mag.device,
+            )
         scale_value = float(torch.clamp(scale, min=1e-8).item())
         self.normalization_scale = scale_value
         self.kspace_multicoil = self.kspace_multicoil / scale_value

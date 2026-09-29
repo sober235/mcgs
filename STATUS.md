@@ -1,3 +1,129 @@
+# STATUS — nonbrain-infra (worktree `mcgs_nb_infra_wt`) — shared layer done, final-review fixes in, knee next
+
+## What the final-review fix changed (2026-09-28; brief, review and fix report in the gitignored, local
+`.superpowers/sdd/2026-09-28-nonbrain-infra/`)
+- F1 `run_spec.py`: `<exp>_volumes.npz` is keyed by slot (`rec/gt/zf_plain`, `rec/gt/zf_contrast`, each also
+  `_complex`) plus `plain_name` / `contrast_name`; keyed by channel name, a GS-single arm lost its plain channel.
+- F2 `spec_io.provenance`: untracked files make the tree dirty; `git_dirty_paths` lists what git reports.
+- F3 `run_spec.py` refuses a `results_root` outside its own worktree; `scripts/regress_brain_pin.sh` checks the
+  hp_n36 checkpoint md5, keeps the cycle.py PIN and adds EQUIV (run_spec on a per-worktree copy of the brain spec,
+  16 keys); `tests/test_scoring_equivalence.py` takes the newest jsons by mtime and fails when the run_spec json was
+  not written by HEAD's strict-entry code.
+- F4 `--audit` groups fallbacks by key and flags `conflicting_defaults`; `fill-defaults` refuses them (in-place
+  `--out` still allowed). Derived defaults and dead knobs are listed in §4.
+- F5 file keys (`known_zero_support`, both warm-start checkpoints, `guide_path_*`, `spec.from_ckpt`) must be
+  absolute and are md5'd in `data_md5`; a missing one stops the run before training.
+- F6 `score_anatomy` adds `head_nmse` (anatomy-region NMSE, spec §5.4).
+- F7 the md5 pin list has 95 files: + `paired_gs/losses/`, `paired_gs/gaussian/` (with the CUDA sources),
+  `data/transforms.py`, `data/known_zero.py`, `seed.py`, `trainers/voxelizer_config.py` (spec §2.2 note).
+- F8 run names are reserved at start (`<exp>/` created with exist_ok=False after checking it and the three result
+  files); run_spec refuses to start without `PYTHONNOUSERSITE=1`; score and audit json record `python`, `torch`,
+  `torch_cuda`, `no_user_site` and `voxelizer` (class, backend, type, strict_cuda).
+- F9 `tests/test_run_spec_main.py`: `run_spec.main` on the CPU with a stub trainer.
+- F10 `spec_expand` refuses `{subject}` in a key; its CLI validates every expanded spec and never overwrites.
+- F11 `spec_scoring` puts `paired_gs` ahead of the repo root on `sys.path`.
+- F12 score json: `ssim_mode` / `zf_ssim_mode` (`slicewise` when metrics.py fell back).
+- F13 this file, CLAUDE.md and the docstrings (audit guidance, brain-only criteria, StrictConfig limits).
+- F14 gate and full suite re-run, §1.
+
+## 1. Done and verified (re-run 2026-09-28 after the final-review fix, card 3)
+
+```
+$ cd /data0/congcong/code/GS/mcgs_nb_infra_wt; PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
+$ bash scripts/regress_brain_pin.sh 3
+checkpoint md5 34bc8b2e41f53f42a3e79c9814ce01f6 OK
+plain: head_psnr 35.706153 vs 35.706153 (diff +0.00e+00)
+contrast: head_psnr 34.928080 vs 34.928080 (diff +0.00e+00)
+PIN PASS
+score json: /data0/congcong/code/GS/mcgs_nb_infra_wt/results_arc/pin_hp_n36_20260928_211821_score.json
+spec copy: /data0/congcong/code/GS/mcgs_nb_infra_wt/results_spec/brain_equiv_20260928_211821.yaml
+run_spec json: /data0/congcong/code/GS/mcgs_nb_infra_wt/results_spec/brainpin_equiv_20260928_211821_score.json
+compared 16 keys x 2 channels; fallbacks []
+EQUIV PASS
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= $PY -m pytest tests/test_brain_files_pinned.py tests/test_scoring_equivalence.py -q -p no:cacheprovider | tail -1
+100 passed in 0.12s
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES=3 $PY -m pytest tests -q --ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py -p no:cacheprovider -rs --color=no | tail -1
+398 passed, 1 warning in 426.96s (0:07:06)
+$ git log --oneline 1cf08a4..82bff9c
+82bff9c regress_brain_pin: checkpoint md5, then cycle.py pin, then run_spec equivalence in this worktree
+b59d99e tests: pin what the model trains through (losses, gaussian with the CUDA sources, transforms, known_zero, seed, voxelizer_config)
+1f36f60 spec_expand: refuse {subject} inside a key; the CLI validates every expanded spec and never overwrites
+06ea176 spec_scoring: anatomy-region NMSE, SSIM mode, paired_gs first on sys.path
+03557b3 run_spec: volumes keyed by slot, run names reserved, conflicting defaults flagged, environment recorded
+e258a11 spec_io: untracked files count as dirty and are listed, every file input is absolute and md5'd, results only inside the repo
+```
+
+The run_spec json of the gate records git_commit 82bff9c (HEAD when it ran), git_dirty false, git_dirty_paths [],
+fallbacks [], voxelizer TileVoxelizer / backend tile_cuda, torch 2.7.1+cu118 (CUDA 11.8), and the checkpoint md5
+34bc8b2e41f53f42a3e79c9814ce01f6 in data_md5; head_nmse 0.012951 / 0.013720 (new key, not a gate value). 398 = the
+338 of 1cf08a4 plus 60 new tests; none skipped (-rs listed no skip). The equivalence tests read the jsons above.
+`test_nonlocal_red.py`'s GPU trainer smoke ran because the AF16 jyz bundle exists on this server; it replaces its own
+scratch output `results_arc/nl_smoke_pytest*` on every run, and cycle.py appends a row to `results_arc/results_grain.tsv`
+(both gitignored, as before this fix). The one warning is `TORCH_CUDA_ARCH_LIST is not set` from the tile-voxelizer
+CUDA extension build, benign. The older `results_spec/brainpin_equiv1_score.json` (18:42, written before
+git_dirty_paths existed) is kept on disk; the tests use the newest json by modification time.
+
+## 2. Waiting for the user
+- Push `nonbrain-infra` to GitHub? (not pushed)
+- Plan 1 (knee) execution go-ahead.
+
+## 3. Next
+Write/execute plan 1 (knee, `nb-knee-skmtea`, worktree `mcgs_nb_knee_wt`) per spec §4–§6; the knee branch merges
+this branch's final-review commits first. Knee spec conventions (distinct channel names even for GS-single,
+`mode.strict_cuda: true`, `save_volumes: true` for every GS arm) belong to plan 1a Task 5.
+
+## 4. Pitfalls, and what not to redo
+- `run_spec.py` refuses to start without `PYTHONNOUSERSITE=1`, and refuses a `spec.results_root` outside the worktree
+  it runs from. Runs are never overwritten: a name is refused when `<exp>/`, `<exp>_score.json`, `<exp>_audit.json`
+  or `<exp>_volumes.npz` exists, and `<exp>/` is created at start, so a run that fails after that point (for example
+  on a missing file input) still uses up its name.
+- `run_spec.py --audit N` trains N iterations and scores nothing; `shared_warmup_iters` is capped at N//4 only to
+  satisfy JointTrainer's guard (warm-up < N/2); the trainer has no warm-up branch. Evaluation and checkpoint
+  events read no config keys; the only periodic reader is densification (only when `adaptive_control.enable` is
+  true). With densification on, write every densification key explicitly, or audit with
+  N >= densify_from_iter + 2 * densify_every.
+- `fill-defaults` refuses keys read with conflicting defaults (`conflicting_defaults` in the audit json, e.g.
+  `voxelizer.type`: "chunk" in voxelizer_config.py:22 when `training.deterministic` is true, "tile_cuda" in
+  joint_trainer.py:344); set those by hand.
+- Derived defaults (the code default is computed from another value; after fill-defaults they are literals, so sweep
+  the child keys, not the parent):
+  - `loss.lambda_wav_plain` / `lambda_wav_contrast` default to `loss.lambda_wav` (joint_trainer.py:837-838); they are
+    read only when `loss.lambda_wav` > 0 (:829), so with `lambda_wav: 0` they do nothing.
+  - `loss.lambda_nl_plain` / `lambda_nl_contrast` default to `loss.lambda_nl` (:846-847).
+  - `data.<ch>.prewhiten` defaults to `loss.prewhiten` (:184).
+  - `gaussian.init_scale` defaults to 2 / max(volume shape) (:277; cold start only, used in `init_scale_mode: fixed`).
+  - `gaussian.max_num_points` defaults to 2 x the point count at each densification event (:680-681), so unset it
+    never caps growth. The audit records 2 x the count at the first event (the initial points); written into the
+    spec by fill-defaults, that becomes a real cap. With densification on, choose it by hand.
+- Knobs that do nothing on this trainer path: `hardware.device` (never read; the device comes from run_spec);
+  `loss.lambda_diff` / `lambda_enh` (only a warning, :792-798); `loss.loss_type` (read and discarded, :866-867);
+  `training.shared_warmup_iters` (only the warm-up guard, :101); `gaussian.init_scale` under `init_scale_mode: 3nn`
+  (only printed) or with a warm-start checkpoint; `loss.lambda_wav` when both per-channel weights are set (only
+  `> 0` matters: it switches the term on); `loss.lambda_nl` when both per-channel weights are set.
+- StrictConfig tracks config reads that fall back to a code default (`get`, `setdefault`); it does not cover constants
+  hard-coded in the trainer (those files are md5-pinned instead). Known limitation (not fixed): it is bypassed by
+  `pop`, `update`, `copy()`, `dict()`, `{**cfg}`, `**cfg` expansion and dicts inside lists, and an `except KeyError`
+  swallows StrictConfigError. None of these is on today's trainer path (joint_trainer.py, voxelizer_config.py,
+  dataset.py; checked 2026-09-28; the two `in` checks at joint_trainer.py:781/:792 are covered by validate_spec and
+  by the warning-only list above); a trainer edit that uses one needs a fresh audit.
+- Scoring: only the anatomy-mask metrics (the head_* keys and cos_phase) follow `scoring.anatomy_rel`.
+  `comp`, `beat`, `sharp` and `grain` use brain constants and ignore it; `combined` and `both_beat` are not selection
+  criteria outside the brain. `head_nmse` is the anatomy-region NMSE (spec §5.4).
+- A spec may not hold both `loss.tv_weight` and `loss.lambda_geo` (JointTrainer silently prefers lambda_geo).
+- Re-run the brain gate from the worktree whose code you changed: it writes only there (a copy of the brain spec
+  with that worktree's `results_spec/`), and the equivalence test there checks that its newest run_spec json was
+  written by that HEAD. `specs/brain_hp_n36_equiv.yaml` itself keeps the infra worktree's path; do not edit it.
+
+## 5. Why
+- StrictConfig: every config value a study reads is written in its own spec (spec §2.2), so one study cannot move
+  another. It covers config reads only; constants hard-coded in the trainer are held fixed by the md5 pins (95 files).
+- spec_scoring is a copy, not an edit, of cycle.py's scorer: the brain line's files stay byte-identical (md5 test).
+- The pin list covers what the model trains through (losses, voxelizer, CUDA sources) because a shared change there
+  would move the brain results without touching the trainer file (final review I6).
+- Volumes are keyed by slot because the brain convention gives both channels of a GS-single arm one name.
+
+---
+
 # STATUS — 2026-09-28（worktree `mcgs_widen_wt`, branch `widen-mcgs-af12-16-20-24`）— widen loop, ceilings, AF12; tidied and pushed
 
 **Read first:** `docs/2026-09-28-widen-mcgs-summary.md` (Chinese, the whole story), then `autoresearch_widen.md` (rules,

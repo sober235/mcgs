@@ -1,0 +1,143 @@
+scoring:
+  anatomy_rel: 0.05
+  grain_ratio: true
+spec:
+  dataset: brain_jyz_af16_hp_n36
+  exp_prefix: brainpin
+  from_ckpt: /data0/congcong/code/GS/mcgs_hparam_wt/results_arc/hp_n36/hp_n36/checkpoints/latest.pth
+  results_root: /data0/congcong/code/GS/mcgs_nb_infra_wt/results_spec
+  save_volumes: false
+trainer:
+  adaptive_control:
+    enable: false
+  data:
+    contrast:
+      acceleration_factor: 16
+      acs_lines: 0
+      center_kspace_dc: false
+      csm_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/csm_espirit_FLAIR.h5
+      data_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/ksp_FLAIR.h5
+      known_zero: true
+      known_zero_support: null
+      mask_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16_3d.h5
+      mask_type: external
+      name: FLAIR
+      normalization_percentile: 99.9
+      normalize_kspace: true
+      phase_axes:
+      - 1
+      - 2
+      presampled: false
+      prewhiten: false
+      readout_axis: 0
+      skip_readout_check: false
+      use_acs: false
+    plain:
+      acceleration_factor: 16
+      acs_lines: 0
+      center_kspace_dc: false
+      csm_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/csm_espirit_T1.h5
+      data_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/ksp_T1.h5
+      known_zero: false
+      mask_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16_3d.h5
+      mask_type: external
+      name: T1
+      normalization_percentile: 99.9
+      normalize_kspace: true
+      phase_axes:
+      - 1
+      - 2
+      presampled: false
+      prewhiten: false
+      readout_axis: 0
+      skip_readout_check: false
+      use_acs: false
+  gaussian:
+    density_lr: 0.015
+    init_head_frac: 0.05
+    init_mode: head
+    init_scale: 0.008
+    init_scale_mode: 3nn
+    init_scale_mult: 1.0
+    initial_num_points: 3600000
+    num_private_points: 0
+    position_lr: 0.0003
+    private_density_lr: null
+    private_position_lr: null
+    private_rotation_lr: null
+    private_scale_lr: null
+    rotation_lr: 0.0003
+    scale_lr: 0.002
+    warm_start_checkpoint: null
+  hardware:
+    device: cuda:0
+  loss:
+    dtv_eta_scale: 1.0
+    dtv_proj_eta_q: 0.5
+    dtv_w_floor: 0.1
+    edge_kappa: 10.0
+    edge_p: 0.75
+    edge_tv: true
+    edge_tv_guide_alpha: 0.0
+    edge_tv_kappa_q: 0.85
+    edge_tv_kappa_refresh_iter: 0
+    edge_tv_kappa_source: zf
+    edge_tv_wfloor: 0.1
+    guide_file_alpha: 1.0
+    guide_path_contrast: null
+    guide_path_plain: null
+    kspace_center_fraction: 0.05
+    kspace_center_weight: 0.3
+    kspace_freq_adaptive: true
+    kspace_freq_curriculum: false
+    kspace_high_weight: 2.2
+    kspace_high_weight_plain: null
+    kspace_mid_weight: 1.0
+    lambda_diff: 0.01
+    lambda_dtv: 0.0
+    lambda_dtv_proj: 0.0
+    lambda_edge: 0.001
+    lambda_enh: 0
+    lambda_nl: 0.0
+    lambda_nl_contrast: 0.0
+    lambda_nl_plain: 0.0
+    lambda_private_sp: 0.0
+    lambda_ptv: 0.03
+    lambda_vtv: 0.0
+    lambda_wav: 0.1
+    lambda_wav_contrast: 0.1
+    lambda_wav_plain: 0.12
+    loss_type: l2
+    prewhiten: false
+    ptv_guide_alpha: 0.0
+    tv_eps: 0.04
+    tv_vector: false
+    tv_weight: 0.1
+    wav_cycle_spin: true
+    wav_eps: 0.0
+    wav_levels: 1
+    wav_name: db4
+    wav_on: complex
+  mode:
+    experimental_reproduction: false
+    paper_faithful: false
+    self_supervised_deploy: false
+    strict_cuda: false
+  output:
+    use_tensorboard: true
+  training:
+    deterministic: false
+    eval_every: 1000
+    log_every: 50
+    lr_scheduler:
+      gamma: 0.9995
+      type: exponential
+    max_grad_norm: 1.0
+    max_iterations: 4000
+    save_every: 1000
+    seed: 42
+    shared_warmup_iters: 500
+  voxelizer:
+    max_radius: 20
+    tile_size: 8
+    type: tile_cuda
