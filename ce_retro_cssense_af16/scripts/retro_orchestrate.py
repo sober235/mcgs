@@ -19,7 +19,9 @@ PY = "/home/congcongliu/anaconda3/envs/GSTMI/bin/python"
 GRID = {"cs": [2.5e-4, 3.5e-4, 5e-4, 7e-4, 1e-3, 1.4e-3, 2e-3], "joint": [5e-4, 7e-4, 1e-3, 1.4e-3, 2e-3],
         "spirit_lam": [0.0, 5e-4, 1e-3, 2e-3, 4e-3, 8e-3], "spirit_ks": [3, 5]}
 NEED = dict(cls=30000, cs=30000, joint=45000, spirit=30000, zs=40000, dip=40000, inr=40000, mcinr=20000, gs=60000)
-MAX_GPU, POLL, MAX_EXT = 3, 20, 2
+MAX_GPU, POLL, MAX_EXT = int(os.environ.get("RETRO_MAX_GPU", 3)), 20, 2   # RETRO_MAX_GPU: lanes cap (audit 2026-09-29: 4 for the vdPoisMex migration)
+UTIL_MAX = float(os.environ.get("RETRO_UTIL_MAX", 30))
+BUSY_MEM_MIN = float(os.environ.get("RETRO_BUSY_MEM_MIN", 0))   # MiB; a process of this user below this is an idle holder, not a job (2026-09-29: another session parks 8 GB on every card; 12000 keeps the 18 GB nnDetection run on GPU 3 as busy)   # a card busier than this (another user) is not a lane; 80 on 2026-09-29 when every card sat at 40-75 % all day (runs there were ~2x slower, not 9x)
 SCANS = ("pre", "post")
 
 
@@ -143,7 +145,7 @@ def add(j):
 
 
 def my_busy_gpus():
-    apps = subprocess.run(["nvidia-smi", "--query-compute-apps=gpu_uuid,pid", "--format=csv,noheader,nounits"],
+    apps = subprocess.run(["nvidia-smi", "--query-compute-apps=gpu_uuid,pid,used_memory", "--format=csv,noheader,nounits"],
                           capture_output=True, text=True).stdout
     gpus = subprocess.run(["nvidia-smi", "--query-gpu=index,uuid,memory.used,memory.total,utilization.gpu", "--format=csv,noheader,nounits"],
                           capture_output=True, text=True).stdout
@@ -152,11 +154,11 @@ def my_busy_gpus():
         i, u, used, tot, util = (p.strip() for p in line.split(","))
         uuid2idx[u] = int(i)
         # a card another user is computing on is not free: a job there ran ~9x slower (2026-09-15, GPU 3)
-        free[int(i)] = float(tot) - float(used) if float(util) < 30 else 0.0
+        free[int(i)] = float(tot) - float(used) if float(util) < UTIL_MAX else 0.0
     busy = set()
     for line in apps.strip().splitlines():
         parts = [p.strip() for p in line.split(",")]
-        if len(parts) != 2:
+        if len(parts) != 3:
             continue
         try:
             pid = int(parts[1])
@@ -164,7 +166,7 @@ def my_busy_gpus():
                 uid = next(int(l.split()[1]) for l in f if l.startswith("Uid:"))
         except (ValueError, OSError, StopIteration):
             continue
-        if uid == UID and parts[0] in uuid2idx:
+        if uid == UID and parts[0] in uuid2idx and float(parts[2]) >= BUSY_MEM_MIN:
             busy.add(uuid2idx[parts[0]])
     return busy, free
 

@@ -128,4 +128,31 @@ GS-single 带 λ_edge 0.001(round 0b 已测这是负担);其余六臂未跑。
 - `run_gs.sh` 拒绝覆盖已有输出;重跑先手动挪走 `results_arc/<exp>*`。
 - GPU 是共享的,四张卡起跑时利用率 12–75%;单步耗时若涨几十倍,先怀疑撞卡,换卡重启。
 - `sim/work_*/`(掩膜后的 k 空间副本)本课题没建:`Pair` 从 `sim/gs/*.h5` 读无掩膜数据、自己套 `sim/mask/mask_af16_3d.h5`,
-  训练器同样;只有 ZS-SSDU / MC-INR 那几条路径读 `work_*`,本轮不跑。
+  训练器和 MC-INR 同样;十一臂脚本里没有一个读 `work_*`(2026-09-29 grep 核实)。
+
+## 8. 整线迁移(用户 2026-09-29 定:全部十一臂迁到 vdPoisMex;17:33 起跑)
+
+用原线的调度器 `scripts/retro_orchestrate.py`,`RETRO_TOPIC=$NEW`。它按输出文件识别已完成的臂,所以 ZF、CG-SENSE、
+CS-SENSE 网格、GS-single、MC-GS 及其抽取(22 项)直接跳过,只排剩下的 37 项:L1-SPIRiT 2 核 × 6 λ × 2 扫描、
+ZS-SSDU × 2、3D-DIP × 2、3D-INR × 2、Joint SENSE 5 λ、MC-INR、summarize。协议(网格、迭代数、λ 边缘外推)与原线逐字相同。
+
+为了让它跑起来改了三处,都是环境变量开关,默认值保持原行为:
+- `RETRO_MAX_GPU`(默认 3):并行卡数上限,这次 4。
+- `RETRO_UTIL_MAX`(默认 30):别人占用率高于此的卡不当车道。这次 80:全天所有卡都被别的会话占到 40–75%,
+  早上手动起的三个 GS 在这种卡上慢 2 倍,不是原注释说的 9 倍;91–99% 的 GPU 6/7 仍被排除。
+- `RETRO_BUSY_MEM_MIN`(默认 0):本用户进程显存低于此不算"本用户在用这张卡"。这次 12000:另一个会话在八张卡上各停了
+  一个 8 GB 的常驻进程,原规则把八张卡全判忙;GPU 3 上我另一条线的 nnDetection 训练(18 GB)仍算忙,被排除。
+- GS 三个实验名是 `ce_retro_af16vd_*`,调度器按 `ce_retro_af16_*` 找 `_volumes.npz`,在 `results_arc/` 里做了同名软链
+  (`ce_retro_af16_joint{,_volumes.npz,_score.json,.log}` → `ce_retro_af16vd_joint...`,单臂同理),不是重复训练。
+
+```bash
+cd $NEW && setsid nohup env RETRO_TOPIC=$NEW RETRO_TRAINER=$NEW/trainer/_trainer_e778bf2 RETRO_MAX_GPU=4 RETRO_UTIL_MAX=80 \
+  RETRO_BUSY_MEM_MIN=12000 PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID \
+  $PY -u scripts/retro_orchestrate.py > logs/orch/orchestrate.log 2>&1 &
+```
+前两次起跑(`logs/orch/orchestrate_attempt1_util30.log`、`..._attempt2_busyall.log`)没派出任何作业,原因就是上面两条规则,
+已改。完成标志 `logs/orch/ALL_DONE_retro16`。
+
+收尾计划(完成后):`enhancement_fidelity.py`、`find_best_slice.py`、`best_slice_mcgs.py --axis 0`、`readme_tables.py`、
+`best_slice_lesion.py`、三面图(`--tag _vdpois`,不覆盖原线的图)、强化图(`--suffix _vdpois`)、`compare_masks.py` 扩到
+十一臂;结果写进本文件 §9 与 `VDPOIS_LINE.md`(十一臂全表)。导出包不做,除非用户要。
