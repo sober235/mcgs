@@ -8,7 +8,9 @@
 > **2026-09-29 补充（分支 `ce-af16-mask-audit`，worktree `mcgs_ce_mask_wt`）**：混叠审计与掩膜换口径对照。
 > 先读 `MASK_SWAP.md`，再读 `audit_2026-09-29/ALIASING_AUDIT.md`。要点：没有相干混叠，但 11 臂的非相干残差都重
 > （MC-GS 头内 rms 误差 3.1% 峰值、r 0.2–0.4 带 NMSE 7%）；掩膜是 `bart poisson -v`，ACS 外密度几乎均匀，与 jyz 的
-> vdPoisMex 不是一个口径。下面的正文是 09-18 的状态，未改。
+> vdPoisMex 不是一个口径。换成 vdPoisMex 掩膜（同 2552 点、同 ACS）重跑五臂：经典臂升 +2.6 到 +3.7 dB，GS 臂只升
+> +0.8 到 +1.1 dB；MC-GS 仍第一（34.45 / 36.60），但对 CS-SENSE 的余量从 +2.6 / +2.9 缩到 +0.47 / +0.22 dB，
+> 对 GS-single 从 +0.19 / +0.35 缩到 +0.10 / +0.18。下面的正文是 09-18 的状态，未改。
 
 ## 已完成且已验证
 

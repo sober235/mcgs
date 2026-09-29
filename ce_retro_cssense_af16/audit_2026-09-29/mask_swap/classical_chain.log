@@ -1,0 +1,83 @@
+[2026-09-29 14:31:52] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan pre --methods zf,cgsense --gpu 1
+[pre] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=1.8358e+02
+[pre] zf                 head_psnr=25.382 head_ssim=0.7180 head_nmse=0.08704 head_hfen=0.6868 psnr=28.656 (0 s)
+[pre] cgsense            head_psnr=31.553 head_ssim=0.8745 head_nmse=0.02102 head_hfen=0.2127 psnr=34.074 (15 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_pre.json  total 231 s
+[2026-09-29 14:35:46] rc=0
+[2026-09-29 14:35:46] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan post --methods zf,cgsense --gpu 1
+[post] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=2.4345e+02
+[post] zf                 head_psnr=26.931 head_ssim=0.7140 head_nmse=0.10115 head_hfen=0.7152 psnr=30.147 (0 s)
+[post] cgsense            head_psnr=33.623 head_ssim=0.9013 head_nmse=0.02167 head_hfen=0.2089 psnr=36.282 (15 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_post.json  total 209 s
+[2026-09-29 14:39:18] rc=0
+[2026-09-29 14:39:18] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan pre --methods cssense --admm_outer 200 --lam 0.001 --suffix _o200_lam0.001 --gpu 1
+[pre] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=1.8358e+02
+[pre] cssense_o200_lam0.001 head_psnr=33.654 head_ssim=0.9299 head_nmse=0.01296 head_hfen=0.1500 psnr=37.023 (411 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_pre_o200_lam0.001.json  total 513 s
+[2026-09-29 14:47:55] rc=0
+[2026-09-29 14:47:55] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan post --methods cssense --admm_outer 200 --lam 0.001 --suffix _o200_lam0.001 --gpu 1
+[post] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=2.4345e+02
+[post] cssense_o200_lam0.001 head_psnr=35.726 head_ssim=0.9390 head_nmse=0.01335 head_hfen=0.1409 psnr=39.093 (412 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_post_o200_lam0.001.json  total 517 s
+[2026-09-29 14:56:34] rc=0
+[2026-09-29 14:56:34] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan pre --methods cssense --admm_outer 200 --lam 0.0007 --suffix _o200_lam0.0007 --gpu 1
+[pre] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=1.8358e+02
+[pre] cssense_o200_lam0.0007 head_psnr=33.913 head_ssim=0.9317 head_nmse=0.01221 head_hfen=0.1423 psnr=37.243 (414 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_pre_o200_lam0.0007.json  total 519 s
+[2026-09-29 15:05:16] rc=0
+[2026-09-29 15:05:16] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan post --methods cssense --admm_outer 200 --lam 0.0007 --suffix _o200_lam0.0007 --gpu 1
+[post] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=2.4345e+02
+[post] cssense_o200_lam0.0007 head_psnr=36.114 head_ssim=0.9434 head_nmse=0.01221 head_hfen=0.1307 psnr=39.459 (415 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_post_o200_lam0.0007.json  total 522 s
+[2026-09-29 15:14:01] rc=0
+[2026-09-29 15:14:01] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan pre --methods cssense --admm_outer 200 --lam 0.0014 --suffix _o200_lam0.0014 --gpu 1
+[pre] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=1.8358e+02
+[pre] cssense_o200_lam0.0014 head_psnr=33.257 head_ssim=0.9256 head_nmse=0.01420 head_hfen=0.1618 psnr=36.644 (412 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_pre_o200_lam0.0014.json  total 533 s
+[2026-09-29 15:22:57] rc=0
+[2026-09-29 15:22:57] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan post --methods cssense --admm_outer 200 --lam 0.0014 --suffix _o200_lam0.0014 --gpu 1
+[post] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=2.4345e+02
+[post] cssense_o200_lam0.0014 head_psnr=35.239 head_ssim=0.9327 head_nmse=0.01494 head_hfen=0.1546 psnr=38.615 (411 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_post_o200_lam0.0014.json  total 516 s
+[2026-09-29 15:31:36] rc=0
+[2026-09-29 15:31:36] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan pre --methods cssense --admm_outer 200 --lam 0.0005 --suffix _o200_lam0.0005 --gpu 1
+[pre] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=1.8358e+02
+[pre] cssense_o200_lam0.0005 head_psnr=33.978 head_ssim=0.9306 head_nmse=0.01203 head_hfen=0.1393 psnr=37.229 (413 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_pre_o200_lam0.0005.json  total 518 s
+[2026-09-29 15:40:18] rc=0
+[2026-09-29 15:40:18] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan post --methods cssense --admm_outer 200 --lam 0.0005 --suffix _o200_lam0.0005 --gpu 1
+[post] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=2.4345e+02
+[post] cssense_o200_lam0.0005 head_psnr=36.330 head_ssim=0.9455 head_nmse=0.01162 head_hfen=0.1251 psnr=39.634 (414 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_post_o200_lam0.0005.json  total 517 s
+[2026-09-29 15:48:57] rc=0
+[2026-09-29 15:48:57] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan pre --methods cssense --admm_outer 200 --lam 0.002 --suffix _o200_lam0.002 --gpu 1
+[pre] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=1.8358e+02
+[pre] cssense_o200_lam0.002 head_psnr=32.709 head_ssim=0.9185 head_nmse=0.01611 head_hfen=0.1796 psnr=36.108 (413 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_pre_o200_lam0.002.json  total 519 s
+[2026-09-29 15:57:39] rc=0
+[2026-09-29 15:57:39] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan post --methods cssense --admm_outer 200 --lam 0.002 --suffix _o200_lam0.002 --gpu 1
+[post] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=2.4345e+02
+[post] cssense_o200_lam0.002 head_psnr=34.619 head_ssim=0.9237 head_nmse=0.01723 head_hfen=0.1741 psnr=38.003 (413 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_post_o200_lam0.002.json  total 515 s
+[2026-09-29 16:06:17] rc=0
+[2026-09-29 16:06:17] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan pre --methods cssense --admm_outer 200 --lam 0.00035 --suffix _o200_lam0.00035 --gpu 1
+[pre] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=1.8358e+02
+[pre] cssense_o200_lam0.00035 head_psnr=33.830 head_ssim=0.9257 head_nmse=0.01244 head_hfen=0.1407 psnr=36.918 (412 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_pre_o200_lam0.00035.json  total 516 s
+[2026-09-29 16:14:55] rc=0
+[2026-09-29 16:14:55] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan post --methods cssense --admm_outer 200 --lam 0.00035 --suffix _o200_lam0.00035 --gpu 1
+[post] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=2.4345e+02
+[post] cssense_o200_lam0.00035 head_psnr=36.371 head_ssim=0.9453 head_nmse=0.01151 head_hfen=0.1233 psnr=39.584 (415 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_post_o200_lam0.00035.json  total 519 s
+[2026-09-29 16:23:38] rc=0
+[2026-09-29 16:23:38] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan pre --methods cssense --admm_outer 200 --lam 0.00025 --suffix _o200_lam0.00025 --gpu 1
+[pre] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=1.8358e+02
+[pre] cssense_o200_lam0.00025 head_psnr=33.479 head_ssim=0.9163 head_nmse=0.01349 head_hfen=0.1466 psnr=36.317 (414 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_pre_o200_lam0.00025.json  total 517 s
+[2026-09-29 16:32:18] rc=0
+[2026-09-29 16:32:18] /home/congcongliu/anaconda3/envs/GSTMI/bin/python /data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/recon_classical.py --scan post --methods cssense --admm_outer 200 --lam 0.00025 --suffix _o200_lam0.00025 --gpu 1
+[post] coils=42 vol=(256, 232, 176) mask frac=0.06250 AF_rect=16.000 scale=2.4345e+02
+[post] cssense_o200_lam0.00025 head_psnr=36.211 head_ssim=0.9423 head_nmse=0.01194 head_hfen=0.1255 psnr=39.261 (411 s)
+WROTE /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/classical_post_o200_lam0.00025.json  total 518 s
+[2026-09-29 16:40:59] rc=0
+[2026-09-29 16:40:59] CLASSICAL_CHAIN_DONE
