@@ -74,6 +74,8 @@ def main():
     figdir = new / "figures"; figdir.mkdir(exist_ok=True); pub = Path("/home/congcongliu/figs/ce_retro_af16_audit"); pub.mkdir(exist_ok=True)
     for scan in out:
         labels = list(out[scan]); n = len(labels)
+        if n == 0:
+            continue
         fig, ax = plt.subplots(n, 5, figsize=(14, 2.9 * n))
         ax = np.atleast_2d(ax)
         y0, y1, x0, x1 = 40, 200, 20, 160
