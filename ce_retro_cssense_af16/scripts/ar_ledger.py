@@ -30,15 +30,17 @@ def main():
         best_non_gs[scan] = max(cands)
     runs = {}
     for p in sorted(glob.glob(str(R / "logs/ar_*_pre.json")) + glob.glob(str(R / "logs/ar_*_post.json"))):
-        name = Path(p).name[3:]; exp, scan = name.rsplit("_", 1); scan = scan[:-5]
+        exp, scan = Path(p).name[:-5].rsplit("_", 1)          # keep the full key, e.g. ar_p1_kh10 / ar_s_pre_e0
         runs.setdefault(exp, {})[scan] = row_of(p)
+    fair = {s: runs.get(f"ar_s_{s}_e0", {}).get(s) for s in ("pre", "post")}   # rule-A GS-single at the frozen recipe
     out = {"reference": {"frozen_mcgs": {s: ref[(s, "gs_joint")] for s in ("pre", "post")},
                          "registered_single": {s: ref[(s, "gs_single")] for s in ("pre", "post")},
                          "best_non_gs": {s: {"method": best_non_gs[s][1], "head_psnr": best_non_gs[s][0]} for s in ("pre", "post")}},
            "runs": {}}
     lines = ["| run | pre PSNR (Δ) | post PSNR (Δ) | pre SSIM/NMSE/HFEN Δ | post SSIM/NMSE/HFEN Δ | reading |", "|---|---|---|---|---|---|"]
     for exp, sc in runs.items():
-        base_key = "gs_joint" if not exp.startswith("s_") else "gs_single"
+        is_single = exp.startswith("ar_s_") or exp.startswith("s_")
+        base_key = "gs_single" if is_single else "gs_joint"
         deltas, ok_metrics, gains = {}, True, []
         for scan in ("pre", "post"):
             if scan not in sc:
@@ -47,7 +49,7 @@ def main():
             d = {m: r[m] - b[m] for m in M}; deltas[scan] = d; gains.append(d["head_psnr"])
             if d["head_ssim"] < -1e-4 or d["head_nmse"] > 1e-5 or d["head_hfen"] > 1e-4:
                 ok_metrics = False
-        if exp.startswith("s_"):
+        if is_single:
             reading = "baseline"
         elif len(gains) < 2:
             reading = "incomplete"
@@ -64,9 +66,13 @@ def main():
         p1, p2 = f("pre"); q1, q2 = f("post")
         lines.append(f"| {exp} | {p1} | {q1} | {p2} | {q2} | {reading} |")
         out["runs"][exp] = {"scores": sc, "delta_vs_" + base_key: deltas, "reading": reading}
+    fs = " / ".join(f"{fair[s]['head_psnr']:.3f}" if fair[s] else "—" for s in ("pre", "post"))
+    fm = " / ".join(f"{ref[(s,'gs_joint')]['head_psnr'] - fair[s]['head_psnr']:+.3f}" if fair[s] else "—" for s in ("pre", "post"))
     hdr = (f"reference: frozen MC-GS pre {ref[('pre','gs_joint')]['head_psnr']:.3f} / post {ref[('post','gs_joint')]['head_psnr']:.3f}; "
            f"registered GS-single {ref[('pre','gs_single')]['head_psnr']:.3f} / {ref[('post','gs_single')]['head_psnr']:.3f}; "
+           f"fair GS-single (lambda_edge 0) {fs}, frozen MC-GS margin over it {fm}; "
            f"best non-GS {best_non_gs['pre'][1]} {best_non_gs['pre'][0]:.3f} / {best_non_gs['post'][1]} {best_non_gs['post'][0]:.3f}")
+    out["reference"]["fair_single"] = fair
     print(hdr); print("\n".join(lines))
     (R / "logs/ar").mkdir(parents=True, exist_ok=True)
     json.dump(out, open(R / "logs/ar/ledger.json", "w"), indent=1)

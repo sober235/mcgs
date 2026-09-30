@@ -1,0 +1,12 @@
+# autoresearch vdPoisMex line, phase 1b (2026-09-30 23:00): phase 1 showed every "more regularisation / less high-band data
+# weight" move loses (kspace_high 1.0: -1.7 dB), so probe the opposite directions, then the backlog knobs. One knob per job.
+# EXP	SINGLE	extra cycle.py args
+ar_q1_kh35	joint	--kspace_high 3.5
+ar_q2_tv05	joint	--lambda_geo 0.05
+ar_q3_wav06	joint	--set loss.lambda_wav_plain=0.06 --set loss.lambda_wav=0.05
+ar_q4_ptv01	joint	--lambda_ptv 0.01
+ar_q6_kc10	joint	--kspace_center 1.0
+ar_q5_n50	joint	--set gaussian.initial_num_points=5000000
+ar_q7_diff05	joint	--set loss.lambda_diff=0.05
+ar_q8_kq70	joint	--edge_tv_kappa_q 0.70
+ar_q9_edge3	joint	--lambda_edge 0.003

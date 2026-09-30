@@ -1,0 +1,30 @@
+09-30 12:48:44 queue: 7 jobs, lanes [5, 0]
+09-30 12:48:44 launched ar_p1_kh10 on gpu 5 pid 74978: SINGLE=joint iters=4000 extra=--kspace_high 1.0
+09-30 12:48:44 launched ar_p2_tv20 on gpu 0 pid 74979: SINGLE=joint iters=4000 extra=--lambda_geo 0.20
+09-30 14:02:44 finished ar_p1_kh10 on gpu 5 rc=0
+09-30 14:06:05 scored ar_p1_kh10 (rc=0)
+09-30 14:06:05 launched ar_p3_wav20 on gpu 5 pid 291408: SINGLE=joint iters=4000 extra=--set loss.lambda_wav_plain=0.20 --set loss.lambda_wav=0.16
+09-30 14:20:05 finished ar_p2_tv20 on gpu 0 rc=0
+09-30 14:23:25 scored ar_p2_tv20 (rc=0)
+09-30 14:23:25 launched ar_p4_ptv10 on gpu 0 pid 460279: SINGLE=joint iters=4000 extra=--lambda_ptv 0.10
+09-30 15:20:25 finished ar_p3_wav20 on gpu 5 rc=0
+09-30 15:23:38 scored ar_p3_wav20 (rc=0)
+09-30 15:23:38 launched ar_p5_it6000 on gpu 5 pid 615946: SINGLE=joint iters=6000 extra=
+09-30 15:35:38 finished ar_p4_ptv10 on gpu 0 rc=0
+09-30 15:38:51 scored ar_p4_ptv10 (rc=0)
+09-30 15:38:51 launched ar_s_pre_e0 on gpu 0 pid 656079: SINGLE=pre iters=4000 extra=--lambda_edge 0
+09-30 16:49:51 finished ar_s_pre_e0 on gpu 0 rc=0
+09-30 16:51:31 scored ar_s_pre_e0 (rc=0)
+09-30 16:51:31 launched ar_s_post_e0 on gpu 0 pid 941045: SINGLE=post iters=4000 extra=--lambda_edge 0
+09-30 17:11:31 finished ar_p5_it6000 on gpu 5 rc=0
+09-30 17:14:44 scored ar_p5_it6000 (rc=0)
+09-30 18:02:44 finished ar_s_post_e0 on gpu 0 rc=0
+09-30 18:04:20 scored ar_s_post_e0 (rc=0)
+09-30 18:05:20 QUEUE DONE
+09-30 23:00:09 queue: 9 jobs, lanes [0, 1, 2, 3, 4, 5]
+09-30 23:00:09 launched ar_q1_kh35 on gpu 0 pid 1939072: SINGLE=joint iters=4000 extra=--kspace_high 3.5
+09-30 23:00:09 launched ar_q2_tv05 on gpu 1 pid 1939073: SINGLE=joint iters=4000 extra=--lambda_geo 0.05
+09-30 23:00:09 launched ar_q3_wav06 on gpu 2 pid 1939074: SINGLE=joint iters=4000 extra=--set loss.lambda_wav_plain=0.06 --set loss.lambda_wav=0.05
+09-30 23:00:09 launched ar_q4_ptv01 on gpu 3 pid 1939077: SINGLE=joint iters=4000 extra=--lambda_ptv 0.01
+09-30 23:00:09 launched ar_q6_kc10 on gpu 4 pid 1939079: SINGLE=joint iters=4000 extra=--kspace_center 1.0
+09-30 23:00:09 launched ar_q5_n50 on gpu 5 pid 1939081: SINGLE=joint iters=4000 extra=--set gaussian.initial_num_points=5000000

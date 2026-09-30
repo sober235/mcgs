@@ -46,18 +46,18 @@ def read_jobs(path):
     return jobs
 
 
-def npz(exp):   return TR / "results_arc" / f"{exp}_volumes.npz"
-def score(exp): return R / "logs" / f"ar_{exp}_pre.json"
+def key_of(exp): return exp if exp.startswith("ar_") else "ar_" + exp   # score key / file prefix; an EXP already named ar_* keeps it
+def npz(exp):    return TR / "results_arc" / f"{exp}_volumes.npz"
 
 
 def extract(job):
     exp, single = job["exp"], job["single"]
     m = {"joint": "pre:plain,post:contrast", "pre": "pre:plain", "post": "post:plain"}[single]
-    cmd = [PY, str(S / "extract_gs_volumes.py"), "--exp", exp, "--key", f"ar_{exp}", "--map", m]
+    cmd = [PY, str(S / "extract_gs_volumes.py"), "--exp", exp, "--key", key_of(exp), "--map", m]
     with open(R / "logs/ar" / f"{exp}_extract.log", "a") as f:
         rc = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT, env=ENV).returncode
     key_scan = "pre" if single != "post" else "post"
-    ok = rc == 0 and (R / "logs" / f"ar_{exp}_{key_scan}.json").exists()
+    ok = rc == 0 and (R / "logs" / f"{key_of(exp)}_{key_scan}.json").exists()
     log(f"{'scored' if ok else 'EXTRACT FAILED'} {exp} (rc={rc})")
     return ok
 
@@ -72,7 +72,7 @@ def main():
     pending = read_jobs(a.jobs); running = {}   # gpu -> (job, Popen)
     for j in list(pending):
         done_scan = "pre" if j["single"] != "post" else "post"
-        if (R / "logs" / f"ar_{j['exp']}_{done_scan}.json").exists():
+        if (R / "logs" / f"{key_of(j['exp'])}_{done_scan}.json").exists():
             log(f"already scored {j['exp']}"); pending.remove(j)
         elif npz(j["exp"]).exists():
             log(f"npz present, scoring only: {j['exp']}"); extract(j); pending.remove(j)
