@@ -1,0 +1,31 @@
+lesion core 6039 voxels; shell = dilate(2) \ erode(2): 8393 voxels
+  pre: head cutoff 0.05000; core median 0.06666 (1.33x cutoff); shell not intersected with head for boundary measures
+  post: head cutoff 0.05000; core median 0.05510 (1.10x cutoff); shell not intersected with head for boundary measures
+
+scored 89 slices (>= 50 shell voxels, >= 2000 head voxels both scans)
+slices where MC-GS ranks 1st of 11 on all 6 conditions (PSNR+shellRMSE+edgeRMSE x pre/post): 7
+
+top 10 by combined (weakest-link) relative margin:
+axisidx  n_shell n_win   combined  pre_psnr  pre_rmse  pre_gerr  post_psnr  post_rmse  post_gerr
+0   205  394     6        +0.0051   OK(+0.1801)   OK(+0.0003)   OK(+0.0002)   OK(+0.2670)   OK(+0.0006)   OK(+0.0004)
+0   204  402     6        +0.0038   OK(+0.1969)   OK(+0.0006)   OK(+0.0003)   OK(+0.2294)   OK(+0.0005)   OK(+0.0000)
+0   206  378     6        +0.0037   OK(+0.1325)   OK(+0.0001)   OK(+0.0003)   OK(+0.2752)   OK(+0.0005)   OK(+0.0005)
+1   130  281     6        +0.0037   OK(+0.1351)   OK(+0.0001)   OK(+0.0003)   OK(+0.1913)   OK(+0.0004)   OK(+0.0010)
+2   53   418     6        +0.0036   OK(+0.1291)   OK(+0.0001)   OK(+0.0001)   OK(+0.1450)   OK(+0.0002)   OK(+0.0001)
+2   54   388     6        +0.0028   OK(+0.0986)   OK(+0.0002)   OK(+0.0002)   OK(+0.1780)   OK(+0.0004)   OK(+0.0005)
+0   203  430     6        +0.0019   OK(+0.1869)   OK(+0.0006)   OK(+0.0004)   OK(+0.2814)   OK(+0.0005)   OK(+0.0000)
+1   140  180     5        -0.0008   OK(+0.1104)   OK(+0.0007)   OK(+0.0009)   OK(+0.1928)   OK(+0.0003)   #2(-0.0000)
+0   201  456     5        -0.0032   OK(+0.1589)   #2(-0.0000)   OK(+0.0002)   OK(+0.2059)   OK(+0.0006)   OK(+0.0006)
+1   126  244     5        -0.0130   OK(+0.1318)   #3(-0.0001)   OK(+0.0001)   OK(+0.2001)   OK(+0.0008)   OK(+0.0003)
+
+BEST ROW: axis 0 index 205  n_win=6/6  pass_all=True
+  pre  psnr : MC-GS #1, MC-GS=35.59003 best_other(gs_single)=35.40990 margin=+0.18013 margin_vs_GS-single=+0.18013
+  pre  rmse : MC-GS #1, MC-GS=0.01178 best_other(jcssense)=0.01213 margin=+0.00035 margin_vs_GS-single=+0.00071
+  pre  gerr : MC-GS #1, MC-GS=0.01471 best_other(jcssense)=0.01488 margin=+0.00017 margin_vs_GS-single=+0.00047
+  post psnr : MC-GS #1, MC-GS=37.91763 best_other(gs_single)=37.65065 margin=+0.26698 margin_vs_GS-single=+0.26698
+  post rmse : MC-GS #1, MC-GS=0.01219 best_other(gs_single)=0.01278 margin=+0.00059 margin_vs_GS-single=+0.00059
+  post gerr : MC-GS #1, MC-GS=0.01432 best_other(gs_single)=0.01474 margin=+0.00042 margin_vs_GS-single=+0.00042
+
+wrote figure /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/figures/ce_retro_af16_lesion_slice_0205.png
+copied to /home/congcongliu/figs/ce_retro_af16/ce_retro_af16_lesion_slice_0205.png
+wrote /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/best_slice_lesion.json

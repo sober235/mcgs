@@ -1,0 +1,27 @@
+{
+  "contrast": "post",
+  "rows": [
+    {
+      "method": "mcinr",
+      "contrast": "post",
+      "psnr": 33.506250901809445,
+      "ssim": 0.6390406508522353,
+      "nmse": 0.05135814352071286,
+      "hfen": 1.022712076836577,
+      "sharp": 1.0954398414560085,
+      "grain": 0.0160723250253033,
+      "seconds": 806.369321346283,
+      "head_psnr": 32.65977508036479,
+      "head_ssim": 0.8590739369392395,
+      "head_hfen": 0.20599521007385585,
+      "grain_ratio": 1.3751888155917749,
+      "head_frac": 0.4325056404903017,
+      "gmax": 1.892245888710022,
+      "head_nmse": 0.027047190830922618,
+      "psnr_cplx": 29.685174976557228
+    }
+  ],
+  "run_meta": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/mcinr_run/meta.json",
+  "M_acquired": 1641.035400390625,
+  "gauge_scale": 243.4532769927959
+}

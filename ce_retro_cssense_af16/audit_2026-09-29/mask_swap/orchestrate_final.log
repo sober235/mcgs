@@ -1,0 +1,137 @@
+09-29 17:33:00 already complete cls_pre (gpu, prio 0)
+09-29 17:33:00 already complete cs_pre_lam0.00025 (gpu, prio 1)
+09-29 17:33:00 already complete cs_pre_lam0.00035 (gpu, prio 1)
+09-29 17:33:00 already complete cs_pre_lam0.0005 (gpu, prio 1)
+09-29 17:33:00 already complete cs_pre_lam0.0007 (gpu, prio 1)
+09-29 17:33:00 already complete cs_pre_lam0.001 (gpu, prio 1)
+09-29 17:33:00 already complete cs_pre_lam0.0014 (gpu, prio 1)
+09-29 17:33:00 already complete cs_pre_lam0.002 (gpu, prio 1)
+09-29 17:33:00 queued spirit_pre_ks3_lam0 (gpu, prio 2)
+09-29 17:33:00 queued spirit_pre_ks3_lam0.0005 (gpu, prio 2)
+09-29 17:33:00 queued spirit_pre_ks3_lam0.001 (gpu, prio 2)
+09-29 17:33:00 queued spirit_pre_ks3_lam0.002 (gpu, prio 2)
+09-29 17:33:00 queued spirit_pre_ks3_lam0.004 (gpu, prio 2)
+09-29 17:33:00 queued spirit_pre_ks3_lam0.008 (gpu, prio 2)
+09-29 17:33:00 queued spirit_pre_ks5_lam0 (gpu, prio 2)
+09-29 17:33:00 queued spirit_pre_ks5_lam0.0005 (gpu, prio 2)
+09-29 17:33:00 queued spirit_pre_ks5_lam0.001 (gpu, prio 2)
+09-29 17:33:00 queued spirit_pre_ks5_lam0.002 (gpu, prio 2)
+09-29 17:33:00 queued spirit_pre_ks5_lam0.004 (gpu, prio 2)
+09-29 17:33:00 queued spirit_pre_ks5_lam0.008 (gpu, prio 2)
+09-29 17:33:00 queued zs_pre (gpu, prio 3)
+09-29 17:33:00 queued dip_pre (gpu, prio 3)
+09-29 17:33:00 queued inr_pre (gpu, prio 3)
+09-29 17:33:00 already complete gs_single_pre (gpu, prio 4)
+09-29 17:33:00 already complete extract_single_pre (gpu, prio 4)
+09-29 17:33:00 already complete cls_post (gpu, prio 0)
+09-29 17:33:00 already complete cs_post_lam0.00025 (gpu, prio 1)
+09-29 17:33:00 already complete cs_post_lam0.00035 (gpu, prio 1)
+09-29 17:33:00 already complete cs_post_lam0.0005 (gpu, prio 1)
+09-29 17:33:00 already complete cs_post_lam0.0007 (gpu, prio 1)
+09-29 17:33:00 already complete cs_post_lam0.001 (gpu, prio 1)
+09-29 17:33:00 already complete cs_post_lam0.0014 (gpu, prio 1)
+09-29 17:33:00 already complete cs_post_lam0.002 (gpu, prio 1)
+09-29 17:33:00 queued spirit_post_ks3_lam0 (gpu, prio 2)
+09-29 17:33:00 queued spirit_post_ks3_lam0.0005 (gpu, prio 2)
+09-29 17:33:00 queued spirit_post_ks3_lam0.001 (gpu, prio 2)
+09-29 17:33:00 queued spirit_post_ks3_lam0.002 (gpu, prio 2)
+09-29 17:33:00 queued spirit_post_ks3_lam0.004 (gpu, prio 2)
+09-29 17:33:00 queued spirit_post_ks3_lam0.008 (gpu, prio 2)
+09-29 17:33:00 queued spirit_post_ks5_lam0 (gpu, prio 2)
+09-29 17:33:00 queued spirit_post_ks5_lam0.0005 (gpu, prio 2)
+09-29 17:33:00 queued spirit_post_ks5_lam0.001 (gpu, prio 2)
+09-29 17:33:00 queued spirit_post_ks5_lam0.002 (gpu, prio 2)
+09-29 17:33:00 queued spirit_post_ks5_lam0.004 (gpu, prio 2)
+09-29 17:33:00 queued spirit_post_ks5_lam0.008 (gpu, prio 2)
+09-29 17:33:00 queued zs_post (gpu, prio 3)
+09-29 17:33:00 queued dip_post (gpu, prio 3)
+09-29 17:33:00 queued inr_post (gpu, prio 3)
+09-29 17:33:00 already complete gs_single_post (gpu, prio 4)
+09-29 17:33:00 already complete extract_single_post (gpu, prio 4)
+09-29 17:33:00 queued joint_lam0.0005 (gpu, prio 1)
+09-29 17:33:00 queued joint_lam0.0007 (gpu, prio 1)
+09-29 17:33:00 queued joint_lam0.001 (gpu, prio 1)
+09-29 17:33:00 queued joint_lam0.0014 (gpu, prio 1)
+09-29 17:33:00 queued joint_lam0.002 (gpu, prio 1)
+09-29 17:33:00 queued mcinr (gpu, prio 3)
+09-29 17:33:00 already complete gs_joint (gpu, prio 4)
+09-29 17:33:00 already complete extract_joint (gpu, prio 4)
+09-29 17:33:00 queued summarize (cpu, prio 9)
+09-29 17:33:00 launched joint_lam0.0005 on gpu 0 pid 2154554
+09-29 17:33:00 launched joint_lam0.0007 on gpu 1 pid 2154570
+09-29 17:33:00 launched joint_lam0.001 on gpu 2 pid 2154635
+09-29 17:33:00 launched joint_lam0.0014 on gpu 4 pid 2154709
+09-29 17:50:08 done joint_lam0.0005 (gpu 0)
+09-29 17:50:08 done joint_lam0.001 (gpu 2)
+09-29 17:50:08 done joint_lam0.0014 (gpu 4)
+09-29 17:50:08 launched joint_lam0.002 on gpu 0 pid 2254678
+09-29 17:50:08 launched spirit_pre_ks3_lam0 on gpu 2 pid 2254680
+09-29 17:50:08 launched spirit_pre_ks3_lam0.0005 on gpu 4 pid 2254746
+09-29 17:50:29 done joint_lam0.0007 (gpu 1)
+09-29 17:50:29 launched spirit_pre_ks3_lam0.001 on gpu 1 pid 2256582
+09-29 17:56:23 done spirit_pre_ks3_lam0 (gpu 2)
+09-29 17:56:24 launched spirit_pre_ks3_lam0.002 on gpu 2 pid 2282422
+09-29 18:02:39 done spirit_pre_ks3_lam0.0005 (gpu 4)
+09-29 18:02:39 launched spirit_pre_ks3_lam0.004 on gpu 4 pid 2306691
+09-29 18:03:21 done spirit_pre_ks3_lam0.001 (gpu 1)
+09-29 18:03:21 launched spirit_pre_ks3_lam0.008 on gpu 1 pid 2310029
+09-29 18:07:10 done joint_lam0.002 (gpu 0)
+09-29 18:07:10 queued joint_lam0.00036 (gpu, prio 1)
+09-29 18:07:10 launched joint_lam0.00036 on gpu 0 pid 2334258
+09-29 18:08:54 done spirit_pre_ks3_lam0.002 (gpu 2)
+09-29 18:08:54 launched spirit_pre_ks5_lam0 on gpu 2 pid 2340441
+09-29 18:15:08 done spirit_pre_ks3_lam0.004 (gpu 4)
+09-29 18:15:08 launched spirit_pre_ks5_lam0.0005 on gpu 4 pid 2362179
+09-29 18:16:11 done spirit_pre_ks3_lam0.008 (gpu 1)
+09-29 18:16:11 launched spirit_pre_ks5_lam0.001 on gpu 5 pid 2365936
+09-29 18:24:08 done joint_lam0.00036 (gpu 0)
+09-29 18:24:08 launched spirit_pre_ks5_lam0.002 on gpu 0 pid 2393715
+09-29 18:27:35 done spirit_pre_ks5_lam0 (gpu 2)
+09-29 18:27:35 launched spirit_pre_ks5_lam0.004 on gpu 1 pid 2406364
+09-29 18:41:02 done spirit_pre_ks5_lam0.0005 (gpu 4)
+09-29 18:41:03 launched spirit_pre_ks5_lam0.008 on gpu 2 pid 2455329
+09-29 18:43:27 done spirit_pre_ks5_lam0.001 (gpu 5)
+09-29 18:43:27 launched spirit_post_ks3_lam0 on gpu 4 pid 2464419
+09-29 18:48:37 done spirit_pre_ks5_lam0.002 (gpu 0)
+09-29 18:48:37 launched spirit_post_ks3_lam0.0005 on gpu 0 pid 2485898
+09-29 18:49:39 done spirit_post_ks3_lam0 (gpu 4)
+09-29 18:49:39 launched spirit_post_ks3_lam0.001 on gpu 4 pid 2492579
+09-29 18:53:46 done spirit_pre_ks5_lam0.004 (gpu 1)
+09-29 18:53:47 launched spirit_post_ks3_lam0.002 on gpu 1 pid 2512735
+09-29 19:01:19 done spirit_post_ks3_lam0.0005 (gpu 0)
+09-29 19:01:19 launched spirit_post_ks3_lam0.004 on gpu 0 pid 2540096
+09-29 19:02:20 done spirit_post_ks3_lam0.001 (gpu 4)
+09-29 19:02:21 launched spirit_post_ks3_lam0.008 on gpu 4 pid 2543786
+09-29 19:06:47 done spirit_post_ks3_lam0.002 (gpu 1)
+09-29 19:06:47 launched spirit_post_ks5_lam0 on gpu 1 pid 2557375
+09-29 19:07:08 done spirit_pre_ks5_lam0.008 (gpu 2)
+09-29 19:07:08 launched spirit_post_ks5_lam0.0005 on gpu 2 pid 2558835
+09-29 19:13:57 done spirit_post_ks3_lam0.004 (gpu 0)
+09-29 19:13:57 launched spirit_post_ks5_lam0.001 on gpu 0 pid 2581559
+09-29 19:14:58 done spirit_post_ks3_lam0.008 (gpu 4)
+09-29 19:14:59 launched spirit_post_ks5_lam0.002 on gpu 4 pid 2585423
+09-29 19:27:13 done spirit_post_ks5_lam0 (gpu 1)
+09-29 19:27:13 launched spirit_post_ks5_lam0.004 on gpu 1 pid 2628188
+09-29 19:33:20 done spirit_post_ks5_lam0.0005 (gpu 2)
+09-29 19:33:21 launched spirit_post_ks5_lam0.008 on gpu 2 pid 2652169
+09-29 19:39:27 done spirit_post_ks5_lam0.001 (gpu 0)
+09-29 19:39:27 launched zs_pre on gpu 3 pid 2667482
+09-29 19:40:28 done spirit_post_ks5_lam0.002 (gpu 4)
+09-29 19:40:28 launched dip_pre on gpu 0 pid 2668529
+09-29 19:54:20 done spirit_post_ks5_lam0.004 (gpu 1)
+09-29 19:54:21 launched inr_pre on gpu 1 pid 2681656
+09-29 20:00:46 done spirit_post_ks5_lam0.008 (gpu 2)
+09-29 20:00:46 launched zs_post on gpu 2 pid 2687859
+09-29 20:45:40 done zs_pre (gpu 3)
+09-29 20:45:40 launched dip_post on gpu 3 pid 2727526
+09-29 21:01:51 done dip_pre (gpu 0)
+09-29 21:01:51 launched inr_post on gpu 0 pid 2742442
+09-29 21:40:16 done dip_post (gpu 3)
+09-29 21:40:16 launched mcinr on gpu 3 pid 2775861
+09-29 21:57:46 done mcinr (gpu 3)
+09-29 22:37:08 done inr_pre (gpu 1)
+09-29 23:25:16 done zs_post (gpu 2)
+09-29 23:41:46 done inr_post (gpu 0)
+09-29 23:41:46 launched summarize on cpu pid 2918708
+09-29 23:42:06 done summarize (gpu -1)
+09-29 23:42:06 ALL DONE

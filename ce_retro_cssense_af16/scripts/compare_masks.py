@@ -17,7 +17,9 @@ import numpy as np
 
 OLD = Path("/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16")
 NEW = Path("/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois")
-ARMS = [("zf", "ZF"), ("cgsense", "CG-SENSE"), ("cssense_o200", "CS-SENSE"), ("gs_single", "GS-single"), ("gs_joint", "MC-GS")]
+ARMS = [("zf", "ZF"), ("cgsense", "CG-SENSE"), ("cssense_o200", "CS-SENSE"), ("jcssense", "Joint SENSE"), ("spirit", "L1-SPIRiT"),
+        ("zsssdu", "ZS-SSDU"), ("dip", "3D-DIP"), ("inr", "3D-INR"), ("mcinr", "MC-INR"), ("gs_single", "GS-single"), ("gs_joint", "MC-GS")]
+# (2026-09-30: all eleven registered arms once the whole line was migrated; the first five were the 09-29 four-arm comparison)
 BANDS = [(0, 0.1), (0.1, 0.2), (0.2, 0.3), (0.3, 0.4), (0.4, 0.6), (0.6, 0.8), (0.8, 1.0), (1.0, 1.5)]
 METRICS = ("head_psnr", "head_ssim", "head_nmse", "head_hfen")
 
@@ -27,8 +29,13 @@ def fft2c(x):
 
 
 def volume_path(topic, key, scan, row):
+    """Same resolution as arms.arm_files(): the swept families live under the lambda / kernel summarize.py kept."""
     if key == "cssense_o200":
         return topic / f"recon/cssense_o200_lam{row['lam']:g}_{scan}_complex.npy"
+    if key == "jcssense":
+        return topic / f"recon/jcssense_o200_lam{row['lam']:g}_{scan}_complex.npy"
+    if key == "spirit":
+        return topic / f"recon/spirit_ks{row['ksize']}_lam{row['lam']:g}_{scan}_complex.npy"
     return topic / f"recon/{key}_{scan}_complex.npy"
 
 
@@ -90,7 +97,8 @@ def main():
         for x in ax.ravel(): x.axis("off")
         plt.tight_layout(); fn = figdir / f"mask_swap_axial_z{a.z}_{scan}.png"; plt.savefig(fn, dpi=110); plt.close(); shutil.copy(fn, pub / fn.name)
     fig, ax = plt.subplots(1, 2, figsize=(12, 4.5))
-    centres = [(b[0] + b[1]) / 2 for b in BANDS]; colors = dict(zip([l for _, l in ARMS], ["k", "tab:blue", "tab:orange", "tab:purple", "tab:red"]))
+    centres = [(b[0] + b[1]) / 2 for b in BANDS]
+    colors = dict(zip([l for _, l in ARMS], ["k", "tab:blue", "tab:orange", "tab:brown", "tab:olive", "tab:green", "tab:gray", "tab:pink", "tab:cyan", "tab:purple", "tab:red"]))
     for k, scan in enumerate(out):
         for label, r in out[scan].items():
             ax[k].semilogy(centres, [r["bart"]["band_nmse"][f"{b[0]}-{b[1]}"] for b in BANDS], "-o", color=colors[label], label=f"{label} BART", ms=4)

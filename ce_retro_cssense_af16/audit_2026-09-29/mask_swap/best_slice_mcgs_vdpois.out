@@ -1,0 +1,29 @@
+axis 0: eligible slices (head area >= 0.5 of max, both contrasts): 30..219  n=190
+pre   MC-GS first on 190/190 eligible slices; own best slice 216: margin +0.222 dB over GS-single
+post  MC-GS first on 184/190 eligible slices; own best slice 166: margin +0.331 dB over GS-single
+MC-GS first on both contrasts on 184/190 eligible slices
+distinct candidates (>= 6 apart) by the smaller margin over all others:
+  slice 215: over all others pre +0.204 [GS-single] post +0.210 [GS-single] | over best non-GS pre +0.419 [Joint SENSE] post +0.350 [CS-SENSE]
+  slice 187: over all others pre +0.200 [GS-single] post +0.272 [GS-single] | over best non-GS pre +0.473 [Joint SENSE] post +0.406 [CS-SENSE]
+  slice 209: over all others pre +0.198 [GS-single] post +0.211 [GS-single] | over best non-GS pre +0.232 [Joint SENSE] post +0.294 [CS-SENSE]
+  slice 203: over all others pre +0.187 [GS-single] post +0.281 [GS-single] | over best non-GS pre +0.218 [Joint SENSE] post +0.340 [CS-SENSE]
+  slice 197: over all others pre +0.174 [GS-single] post +0.280 [GS-single] | over best non-GS pre +0.433 [Joint SENSE] post +0.411 [CS-SENSE]
+  slice 177: over all others pre +0.172 [GS-single] post +0.277 [GS-single] | over best non-GS pre +0.460 [Joint SENSE] post +0.476 [CS-SENSE]
+  slice 170: over all others pre +0.158 [GS-single] post +0.264 [GS-single] | over best non-GS pre +0.538 [Joint SENSE] post +0.376 [CS-SENSE]
+  slice 158: over all others pre +0.135 [GS-single] post +0.293 [GS-single] | over best non-GS pre +0.696 [Joint SENSE] post +0.442 [CS-SENSE]
+distinct candidates among the both-first slices by the smaller lead over the best non-GS method:
+  slice 162: over all others pre +0.103 [GS-single] post +0.329 [GS-single] | over best non-GS pre +0.775 [Joint SENSE] post +0.622 [CS-SENSE]
+  slice 181: over all others pre +0.152 [GS-single] post +0.318 [GS-single] | over best non-GS pre +0.555 [Joint SENSE] post +0.511 [CS-SENSE]
+  slice 154: over all others pre +0.099 [GS-single] post +0.235 [GS-single] | over best non-GS pre +0.651 [Joint SENSE] post +0.490 [CS-SENSE]
+  slice 172: over all others pre +0.129 [GS-single] post +0.263 [GS-single] | over best non-GS pre +0.485 [Joint SENSE] post +0.451 [CS-SENSE]
+  slice 188: over all others pre +0.197 [GS-single] post +0.250 [GS-single] | over best non-GS pre +0.419 [Joint SENSE] post +0.457 [CS-SENSE]
+  slice 197: over all others pre +0.174 [GS-single] post +0.280 [GS-single] | over best non-GS pre +0.433 [Joint SENSE] post +0.411 [CS-SENSE]
+  slice 219: over all others pre +0.187 [GS-single] post +0.198 [GS-single] | over best non-GS pre +0.415 [ZS-SSDU] post +0.400 [CS-SENSE]
+  slice 148: over all others pre +0.115 [GS-single] post +0.249 [GS-single] | over best non-GS pre +0.637 [Joint SENSE] post +0.387 [CS-SENSE]
+CHOSEN slice 215:
+  pre   ZF 24.791  CG-SENSE 32.773  CS-SENSE 34.926  Joint SENSE 35.050  L1-SPIRiT 33.016  ZS-SSDU 35.001  3D-DIP 31.278  3D-INR 28.896  MC-INR 31.178  GS-single 35.265  MC-GS 35.469
+  post  ZF 25.938  CG-SENSE 34.139  CS-SENSE 37.046  Joint SENSE 36.894  L1-SPIRiT 35.110  ZS-SSDU 36.223  3D-DIP 30.692  3D-INR 31.212  MC-INR 33.059  GS-single 37.185  MC-GS 37.396
+reference slice 168:
+  pre   ZF 26.279  CG-SENSE 32.360  CS-SENSE 35.305  Joint SENSE 35.444  L1-SPIRiT 33.793  ZS-SSDU 34.770  3D-DIP 32.301  3D-INR 28.955  MC-INR 30.227  GS-single 35.974  MC-GS 36.074
+  post  ZF 28.055  CG-SENSE 34.174  CS-SENSE 37.499  Joint SENSE 37.239  L1-SPIRiT 35.626  ZS-SSDU 35.970  3D-DIP 32.422  3D-INR 31.321  MC-INR 33.131  GS-single 37.631  MC-GS 37.936
+wrote /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/logs/best_slice_mcgs.json
