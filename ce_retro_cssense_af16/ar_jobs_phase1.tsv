@@ -1,0 +1,10 @@
+# autoresearch vdPoisMex line, phase 1 (2026-09-30): one knob per job, MC-GS joint recipe otherwise frozen (run_gs.sh)
+# EXP	SINGLE	extra cycle.py args (override the frozen recipe; last occurrence wins)
+ar_p1_kh10	joint	--kspace_high 1.0
+ar_p2_tv20	joint	--lambda_geo 0.20
+ar_p3_wav20	joint	--set loss.lambda_wav_plain=0.20 --set loss.lambda_wav=0.16
+ar_p4_ptv10	joint	--lambda_ptv 0.10
+ar_p5_it6000	joint	--iters 6000
+# fair GS-single baseline at the frozen recipe (rule A: lambda_edge 0), needed for every margin quoted in this loop
+ar_s_pre_e0	pre	--lambda_edge 0
+ar_s_post_e0	post	--lambda_edge 0
