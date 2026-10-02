@@ -7,7 +7,7 @@ set -uo pipefail
 if [[ $# -lt 3 ]]; then echo "usage: $0 EXP GPU ITERS [extra cycle.py args...]" >&2; exit 2; fi
 EXP=$1; GPU=$2; ITERS=$3; shift 3
 T=${RETRO_TOPIC:-/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16}
-TR=$T/trainer/_trainer_e778bf2
+TR=${RETRO_TRAINER:-$T/trainer/_trainer_e778bf2}   # RETRO_TRAINER: an alternative trainer copy (2026-10-02 autoresearch: _trainer_e778bf2_ar)
 PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
 WARMUP=${WARMUP:-500}
 case "${SINGLE:-joint}" in

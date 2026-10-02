@@ -4,8 +4,10 @@ best non-GS arm and the GS-single baselines, on the head-only gauge, with the pr
 
 Rows come from logs/ar_<exp>_<scan>.json (written by ar_queue.py via extract_gs_volumes.py); the reference numbers
 from logs/summary.json (the registered eleven arms). Reading rule (autoresearch_vdpois.md): KEEP if both scans gain
->= +0.05 dB head PSNR over the frozen MC-GS and none of SSIM / NMSE / HFEN regresses on either scan; MIXED if the PSNR
-gain is one-sided; DROP otherwise. GS-single runs (ar_s_*) are listed as baselines, not read.
+>= +0.05 dB head PSNR over the frozen MC-GS and none of SSIM / NMSE / HFEN regresses on either scan; KEEP(<scan>) if
+that scan gains >= +0.05 with its side metrics intact while the other scan stays >= -0.01 (added 2026-10-02, before the
+phase-2 runs scored, for the per-contrast probes); MIXED if the PSNR gain is one-sided otherwise; DROP otherwise.
+GS-single runs (ar_s_*) are listed as baselines, not read.
   python scripts/ar_ledger.py            # prints the table; writes logs/ar/ledger.json and ledger.md
 """
 import glob, json, os
@@ -14,6 +16,7 @@ from pathlib import Path
 R = Path(os.environ.get("RETRO_TOPIC", "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois"))
 M = ("head_psnr", "head_ssim", "head_nmse", "head_hfen")
 GAIN = 0.05
+HOLD = 0.01   # "the other scan does not move": no worse than -0.01 dB
 
 
 def row_of(path):
@@ -41,24 +44,31 @@ def main():
     for exp, sc in runs.items():
         is_single = exp.startswith("ar_s_") or exp.startswith("s_")
         base_key = "gs_single" if is_single else "gs_joint"
-        deltas, ok_metrics, gains = {}, True, []
+        deltas, ok_scan, gains = {}, {}, []
         for scan in ("pre", "post"):
             if scan not in sc:
                 continue
             b = ref[(scan, base_key)]; r = sc[scan]
             d = {m: r[m] - b[m] for m in M}; deltas[scan] = d; gains.append(d["head_psnr"])
-            if d["head_ssim"] < -1e-4 or d["head_nmse"] > 1e-5 or d["head_hfen"] > 1e-4:
-                ok_metrics = False
+            ok_scan[scan] = not (d["head_ssim"] < -1e-4 or d["head_nmse"] > 1e-5 or d["head_hfen"] > 1e-4)
+        ok_metrics = all(ok_scan.values())
         if is_single:
             reading = "baseline"
         elif len(gains) < 2:
             reading = "incomplete"
         elif all(g >= GAIN for g in gains) and ok_metrics:
             reading = "KEEP"
-        elif any(g >= GAIN for g in gains) and not all(g < 0 for g in gains):
-            reading = "MIXED"
         else:
-            reading = "DROP"
+            # single-scan keep (registered 2026-10-02 before phase 2 scored): that scan >= +GAIN with its side metrics
+            # intact, the other scan >= -HOLD; such a knob enters the combination on that channel only
+            one = [s for s, o in (("pre", "post"), ("post", "pre"))
+                   if deltas[s]["head_psnr"] >= GAIN and ok_scan[s] and deltas[o]["head_psnr"] >= -HOLD]
+            if one:
+                reading = f"KEEP({one[0]})"
+            elif any(g >= GAIN for g in gains) and not all(g < 0 for g in gains):
+                reading = "MIXED"
+            else:
+                reading = "DROP"
         def f(scan):
             if scan not in sc: return "—", "—"
             r, d = sc[scan], deltas[scan]

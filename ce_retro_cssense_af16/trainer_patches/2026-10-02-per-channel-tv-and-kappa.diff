@@ -1,0 +1,79 @@
+--- _trainer_e778bf2/paired_gs/trainers/joint_trainer.py	2026-09-12 23:38:28.000000000 +0800
++++ _trainer_e778bf2_ar/paired_gs/trainers/joint_trainer.py	2026-10-02 22:21:41.071070424 +0800
+@@ -789,6 +789,15 @@
+             lambda_geo = float(loss_cfg["tv_weight"])
+         else:
+             lambda_geo = float(loss_cfg.get("lambda_geo", 5e-4))
++        # per-channel TV strengths (autoresearch 2026-10-02). Absent keys -> geo_split False -> the historical
++        # shared-lambda_geo branch below, unchanged.
++        _geo_p_cfg = loss_cfg.get("lambda_geo_plain")
++        _geo_c_cfg = loss_cfg.get("lambda_geo_contrast")
++        geo_split = _geo_p_cfg is not None or _geo_c_cfg is not None
++        geo_p = float(_geo_p_cfg) if _geo_p_cfg is not None else lambda_geo
++        geo_c = float(_geo_c_cfg) if _geo_c_cfg is not None else lambda_geo
++        if geo_split:
++            print(f"[tv_split] lambda_geo plain {geo_p} contrast {geo_c} (shared {lambda_geo})")
+         if "lambda_diff" in loss_cfg or "lambda_enh" in loss_cfg:
+             warnings.warn(
+                 "loss.lambda_diff / loss.lambda_enh are silently ignored "
+@@ -881,6 +890,9 @@
+         _kappa_refresh = 0
+         if self._edge_tv:
+             _kq = float(_loss_cfg.get("edge_tv_kappa_q", 0.75))
++            # per-channel quantiles (autoresearch 2026-10-02); both default to _kq, i.e. the historical value
++            _kq_p = float(_loss_cfg.get("edge_tv_kappa_q_plain", _kq))
++            _kq_c = float(_loss_cfg.get("edge_tv_kappa_q_contrast", _kq))
+             # kappa is resolved ONCE. 'render' (historical) reads the initial render, which is a
+             # meaningful image only after a warm start; a cold start's first render is speckle.
+             # 'zf' reads the measured zero-filled image instead. edge_tv_kappa_refresh_iter > 0
+@@ -889,16 +901,18 @@
+             _kappa_refresh = int(_loss_cfg.get("edge_tv_kappa_refresh_iter", 0))
+             with torch.no_grad():
+                 if _ksrc == "render":
+-                    self._edge_kappa_p = resolve_edge_kappa(self._render("plain"), _kq)
+-                    self._edge_kappa_c = resolve_edge_kappa(self._render("contrast"), _kq)
++                    self._edge_kappa_p = resolve_edge_kappa(self._render("plain"), _kq_p)
++                    self._edge_kappa_c = resolve_edge_kappa(self._render("contrast"), _kq_c)
+                 elif _ksrc == "zf":
+-                    self._edge_kappa_p = resolve_edge_kappa(self.zf_p, _kq)
+-                    self._edge_kappa_c = resolve_edge_kappa(self.zf_c, _kq)
++                    self._edge_kappa_p = resolve_edge_kappa(self.zf_p, _kq_p)
++                    self._edge_kappa_c = resolve_edge_kappa(self.zf_c, _kq_c)
+                 else:
+                     raise ValueError(f"loss.edge_tv_kappa_source must be 'render' or 'zf', got {_ksrc!r}")
+             print(f"[edge_tv] kappa_q={_kq} source={_ksrc} refresh_iter={_kappa_refresh} -> "
+                   f"kappa_plain={self._edge_kappa_p:.5f} kappa_contrast={self._edge_kappa_c:.5f} "
+                   f"w_floor={self._edge_tv_wfloor}")
++            if _kq_p != _kq or _kq_c != _kq:
++                print(f"[edge_tv_split] kappa_q plain {_kq_p} contrast {_kq_c}")
+ 
+         log_path = self.out_dir / "joint_train.log"
+         log_f = open(log_path, "w")
+@@ -920,8 +934,8 @@
+             vol_c = self._render("contrast")
+             if self._edge_tv and _kappa_refresh > 0 and it == _kappa_refresh:
+                 with torch.no_grad():
+-                    self._edge_kappa_p = resolve_edge_kappa(vol_p, float(_loss_cfg.get("edge_tv_kappa_q", 0.75)))
+-                    self._edge_kappa_c = resolve_edge_kappa(vol_c, float(_loss_cfg.get("edge_tv_kappa_q", 0.75)))
++                    self._edge_kappa_p = resolve_edge_kappa(vol_p, float(_loss_cfg.get("edge_tv_kappa_q_plain", _loss_cfg.get("edge_tv_kappa_q", 0.75))))
++                    self._edge_kappa_c = resolve_edge_kappa(vol_c, float(_loss_cfg.get("edge_tv_kappa_q_contrast", _loss_cfg.get("edge_tv_kappa_q", 0.75))))
+                 print(f"[edge_tv] kappa refreshed at iter {it}: kappa_plain={self._edge_kappa_p:.5f} "
+                       f"kappa_contrast={self._edge_kappa_c:.5f}")
+ 
+@@ -933,7 +947,15 @@
+ 
+             # R_geo (renamed from v1 L_tv per INF-05 / A-LOSS-DROP; PDF §1.5
+             # casts this term as a geometry regularizer in the ELBO).
+-            if lambda_geo > 0:
++            if lambda_geo > 0 and geo_split:
++                if self._edge_tv:
++                    _tv_p = edge_preserving_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor, self._tv_eps, self._tv_vector)
++                    _tv_c = edge_preserving_tv(vol_c, self._edge_kappa_c, self._edge_tv_wfloor, self._tv_eps, self._tv_vector)
++                else:
++                    _tv_p, _tv_c = self._tv_loss(vol_p), self._tv_loss(vol_c)
++                loss = loss + geo_p * _tv_p + geo_c * _tv_c
++                l_geo = (geo_p * _tv_p + geo_c * _tv_c).detach() / lambda_geo   # on the shared scale, for the log only
++            elif lambda_geo > 0:
+                 if self._edge_tv:
+                     l_geo = (edge_preserving_tv(vol_p, self._edge_kappa_p, self._edge_tv_wfloor,
+                                                 self._tv_eps, self._tv_vector)

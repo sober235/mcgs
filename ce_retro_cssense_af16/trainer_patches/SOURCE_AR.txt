@@ -1,0 +1,4 @@
+copy of ../_trainer_e778bf2 (git archive e778bf2 + cuda_ext build) made 2026-10-02 for the autoresearch loop on the vdPoisMex line.
+One patch, paired_gs/trainers/joint_trainer.py: per-channel TV strength (loss.lambda_geo_plain / loss.lambda_geo_contrast)
+and per-channel edge-TV quantile (loss.edge_tv_kappa_q_plain / _contrast). Absent keys take the original code path bit for bit;
+control run ar_r0_ctrl (frozen recipe on this copy) checks that. The registered runs stay on ../_trainer_e778bf2, untouched.

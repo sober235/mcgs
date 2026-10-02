@@ -1,0 +1,19 @@
+# autoresearch vdPoisMex line, phase 2 (2026-10-02 22:30), trainer copy _trainer_e778bf2_ar (per-channel TV / edge-TV quantile keys).
+# Phase 1b read: every single-knob move lost or split by scan; post wants less regularisation (TV 0.05 +0.124, wav 0.06/0.05 +0.105,
+# kappa_q 0.70 +0.069) while pre loses slightly on each. Pre-registered rule says "MIXED -> midpoint once"; the scan-split responses
+# also make per-contrast strengths the direct test. channel 'plain' = pre, 'contrast' = post in the joint config.
+# EXP	SINGLE	extra cycle.py args
+ar_r0_ctrl	joint	
+ar_r1_tvc05	joint	--set loss.lambda_geo_contrast=0.05
+ar_r2_wavc05	joint	--set loss.lambda_wav_contrast=0.05
+ar_r3_kqc70	joint	--set loss.edge_tv_kappa_q_contrast=0.70
+ar_r8_edge0	joint	--lambda_edge 0
+ar_r9_tvvec	joint	--tv_vector
+ar_r10_eps02	joint	--tv_eps 0.02
+ar_r4_khc28	joint	--kspace_high 2.8 --kspace_high_plain 2.2
+ar_r11_kh27	joint	--kspace_high 2.7
+ar_r5_tv075	joint	--lambda_geo 0.075
+ar_r6_wavmid	joint	--set loss.lambda_wav_plain=0.09 --set loss.lambda_wav=0.075
+ar_r7_kq775	joint	--edge_tv_kappa_q 0.775
+ar_r12_wf05	joint	--edge_tv_wfloor 0.05
+ar_r13_tvc03	joint	--set loss.lambda_geo_contrast=0.03
