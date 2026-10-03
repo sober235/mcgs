@@ -28,3 +28,77 @@
 09-30 23:00:09 launched ar_q4_ptv01 on gpu 3 pid 1939077: SINGLE=joint iters=4000 extra=--lambda_ptv 0.01
 09-30 23:00:09 launched ar_q6_kc10 on gpu 4 pid 1939079: SINGLE=joint iters=4000 extra=--kspace_center 1.0
 09-30 23:00:09 launched ar_q5_n50 on gpu 5 pid 1939081: SINGLE=joint iters=4000 extra=--set gaussian.initial_num_points=5000000
+10-01 00:13:09 finished ar_q1_kh35 on gpu 0 rc=0
+10-01 00:16:24 scored ar_q1_kh35 (rc=0)
+10-01 00:16:24 finished ar_q2_tv05 on gpu 1 rc=0
+10-01 00:19:37 scored ar_q2_tv05 (rc=0)
+10-01 00:19:37 finished ar_q3_wav06 on gpu 2 rc=0
+10-01 00:22:49 scored ar_q3_wav06 (rc=0)
+10-01 00:22:49 finished ar_q4_ptv01 on gpu 3 rc=0
+10-01 00:26:04 scored ar_q4_ptv01 (rc=0)
+10-01 00:26:04 finished ar_q6_kc10 on gpu 4 rc=0
+10-01 00:29:14 scored ar_q6_kc10 (rc=0)
+10-01 00:29:14 finished ar_q5_n50 on gpu 5 rc=0
+10-01 00:32:23 scored ar_q5_n50 (rc=0)
+10-01 00:32:23 launched ar_q7_diff05 on gpu 0 pid 2164219: SINGLE=joint iters=4000 extra=--set loss.lambda_diff=0.05
+10-01 00:32:23 launched ar_q8_kq70 on gpu 1 pid 2164220: SINGLE=joint iters=4000 extra=--edge_tv_kappa_q 0.70
+10-01 00:32:23 launched ar_q9_edge3 on gpu 2 pid 2164222: SINGLE=joint iters=4000 extra=--lambda_edge 0.003
+10-01 01:45:23 finished ar_q7_diff05 on gpu 0 rc=0
+10-01 01:48:37 scored ar_q7_diff05 (rc=0)
+10-01 01:48:37 finished ar_q8_kq70 on gpu 1 rc=0
+10-01 01:51:52 scored ar_q8_kq70 (rc=0)
+10-01 01:51:52 finished ar_q9_edge3 on gpu 2 rc=0
+10-01 01:55:07 scored ar_q9_edge3 (rc=0)
+10-01 01:56:07 QUEUE DONE
+10-02 22:23:56 queue: 14 jobs, lanes [0, 1, 2, 3, 4, 5, 6]
+10-02 22:23:56 launched ar_r0_ctrl on gpu 0 pid 2725293: SINGLE=joint iters=4000 extra=
+10-02 22:23:56 launched ar_r1_tvc05 on gpu 1 pid 2725294: SINGLE=joint iters=4000 extra=--set loss.lambda_geo_contrast=0.05
+10-02 22:23:56 launched ar_r2_wavc05 on gpu 2 pid 2725296: SINGLE=joint iters=4000 extra=--set loss.lambda_wav_contrast=0.05
+10-02 22:23:56 launched ar_r3_kqc70 on gpu 3 pid 2725297: SINGLE=joint iters=4000 extra=--set loss.edge_tv_kappa_q_contrast=0.70
+10-02 22:23:56 launched ar_r8_edge0 on gpu 4 pid 2725300: SINGLE=joint iters=4000 extra=--lambda_edge 0
+10-02 22:23:56 launched ar_r9_tvvec on gpu 5 pid 2725302: SINGLE=joint iters=4000 extra=--tv_vector
+10-02 22:23:56 launched ar_r10_eps02 on gpu 6 pid 2725304: SINGLE=joint iters=4000 extra=--tv_eps 0.02
+10-02 23:38:56 finished ar_r3_kqc70 on gpu 3 rc=0
+10-02 23:42:56 scored ar_r3_kqc70 (rc=0)
+10-02 23:42:56 finished ar_r8_edge0 on gpu 4 rc=0
+10-02 23:46:50 scored ar_r8_edge0 (rc=0)
+10-02 23:46:50 finished ar_r10_eps02 on gpu 6 rc=0
+10-02 23:50:50 scored ar_r10_eps02 (rc=0)
+10-02 23:50:50 launched ar_r4_khc28 on gpu 3 pid 3004610: SINGLE=joint iters=4000 extra=--kspace_high 2.8 --kspace_high_plain 2.2
+10-02 23:50:50 launched ar_r11_kh27 on gpu 4 pid 3004611: SINGLE=joint iters=4000 extra=--kspace_high 2.7
+10-02 23:50:50 launched ar_r5_tv075 on gpu 6 pid 3004613: SINGLE=joint iters=4000 extra=--lambda_geo 0.075
+10-02 23:51:50 finished ar_r0_ctrl on gpu 0 rc=0
+10-02 23:55:49 scored ar_r0_ctrl (rc=0)
+10-02 23:55:49 finished ar_r1_tvc05 on gpu 1 rc=0
+10-02 23:59:42 scored ar_r1_tvc05 (rc=0)
+10-02 23:59:42 finished ar_r2_wavc05 on gpu 2 rc=0
+10-03 00:03:06 scored ar_r2_wavc05 (rc=0)
+10-03 00:03:06 launched ar_r6_wavmid on gpu 0 pid 3027892: SINGLE=joint iters=4000 extra=--set loss.lambda_wav_plain=0.09 --set loss.lambda_wav=0.075
+10-03 00:03:06 launched ar_r7_kq775 on gpu 1 pid 3027893: SINGLE=joint iters=4000 extra=--edge_tv_kappa_q 0.775
+10-03 00:03:06 launched ar_r12_wf05 on gpu 2 pid 3027895: SINGLE=joint iters=4000 extra=--edge_tv_wfloor 0.05
+10-03 01:04:06 finished ar_r4_khc28 on gpu 3 rc=0
+10-03 01:07:20 scored ar_r4_khc28 (rc=0)
+10-03 01:07:20 finished ar_r11_kh27 on gpu 4 rc=0
+10-03 01:10:33 scored ar_r11_kh27 (rc=0)
+10-03 01:10:33 finished ar_r5_tv075 on gpu 6 rc=0
+10-03 01:13:46 scored ar_r5_tv075 (rc=0)
+10-03 01:13:46 launched ar_r13_tvc03 on gpu 3 pid 3138642: SINGLE=joint iters=4000 extra=--set loss.lambda_geo_contrast=0.03
+10-03 01:15:46 finished ar_r6_wavmid on gpu 0 rc=0
+10-03 01:18:58 scored ar_r6_wavmid (rc=0)
+10-03 01:18:58 finished ar_r7_kq775 on gpu 1 rc=0
+10-03 01:22:09 scored ar_r7_kq775 (rc=0)
+10-03 01:22:09 finished ar_r12_wf05 on gpu 2 rc=0
+10-03 01:25:20 scored ar_r12_wf05 (rc=0)
+10-03 02:26:20 finished ar_r13_tvc03 on gpu 3 rc=0
+10-03 02:29:30 scored ar_r13_tvc03 (rc=0)
+10-03 04:17:30 finished ar_r9_tvvec on gpu 5 rc=0
+10-03 04:20:39 scored ar_r9_tvvec (rc=0)
+10-03 04:21:39 QUEUE DONE
+10-03 21:25:41 queue: 9 jobs, lanes [0, 1, 2, 3, 4, 5, 6]
+10-03 21:25:41 launched ar_c1_ab on gpu 0 pid 714363: SINGLE=joint iters=4000 extra=--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2
+10-03 21:25:41 launched ar_c2_abc on gpu 1 pid 714364: SINGLE=joint iters=4000 extra=--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2 --set loss.lambda_geo_contrast=0.05
+10-03 21:25:41 launched ar_c3_abd on gpu 2 pid 714366: SINGLE=joint iters=4000 extra=--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2 --set loss.lambda_wav_contrast=0.05
+10-03 21:25:41 launched ar_c4_abcd on gpu 3 pid 714367: SINGLE=joint iters=4000 extra=--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2 --set loss.lambda_geo_contrast=0.05 --set loss.lambda_wav_contrast=0.05
+10-03 21:25:41 launched ar_c5_abcde on gpu 4 pid 714371: SINGLE=joint iters=4000 extra=--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2 --set loss.lambda_geo_contrast=0.05 --set loss.lambda_wav_contrast=0.05 --set loss.edge_tv_kappa_q_contrast=0.70
+10-03 21:25:41 launched ar_r14_wf02 on gpu 5 pid 714374: SINGLE=joint iters=4000 extra=--edge_tv_wfloor 0.02
+10-03 21:25:41 launched ar_c7_abcdp on gpu 6 pid 714377: SINGLE=joint iters=4000 extra=--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2 --set loss.lambda_geo_contrast=0.05 --set loss.lambda_wav_contrast=0.05 --set loss.lambda_wav_plain=0.09 --set loss.lambda_geo_plain=0.075

@@ -1,0 +1,15 @@
+# autoresearch vdPoisMex line, phase 3 (2026-10-03 21:30): combine what phase 2 kept, trainer copy _trainer_e778bf2_ar.
+# Kept in phase 2: A = edge_tv_wfloor 0.05 (both scans, +0.074 / +0.087); post-only B = kspace_high 2.8 on post (+0.146),
+# C = TV 0.05 on post (+0.126), D = wavelet 0.05 on post (+0.114), E = edge-TV quantile 0.70 on post (+0.072).
+# Pre-only, below the keep line: P = wavelet 0.09 + TV 0.075 on pre (+0.033 / +0.018 seen through the shared midpoints).
+# The four post knobs all mean "less smoothing on post"; whether they add or overshoot is the question of this round.
+# EXP	SINGLE	extra cycle.py args
+ar_c1_ab	joint	--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2
+ar_c2_abc	joint	--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2 --set loss.lambda_geo_contrast=0.05
+ar_c3_abd	joint	--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2 --set loss.lambda_wav_contrast=0.05
+ar_c4_abcd	joint	--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2 --set loss.lambda_geo_contrast=0.05 --set loss.lambda_wav_contrast=0.05
+ar_c5_abcde	joint	--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2 --set loss.lambda_geo_contrast=0.05 --set loss.lambda_wav_contrast=0.05 --set loss.edge_tv_kappa_q_contrast=0.70
+ar_r14_wf02	joint	--edge_tv_wfloor 0.02
+ar_c7_abcdp	joint	--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2 --set loss.lambda_geo_contrast=0.05 --set loss.lambda_wav_contrast=0.05 --set loss.lambda_wav_plain=0.09 --set loss.lambda_geo_plain=0.075
+ar_c6_abhalf	joint	--edge_tv_wfloor 0.05 --kspace_high 2.8 --kspace_high_plain 2.2 --set loss.lambda_geo_contrast=0.075 --set loss.lambda_wav_contrast=0.075
+ar_r15_tvvec	joint	--tv_vector

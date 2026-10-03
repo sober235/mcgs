@@ -1,0 +1,31 @@
+--- _trainer_e778bf2/paired_gs/losses/edge_tv.py	2026-09-12 23:38:28.000000000 +0800
++++ _trainer_e778bf2_ar/paired_gs/losses/edge_tv.py	2026-10-03 21:24:59.842807205 +0800
+@@ -30,6 +30,10 @@
+ # gradient field: without this factor the two forms would be compared at different effective
+ # strengths, and any difference between them could be a strength difference in disguise.
+ _VECTOR_SCALE = 1.5
++# sqrt has an infinite derivative at 0. Wherever the rendered volume is exactly flat (the air around the head is
++# exactly zero) the bare sqrt(gx^2+gy^2+gz^2) sent NaN into every parameter: run ar_r9_tvvec (2026-10-02) collapsed
++# to an empty volume by iteration 50. The floor moves ||grad|| by at most 1e-6, far below any image gradient.
++_VEC_FLOOR = 1e-12
+ 
+ 
+ def _axis_grads(m: torch.Tensor):
+@@ -57,7 +61,7 @@
+                 + charbonnier(gy, eps).mean()
+                 + charbonnier(gz, eps).mean())
+     gx, gy, gz = _colocated_grads(m)
+-    gn = torch.sqrt(gx * gx + gy * gy + gz * gz)
++    gn = torch.sqrt(gx * gx + gy * gy + gz * gz + _VEC_FLOOR)
+     return _VECTOR_SCALE * charbonnier(gn, eps).mean()
+ 
+ 
+@@ -74,7 +78,7 @@
+                 + (_edge_weight(gy, kappa, w_floor) * charbonnier(gy, eps)).mean()
+                 + (_edge_weight(gz, kappa, w_floor) * charbonnier(gz, eps)).mean())
+     gx, gy, gz = _colocated_grads(m)
+-    gn = torch.sqrt(gx * gx + gy * gy + gz * gz)
++    gn = torch.sqrt(gx * gx + gy * gy + gz * gz + _VEC_FLOOR)
+     return _VECTOR_SCALE * (_edge_weight(gn, kappa, w_floor) * charbonnier(gn, eps)).mean()
+ 
+ 
