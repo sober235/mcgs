@@ -1,0 +1,35 @@
+{
+  "contrast": "pre",
+  "rows": [
+    {
+      "method": "gs_joint",
+      "contrast": "pre",
+      "psnr": 37.94658706760632,
+      "ssim": 0.9634113429902855,
+      "nmse": 0.011190176010131836,
+      "hfen": 0.6218093633651733,
+      "sharp": 0.829892635345459,
+      "grain": 0.008056195452809334,
+      "seconds": 5581.174178600311,
+      "head_psnr": 34.645828607024484,
+      "head_ssim": 0.9377445578575134,
+      "head_hfen": 0.12763178441915157,
+      "grain_ratio": 0.9499611474532724,
+      "head_frac": 0.4300846111811814,
+      "gmax": 1.4715816974639893,
+      "head_nmse": 0.010311930985162997,
+      "psnr_cplx": 31.69756710254597,
+      "exp": "ar_e1b_wf00bv",
+      "factor_scale": 0.9997583817359138
+    }
+  ],
+  "exp": "ar_e1b_wf00bv",
+  "npz": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/trainer/_trainer_e778bf2_ar/results_arc/ar_e1b_wf00bv_volumes.npz",
+  "scale_trainer": 183.532318,
+  "scale_gauge": 183.57667347717228,
+  "zf_ratio_check": 0.9997586607933044,
+  "vram_gb": 43.837037056,
+  "npts": 3600000,
+  "source_run": "ar_e1b_wf00bv_pre",
+  "note": "autoresearch winner / rule-A fair single (2026-10-08), renamed for the registered scripts"
+}

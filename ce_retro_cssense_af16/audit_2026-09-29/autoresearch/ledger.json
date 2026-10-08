@@ -426,6 +426,37 @@
    },
    "reading": "KEEP"
   },
+  "ar_e1b_wf00bv": {
+   "scores": {
+    "post": {
+     "head_psnr": 36.89655795896807,
+     "head_ssim": 0.9504770636558533,
+     "head_nmse": 0.010196329806382218,
+     "head_hfen": 0.11163432100009756
+    },
+    "pre": {
+     "head_psnr": 34.645828607024484,
+     "head_ssim": 0.9377445578575134,
+     "head_nmse": 0.010311930985162997,
+     "head_hfen": 0.12763178441915157
+    }
+   },
+   "delta_vs_gs_joint": {
+    "pre": {
+     "head_psnr": 0.19339870588400743,
+     "head_ssim": 0.002872645854949951,
+     "head_nmse": -0.0004695864735170113,
+     "head_hfen": -0.007126723372685911
+    },
+    "post": {
+     "head_psnr": 0.3000693707761357,
+     "head_ssim": 0.003631293773651123,
+     "head_nmse": -0.0007294079836774377,
+     "head_hfen": -0.012983292301604957
+    }
+   },
+   "reading": "KEEP"
+  },
   "ar_p1_kh10": {
    "scores": {
     "post": {
@@ -1375,6 +1406,44 @@
    },
    "reading": "baseline"
   },
+  "ar_s_post_wf00b": {
+   "scores": {
+    "post": {
+     "head_psnr": 36.7428825509863,
+     "head_ssim": 0.9482200741767883,
+     "head_nmse": 0.010563587675542396,
+     "head_hfen": 0.11909558472883618
+    }
+   },
+   "delta_vs_gs_single": {
+    "post": {
+     "head_psnr": 0.32721621317627836,
+     "head_ssim": 0.00380706787109375,
+     "head_nmse": -0.0008266555079449248,
+     "head_hfen": -0.011030697208883514
+    }
+   },
+   "reading": "baseline"
+  },
+  "ar_s_post_wf00bv": {
+   "scores": {
+    "post": {
+     "head_psnr": 36.80854364320148,
+     "head_ssim": 0.9495295882225037,
+     "head_nmse": 0.010405076446146449,
+     "head_hfen": 0.11504374360780285
+    }
+   },
+   "delta_vs_gs_single": {
+    "post": {
+     "head_psnr": 0.39287730539145826,
+     "head_ssim": 0.005116581916809082,
+     "head_nmse": -0.0009851667373408715,
+     "head_hfen": -0.015082538329916836
+    }
+   },
+   "reading": "baseline"
+  },
   "ar_s_post_wf02b": {
    "scores": {
     "post": {
@@ -1390,6 +1459,25 @@
      "head_ssim": 0.0037745237350463867,
      "head_nmse": -0.0008153148928404363,
      "head_hfen": -0.010908243954396074
+    }
+   },
+   "reading": "baseline"
+  },
+  "ar_s_post_wf02bv": {
+   "scores": {
+    "post": {
+     "head_psnr": 36.799849852991855,
+     "head_ssim": 0.9494560956954956,
+     "head_nmse": 0.010425927403879869,
+     "head_hfen": 0.11528131143338913
+    }
+   },
+   "delta_vs_gs_single": {
+    "post": {
+     "head_psnr": 0.3841835151818316,
+     "head_ssim": 0.005043089389801025,
+     "head_nmse": -0.0009643157796074518,
+     "head_hfen": -0.014844970504330562
     }
    },
    "reading": "baseline"
@@ -1413,6 +1501,44 @@
    },
    "reading": "baseline"
   },
+  "ar_s_pre_wf00": {
+   "scores": {
+    "pre": {
+     "head_psnr": 34.526854213672365,
+     "head_ssim": 0.9363038539886475,
+     "head_nmse": 0.0105983301956017,
+     "head_hfen": 0.13057745378673316
+    }
+   },
+   "delta_vs_gs_single": {
+    "pre": {
+     "head_psnr": 0.1767948781632498,
+     "head_ssim": 0.0032738447189331055,
+     "head_nmse": -0.0004403450983034782,
+     "head_hfen": -0.006007597914680918
+    }
+   },
+   "reading": "baseline"
+  },
+  "ar_s_pre_wf00v": {
+   "scores": {
+    "pre": {
+     "head_psnr": 34.58345896376352,
+     "head_ssim": 0.9375621676445007,
+     "head_nmse": 0.01046109086553735,
+     "head_hfen": 0.12726277901001792
+    }
+   },
+   "delta_vs_gs_single": {
+    "pre": {
+     "head_psnr": 0.23339962825440352,
+     "head_ssim": 0.004532158374786377,
+     "head_nmse": -0.0005775844283678281,
+     "head_hfen": -0.009322272691396155
+    }
+   },
+   "reading": "baseline"
+  },
   "ar_s_pre_wf02": {
    "scores": {
     "pre": {
@@ -1428,6 +1554,25 @@
      "head_ssim": 0.0032375454902648926,
      "head_nmse": -0.0004258393502466779,
      "head_hfen": -0.005913424889005425
+    }
+   },
+   "reading": "baseline"
+  },
+  "ar_s_pre_wf02v2": {
+   "scores": {
+    "pre": {
+     "head_psnr": 34.57323179158809,
+     "head_ssim": 0.937495768070221,
+     "head_nmse": 0.010485755008705319,
+     "head_hfen": 0.12740599291487392
+    }
+   },
+   "delta_vs_gs_single": {
+    "pre": {
+     "head_psnr": 0.22317245607897718,
+     "head_ssim": 0.004465758800506592,
+     "head_nmse": -0.0005529202851998587,
+     "head_hfen": -0.009179058786540156
     }
    },
    "reading": "baseline"

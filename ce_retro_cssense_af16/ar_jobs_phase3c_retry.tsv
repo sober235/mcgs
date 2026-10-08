@@ -1,0 +1,4 @@
+# phase 3c retry (2026-10-08 12:55): ar_e1_wf00bv and ar_s_pre_wf02v died with CUDA OOM at launch because lanes 0/1 were still held by
+# the phase-3b queue's last two jobs (my lane choice collided). Same settings, new names (run_gs.sh refuses to overwrite a log).
+ar_e1b_wf00bv	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector
+ar_s_pre_wf02v2	pre	--lambda_edge 0 --edge_tv_wfloor 0.02 --tv_vector
