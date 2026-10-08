@@ -1,0 +1,33 @@
+{
+  "contrast": "pre",
+  "rows": [
+    {
+      "method": "ar_c5_abcde",
+      "contrast": "pre",
+      "psnr": 37.82045822038473,
+      "ssim": 0.9618028419750208,
+      "nmse": 0.01151993777602911,
+      "hfen": 0.6248888969421387,
+      "sharp": 0.812349259853363,
+      "grain": 0.008134288713335991,
+      "seconds": 4373.849705696106,
+      "head_psnr": 34.53332561911765,
+      "head_ssim": 0.9357361793518066,
+      "head_hfen": 0.131452649246845,
+      "grain_ratio": 0.955634477561385,
+      "head_frac": 0.4300846111811814,
+      "gmax": 1.4715816974639893,
+      "head_nmse": 0.01058254993751871,
+      "psnr_cplx": 31.602319753245936,
+      "exp": "ar_c5_abcde",
+      "factor_scale": 0.9997583817359138
+    }
+  ],
+  "exp": "ar_c5_abcde",
+  "npz": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/trainer/_trainer_e778bf2_ar/results_arc/ar_c5_abcde_volumes.npz",
+  "scale_trainer": 183.532318,
+  "scale_gauge": 183.57667347717228,
+  "zf_ratio_check": 0.9997586607933044,
+  "vram_gb": 43.837037056,
+  "npts": 3600000
+}

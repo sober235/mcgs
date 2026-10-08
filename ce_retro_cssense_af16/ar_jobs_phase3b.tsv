@@ -1,0 +1,13 @@
+# phase 3b (2026-10-08): phase-3 winner c1 = A+B (wfloor 0.05 + post kspace_high 2.8): +0.079 / +0.204. Adding post TV/wavelet on
+# top overshoots post (-0.2 to -0.5). Single knob wfloor 0.02 beat 0.05 (+0.103 / +0.118) and the fixed isotropic TV kept post
+# (+0.098) -> registered rule: add them to the winner. Fair GS-single (rule A, lambda_edge 0) at the candidate settings starts now.
+# EXP	SINGLE	extra
+ar_d1_wf02b	joint	--edge_tv_wfloor 0.02 --kspace_high 2.8 --kspace_high_plain 2.2
+ar_d2_wf00b	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2
+ar_d3_wf02bv	joint	--edge_tv_wfloor 0.02 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector
+ar_d4_wf02b25	joint	--edge_tv_wfloor 0.02 --kspace_high 2.5 --kspace_high_plain 2.2
+ar_d5_wf00	joint	--edge_tv_wfloor 0.0
+ar_s_pre_wf02	pre	--lambda_edge 0 --edge_tv_wfloor 0.02
+ar_s_post_wf02b	post	--lambda_edge 0 --edge_tv_wfloor 0.02 --kspace_high 2.8
+ar_s_pre_wf00	pre	--lambda_edge 0 --edge_tv_wfloor 0.0
+ar_s_post_wf00b	post	--lambda_edge 0 --edge_tv_wfloor 0.0 --kspace_high 2.8
