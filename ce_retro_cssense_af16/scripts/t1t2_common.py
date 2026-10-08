@@ -96,7 +96,9 @@ class Pair:
             y_full = torch.from_numpy(f["kspace"][:]).to(torch.complex64)
         with h5py.File(R / f"sim/gs/{contrast}_csm.h5", "r") as f:
             S = torch.from_numpy(f["map"][:]).to(torch.complex64)
-        with h5py.File(R / "sim/mask/mask_af16_3d.h5", "r") as f:
+        # per-scan mask if the topic has one (2026-10-08, complementary-mask probe); otherwise the shared mask, as before
+        _mp = R / f"sim/mask/mask_af16_3d_{contrast}.h5"
+        with h5py.File(_mp if _mp.exists() else R / "sim/mask/mask_af16_3d.h5", "r") as f:
             m3 = torch.from_numpy(f["mask"][:]).to(torch.float32)
         with np.load(R / "sim/gt.npz") as g:
             gt_c = torch.from_numpy(np.asarray(g[contrast])).to(torch.complex64)

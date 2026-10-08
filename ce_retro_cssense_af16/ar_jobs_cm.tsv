@@ -1,0 +1,6 @@
+# complementary-mask probe (2026-10-08): pre keeps the vdPoisMex mask, post uses a second vdPoisMex draw (same density, 2552 points,
+# 243 of 1976 non-ACS points shared). Recipes = the confirmed winner / rule-A fair single of autoresearch_vdpois.md.
+# Same-mask references: MC-GS 34.646 / 36.897, fair GS-single 34.583 / 36.809.
+cm_mcgs	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector
+cm_s_post	post	--lambda_edge 0 --edge_tv_wfloor 0.0 --kspace_high 2.8 --tv_vector
+cm_s_pre	pre	--lambda_edge 0 --edge_tv_wfloor 0.0 --tv_vector
