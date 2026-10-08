@@ -1,0 +1,8 @@
+# phase 3c (2026-10-08 11:45): 3b winner d3 = floor 0.02 + post kh 2.8 + isotropic TV: +0.181 / +0.292. Rule A: GS-single must get the
+# same knobs (isotropic TV) at lambda_edge 0 before a margin is quoted. Also floor 0 on the winner (floor 0 > 0.02 by +0.006/+0.004 in 3b).
+# EXP	SINGLE	extra
+ar_e1_wf00bv	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector
+ar_s_pre_wf02v	pre	--lambda_edge 0 --edge_tv_wfloor 0.02 --tv_vector
+ar_s_post_wf02bv	post	--lambda_edge 0 --edge_tv_wfloor 0.02 --kspace_high 2.8 --tv_vector
+ar_s_pre_wf00v	pre	--lambda_edge 0 --edge_tv_wfloor 0.0 --tv_vector
+ar_s_post_wf00bv	post	--lambda_edge 0 --edge_tv_wfloor 0.0 --kspace_high 2.8 --tv_vector
