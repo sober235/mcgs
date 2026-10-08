@@ -1,0 +1,11 @@
+10-08 16:30:35 queue: 3 jobs, lanes [0, 1, 2]
+10-08 16:30:35 launched cm_mcgs on gpu 0 pid 4078504: SINGLE=joint iters=4000 extra=--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector
+10-08 16:30:35 launched cm_s_post on gpu 1 pid 4078505: SINGLE=post iters=4000 extra=--lambda_edge 0 --edge_tv_wfloor 0.0 --kspace_high 2.8 --tv_vector
+10-08 16:30:35 launched cm_s_pre on gpu 2 pid 4078506: SINGLE=pre iters=4000 extra=--lambda_edge 0 --edge_tv_wfloor 0.0 --tv_vector
+10-08 17:42:35 finished cm_s_pre on gpu 2 rc=0
+10-08 17:44:30 scored cm_s_pre (rc=0)
+10-08 17:45:30 finished cm_mcgs on gpu 0 rc=0
+10-08 17:48:57 scored cm_mcgs (rc=0)
+10-08 17:48:57 finished cm_s_post on gpu 1 rc=0
+10-08 17:50:34 scored cm_s_post (rc=0)
+10-08 17:51:34 QUEUE DONE
