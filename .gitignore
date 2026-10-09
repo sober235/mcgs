@@ -36,3 +36,6 @@ results_arc/diag_artefact/*
 
 # storage audits: 12 GB of local scan output; the scripts that regenerate it are versioned instead
 audits/
+
+# subagent-driven-development workspaces (ledger, briefs, reports)
+.superpowers/
