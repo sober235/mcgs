@@ -1,238 +1,179 @@
-# MC-GS 共享几何结构的 2×2 因子消融实验方案
+# MC-GS 共享结构有效性的四组消融实验（2×2 Factorial Ablation）
 
 > 日期：2026-10-09  
-> 仓库：sober235/mcgs  
-> 设计分支：exp/shared-geometry-2x2-ablation-20261009  
-> 基础分支：widen-mcgs-af12-16-20-24  
-> 状态：**实验设计；尚未新增模型开关、训练或产生本方案的四组结果。**
+> 目标仓库：sober235/mcgs  
+> 分支：exp/shared-geometry-2x2-ablation-20261009  
+> 状态：**仅为实验设计；不包含算法修改、实验脚本或新实验结果。**
 
-## 1. 科学问题和可证伪假设
+## 1. 研究目的
 
-核心问题：**在两套单对比度 MRI 重建使用相同前向物理模型、显式正则、初始化策略、训练迭代和每对比度 Gaussian 表达能力时，仅共享 T1/FLAIR 的 Gaussian 几何参数，是否带来可重复的重建增益？**
+**核心科学问题：** 在相同 MRI 物理前向模型、Gaussian 表达能力、训练配置和单对比度显式正则下，T1 与 FLAIR **共享 Gaussian 结构**，相比各自独立的 Gaussian 表达，能否稳定改善欠采样 MRI 重建质量？
 
-研究对象是原始 MC-GS（共享几何 + 双通道独立复数密度），**不是** Paired-ARC-GS 的共享 latent decoder / change-audit 架构。
+本次只检验原始 **MC-GS** 的共享几何机制，不涉及 Paired-ARC-GS。
 
-待检验的假设：
+- 共享结构具体指：T1、FLAIR **共用位置 μ、尺度 s、旋转 q**，各自保留独立的复值 Gaussian 密度 a_T1 和 a_FLAIR。
+- GS-single 指：分别用互不共享任何几何参数的 Gaussian 模型重建 T1、FLAIR；**必须是真正的独立模型**，不能未经检验把现有同序列复制到双输入槽的 proxy 当成独立 GS。
+- 正则指 **单对比度显式正则**（各自的 edge-preserving TV、wavelet L1、phase-TV），其函数形式和对应对比度的权重在共享组和独立组一致。
+- **四组全部禁用跨对比度显式正则**（例如 common-edge、cross-contrast directional TV 和跨对比度 edge/phase guide），使两维因子仅为“共享结构 S”与“单对比度正则 R”。
 
-- **H1（结构独立贡献）**：关闭全部显式正则后，共享几何仍优于两套完全独立的 GS（C > D）。
-- **H2（完整单通道正则条件下）**：使用相同单通道正则后，共享几何仍优于独立 GS（A > B）。
-- **H3（互作）**：正则改变共享几何的收益，即 (A − B) 与 (C − D) 存在交互作用。
-- **H4（完整方法增量；扩展对照）**：跨对比度正则可在共享几何基础上产生额外收益（E > A）。
+> **关键边界：** 如果原先提出的 *full MC-GS* 包括 λ_edge 等跨对比度正则，A 组在这份严格结构归因实验中应表述为 **MC-GS (shared geometry + matched within-contrast regularization)**，而不是宣称包含原论文的全部耦合损失。否则 A−B 无法证明增益来自共享结构本身。
 
-这些是假设而不是预设结果。任一对比度上增益消失或变负，都必须如实报告。
+## 2. 核心四组设计
 
-## 2. 模型定义
+| 实验组 | 方法 | 共享几何结构 S | 单对比度正则 R | 跨对比度正则 | 验证目的 |
+|---|---|:---:|:---:|:---:|---|
+| **A** | **MC-GS + Reg** | ✓ | ✓ | 全关 | 有正则时共享结构的重建效果 |
+| **B** | **GS-single + Reg** | ✗ | ✓ | 全关 | A 的严格独立结构对照 |
+| **C** | **MC-GS − Reg** | ✓ | ✗ | 全关 | 无显式正则时共享结构的独立作用 |
+| **D** | **GS-single − Reg** | ✗ | ✗ | 全关 | 无共享、无显式正则的基础对照 |
 
-对于对比度 m ∈ {T1, FLAIR}，以多线圈 k-space 数据一致性为所有实验共同的优化目标：
+所有组都使用 T1、FLAIR 各自的相同多线圈 k-space 测量、采样掩膜、CSM 和数据一致性算子。**“− Reg”仅关闭显式图像先验，不关闭 k-space 数据一致性。**
+
+### 2.1 数学定义
+
+每个序列 m ∈ {T1, FLAIR} 的 Gaussian 图像为：
 
 \[
-L_{\rm DC}=\sum_m\|M_mFC_m x_m-y_m\|^2.
+x_m(\mathbf r)=\sum_{n=1}^{N_m}a_{m,n}G(\mathbf r;\boldsymbol\mu_{m,n},\boldsymbol\Sigma_{m,n}),
 \]
 
-统一 Gaussian 渲染表达：
+其中 a 为复值密度，Σ 由 Gaussian 尺度和旋转共同确定。
+
+- **A/C（共享）**：两个序列使用相同的 μ、Σ；密度 a_T1、a_FLAIR 始终分开学习。每个序列自己的 k-space 残差共同更新共享几何。
+- **B/D（独立）**：两个序列分别学习 μ_m、Σ_m、a_m；一个序列的损失不得通过共享参数影响另一个序列。
 
 \[
-x_m(\mathbf r)=\sum_{n=1}^{N_m}a_{m,n}
-G(\mathbf r;\boldsymbol\mu_{m,n},\boldsymbol\Sigma_{m,n}),
-\]
-
-其中复数密度 \(a_{m,n}\) 对每个对比度始终独立。
-
-- **共享几何（S=1）**：T1 与 FLAIR 使用同一套 Gaussian 位置、尺度与旋转，仅密度独立；对应代码 `paired_gs/gaussian/joint_gaussian_model.py`。
-- **独立几何（S=0）**：每个对比度分别拥有位置、尺度、旋转、复数密度；对应两套独立 `GaussianModel3D`。两个序列的 k-space 损失不能通过共享几何反向传播相互影响。
-- **有正则（R=1）**：每个序列使用相同种类、各自预设权重的 self-guided edge-preserving TV、wavelet-L1 和 phase-TV；不允许使用另一个序列作为正则的 guide。
-- **无正则（R=0）**：显式 TV、wavelet、phase-TV、跨对比度先验等权重全部为零；**保留相同的数据一致性与必要的物理/数值约束**。`kspace_freq_adaptive` 属于 DC 权重配置，不属于本次消融的显式图像先验；四组必须一致。
-
-## 3. 核心四组：严格 2×2 对照
-
-| 实验 ID | 模型 | 共享几何 S | 单通道正则 R | 跨对比度正则 | 输入与输出 |
-|---|---|---:|---:|---:|---|
-| **A / S1R1** | MC-GS + Reg | 1 | 1 | 关 | T1+FLAIR 联合训练，输出双序列 |
-| **B / S0R1** | GS-single + Reg | 0 | 1 | 关 | T1、FLAIR 各自独立训练，输出双序列 |
-| **C / S1R0** | MC-GS − Reg | 1 | 0 | 关 | T1+FLAIR 联合训练，输出双序列 |
-| **D / S0R0** | GS-single − Reg | 0 | 0 | 关 | T1、FLAIR 各自独立训练，输出双序列 |
-
-主表**不能**在 A 中保留 `lambda_edge > 0` 而在 B 中置零，否则 A−B 混入 common-edge 正则效应，无法证明共享几何本身的贡献。
-
-### 扩展组 E：完整 MC-GS
-
-| 实验 ID | 模型 | 共享几何 | 单通道正则 | 跨对比度正则 | 目的 |
-|---|---|---:|---:|---:|---|
-| **E / S1R1X1** | Full MC-GS | 1 | 1 | 开 | 测量完整方法相对 A 的跨模态正则增量 |
-
-E 为附加模型行，不纳入四组因子主效应估计；优先使用既有 `widen-mcgs-af12-16-20-24` 的完整正则配方，并记录 E 与 A 的**单通道正则配方是否完全一致**。若不一致，应重新运行匹配的 E，不能把配方差异归因于跨对比度正则。
-
-## 4. 正则开关和默认配方
-
-首轮使用 **AF16 phase-3 冻结配方**，避免边运行边追求有利结论。正则相关权重设置如下（最终以解析后的 trainer 配置为准）：
-
-| 配置键 | A、B | C、D | E（扩展） |
-|---|---:|---:|---|
-| `loss.tv_weight` / CLI `--lambda_geo` | 0.10 | 0 | 同 A |
-| `loss.edge_tv` | true | false | 同 A |
-| `loss.tv_eps` | 0.04 | 0.04（不生效） | 同 A |
-| `loss.edge_tv_kappa_q` | 0.85 | 不生效 | 同 A |
-| `loss.edge_tv_wfloor` | 0.10 | 不生效 | 同 A |
-| `loss.lambda_wav`（FLAIR） | 0.10 | 0 | 同 A |
-| `loss.lambda_wav_plain`（T1） | 0.12 | 0 | 同 A |
-| `loss.lambda_ptv` | 0.03 | 0 | 同 A |
-| `loss.lambda_edge` | 0 | 0 | 0.001（可作为起点） |
-| `loss.lambda_dtv` | 0 | 0 | 根据冻结完整配方 |
-| `loss.lambda_vtv` | 0 | 0 | 根据冻结完整配方 |
-| `loss.lambda_dtv_proj` | 0 | 0 | 根据冻结完整配方 |
-| `loss.edge_tv_guide_alpha` | 0 | 0 | 根据冻结完整配方 |
-| `loss.ptv_guide_alpha` | 0 | 0 | 根据冻结完整配方 |
-| `loss.lambda_nl` | 0 | 0 | 0，除非完整模型明确使用 |
-| `gaussian.num_private_points` | 0 | 0 | 0（主归因） |
-
-特别注意：
-
-1. **FLAIR 单模型必须使用 FLAIR 自己的 wavelet λ=0.10。** 现有双槽 `singleFLAIR.yaml` 将 FLAIR 同时作为 plain / contrast，评分 plain 通道时可能误用 T1 的 `lambda_wav_plain=0.12`；这是历史 Stage 4 记录过的混杂因素。
-2. `lambda_ptv > 0` 要求 `edge_tv=true`；无正则组同时置 `lambda_ptv=0`。
-3. 确保 `guide_path_plain`、`guide_path_contrast` 均未设置；不使用真实图像、未采样 k-space 或对方重建作为 GS-single 的隐性辅助输入。
-4. 所有开关必须在模型实际训练日志中输出；检查 `R_geo`、`R_wav`、`R_ptv`、`R_edge` 等**加权损失**而不仅是配置文件，C/D 应全为 0。
-
-## 5. 必须控制的公平性问题
-
-### 5.1 Gaussian 数量与容量：两种对照同时给出
-
-**主比较——每对比度容量匹配：**
-
-- A/C：共 3.6M 个 Gaussian 几何实体，T1 和 FLAIR 各有自己的复数密度。
-- B/D：每个对比度独立使用 3.6M 个 Gaussian，共 7.2M 个几何实体。
-- 理由：对每个输出序列，独立方法的表达能力不低于共享方法；若共享仍胜出，不能简单归咎于 GS-single 容量不足。
-- 同时报告总参数量、训练时间和峰值显存，承认 B/D 总预算更高。
-
-**容量补充——两方法总 Gaussian 数匹配：**
-
-- A/C 共享 3.6M；B/D 改为每对比度 1.8M。
-- 此比较控制总几何实体数量，但独立组每个输出序列容量变少；作为资源公平实验，**不能替代**上面的每对比度容量匹配主比较。
-
-### 5.2 初始化：主实验不能把额外测量信息提前给 GS-single
-
-现有 `joint_trainer.py` 在 `gaussian.init_mode=head` 下基于 `union_magnitude(zf_T1,zf_FLAIR)` 初始化联合 Gaussian；现有双槽 single 则基于同序列 ZF 初始化。**两种几何初始分布并不相同**，若直接比较，收益混合了联合初始化效应。
-
-主归因实验应实现 `init_mode=shared_fixed_prior`：使用预先规定的、不依赖当前受试者 T1/FLAIR 额外测量或 GT 的固定 FOV / 头部空间范围，以相同 seed 生成初始位置和尺度，A/B/C/D 完全一致；各模型的初始复数密度仅来自自己对应序列的可用 ZF（T1 不得读取 FLAIR 密度初始化，反之亦然）。若固定先验的空间范围在开发集上制定，必须冻结并在独立受试者上评估。
-
-另做实用场景对照：联合模型使用实际的双序列 ZF 初始化，独立模型只能使用自己的 ZF 初始化；标注为 **end-to-end gain**，不与“仅共享几何”主归因混用。
-
-### 5.3 优化与物理模型
-
-- 完全一致的 k-space、CSM、有效采样支持、known-zero / prewhitening 处理、FFT 规范、归一化与最终 hard-DC 后处理。
-- 4000 次 optimizer step；基础 `max_radius=20`、高频 DC 权重 `kspace_high_weight=2.2`，相同优化器、学习率、调度和梯度裁剪。
-- 主实验关闭 Gaussian private branch、densification / cloning / pruning，避免动态容量差异。
-- GS-single **必须真正独立**：推荐新增 `shared_geometry=false` 路径，分别实例化两套 `GaussianModel3D`；可由两次独立单对比度训练交叉校验。现有复制 T1→T1 或 FLAIR→FLAIR 的双槽 joint-trainer 是历史 proxy，**不能不经等价性检查直接当作严格独立结构主对照**。
-- 检查梯度隔离：B/D 的 T1 loss 不得给 FLAIR 几何产生梯度，FLAIR loss 反之；A/C 两个 DC loss 应共同作用于同一几何张量。对完全独立目标，合并训练和两次分开训练应能在数值容差内复现（控制随机数、wavelet cycle spin、optimizer 顺序）。
-- 所有模型在**同一训练预算口径**下评估；单对比度 λ 允许各自选择，但有同等搜索预算、搜索范围和独立验证集；不得用测试受试者/GT 选最好超参数。
-
-## 6. 数据集、实验矩阵和执行顺序
-
-**Pilot（工程检查，不作论文机制证据）**
-
-- 数据：现有 jiangyizhou 配对 T1+FLAIR，vd-Poisson retrospective AF16，seed=42。
-- 每组都产出 raw Gaussian volume、hard-DC volume、head-only metrics 和未采样 k-space 误差。
-- 对照现有配置：`configs/t1flair_v3_af16_jyz.yaml` 和 `configs/t1flair_v3_af16_jyz_single{T1,FLAIR}.yaml`。
-- 输出新 run ID：`sg2x2_pilot_af16_s42_{A,B,C,D}`，其中 B/D 分别生成 T1、FLAIR 子运行。
-- Pilot 验收：所有配置可解析、无 NaN/OOM、单模型确实独立、正则开关有日志证据、头掩膜/单位一致。
-
-**核心实验（统计证据）**
-
-- 从 MRI-148 现有配对数据中核验并选取**至少 12 对**符合双序列完整 k-space、空间配准和可用 CSM 要求的不同受试者；旧文档提及 16 对，仅作为候选池，具体可用数必须重新盘点。
-- AF12 和 AF16 为主；AF20、AF24 用于高欠采样趋势验证。记录名义与**各对比度实际**加速倍率，不把 T1、FLAIR 的实际 AF 错写为相同。
-- 3 seeds：42、43、44。不同方法对同一个受试者 / AF 使用相同 seed 与掩膜；若使用多个掩膜重复采样，先规定掩膜集合。
-- 以**受试者为单位**划分开发/调参和最终锁定测试集；测试集不可再次决定超参数或方法选择。
-- 若 Gaussian 数 3.6M × 4 组 × 多病例的总训练成本过高，优先完成 AF16 的 4 组与 ≥12 对受试者，再补其它 AF；不能以一个受试者上的大规模参数搜索代替跨受试者统计。
-- 严格的四组主结果不得直接挪用历史只关掉 `lambda_edge` 的运行作为“无正则组”。
-
-**建议执行次序：**
-
-1. 新增共享/独立几何显式开关与四组配置生成器；
-2. 单元测试：共享张量身份、梯度隔离、loss 开关、single 评分通道、数值匹配；
-3. AF16 Pilot 的 A/B/C/D；
-4. 冻结超参数，跨受试者 AF16 核心表；
-5. AF12/20/24、容量匹配与固定/实用初始化对照；
-6. E 组完整 MC-GS、汇总图与统计分析。
-
-## 7. 指标、机制归因与统计
-
-逐受试者、逐序列、逐 AF、逐 seed 输出：
-
-- **主要终点**：head-only magnitude PSNR（dB），T1 和 FLAIR 分别报告。
-- **次要图像指标**：head SSIM、NMSE、HFEN、误差图及组织边缘局部 ROI（如灰白质边界）；可补复杂值 PSNR 与 phase agreement。
-- **测量域指标**：raw 模型在未采样 k-space 的 NRMSE / `e_unobs`；仅在 retrospective 有完整 k-space 的病例评估，避免用测试测量信息训练模型。
-- **审计指标**：raw 与 hard-DC 后图像双口径、Gaussian 数 / 参数数、VRAM、训练 wall-time、失败率。
-
-对任一序列 m，令指标 Q 越大越好：
-
-\[
-\Delta_{\rm shared}^{\rm reg}(m)=Q_A(m)-Q_B(m)
+L_{\mathrm{DC}}=\sum_{m\in\{\mathrm{T1,FLAIR}\}}
+\|M_mFC_mx_m-y_m\|_2^2
 \]
 
 \[
-\Delta_{\rm shared}^{\rm no-reg}(m)=Q_C(m)-Q_D(m)
+L_{\mathrm{Reg}}=\sum_m
+\left(\lambda_{\mathrm{geo}}R_{\mathrm{edgeTV}}(x_m)+
+\lambda_{\mathrm{wav},m}R_{\mathrm{wav}}(x_m)+
+\lambda_{\mathrm{ptv}}R_{\mathrm{phaseTV}}(x_m)\right)
+\]
+
+A/B 使用 L_DC + L_Reg，C/D 只使用 L_DC。为保持现有代码一致性，可以在四组固定相同的 k-space 频率加权方案；它属于统一的数据保真项，而非本实验切换的显式图像正则。
+
+## 3. 正则参数控制
+
+初次验证固定现有 AF16 phase-3 单对比度配方（Pilot 可检查数值稳定性，但不以测试 PSNR 选择有利参数）：
+
+| 配置 / 损失项 | A、B：+Reg | C、D：−Reg |
+|---|---|---|
+| edge-preserving TV 权重 λ_geo | 0.10 | **0** |
+| edge-TV 开关 | on | off |
+| edge-TV κ_q / w_floor / Charbonnier ε | 0.85 / 0.10 / 0.04 | 不生效 |
+| wavelet-L1，T1 | 0.12 | **0** |
+| wavelet-L1，FLAIR | 0.10 | **0** |
+| phase-TV 权重 λ_ptv | 0.03 | **0** |
+| common-edge，λ_edge | **0** | **0** |
+| directional-TV，λ_dtv | **0** | **0** |
+| vectorial-TV，λ_vtv | **0** | **0** |
+| 其他跨对比度引导 / 非局部正则 | **0** | **0** |
+
+执行前需要冻结并审核 **解析后的实际 loss 配置**，尤其是 wavelet 的 T1/FLAIR 权重。旧的 `singleFLAIR` 双槽代理有“FLAIR 作为 plain 评分通道时可能拿到 T1 的 wavelet 权重”的历史问题，新对照绝不能重复该不公平性。
+
+### 禁止的比较
+
+- **禁止** A 带 λ_edge = 0.001 而 B 不带：此时 A−B 同时包含结构共享和跨对比度先验两种作用。
+- **禁止** C/D 只将 λ_edge 置零却保留 TV、wavelet、phase-TV：这不是“without regularization”。
+- **禁止**只挑 T1 中获益的一组而忽略 FLAIR 中可能出现的负结果。
+
+## 4. 公平性控制（核心实验的必要条件）
+
+| 条件 | A/C 共享组 | B/D 独立组 | 控制原则 |
+|---|---|---|---|
+| 输入 | T1+FLAIR | T1、FLAIR 独立使用 | 各序列训练只使用自身的 k-space 数据；共享组通过共用几何间接融合信息 |
+| Gaussian 数量（主实验） | 共享 N=3.6M，双密度 | **每序列** N=3.6M | 每对比度表达容量匹配；报告独立组总参数更多的事实 |
+| 初始几何 | 预先规定的匹配分布 | 同一分布、同一随机种子 | **不能**共享组联合 ZF 初始化、独立组单序列 ZF 初始化后直接把差异归因于“共享参数” |
+| 初始幅值 | T1/FLAIR 各自 ZF | 分别使用自身 ZF | 避免额外通道信息从幅值初始化泄漏 |
+| 优化 | 4000 steps，原配方学习率 | 每个单模型 4000 steps | 每序列 optimizer steps 相同；另报合计 GPU-hours/显存 |
+| 自适应 Gaussian 操作 | 禁用 | 禁用 | 固定容量，排除 densify/clone/prune 混杂 |
+| 输出评估 | T1、FLAIR 分别评估 | T1、FLAIR 分别评估 | 相同 head-mask、raw/hard-DC 及评估代码 |
+| 其他 | seed、mask、CSM、归一化、DC 频率加权固定 | 完全一致 | 无跨序列 guide/GT 引用 |
+
+- **主容量口径**：每个独立模型 N=3.6M。另可追加**资源容量匹配的同一四组实验**：B/D 每序列 N=1.8M，与 A/C 的共享 N=3.6M 比较；两种口径分别报告，不能混用。
+- **初始化控制**：优先使用固定 FOV 采样或仅从开发集确定的、**不依赖测试病例任一序列 ZF 的公共初始位置分布**。如进一步测试联合 ZF 引导初始化，须单独标为 end-to-end 附加实验。
+- **独立性审核**：B/D 应分别优化两套 Gaussian；T1 损失对 FLAIR 几何梯度为零，反之亦然。
+- **调参公平性**：相同的单通道超参数搜索空间、等预算和锁定验证集；不允许只充分调优共享组。测试病例 GT 不用于选择最佳参数或停止时刻。
+- **随机性**：所有组同病例/采样掩膜使用配对 seed，记录训练失败/OOM；不同 seed 不视为不同受试者。
+
+## 5. 数据、顺序与评价指标
+
+### 5.1 数据选择
+
+1. **Pilot**：使用现有 jiangyizhou T1+FLAIR retrospective AF16 数据及已验证 CSM、vd-Poisson mask，先检验四组比较能否严格执行。Pilot **不作为泛化或统计显著性的证据**。
+2. **核心测试**：使用 MRI-148 上其他具备双序列、配准、完整 k-space 与可用 CSM 的受试者；**目标不少于 12 对**，但实际样本数需要在盘点后决定。预先分出调参/验证和最终锁定测试病例。
+3. **AF 扩展**：AF12、AF16 为主要对照；AF20、AF24 验证更高加速倍率。对 T1/FLAIR 分别记录实际 AF，注意 FLAIR 的椭圆有效支持。
+4. **重复**：预设 seeds 42/43/44；先优先完成 AF16 的四组、不同受试者，再向其他 AF 扩展。
+
+### 5.2 指标
+
+- 主要：**head-only PSNR (dB)**，T1 与 FLAIR **分别报告**。
+- 次要：head SSIM、NMSE、HFEN、edge ROI 误差、视觉差异及伪影。
+- 物理一致性：未采样 k-space 预测 NRMSE/e_unobs（仅在 retrospective 全采真值可获得时进行离线评分）。
+- 两种图像：**raw rendered volume** 和 **hard-DC reconstructed volume** 两套指标，以免后处理掩盖模型结构差异。
+- 资源：Gaussian 个数、参数量、训练时间、显存峰值与失败次数。
+
+### 5.3 结构增益与 2×2 因子归因
+
+对任一序列 m 和指标 Q（如 PSNR，越高越好）：
+
+\[
+\Delta_{\mathrm{shared}|R=1}=Q_A-Q_B
 \]
 
 \[
-I(m)=[Q_A(m)-Q_B(m)]-[Q_C(m)-Q_D(m)]
+\Delta_{\mathrm{shared}|R=0}=Q_C-Q_D
 \]
 
 \[
-\Delta_{\rm cross}(m)=Q_E(m)-Q_A(m).
+\Delta_{\mathrm{interaction}}=(Q_A-Q_B)-(Q_C-Q_D)
 \]
 
-这里 A−B 和 C−D 是**共享几何效应**，I 是共享几何与单通道正则的交互作用，E−A 是额外跨对比度正则收益。不能用 E−B 直接证明共享几何单独有效。
+其中：
 
-- 先对同一受试者多 seed 求平均，再做受试者层面配对统计；报告 N、均值差、受试者间 SD、95% CI 和效应方向占比。可以使用受试者级配对 bootstrap / permutation，必要时用包含 subject 随机效应的 2×2 模型复核交互项。
-- 两个序列分别检验，不用“平均增益为正”掩盖一个序列的负结果；跨 AF 比较明确多重检验处理。
-- 历史文档使用 **0.02 dB** 作为单受试者重复容差附近的判断带，**不是跨受试者统计显著性或临床重要性的阈值**。本研究应报告置信区间和绝对增益，谨慎解释非常小的 dB 差异。
-- 不能以 GT 最优 checkpoint 或测试 PSNR 最优超参数作为最终报告的模型选择规则；使用预先确定的最终步或独立验证准则。
+- **A−B**：正则存在时共享结构的贡献；
+- **C−D**：无显式正则时共享结构本身的贡献（**最直接的结构独立性证据**）；
+- **(A−B)−(C−D)**：单通道正则是否增强或减弱结构收益。
 
-**预期结论判读：**
-
-| 结果 | 可支持的结论 |
+| 观察结果 | 可以支持的科学结论 |
 |---|---|
-| A>B 且 C>D，并在两个对比度/多病例稳定 | 最有力：共享几何独立贡献存在，单通道正则下依然有效 |
-| A>B 但 C≈D | 共享几何收益依赖显式正则；不能声称无正则时仍有效 |
-| A≈B 但 C>D | 无正则时的共享先验有效，有正则时额外收益被替代 |
-| A≤B 且 C≤D | 不支持当前配方的共享几何重建增益；需要讨论容量、对齐和观测互补性 |
-| T1、FLAIR 结果方向相反 | 分序列陈述，不能选择性强调获益序列 |
+| A > B **且** C > D，T1/FLAIR、多病例均稳定 | **最强证据**：共享几何自身有效，加入单序列正则后仍有效 |
+| A > B，但 C ≈ D | 共享几何的增益依赖或受益于显式正则；不能声称独立正则外仍有明显优势 |
+| A ≈ B，但 C > D | 无正则时共享结构有作用，但强单序列正则可能替代了部分共享收益 |
+| A ≤ B 且 C ≤ D | 当前数据/配置不支持共享结构提高重建质量 |
+| T1 增益为正但 FLAIR 为负 | 必须分别报告并解释；不能用平均 PSNR 掩盖不利结果 |
 
-## 8. 与已有实验的关系及风险
+受试者为独立统计单位：先合并同受试者各 seed 的估计，再分析配对 PSNR 差，输出均值、95% CI、效果方向和病例比例；必要时用配对 bootstrap / permutation 或包含 subject 随机效应的因子模型评估交互。多个对比度/AF 的显著性分析应有事前指定的主终点和多重检验处理。
 
-已检查的历史记录：
+**判定原则：** 不是只要某个 seed 上 A 或 C 略胜就证明共享有效。论文主张应由锁定测试病例的**受试者级稳定正向差值和置信区间**支持；对微小 dB 差异还需审查实际效应量、图像和伪影。
 
-- `docs/superpowers/specs/2026-09-20-coupling-attribution-design.md`（服务器 `mcgs_hparam_wt`）曾在 AF16 比较 joint / duplicate-single 于 `lambda_edge=0` 和 `0.001`，但**只改变了跨对比度 edge 项**，TV、wavelet、phase-TV 仍存在；因此它不是本次 A/B/C/D 的无正则组。
-- `docs/superpowers/specs/2026-09-24-coupling-attribution-stage4-design.md` 记录了 GS-single 需要独立、等预算调参，以及 FLAIR scored-channel 使用 wavelet 权重不一致的问题。
-- `docs/2026-09-28-widen-mcgs-summary.md` 指出已有各 AF 的联合优势较小（约 0.02–0.12 dB，随对比度和 AF 改变），且仅一个受试者；**本方案不能预设更强的结构优势。**
+## 6. 结果记录模板（待填；没有实际结果）
 
-因此，**本文能否声称 shared geometry creates measurable reconstruction gain，取决于独立受试者上新的 C−D 与 A−B，而不能靠既有完整 MC-GS 对 GS-single 的微小领先代替。**
+| Method | T1 PSNR ↑ | T1 SSIM ↑ | FLAIR PSNR ↑ | FLAIR SSIM ↑ |
+|---|---:|---:|---:|---:|
+| **A. MC-GS + Reg** | — | — | — | — |
+| **B. GS-single + Reg** | — | — | — | — |
+| **C. MC-GS − Reg** | — | — | — | — |
+| **D. GS-single − Reg** | — | — | — | — |
+| **A−B：共享几何（有正则）** | — | — | — | — |
+| **C−D：共享几何（无正则）** | — | — | — | — |
 
-## 9. 代码实现接口及交付物（待开发）
+建议配图：四组对应的 T1/FLAIR 中心切面+残差图（同窗宽）、跨受试者配对 PSNR 差值点图，以及按 AF 分层的结构增益与 CI 图。
 
-建议在原始 MC-GS 目录内最小改造，不触碰 `paired_arc_gs/`：
+## 7. 先前工作的注意事项
 
-- `paired_gs/gaussian/joint_gaussian_model.py`：保留共享路径；
-- `paired_gs/gaussian/gaussian_model.py`：作为真正 GS-single 单序列模型；
-- `paired_gs/trainers/joint_trainer.py`：增加清晰的 `shared_geometry` 分支或新的匹配 single trainer，统一评估和损失配置；
-- `arc/cycle.py`：增加/透传结构开关，统一生成 run manifest；
-- `configs/abl_shared_geometry/`：四份配置模板，以及共同冻结参数；
-- `tests/`：结构身份、梯度隔离、所有正则为零、FLAIR 通道权重、初始化无对方数据泄漏；
-- `results_arc/sg2x2_*/`（不提交重建大文件）：包含配置快照、日志、数值结果；
-- `docs/experiments/`：保存最终受试者配对统计、表格、失败和负结果。
-
-**最低验收清单**
-
-- [ ] A/B/C/D 的区别严格只落在两个开关 S、R；不存在偷加跨对比度正则
-- [ ] 对每个序列的输入 k-space、掩膜、CSM 和 DC 处理相同
-- [ ] B/D 的两个独立模型没有几何参数或梯度共享
-- [ ] A/C 的共享位置、尺度、旋转由 T1/FLAIR 两个 DC 项共同更新
-- [ ] A/B 的通道内正则完全一致，C/D 的显式正则损失严格为零
-- [ ] 主归因采用不依赖测试受试者另一序列的匹配初始化
-- [ ] 每对比度 N=3.6M 的主容量比较与总 N 匹配的补充比较分开报告
-- [ ] 不用测试 GT 决定超参数、checkpoint、最佳方法
-- [ ] 至少完成一轮跨受试者、两序列分别统计的 A−B / C−D / 交互项结果
-- [ ] 完整 MC-GS（E）相对 A 的增量单独报告，不替代结构归因
+- 2026-09-20 的 coupling-attribution 实验比较过 joint/single 与 λ_edge on/off，但 **λ_geo、wavelet、phase-TV 仍在**，不能直接作为本方案 C、D 的“无正则”结果。
+- 历史 GS-single 使用过相同序列填入 joint trainer 的两个输入槽，且 cross-edge 先验会额外惩罚这样的单序列代理；本方案要求真正的 GS-single。
+- 2026-09-24 的 Stage 4 设计明确提示：GS-single 未获与 MC-GS 完全对等的超参数搜索预算时，之前的收益不足以用于严格的结构归因。
+- 2026-09-28 的 AF12/16/20/24 记录显示 MC-GS 对独立 GS 的优势相对较小，且当时主要是**单个受试者**；新的主张须经多病例检验。
+- 这四组的价值是**区分共享参数的结构先验与显式图像正则的收益**，而不是保证共享方法获胜。负结果也是有效的机制证据。
 
 ---
 
-**范围说明：** 本提交仅固化实验设计，不声称上述新四组已经运行；所有参数为待验证的冻结初始配方，必要改动先通过 Pilot 和代码测试。
+### 本文档的明确范围
+
+**只包括上述 A/B/C/D 四个消融实验的设计与判定口径。** 不添加第五组、不修改 MC-GS 源码、不生成脚本、不声称已运行实验。后续实际训练需根据本方案另行实施。
