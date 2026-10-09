@@ -109,4 +109,4 @@ def test_support_file_logs_own_support_fraction(tmp_path, capsys):
     JointTrainer(base_cfg(pair, tmp_path, "log"), device=torch.device("cuda", 0))
     out = capsys.readouterr().out
     line = next(l for l in out.splitlines() if l.startswith("[init_cloud] mode=support_file"))
-    assert "in_own_zf_support=" in line and "support_frac=" in line
+    assert "in_own_zf_support=" in line and "support_frac=" in line and "pos_sum=" in line

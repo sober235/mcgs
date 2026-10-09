@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# sg2x2_queue.sh QUEUE_FILE -- queue runner for the widen-the-margin loop; only ever uses an EMPTY card.
-# Queue lines: "[KEY=VAL ...] EXP ITERS AF ARM LAMBDA_EDGE [extra run_sg2x2.sh args...]" (blank / # lines ignored,
+# sg2x2_queue.sh QUEUE_FILE -- queue runner for the shared-geometry 2x2 ablation (run_sg2x2.sh); only ever uses an EMPTY card.
+# Queue lines: "[KEY=VAL ...] EXP CELL ITERS SEED" (blank / # lines ignored,
 # re-read every pass, top first). A card is usable when it is in ALLOWED, has no compute process, < 1500 MiB used, no
 # live shared card lock of another scheduler (<cardiac topic>/work/.gpulock.<card>) and no trainer of this loop.
 # At most MAXRUN trainers of this loop at once, launches >= 90 s apart. Items with any output already are skipped.

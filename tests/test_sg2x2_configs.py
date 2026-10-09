@@ -33,7 +33,7 @@ def test_init_support_file_matches_the_volume():
     z = np.load(ROOT / "configs/sg2x2/init_support_af16_jyz.npz")
     sup = z["support"]
     assert sup.dtype == bool and sup.shape == (256, 256, 176)
-    assert 0.3 < sup.mean() < 0.7       # the dev subject's union-ZF support covers ~43 % of the box; dilation adds a little
+    assert 0.3 < sup.mean() < 0.7       # the dev subject's union-ZF support covers ~43 % of the box; undilated (dilate 0)
 
 
 def test_launcher_refuses_existing_outputs():

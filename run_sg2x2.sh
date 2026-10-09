@@ -29,6 +29,6 @@ RC=$?
 echo "[$(date '+%F %H:%M')] $EXP cell=$CELL seed=$SEED npts=$NPTS init=$INIT iters=$ITERS extra=[$*] rc=$RC" >> results_arc/sg2x2_runs.log
 if [[ $RC -eq 0 ]]; then
   env PYTHONNOUSERSITE=1 PYTHONPATH= "$PY" scripts/sg2x2_manifest.py "$EXP" "$CELL" --seed "$SEED" --npts "$NPTS" --init "$INIT" \
-    --support "$SUPPORT" >> "results_arc/${EXP}.log" 2>&1 || echo "[$(date '+%F %H:%M')] $EXP manifest FAILED" >> results_arc/sg2x2_runs.log
+    --support "$SUPPORT" --iters "$ITERS" >> "results_arc/${EXP}.log" 2>&1 || echo "[$(date '+%F %H:%M')] $EXP manifest FAILED" >> results_arc/sg2x2_runs.log
 fi
 exit $RC

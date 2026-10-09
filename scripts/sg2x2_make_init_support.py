@@ -39,6 +39,11 @@ def main() -> None:
     ap.add_argument("--dilate", type=int, default=3, help="binary dilation iterations (voxels)")
     ap.add_argument("--head_frac", type=float, default=0.05)
     a = ap.parse_args()
+    out = Path(a.out)
+    if out.suffix != ".npz":
+        raise SystemExit("--out must end in .npz")
+    if out.exists():
+        raise SystemExit(f"refusing to overwrite {out}")
     cfg = yaml.safe_load(open(ROOT / a.config))
     plain, contrast = cfg["data"]["plain"], cfg["data"]["contrast"]
     with h5py.File(plain["mask_path"], "r") as f:
@@ -48,9 +53,6 @@ def main() -> None:
     if a.dilate > 0:
         from scipy.ndimage import binary_dilation
         sup = binary_dilation(sup, iterations=a.dilate)
-    out = Path(a.out)
-    if out.exists():
-        raise SystemExit(f"refusing to overwrite {out}")
     np.savez_compressed(out, support=sup.astype(bool))
     print(f"wrote {out} shape={sup.shape} support_frac={sup.mean():.4f} dilate={a.dilate} head_frac={a.head_frac} "
           f"md5={hashlib.md5(out.read_bytes()).hexdigest()}")

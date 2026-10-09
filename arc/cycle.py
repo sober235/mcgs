@@ -293,9 +293,9 @@ def main():
         tr.train()
 
     sp = score_contrast(tr, "plain", dev)
-    vram = torch.cuda.max_memory_allocated() / 1e9
-    npts = tr.model.num_points
     if args.trainer == "single":
+        vram = torch.cuda.max_memory_allocated() / 1e9
+        npts = tr.model.num_points
         log(f"{name_p:5s} psnr={sp['psnr']:.3f} ssim={sp['ssim']:.4f} nmse={sp['nmse']:.4f} hfen={sp['hfen']:.4f} "
             f"e_unobs={sp['e_unobs']:.4f} head_psnr={sp['head_psnr']:.3f} head_ssim={sp['head_ssim']:.4f} "
             f"head_hfen={sp['head_hfen']:.4f} sharp={sp['sharp']:.3f} grain={sp['grain']:.4f} comp={sp['comp']:.3f} beat={sp['beat']}")
@@ -325,6 +325,8 @@ def main():
     sc = score_contrast(tr, "contrast", dev)
     combined = 0.5 * (sp["comp"] + sc["comp"])
     both_beat = sp["beat"] and sc["beat"]
+    vram = torch.cuda.max_memory_allocated() / 1e9
+    npts = tr.model.num_points
 
     log(f"{name_p:5s} psnr={sp['psnr']:.3f} ssim={sp['ssim']:.4f} nmse={sp['nmse']:.4f} hfen={sp['hfen']:.4f} "
         f"e_unobs={sp['e_unobs']:.4f} e_unobs_xz={sp['e_unobs_excl_z']:.4f} head_psnr={sp['head_psnr']:.3f} head_ssim={sp['head_ssim']:.4f} "

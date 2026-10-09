@@ -273,7 +273,8 @@ class JointTrainer:
                     own = head_support(union_magnitude(self.zf_p, self.zf_c), float(gcfg.get("init_head_frac", 0.05)))
                     in_own = float(own[ix, iy, iz].float().mean())
                 print(f"[init_cloud] mode=support_file path={sup_path} n={n_init} "
-                      f"support_frac={float(support.float().mean()):.4f} in_own_zf_support={in_own:.4f}")
+                      f"support_frac={float(support.float().mean()):.4f} in_own_zf_support={in_own:.4f} "
+                      f"pos_sum={float(positions.double().sum()):.6f}")
             else:
                 # cold start on the measured anatomy: positions drawn inside the ZF head support
                 # (paired_gs/gaussian/init_cloud.py); densities follow the same zf*0.1 rule.
