@@ -1,0 +1,76 @@
+# ce_retro_af16.yaml -- MC-GS on the synthetic pre/post pair (CS-SENSE truth, Poisson-disc AF16, 42 real coils).
+# data: the trainer reads the noisy UNMASKED k-space (sim/gs/*_kspace.h5), the real maps and the external 3-D mask,
+# builds its own reference from the full k-space (presampled: false) and masks -- the jyz retrospective path.
+# No known_zero anywhere: the synthetic data has no vendor shutter. Everything below data: is the jyz AF16 base
+# config verbatim; the phase-3 recipe is applied on the command line by scripts/run_gs.sh.
+data:
+  plain:
+    name: pre
+    acceleration_factor: 16
+    data_path: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cs2/sim/gs/pre_kspace.h5
+    csm_path:  /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cs2/sim/gs/pre_csm.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cs2/sim/mask/mask_af16_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [1, 2]
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false
+  contrast:
+    name: pre
+    acceleration_factor: 16
+    data_path: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cs2/sim/gs/pre_kspace.h5
+    csm_path:  /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cs2/sim/gs/pre_csm.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cs2/sim/mask/mask_af16_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [1, 2]
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false
+gaussian:
+  density_lr: 0.015
+  init_scale: 0.008
+  initial_num_points: 600000
+  position_lr: 0.0003
+  rotation_lr: 0.0003
+  scale_lr: 0.002
+hardware:
+  device: cuda:0
+loss:
+  loss_type: l2
+  tv_weight: 0.10
+  tv_eps: 0.04
+  kspace_freq_adaptive: true
+  kspace_center_fraction: 0.05
+  kspace_center_weight: 0.3
+  kspace_mid_weight: 1.0
+  kspace_high_weight: 2.2
+  lambda_diff: 0.01
+  lambda_enh: 0
+  edge_tv: true
+  edge_tv_kappa_q: 0.85
+  edge_tv_wfloor: 0.1
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+output:
+  exp_name: ce_retro_af16vd_single_pre
+  output_dir: results_arc/ce_retro_af16vd_single_pre
+training:
+  max_iterations: 4000
+  shared_warmup_iters: 500
+  eval_every: 1000
+  log_every: 50
+  save_every: 1000
+  seed: 42
+  max_grad_norm: 1.0
+  lr_scheduler:
+    type: exponential
+    gamma: 0.9995
+voxelizer:
+  max_radius: 20
+  tile_size: 8

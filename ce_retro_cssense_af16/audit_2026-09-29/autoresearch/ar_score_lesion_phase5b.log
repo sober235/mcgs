@@ -1,0 +1,4 @@
+ar_h1_priv0 59 lesion slices; MC-GS first on PSNR+SSIM+NMSE+HFEN on both scans: 26
+ar_h2_priv01 59 lesion slices; MC-GS first on PSNR+SSIM+NMSE+HFEN on both scans: 28
+ar_h3_priv05 59 lesion slices; MC-GS first on PSNR+SSIM+NMSE+HFEN on both scans: 25
+SCORE_DONE

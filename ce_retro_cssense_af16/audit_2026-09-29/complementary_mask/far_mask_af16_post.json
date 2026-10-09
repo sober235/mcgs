@@ -1,0 +1,9 @@
+{
+ "design": "best of 40 vdPoisMex draws (accelx 4.40, ACS forced, trimmed to 2552): maximal mean nearest-neighbour distance from post non-ACS points to pre points",
+ "mean_nn": 1.6467669517207846,
+ "median_nn": 1.4142135623730951,
+ "overlap_outside_acs": 217,
+ "raw": "vd_ax4.40_rep16.mat",
+ "points": 2552,
+ "af": 16.0
+}
