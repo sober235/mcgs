@@ -11,9 +11,11 @@ Nothing in the source topic is touched; the output directory must not exist yet.
 
 --replace ARM:SCAN=KEY: ARM is a registered stem with its own json (cgsense -> logs/classical_<scan>.json row 'cgsense';
 zsssdu, dip, inr, mcinr -> logs/<stem>_<scan>.json) and KEY the improved run's method key, i.e. recon/<KEY>_<scan>_complex.npy
-plus the json whose row has method == KEY. The swept families (cssense_o200, jcssense, spirit) need no --replace: their
-improved jsons are copied in with everyone else and summarize.py keeps the best head PSNR per family and scan -- but only
-if the family glob in summarize.py matches the new file names; check logs/summary.json afterwards.
+plus the json whose row has method == KEY. ARM may also be 'spirit': the improved run (e.g. a coil-compressed one,
+spirit_vc24_ks5_lam0.001) is installed under the registered family name of its kernel and lambda
+(recon/spirit_ks5_lam0.001_<scan>_complex.npy, logs/spirit_<scan>_ks5_lam0.001.json, method spirit_ks5_lam0.001), so
+summarize.py's per-family maximum and arms.py's file rule see it unchanged. The cssense_o200 / jcssense families need no
+--replace (their improved jsons already carry the family names).
 """
 import argparse, json, os, shutil
 from pathlib import Path
@@ -47,7 +49,7 @@ repl = {}
 for spec in a.replace:
     arm_scan, key = spec.split("=")
     arm, scan = arm_scan.split(":")
-    assert arm in STEM_JSON, f"unknown arm {arm} (families are chosen by summarize.py, see the docstring)"
+    assert arm in STEM_JSON or arm == "spirit", f"unknown arm {arm} (families are chosen by summarize.py, see the docstring)"
     vol = src / "recon" / f"{key}_{scan}_complex.npy"
     assert vol.exists(), vol
     repl[(arm, scan)] = (key, vol, find_row(key, scan))
@@ -56,18 +58,34 @@ out.mkdir(parents=True, exist_ok=False)
 for d in ("configs", "scripts", "sim", "trainer"):
     os.symlink(src / d, out / d)
 (out / "recon").mkdir(); (out / "logs").mkdir(); (out / "figures").mkdir()
-replaced_names = {f"{arm}_{scan}_complex.npy" for (arm, scan) in repl}
+def reg_name(arm, scan, row):
+    """the registered volume stem an improved run replaces: <arm>_<scan> for the single arms, spirit_ks<k>_lam<l>_<scan> for L1-SPIRiT"""
+    return f"spirit_ks{row['ksize']}_lam{row['lam']:g}_{scan}" if arm == "spirit" else f"{arm}_{scan}"
+
+
+replaced_names = {reg_name(arm, scan, row) + "_complex.npy" for (arm, scan), (key, vol, (js, row)) in repl.items()}
 for f in sorted((src / "recon").iterdir()):
     if (f.is_file() or f.is_symlink()) and f.name not in replaced_names:
         os.symlink(f.resolve(), out / "recon" / f.name)
-for (arm, scan), (key, vol, _) in repl.items():
-    os.symlink(vol.resolve(), out / "recon" / f"{arm}_{scan}_complex.npy")
+for (arm, scan), (key, vol, (js, row)) in repl.items():
+    os.symlink(vol.resolve(), out / "recon" / (reg_name(arm, scan, row) + "_complex.npy"))
 for f in sorted((src / "logs").glob("*.json")):
     shutil.copy2(f, out / "logs" / f.name)
 for d in ("orch", "ar"):
     if (src / "logs" / d).exists():
         os.symlink(src / "logs" / d, out / "logs" / d)
 for (arm, scan), (key, vol, (js, row)) in repl.items():
+    if arm == "spirit":
+        fam = f"spirit_ks{row['ksize']}_lam{row['lam']:g}"
+        jpath = out / "logs" / f"spirit_{scan}_ks{row['ksize']}_lam{row['lam']:g}.json"
+        doc = json.load(open(jpath)) if jpath.exists() else {"contrast": scan, "rows": [dict(row)]}
+        nr = dict(row); nr["method"] = fam; nr["improved_from"] = key; nr["improved_json"] = str(js)
+        doc["rows"] = [nr]; doc["improved"] = {fam: key}
+        for k in ("lam", "ksize", "tyk", "iters", "levels", "solver", "calib", "vcoils"):
+            if k in nr:
+                doc[k] = nr[k]
+        json.dump(doc, open(jpath, "w"), indent=2)
+        continue
     jpath = out / "logs" / STEM_JSON[arm].format(scan=scan)
     doc = json.load(open(jpath))
     new_rows = []
