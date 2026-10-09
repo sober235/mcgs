@@ -38,21 +38,24 @@ $ md5sum configs/sg2x2/init_support_af16_jyz.npz
 2. Push of the branch and tag (not pushed).
 3. Seeds 43/44 and the supplement runs (1.8M capacity `NPTS=1800000`; `INIT=head` end-to-end control).
 4. Whether to start the 16-pair core test (another grid: own support file, per-subject DC-centring check, masks) and
-   the spec §4 equal-budget per-arm lambda search (both out of scope here).
+   the spec §4 equal-budget per-arm lambda search (both out of scope here). The core test's support file must come
+   from a development subject on that grid (or a fixed-FOV / atlas support), never from the test subject's own ZF
+   (spec §4); and `INIT=head` is not a matched init for single cells (a single `head` draw uses one contrast's own
+   support, the joint uses the union).
 
 ## 3. Next
 
 After the go: launch the queue, wait with a loop anchored on the python path
 (`pgrep -f '^/home/congcongliu/anaconda3/envs/GSTMI/bin/python -u arc/cycle.py --exp sg2x2_pilot'`), then run the
-acceptance commands in record §4 (audits ok + clean, six `[init_cloud]` lines agree on `n=3600000 support_frac=0.4273`,
-no NaN / OOM, table with A-B, C-D, interaction) and paste the table into the record marked
+acceptance commands in record §4 (audits ok + clean, six `[init_cloud]` lines agree on `n=3600000 support_frac=0.4273`
+and all six `pos_sum` values are equal, no NaN / OOM, table with A-B, C-D, interaction) and paste the table into the record marked
 `PILOT, one subject, seed 42, NOT EVIDENCE`.
 
 ## 4. Pitfalls, and what not to redo
 
 - `--set` values are YAML (`--set loss.lambda_nl=0` is the number 0; strings need quotes).
-- `run_sg2x2.sh` positional order is `EXP GPU CELL [ITERS] [SEED] [extra args]`; omit ITERS/SEED before extra args and
-  the first extra arg is eaten as ITERS. The queue line order is `EXP CELL ITERS SEED`.
+- `run_sg2x2.sh` positional order is `EXP GPU CELL [ITERS] [SEED] [extra args]`; an extra `--flag` given in place of ITERS
+  makes sg2x2_cells.py reject it and the launcher exit 2. The queue line order is `EXP CELL ITERS SEED`.
 - The manifest script exits 3 when the regulariser audit fails; a nonzero exit after a run means read the audit, not the log.
 - Pre-existing bug fixed here (R9): since f413c26 (2026-09-26) any joint run with `loss.edge_tv=false` died with
   AttributeError at iteration 1. The iso-TV reproduction commands in the project memory (configs without edge_tv) were
