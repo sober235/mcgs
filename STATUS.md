@@ -2,14 +2,17 @@
 
 **Read first:** `docs/experiments/2026-10-09-mcgs-shared-geometry-2x2-ablation.md` (spec), then
 `docs/superpowers/plans/2026-10-09-sg2x2-shared-geometry-ablation.md` (plan), then
-`docs/superpowers/records/2026-10-09-sg2x2-implementation.md` (what was built, regression, not-done list). Tag
-`handoff/2026-10-09-sg2x2-pilot` = code complete, pilot pending. The sections below this one belong to older branches
-and are kept as they were.
+`docs/superpowers/records/2026-10-09-sg2x2-implementation.md` (what was built, regression, the pilot results in its
+section 4, not-done list). Tag `handoff/2026-10-09-sg2x2-pilot` (53becc8) = code complete, pilot pending; tag
+`handoff/2026-10-09-sg2x2-pilot-r2` (53d38db) = after the final-review fix wave, the commit the pilot ran on. The pilot
+finished 2026-10-09 21:13 (PILOT, one subject, seed 42, NOT EVIDENCE). The sections below this one belong to older
+branches and are kept as they were.
 
 ## 1. Done and verified (2026-10-09, this worktree)
 
-Re-run these first; the numbers below come from the execution ledger
-(`.superpowers/sdd/2026-10-09-sg2x2-shared-geometry-ablation/progress.md`, local, gitignored).
+Re-run these first. The numbers in the first block come from the execution ledger
+(`.superpowers/sdd/2026-10-09-sg2x2-shared-geometry-ablation/progress.md`, local, gitignored); the pilot block was
+measured from the files after the queue drained at 21:13.
 
 ```
 $ PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
@@ -29,27 +32,121 @@ $ md5sum configs/sg2x2/init_support_af16_jyz.npz
 - Smokes (A, C, B_T1, D_FLAIR on card 1): all four manifests audit ok; `in_own_zf_support` 1.0000 / 1.0000 / 0.9697 / 0.9206.
 - Built: single-contrast trainer (one contrast per process), `arc/cycle.py --trainer`, `init_mode=support_file`, cells
   table, launcher `run_sg2x2.sh`, manifest + audit, table, regression gate, queue `scripts/sg2x2_queue.sh`.
-- The pilot has NOT run. No number from this branch is evidence yet.
+- The pilot has run (block below): one subject, one seed. No number from this branch is evidence yet.
+
+**Pilot: PILOT, one subject, seed 42, NOT EVIDENCE.** Queue launched 12:39, drained 21:13; timeline, resources, table
+and reading are in the record, section 4. A, C and B_T1 were stopped at 18:44 after a card-sharing stall (section 4
+below) and re-run as `sg2x2_pilot2_af16_s42_{A,C,B_T1}`. B_FLAIR (18:34), D_T1 (19:06) and D_FLAIR (19:35) finished under
+the original prefix `sg2x2_pilot_af16_s42_`; their outputs are symlinked under the `sg2x2_pilot2_af16` names
+(`_score.json`, `_volumes.npz`, `_manifest.json`, `.log`), so one table call reads all six. The re-runs finished A 20:39
+(card 2, 3810 s), C 20:45 (card 3, 3261 s), B_T1 21:13 (card 2, 1962 s). Acceptance commands (plan Task 8 step 3, pilot2
+prefix) with their raw output:
+
+```
+$ PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
+$ for e in A C B_T1 B_FLAIR D_T1 D_FLAIR; do echo -n "$e: "; $PY -c "import json;m=json.load(open('results_arc/sg2x2_pilot2_af16_s42_$e'+'_manifest.json'));print(m['audit'], 'dirty' if m['git_dirty'] else 'clean')"; done
+A: {'resolved_ok': True, 'startup_ok': True, 'loss_ok': True, 'ok': True} dirty
+C: {'resolved_ok': True, 'startup_ok': True, 'loss_ok': True, 'ok': True} dirty
+B_T1: {'resolved_ok': True, 'startup_ok': True, 'loss_ok': True, 'ok': True} dirty
+B_FLAIR: {'resolved_ok': True, 'startup_ok': True, 'loss_ok': True, 'ok': True} clean
+D_T1: {'resolved_ok': True, 'startup_ok': True, 'loss_ok': True, 'ok': True} dirty
+D_FLAIR: {'resolved_ok': True, 'startup_ok': True, 'loss_ok': True, 'ok': True} dirty
+$ for e in A C B_T1 B_FLAIR D_T1 D_FLAIR; do $PY -c "import json;m=json.load(open('results_arc/sg2x2_pilot2_af16_s42_$e'+'_manifest.json'));print('$e', m['git_head'][:7], m['git_dirty'])"; done
+A 53d38db ['scripts/sg2x2_pilot_s42.txt']
+C 53d38db ['scripts/sg2x2_pilot_s42.txt']
+B_T1 53d38db ['scripts/sg2x2_pilot_s42.txt']
+B_FLAIR 53d38db []
+D_T1 53d38db ['scripts/sg2x2_pilot_s42.txt']
+D_FLAIR 53d38db ['scripts/sg2x2_pilot_s42.txt']
+$ grep -h -E '^\[init_cloud\] mode=support_file' results_arc/sg2x2_pilot2_af16_s42_*.log | sort | uniq -c
+      2 [init_cloud] mode=support_file path=/data0/congcong/code/GS/mcgs_sg2x2_wt/configs/sg2x2/init_support_af16_jyz.npz n=3600000 support_frac=0.4273 in_own_zf_support=0.9206 pos_sum=319918.032643
+      2 [init_cloud] mode=support_file path=/data0/congcong/code/GS/mcgs_sg2x2_wt/configs/sg2x2/init_support_af16_jyz.npz n=3600000 support_frac=0.4273 in_own_zf_support=0.9697 pos_sum=319918.032643
+      2 [init_cloud] mode=support_file path=/data0/congcong/code/GS/mcgs_sg2x2_wt/configs/sg2x2/init_support_af16_jyz.npz n=3600000 support_frac=0.4273 in_own_zf_support=1.0000 pos_sum=319918.032643
+$ grep -l -i -E 'nan|out of memory' results_arc/sg2x2_pilot2_af16_s42_*.log || echo "no NaN / OOM"
+no NaN / OOM
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/sg2x2_table.py --prefix sg2x2_pilot2_af16 --seeds 42   # prints this table, also writes results_arc/sg2x2_pilot2_af16_table.md
+Head-only metrics (|GT| > 0.05 P99.9), mean ± SD over 1 seed(s) [42]; differences are per-seed paired differences. PILOT numbers on one subject are engineering checks, not evidence.
+
+| cell | contrast | PSNR | SSIM | NMSE | HFEN |
+|---|---|---|---|---|---|
+| A | T1 | 35.645 ± n/a | 0.9388 ± n/a | 0.01314 ± n/a | 0.1151 ± n/a |
+| A | FLAIR | 34.876 ± n/a | 0.9253 ± n/a | 0.01389 ± n/a | 0.1134 ± n/a |
+| B | T1 | 35.639 ± n/a | 0.9387 ± n/a | 0.01315 ± n/a | 0.1157 ± n/a |
+| B | FLAIR | 34.898 ± n/a | 0.9256 ± n/a | 0.01382 ± n/a | 0.1139 ± n/a |
+| C | T1 | 23.775 ± n/a | 0.4952 ± n/a | 0.20202 ± n/a | 0.3886 ± n/a |
+| C | FLAIR | 24.854 ± n/a | 0.5402 ± n/a | 0.13958 ± n/a | 0.3339 ± n/a |
+| D | T1 | 22.212 ± n/a | 0.4274 ± n/a | 0.28953 ± n/a | 0.4723 ± n/a |
+| D | FLAIR | 23.805 ± n/a | 0.4930 ± n/a | 0.17769 ± n/a | 0.3828 ± n/a |
+| A−B | T1 | +0.006 ± n/a | +0.0001 ± n/a | −0.00002 ± n/a | −0.0006 ± n/a |
+| A−B | FLAIR | −0.022 ± n/a | −0.0003 ± n/a | +0.00007 ± n/a | −0.0004 ± n/a |
+| C−D | T1 | +1.563 ± n/a | +0.0679 ± n/a | −0.08751 ± n/a | −0.0837 ± n/a |
+| C−D | FLAIR | +1.049 ± n/a | +0.0472 ± n/a | −0.03812 ± n/a | −0.0489 ± n/a |
+| (A−B)−(C−D) | T1 | −1.557 ± n/a | −0.0678 ± n/a | +0.08749 ± n/a | +0.0831 ± n/a |
+| (A−B)−(C−D) | FLAIR | −1.071 ± n/a | −0.0476 ± n/a | +0.03819 ± n/a | +0.0485 ± n/a |
+```
+
+- Audits: all six `ok: True` (resolved, startup, loss all True), all with `git_head` 53d38db. `git_dirty` is `[]` for
+  B_FLAIR and `['scripts/sg2x2_pilot_s42.txt']` for the other five. That is the queue file, not code: the three re-run
+  lines were appended to it at 18:44, and a manifest reads `git_dirty` when it is written (end of the run), so every run
+  that ended after 18:44 carries the mark, D_T1 (started 18:34, ended 19:06) included. B_FLAIR's manifest was written
+  at 18:34. The plan's "six clean" cannot hold when the queue file is edited mid-queue.
+- The six `[init_cloud]` lines all read `n=3600000 support_frac=0.4273 pos_sum=319918.032643`: the identical initial
+  cloud in all six cells. `in_own_zf_support` is 1.0000 in A and C, 0.9697 in the T1 single cells and 0.9206 in the
+  FLAIR single cells (R12). No NaN / out-of-memory line in any of the six logs.
+- Resources (score jsons): A 3.6M points, 32.9 GB, 3810 s; C 3.6M, 32.9 GB, 3261 s; B_T1 3.6M, 25.4 GB, 1962 s; B_FLAIR
+  3.6M, 27.9 GB, 6410 s (shared card, not a speed measurement); D_T1 3.6M, 25.4 GB, 1871 s; D_FLAIR 3.6M, 27.9 GB,
+  1701 s. B and D hold 7.2M points per arm (two runs), A and C 3.6M.
+- Sanity check against the registered numbers
+  (`/data0/congcong/code/GS/mcgs_hparam_wt/docs/superpowers/records/2026-09-20-coupling-attribution.md`, lines 90-95 and
+  210): the joint arm at lambda_edge 0 with the phase-3 recipe and head init (J0 = S0 + M0 = 35.598942 + 0.045714 and
+  34.904343 − 0.028535) is 35.644656 / 34.875808 (T1 / FLAIR); cell A measured 35.644773 / 34.875728, a difference of
+  +0.0001 / −0.0001 dB. So cell A reproduces the registered recipe's joint arm, and the `support_file` init reproduces
+  the `head` init on this subject. The old duplicate-slot singles at lambda_edge 0 (S0) were 35.598942 / 34.904343; the
+  true singles here are B_T1 35.639 (+0.040 against S0: same union-support init as A, no loss doubling) and B_FLAIR
+  34.898 (−0.006: the proxy carried T1's wavelet weight).
+- Reading, in the spec's §5.3 terms (PILOT, one subject, seed 42, NOT EVIDENCE): the pilot falls in the row
+  "A ≈ B but C > D". With the per-channel priors on, shared geometry buys +0.006 dB on T1 and −0.022 dB on FLAIR (T1
+  inside, FLAIR at the edge of the pre-registered 0.02 dB band). With every explicit prior off it is worth +1.56 / +1.05
+  dB (C−D). The interaction −1.56 / −1.07 dB says the per-channel priors replace the whole measurable shared-geometry
+  benefit on this subject. The level without priors (C 23.8 / 24.9, D 22.2 / 23.8 dB) is 10 to 13 dB below the
+  regularised cells. Caveats (record 4.7): n = 1 subject and seed; A and B share the frozen recipe tuned on the joint
+  arm and the equal-budget own-lambda search is out of scope, so B could only improve and A−B ≤ 0 is more likely, not
+  less; the no-regulariser cells are far from any practical operating point.
 
 ## 2. Waiting for the user
 
-1. The go for the pilot (six runs, about 1 h each, cards 0-4 allowed; cards 5/6/7 belong to other sessions):
-   `setsid nohup bash scripts/sg2x2_queue.sh scripts/sg2x2_pilot_s42.txt > results_arc/sg2x2_queue_pilot_s42.log 2>&1 < /dev/null &`
-2. Push of the branch and tag (not pushed).
-3. Seeds 43/44 and the supplement runs (1.8M capacity `NPTS=1800000`; `INIT=head` end-to-end control).
-4. Whether to start the 16-pair core test (another grid: own support file, per-subject DC-centring check, masks) and
-   the spec §4 equal-budget per-arm lambda search (both out of scope here). The core test's support file must come
-   from a development subject on that grid (or a fixed-FOV / atlas support), never from the test subject's own ZF
-   (spec §4); and `INIT=head` is not a matched init for single cells (a single `head` draw uses one contrast's own
-   support, the joint uses the union).
+1. Seeds 43 and 44 (the spec's repeat design is 42 / 43 / 44), the same six cells per seed, so 12 more runs; the 1.8M
+   capacity supplement (`NPTS=1800000`: B and D at 1.8M per contrast against the 3.6M of A and C); the `INIT=head`
+   end-to-end control. GPU time for the seeds, from the five pilot runs not flagged as shared: A 64 min, C 54, B_T1 33,
+   D_T1 31, D_FLAIR 28, and B_FLAIR counted at D_FLAIR's 28 (its own 6410 s was on a shared card), so about 4 GPU-hours
+   per seed (an estimate). Cards 0-4 are allowed by the queue; cards 5/6/7 belong to other sessions.
+2. Whether to run the spec §4 equal-budget own-lambda search for B. It is out of scope so far, and the pilot's A−B is
+   read with the caveat that B uses the recipe tuned on the joint arm. It needs a call on search space, budget and GPU
+   time.
+3. Push of the docs commit with the pilot results. The branch (53d38db) and the tags `handoff/2026-10-09-sg2x2-pilot`
+   and `handoff/2026-10-09-sg2x2-pilot-r2` are already on origin.
+4. Whether to start the 16-pair core test (another grid: own support file, per-subject DC-centring check, masks). The
+   core test's support file must come from a development subject on that grid (or a fixed-FOV / atlas support), never
+   from the test subject's own ZF (spec §4); and `INIT=head` is not a matched init for single cells (a single `head`
+   draw uses one contrast's own support, the joint uses the union).
 
 ## 3. Next
 
-After the go: launch the queue, wait with a loop anchored on the python path
-(`pgrep -f '^/home/congcongliu/anaconda3/envs/GSTMI/bin/python -u arc/cycle.py --exp sg2x2_pilot'`), then run the
-acceptance commands in record §4 (audits ok + clean, six `[init_cloud]` lines agree on `n=3600000 support_frac=0.4273`
-and all six `pos_sum` values are equal, no NaN / OOM, table with A-B, C-D, interaction) and paste the table into the record marked
-`PILOT, one subject, seed 42, NOT EVIDENCE`.
+1. In a new session: read this file, then the record's section 4, then re-run the commands in section 1 (CPU only; the
+   table call loads the six volumes). If a number differs from what is written here, trust the re-run and say so.
+2. Nothing else runs until the user picks from section 2. For seeds 43 / 44: write a queue file with the six cells per
+   seed in the line format `EXP CELL ITERS SEED` (an optional `KEY=VAL` such as `NPTS=1800000` may precede EXP), named
+   `sg2x2_pilot2_af16_s43_{A,C,B_T1,B_FLAIR,D_T1,D_FLAIR}` (and `_s44_` with seed 44), so that one
+   `sg2x2_table.py --prefix sg2x2_pilot2_af16 --seeds 42 43 44` reads all three seeds (the table script builds the names
+   `<prefix>_s<seed>_<cell>`). Launch it with the queue command in record section 4. For the 1.8M supplement use a
+   different prefix and symlink the A and C outputs under it, as was done for the pilot's three finished cells.
+3. Before a launch, check every allowed card for foreign compute processes
+   (`nvidia-smi --query-compute-apps=pid,used_memory --format=csv -i <card>`); during a run, watch the log's mtime
+   (section 4). Wait with a loop anchored on the python path
+   (`pgrep -f '^/home/congcongliu/anaconda3/envs/GSTMI/bin/python -u arc/cycle.py --exp sg2x2_'`), never on a bare name.
+4. When a batch drains, run the record's 4.2 commands with the new prefix and seeds (audits ok, `[init_cloud]` lines
+   agree, no NaN / OOM, table with A-B, C-D, the interaction and the per-cell `(n=k/N)` counts) and append the table to
+   the record. Three seeds on one subject are still one subject: keep the NOT EVIDENCE label.
 
 ## 4. Pitfalls, and what not to redo
 
@@ -65,6 +162,26 @@ and all six `pos_sum` values are equal, no NaN / OOM, table with A-B, C-D, inter
   covers 0.8954. Do not dilate the support file (dilate 1/2/3 move the cloud off the registered recipe's head init).
 - A and B share one frozen phase-3 recipe; do not read the pilot as an equal-budget comparison.
 - The test suite's GPU subprocess tests die with OOM if another session takes the card mid-run; re-run the one test alone.
+- Card sharing stalls both sides (R17, 2026-10-09). Two GPU processes on one card on this machine stall each other to
+  zero progress: the GPU reads "100 %" utilisation with 1 % memory utilisation and 85 W, and neither log advances. The
+  queue runner launches only on an idle card (no compute process, under 1500 MiB used, no live card lock), but it
+  cannot stop another queue from landing on a card it already occupies. The other session's `ar_queue.py` uses fixed
+  lanes without an occupancy check, and its 44 GB jobs landed on our cards 0, 1 and 3. House rule: on a collision stop
+  only your own runs and re-run them under a new name; leave the other session's jobs alone. `arc/cycle.py` has no
+  resume support, so a stopped run starts over (A, C and B_T1 had reached iter 1800, 2200 and 2900 of 4000). The other
+  session's jobs went back to full speed the moment ours stopped. To catch a stall early, watch the log's mtime during a
+  run: a log line is 50 iterations, about 20 to 50 s in the pilot runs not flagged as shared, so a log that has not
+  advanced for 10 minutes while its process is alive is stalled.
+- Pilot file names: `sg2x2_pilot2_af16_s42_{B_FLAIR,D_T1,D_FLAIR}` are symlinks to the original-prefix outputs (the
+  `exp` field inside those score files keeps the original name); `sg2x2_pilot_af16_s42_{A,C,B_T1}.log` are the three
+  stopped runs (incomplete, no score / manifest / volumes, not results). The queue skips any name that already has a
+  score, a log or a launcher log, so a re-run needs a new name. The three re-run lines in `scripts/sg2x2_pilot_s42.txt`
+  document this; keep them.
+- A manifest reads `git_dirty` when it is written, at the end of the run. A tracked file edited while a run is in flight
+  (here the queue file, appended at 18:44) marks that run dirty, so the plan's "all six clean" cannot hold then. It is
+  not a code change, but say so when quoting the audit.
+- B_FLAIR's 6410 s is a shared-card time, not a speed measurement. The plan's "about 1 h each" turned out to be 28 to
+  64 min for the other five runs.
 
 ## 5. Why
 
@@ -72,6 +189,15 @@ One contrast per process is the only reading of "truly independent GS-single" th
 cross-contrast parameter anywhere. The frozen support file makes every cell start from the same cloud independent of the
 subject's ZF, and with dilate 0 cell A equals the registered recipe's own init, so the regression gate and the cells
 stay comparable. The pilot is one subject and one seed on purpose: it tests the machinery (audit, init, table), not the claim.
+
+The three stalled runs were stopped and re-run under a new name instead of waited out: both sides had stalled (our logs
+stopped at iter 1800 / 2200 / 2900), `arc/cycle.py` cannot resume, and the other session's jobs went back to full speed
+the moment ours stopped. Only our own runs were touched (R17). Symlinking the three finished cells under the new prefix
+lets one table call read all six cells without changing the table script. The queue file's dirty mark was accepted and
+explained rather than hidden: the manifest records what was true when the run ended, and the only dirty path is a file
+the trainer never reads. The pilot is reported in the spec's own terms with its caveats attached because one subject and
+one seed cannot carry the claim. Its job was to show that the audit, the init and the table work end to end; cell A
+matching the registered joint arm to +0.0001 / −0.0001 dB is the part that settles the init question on this subject.
 
 ---
 

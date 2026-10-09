@@ -5,11 +5,13 @@ Read in this order: this file → `STATUS.md` (current state, what to re-run fir
 `docs/superpowers/records/` (dated session records, newest first) → `.claude/memory.md`
 (the long project memory, §0–19; do not re-derive anything it already closed).
 
-## Branch `exp/shared-geometry-2x2-ablation-20261009` (this worktree `mcgs_sg2x2_wt`, 2026-10-09) — shared-geometry 2x2 ablation, code complete, pilot pending
+## Branch `exp/shared-geometry-2x2-ablation-20261009` (this worktree `mcgs_sg2x2_wt`, 2026-10-09) — shared-geometry 2x2 ablation, code complete, pilot run (seed 42, NOT EVIDENCE)
 Entry: `STATUS.md` (top section) → spec `docs/experiments/2026-10-09-mcgs-shared-geometry-2x2-ablation.md` → plan
 `docs/superpowers/plans/2026-10-09-sg2x2-shared-geometry-ablation.md` → record `docs/superpowers/records/2026-10-09-sg2x2-implementation.md`.
 Launcher `run_sg2x2.sh EXP GPU CELL [ITERS] [SEED]` (CELL A|B_T1|B_FLAIR|C|D_T1|D_FLAIR), queue `scripts/sg2x2_queue.sh scripts/sg2x2_pilot_s42.txt`,
-table `scripts/sg2x2_table.py --prefix sg2x2_pilot_af16 --seeds 42`. Tag `handoff/2026-10-09-sg2x2-pilot`; pilot waits for the user's go.
+table `scripts/sg2x2_table.py --prefix sg2x2_pilot2_af16 --seeds 42` (the three cells re-run after a card-sharing stall carry the
+`sg2x2_pilot2_af16` prefix; the other three are symlinked under it). Tag `handoff/2026-10-09-sg2x2-pilot-r3`; pilot result in the record §4
+(A−B +0.006 / −0.022 dB, C−D +1.563 / +1.049 dB; one subject, one seed). Two trainers on one card stall each other to zero progress on this machine.
 
 ## Branch `widen-mcgs-af12-16-20-24` (this worktree `mcgs_widen_wt`, 2026-09-24/28) — start here for the MC-GS margin work
 Read `STATUS.md` (top section) → `docs/2026-09-28-widen-mcgs-summary.md` → `autoresearch_widen.md` →

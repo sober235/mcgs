@@ -5,3 +5,7 @@ sg2x2_pilot_af16_s42_B_T1 B_T1 4000 42
 sg2x2_pilot_af16_s42_B_FLAIR B_FLAIR 4000 42
 sg2x2_pilot_af16_s42_D_T1 D_T1 4000 42
 sg2x2_pilot_af16_s42_D_FLAIR D_FLAIR 4000 42
+# re-runs after the 2026-10-09 card-sharing stall (A/C/B_T1 stopped at iter 1800/2200/2900 with rc=143): new prefix, same cells, same seed
+sg2x2_pilot2_af16_s42_A A 4000 42
+sg2x2_pilot2_af16_s42_C C 4000 42
+sg2x2_pilot2_af16_s42_B_T1 B_T1 4000 42
