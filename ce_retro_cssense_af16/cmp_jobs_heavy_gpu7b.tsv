@@ -1,0 +1,2 @@
+# GPU 7 round 2 (22:50): the post-contrast run of the DIP setting that wins on pre by the held-out rule (support 6, lr 3e-3, 12000 iterations; base 96 + lr 1e-2 lost to it)
+dip_post_sup_it12k	logs/dip_sup_it12k_post.json	PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python; S=/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts; $PY -u $S/recon_dip_inr.py --method dip --scan post --gpu {gpu} --iters 12000 --lr 3e-3 --eval_every 200 --support 6 --suffix _sup_it12k
