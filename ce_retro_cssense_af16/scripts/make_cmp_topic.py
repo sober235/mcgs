@@ -39,6 +39,8 @@ def find_row(key, scan):
             doc = json.load(open(js))
         except Exception:
             continue
+        if not isinstance(doc, dict):          # logs/summary.json is a list of rows, not a score file
+            continue
         for r in doc.get("rows", []):
             if r.get("method") == key and r.get("contrast", scan) == scan:
                 return js, r
