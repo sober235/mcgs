@@ -1,0 +1,5 @@
+# designed complementary-mask probe (2026-10-09): post mask = pre mask rolled by one k-space line, ACS forced, 2552 points, AF 16.00;
+# overlap outside ACS 69 of 1976 (random second draw on 10-08: 243). Recipes = confirmed winner / rule-A fair single.
+# Same-mask reference: MC-GS 34.646 / 36.897, fair GS-single 34.583 / 36.809; random-draw probe: 34.684 / 36.977 vs 34.583 / 36.863.
+cs_mcgs	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector
+cs_s_post	post	--lambda_edge 0 --edge_tv_wfloor 0.0 --kspace_high 2.8 --tv_vector

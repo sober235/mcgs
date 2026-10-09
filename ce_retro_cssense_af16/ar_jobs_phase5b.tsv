@@ -1,0 +1,5 @@
+# phase 5b (2026-10-09): contrast-private residual Gaussians (render into post only) with L1 sparsity on their amplitude -- the
+# CE physics prior (enhancement is sparse). Base = confirmed winner. 5 % private points (180k) of the 3.6M shared cloud.
+ar_h1_priv0	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --set gaussian.num_private_points=180000
+ar_h2_priv01	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --set gaussian.num_private_points=180000 --set loss.lambda_private_sp=0.01
+ar_h3_priv05	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --set gaussian.num_private_points=180000 --set loss.lambda_private_sp=0.05

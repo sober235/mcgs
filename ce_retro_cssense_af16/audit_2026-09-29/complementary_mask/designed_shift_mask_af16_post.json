@@ -1,0 +1,8 @@
+{
+ "design": "post mask = pre mask rolled by (0,+1) on the PE plane, 24x24 ACS forced full, 1 excess point trimmed from the outside; same density profile as pre",
+ "points": 2552,
+ "af": 16.0,
+ "overlap_outside_acs": 69,
+ "non_acs_points": 1976,
+ "union": 4459
+}

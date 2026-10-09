@@ -21,7 +21,7 @@
   "sigma_written": 1.445249558049051,
   "sigma_meta": 1.4452258068243002,
   "sigma_rel_dev": 1.6434265592613073e-05,
-  "zf_af16_head_psnr": 26.98501929722748,
+  "zf_af16_head_psnr": 26.930278544568985,
   "adjoint_voxel_condition": "head & (sum_c|S_c|^2 > 0.25)",
   "adjoint_head_voxels_total": 4520978,
   "adjoint_head_voxels_used": 4520904,
