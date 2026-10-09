@@ -52,7 +52,13 @@ ap.add_argument("--calib", default="acquired", choices=["acquired", "full24"],
                      "region `bart ecalib -r 24` took the topic's ESPIRiT maps from -- so every other arm, "
                      "and the ground truth itself, already rests on that block. Reported both ways.")
 ap.add_argument("--save", type=int, default=1, help="0: score only, do not write the volume")
-args = ap.parse_args()
+ap.add_argument("--vcoils", type=int, default=0,
+                help="SVD coil compression to this many virtual coils before calibration and reconstruction (0 = off, "
+                     "the registered arm). V = the leading eigenvectors of the coil covariance of the acquired hybrid-space "
+                     "samples (global SVD compression, Huang 2008 / Zhang 2013); the ESPIRiT maps are rotated by the same V, "
+                     "so the combined image stays in the gauge. 2026-10-09 comparison-arm audit: with 42 coils the 5x5 "
+                     "calibration from a 24x24 ACS is under-determined (400 equations, 1050 unknowns).")
+args = ap.parse_args() if __name__ == "__main__" else ap.parse_args(["--scan", "pre", "--gpu", "-1"])
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
@@ -63,7 +69,7 @@ import numpy as np, torch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from t1t2_common import Pair, R, fft2c, ifft2c, ifft1c                # noqa: E402
 
-dev = torch.device("cuda:0")
+dev = torch.device("cpu") if args.gpu < 0 else torch.device("cuda:0")       # --gpu -1: CPU (tests; the 2026-10-09 CPU lane)
 log = lambda *a: print(*a, flush=True)
 
 
@@ -267,6 +273,26 @@ def pocs(data, K, unacq, iters, lam, levels, lo, hi, ss, trace=None):
     return x
 
 
+def compress_matrix(data, m2, n):
+    """Per-readout-slice SVD coil compression (the per-x step of Zhang et al. 2013 GCC; no alignment is needed because
+    everything downstream -- calibration, FISTA, coil combination -- is done per slice). data (B, NC, NY, NZ) hybrid-space
+    slices, m2 (NY, NZ) acquired mask -> V (B, NC, n): per slice the n leading eigenvectors of the NC x NC covariance of
+    its acquired samples (strongest first), and the mean over the batch of the acquired-energy fraction they keep."""
+    B, NC = data.shape[:2]
+    iy, iz = torch.nonzero(m2, as_tuple=True)
+    v = data[:, :, iy, iz]                                         # (B, NC, samples)
+    cov = v @ v.conj().transpose(1, 2)                             # (B, NC, NC)
+    evals, evecs = torch.linalg.eigh(cov)                          # ascending
+    V = evecs[:, :, NC - n:].flip(-1).contiguous()                 # (B, NC, n)
+    kept = evals[:, NC - n:].sum(1) / evals.sum(1).clamp_min(1e-30)
+    return V, float(kept.mean())
+
+
+def apply_compress(x, V):
+    """x (B, NC, ...) -> (B, n, ...): virtual coil v = sum_c conj(V[b, c, v]) x[b, c], i.e. V^H x per slice and sample."""
+    return torch.einsum("bcv,bc...->bv...", V.conj(), x)
+
+
 def acs_box(m2):
     """largest fully sampled block centred on the k-space origin, grown one ring at a time in each
     axis independently. This mask's block is 24 x 16, not the 24 x 24 the generator's calib=24
@@ -299,9 +325,17 @@ def main():
     yh = torch.empty_like(P.y)                                  # hybrid space: ifft along readout
     for i in range(0, NC, P.chunk):
         yh[i:i + P.chunk] = ifft1c(P.y[i:i + P.chunk], -3)
+    energies = []
+    if args.vcoils > 0:
+        assert 0 < args.vcoils <= NC, (args.vcoils, NC)
+        NC = args.vcoils
+        D = NC * args.ksize ** 2
+        log(f"[{args.contrast}] per-slice coil compression {P.NC} -> {NC} virtual coils; calibration matrix {npatch} x {D}"
+            f"{'  (under-determined)' if npatch < D else ''}")
     if args.calib == "full24":                                  # the ecalib -r 24 block, see --calib
         ch = cw = 24
         cy0, cz0 = NY // 2 - 12, NZ // 2 - 12
+        assert args.vcoils == 0, "--calib full24 is not combined with --vcoils"
         ca = torch.empty_like(P.y_full[:, :, cy0:cy0 + ch, cz0:cz0 + cw])
         for i in range(0, NC, P.chunk):
             ca[i:i + P.chunk] = ifft1c(P.y_full[i:i + P.chunk], -3)[:, :, cy0:cy0 + ch, cz0:cz0 + cw]
@@ -317,6 +351,11 @@ def main():
     for a in range(0, NX, args.chunk):
         b = min(a + args.chunk, NX)
         data = yh[:, a:b].permute(1, 0, 2, 3).contiguous()      # (B, NC, NY, NZ)
+        Sb = P.S[:, a:b].permute(1, 0, 2, 3)
+        if args.vcoils > 0:
+            V, kept = compress_matrix(data, P.m2, args.vcoils)
+            data = apply_compress(data, V).contiguous(); Sb = apply_compress(Sb, V)
+            energies.append(kept)
         acs = (ca[:, a:b].permute(1, 0, 2, 3).contiguous() if args.calib == "full24"
                else data[..., cy0:cy0 + ch, cz0:cz0 + cw])
         K = image_kernels(calib_kernels(build_AtA(acs, args.ksize), NC, args.ksize, args.tyk), NY, NZ)
@@ -333,21 +372,25 @@ def main():
             sel = tr[:3] + tr[len(tr) // 2 - 1:len(tr) // 2 + 1] + tr[-2:]
             log(f"  step={step:.4f}  relative change (first 3 / middle 2 / last 2): "
                 f"{' '.join(f'{t:.2e}' for t in sel)}")
-        out[a:b] = (P.S[:, a:b].permute(1, 0, 2, 3).conj() * ifft2c(kf)).sum(1)
+        out[a:b] = (Sb.conj() * ifft2c(kf)).sum(1)
         del kf
         if a % (args.chunk * 8) == 0:
-            log(f"  readout {b}/{NX}  {time.time() - t1:.0f}s")
+            log(f"  readout {b}/{NX}  {time.time() - t1:.0f}s" + (f"  (energy kept so far {100 * float(np.mean(energies)):.3f} %)" if energies else ""))
     secs = time.time() - t1
+    energy = float(np.mean(energies)) if energies else 1.0
+    if energies:
+        log(f"[{args.contrast}] per-slice compression kept {100 * energy:.3f} % of the acquired energy on average "
+            f"(min over slices {100 * float(np.min(energies)):.3f} %)")
 
     row = P.score(out, "spirit" + args.suffix, seconds=secs, lam=args.lam, ksize=args.ksize, solver=args.solver,
                   tyk=args.tyk, iters=args.iters, levels=args.levels, acs=f"{ch}x{cw}", calib=args.calib,
-                  npatch=npatch, ncols=D)
+                  npatch=npatch, ncols=D, vcoils=args.vcoils, vcoil_energy=energy)
     if args.save:
         np.save(R / f"recon/spirit{args.suffix}_{args.contrast}_complex.npy",
                 out.cpu().numpy().astype(np.complex64))
     p = R / f"logs/spirit_{args.contrast}{args.suffix}.json"
     json.dump({"contrast": args.contrast, "rows": [row], **{k: getattr(args, k) for k in
-              ("lam", "ksize", "tyk", "iters", "levels", "solver", "calib")}}, open(p, "w"), indent=2)
+              ("lam", "ksize", "tyk", "iters", "levels", "solver", "calib", "vcoils")}}, open(p, "w"), indent=2)
     log(f"[{args.contrast}] spirit{args.suffix} psnr={row['psnr']:.3f} ssim={row['ssim']:.4f} "
         f"head_psnr={row['head_psnr']:.3f} head_ssim={row['head_ssim']:.4f} "
         f"head_hfen={row['head_hfen']:.4f} sharp={row['sharp']:.3f} ({secs:.0f} s, total {time.time() - t0:.0f} s)")

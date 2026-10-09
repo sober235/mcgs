@@ -29,6 +29,8 @@ ap.add_argument("--batch", type=int, default=4)
 ap.add_argument("--lr", type=float, default=5e-4)
 ap.add_argument("--mu", type=float, default=0.05)
 ap.add_argument("--patience", type=int, default=10)
+ap.add_argument("--blocks", type=int, default=5, help="residual blocks of the denoiser (5 = the registered arm; SSDU / ZS-SSL use 15)")
+ap.add_argument("--suffix", default="", help="appended to the method key and the output file names (sweeps); empty = the registered arm")
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -115,8 +117,10 @@ class ResNet(nn.Module):                       # SSDU / ZS-SSDU denoiser: 15 lay
         return torch.complex(o[:, 0], o[:, 1])
 
 
-net = ResNet().to(dev)
+net = ResNet(nb=args.blocks).to(dev)
 MU, K, CGN = args.mu, args.unrolls, args.cg_iters_net
+log(f"denoiser: {args.blocks} residual blocks, {sum(p.numel() for p in net.parameters()) / 1e6:.3f} M parameters; "
+    f"unrolls {K}, CG {CGN}, mu {MU}, lr {args.lr}, patience {args.patience}, epochs <= {args.epochs}")
 
 
 def unrolled(y_dc, Sr, mk):
@@ -213,11 +217,12 @@ with torch.no_grad():
         xn[sl] = unrolled(yr * m2, Sr, m2)
 del yh
 
-row = P.score(xn, "zsssdu", seconds=time.time() - t0,
-              val_loss=best, epochs_run=ep + 1, unrolls=K, cg_iters_net=CGN)
-np.save(R / f"recon/zsssdu_{args.contrast}_complex.npy", xn.cpu().numpy().astype(np.complex64))
+row = P.score(xn, "zsssdu" + args.suffix, seconds=time.time() - t0,
+              val_loss=best, epochs_run=ep + 1, unrolls=K, cg_iters_net=CGN, blocks=args.blocks, lr=args.lr,
+              patience=args.patience, max_epochs=args.epochs)
+np.save(R / f"recon/zsssdu{args.suffix}_{args.contrast}_complex.npy", xn.cpu().numpy().astype(np.complex64))
 json.dump({"contrast": args.contrast, "rows": [row], "scale_p999": P.scale, "coils": int(NC)},
-          open(R / f"logs/zsssdu_{args.contrast}.json", "w"), indent=2)
+          open(R / f"logs/zsssdu{args.suffix}_{args.contrast}.json", "w"), indent=2)
 log(f"[{args.contrast}] zsssdu psnr={row['psnr']:.3f} ssim={row['ssim']:.4f} nmse={row['nmse']:.5f} "
     f"hfen={row['hfen']:.4f} head_psnr={row['head_psnr']:.3f} head_ssim={row['head_ssim']:.4f} "
     f"({row['seconds']:.0f} s)")

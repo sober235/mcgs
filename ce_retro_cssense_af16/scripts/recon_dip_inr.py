@@ -39,7 +39,9 @@ ap.add_argument("--inr_hidden", type=int, default=64)
 ap.add_argument("--inr_layers", type=int, default=3)
 ap.add_argument("--render_chunk", type=int, default=1_500_000)
 ap.add_argument("--suffix", default="", help="appended to the method key and the output file names (sweeps); empty = the registered arm")
-ap.add_argument("--support", type=int, default=-1, help="DIP only: multiply the render by the zero-filled head support (|zf| > 0.05 P99.9, the rule gaussian.init_mode=head uses) dilated by this many voxels; -1 = off (registered behaviour)")
+ap.add_argument("--support", type=int, default=-1, help="zero-filled head support (|zf| > 0.05 P99.9, the rule gaussian.init_mode=head uses) dilated by this many voxels; -1 = off (registered behaviour). DIP: the render is multiplied by it. INR: the network is only evaluated inside it (zero outside), which is also ~1.7x faster")
+ap.add_argument("--wd", type=float, default=0.0, help="Adam weight decay (L2 on every parameter; hash-grid embeddings included); 0 = registered behaviour")
+ap.add_argument("--cosine", type=int, default=0, help="1: cosine-anneal the learning rate to 1 %% of lr over --iters; 0 = constant (registered behaviour)")
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -198,6 +200,15 @@ class HashINR(nn.Module):
         return torch.complex(o[:, 0], o[:, 1])
 
 
+def support_mask(zf, dil):
+    """ZF head support (the gaussian.init_mode=head rule), dilated by dil voxels -> bool tensor on zf.device."""
+    from scipy import ndimage as _ndi
+    za = zf.abs(); sup = (za > 0.05 * torch.quantile(za.flatten()[::7], 0.999)).cpu().numpy()
+    if dil > 0:
+        sup = _ndi.binary_dilation(sup, iterations=int(dil))
+    return torch.from_numpy(sup).to(zf.device)
+
+
 t0 = time.time()
 out_scale = zfn.abs().max().item()
 if args.method == "dip":
@@ -208,11 +219,7 @@ if args.method == "dip":
     log(f"[dip] chans={net.chans} low={net.low} params={npar/1e6:.2f}M "
         f"vs outputs={2*int(np.prod(G))/1e6:.2f}M -> ratio {npar/(2*np.prod(G)):.3f}")
     if args.support >= 0:
-        from scipy import ndimage as _ndi
-        _za = zfn.abs(); _sup = (_za > 0.05 * torch.quantile(_za.flatten()[::7], 0.999)).cpu().numpy()
-        if args.support > 0:
-            _sup = _ndi.binary_dilation(_sup, iterations=int(args.support))
-        sup = torch.from_numpy(_sup.astype(np.float32)).to(dev)
+        sup = support_mask(zfn, args.support).to(torch.float32)
         log(f"[dip] output support: ZF head rule, dilated {args.support} voxels -> {float(sup.mean()):.3f} of the grid")
         render = lambda: net(z) * out_scale * sup
     else:
@@ -226,15 +233,25 @@ else:
         f"res 16..{args.inr_nmax} MLP {args.inr_hidden}x{args.inr_layers} params={npar/1e6:.2f}M")
     ax = [torch.linspace(-1, 1, s, device=dev) for s in G]
     COORD = torch.stack(torch.meshgrid(*ax, indexing="ij"), -1).reshape(-1, 3)
+    SUP_IDX = None                                   # None: every voxel (registered); else the voxels inside the support
+    if args.support >= 0:
+        SUP_IDX = torch.nonzero(support_mask(zfn, args.support).reshape(-1), as_tuple=True)[0]
+        COORD = COORD[SUP_IDX]
+        log(f"[inr] evaluation support: ZF head rule, dilated {args.support} voxels -> {SUP_IDX.numel() / np.prod(G):.3f} of the grid")
 
     def render_nograd():
         with torch.no_grad():
-            return torch.cat([net(COORD[i:i + args.render_chunk])
-                              for i in range(0, COORD.shape[0], args.render_chunk)]).reshape(G) * out_scale
+            vals = torch.cat([net(COORD[i:i + args.render_chunk]) for i in range(0, COORD.shape[0], args.render_chunk)])
+            if SUP_IDX is None:
+                return vals.reshape(G) * out_scale
+            vol = torch.zeros(int(np.prod(G)), dtype=vals.dtype, device=dev)
+            vol[SUP_IDX] = vals
+            return vol.reshape(G) * out_scale
 
-opt = torch.optim.Adam(net.parameters(), lr=lr)
+opt = torch.optim.Adam(net.parameters(), lr=lr, weight_decay=args.wd)
+sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.iters, eta_min=0.01 * lr) if args.cosine else None
 best = dict(ho=1e9, it=-1, vol=None)
-log(f"[{args.method}] lr={lr} iters={args.iters} tv={args.tv}")
+log(f"[{args.method}] lr={lr} iters={args.iters} tv={args.tv} wd={args.wd} cosine={args.cosine} support={args.support}")
 for it in range(1, args.iters + 1):
     opt.zero_grad(set_to_none=True)
     if args.method == "dip":
@@ -247,11 +264,15 @@ for it in range(1, args.iters + 1):
         xd = x.detach().requires_grad_(True)
         gx, l = grad_of_fit_loss(xd); gt, lt = tv_grad(xd)
         gflat = ((gx + gt) * out_scale).reshape(-1)
+        if SUP_IDX is not None:
+            gflat = gflat[SUP_IDX]
         for i in range(0, COORD.shape[0], args.render_chunk):
             xc = net(COORD[i:i + args.render_chunk])
             xc.backward(gradient=gflat[i:i + args.render_chunk])
     torch.nn.utils.clip_grad_norm_(net.parameters(), 1.0)
     opt.step()
+    if sched is not None:
+        sched.step()
     if it % args.eval_every == 0 or it == 1:
         with torch.no_grad():
             xe = render() if args.method == "dip" else render_nograd()
@@ -268,7 +289,10 @@ xn = best["vol"]
 
 row = P.score(xn, args.method + args.suffix, seconds=time.time() - t0,
               kres_heldout=best["ho"], best_iter=best["it"], params=int(npar),
-              holdout_lines=int(nho), total_lines=int(Nl), iters=args.iters, lr=lr)
+              holdout_lines=int(nho), total_lines=int(Nl), iters=args.iters, lr=lr, tv=args.tv, wd=args.wd,
+              cosine=args.cosine, support=args.support,
+              **({"dip_base": args.dip_base} if args.method == "dip" else
+                 {"inr_levels": args.inr_levels, "inr_log2T": args.inr_log2T, "inr_nmax": args.inr_nmax}))
 np.save(R / f"recon/{args.method}{args.suffix}_{args.contrast}_complex.npy", xn.cpu().numpy().astype(np.complex64))
 json.dump({"contrast": args.contrast, "rows": [row], "scale_p999": P.scale, "coils": int(NC)},
           open(R / f"logs/{args.method}{args.suffix}_{args.contrast}.json", "w"), indent=2)
