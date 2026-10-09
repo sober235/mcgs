@@ -7,6 +7,7 @@ refused, (4) the FLAIR shutter (known_zero) builds the same fit tensors as the j
 (5) arc/cycle.py --trainer single produces a plain-only score json.
 Run: PYTHONNOUSERSITE=1 CUDA_VISIBLE_DEVICES=<idle> /home/congcongliu/anaconda3/envs/GSTMI/bin/python -m pytest tests/test_sg2x2_single_trainer.py -q
 """
+import contextlib
 import copy
 import json
 import os
@@ -42,16 +43,41 @@ def _iter_line(out_dir: Path, exp: str, it: int) -> dict:
     return {k: float(v) for k, v in re.findall(r"(\w+)=([0-9.e+-]+)", line)}
 
 
+# The single trainer re-implements parts of JointTrainer.train() (kappa source and refresh, the geometry-weight shim, the
+# phase-TV and wavelet terms) and calls the inherited k-space curriculum. Each variant switches one of them on, identically on
+# the single config and on the duplicate-slot joint config, so iteration 1 of the two trainers is compared with it live.
+VARIANTS = {
+    "base_reg": dict(reg=True),
+    "kappa_render": dict(reg=True, loss={"edge_tv_kappa_source": "render"}),
+    "refresh1": dict(reg=True, loss={"edge_tv_kappa_refresh_iter": 1}),      # the refresh fires at iteration 1
+    "curriculum": dict(reg=True, loss={"kspace_freq_curriculum": True}),     # the other curriculum keys at their defaults
+    "tv_weight_key": dict(reg=True, tv_weight_key=True),                     # the geometry weight spelled tv_weight only
+    "ptv_dominant": dict(reg=True, loss={"lambda_ptv": 3.0}),                # 100 x the recipe's phase-TV weight: over half of the density_imag gradient
+    "no_reg": dict(reg=False),
+}
+
+
+def _apply_variant(cfg: dict, spec: dict) -> dict:
+    cfg["loss"].update(spec.get("loss", {}))
+    if spec.get("tv_weight_key"):
+        cfg["loss"]["tv_weight"] = cfg["loss"].pop("lambda_geo")
+    return cfg
+
+
 @cuda
-@pytest.mark.parametrize("reg", [True, False])
-def test_single_objective_is_the_plain_half_of_the_duplicate_slot_joint(tmp_path, reg):
+@pytest.mark.parametrize("variant", list(VARIANTS))
+def test_single_objective_is_the_plain_half_of_the_duplicate_slot_joint(tmp_path, variant):
     from trainers.joint_trainer import JointTrainer
     from trainers.single_contrast_trainer import SingleContrastTrainer
+    spec = VARIANTS[variant]
+    reg = spec["reg"]
     pair = make_pair(tmp_path)
     dev = torch.device("cuda", 0)
-    s = SingleContrastTrainer(base_cfg(pair, tmp_path, "s", reg=reg, single="FLAIR"), device=dev)
-    j = JointTrainer(_dup_joint_cfg(pair, tmp_path, "j", "FLAIR", reg=reg), device=dev)
-    s.train(); j.train()
+    s = SingleContrastTrainer(_apply_variant(base_cfg(pair, tmp_path, "s", reg=reg, single="FLAIR"), spec), device=dev)
+    j = JointTrainer(_apply_variant(_dup_joint_cfg(pair, tmp_path, "j", "FLAIR", reg=reg), spec), device=dev)
+    # the tv_weight variant makes both trainers warn that loss.tv_weight is deprecated; expect it so the output stays clean
+    with (pytest.warns(DeprecationWarning, match="tv_weight") if spec.get("tv_weight_key") else contextlib.nullcontext()):
+        s.train(); j.train()
     ls, lj = _iter_line(tmp_path / "out", "s", 1), _iter_line(tmp_path / "out", "j", 1)
     assert ls["dc_p"] == pytest.approx(lj["dc_p"], rel=1e-5) and lj["dc_c"] == pytest.approx(lj["dc_p"], rel=1e-5)
     assert ls["dc_c"] == 0.0
