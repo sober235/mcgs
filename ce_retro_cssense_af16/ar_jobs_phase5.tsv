@@ -1,0 +1,12 @@
+# phase 5 (2026-10-09, user: keep widening MC-GS over every comparison method on every metric; no trainable prior, AF unchanged,
+# other priors allowed). Base = the confirmed winner ar_e1b_wf00bv. Blockers on lesion slices are all pre SSIM / pre HFEN vs
+# GS-single, so the probes are cross-contrast priors GS-single cannot use (vector TV, plain-guided directional TV, common-edge
+# gate) plus one non-local BM4D RED probe (non-learned; if kept, rule A gives it to GS-single too).
+ar_g1_vtv005	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --lambda_vtv 0.005
+ar_g2_vtv02	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --lambda_vtv 0.02
+ar_g3_dtv005	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --lambda_dtv 0.005
+ar_g4_dtv02	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --lambda_dtv 0.02
+ar_g5_edge05	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --lambda_edge 0.0005
+ar_g6_ekap30	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30
+ar_g7_ep90	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_p 0.9
+ar_g8_nl05	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --set loss.lambda_nl=0.05

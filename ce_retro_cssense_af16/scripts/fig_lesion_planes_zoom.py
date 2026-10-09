@@ -15,6 +15,7 @@ import argparse, json, os
 from pathlib import Path
 
 import numpy as np
+from scipy import ndimage as ndi
 from skimage.metrics import structural_similarity
 
 from arms import arm_files
@@ -90,23 +91,25 @@ def main():
                 rows += [("img", sc, ax, i, pname), ("zoom", sc, ax, i, pname)]
     hr = [disp_shape[r[2]][0] / disp_shape[r[2]][1] if r[0] == "img" else 0.5 for r in rows]
     W = a.cw * len(labels); H = a.cw * sum(hr)
-    fig = plt.figure(figsize=(W + 0.9, H + 1.9))
-    gs = fig.add_gridspec(len(rows), len(labels), height_ratios=hr, left=0.9 / (W + 0.9), right=1 - 0.02, top=1 - 1.0 / (H + 1.9),
-                          bottom=0.9 / (H + 1.9), wspace=0.03, hspace=0.04)
+    fig = plt.figure(figsize=(W + 0.9, H + 2.1))
+    gs = fig.add_gridspec(len(rows), len(labels), height_ratios=hr, left=0.9 / (W + 0.9), right=1 - 0.02, top=1 - 1.2 / (H + 2.1),
+                          bottom=0.9 / (H + 2.1), wspace=0.03, hspace=0.04)
     scores = {}
     for ri, (kind, sc, ax, i, pname) in enumerate(rows):
         d = data[sc]; gt = plane(d["gt"], ax, i); head = plane(d["head"], ax, i); vmax = d["p999"] / a.brightness
         y0, y1, x0, x1 = boxes[ax]
         if kind == "img":
             vals = {}
+            lg = ndi.gaussian_laplace(gt.astype(np.float64), 1.5)
             for lab in labels[1:]:
                 v = plane(d["vols"][lab], ax, i).astype(np.float64)
                 mse = np.mean((v[head] - gt[head]) ** 2)
                 _, sm = structural_similarity(v, gt.astype(np.float64), data_range=d["gmax"], full=True)
                 vals[lab] = dict(psnr=20 * np.log10(d["gmax"]) - 10 * np.log10(mse), ssim=float(sm[head].mean()),
-                                 nmse=float(np.sum((v[head] - gt[head]) ** 2) / np.sum(gt[head] ** 2)))
+                                 nmse=float(np.sum((v[head] - gt[head]) ** 2) / np.sum(gt[head] ** 2)),
+                                 hfen=float(np.linalg.norm((ndi.gaussian_laplace(v, 1.5) - lg)[head]) / np.linalg.norm(lg[head])))
             best = {"psnr": max(vals, key=lambda k: vals[k]["psnr"]), "ssim": max(vals, key=lambda k: vals[k]["ssim"]),
-                    "nmse": min(vals, key=lambda k: vals[k]["nmse"])}
+                    "nmse": min(vals, key=lambda k: vals[k]["nmse"]), "hfen": min(vals, key=lambda k: vals[k]["hfen"])}
             scores[f"{sc}_{pname}_{i}"] = vals
         for ci, lab in enumerate(labels):
             axh = fig.add_subplot(gs[ri, ci]); axh.set_xticks([]); axh.set_yticks([])
@@ -120,7 +123,7 @@ def main():
                     axh.text(0.03, 0.97, f"GT ({sc})", color="#ffd34d", fontsize=9, fontweight="bold", va="top", transform=axh.transAxes)
                 else:
                     s = vals[lab]
-                    for k, (m, txt) in enumerate((("psnr", f"{s['psnr']:.2f} dB"), ("ssim", f"SSIM {s['ssim']:.4f}"), ("nmse", f"NMSE {s['nmse']:.4f}"))):
+                    for k, (m, txt) in enumerate((("psnr", f"{s['psnr']:.2f} dB"), ("ssim", f"SSIM {s['ssim']:.4f}"), ("nmse", f"NMSE {s['nmse']:.4f}"), ("hfen", f"HFEN {s['hfen']:.4f}"))):
                         axh.text(0.03, 0.97 - 0.085 * k * (1.0 / max(hr[ri], 0.6)), txt, color="#ffd34d", fontsize=7.5, va="top",
                                  transform=axh.transAxes, fontweight="bold" if best[m] == lab else "normal")
             else:
@@ -142,11 +145,11 @@ def main():
                 else:
                     axh.text(-0.04, 0.5, "zoom | err", rotation=90, ha="right", va="center", fontsize=8, transform=axh.transAxes)
     sm = plt.cm.ScalarMappable(cmap="jet", norm=plt.Normalize(0, a.err_vmax))
-    cax = fig.add_axes([1 - 0.02 - 2 * a.cw / (W + 0.9), 0.52 / (H + 1.9), 2 * a.cw / (W + 0.9), 0.13 / (H + 1.9)])
+    cax = fig.add_axes([1 - 0.02 - 2 * a.cw / (W + 0.9), 0.52 / (H + 2.1), 2 * a.cw / (W + 0.9), 0.13 / (H + 2.1)])
     cb = fig.colorbar(sm, cax=cax, orientation="horizontal"); cb.set_label("|err| / max|GT|", fontsize=9); cb.ax.tick_params(labelsize=8)
     fig.suptitle(f"CE retro, nominal AF 16, actual 16.00x (vdPoisMex). Truth = CS-SENSE reconstruction of the AF 5.33 acquisition. "
                  f"{'Per plane: pre, then post' if a.order == 'plane' else 'Pre on top, post below'}; each block: whole slice (orange box = zoom location), then zoom (left) | error zoom (right).\n"
-                 f"Image panels: head-masked slice PSNR / SSIM / NMSE, bold = best of the 11 arms. Error |rec - GT| / max|GT|, jet [0, {a.err_vmax:g}], head-masked. "
+                 f"Image panels: head-masked slice PSNR / SSIM / NMSE / HFEN (2-D LoG, sigma 1.5), bold = best of the 11 arms. Error |rec - GT| / max|GT|, jet [0, {a.err_vmax:g}], head-masked.\n"
                  f"Grey window P99.9 / {a.brightness:g} (display only). GT column zoom row, right half: sampling mask in that plane.", fontsize=10)
     name = f"ce_retro_af16_lesion_planes_zoom_t{a.tra}_c{a.cor}_s{a.sag}{'_byplane' if a.order == 'plane' else ''}{a.tag}"
     out = R / "figures" / f"{name}.png"; out.parent.mkdir(exist_ok=True)
