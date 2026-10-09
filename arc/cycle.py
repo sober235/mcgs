@@ -59,6 +59,7 @@ ap.add_argument("--known_zero", action="store_true")            # data.*.known_z
 ap.add_argument("--prewhiten", action="store_true")             # loss.prewhiten: coil-noise whitening on the fit side only (§4.2)
 ap.add_argument("--prewhiten_only", choices=["plain", "contrast"], default=None)  # data.<contrast>.prewhiten: per-contrast override (Task 12)
 ap.add_argument("--set", action="append", default=[], metavar="KEY.PATH=VALUE")  # generic cfg override applied LAST (autoresearch); value parsed as YAML
+ap.add_argument("--trainer", choices=["joint", "single"], default="joint")  # single = SingleContrastTrainer (sg2x2 GS-single: data.plain only)
 args = ap.parse_args()
 if args.prewhiten and args.prewhiten_only:
     ap.error("--prewhiten and --prewhiten_only are mutually exclusive (together they silently whiten both contrasts)")
@@ -136,7 +137,7 @@ def grain(rec, gt):
 
 def build_cfg():
     cfg = yaml.safe_load(open(ROOT / args.base_cfg))
-    for s in ("plain", "contrast"):
+    for s in [k for k in ("plain", "contrast") if k in cfg["data"]]:
         sc = cfg["data"][s]
         for k in ("data_path", "csm_path", "mask_path"):
             if sc.get(k):
@@ -188,8 +189,8 @@ def build_cfg():
     if args.split_quantile > 0 or args.max_points > 0 or args.use_cloning or args.densify_until > 0:
         cfg["adaptive_control"]["enable"] = True   # MASTER switch (joint_trainer:556); off by default -> no densify
     if args.known_zero:
-        cfg["data"]["plain"]["known_zero"] = True
-        cfg["data"]["contrast"]["known_zero"] = True
+        for s in [k for k in ("plain", "contrast") if k in cfg["data"]]:
+            cfg["data"][s]["known_zero"] = True
     if args.prewhiten:
         cfg["loss"]["prewhiten"] = True
     if args.prewhiten_only:
@@ -274,12 +275,16 @@ def main():
     assert args.warmup < args.iters * 0.5, f"warmup {args.warmup} must be < 0.5*iters {args.iters}"
     cfg = build_cfg()
     name_p = cfg["data"]["plain"].get("name", "plain")       # display name for the plain channel
-    name_c = cfg["data"]["contrast"].get("name", "contrast")  # display name for the contrast channel
+    name_c = cfg["data"]["contrast"].get("name", "contrast") if "contrast" in cfg["data"] else None  # display name for the contrast channel
     RES.mkdir(parents=True, exist_ok=True)
     log(f"[arc {args.exp}] gpu={args.gpu} iters={args.iters} lambda_geo={args.lambda_geo} "
         f"warmup={args.warmup} lambda_dtv={args.lambda_dtv} max_radius={args.max_radius} "
         f"kspace_high={args.kspace_high}")
-    tr = JointTrainer(cfg, device=dev)
+    if args.trainer == "single":
+        from trainers.single_contrast_trainer import SingleContrastTrainer
+        tr = SingleContrastTrainer(cfg, device=dev)
+    else:
+        tr = JointTrainer(cfg, device=dev)
     if args.from_ckpt:
         ck = torch.load(args.from_ckpt, map_location="cpu", weights_only=False)
         tr.model.load_state_dict(ck["model_state"])
@@ -288,11 +293,38 @@ def main():
         tr.train()
 
     sp = score_contrast(tr, "plain", dev)
+    vram = torch.cuda.max_memory_allocated() / 1e9
+    npts = tr.model.num_points
+    if args.trainer == "single":
+        log(f"{name_p:5s} psnr={sp['psnr']:.3f} ssim={sp['ssim']:.4f} nmse={sp['nmse']:.4f} hfen={sp['hfen']:.4f} "
+            f"e_unobs={sp['e_unobs']:.4f} head_psnr={sp['head_psnr']:.3f} head_ssim={sp['head_ssim']:.4f} "
+            f"head_hfen={sp['head_hfen']:.4f} sharp={sp['sharp']:.3f} grain={sp['grain']:.4f} comp={sp['comp']:.3f} beat={sp['beat']}")
+        log(f"SCORE single={sp['comp']:.3f} beat_zf={sp['beat']} N={npts} vram_gb={vram:.1f} elapsed_s={time.time()-t0:.0f}")
+        row = dict(exp=args.exp, iters=args.iters, lambda_geo=args.lambda_geo, warmup=args.warmup,
+                   lambda_dtv=args.lambda_dtv, max_radius=args.max_radius, kspace_high=args.kspace_high,
+                   set=list(args.set), argv=sys.argv[1:], elapsed_s=time.time() - t0, trainer="single",
+                   known_zero=bool(args.known_zero), prewhiten=bool(args.prewhiten), prewhiten_only=args.prewhiten_only,
+                   plain=sp, contrast=None, plain_name=name_p, contrast_name=None,
+                   combined=sp["comp"], both_beat=sp["beat"], npts=int(npts), vram_gb=vram)
+        (RES / f"{args.exp}_score.json").write_text(json.dumps(row, indent=2))
+        if args.save_volumes:
+            with torch.no_grad():
+                gt = tr.ds_p.get_data()["ground_truth"].to(dev)
+                m = (tr.mask_p if tr.mask_p.ndim == 3 else tr.mask_p[0]).to(dev).float().unsqueeze(0)
+                mf = (tr.mask_fit_p if tr.mask_fit_p.ndim == 3 else tr.mask_fit_p[0]).to(dev).float().unsqueeze(0)
+                x = tr._render("plain"); k_model = fft3c(tr.csm_p * x.unsqueeze(0))
+                x_dc = (ifft3c(mf * tr.kspace_dc_p + (1.0 - mf) * k_model) * tr.csm_p.conj()).sum(0)
+                x_zf = (ifft3c(m * tr.kspace_p) * tr.csm_p.conj()).sum(0)
+            f = lambda t: t.abs().cpu().numpy().astype("float32")
+            fc = lambda t: t.cpu().numpy().astype("complex64")
+            np.savez_compressed(RES / f"{args.exp}_volumes.npz", rec=f(x_dc), gt=f(gt), zf=f(x_zf),
+                                rec_complex=fc(x_dc), gt_complex=fc(gt), zf_complex=fc(x_zf), contrast_name=name_p)
+            log(f"  saved volumes -> {RES}/{args.exp}_volumes.npz")
+        log(f"[arc {args.exp}] DONE (single-contrast)")
+        return
     sc = score_contrast(tr, "contrast", dev)
     combined = 0.5 * (sp["comp"] + sc["comp"])
     both_beat = sp["beat"] and sc["beat"]
-    vram = torch.cuda.max_memory_allocated() / 1e9
-    npts = tr.model.num_points
 
     log(f"{name_p:5s} psnr={sp['psnr']:.3f} ssim={sp['ssim']:.4f} nmse={sp['nmse']:.4f} hfen={sp['hfen']:.4f} "
         f"e_unobs={sp['e_unobs']:.4f} e_unobs_xz={sp['e_unobs_excl_z']:.4f} head_psnr={sp['head_psnr']:.3f} head_ssim={sp['head_ssim']:.4f} "
