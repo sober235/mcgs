@@ -911,6 +911,11 @@ class JointTrainer:
         if self._tv_eps > 0 or self._tv_vector:
             print(f"[tv_shape] eps={self._tv_eps} vector={self._tv_vector}")
         _kappa_refresh = 0
+        # (sg2x2, 2026-10-09) the guide tuples gd_p / gd_c below read these every iteration; without edge-TV they were
+        # never set and a run with loss.edge_tv=false died with AttributeError at iteration 1 (since f413c26). The
+        # None is never dereferenced: every consumer of a kappa is gated on edge_tv or lambda_ptv (which requires edge_tv).
+        self._edge_kappa_p = None
+        self._edge_kappa_c = None
         if self._edge_tv:
             _kq = float(_loss_cfg.get("edge_tv_kappa_q", 0.75))
             # kappa is resolved ONCE. 'render' (historical) reads the initial render, which is a

@@ -14,10 +14,10 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "paired_gs"))
 from data.transforms import fft3c  # noqa: E402
 
-RECIPE_REG = {"tv_weight": 0.10, "tv_eps": 0.04, "edge_tv": True, "edge_tv_kappa_q": 0.85, "edge_tv_wfloor": 0.1,
+RECIPE_REG = {"lambda_geo": 0.10, "tv_eps": 0.04, "edge_tv": True, "edge_tv_kappa_q": 0.85, "edge_tv_wfloor": 0.1,
               "edge_tv_kappa_source": "zf", "lambda_wav": 0.10, "lambda_wav_plain": 0.10, "wav_name": "db4",
               "wav_levels": 1, "lambda_ptv": 0.03}
-RECIPE_OFF = {"tv_weight": 0.0, "tv_eps": 0.04, "edge_tv": False, "lambda_wav": 0.0, "lambda_wav_plain": 0.0,
+RECIPE_OFF = {"lambda_geo": 0.0, "tv_eps": 0.04, "edge_tv": False, "lambda_wav": 0.0, "lambda_wav_plain": 0.0,
               "lambda_ptv": 0.0}
 DC = {"loss_type": "l2", "kspace_freq_adaptive": True, "kspace_center_fraction": 0.05, "kspace_center_weight": 0.3,
       "kspace_mid_weight": 1.0, "kspace_high_weight": 2.2}

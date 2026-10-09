@@ -33,10 +33,6 @@ def _dup_joint_cfg(pair, tmp, exp, contrast, reg=True):
     cfg = base_cfg(pair, tmp, exp, reg=reg)
     blk = cfg["data"]["plain"] if contrast == "T1" else cfg["data"]["contrast"]
     cfg["data"] = {"plain": copy.deepcopy(blk), "contrast": copy.deepcopy(blk)}
-    # JointTrainer.train() reads self._edge_kappa_c on every iteration but sets it only when loss.edge_tv is true
-    # (joint_trainer.py:991, since f413c26), so a joint run with edge_tv false raises AttributeError. The proxy runs with
-    # edge_tv on; at reg=False every weight is 0, so no edge-TV term is built and the objective is unchanged.
-    cfg["loss"]["edge_tv"] = True
     return cfg
 
 
