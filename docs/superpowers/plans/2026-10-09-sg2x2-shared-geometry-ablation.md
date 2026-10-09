@@ -1323,9 +1323,9 @@ Expected: FAIL (`FileNotFoundError` on the sg2x2 configs).
 
 Run (CPU, ~2 minutes, 3 GB RAM):
 ```bash
-env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_VISIBLE_DEVICES= $PY scripts/sg2x2_make_init_support.py --config configs/sg2x2/af16_jyz_joint.yaml --out configs/sg2x2/init_support_af16_jyz.npz --dilate 3
+env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_VISIBLE_DEVICES= $PY scripts/sg2x2_make_init_support.py --config configs/sg2x2/af16_jyz_joint.yaml --out configs/sg2x2/init_support_af16_jyz.npz --dilate 0
 ```
-Expected: `wrote configs/sg2x2/init_support_af16_jyz.npz shape=(256, 256, 176) support_frac=0.4xxx dilate=3 head_frac=0.05 md5=...` (the undilated support measured on 2026-10-09 is 0.4273). Record the printed md5 in the Task 8 record.
+Expected: `wrote configs/sg2x2/init_support_af16_jyz.npz shape=(256, 256, 176) support_frac=0.4273 dilate=0 head_frac=0.05 md5=...`. `--dilate 0` is deliberate (ruling R7 in the ledger): the undilated union-ZF support is exactly the support `init_mode=head` draws from on this subject, so cell A starts from the registered recipe's own cloud and every cell's `in_own_zf_support` reads 1.0000; Task 2 measured dilate 1 / 2 / 3 at 0.4811 / 0.5431 / 0.6035, i.e. a 3-voxel dilation would park 29 % of the cloud outside the subject's own support. The core test on the 16-pair set lives on another grid and needs its own support file anyway. Record the printed md5 in the Task 8 record.
 
 - [ ] **Step 5: Write the launcher**
 
@@ -1380,7 +1380,7 @@ WARMUP=0 bash run_sg2x2.sh sg2x2_smoke_A G A 2 42
 WARMUP=0 bash run_sg2x2.sh sg2x2_smoke_D_FLAIR G D_FLAIR 2 42
 grep -E '^\[init_cloud\]|^\[single-contrast\]|^\[edge_tv\]|^\[wavelet\]|^\[phase-tv\]|^\[iter +1/|DONE' results_arc/sg2x2_smoke_A.log results_arc/sg2x2_smoke_D_FLAIR.log
 ```
-Expected: both logs reach `DONE`; `sg2x2_smoke_A.log` shows `[init_cloud] mode=support_file ... in_own_zf_support=0.8x` or higher (the dev subject: only the points drawn in the 3-voxel dilation ring fall outside its own undilated ZF support), `[edge_tv]`, `[wavelet] lambda=0.1 (plain 0.12, contrast 0.1)`, `[phase-tv]`; `sg2x2_smoke_D_FLAIR.log` shows `[single-contrast] lambda_geo=0.0 edge_tv=False lambda_wav_plain=0.0 lambda_ptv=0.0`, no `[edge_tv]` / `[wavelet]` / `[phase-tv]` line, and its `[iter 1/2]` line has `R_geo=0.0000e+00 R_wav=0.0000e+00 R_ptv=0.0000e+00`. (The manifest step prints a warning until Task 5 lands; that is expected here.)
+Expected: both logs reach `DONE`; `sg2x2_smoke_A.log` shows `[init_cloud] mode=support_file ... support_frac=0.4273 in_own_zf_support=1.0000` (the undilated support of this very subject), `[edge_tv]`, `[wavelet] lambda=0.1 (plain 0.12, contrast 0.1)`, `[phase-tv]`; `sg2x2_smoke_D_FLAIR.log` shows `[single-contrast] lambda_geo=0.0 edge_tv=False lambda_wav_plain=0.0 lambda_ptv=0.0`, no `[edge_tv]` / `[wavelet]` / `[phase-tv]` line, and its `[iter 1/2]` line has `R_geo=0.0000e+00 R_wav=0.0000e+00 R_ptv=0.0000e+00`. (The manifest step prints a warning until Task 5 lands; that is expected here.)
 
 - [ ] **Step 8: Commit**
 
@@ -1969,7 +1969,7 @@ grep -h -E '^\[init_cloud\] mode=support_file' results_arc/sg2x2_pilot_af16_s42_
 grep -l -i -E 'nan|out of memory' results_arc/sg2x2_pilot_af16_s42_*.log || echo "no NaN / OOM"
 env PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/sg2x2_table.py --prefix sg2x2_pilot_af16 --seeds 42
 ```
-Expected: all six audits `ok: True` and `clean`; the six `[init_cloud]` lines are identical (same n, same support_frac, same in_own_zf_support, which is ≥ 0.85 on the dev subject); no NaN / OOM; the table prints eight cell rows, A−B, C−D and the interaction, both contrasts.
+Expected: all six audits `ok: True` and `clean`; the six `[init_cloud]` lines are identical (same n, support_frac=0.4273, in_own_zf_support=1.0000 on the dev subject); no NaN / OOM; the table prints eight cell rows, A−B, C−D and the interaction, both contrasts.
 
 - [ ] **Step 4: Write the record, STATUS and CLAUDE entries**
 
