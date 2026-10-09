@@ -36,14 +36,12 @@ def test_init_support_file_matches_the_volume():
     assert 0.3 < sup.mean() < 0.7       # the dev subject's union-ZF support covers ~43 % of the box; dilation adds a little
 
 
-def test_launcher_refuses_existing_outputs(tmp_path):
+def test_launcher_refuses_existing_outputs():
     import subprocess
     exp = "sg2x2_refuse_test"
     (ROOT / "results_arc").mkdir(exist_ok=True)
-    marker = ROOT / "results_arc" / f"{exp}_score.json"
-    marker.write_text("{}")
-    try:
-        r = subprocess.run(["bash", str(ROOT / "run_sg2x2.sh"), exp, "0", "A", "1"], cwd=ROOT, capture_output=True, text=True)
-        assert r.returncode == 1 and "refusing to overwrite" in r.stderr
-    finally:
-        marker.unlink()
+    marker = ROOT / "results_arc" / f"{exp}_score.json"   # permanent marker (results_arc/ is gitignored), never removed
+    if not marker.exists():
+        marker.write_text("{}")
+    r = subprocess.run(["bash", str(ROOT / "run_sg2x2.sh"), exp, "0", "A", "1"], cwd=ROOT, capture_output=True, text=True)
+    assert r.returncode == 1 and "refusing to overwrite" in r.stderr
