@@ -66,22 +66,28 @@ def collect(arc: Path, prefix: str, seeds: list[int]) -> dict:
     return got
 
 
-def _mean_sd(vals: list[float]) -> tuple[float, float]:
+def _mean_sd(vals: list[float]) -> tuple[float, float, int]:
+    """Mean, SD and the count k of non-NaN values; SD is NaN when k < 2 (undefined, not zero)."""
     v = [x for x in vals if not math.isnan(x)]
-    if not v:
-        return float("nan"), float("nan")
-    m = sum(v) / len(v)
-    sd = math.sqrt(sum((x - m) ** 2 for x in v) / (len(v) - 1)) if len(v) > 1 else 0.0
-    return m, sd
+    k = len(v)
+    if k == 0:
+        return float("nan"), float("nan"), 0
+    m = sum(v) / k
+    sd = math.sqrt(sum((x - m) ** 2 for x in v) / (k - 1)) if k > 1 else float("nan")
+    return m, sd, k
 
 
-def _fmt(m: float, sd: float, fmt: str, signed: bool = False) -> str:
-    if math.isnan(m):
+def _fmt(m: float, sd: float, fmt: str, signed: bool = False, k: int | None = None, n: int | None = None) -> str:
+    if k == 0 or math.isnan(m):
         return "—"
     s = fmt.format(abs(m)) if signed else fmt.format(m)
     if signed:
         s = ("+" if m >= 0 else "−") + s
-    return f"{s} ± {fmt.format(sd)}"
+    sd_txt = "n/a" if k == 1 else fmt.format(sd)
+    cell = f"{s} ± {sd_txt}"
+    if k is not None and n is not None and k < n:
+        cell += f" (n={k}/{n})"
+    return cell
 
 
 def table(got: dict, seeds: list[int]) -> str:
@@ -91,8 +97,8 @@ def table(got: dict, seeds: list[int]) -> str:
             vals = [got.get((cell, c, s)) for s in seeds]
             cells = []
             for k, _, fmt in METRICS:
-                m, sd = _mean_sd([v[k] if v else float("nan") for v in vals])
-                cells.append(_fmt(m, sd, fmt))
+                m, sd, kk = _mean_sd([v[k] if v else float("nan") for v in vals])
+                cells.append(_fmt(m, sd, fmt, k=kk, n=len(seeds)))
             lines.append(f"| {cell} | {c} | " + " | ".join(cells) + " |")
     diffs = (("A−B", "A", "B"), ("C−D", "C", "D"))
     for name, x, y in diffs:
@@ -101,8 +107,8 @@ def table(got: dict, seeds: list[int]) -> str:
             for k, _, fmt in METRICS:
                 d = [got[(x, c, s)][k] - got[(y, c, s)][k] if (x, c, s) in got and (y, c, s) in got else float("nan")
                      for s in seeds]
-                m, sd = _mean_sd(d)
-                cells.append(_fmt(m, sd, fmt, signed=True))
+                m, sd, kk = _mean_sd(d)
+                cells.append(_fmt(m, sd, fmt, signed=True, k=kk, n=len(seeds)))
             lines.append(f"| {name} | {c} | " + " | ".join(cells) + " |")
     for c in CONTRASTS:
         cells = []
@@ -114,8 +120,8 @@ def table(got: dict, seeds: list[int]) -> str:
                     d.append((got[keys[0]][k] - got[keys[1]][k]) - (got[keys[2]][k] - got[keys[3]][k]))
                 else:
                     d.append(float("nan"))
-            m, sd = _mean_sd(d)
-            cells.append(_fmt(m, sd, fmt, signed=True))
+            m, sd, kk = _mean_sd(d)
+            cells.append(_fmt(m, sd, fmt, signed=True, k=kk, n=len(seeds)))
         lines.append(f"| (A−B)−(C−D) | {c} | " + " | ".join(cells) + " |")
     n = len(seeds)
     return (f"Head-only metrics (|GT| > 0.05 P99.9), mean ± SD over {n} seed(s) {seeds}; differences are per-seed "
