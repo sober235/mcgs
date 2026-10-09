@@ -26,7 +26,8 @@ ap.add_argument("--note", default="", help="one line for README_CMP.txt")
 a = ap.parse_args()
 src, out = Path(a.src), Path(a.out)
 STEM_JSON = {"cgsense": "classical_{scan}.json", "zsssdu": "zsssdu_{scan}.json", "dip": "dip_{scan}.json",
-             "inr": "inr_{scan}.json", "mcinr": "mcinr_{scan}.json"}
+             "inr": "inr_{scan}.json", "mcinr": "mcinr_{scan}.json",
+             "gs_joint": "gs_joint_{scan}.json", "gs_single": "gs_single_{scan}.json"}   # the MC-GS / GS-single of record (the _ar2 winners)
 
 
 def find_row(key, scan):
