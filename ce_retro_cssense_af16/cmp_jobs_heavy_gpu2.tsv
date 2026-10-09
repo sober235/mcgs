@@ -1,0 +1,2 @@
+# GPU 2 (00:50): ZS-SSDU post ceiling probe (same network, 400 epochs, patience 40), parallel to the patience-20 run on GPU 6
+zs_post_z2_b15_cg10_e400	logs/zsssdu_z2_b15_cg10_e400_post.json	PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python; S=/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts; $PY -u $S/recon_zsssdu.py --scan post --gpu {gpu} --blocks 15 --cg_iters_net 10 --epochs 400 --patience 40 --suffix _z2_b15_cg10_e400
