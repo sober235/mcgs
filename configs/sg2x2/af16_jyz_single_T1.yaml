@@ -1,0 +1,59 @@
+# sg2x2 cell B_T1 / D_T1 base: data.plain = T1 only (SingleContrastTrainer refuses a data.contrast block).
+data:
+  plain:
+    name: T1
+    acceleration_factor: 16
+    data_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/ksp_T1.h5
+    csm_path:  /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/csm_espirit_T1.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [1, 2]
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false        # the mask IS readout-separable here; let the check prove it
+gaussian:
+  density_lr: 0.015
+  init_scale: 0.008                  # ~1 voxel at the 256 in-plane matrix (2/256)
+  initial_num_points: 600000         # fresh cloud; the 576902 dual-warm checkpoint is a different FOV
+  position_lr: 0.0003
+  rotation_lr: 0.0003
+  scale_lr: 0.002
+hardware:
+  device: cuda:0
+loss:
+  loss_type: l2
+  tv_weight: 0.10
+  tv_eps: 0.04
+  kspace_freq_adaptive: true
+  kspace_center_fraction: 0.05
+  kspace_center_weight: 0.3
+  kspace_mid_weight: 1.0
+  kspace_high_weight: 2.2
+  lambda_diff: 0.01                  # ignored by the v2 trainer
+  lambda_enh: 0                      # ignored by the v2 trainer
+  edge_tv: true
+  edge_tv_kappa_q: 0.85
+  edge_tv_wfloor: 0.1
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+output:
+  exp_name: sg2x2_single_T1
+  output_dir: results_arc/sg2x2_single_T1
+training:
+  max_iterations: 4000
+  shared_warmup_iters: 500
+  eval_every: 1000
+  log_every: 50
+  save_every: 1000
+  seed: 42
+  max_grad_norm: 1.0
+  lr_scheduler:
+    type: exponential
+    gamma: 0.9995
+voxelizer:
+  max_radius: 20
+  tile_size: 8
