@@ -1382,7 +1382,7 @@ WARMUP=0 bash run_sg2x2.sh sg2x2_smoke_B_T1 G B_T1 2 42
 WARMUP=0 bash run_sg2x2.sh sg2x2_smoke_D_FLAIR G D_FLAIR 2 42
 grep -E '^\[init_cloud\]|^\[single-contrast\]|^\[edge_tv\]|^\[wavelet\]|^\[phase-tv\]|^\[iter +1/|DONE' results_arc/sg2x2_smoke_{A,C,B_T1,D_FLAIR}.log
 ```
-Expected: all four logs reach `DONE`; every log shows `[init_cloud] mode=support_file ... support_frac=0.4273 in_own_zf_support=1.0000` (the undilated support of this very subject); `sg2x2_smoke_A.log` shows `[edge_tv]`, `[wavelet] lambda=0.1 (plain 0.12, contrast 0.1)`, `[phase-tv]`; `sg2x2_smoke_B_T1.log` shows `[single-contrast] lambda_geo=0.1 edge_tv=True lambda_wav_plain=0.12 lambda_ptv=0.03` and `[wavelet] lambda=0.12 (plain 0.12)`; `sg2x2_smoke_C.log` shows no `[edge_tv]` / `[wavelet]` / `[phase-tv]` line and its `[iter 1/2]` line has `R_geo=0.0000e+00 R_wav=0.0000e+00`; `sg2x2_smoke_D_FLAIR.log` shows `[single-contrast] lambda_geo=0.0 edge_tv=False lambda_wav_plain=0.0 lambda_ptv=0.0`, no `[edge_tv]` / `[wavelet]` / `[phase-tv]` line, and its `[iter 1/2]` line has `R_geo=0.0000e+00 R_wav=0.0000e+00 R_ptv=0.0000e+00`. (The manifest step prints a warning until Task 5 lands; that is expected here.)
+Expected: all four logs reach `DONE`; every log shows `[init_cloud] mode=support_file ... n=3600000 support_frac=0.4273`; `in_own_zf_support` reads `1.0000` in the joint cells (the file is this subject's own union-ZF support) and a value below 1 in the single cells (ruling R12: a single run's "own" support is that one contrast's ZF support, and the union file also covers the voxels only the other contrast lights up — record the two values, they are diagnostics, not gates); `sg2x2_smoke_A.log` shows `[edge_tv]`, `[wavelet] lambda=0.1 (plain 0.12, contrast 0.1)`, `[phase-tv]`; `sg2x2_smoke_B_T1.log` shows `[single-contrast] lambda_geo=0.1 edge_tv=True lambda_wav_plain=0.12 lambda_ptv=0.03` and `[wavelet] lambda=0.12 (plain 0.12)`; `sg2x2_smoke_C.log` shows no `[edge_tv]` / `[wavelet]` / `[phase-tv]` line and its `[iter 1/2]` line has `R_geo=0.0000e+00 R_wav=0.0000e+00`; `sg2x2_smoke_D_FLAIR.log` shows `[single-contrast] lambda_geo=0.0 edge_tv=False lambda_wav_plain=0.0 lambda_ptv=0.0`, no `[edge_tv]` / `[wavelet]` / `[phase-tv]` line, and its `[iter 1/2]` line has `R_geo=0.0000e+00 R_wav=0.0000e+00 R_ptv=0.0000e+00`. (The manifest step prints a warning until Task 5 lands; that is expected here.)
 
 - [ ] **Step 8: Commit**
 
@@ -1971,7 +1971,7 @@ grep -h -E '^\[init_cloud\] mode=support_file' results_arc/sg2x2_pilot_af16_s42_
 grep -l -i -E 'nan|out of memory' results_arc/sg2x2_pilot_af16_s42_*.log || echo "no NaN / OOM"
 env PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/sg2x2_table.py --prefix sg2x2_pilot_af16 --seeds 42
 ```
-Expected: all six audits `ok: True` and `clean`; the six `[init_cloud]` lines are identical (same n, support_frac=0.4273, in_own_zf_support=1.0000 on the dev subject); no NaN / OOM; the table prints eight cell rows, A−B, C−D and the interaction, both contrasts.
+Expected: all six audits `ok: True` and `clean`; the six `[init_cloud]` lines agree on `n=3600000 support_frac=0.4273`, with `in_own_zf_support=1.0000` in A and C and the two single-cell values recorded (ruling R12; T1 cells share one value, FLAIR cells the other); no NaN / OOM; the table prints eight cell rows, A−B, C−D and the interaction, both contrasts.
 
 - [ ] **Step 4: Write the record, STATUS and CLAUDE entries**
 
