@@ -47,6 +47,7 @@ def main():
     ap.add_argument("--pad", type=int, default=10); ap.add_argument("--brightness", type=float, default=1.8)
     ap.add_argument("--err_vmax", type=float, default=0.1); ap.add_argument("--cw", type=float, default=1.45, help="column width, inches")
     ap.add_argument("--dpi", type=int, default=150); ap.add_argument("--pdf", action="store_true"); ap.add_argument("--tag", default="")
+    ap.add_argument("--order", default="plane", choices=["plane", "scan"], help="plane: each plane shows pre then post; scan: pre's three planes then post's")
     a = ap.parse_args()
     import matplotlib; matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -79,9 +80,14 @@ def main():
         disp_shape[ax] = c.shape
 
     rows = []
-    for sc in scans:
+    if a.order == "plane":          # per plane: pre image, pre zoom, post image, post zoom (user 2026-10-09)
         for ax, i, pname in planes:
-            rows += [("img", sc, ax, i, pname), ("zoom", sc, ax, i, pname)]
+            for sc in scans:
+                rows += [("img", sc, ax, i, pname), ("zoom", sc, ax, i, pname)]
+    else:                           # per scan: pre's three planes, then post's
+        for sc in scans:
+            for ax, i, pname in planes:
+                rows += [("img", sc, ax, i, pname), ("zoom", sc, ax, i, pname)]
     hr = [disp_shape[r[2]][0] / disp_shape[r[2]][1] if r[0] == "img" else 0.5 for r in rows]
     W = a.cw * len(labels); H = a.cw * sum(hr)
     fig = plt.figure(figsize=(W + 0.9, H + 1.9))
@@ -139,10 +145,10 @@ def main():
     cax = fig.add_axes([1 - 0.02 - 2 * a.cw / (W + 0.9), 0.52 / (H + 1.9), 2 * a.cw / (W + 0.9), 0.13 / (H + 1.9)])
     cb = fig.colorbar(sm, cax=cax, orientation="horizontal"); cb.set_label("|err| / max|GT|", fontsize=9); cb.ax.tick_params(labelsize=8)
     fig.suptitle(f"CE retro, nominal AF 16, actual 16.00x (vdPoisMex). Truth = CS-SENSE reconstruction of the AF 5.33 acquisition. "
-                 f"Pre on top, post below; each plane: whole slice (orange box = zoom location), then zoom (left) | error zoom (right).\n"
+                 f"{'Per plane: pre, then post' if a.order == 'plane' else 'Pre on top, post below'}; each block: whole slice (orange box = zoom location), then zoom (left) | error zoom (right).\n"
                  f"Image panels: head-masked slice PSNR / SSIM / NMSE, bold = best of the 11 arms. Error |rec - GT| / max|GT|, jet [0, {a.err_vmax:g}], head-masked. "
                  f"Grey window P99.9 / {a.brightness:g} (display only). GT column zoom row, right half: sampling mask in that plane.", fontsize=10)
-    name = f"ce_retro_af16_lesion_planes_zoom_t{a.tra}_c{a.cor}_s{a.sag}{a.tag}"
+    name = f"ce_retro_af16_lesion_planes_zoom_t{a.tra}_c{a.cor}_s{a.sag}{'_byplane' if a.order == 'plane' else ''}{a.tag}"
     out = R / "figures" / f"{name}.png"; out.parent.mkdir(exist_ok=True)
     fig.savefig(out, dpi=a.dpi)
     if a.pdf:
