@@ -38,6 +38,8 @@ ap.add_argument("--inr_nmax", type=int, default=512)
 ap.add_argument("--inr_hidden", type=int, default=64)
 ap.add_argument("--inr_layers", type=int, default=3)
 ap.add_argument("--render_chunk", type=int, default=1_500_000)
+ap.add_argument("--suffix", default="", help="appended to the method key and the output file names (sweeps); empty = the registered arm")
+ap.add_argument("--support", type=int, default=-1, help="DIP only: multiply the render by the zero-filled head support (|zf| > 0.05 P99.9, the rule gaussian.init_mode=head uses) dilated by this many voxels; -1 = off (registered behaviour)")
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -205,7 +207,16 @@ if args.method == "dip":
     npar = sum(p.numel() for p in net.parameters())
     log(f"[dip] chans={net.chans} low={net.low} params={npar/1e6:.2f}M "
         f"vs outputs={2*int(np.prod(G))/1e6:.2f}M -> ratio {npar/(2*np.prod(G)):.3f}")
-    render = lambda: net(z) * out_scale
+    if args.support >= 0:
+        from scipy import ndimage as _ndi
+        _za = zfn.abs(); _sup = (_za > 0.05 * torch.quantile(_za.flatten()[::7], 0.999)).cpu().numpy()
+        if args.support > 0:
+            _sup = _ndi.binary_dilation(_sup, iterations=int(args.support))
+        sup = torch.from_numpy(_sup.astype(np.float32)).to(dev)
+        log(f"[dip] output support: ZF head rule, dilated {args.support} voxels -> {float(sup.mean()):.3f} of the grid")
+        render = lambda: net(z) * out_scale * sup
+    else:
+        render = lambda: net(z) * out_scale
 else:
     net = HashINR(args.inr_levels, args.inr_log2T, args.inr_feat,
                   args.inr_nmax, args.inr_hidden, args.inr_layers).to(dev)
@@ -255,12 +266,12 @@ for it in range(1, args.iters + 1):
 log(f"[{args.method}/{args.contrast}] best held-out kres {best['ho']:.5f} @ iter {best['it']}")
 xn = best["vol"]
 
-row = P.score(xn, args.method, seconds=time.time() - t0,
+row = P.score(xn, args.method + args.suffix, seconds=time.time() - t0,
               kres_heldout=best["ho"], best_iter=best["it"], params=int(npar),
               holdout_lines=int(nho), total_lines=int(Nl), iters=args.iters, lr=lr)
-np.save(R / f"recon/{args.method}_{args.contrast}_complex.npy", xn.cpu().numpy().astype(np.complex64))
+np.save(R / f"recon/{args.method}{args.suffix}_{args.contrast}_complex.npy", xn.cpu().numpy().astype(np.complex64))
 json.dump({"contrast": args.contrast, "rows": [row], "scale_p999": P.scale, "coils": int(NC)},
-          open(R / f"logs/{args.method}_{args.contrast}.json", "w"), indent=2)
+          open(R / f"logs/{args.method}{args.suffix}_{args.contrast}.json", "w"), indent=2)
 log(f"[{args.contrast}] {args.method} psnr={row['psnr']:.3f} ssim={row['ssim']:.4f} "
     f"nmse={row['nmse']:.5f} hfen={row['hfen']:.4f} head_psnr={row['head_psnr']:.3f} "
     f"head_ssim={row['head_ssim']:.4f} ({row['seconds']:.0f} s)")
