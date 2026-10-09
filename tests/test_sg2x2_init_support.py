@@ -12,7 +12,7 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "paired_gs"))
 sys.path.insert(0, str(ROOT / "tests"))
-from gaussian.init_cloud import load_init_support, sample_positions_in_support  # noqa: E402
+from gaussian.init_cloud import head_support, load_init_support, sample_positions, sample_positions_in_support  # noqa: E402
 from sg2x2_fixture import base_cfg, make_pair  # noqa: E402
 
 cuda = pytest.mark.skipif(not torch.cuda.is_available(), reason="trainer needs the CUDA voxelizer")
@@ -34,6 +34,19 @@ def test_sample_positions_in_support_inside_and_seeded():
 def test_sample_positions_in_support_empty_raises():
     with pytest.raises(RuntimeError):
         sample_positions_in_support(torch.zeros(4, 4, 4, dtype=torch.bool), 10)
+
+
+def test_sample_positions_in_support_draws_what_the_head_mode_draws():
+    """sample_positions_in_support repeats the decode/jitter/clamp of sample_positions; on the head support of one
+    magnitude and with equal seeds the two must agree exactly (the INIT=head control relies on it)."""
+    mag = torch.rand(20, 24, 16, generator=torch.Generator().manual_seed(11))
+    sup = head_support(mag, 0.5)
+    n_sup = int(sup.sum())
+    assert n_sup > 3000                         # N=3000 draws without replacement, n_sup+500 with replacement
+    for n, jitter in ((3000, True), (n_sup + 500, True), (3000, False)):
+        vh, ph = sample_positions(mag, n, "head", 0.5, generator=torch.Generator().manual_seed(5), jitter=jitter)
+        vs, ps = sample_positions_in_support(sup, n, generator=torch.Generator().manual_seed(5), jitter=jitter)
+        assert torch.equal(vh, vs) and torch.equal(ph, ps), (n, jitter)
 
 
 def test_load_init_support_reads_npz_and_checks_shape(tmp_path):
