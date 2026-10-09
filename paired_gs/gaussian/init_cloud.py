@@ -100,3 +100,43 @@ def scales_3nn(positions: torch.Tensor, shape: Tuple[int, int, int], scale_mult:
         nn = np.concatenate([nn, np.repeat(nn[:, -1:], 3 - nn.shape[1], axis=1)], axis=1)
     mean = np.clip(nn[:, :3].mean(axis=1, keepdims=True) * scale_mult, min_scale, max_scale)
     return torch.from_numpy(np.repeat(mean, 3, axis=1)).to(device=positions.device, dtype=torch.float32)
+
+
+# --- frozen init support (sg2x2 shared-geometry ablation, 2026-10-09) ------------------------------------------
+def load_init_support(path: str, volume_shape: Tuple[int, int, int], device) -> torch.Tensor:
+    """A frozen boolean (D, H, W) support from an .npz (key 'support'), e.g. the development subject's union-ZF
+    head support written by scripts/sg2x2_make_init_support.py. Refuses a shape that is not this volume's."""
+    import numpy as np
+    with np.load(path) as z:
+        sup = np.asarray(z["support"]).astype(bool)
+    if tuple(sup.shape) != tuple(volume_shape):
+        raise ValueError(f"init support {path} has shape {tuple(sup.shape)}, the volume is {tuple(volume_shape)}")
+    return torch.from_numpy(sup).to(device)
+
+
+def sample_positions_in_support(support: torch.Tensor, num_points: int,
+                                generator: torch.Generator | None = None,
+                                jitter: bool = True) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Uniform draw of `num_points` voxels inside a boolean support (same conventions as sample_positions: with
+    replacement only when the support is smaller than N, voxel centre plus a sub-voxel jitter, [-1, 1] coords).
+    The draw depends only on (support, num_points, generator): nothing of the subject's data enters."""
+    dev = support.device
+    cand = torch.nonzero(support.flatten(), as_tuple=False).squeeze(-1)
+    if cand.numel() == 0:
+        raise RuntimeError("init support is empty")
+    w = torch.ones(cand.numel(), device=dev)
+    pick = torch.multinomial(w, num_points, replacement=cand.numel() < num_points, generator=generator)
+    idx = cand[pick]
+    d, h, wd = tuple(support.shape)
+    z = idx // (h * wd)
+    rem = idx % (h * wd)
+    y = rem // wd
+    x = rem % wd
+    vox = torch.stack([z, y, x], dim=-1)
+    off = torch.rand(num_points, 3, device=dev, generator=generator) - 0.5 if jitter else torch.zeros(num_points, 3, device=dev)
+    pos = torch.stack([
+        ((z.float() + 0.5 + off[:, 0]) / d) * 2 - 1,
+        ((y.float() + 0.5 + off[:, 1]) / h) * 2 - 1,
+        ((x.float() + 0.5 + off[:, 2]) / wd) * 2 - 1,
+    ], dim=-1).clamp_(-1.0, 1.0)
+    return vox, pos

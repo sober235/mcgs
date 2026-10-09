@@ -256,6 +256,24 @@ class JointTrainer:
                     ix = ((positions[:, 0] + 1) * 0.5 * d).clamp(0, d - 1).long()
                     iy = ((positions[:, 1] + 1) * 0.5 * h).clamp(0, h - 1).long()
                     iz = ((positions[:, 2] + 1) * 0.5 * w).clamp(0, w - 1).long()
+            elif init_mode == "support_file":
+                # frozen support (sg2x2 ablation, 2026-10-09): positions depend only on the file, N and the seed,
+                # so every cell of a subject starts from the same cloud; densities still come from each
+                # contrast's own ZF below. The subject's own union-ZF support is read only for the log line.
+                from gaussian.init_cloud import head_support, load_init_support, sample_positions_in_support, union_magnitude
+                sup_path = str(gcfg.get("init_support_path", ""))
+                if not sup_path:
+                    raise ValueError("gaussian.init_mode=support_file needs gaussian.init_support_path")
+                support = load_init_support(sup_path, self.volume_shape, self.device)
+                with torch.no_grad():
+                    gen = torch.Generator(device=self.device)
+                    gen.manual_seed(int(self.config.get("training", {}).get("seed", 42)))
+                    vox, positions = sample_positions_in_support(support, n_init, generator=gen)
+                    ix, iy, iz = vox[:, 0], vox[:, 1], vox[:, 2]
+                    own = head_support(union_magnitude(self.zf_p, self.zf_c), float(gcfg.get("init_head_frac", 0.05)))
+                    in_own = float(own[ix, iy, iz].float().mean())
+                print(f"[init_cloud] mode=support_file path={sup_path} n={n_init} "
+                      f"support_frac={float(support.float().mean()):.4f} in_own_zf_support={in_own:.4f}")
             else:
                 # cold start on the measured anatomy: positions drawn inside the ZF head support
                 # (paired_gs/gaussian/init_cloud.py); densities follow the same zf*0.1 rule.
