@@ -1,0 +1,7 @@
+ar_i1_k30p90 59 lesion slices; MC-GS first on PSNR+SSIM+NMSE+HFEN on both scans: 59
+ar_i2_k50 59 lesion slices; MC-GS first on PSNR+SSIM+NMSE+HFEN on both scans: 58
+ar_i3_k30p90e05 59 lesion slices; MC-GS first on PSNR+SSIM+NMSE+HFEN on both scans: 59
+ar_i4_k30p90e2 59 lesion slices; MC-GS first on PSNR+SSIM+NMSE+HFEN on both scans: 22
+ar_i5_k30p95 59 lesion slices; MC-GS first on PSNR+SSIM+NMSE+HFEN on both scans: 59
+ar_i6_k50p90 59 lesion slices; MC-GS first on PSNR+SSIM+NMSE+HFEN on both scans: 59
+SCORE_DONE

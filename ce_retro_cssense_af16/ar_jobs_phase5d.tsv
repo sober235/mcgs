@@ -1,0 +1,6 @@
+# phase 5d (2026-10-09): refine the common-edge gate around the phase-5c winner (kappa 30, p 0.9: 34.690 / 36.940, 59/59 lesion slices).
+# kappa 50 ~ kappa 30; p 0.95 < p 0.9; lambda_edge 0.0005 / 0.002 both worse than 0.001. One step each side on the two gate knobs.
+ar_j1_k20p90	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 20 --edge_p 0.9
+ar_j2_k40p90	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 40 --edge_p 0.9
+ar_j3_k30p85	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.85
+ar_j4_k30p90e14	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9 --lambda_edge 0.0014
