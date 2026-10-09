@@ -1,3 +1,77 @@
+# STATUS — 2026-10-09 (worktree mcgs_sg2x2_wt, branch exp/shared-geometry-2x2-ablation-20261009) — sg2x2 four-cell ablation
+
+**Read first:** `docs/experiments/2026-10-09-mcgs-shared-geometry-2x2-ablation.md` (spec), then
+`docs/superpowers/plans/2026-10-09-sg2x2-shared-geometry-ablation.md` (plan), then
+`docs/superpowers/records/2026-10-09-sg2x2-implementation.md` (what was built, regression, not-done list). Tag
+`handoff/2026-10-09-sg2x2-pilot` = code complete, pilot pending. The sections below this one belong to older branches
+and are kept as they were.
+
+## 1. Done and verified (2026-10-09, this worktree)
+
+Re-run these first; the numbers below come from the execution ledger
+(`.superpowers/sdd/2026-10-09-sg2x2-shared-geometry-ablation/progress.md`, local, gitignored).
+
+```
+$ PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/sg2x2_regress_compare.py <before.log> <after.log>   # logs in results_arc/
+REGRESSION PASS. No second run needed.      # iter1/iter50 dc_p dc_c R_geo R_wav rel=0; T1 head_psnr 33.807, FLAIR 32.772, diff +0.0000
+$ git diff --stat 9df60e7 -- paired_gs arc
+ arc/cycle.py                        | 46 +++++++++++++++++++++++++++++++------
+ paired_gs/gaussian/init_cloud.py    | 40 ++++++++++++++++++++++++++++++++
+ paired_gs/trainers/joint_trainer.py | 23 +++++++++++++++++++
+ 3 files changed, 102 insertions(+), 7 deletions(-)       # joint_trainer.py: 0 removed lines
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= $PY -m pytest tests -q --ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py -p no:cacheprovider
+278 passed (277 + 1 OOM flake re-run alone: another session took the card; baseline before the work: 223 passed)
+$ md5sum configs/sg2x2/init_support_af16_jyz.npz
+310a6520631a330e59cb5deb390e9035   # support_frac 0.4273, dilate 0
+```
+
+- Smokes (A, C, B_T1, D_FLAIR on card 1): all four manifests audit ok; `in_own_zf_support` 1.0000 / 1.0000 / 0.9697 / 0.9206.
+- Built: single-contrast trainer (one contrast per process), `arc/cycle.py --trainer`, `init_mode=support_file`, cells
+  table, launcher `run_sg2x2.sh`, manifest + audit, table, regression gate, queue `scripts/sg2x2_queue.sh`.
+- The pilot has NOT run. No number from this branch is evidence yet.
+
+## 2. Waiting for the user
+
+1. The go for the pilot (six runs, about 1 h each, cards 0-4 allowed; cards 5/6/7 belong to other sessions):
+   `setsid nohup bash scripts/sg2x2_queue.sh scripts/sg2x2_pilot_s42.txt > results_arc/sg2x2_queue_pilot_s42.log 2>&1 < /dev/null &`
+2. Push of the branch and tag (not pushed).
+3. Seeds 43/44 and the supplement runs (1.8M capacity `NPTS=1800000`; `INIT=head` end-to-end control).
+4. Whether to start the 16-pair core test (another grid: own support file, per-subject DC-centring check, masks) and
+   the spec §4 equal-budget per-arm lambda search (both out of scope here).
+
+## 3. Next
+
+After the go: launch the queue, wait with a loop anchored on the python path
+(`pgrep -f '^/home/congcongliu/anaconda3/envs/GSTMI/bin/python -u arc/cycle.py --exp sg2x2_pilot'`), then run the
+acceptance commands in record §4 (audits ok + clean, six `[init_cloud]` lines agree on `n=3600000 support_frac=0.4273`,
+no NaN / OOM, table with A-B, C-D, interaction) and paste the table into the record marked
+`PILOT, one subject, seed 42, NOT EVIDENCE`.
+
+## 4. Pitfalls, and what not to redo
+
+- `--set` values are YAML (`--set loss.lambda_nl=0` is the number 0; strings need quotes).
+- `run_sg2x2.sh` positional order is `EXP GPU CELL [ITERS] [SEED] [extra args]`; omit ITERS/SEED before extra args and
+  the first extra arg is eaten as ITERS. The queue line order is `EXP CELL ITERS SEED`.
+- The manifest script exits 3 when the regulariser audit fails; a nonzero exit after a run means read the audit, not the log.
+- Pre-existing bug fixed here (R9): since f413c26 (2026-09-26) any joint run with `loss.edge_tv=false` died with
+  AttributeError at iteration 1. The iso-TV reproduction commands in the project memory (configs without edge_tv) were
+  broken from then until this branch; use this branch's `joint_trainer.py` for them.
+- `in_own_zf_support` is below 1 in single cells by construction (measured against one contrast's own support, R12).
+- Do not use an ellipsoid init: the union ZF support is 0.4273 of the box, bbox = whole volume, the inscribed ellipsoid
+  covers 0.8954. Do not dilate the support file (dilate 1/2/3 move the cloud off the registered recipe's head init).
+- A and B share one frozen phase-3 recipe; do not read the pilot as an equal-budget comparison.
+- The test suite's GPU subprocess tests die with OOM if another session takes the card mid-run; re-run the one test alone.
+
+## 5. Why
+
+One contrast per process is the only reading of "truly independent GS-single" that needs no new model class and no
+cross-contrast parameter anywhere. The frozen support file makes every cell start from the same cloud independent of the
+subject's ZF, and with dilate 0 cell A equals the registered recipe's own init, so the regression gate and the cells
+stay comparable. The pilot is one subject and one seed on purpose: it tests the machinery (audit, init, table), not the claim.
+
+---
+
 # STATUS — 2026-09-28（worktree `mcgs_widen_wt`, branch `widen-mcgs-af12-16-20-24`）— widen loop, ceilings, AF12; tidied and pushed
 
 **Read first:** `docs/2026-09-28-widen-mcgs-summary.md` (Chinese, the whole story), then `autoresearch_widen.md` (rules,

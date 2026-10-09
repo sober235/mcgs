@@ -1,0 +1,7 @@
+# EXP CELL ITERS SEED  (run_sg2x2.sh positional order after EXP GPU)
+sg2x2_pilot_af16_s42_A A 4000 42
+sg2x2_pilot_af16_s42_C C 4000 42
+sg2x2_pilot_af16_s42_B_T1 B_T1 4000 42
+sg2x2_pilot_af16_s42_B_FLAIR B_FLAIR 4000 42
+sg2x2_pilot_af16_s42_D_T1 D_T1 4000 42
+sg2x2_pilot_af16_s42_D_FLAIR D_FLAIR 4000 42
