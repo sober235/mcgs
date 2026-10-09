@@ -1,0 +1,12 @@
+59 lesion slices; MC-GS first on PSNR+SSIM+NMSE+HFEN on both scans: 59
+  axis 0 idx 209 core  197  margin over GS-single pre +0.262 post +0.249
+  axis 0 idx 197 core  353  margin over GS-single pre +0.261 post +0.239
+  axis 0 idx 203 core  413  margin over GS-single pre +0.231 post +0.269
+  axis 0 idx 204 core  396  margin over GS-single pre +0.234 post +0.224
+  axis 0 idx 207 core  299  margin over GS-single pre +0.216 post +0.233
+  axis 0 idx 202 core  435  margin over GS-single pre +0.233 post +0.207
+  axis 0 idx 210 core  153  margin over GS-single pre +0.203 post +0.196
+  axis 0 idx 206 core  339  margin over GS-single pre +0.200 post +0.193
+  axis 0 idx 208 core  246  margin over GS-single pre +0.219 post +0.191
+  axis 0 idx 199 core  433  margin over GS-single pre +0.208 post +0.189
+blockers on the other slices: []

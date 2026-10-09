@@ -1,0 +1,35 @@
+{
+  "contrast": "pre",
+  "rows": [
+    {
+      "method": "gs_joint",
+      "contrast": "pre",
+      "psnr": 37.999505183788436,
+      "ssim": 0.9640388976700413,
+      "nmse": 0.011054657399654388,
+      "hfen": 0.6197111010551453,
+      "sharp": 0.8265511393547058,
+      "grain": 0.007984461262822151,
+      "seconds": 4337.290889501572,
+      "head_psnr": 34.690260046170366,
+      "head_ssim": 0.9385426640510559,
+      "head_hfen": 0.12604245591441016,
+      "grain_ratio": 0.9406251125744683,
+      "head_frac": 0.4300846111811814,
+      "gmax": 1.4715816974639893,
+      "head_nmse": 0.01020697120294114,
+      "psnr_cplx": 31.725461179623053,
+      "exp": "ar_i1_k30p90",
+      "factor_scale": 0.9997583817359138
+    }
+  ],
+  "exp": "ar_i1_k30p90",
+  "npz": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/trainer/_trainer_e778bf2_ar/results_arc/ar_i1_k30p90_volumes.npz",
+  "scale_trainer": 183.532318,
+  "scale_gauge": 183.57667347717228,
+  "zf_ratio_check": 0.9997586607933044,
+  "vram_gb": 43.838033408,
+  "npts": 3600000,
+  "source_run": "ar_i1_k30p90_pre",
+  "note": "autoresearch phase-5c winner (edge gate kappa 30, p 0.9 on the 10-08 recipe) / rule-A fair single, renamed for the registered scripts (2026-10-09)"
+}

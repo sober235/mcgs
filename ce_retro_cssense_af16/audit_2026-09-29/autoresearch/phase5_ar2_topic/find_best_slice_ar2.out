@@ -1,0 +1,46 @@
+
+=== pre: 604 scored slices, MC-GS joint ranks 1st on 597
+   winner counts: {'gs_joint': 597, 'gs_single': 4, 'zsssdu': 3}
+   joint rank histogram: {1: 597, 2: 6, 4: 1}
+   top-5 slices by joint vs the best other arm:
+      axis0 idx 240  d=+0.433 dB  rank=1  best=gs_joint  n_head=3773
+      axis0 idx 231  d=+0.407 dB  rank=1  best=gs_joint  n_head=7620
+      axis0 idx 235  d=+0.378 dB  rank=1  best=gs_joint  n_head=5789
+      axis0 idx 232  d=+0.375 dB  rank=1  best=gs_joint  n_head=7195
+      axis0 idx 226  d=+0.353 dB  rank=1  best=gs_joint  n_head=9658
+   top-5 slices by joint vs MC-GS single:
+      axis0 idx 240  d=+0.433 dB  rank=1  best=gs_joint  n_head=3773
+      axis0 idx 231  d=+0.407 dB  rank=1  best=gs_joint  n_head=7620
+      axis0 idx 241  d=+0.406 dB  rank=1  best=gs_joint  n_head=3139
+      axis0 idx 235  d=+0.378 dB  rank=1  best=gs_joint  n_head=5789
+      axis0 idx 232  d=+0.375 dB  rank=1  best=gs_joint  n_head=7195
+   top-5 slices by joint vs CS-SENSE:
+      axis2 idx 161  d=+1.606 dB  rank=1  best=gs_joint  n_head=9713
+      axis2 idx 162  d=+1.523 dB  rank=1  best=gs_joint  n_head=8410
+      axis1 idx 217  d=+1.521 dB  rank=1  best=gs_joint  n_head=6008
+      axis2 idx 160  d=+1.513 dB  rank=1  best=gs_joint  n_head=10748
+      axis2 idx 159  d=+1.466 dB  rank=1  best=gs_joint  n_head=11927
+
+=== post: 604 scored slices, MC-GS joint ranks 1st on 601
+   winner counts: {'gs_joint': 601, 'gs_single': 2, 'cssense': 1}
+   joint rank histogram: {1: 601, 2: 2, 3: 1}
+   top-5 slices by joint vs the best other arm:
+      axis2 idx 165  d=+0.369 dB  rank=1  best=gs_joint  n_head=5060
+      axis2 idx 164  d=+0.321 dB  rank=1  best=gs_joint  n_head=6536
+      axis2 idx 161  d=+0.285 dB  rank=1  best=gs_joint  n_head=9873
+      axis2 idx 166  d=+0.283 dB  rank=1  best=gs_joint  n_head=3681
+      axis2 idx 162  d=+0.280 dB  rank=1  best=gs_joint  n_head=8564
+   top-5 slices by joint vs MC-GS single:
+      axis2 idx 165  d=+0.369 dB  rank=1  best=gs_joint  n_head=5060
+      axis2 idx 164  d=+0.321 dB  rank=1  best=gs_joint  n_head=6536
+      axis2 idx 161  d=+0.285 dB  rank=1  best=gs_joint  n_head=9873
+      axis2 idx 166  d=+0.283 dB  rank=1  best=gs_joint  n_head=3681
+      axis2 idx 162  d=+0.280 dB  rank=1  best=gs_joint  n_head=8564
+   top-5 slices by joint vs CS-SENSE:
+      axis2 idx 164  d=+1.414 dB  rank=1  best=gs_joint  n_head=6536
+      axis2 idx 160  d=+1.312 dB  rank=1  best=gs_joint  n_head=11034
+      axis2 idx 161  d=+1.280 dB  rank=1  best=gs_joint  n_head=9873
+      axis2 idx 165  d=+1.251 dB  rank=1  best=gs_joint  n_head=5060
+      axis2 idx 166  d=+1.207 dB  rank=1  best=gs_joint  n_head=3681
+
+wrote /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_ar2/logs/slice_scores.json

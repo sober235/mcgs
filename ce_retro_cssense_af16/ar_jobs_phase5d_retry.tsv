@@ -1,0 +1,2 @@
+# phase 5d retry (2026-10-09): ar_j3_k30p85 died at launch (see log); same settings, new name
+ar_j3b_k30p85	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.85
