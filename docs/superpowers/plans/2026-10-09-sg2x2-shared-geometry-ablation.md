@@ -14,7 +14,7 @@
 
 - Environment for every command: `PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python`, `env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID`. Tests: `CUDA_VISIBLE_DEVICES=<idle card> $PY -m pytest tests -q --ignore=tests/smoke_test.py --ignore=tests/test_score_edge.py -p no:cacheprovider` (baseline on this branch: 223 passed).
 - Worktree `/data0/congcong/code/GS/mcgs_sg2x2_wt`, branch `exp/shared-geometry-2x2-ablation-20261009`. Never run commands in other worktrees; never write under `Results_20260908/` in this plan.
-- Existing files that may be modified, and only additively: `paired_gs/trainers/joint_trainer.py` (one `elif init_mode == "support_file"` branch in `_setup_model`), `paired_gs/gaussian/init_cloud.py` (new functions appended), `arc/cycle.py` (new `--trainer` flag; every new line is behind `args.trainer == "single"` or guards a missing `data.contrast`). No other existing file changes. The regression gate (Task 7) proves the default path reproduces the pre-change smoke run.
+- Existing files that may be modified, and only additively: `paired_gs/trainers/joint_trainer.py` (one `elif init_mode == "support_file"` branch in `_setup_model`, and — ruling R9, found in Task 3 — two lines in `train()` that initialise `self._edge_kappa_p = None` / `self._edge_kappa_c = None` just before the `if self._edge_tv:` block, because the guide tuples `gd_p` / `gd_c` read those attributes every iteration and a run with `loss.edge_tv=false` has died at iteration 1 since f413c26; cell C needs that path), `paired_gs/gaussian/init_cloud.py` (new functions appended), `arc/cycle.py` (new `--trainer` flag; every new line is behind `args.trainer == "single"` or guards a missing `data.contrast`). No other existing file changes. The regression gate (Task 7) proves the default path reproduces the pre-change smoke run.
 - The spec's recipe for A/B (spec §3): `lambda_geo 0.10`, edge-TV on with `kappa_q 0.85 / w_floor 0.10 / tv_eps 0.04`, wavelet db4 one level, T1 `0.12`, FLAIR `0.10`, `lambda_ptv 0.03`; every cross-contrast weight 0 (`lambda_edge`, `lambda_dtv`, `lambda_vtv`, `lambda_dtv_proj`, `edge_tv_guide_alpha`, `ptv_guide_alpha`, `guide_path_*`, `lambda_nl*`). C/D: `lambda_geo 0`, `edge_tv false`, `lambda_wav 0`, `lambda_wav_plain 0`, `lambda_ptv 0`. Shared in all cells: `kspace_freq_adaptive` with `kspace_high 2.2`, `warmup 500`, `max_radius 20`, `init_scale_mode 3nn`, 4000 iterations, `adaptive_control` off, `num_private_points 0`, seed 42 (43, 44 later).
 - Capacity (spec §4): A/C 3.6M shared; B/D 3.6M **per contrast** (main), 1.8M per contrast (supplementary, `NPTS=1800000`).
 - A single-contrast run gets that contrast's own wavelet weight (`lambda_wav` and `lambda_wav_plain` both = own λ): T1 0.12, FLAIR 0.10. The spec's historical confound (FLAIR scored with T1's 0.12) must not recur.
@@ -1372,15 +1372,17 @@ Note the positional handling: after `shift 3`, the two optional positionals (ITE
 Run: `env PYTHONNOUSERSITE=1 PYTHONPATH= $PY -m pytest tests/test_sg2x2_configs.py -q -p no:cacheprovider`
 Expected: `4 passed` (the launcher test needs `scripts/sg2x2_manifest.py` to exist only on success paths, so it passes now).
 
-- [ ] **Step 7: A two-iteration end-to-end smoke of one joint and one single cell on real data**
+- [ ] **Step 7: A two-iteration end-to-end smoke of all four cell kinds on real data**
 
-Run (idle card G, ~4 min each, sequential):
+Run (idle card G, ~4 min each, sequential; ruling R10: C is included because the joint trainer's `edge_tv=false` path only runs there):
 ```bash
 WARMUP=0 bash run_sg2x2.sh sg2x2_smoke_A G A 2 42
+WARMUP=0 bash run_sg2x2.sh sg2x2_smoke_C G C 2 42
+WARMUP=0 bash run_sg2x2.sh sg2x2_smoke_B_T1 G B_T1 2 42
 WARMUP=0 bash run_sg2x2.sh sg2x2_smoke_D_FLAIR G D_FLAIR 2 42
-grep -E '^\[init_cloud\]|^\[single-contrast\]|^\[edge_tv\]|^\[wavelet\]|^\[phase-tv\]|^\[iter +1/|DONE' results_arc/sg2x2_smoke_A.log results_arc/sg2x2_smoke_D_FLAIR.log
+grep -E '^\[init_cloud\]|^\[single-contrast\]|^\[edge_tv\]|^\[wavelet\]|^\[phase-tv\]|^\[iter +1/|DONE' results_arc/sg2x2_smoke_{A,C,B_T1,D_FLAIR}.log
 ```
-Expected: both logs reach `DONE`; `sg2x2_smoke_A.log` shows `[init_cloud] mode=support_file ... support_frac=0.4273 in_own_zf_support=1.0000` (the undilated support of this very subject), `[edge_tv]`, `[wavelet] lambda=0.1 (plain 0.12, contrast 0.1)`, `[phase-tv]`; `sg2x2_smoke_D_FLAIR.log` shows `[single-contrast] lambda_geo=0.0 edge_tv=False lambda_wav_plain=0.0 lambda_ptv=0.0`, no `[edge_tv]` / `[wavelet]` / `[phase-tv]` line, and its `[iter 1/2]` line has `R_geo=0.0000e+00 R_wav=0.0000e+00 R_ptv=0.0000e+00`. (The manifest step prints a warning until Task 5 lands; that is expected here.)
+Expected: all four logs reach `DONE`; every log shows `[init_cloud] mode=support_file ... support_frac=0.4273 in_own_zf_support=1.0000` (the undilated support of this very subject); `sg2x2_smoke_A.log` shows `[edge_tv]`, `[wavelet] lambda=0.1 (plain 0.12, contrast 0.1)`, `[phase-tv]`; `sg2x2_smoke_B_T1.log` shows `[single-contrast] lambda_geo=0.1 edge_tv=True lambda_wav_plain=0.12 lambda_ptv=0.03` and `[wavelet] lambda=0.12 (plain 0.12)`; `sg2x2_smoke_C.log` shows no `[edge_tv]` / `[wavelet]` / `[phase-tv]` line and its `[iter 1/2]` line has `R_geo=0.0000e+00 R_wav=0.0000e+00`; `sg2x2_smoke_D_FLAIR.log` shows `[single-contrast] lambda_geo=0.0 edge_tv=False lambda_wav_plain=0.0 lambda_ptv=0.0`, no `[edge_tv]` / `[wavelet]` / `[phase-tv]` line, and its `[iter 1/2]` line has `R_geo=0.0000e+00 R_wav=0.0000e+00 R_ptv=0.0000e+00`. (The manifest step prints a warning until Task 5 lands; that is expected here.)
 
 - [ ] **Step 8: Commit**
 
