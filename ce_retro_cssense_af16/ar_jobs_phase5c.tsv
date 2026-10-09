@@ -1,0 +1,9 @@
+# phase 5c (2026-10-09 13:50): phase 5 kept the common-edge GATE knobs (edge_kappa 30: whole brain +0.029/+0.033, 55/59 lesion slices;
+# edge_p 0.9: +0.010/+0.011, 40/59) and lambda_edge 0.0005 flipped all 59 lesion slices at -0.002/-0.018 whole brain. Combine the gate
+# knobs, push them further, and re-sweep lambda_edge under the sharper gate. Base = confirmed winner.
+ar_i1_k30p90	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9
+ar_i2_k50	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 50
+ar_i3_k30p90e05	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9 --lambda_edge 0.0005
+ar_i4_k30p90e2	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9 --lambda_edge 0.002
+ar_i5_k30p95	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.95
+ar_i6_k50p90	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 50 --edge_p 0.9
