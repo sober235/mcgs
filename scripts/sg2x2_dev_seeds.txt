@@ -1,0 +1,27 @@
+# Development subject (jiangyizhou AF16), seeds 43 and 44 of the six cells (spec §5.1.4: seeds 42/43/44; seed 42 is the
+# pilot, symlinked under the sg2x2_dev_af16 prefix), then the capacity supplement of spec §4: B/D at 1.8M points per
+# contrast against A/C at 3.6M shared (A/C reused, symlinked under sg2x2_dev_af16_bd18). Lines: [KEY=VAL ...] EXP CELL ITERS SEED.
+sg2x2_dev_af16_s43_A A 4000 43
+sg2x2_dev_af16_s43_C C 4000 43
+sg2x2_dev_af16_s43_B_T1 B_T1 4000 43
+sg2x2_dev_af16_s43_B_FLAIR B_FLAIR 4000 43
+sg2x2_dev_af16_s43_D_T1 D_T1 4000 43
+sg2x2_dev_af16_s43_D_FLAIR D_FLAIR 4000 43
+sg2x2_dev_af16_s44_A A 4000 44
+sg2x2_dev_af16_s44_C C 4000 44
+sg2x2_dev_af16_s44_B_T1 B_T1 4000 44
+sg2x2_dev_af16_s44_B_FLAIR B_FLAIR 4000 44
+sg2x2_dev_af16_s44_D_T1 D_T1 4000 44
+sg2x2_dev_af16_s44_D_FLAIR D_FLAIR 4000 44
+NPTS=1800000 sg2x2_dev_af16_bd18_s42_B_T1 B_T1 4000 42
+NPTS=1800000 sg2x2_dev_af16_bd18_s42_B_FLAIR B_FLAIR 4000 42
+NPTS=1800000 sg2x2_dev_af16_bd18_s42_D_T1 D_T1 4000 42
+NPTS=1800000 sg2x2_dev_af16_bd18_s42_D_FLAIR D_FLAIR 4000 42
+NPTS=1800000 sg2x2_dev_af16_bd18_s43_B_T1 B_T1 4000 43
+NPTS=1800000 sg2x2_dev_af16_bd18_s43_B_FLAIR B_FLAIR 4000 43
+NPTS=1800000 sg2x2_dev_af16_bd18_s43_D_T1 D_T1 4000 43
+NPTS=1800000 sg2x2_dev_af16_bd18_s43_D_FLAIR D_FLAIR 4000 43
+NPTS=1800000 sg2x2_dev_af16_bd18_s44_B_T1 B_T1 4000 44
+NPTS=1800000 sg2x2_dev_af16_bd18_s44_B_FLAIR B_FLAIR 4000 44
+NPTS=1800000 sg2x2_dev_af16_bd18_s44_D_T1 D_T1 4000 44
+NPTS=1800000 sg2x2_dev_af16_bd18_s44_D_FLAIR D_FLAIR 4000 44

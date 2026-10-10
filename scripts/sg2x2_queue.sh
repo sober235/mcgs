@@ -5,6 +5,9 @@
 # live shared card lock of another scheduler (<cardiac topic>/work/.gpulock.<card>) and no trainer of this loop.
 # At most MAXRUN trainers of this loop at once, launches >= 90 s apart. Items with any output already are skipped.
 # Touch results_arc/.sg2x2_queue_pause to hold launches. This runner never creates or removes lock files.
+# A card is also skipped while any running fixed-lane queue of another line (`*_queue.py --lanes A,B`) claims it:
+# such a queue launches on its lanes without checking occupancy, and two trainers on one card stall each other to
+# zero progress on this machine (2026-10-09: three hours lost on cards 0/1/3, ledger ruling R17).
 cd "$(dirname "$0")/.."
 Q=${1:?queue file}
 ALLOWED=${ALLOWED:-"0 1 2 3 4"}
@@ -12,8 +15,15 @@ MAXRUN=${MAXRUN:-5}
 PYPAT='^/home/congcongliu/anaconda3/envs/GSTMI/bin/python -u arc/cycle.py --exp sg2x2_'
 LOCKD=/data0/congcong/code/GS/Results_20260908/Cardiac_FreeRunning_MCGS/work
 log() { echo "$(date '+%F %T') $*"; }
+claimed_lanes() {
+  pgrep -af '^/home/congcongliu/anaconda3/envs/GSTMI/bin/python -u .*_queue\.py .*--lanes' 2>/dev/null \
+    | grep -oE -- '--lanes [0-9,]+' | sed 's/--lanes //' | tr ',' '\n' | sort -u | tr '\n' ' '
+}
 free_card() {
+  local claimed
+  claimed=" $(claimed_lanes) "
   for g in $ALLOWED; do
+    [[ "$claimed" == *" $g "* ]] && continue
     used=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits -i "$g" 2>/dev/null | tr -d ' ')
     [[ -z "$used" ]] && continue
     procs=$(nvidia-smi --query-compute-apps=pid --format=csv,noheader -i "$g" 2>/dev/null | grep -c .)
