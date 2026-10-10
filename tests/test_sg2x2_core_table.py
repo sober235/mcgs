@@ -86,3 +86,17 @@ def test_missing_cell_drops_the_subject_from_that_row_only(tmp_path):
     t1 = next(l for l in md.splitlines() if l.startswith("| A−B | T1 | PSNR |"))
     fl = next(l for l in md.splitlines() if l.startswith("| A−B | FLAIR | PSNR |"))
     assert "| 3 |" in t1 and "| 4 |" in fl
+    cd_t1 = next(l for l in md.splitlines() if l.startswith("| C−D | T1 | PSNR |"))
+    ia_t1 = next(l for l in md.splitlines() if l.startswith("| (A−B)−(C−D) | T1 | PSNR |"))
+    ia_fl = next(l for l in md.splitlines() if l.startswith("| (A−B)−(C−D) | FLAIR | PSNR |"))
+    assert "| 4 |" in cd_t1 and "| 3 |" in ia_t1 and "| 4 |" in ia_fl
+    assert "+0.200" in t1
+
+
+def test_unequal_seed_sets_are_paired_seed_by_seed(tmp_path):
+    s = TESTS[0]
+    _subject(tmp_path, s, 42, a=(35.0, 34.0), b=(35.0, 34.0), c=(24.0, 25.0), d=(23.0, 24.0))
+    _write(tmp_path, f"p_{s}_s43_A", True, 36.0, 34.0)          # seed 43: A only
+    md = table(tmp_path, "p", [42, 43])
+    row = next(l for l in md.splitlines() if l.startswith("| A−B | T1 | PSNR |"))
+    assert "| 1 |" in row and "+0.000" in row                   # seed 42 only; per-cell means would give +0.500

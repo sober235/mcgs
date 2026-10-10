@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Subject-level 2x2 table of the sg2x2 core test (spec section 5.3).
 
-Runs are named <prefix>_<subject>_s<seed>_<CELL> (the cells of scripts/sg2x2_table.collect). Per subject and contrast
-the seeds are averaged first; then, over the TEST subjects only (scripts/sg2x2_core_subjects.py), the paired
+Runs are named <prefix>_<subject>_s<seed>_<CELL> (the cells of scripts/sg2x2_table.collect). Per subject each
+difference is paired seed by seed over the seeds present in every cell it needs, then averaged (spec §4, §5.3);
+the cell means average each cell's own seeds; then, over the TEST subjects only
+(scripts/sg2x2_core_subjects.py), the paired
 differences A−B (shared geometry with the per-channel priors), C−D (shared geometry without explicit priors) and
 (A−B)−(C−D) are summarised as N, mean, a 95 % subject-level bootstrap interval (10,000 resamples, generator seed 0),
 SD and k/N: the number of subjects in which the difference points the "better" way for that metric (higher PSNR /
@@ -35,9 +37,8 @@ def _mean(vals: list[float]) -> float:
     return float(sum(v) / len(v)) if v else float("nan")
 
 
-def subject_means(arc: Path, prefix: str, subject: str, seeds: list[int]) -> dict:
+def _means(got: dict, seeds: list[int]) -> dict:
     """(cell, contrast) -> {metric: mean over the seeds present, "n_seeds": k}"""
-    got = collect(Path(arc), f"{prefix}_{subject}", seeds)
     out = {}
     for cell in CELLS:
         for c in CONTRASTS:
@@ -48,11 +49,35 @@ def subject_means(arc: Path, prefix: str, subject: str, seeds: list[int]) -> dic
     return out
 
 
+def subject_means(arc: Path, prefix: str, subject: str, seeds: list[int]) -> dict:
+    """(cell, contrast) -> {metric: mean over the seeds present, "n_seeds": k}"""
+    return _means(collect(Path(arc), f"{prefix}_{subject}", seeds), seeds)
+
+
 def differences(means: dict, contrast: str, metric: str) -> dict:
     v = {cell: means.get((cell, contrast), {}).get(metric, float("nan")) for cell in CELLS}
     ab, cd = v["A"] - v["B"], v["C"] - v["D"]
     return {"A−B": ab, "C−D": cd, "(A−B)−(C−D)": ab - cd,
             "A-B": ab, "C-D": cd, "(A-B)-(C-D)": ab - cd}
+
+
+ROW_CELLS = {"A−B": ("A", "B"), "C−D": ("C", "D"), "(A−B)−(C−D)": ("A", "B", "C", "D")}
+
+
+def paired_differences(got: dict, contrast: str, metric: str, seeds: list[int]) -> dict:
+    """row -> mean, over the seeds present in every cell the row needs, of that seed's difference (NaN when no seed
+    qualifies): seeds are paired across the cells first (spec §4), then averaged within the subject (spec §5.3)."""
+    out = {}
+    for row, cells in ROW_CELLS.items():
+        vals = []
+        for s in seeds:
+            if all((cell, contrast, s) in got for cell in cells):
+                one = {(cell, contrast): got[(cell, contrast, s)] for cell in cells}
+                d = differences(one, contrast, metric)[row]
+                if not math.isnan(d):
+                    vals.append(d)
+        out[row] = _mean(vals)
+    return out
 
 
 def summary(values: list[float], higher_better: bool) -> dict:
@@ -79,10 +104,12 @@ def _f(v: float, fmt: str, signed: bool = True) -> str:
 def table(arc: Path, prefix: str, seeds: list[int]) -> str:
     tests = core_test_subjects()
     dev = [s for s, (_, r) in SUBJECTS.items() if r == "dev"]
-    means = {s: subject_means(arc, prefix, s, seeds) for s in tests + dev}
+    gots = {s: collect(Path(arc), f"{prefix}_{s}", seeds) for s in tests + dev}
+    means = {s: _means(gots[s], seeds) for s in tests + dev}
     have = [s for s in tests if means[s]]
     lines = [f"CORE TEST: {len(have)} of {len(tests)} test subjects with results, seeds {seeds}. Head-only metrics "
-             f"(|GT| > 0.05 P99.9). Per subject the seeds are averaged first; intervals are 95 % subject-level bootstrap "
+             f"(|GT| > 0.05 P99.9). Per subject each difference is paired seed by seed, then averaged; intervals are "
+             f"95 % subject-level bootstrap "
              f"({N_BOOT} resamples, seed 0); k/N = subjects in which the shared-geometry cell is better (interaction: the "
              f"difference points the better way). The development subject ({', '.join(dev)}) is listed separately and "
              f"never enters the statistics.", "",
@@ -90,7 +117,7 @@ def table(arc: Path, prefix: str, seeds: list[int]) -> str:
     for row in ROWS:
         for c in CONTRASTS:
             for key, name, fmt in METRICS:
-                vals = [differences(means[s], c, key)[row] for s in tests]
+                vals = [paired_differences(gots[s], c, key, seeds)[row] for s in tests]
                 sm = summary(vals, HIGHER_BETTER[key])
                 lines.append(f"| {row} | {c} | {name} | {sm['n']} | {_f(sm['mean'], fmt)} | "
                              f"[{_f(sm['ci'][0], fmt)}, {_f(sm['ci'][1], fmt)}] | {_f(sm['sd'], fmt, False)} | "
@@ -115,7 +142,7 @@ def table(arc: Path, prefix: str, seeds: list[int]) -> str:
         def pair(cell):
             return " / ".join(_f(means[s].get((cell, c), {}).get("head_psnr", float("nan")), "{:.3f}", False)
                               for c in CONTRASTS)
-        dd = {c: differences(means[s], c, "head_psnr") for c in CONTRASTS}
+        dd = {c: paired_differences(gots[s], c, "head_psnr", seeds) for c in CONTRASTS}
         lines.append(f"| {s} | {SUBJECTS[s][1]} | {pair('A')} | {pair('B')} | {pair('C')} | {pair('D')} | "
                      f"{' / '.join(_f(dd[c]['A−B'], '{:.3f}') for c in CONTRASTS)} | "
                      f"{' / '.join(_f(dd[c]['C−D'], '{:.3f}') for c in CONTRASTS)} |")
