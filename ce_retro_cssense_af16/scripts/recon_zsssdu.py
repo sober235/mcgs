@@ -46,6 +46,7 @@ from t1t2_common import Pair, R, fft2c, ifft2c, ifft1c
 
 torch.manual_seed(0); np.random.seed(0)
 dev = torch.device("cuda:0")
+torch.zeros(1, device=dev)   # hold a CUDA context from the start: the other schedulers on this machine treat a card with any compute process as busy (2026-10-10, two launches collided while the h5 was still loading)
 log = lambda *a: print(*a, flush=True)
 
 t0 = time.time()

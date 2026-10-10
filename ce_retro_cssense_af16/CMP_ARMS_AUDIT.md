@@ -72,6 +72,13 @@ CS-SENSE 低 1–2 dB。任务:逐臂检查有没有提升空间,有就适当提
 
 ### 本会话踩的坑(别重做)
 
+- **跨会话撞卡(10-10 04:47 发现)**:另一个会话的 sg2x2 开发队列(`mcgs_sg2x2_wt/scripts/sg2x2_dev_seeds.txt`,24 项,ALLOWED 0–7,MAXRUN 4)
+  在 02:51 / 03:26 拿到卡 3 / 5,我的 ZS 官方比例平扫与 DIP + TV 平扫晚一分钟落到同一张卡(对方进程还在读数据、没分配显存,`nvidia-smi` 看着是空卡)。
+  结果我的 DIP 卡在第 1 步 80 分钟、ZS 每 epoch 770 秒(正常 78 秒),也拖慢了对方。处理:只停我自己的作业(对方不动);两个重建脚本改成
+  启动后立刻 `torch.zeros(1, device=dev)` 占住 CUDA 上下文;不再抢新空出的卡(卡 0 让给 sg2x2),只在自己已占的车道上顺序接跑;
+  可选探针砍掉:20000 步 DIP(13800 步时留出残差只比 12000 步低 0.0003)、DIP TV 0.1 夹值。平扫 DIP + TV 0.03 改在卡 1 重跑,
+  官方比例 ZS 平扫排在卡 6 的增强 DIP + TV 之后(`$N/logs/cmp/lane1_dip_pre_tv.sh`、`lane6_zs_pre_z3.sh`)。收尾链截止时间改到 15:00。
+
 - zsh 不分词:`E="RETRO_TOPIC=... RETRO_TRAINER=..."; env $E python ...` 把整串当成一个变量名 `RETRO_TOPIC` 的值,队列在
   `Results_20260908/CE_retro_cssense_af16_vdpois RETRO_TRAINER=/` 这个带空格的垃圾路径下建了 `logs/cmp/`(68 KB,只有队列日志),卡 4 的 INR
   车道 21:41–21:44 因此连续"失败"四个作业(真实课题里没留任何痕迹)。已用显式赋值重起。**该垃圾目录请用户手动删除**(整个
