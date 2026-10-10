@@ -13,11 +13,14 @@ the argument list, scripts/sg2x2_manifest.py asks it what the resolved config mu
 
 Everything the spec freezes across cells (k-space weighting, warm-up, max_radius, 3-NN scales, point count, seed, the
 init support file) is in COMMON; the recipe block equals run_wd_mcgs.sh with lambda_edge 0.
+With --subject the base config is that core-test subject's copy (scripts/sg2x2_core_configs.py).
 """
 from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+
+from sg2x2_core_subjects import SUBJECTS as CORE_SUBJECTS
 
 WAV = {"T1": "0.12", "FLAIR": "0.10"}          # the frozen AF16 phase-3 per-contrast wavelet weights
 
@@ -39,6 +42,21 @@ CELLS = {
     "D_FLAIR": Cell("single", "FLAIR", False, "configs/sg2x2/af16_jyz_single_FLAIR.yaml"),
 }
 
+CORE_KIND = {"configs/sg2x2/af16_jyz_joint.yaml": "joint", "configs/sg2x2/af16_jyz_single_T1.yaml": "single_T1",
+             "configs/sg2x2/af16_jyz_single_FLAIR.yaml": "single_FLAIR"}
+
+
+def cell_config(cell: str, subject: str | None = None) -> str:
+    """The cell's base config: the development subject's CFL-export config without a subject, else the core-test
+    subject's generated copy (scripts/sg2x2_core_configs.py)."""
+    c = CELLS[cell]
+    if subject is None:
+        return c.config
+    if subject not in CORE_SUBJECTS:
+        raise ValueError(f"unknown core-test subject {subject!r}")
+    return f"configs/sg2x2/core/{subject}/{CORE_KIND[c.config]}.yaml"
+
+
 CROSS_OFF = ["--lambda_edge", "0", "--lambda_dtv", "0", "--lambda_vtv", "0",
              "--set", "loss.lambda_dtv_proj=0", "--set", "loss.edge_tv_guide_alpha=0", "--set", "loss.ptv_guide_alpha=0",
              "--set", "loss.lambda_nl=0"]
@@ -53,10 +71,10 @@ def _wavelet(cell: Cell) -> tuple[str, str]:
 
 
 def cell_args(cell: str, npts: int, seed: int, support: str, init: str = "support_file",
-              iters: int = 4000, warmup: int = 500) -> list[str]:
+              iters: int = 4000, warmup: int = 500, subject: str | None = None) -> list[str]:
     c = CELLS[cell]
     args = ["--iters", str(iters), "--warmup", str(warmup), "--max_radius", "20", "--kspace_high", "2.2",
-            "--trainer", c.trainer, "--base_cfg", c.config]
+            "--trainer", c.trainer, "--base_cfg", cell_config(cell, subject)]
     if c.reg:
         wp, wc = _wavelet(c)
         args += ["--lambda_geo", "0.10", "--edge_tv", "--edge_tv_kappa_q", "0.85", "--edge_tv_wfloor", "0.10",
@@ -102,8 +120,9 @@ def main() -> None:
     ap.add_argument("--init", default="support_file", choices=["support_file", "head"])
     ap.add_argument("--iters", type=int, default=4000)
     ap.add_argument("--warmup", type=int, default=500)
+    ap.add_argument("--subject", default=None)
     a = ap.parse_args()
-    print("\n".join(cell_args(a.cell, a.npts, a.seed, a.support, a.init, a.iters, a.warmup)))
+    print("\n".join(cell_args(a.cell, a.npts, a.seed, a.support, a.init, a.iters, a.warmup, subject=a.subject)))
 
 
 if __name__ == "__main__":

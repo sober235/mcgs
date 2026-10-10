@@ -15,6 +15,7 @@ max_radius, 3-NN scales, tv_eps, kappa source, known_zero by channel name; reg-o
 each read with the trainer's own default when the key is absent. With --seed / --npts / --init / --support / --iters
 the launcher's arguments are compared with the resolved config as well (audit(..., args=dict) does the same).
 and writes results_arc/EXP_manifest.json. Exit 0 when ok, 3 when not.
+With --subject the resolved data and coil-map paths must lie in that subject's export directory.
 """
 from __future__ import annotations
 
@@ -31,7 +32,8 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from sg2x2_cells import CELLS, resolved_switches  # noqa: E402
+from sg2x2_cells import CELLS, cell_config, resolved_switches  # noqa: E402
+from sg2x2_core_subjects import subject_paths  # noqa: E402
 
 _ITER = re.compile(r"^\[iter\s+(\d+)/(\d+)\]\s+(.*)$")
 _KV = re.compile(r"(\w+)=(-?nan|-?inf|[0-9.eE+-]+|True|False)")
@@ -134,8 +136,16 @@ def _same(a, b) -> bool:
     return abs(float(a) - float(b)) < 1e-12
 
 
+def _subject_ok(cfg: dict, subject: str) -> bool:
+    """every data_path / csm_path of the resolved config lies under the subject's export directory"""
+    out = subject_paths(subject)["out"] + "/"
+    return all(str(blk.get(k, "")).startswith(out) for blk in cfg.get("data", {}).values()
+               for k in ("data_path", "csm_path"))
+
+
 def audit(cell: str, resolved_cfg: dict, log_text: str, args: dict | None = None) -> dict:
-    """args (optional): the launcher's seed / npts / init / support / iters, compared with the resolved config."""
+    """args (optional): the launcher's seed / npts / init / support / iters (and subject), compared with the resolved
+    config."""
     want = {**resolved_switches(cell), **FIXED_EXPECT}
     got = _resolved_from_cfg(resolved_cfg)
     if CELLS[cell].reg:
@@ -150,6 +160,9 @@ def audit(cell: str, resolved_cfg: dict, log_text: str, args: dict | None = None
                      "max_iterations": int(args["iters"])})
         if args["init"] == "support_file":
             want["init_support_path"] = str(args["support"])
+        if args.get("subject"):
+            want["data_subject"] = True
+            got["data_subject"] = _subject_ok(resolved_cfg, args["subject"])
     resolved_ok = all(k in got and _same(got[k], want[k]) for k in want)
     lines = log_text.splitlines()
     startup = [l for l in lines if l.startswith(STARTUP_PREFIXES)]
@@ -181,8 +194,10 @@ def main() -> None:
     ap.add_argument("--seed", type=int, required=True); ap.add_argument("--npts", type=int, required=True)
     ap.add_argument("--init", required=True); ap.add_argument("--support", required=True)
     ap.add_argument("--iters", type=int, required=True)
+    ap.add_argument("--subject", default=None)
     ap.add_argument("--arc", default="results_arc")
     a = ap.parse_args()
+    config = cell_config(a.cell, a.subject)
     arc = ROOT / a.arc
     log_text = (arc / f"{a.exp}.log").read_text()
     cfg = yaml.safe_load(open(arc / a.exp / a.exp / "config.yaml"))
@@ -193,12 +208,12 @@ def main() -> None:
     for ch, blk in cfg["data"].items():
         data_md5[ch] = {k: md5(blk[k]) for k in ("data_path", "csm_path", "mask_path") if blk.get(k)}
     res = audit(a.cell, cfg, log_text, {"seed": a.seed, "npts": a.npts, "init": a.init, "support": a.support,
-                                        "iters": a.iters})
+                                        "iters": a.iters, "subject": a.subject})
     cell = CELLS[a.cell]
     man = {"exp": a.exp, "cell": a.cell, "trainer": cell.trainer, "contrast": cell.contrast, "reg": cell.reg,
-           "seed": a.seed, "npts": a.npts, "iters": a.iters, "init": a.init, "support": a.support,
+           "subject": a.subject, "seed": a.seed, "npts": a.npts, "iters": a.iters, "init": a.init, "support": a.support,
            "support_md5": md5(a.support) if a.init == "support_file" else None,
-           "git_head": git_head, "git_dirty": git_dirty, "config": cell.config, "config_md5": md5(ROOT / cell.config),
+           "git_head": git_head, "git_dirty": git_dirty, "config": config, "config_md5": md5(ROOT / config),
            "data_md5": data_md5, "resolved": res["got"], "expected": res["want"], "startup_lines": res["startup_lines"],
            "iter_first": res["iter_first"], "iter_last": res["iter_last"],
            "audit": {k: res[k] for k in ("resolved_ok", "startup_ok", "loss_ok", "ok")}}

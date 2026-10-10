@@ -153,3 +153,38 @@ def test_audit_rejects_missing_dc_p_and_missing_prior_r_in_reg_off_cell():
     assert not audit("D_T1", _cfg(RES_OFF, "D_T1"), no_dc + "\n" + no_dc + "\n")["loss_ok"]
     no_geo = LINE_OFF.replace("R_geo=0.0000e+00 ", "")
     assert not audit("D_T1", _cfg(RES_OFF, "D_T1"), no_geo + "\n" + no_geo + "\n")["loss_ok"]
+
+
+def _core_cfg(subject):
+    from sg2x2_core_subjects import subject_paths
+    p = subject_paths(subject)
+    cfg = {"loss": {"tv_weight": 0.10, **{k: v for k, v in RES_ON.items() if k != "lambda_geo"},
+                    "kspace_freq_adaptive": True, "kspace_high_weight": 2.2},
+           "data": {"plain": {"name": "T1", "data_path": p["ksp"]["T1"], "csm_path": p["csm"]["T1"]},
+                    "contrast": {"name": "FLAIR", "data_path": p["ksp"]["FLAIR"], "csm_path": p["csm"]["FLAIR"],
+                                 "known_zero": True}}}
+    return cfg
+
+
+def test_audit_without_subject_adds_no_identity_check():
+    cfg = _core_cfg("huangyuwei_20230705")
+    res = audit("A", cfg, LINE_ON + "\n" + LINE_ON + "\n")
+    assert "data_subject" not in res["got"] and "data_subject" not in res["want"]
+
+
+def test_audit_rejects_data_of_another_subject():
+    from sg2x2_manifest import _subject_ok
+    cfg = _core_cfg("huangyuwei_20230705")
+    assert _subject_ok(cfg, "huangyuwei_20230705") is True
+    assert _subject_ok(cfg, "litianyu_20231107") is False
+    cfg["data"]["contrast"]["csm_path"] = _core_cfg("litianyu_20231107")["data"]["contrast"]["csm_path"]
+    assert _subject_ok(cfg, "huangyuwei_20230705") is False
+
+
+def test_audit_subject_check_folds_into_resolved_ok():
+    cfg = _cfg(RES_ON)
+    cfg["data"] = _core_cfg("huangyuwei_20230705")["data"]
+    a = audit("A", cfg, ON_LOG_STARTUP, {**ARGS, "subject": "huangyuwei_20230705"})
+    assert a["resolved_ok"] and a["ok"]
+    b = audit("A", cfg, ON_LOG_STARTUP, {**ARGS, "subject": "litianyu_20231107"})
+    assert not b["resolved_ok"] and not b["ok"]

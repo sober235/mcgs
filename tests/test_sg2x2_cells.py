@@ -10,6 +10,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from sg2x2_cells import CELLS, cell_args, resolved_switches  # noqa: E402
 
@@ -105,3 +107,40 @@ def test_cli_prints_one_argument_per_line():
                           "--npts", "100", "--seed", "42", "--support", SUP], capture_output=True, text=True, check=True).stdout
     lines = out.strip().split("\n")
     assert lines == cell_args("C", 100, 42, SUP)
+
+
+def test_no_subject_is_todays_behaviour():
+    from sg2x2_cells import cell_config
+    for cell in CELLS:
+        assert cell_config(cell) == CELLS[cell].config
+        assert cell_args(cell, 3_600_000, 42, SUP) == cell_args(cell, 3_600_000, 42, SUP, subject=None)
+        assert _flag_value(cell_args(cell, 3_600_000, 42, SUP), "--base_cfg") == CELLS[cell].config
+
+
+def test_subject_selects_the_core_config():
+    from sg2x2_cells import cell_config
+    assert cell_config("A", "huangyuwei_20230705") == "configs/sg2x2/core/huangyuwei_20230705/joint.yaml"
+    assert cell_config("C", "huangyuwei_20230705") == "configs/sg2x2/core/huangyuwei_20230705/joint.yaml"
+    assert cell_config("B_FLAIR", "litianyu_20231107") == "configs/sg2x2/core/litianyu_20231107/single_FLAIR.yaml"
+    assert cell_config("D_T1", "jiangyizhou_20230705") == "configs/sg2x2/core/jiangyizhou_20230705/single_T1.yaml"
+    a = cell_args("D_FLAIR", 3_600_000, 42, SUP, subject="yangkun_20231102")
+    assert _flag_value(a, "--base_cfg") == "configs/sg2x2/core/yangkun_20231102/single_FLAIR.yaml"
+    assert a[:a.index("--base_cfg")] == cell_args("D_FLAIR", 3_600_000, 42, SUP)[:a.index("--base_cfg")]
+
+
+def test_unknown_subject_raises():
+    from sg2x2_cells import cell_config
+    with pytest.raises(ValueError):
+        cell_config("A", "nobody_20990101")
+    with pytest.raises(ValueError):
+        cell_args("A", 1, 42, SUP, subject="790_tangbin_20230706")
+
+
+def test_cli_subject_and_unknown_subject():
+    script = str(Path(__file__).resolve().parents[1] / "scripts/sg2x2_cells.py")
+    ok = subprocess.run([sys.executable, script, "B_T1", "--npts", "100", "--seed", "42", "--support", SUP,
+                         "--subject", "zhoushuo_20231030"], capture_output=True, text=True, check=True).stdout
+    assert ok.strip().split("\n") == cell_args("B_T1", 100, 42, SUP, subject="zhoushuo_20231030")
+    bad = subprocess.run([sys.executable, script, "B_T1", "--npts", "100", "--seed", "42", "--support", SUP,
+                          "--subject", "nobody_20990101"], capture_output=True, text=True)
+    assert bad.returncode != 0 and bad.stdout == ""
