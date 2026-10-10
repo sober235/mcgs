@@ -1,0 +1,8 @@
+# phase 6a (2026-10-10, user: tune MC-GS to its best, margin over GS-single > 0.5 dB): the subtraction (enhancement-sparsity) prior
+# on the MC-GS of record (i1). Trainer _trainer_e778bf2_ar + trainer_patches/2026-10-10-subtraction-prior.diff. Fair GS-single unchanged (it cannot use a cross-contrast term).
+ar_k1_sub003	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9 --set loss.lambda_sub=0.03 --set loss.sub_mode=cauchy --set loss.sub_delta_rel=0.05
+ar_k2_sub01	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9 --set loss.lambda_sub=0.1 --set loss.sub_mode=cauchy --set loss.sub_delta_rel=0.05
+ar_k3_sub03	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9 --set loss.lambda_sub=0.3 --set loss.sub_mode=cauchy --set loss.sub_delta_rel=0.05
+ar_k4_sub1	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9 --set loss.lambda_sub=1.0 --set loss.sub_mode=cauchy --set loss.sub_delta_rel=0.05
+ar_k5_sub01ch	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9 --set loss.lambda_sub=0.1 --set loss.sub_mode=charb --set loss.sub_delta_rel=0.05
+ar_k6_sub01d15	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9 --set loss.lambda_sub=0.1 --set loss.sub_mode=cauchy --set loss.sub_delta_rel=0.15

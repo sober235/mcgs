@@ -1,0 +1,136 @@
+--- a/paired_gs/trainers/joint_trainer.py
++++ b/paired_gs/trainers/joint_trainer.py
+@@ -866,6 +866,25 @@
+                   f"profile={nl_profile} threads={nl_threads} sigma_rel={nl_red.sigma_rel} start={nl_red.start} "
+                   f"refresh={nl_red.refresh_every} bbox={nl_red.bbox_str()} crop={nl_red.crop_shape} "
+                   f"head_voxels={int(nl_red.head_crop.sum())}")
++        # R_sub: subtraction (enhancement-sparsity) prior for a pre/post-contrast pair (losses/sub_prior.py,
++        # CE phase 6, 2026-10-10): penalises |x_contrast| - s |x_plain| over the ZF head support. Couples the
++        # INTENSITIES of the two channels (every earlier cross-contrast term couples edge locations only).
++        # Default 0 => never built, nothing imported, so a run without it is bit-identical to before.
++        lambda_sub = float(loss_cfg.get("lambda_sub", 0.0))
++        sub_s, sub_delta = None, None
++        if lambda_sub > 0:
++            from losses.sub_prior import robust_scale, sub_loss
++            from losses.nonlocal_red import HEAD_FRAC as _SUB_HEAD_FRAC
++            from gaussian.init_cloud import head_support as _sub_head_support, union_magnitude as _sub_union
++            sub_mode = str(loss_cfg.get("sub_mode", "cauchy"))
++            sub_delta_rel = float(loss_cfg.get("sub_delta_rel", 0.05))
++            sub_start = int(loss_cfg.get("sub_start", 500))
++            sub_refresh = int(loss_cfg.get("sub_refresh", 500))
++            sub_detach_plain = bool(loss_cfg.get("sub_detach_plain", False))
++            with torch.no_grad():
++                sub_support = _sub_head_support(_sub_union(self.zf_p, self.zf_c), _SUB_HEAD_FRAC)
++            print(f"[sub] lambda_sub={lambda_sub} mode={sub_mode} delta_rel={sub_delta_rel} start={sub_start} "
++                  f"refresh={sub_refresh} detach_plain={sub_detach_plain} support={int(sub_support.sum())} voxels")
+         loss_type = loss_cfg.get("loss_type", "l2")
+         del loss_type   # placeholder if l1 added later
+ 
+@@ -1033,6 +1052,21 @@
+                 l_nl = torch.tensor(0.0, device=self.device)
+                 l_nl_term = l_nl
+ 
++            # R_sub: subtraction prior (CE phase 6). s and delta are re-estimated from the detached renders at
++            # sub_start and every sub_refresh iterations after it; before sub_start the term is 0.
++            if lambda_sub > 0 and it >= sub_start:
++                if sub_s is None or (it - sub_start) % sub_refresh == 0:
++                    with torch.no_grad():
++                        sub_s, _sub_tissue = robust_scale(vol_p.detach().abs(), vol_c.detach().abs(), sub_support)
++                        sub_delta = sub_delta_rel * _sub_tissue
++                    _sub_msg = f"[sub] iter={it} s={sub_s:.6g} tissue={_sub_tissue:.6g} delta={sub_delta:.6g}"
++                    print(_sub_msg, flush=True)
++                    log_f.write(_sub_msg + "\n"); log_f.flush()
++                l_sub = sub_loss(vol_p, vol_c, sub_s, sub_delta, sub_support, sub_mode, sub_detach_plain)
++                loss = loss + lambda_sub * l_sub
++            else:
++                l_sub = torch.tensor(0.0, device=self.device)
++
+             # R_sp: keep the contrast-private residual amplitude sparse (localized).
+             if lambda_private_sp > 0 and self.model.has_private:
+                 loss = loss + lambda_private_sp * self.model.get_private_density().abs().mean()
+@@ -1059,6 +1093,7 @@
+                 "loss/R_wav": float((lambda_wav * l_wav).detach().item()),
+                 "loss/R_ptv": float((lambda_ptv * l_ptv).detach().item()),
+                 "loss/R_nl": float(l_nl_term.detach().item()),
++                "loss/R_sub": float((lambda_sub * l_sub).detach().item()),
+             }
+             total_loss_value = sum(components.values()) + 1e-12
+             ratios = {k: v / total_loss_value for k, v in components.items()}
+@@ -1117,7 +1152,8 @@
+                        f"R_geo={l_geo.item():.4e} R_dtv={l_dtv.item():.4e} "
+                        f"R_edge={l_edge.item():.4e} R_vtv={l_vtv.item():.4e} "
+                        f"R_wav={l_wav.item():.4e} R_nl={l_nl.item():.4e} "
+-                       f"balance_violation={balance_violation}")
++                       + (f"R_sub={l_sub.item():.4e} " if lambda_sub > 0 else "")
++                       + f"balance_violation={balance_violation}")
+                 print(msg)
+                 log_f.write(msg + "\n"); log_f.flush()
+ 
+--- a/paired_gs/losses/sub_prior.py
++++ b/paired_gs/losses/sub_prior.py
+@@ -0,0 +1,65 @@
++"""Subtraction (enhancement-sparsity) prior for a pre / post-contrast pair (CE autoresearch phase 6, 2026-10-10).
++
++Physics. The plain (pre) and contrast (post) channels of this study are the same T1 GRE before and after
++gadolinium. Outside enhancing tissue the two magnitudes agree up to one global scale s, so the enhancement
++
++    d = |x_post| - s * |x_pre|
++
++is sparse: large in vessels, plexus and lesion rim, small in cortex, ~0 in white matter, CSF and background.
++A single-contrast reconstruction cannot use this; the joint one can. Every cross-contrast term tried before
++(common edge, vector TV, directional TV, edge gate) couples only edge LOCATIONS; this one couples intensities.
++
++Penalty on d over the head support, in data units of the contrast channel (so lambda is on the scale of
++lambda_geo), delta = the transition between the quadratic and the flat / linear regime:
++
++    cauchy : (delta / 2) * log(1 + (d / delta)^2)   quadratic for |d| << delta, logarithmic beyond: real
++                                                      enhancement (|d| >> delta) is barely shrunk
++    charb  : sqrt(d^2 + delta^2) - delta              L1-like: shrinks every enhancement by about lambda
++    neg    : charb on min(d, 0)                       only 'enhancement is non-negative'
++
++s and delta are re-estimated from the detached renders (robust medians over the bright head voxels), so they
++need no tuning; sub_delta_rel sets delta relative to the median tissue magnitude of the contrast channel.
++"""
++from __future__ import annotations
++
++import torch
++
++_SUB_N = 2_000_000          # quantile / median on at most this many voxels (torch.quantile caps at 16M)
++
++
++def _sub(t: torch.Tensor) -> torch.Tensor:
++    return t[:: max(1, t.numel() // _SUB_N)]
++
++
++def robust_scale(mag_p: torch.Tensor, mag_c: torch.Tensor, support: torch.Tensor,
++                 rel_floor: float = 0.1) -> tuple[float, float]:
++    """(s, tissue): s = median(|x_c| / |x_p|) and tissue = median(|x_c|) over the support voxels where |x_p| is
++    above rel_floor x its P99 inside the support (dark voxels give unstable ratios). Both detached floats."""
++    p = mag_p[support].float()
++    c = mag_c[support].float()
++    thr = rel_floor * torch.quantile(_sub(p), 0.99)
++    keep = p > thr
++    r = c[keep] / p[keep]
++    return float(torch.median(_sub(r))), float(torch.median(_sub(c[keep])))
++
++
++def penalty(d: torch.Tensor, delta: float, mode: str) -> torch.Tensor:
++    if mode == "cauchy":
++        return 0.5 * delta * torch.log1p((d / delta) ** 2)
++    if mode == "charb":
++        return torch.sqrt(d * d + delta * delta) - delta
++    if mode == "neg":
++        dn = torch.clamp(d, max=0.0)
++        return torch.sqrt(dn * dn + delta * delta) - delta
++    raise ValueError(f"sub_mode must be cauchy, charb or neg, got {mode!r}")
++
++
++def sub_loss(vol_p: torch.Tensor, vol_c: torch.Tensor, s: float, delta: float, support: torch.Tensor,
++             mode: str = "cauchy", detach_plain: bool = False) -> torch.Tensor:
++    """sum over the support of penalty(|x_c| - s |x_p|), divided by the number of voxels of the volume (the same
++    normalisation as the TV terms, which are means over the volume)."""
++    mp = vol_p.abs()
++    if detach_plain:
++        mp = mp.detach()
++    d = (vol_c.abs() - s * mp)[support]
++    return penalty(d, delta, mode).sum() / vol_c.numel()

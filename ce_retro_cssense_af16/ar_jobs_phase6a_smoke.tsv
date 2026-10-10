@@ -1,0 +1,2 @@
+# phase 6a smoke (2026-10-10): 60 iterations, R_sub from iteration 20, WARMUP=20 (set by the chain)
+ar_k0_smoke	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9 --iters 60 --set loss.lambda_sub=0.1 --set loss.sub_mode=cauchy --set loss.sub_start=20 --set loss.sub_refresh=20
