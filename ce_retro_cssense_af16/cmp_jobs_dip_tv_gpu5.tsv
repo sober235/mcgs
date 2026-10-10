@@ -1,0 +1,2 @@
+# 03:30 GPU 5: 3D-DIP + TV 0.03 (the INR got TV; the same term and weight for the other untrained-network arm), base 96, support 6, lr 3e-3, 12000 iterations; held-out rule
+dip_pre_b96_sup_tv0.03	logs/dip_sup_b96_tv0.03_pre.json	PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python; S=/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts; $PY -u $S/recon_dip_inr.py --method dip --scan pre --gpu {gpu} --iters 12000 --lr 3e-3 --eval_every 200 --support 6 --dip_base 96 --tv 0.03 --suffix _sup_b96_tv0.03
