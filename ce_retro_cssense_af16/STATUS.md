@@ -2,7 +2,16 @@
 
 新会话先读本文件，再读 README，关键数字先重跑。
 
-## ✅ 2026-10-10 10:42 对比方法审计收尾完成,待用户拍板(本节最新)
+## ▶ 2026-10-10 12:31 起:MC-GS 第六阶段 autoresearch 进行中(用户要求,本节最新)
+
+用户 10-10 看完对比方法审计:ZS-SSDU 超过 MC-GS"违背 paper 出发点",要求继续调 MC-GS 到最优,并对 GS-single 拉开 > 0.5 dB。
+目标、规则、读数标准与每轮读数都在 `autoresearch_vdpois.md` 末尾"第六阶段"。主杠杆是减影(强化稀疏)先验 `R_sub`
+(补丁 `trainer_patches/2026-10-10-subtraction-prior.diff`)。在跑:`$N/logs/ar/phase6a_chain.log`(先 60 步冒烟,再 6 个探针,
+`scripts/ar_free_queue.py` 只用完全空着的卡);队列日志 `$N/logs/ar/queue.log`;每个作业出分后自动评到 `$N/logs/ar_<exp>_{pre,post}.json`。
+链若被中断:`cd $N && setsid nohup bash $WT/ce_retro_cssense_af16/scripts/phase6a_chain.sh >> logs/ar/phase6a_chain.log 2>&1 &`
+(已出分的作业会被跳过)。
+
+## ✅ 2026-10-10 10:42 对比方法审计收尾完成,待用户拍板
 
 用户 09:37 说"继续",按推荐方案只做收尾(跳过可选的平扫官方比例 ZS)。确认目录 `Results_20260908/CE_retro_cssense_af16_vdpois_cmp`,
 12 个替换体 `ALL GAUGE OK`。完整的表、逐层、病灶层、强化保真与图在 `CMP_ARMS_AUDIT.md` §6。本任务没有进程在跑,不占 GPU。
