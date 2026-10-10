@@ -2,8 +2,8 @@
 
 平扫 / 增强(CE)回顾性 AF16 线,vdPoisMex 掩膜:十一臂对比、MC-GS autoresearch(第 1–5d 阶段)、对比方法逐臂审计(2026-10-09/10)。
 
-> **⏸ 2026-10-10 08:31 起暂停中**:两个 GPU 作业被 SIGSTOP 挂起(PID 3761893 卡 1、3761894 卡 6),收尾链已停。
-> 恢复步骤在 `ce_retro_cssense_af16/STATUS.md` 第一节(进程还在就 `kill -CONT`,不在就按那里的命令从头重跑,然后重起 `scripts/cmp_final_chain.sh`)。
+> **⏸ 2026-10-10 08:56 起暂停中,不占任何 GPU、没有进程在跑。** 剩下的只有收尾(纯 CPU):恢复步骤在
+> `ce_retro_cssense_af16/STATUS.md` 第一节,推荐的一条命令是带 `WAIT="dip_sup_b96_tv0.03_pre"` 重起 `scripts/cmp_final_chain.sh`。
 
 ## 先读什么(按顺序)
 
