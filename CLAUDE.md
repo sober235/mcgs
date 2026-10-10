@@ -2,8 +2,8 @@
 
 平扫 / 增强(CE)回顾性 AF16 线,vdPoisMex 掩膜:十一臂对比、MC-GS autoresearch(第 1–5d 阶段)、对比方法逐臂审计(2026-10-09/10)。
 
-> **⏸ 2026-10-10 08:56 起暂停中,不占任何 GPU、没有进程在跑。** 剩下的只有收尾(纯 CPU):恢复步骤在
-> `ce_retro_cssense_af16/STATUS.md` 第一节,推荐的一条命令是带 `WAIT="dip_sup_b96_tv0.03_pre"` 重起 `scripts/cmp_final_chain.sh`。
+> **2026-10-10 10:42 对比方法审计已收尾**,没有进程在跑、不占 GPU;确认目录 `Results_20260908/CE_retro_cssense_af16_vdpois_cmp`。
+> 结论与"待用户拍板"在 `ce_retro_cssense_af16/STATUS.md` 前两节(要点:ZS-SSDU 配到原文规模后两扫描超过 MC-GS)。
 
 ## 先读什么(按顺序)
 
