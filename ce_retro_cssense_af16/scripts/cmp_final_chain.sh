@@ -4,15 +4,16 @@
 # confirmation topic and rerun the bookkeeping with PNG figures (confirm_cmp.sh, FIGS=1). Never overwrites: make_cmp_topic.py
 # refuses an existing output directory.
 #   setsid nohup bash scripts/cmp_final_chain.sh > logs/cmp/final_chain.log 2>&1 &
+#   WAIT="dip_sup_b96_tv0.03_pre" ... overrides the list of score files to wait for; DEADLINE="YYYY-MM-DD HH:MM" overrides the +12 h default
 set -u
 N=/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois
 S=/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts
 PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
 OUT=${OUT:-/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp}
-DEADLINE=${DEADLINE:-"2026-10-10 15:00"}
-WAIT="zsssdu_z2_b15_cg10_e400_pre zsssdu_z2_b15_cg10_e400_post zsssdu_z3_official_pre zsssdu_z3_official_post
+DEADLINE=${DEADLINE:-$(date -d "+12 hours" "+%F %T")}   # relative to the launch (2026-10-10 pause: an absolute default would skip the wait after a late resume)
+WAIT=${WAIT:-"zsssdu_z2_b15_cg10_e400_pre zsssdu_z2_b15_cg10_e400_post zsssdu_z3_official_pre zsssdu_z3_official_post
       inr_i10_n512_sup6_tv0.03_pre inr_i10_n512_sup6_tv0.03_post inr_i9_n256_sup6_tv0.01_post dip_sup_b96_it12k_post
-      dip_sup_b96_tv0.03_pre dip_sup_b96_tv0.03_post"   # 04:55: the 20k DIP probe and the DIP TV 0.1 bracket were dropped (card collisions; optional)
+      dip_sup_b96_tv0.03_pre dip_sup_b96_tv0.03_post"}   # 04:55: the 20k DIP probe and the DIP TV 0.1 bracket were dropped (card collisions; optional)
 cd $N
 end=$(date -d "$DEADLINE" +%s)
 while :; do

@@ -2,6 +2,42 @@
 
 新会话先读本文件，再读 README，关键数字先重跑。
 
+## ⏸ 2026-10-10 08:31 暂停中(用户要求先暂停、处理完别的事再接着做)——恢复先看这里
+
+**挂起的两个 GPU 作业**(SIGSTOP,进程与进度都在,显存仍占着:卡 1 约 62 GB、卡 6 约 29 GB,别的队列用不了这两张卡):
+
+| PID | 卡 | 作业 | 挂起时进度 | 输出(出分后才有) |
+|---|---|---|---|---|
+| 3761893 | 1 | 平扫 3D-DIP + TV 0.03(base 96、支撑 6、lr 3e-3、12000 步) | 11800 / 12000 步,留出残差 0.16399 | `logs/dip_sup_b96_tv0.03_pre.json` |
+| 3761894 | 6 | 平扫 ZS-SSDU 官方切分比例 z3(15 块、CG 10、Γ 0.2、Θ 0.6、patience 25、≤ 300 epoch) | 第 60 / 300 epoch,自身 Γ 0.4536 | `logs/zsssdu_z3_official_pre.json` |
+
+日志:`$N/logs/cmp/dip_pre_b96_sup_tv0.03_r2.log`、`$N/logs/cmp/zs_pre_z3_official_r2.log`。收尾链与后台等待器已停(没有任何东西会自动启动)。
+其余作业全部已出分并落盘(`$N/logs/*.json`),审计代码与文档全部在 git(本分支)。
+
+**恢复步骤**(`N=/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois`,`WT=/data0/congcong/code/GS/mcgs_ce_mask_wt`,
+`PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python`):
+
+1. 看进程还在不在:`ps -o pid=,stat=,etime= -p 3761893,3761894`(stat 里有 `T` = 挂起中)。
+2. **A. 进程还在**:`kill -CONT 3761893 3761894`;过一两分钟 `tail -1 $N/logs/cmp/dip_pre_b96_sup_tv0.03_r2.log` 应在走(DIP 约 4 分钟后出分),
+   `grep "\[ep" $N/logs/cmp/zs_pre_z3_official_r2.log | tail -1` 的 epoch 在涨(约 80 秒一个,预计还要 1.5–3.5 小时,patience 25 会提前停)。
+3. **B. 进程没了**(重启、被杀):先 `nvidia-smi` 找两张空卡并 `ps` 确认没有别的会话刚起的作业,然后从头重跑(结果确定性同设置,DIP 约 3.7 小时、ZS ≤ 6.5 小时):
+   ```
+   cd $N
+   setsid nohup env RETRO_TOPIC=$N RETRO_TRAINER=$N/trainer/_trainer_e778bf2 PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID \
+     $PY -u $WT/ce_retro_cssense_af16/scripts/recon_dip_inr.py --method dip --scan pre --gpu <卡A> --iters 12000 --lr 3e-3 \
+     --eval_every 200 --support 6 --dip_base 96 --tv 0.03 --suffix _sup_b96_tv0.03 > logs/cmp/dip_pre_b96_sup_tv0.03_r3.log 2>&1 < /dev/null &
+   setsid nohup env RETRO_TOPIC=$N RETRO_TRAINER=$N/trainer/_trainer_e778bf2 PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID \
+     $PY -u $WT/ce_retro_cssense_af16/scripts/recon_zsssdu.py --scan pre --gpu <卡B> --blocks 15 --cg_iters_net 10 --rho_val 0.2 \
+     --theta_frac 0.6 --patience 25 --epochs 300 --suffix _z3_official > logs/cmp/zs_pre_z3_official_r3.log 2>&1 < /dev/null &
+   ```
+   ZS 这一项是可选的(增强已证明官方比例与我们的比例结果相同);跳过它就在第 4 步加 `WAIT="dip_sup_b96_tv0.03_pre"`。
+4. 重起收尾链(等上面的结果文件出现,默认最多等 12 小时;然后按各臂规则选赢家、建 `Results_20260908/CE_retro_cssense_af16_vdpois_cmp`、
+   口径复核、十一臂表、强化保真、逐层、病灶层、PNG 图):
+   `cd $N && setsid nohup bash $WT/ce_retro_cssense_af16/scripts/cmp_final_chain.sh >> logs/cmp/final_chain.log 2>&1 < /dev/null &`
+   完成标志:`$N/logs/cmp/final_chain.log` 里出现 `FINAL_CHAIN_DONE`;确认目录里 `logs/gauge_check_cmp.txt` 末行应是 `ALL GAUGE OK`。
+5. 收尾后:用确认目录的 `logs/readme_tables_cmp.md`、`find_best_slice_cmp.out`、`best_slice_mcgs_cmp.out`、`lesion_allmetrics_cmp.out`
+   替换下面一节的中期表,写进 `CMP_ARMS_AUDIT.md`,再把"待用户拍板"交给用户。
+
 ## 2026-10-10 对比方法逐臂审计(本节最新;下面 09-29 起的段落是历史)
 
 用户 10-09:逐个检查对比方法有没有提升空间,有就适当提,别让审稿人一眼看出对比方法实现不对。入口 `CMP_ARMS_AUDIT.md`
@@ -21,9 +57,9 @@ ZS-SSDU 看共同 10 % Γ 上的损失。不看真值的三臂没有用真值挑
 | Joint SENSE | 33.948 / 36.257 | 不变 | 同上,+0.008 / +0.025 |
 | L1-SPIRiT | 32.340 / 34.617 | 32.414 / 34.632 | 逐层 SVD 线圈压缩 24 / 32 虚拟线圈,增益在噪声量级 |
 | MC-INR | 30.098 / 32.660 | 不变 | 论文 200 步 lr 1e-2 是步数 × lr 族的最优点 |
-| 3D-INR | 28.223 / 30.528 | 33.139 / 35.130 | 登记网络 + 头部支撑 + TV 0.03(两扫描留出曲线都在 0.03 见底) |
-| 3D-DIP | 30.093 / 31.236 | 31.643(中期) / 32.899 | base 96 + 头部支撑 + 12000 步;增强按留出规则选了 + TV 0.03 |
-| ZS-SSDU | 33.177 / 35.138 | 35.298(中期) / 37.527 | 原文网络规模:15 残差块、CG 10;增强为 patience 40 版 |
+| 3D-INR | 28.223 / 30.528 | 33.139 / 35.130 | 登记网络(nmax 512)+ 头部支撑 + TV 0.03(两扫描留出曲线都在 0.03 见底) |
+| 3D-DIP | 30.093 / 31.236 | 31.643(待平扫 + TV 出分) / 32.899 | base 96 + 头部支撑 + 12000 步;增强按留出规则选了 + TV 0.03(真值上比无 TV 低 0.10) |
+| ZS-SSDU | 33.177 / 35.138 | 35.319 / 37.527 | 原文网络规模:15 残差块、CG 10、patience 40(两扫描都选中这一版) |
 | GS-single / MC-GS | 34.583 / 36.809、34.690 / 36.940 | 不变 | `_ar2` 定稿 |
 
 - ZS-SSDU 的网络规模按一手来源核对过:SSDU(MRM 2020)正文、ZS-SSL(ICLR 2022)§4.2、官方代码 `parser_ops.py` 默认值都是 15 个残差块、
@@ -35,7 +71,7 @@ ZS-SSDU 看共同 10 % Γ 上的损失。不看真值的三臂没有用真值挑
 
 ### 待用户拍板
 
-1. **ZS-SSDU 配到原文规模后,两扫描四项指标都超过 MC-GS 定稿**(中期:平扫 35.30 对 34.69,增强 37.53 对 36.94;逐层第一 598 / 576 层,
+1. **ZS-SSDU 配到原文规模后,两扫描四项指标都超过 MC-GS 定稿**(平扫 35.32 对 34.69,增强 37.53 对 36.94;中期逐层第一 598 / 576 层,
    MC-GS 6 / 28 层)。登记的 5 块 ZS-SSDU 是三分之一规模的网络,审稿人对照原文就能看出来,所以不能退回旧臂。可选:
    (a) 如实报新排序,MC-GS 的卖点改为"无训练网络的方法里第一"(对 CS-SENSE +0.71 / +0.57 不变)或其它维度;
    (b) 再给 MC-GS 找杠杆(用户此前限定不加可训练先验,同掩膜下的非学习先验已基本封口);(c) 其它。建议 (a)。
