@@ -1,9 +1,9 @@
 # STATUS — 2026-10-10 08:50 (worktree mcgs_sg2x2_wt, branch exp/shared-geometry-2x2-ablation-20261009) — sg2x2 core test, PAUSED by the user
 
 **Paused at 08:29 at the user's request** ("先暂停,然后我有其他任务处理,然后再启动,保证一定能接上任务"). This line now launches
-nothing: no queue runner is alive, `results_arc/.sg2x2_queue_pause` exists, no subagent runs, no watcher runs. Two
-development-subject trainers that were already running were left to finish by themselves (`arc/cycle.py` cannot resume,
-so stopping one throws it away; see §3 step 1). Tag `handoff/2026-10-10-sg2x2-core-test-paused` marks the hand-off
+nothing: no queue runner is alive, `results_arc/.sg2x2_queue_pause` exists, no subagent runs, no watcher runs. The two
+development-subject trainers still running at the pause were left to finish (`arc/cycle.py` cannot resume); both ended
+with rc=0 by 09:01 and their audits are ok, so since 09:02 no GPU job of this line runs (recorded after the tag, see §1). Tag `handoff/2026-10-10-sg2x2-core-test-paused` marks the hand-off
 commit. This block supersedes §2 and §3 of the 2026-10-09 block below, which is kept as history.
 
 **Read first, in order:** this block → plan `docs/superpowers/plans/2026-10-10-sg2x2-core-test.md` (Tasks 1-4 and the
@@ -48,8 +48,11 @@ $ cat /data2/congcong/data/sg2x2_core_h5/logs/export_all.log; ls /data2/congcong
 - **1.8M capacity supplement (B/D at 1.8M points per contrast, A/C reused at 3.6M):** rc=0 for bd18 s42 B_T1, B_FLAIR,
   D_T1, D_FLAIR; s43 B_T1, D_T1, D_FLAIR; s44 B_T1, B_FLAIR, D_T1. `bd18_s43_B_FLAIR` was stopped at 1300/4000 (rc=143,
   08:21) after another user's job landed on card 0 in the same minute (both about 8 times slower); it is re-run as
-  `sg2x2_dev_af16_bd18b_s43_B_FLAIR` (line appended to `scripts/sg2x2_dev_seeds.txt`). **Running at the pause:**
-  `bd18_s44_D_FLAIR` (card 5) and `bd18b_s43_B_FLAIR` (card 2), both expected to finish by about 09:05.
+  `sg2x2_dev_af16_bd18b_s43_B_FLAIR` (line appended to `scripts/sg2x2_dev_seeds.txt`). **Both runs in flight at
+  the pause finished:** `bd18_s44_D_FLAIR` rc=0 at 08:47 and `bd18b_s43_B_FLAIR` rc=0 at 09:01, audits ok, no NaN / OOM,
+  `git_head` a862b70 and clean. Every (seed, point count) group, the re-run included, starts from one initial cloud
+  (e.g. seed 43 at 1.8M: pos_sum 160611.986394 in B_T1, D_T1, D_FLAIR and the re-run). The dev queue is complete: 24
+  lines plus the re-run, all rc=0 except the stopped `bd18_s43_B_FLAIR`.
 
 ## 2. Waiting for the user
 
@@ -64,7 +67,7 @@ $ cat /data2/congcong/data/sg2x2_core_h5/logs/export_all.log; ls /data2/congcong
 
 ## 3. Next (on resume, in this order)
 
-1. Re-run the §1 commands; if a number differs, trust the re-run and say so. Then check the two runs that were in flight:
+1. Re-run the §1 commands; if a number differs, trust the re-run and say so. The two runs that were in flight were checked at 09:02 (§1); re-check with:
    ```
    $ grep -E 'bd18_s44_D_FLAIR|bd18b_s43_B_FLAIR' results_arc/sg2x2_runs.log      # expect rc=0 for both
    $ for e in bd18_s44_D_FLAIR bd18b_s43_B_FLAIR; do $PY -c "import json;print('$e', json.load(open('results_arc/sg2x2_dev_af16_${e}_manifest.json'))['audit'])"; done
