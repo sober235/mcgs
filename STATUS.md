@@ -1,3 +1,73 @@
+# STATUS — 2026-10-10 12:55 (worktree mcgs_sg2x2_wt, branch exp/shared-geometry-2x2-ablation-20261009) — sg2x2 core test, PAUSED again (Task 3 fix round half done)
+
+**Paused at 12:43 at the user's request** ("现将当前任务暂停,对应的GPU也暂停,我需要处理另外一个任务,然后回来 继续"). This line
+runs nothing: no trainer on any GPU (none since 09:02), no queue runner, no watcher, no subagent, and
+`results_arc/.sg2x2_queue_pause` still exists. The GPU jobs on the machine at the pause belong to other lines (knee
+SPIRiT baselines, AnatoBind training) and to another user; they were not touched. Tag
+`handoff/2026-10-10-sg2x2-core-test-paused-2` marks this hand-off. This block supersedes the 08:50 block's pause
+paragraph, its §2 item 1 and its §3; that block's §1 facts (export, development seeds) and §4 pitfalls still hold.
+
+**Read first:** this block → the 08:50 block below (§1 facts, §4 pitfalls) → ledger copy
+`docs/superpowers/records/2026-10-10-sg2x2-core-test-ledger.md` (every ruling; its last line says where to resume) →
+`docs/superpowers/records/2026-10-10-sg2x2-core-test-task3-fix1.md` (the exact fix in progress) → Task 4 addendum copy
+`docs/superpowers/records/2026-10-10-sg2x2-core-test-task4-addendum.md` (§A-§E) → plan `docs/superpowers/plans/2026-10-10-sg2x2-core-test.md`.
+
+## 1. Done and verified since the 08:50 block
+
+```
+$ git log --oneline 8f6dfe4..ec16578
+ec16578 sg2x2 core test: Task 4 addendum, STATUS ruling after the resume
+3887190 sg2x2 core test: subject-level table (seed means, paired differences, bootstrap intervals, development subject apart)
+728a815 sg2x2: development-subject results over three seeds in both capacity conventions (record 4.8, NOT EVIDENCE)
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_VISIBLE_DEVICES= $PY -m pytest tests/test_sg2x2_*.py -q -p no:cacheprovider
+89 passed, 27 skipped        # re-run at the 10:24 resume, before Task 3
+```
+
+- The resume checks at 10:24 matched the 08:50 block (tests, export 14 of 14, both late runs rc=0).
+- Development subject in both capacity conventions, record §4.8 (one subject, NOT EVIDENCE): main convention A−B
+  +0.006 / −0.022 dB; matched budget (B and D at 1.8M per contrast) A−B +0.056 / +0.143 dB and C−D −2.909 / −3.332 dB,
+  so without priors fewer points win and the main-convention "C > D" is confounded with capacity.
+- Task 2: complete (45f2afc..120ada1, review clean, eight minors deferred in the ledger).
+- Task 3: committed as 3887190 (spec compliant). Its review asked for two plan-mandated fixes, ruled in the ledger: pair
+  seeds within each difference row (spec §4 and §5.3) and four extra test assertions. **Fix round 1 was half done at the
+  pause and is NOT committed:** the worktree holds uncommitted edits in `scripts/sg2x2_core_table.py` and
+  `tests/test_sg2x2_core_table.py`. Done: both test changes (the new test's RED run is recorded: 1 failed, 4 passed,
+  +0.500), the `_means` helper, the docstring wording. Not done: `ROW_CELLS` / `paired_differences`, the switch inside
+  `table()`, the header string. The tests were not re-run after the helper edit.
+- Task 4: not started; its brief and the addendum (§A-§E) are ready.
+
+## 2. Waiting for the user
+
+1. When to resume: say "恢复核心测试".
+2. Unchanged from the 08:50 block §2 items 2-4: merge into main, the hand-deletion list, B's own-lambda search and the
+   `INIT=head` control. New: whether the test subjects should also get the capacity-matched convention (B and D at 1.8M;
+   four more runs per subject), given record §4.8.
+
+## 3. Next (on resume)
+
+1. `git status` must show exactly the two modified Task 3 files; never discard them (no checkout, restore or stash).
+   Re-run `pytest tests/test_sg2x2_*.py` (the new Task 3 test is expected to fail until the fix is finished).
+2. Finish Task 3 fix round 1 from the fix1 record: resume the same implementer if this session still holds it,
+   otherwise a fresh implementer with the brief, `task-3-report.md` and the fix1 record (`git diff` shows what is
+   already applied). Covering tests, commit, then the scoped re-review on 3887190..<fix commit>.
+3. Task 4 (brief plus addendum §A-§E), the final whole-branch review on ea921ac..HEAD with every deferred minor in the
+   ledger, its fix wave, then the GPU steps (the 08:50 block's §3 step 4 and addendum §D).
+
+## 4. Pitfalls, new since 08:50
+
+- A subagent can end without delivering its report (the Task 3 reviewer did): send it a message asking for the report
+  rather than dispatching a new one.
+- The exact text of a fix round lives only in the message to the subagent unless it is copied into the repository; the
+  fix1 record exists for that reason.
+
+## 5. Why
+
+- Paused at once on the user's word. This line had no GPU job to pause; other lines' GPU jobs belong to other sessions.
+- The half-done fix is left uncommitted rather than committed as a work-in-progress: a commit would put a red test on
+  the pushed branch, and the fix1 record plus `git diff` are enough to finish it.
+
+---
+
 # STATUS — 2026-10-10 08:50 (worktree mcgs_sg2x2_wt, branch exp/shared-geometry-2x2-ablation-20261009) — sg2x2 core test, PAUSED by the user
 
 **Paused at 08:29 at the user's request** ("先暂停,然后我有其他任务处理,然后再启动,保证一定能接上任务"). This line now launches
