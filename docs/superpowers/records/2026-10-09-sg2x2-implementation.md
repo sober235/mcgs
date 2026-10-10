@@ -313,6 +313,72 @@ the shared structure has an effect, but strong single-sequence regularisation ma
   so A−B of +0.006 / −0.022 dB is larger than that registered noise. This pilot did not measure its own run-to-run
   noise, and whether the difference is an effect of the arm or of this one subject cannot be told from one subject.
 
+### 4.8 Development subject, seeds 42 / 43 / 44, both capacity conventions (2026-10-10; one subject, NOT EVIDENCE)
+
+Runs: seeds 43 and 44 of the six cells (queue `scripts/sg2x2_dev_seeds.txt`, 02:52 to 09:01); seed 42 is the pilot,
+symlinked under the `sg2x2_dev_af16` prefix. Capacity-matched convention of spec §4 ("资源容量匹配"): B and D at
+`NPTS=1800000` per contrast against A and C at 3.6M shared (A/C symlinked). `bd18_s43_B_FLAIR` was stopped at 1300/4000
+when another user's job landed on its card in the same minute, and re-run as `bd18b_s43_B_FLAIR`; the table prefix
+`sg2x2_dev_af16_bd18b` holds 68 links to the other bd18 outputs plus that re-run. Every run rc=0 (except the stopped
+one), every manifest audit ok, one `pos_sum` per (seed, point count) across all cells. The spec asks for the two
+conventions to be reported separately and never mixed.
+
+Main convention (B and D at 3.6M per contrast), verbatim from `results_arc/sg2x2_dev_af16_table.md`:
+
+Head-only metrics (|GT| > 0.05 P99.9), mean ± SD over 3 seed(s) [42, 43, 44]; differences are per-seed paired differences. PILOT numbers on one subject are engineering checks, not evidence.
+
+| cell | contrast | PSNR | SSIM | NMSE | HFEN |
+|---|---|---|---|---|---|
+| A | T1 | 35.641 ± 0.007 | 0.9387 ± 0.0001 | 0.01315 ± 0.00002 | 0.1152 ± 0.0002 |
+| A | FLAIR | 34.873 ± 0.005 | 0.9252 ± 0.0001 | 0.01390 ± 0.00002 | 0.1136 ± 0.0002 |
+| B | T1 | 35.635 ± 0.007 | 0.9386 ± 0.0001 | 0.01317 ± 0.00002 | 0.1159 ± 0.0002 |
+| B | FLAIR | 34.895 ± 0.006 | 0.9255 ± 0.0001 | 0.01383 ± 0.00002 | 0.1140 ± 0.0002 |
+| C | T1 | 23.785 ± 0.010 | 0.4955 ± 0.0004 | 0.20157 ± 0.00044 | 0.3887 ± 0.0004 |
+| C | FLAIR | 24.856 ± 0.003 | 0.5403 ± 0.0001 | 0.13950 ± 0.00008 | 0.3337 ± 0.0002 |
+| D | T1 | 22.222 ± 0.010 | 0.4275 ± 0.0003 | 0.28891 ± 0.00066 | 0.4721 ± 0.0004 |
+| D | FLAIR | 23.809 ± 0.004 | 0.4931 ± 0.0001 | 0.17752 ± 0.00017 | 0.3824 ± 0.0004 |
+| A−B | T1 | +0.006 ± 0.001 | +0.0001 ± 0.0000 | −0.00002 ± 0.00000 | −0.0007 ± 0.0000 |
+| A−B | FLAIR | −0.022 ± 0.002 | −0.0003 ± 0.0000 | +0.00007 ± 0.00000 | −0.0004 ± 0.0000 |
+| C−D | T1 | +1.563 ± 0.001 | +0.0680 ± 0.0001 | −0.08734 ± 0.00023 | −0.0834 ± 0.0002 |
+| C−D | FLAIR | +1.047 ± 0.002 | +0.0472 ± 0.0001 | −0.03802 ± 0.00009 | −0.0487 ± 0.0004 |
+| (A−B)−(C−D) | T1 | −1.557 ± 0.001 | −0.0679 ± 0.0001 | +0.08732 ± 0.00023 | +0.0828 ± 0.0003 |
+| (A−B)−(C−D) | FLAIR | −1.069 ± 0.002 | −0.0475 ± 0.0001 | +0.03810 ± 0.00009 | +0.0482 ± 0.0004 |
+
+Capacity-matched convention (B and D at 1.8M per contrast, A and C at 3.6M shared), verbatim from
+`results_arc/sg2x2_dev_af16_bd18b_table.md`:
+
+Head-only metrics (|GT| > 0.05 P99.9), mean ± SD over 3 seed(s) [42, 43, 44]; differences are per-seed paired differences. PILOT numbers on one subject are engineering checks, not evidence.
+
+| cell | contrast | PSNR | SSIM | NMSE | HFEN |
+|---|---|---|---|---|---|
+| A | T1 | 35.641 ± 0.007 | 0.9387 ± 0.0001 | 0.01315 ± 0.00002 | 0.1152 ± 0.0002 |
+| A | FLAIR | 34.873 ± 0.005 | 0.9252 ± 0.0001 | 0.01390 ± 0.00002 | 0.1136 ± 0.0002 |
+| B | T1 | 35.585 ± 0.005 | 0.9385 ± 0.0001 | 0.01332 ± 0.00001 | 0.1150 ± 0.0002 |
+| B | FLAIR | 34.730 ± 0.001 | 0.9233 ± 0.0000 | 0.01436 ± 0.00000 | 0.1143 ± 0.0001 |
+| C | T1 | 23.785 ± 0.010 | 0.4955 ± 0.0004 | 0.20157 ± 0.00044 | 0.3887 ± 0.0004 |
+| C | FLAIR | 24.856 ± 0.003 | 0.5403 ± 0.0001 | 0.13950 ± 0.00008 | 0.3337 ± 0.0002 |
+| D | T1 | 26.694 ± 0.007 | 0.6251 ± 0.0002 | 0.10317 ± 0.00018 | 0.2897 ± 0.0007 |
+| D | FLAIR | 28.188 ± 0.006 | 0.6855 ± 0.0003 | 0.06477 ± 0.00010 | 0.2370 ± 0.0003 |
+| A−B | T1 | +0.056 ± 0.002 | +0.0002 ± 0.0000 | −0.00017 ± 0.00001 | +0.0002 ± 0.0000 |
+| A−B | FLAIR | +0.143 ± 0.004 | +0.0019 ± 0.0000 | −0.00046 ± 0.00001 | −0.0007 ± 0.0000 |
+| C−D | T1 | −2.909 ± 0.003 | −0.1296 ± 0.0002 | +0.09840 ± 0.00027 | +0.0990 ± 0.0008 |
+| C−D | FLAIR | −3.332 ± 0.005 | −0.1452 ± 0.0003 | +0.07473 ± 0.00008 | +0.0967 ± 0.0001 |
+| (A−B)−(C−D) | T1 | +2.964 ± 0.003 | +0.1298 ± 0.0002 | −0.09857 ± 0.00027 | −0.0988 ± 0.0008 |
+| (A−B)−(C−D) | FLAIR | +3.475 ± 0.007 | +0.1471 ± 0.0002 | −0.07519 ± 0.00009 | −0.0974 ± 0.0001 |
+
+Reading (one subject, three seeds):
+- Seed spread is at most 0.01 dB in every cell; seeds 43 and 44 reproduce the pilot.
+- With the per-channel priors, A against B is about zero in the main convention (+0.006 / −0.022 dB) and small but
+  positive at matched budget (+0.056 / +0.143 dB): halving B's points costs it 0.05 / 0.17 dB, so with priors on, shared
+  geometry spends a given point budget slightly better.
+- Without priors, the sign of C − D flips with the convention. D at 1.8M (26.694 / 28.188 dB) is 4.5 / 4.4 dB above D at
+  3.6M (22.222 / 23.809 dB): without explicit priors, fewer points act as a regulariser. C − D is +1.563 / +1.047 dB in
+  the main convention and −2.909 / −3.332 dB at matched budget. The main-convention "C > D" of 4.6 is therefore at
+  least as much a capacity effect as a shared-geometry effect. The unregularised cells stay far from any practical
+  operating point (4.7).
+- The core-test plan (2026-10-10) runs the main convention only; the matched convention on the test subjects is not
+  planned (it would add four runs per subject).
+
 ## 5. What is not done
 
 - The pilot is done (section 4: one subject, seed 42, NOT EVIDENCE). Not done: seeds 43 / 44 (the spec's repeat design is

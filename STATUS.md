@@ -73,7 +73,8 @@ $ cat /data2/congcong/data/sg2x2_core_h5/logs/export_all.log; ls /data2/congcong
    $ for e in bd18_s44_D_FLAIR bd18b_s43_B_FLAIR; do $PY -c "import json;print('$e', json.load(open('results_arc/sg2x2_dev_af16_${e}_manifest.json'))['audit'])"; done
    ```
    A missing or failed run is re-run under a new name (house rule), never over the old one.
-2. Supplement table. Link every bd18 output except `s43_B_FLAIR` under the `bd18b` prefix (as R17 did for pilot2), then
+2. **Done 2026-10-10 10:30** (record §4.8, `results_arc/sg2x2_dev_af16_bd18b_table.md`; matched budget, NOT EVIDENCE:
+   A−B +0.056 / +0.143 dB, C−D −2.909 / −3.332 dB, so without priors fewer points win). Supplement table. Link every bd18 output except `s43_B_FLAIR` under the `bd18b` prefix (as R17 did for pilot2), then
    build the table with a fresh output name (the table script overwrites its default `--out`). Run with bash, not zsh:
    ```
    cd results_arc; for s in 42 43 44; do for c in A C B_T1 B_FLAIR D_T1 D_FLAIR; do [[ $s == 43 && $c == B_FLAIR ]] && continue
