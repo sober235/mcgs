@@ -115,20 +115,30 @@ Head-only metrics (|GT| > 0.05 P99.9), mean ± SD over 1 seed(s) [42]; differenc
 
 ## 2. Waiting for the user
 
-1. Seeds 43 and 44 (the spec's repeat design is 42 / 43 / 44), the same six cells per seed, so 12 more runs; the 1.8M
-   capacity supplement (`NPTS=1800000`: B and D at 1.8M per contrast against the 3.6M of A and C); the `INIT=head`
-   end-to-end control. GPU time for the seeds, from the five pilot runs not flagged as shared: A 64 min, C 54, B_T1 33,
-   D_T1 31, D_FLAIR 28, and B_FLAIR counted at D_FLAIR's 28 (its own 6410 s was on a shared card), so about 4 GPU-hours
-   per seed (an estimate). Cards 0-4 are allowed by the queue; cards 5/6/7 belong to other sessions.
+1. **Update 2026-10-10 (user: "continue"):** seeds 43 / 44 (12 runs) and the 1.8M capacity supplement (12 runs, B/D at
+   `NPTS=1800000`) are queued in `scripts/sg2x2_dev_seeds.txt` and running since 02:52 (`results_arc/sg2x2_queue_dev_seeds.log`).
+   Names `sg2x2_dev_af16_s{43,44}_<cell>` and `sg2x2_dev_af16_bd18_s{42,43,44}_<cell>`; seed 42 and the supplement's A/C are
+   symlinked under those prefixes, so the tables are `scripts/sg2x2_table.py --prefix sg2x2_dev_af16 --seeds 42 43 44` and
+   `--prefix sg2x2_dev_af16_bd18 --seeds 42 43 44`. The queue now skips any card claimed by another line's fixed-lane
+   queue (`*_queue.py --lanes`); at 04:19 the CE line's queues claim all eight cards, so the two running jobs (s43_A on card 3,
+   s43_C on card 5, both sharing their card with a CE job that arrived after them and both progressing at about half
+   speed) are the only ones until a lane ends. Pause: `touch results_arc/.sg2x2_queue_pause`. Still open: the `INIT=head`
+   end-to-end control.
 2. Whether to run the spec §4 equal-budget own-lambda search for B. It is out of scope so far, and the pilot's A−B is
    read with the caveat that B uses the recipe tuned on the joint arm. It needs a call on search space, budget and GPU
    time.
 3. Push of the docs commit with the pilot results. The branch (53d38db) and the tags `handoff/2026-10-09-sg2x2-pilot`
    and `handoff/2026-10-09-sg2x2-pilot-r2` are already on origin.
-4. Whether to start the 16-pair core test (another grid: own support file, per-subject DC-centring check, masks). The
-   core test's support file must come from a development subject on that grid (or a fixed-FOV / atlas support), never
-   from the test subject's own ZF (spec §4); and `INIT=head` is not a matched init for single cells (a single `head`
-   draw uses one contrast's own support, the joint uses the union).
+4. Whether to start the 16-pair core test. **The data inventory is done (2026-10-10, read-only):
+   `docs/superpowers/records/2026-10-10-sg2x2-core-test-data-inventory.md`.** All 32 files are intact; the "other grid" is
+   the pilot grid plus zero padding (crop to 256 x 256 x 176 after a centred FFT along the readout axis, which is stored in
+   image domain); the stored CSMs are per-readout-slice maps and should be replaced by fresh ESPIRiT (pilot recipe);
+   14 distinct persons, 13 test candidates after jiangyizhou, the two `790` files are second scans of two of them.
+   Decisions it leaves to the user: the mask rule (vdPoisMex as in the pilot, or the 2026-10-09 BART-poisson rule), the
+   development set and the support file (the pilot support covers 88-99 % of the other subjects' image energy), the
+   790 files (drop recommended), whether to re-run the development subject on the h5 export for comparability, and the
+   GPU budget (about 4 GPU-hours per subject and seed). The core test's support file must come from development subjects
+   only (spec §4); `INIT=head` is not a matched init for single cells.
 
 ## 3. Next
 
