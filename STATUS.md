@@ -1,3 +1,122 @@
+# STATUS — 2026-10-10 08:50 (worktree mcgs_sg2x2_wt, branch exp/shared-geometry-2x2-ablation-20261009) — sg2x2 core test, PAUSED by the user
+
+**Paused at 08:29 at the user's request** ("先暂停,然后我有其他任务处理,然后再启动,保证一定能接上任务"). This line now launches
+nothing: no queue runner is alive, `results_arc/.sg2x2_queue_pause` exists, no subagent runs, no watcher runs. Two
+development-subject trainers that were already running were left to finish by themselves (`arc/cycle.py` cannot resume,
+so stopping one throws it away; see §3 step 1). Tag `handoff/2026-10-10-sg2x2-core-test-paused` marks the hand-off
+commit. This block supersedes §2 and §3 of the 2026-10-09 block below, which is kept as history.
+
+**Read first, in order:** this block → plan `docs/superpowers/plans/2026-10-10-sg2x2-core-test.md` (Tasks 1-4 and the
+controller's GPU steps) → ledger copy `docs/superpowers/records/2026-10-10-sg2x2-core-test-ledger.md` (every ruling with
+its reason and cost) → Task 4 addendum `docs/superpowers/records/2026-10-10-sg2x2-core-test-task4-addendum.md` (fit check,
+84-line main queue, log names, launch step 1) → data facts `docs/superpowers/records/2026-10-10-sg2x2-core-test-data-inventory.md`.
+The live SDD workspace is `.superpowers/sdd/2026-10-10-sg2x2-core-test/` (git-ignored: `progress.md` = the ledger,
+`task-{1..4}-brief.md`, `task-{1,2}-report.md`, `task-4-addendum.md`, review packages); the two records are copies taken at
+the pause. If the workspace is gone, recreate `progress.md` from the ledger copy and the briefs with the skill's `task-brief`.
+
+## 1. Done and verified (2026-10-10)
+
+```
+$ cd /data0/congcong/code/GS/mcgs_sg2x2_wt; PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
+$ git log --oneline -3          # before the hand-off commit
+120ada1 sg2x2 core test: per-subject configs and an optional subject in the cell table, launcher and manifest
+45f2afc sg2x2 core test: subjects table and the h5 export (readout FFT, partition crop, fresh BART ESPIRiT), with tests
+ea921ac sg2x2: implementation plan for the core test on the 16-pair set
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_VISIBLE_DEVICES= $PY -m pytest tests/test_sg2x2_*.py -q -p no:cacheprovider
+89 passed, 27 skipped in 12.87s          # at 120ada1; the 27 skips are CUDA subprocess tests
+$ cat /data2/congcong/data/sg2x2_core_h5/logs/export_all.log; ls /data2/congcong/data/sg2x2_core_h5/*/export.json | wc -l
+2026-10-10 08:29:46 ALL EXPORTS FINISHED
+14                                       # and no logs/export_failed.txt
+```
+
+- **Core-test plan (subagent-driven):** Task 1 complete (ea921ac..45f2afc, review clean: spec compliant, quality
+  approved; the reviewer reproduced the pilot frame on real jiangyizhou data and the inventory's ESPIRiT fit; minors
+  deferred in the ledger). Task 2 committed as 120ada1 by its implementer just before the pause; **not reviewed yet**,
+  and its self-review and full report were not written (`task-2-report.md` holds only its pause note). Tasks 3 and 4:
+  not started.
+- **Export (controller step after Task 1): done for all 14 subjects**, 08:06:54-08:29:46, one process per subject, three
+  at a time (`scripts/sg2x2_core_export_all.sh`, logs `/data2/congcong/data/sg2x2_core_h5/logs/export_<subject>.log`).
+  Every subject, from its `export.json`: crop row lo 44 and DC [128, 88] in both contrasts; T1 acquired 1.0000, FLAIR
+  0.7604 (the vendor band limit); data outside the crop at most 4e-17 of the peak; ESPIRiT SoS within 1e-3 on 100 % of
+  voxels; `bart ecalib` 68.9-106.1 s (T1) and 88.3-98.1 s (FLAIR). Disk: 116 GB under `/data2/congcong/data/sg2x2_core_h5`,
+  58 GB of it the BART CFL intermediates in `*/bart/`. Independent verification (md5 re-hash, loading through the
+  trainer's dataset, support coverage, coil-map fit) is Task 4's script and has not run.
+- **Development subject, seeds 42 / 43 / 44 of the six cells (NOT EVIDENCE: one subject):** all 18 runs rc=0, every
+  manifest audit ok, one `pos_sum` per (seed, point count) across all cells. `results_arc/sg2x2_dev_af16_table.md`
+  (head PSNR, mean ± SD over the three seeds): A−B T1 +0.006 ± 0.001, FLAIR −0.022 ± 0.002 dB; C−D +1.563 ± 0.001 /
+  +1.047 ± 0.002; interaction (A−B)−(C−D) −1.557 ± 0.001 / −1.069 ± 0.002. The seeds reproduce the pilot to 0.01 dB.
+- **1.8M capacity supplement (B/D at 1.8M points per contrast, A/C reused at 3.6M):** rc=0 for bd18 s42 B_T1, B_FLAIR,
+  D_T1, D_FLAIR; s43 B_T1, D_T1, D_FLAIR; s44 B_T1, B_FLAIR, D_T1. `bd18_s43_B_FLAIR` was stopped at 1300/4000 (rc=143,
+  08:21) after another user's job landed on card 0 in the same minute (both about 8 times slower); it is re-run as
+  `sg2x2_dev_af16_bd18b_s43_B_FLAIR` (line appended to `scripts/sg2x2_dev_seeds.txt`). **Running at the pause:**
+  `bd18_s44_D_FLAIR` (card 5) and `bd18b_s43_B_FLAIR` (card 2), both expected to finish by about 09:05.
+
+## 2. Waiting for the user
+
+1. When to resume. Nothing needs a decision before resuming: in this session say "继续"; in a new session read
+   `CLAUDE.md`, then this block, and follow §3.
+2. Merge into main: not done. This line so far tags and pushes the branch only (the mcgs main is an orphan history).
+3. Can be deleted by hand (list only; nothing was deleted): `/data2/congcong/data/sg2x2_core_h5/*/bart/` (58 GB of CFL
+   intermediates; only after Task 4's verification has passed), `/tmp/claude-1002/sg2x2_inventory` (about 25 GB, the
+   inventory's scratch), and `review_t1/` (about 4.2 GB) plus `addendum_check/` (small) in the paused session's scratchpad
+   `/tmp/claude-1002/-home-congcongliu--claude/98200452-7fe5-4603-b05f-9cf37ca0209d/scratchpad/`.
+4. Still open from the 2026-10-09 block: the equal-budget own-lambda search for B, and the `INIT=head` end-to-end control.
+
+## 3. Next (on resume, in this order)
+
+1. Re-run the §1 commands; if a number differs, trust the re-run and say so. Then check the two runs that were in flight:
+   ```
+   $ grep -E 'bd18_s44_D_FLAIR|bd18b_s43_B_FLAIR' results_arc/sg2x2_runs.log      # expect rc=0 for both
+   $ for e in bd18_s44_D_FLAIR bd18b_s43_B_FLAIR; do $PY -c "import json;print('$e', json.load(open('results_arc/sg2x2_dev_af16_${e}_manifest.json'))['audit'])"; done
+   ```
+   A missing or failed run is re-run under a new name (house rule), never over the old one.
+2. Supplement table. Link every bd18 output except `s43_B_FLAIR` under the `bd18b` prefix (as R17 did for pilot2), then
+   build the table with a fresh output name (the table script overwrites its default `--out`). Run with bash, not zsh:
+   ```
+   cd results_arc; for s in 42 43 44; do for c in A C B_T1 B_FLAIR D_T1 D_FLAIR; do [[ $s == 43 && $c == B_FLAIR ]] && continue
+     for x in .log _score.json _volumes.npz _manifest.json; do ln -s "sg2x2_dev_af16_bd18_s${s}_${c}${x}" "sg2x2_dev_af16_bd18b_s${s}_${c}${x}"; done; done; done; cd ..
+   env PYTHONNOUSERSITE=1 PYTHONPATH= $PY scripts/sg2x2_table.py --prefix sg2x2_dev_af16_bd18b --seeds 42 43 44 --out results_arc/sg2x2_dev_af16_bd18b_table.md
+   ```
+   Add the dev tables to the record of 2026-10-09 (section 4) with the NOT EVIDENCE label.
+3. Continue the plan with superpowers:subagent-driven-development (ledger `.superpowers/sdd/2026-10-10-sg2x2-core-test/progress.md`;
+   its last line says where to resume). **Task 2 task review** on the package `review-package <plan> 45f2afc 120ada1`
+   (skill scripts in `~/.claude/plugins/cache/claude-plugins-official/superpowers/6.4.1/skills/subagent-driven-development/scripts/`),
+   with the brief, the partial report and the implementer's two notes (argparse `metavar` plus a manual check instead of
+   `choices`, because Python 3.11.5 rejects an empty `nargs="*"` list with `choices`; the brief's verbatim config tests
+   leave files unclosed and fail under `-W error`) → fix loop if needed → Task 3 (brief only) → Task 4 (brief plus the
+   addendum) → final whole-branch review on ea921ac..HEAD with the deferred minors → push the branch.
+4. GPU steps after Task 4 (the plan's controller steps as amended by addendum §D): lift the pause by renaming the file
+   (`mv results_arc/.sg2x2_queue_pause results_arc/.sg2x2_queue_pause.lifted_<date>`); smoke queue
+   `scripts/sg2x2_core_smoke.txt` (five audits ok with `data_subject` true); then the main queue (84 lines) with the
+   watcher in the background: `bash scripts/sg2x2_watch.sh results_arc/sg2x2_queue_main.log 'sg2x2_core_af16' $(wc -l < results_arc/sg2x2_runs.log)`.
+
+## 4. Pitfalls, and what not to redo
+
+- Do not re-run the export (finished; every output is an exclusive create, so a second run refuses). Do not
+  re-dispatch the Task 1 or Task 2 implementers (committed as 45f2afc and 120ada1).
+- Never edit `run_sg2x2.sh` in place while a launcher runs: bash reads its script by byte offset. Write a new file and
+  rename it over (Task 2 did this; inode 350259391 → 350261737; `bd18b_s43_B_FLAIR` already runs the new launcher with
+  trainer arguments identical to the old cell table's).
+- Never run two queue runners at once: both can claim the same idle card. Every sg2x2 runner reads the same pause file.
+- Another user's job can land on our card in the same minute as ours (08:21 today, card 0, both about 8 times slower).
+  `scripts/sg2x2_watch.sh` also wakes on a card shared for more than 10 minutes. House rule: stop only our run and re-run
+  it under a new name.
+- `scripts/sg2x2_table.py` overwrites its default `--out` (write_text); always pass a new `--out`.
+- Runs that ended after a tracked file was edited carry `git_dirty` marks (the plan doc, the queue file); not code.
+
+## 5. Why
+
+- In-flight trainers were left running at the pause: `arc/cycle.py` cannot resume, so stopping them would discard work,
+  and nothing launches after them.
+- The ledger, the Task 4 addendum, the export launcher and the watcher were copied into the repository because the SDD
+  workspace is git-ignored and the scripts lived in a session scratchpad. The rulings (why the export ran one process per
+  subject, why the main queue holds 84 lines, the coil-map fit check, the rename rule for the launcher) must survive a /clear.
+- Core-test decisions are the user's (2026-10-10, "continue"): the pilot's vdPoisMex mask; jiangyizhou as the only
+  development subject, re-run on the h5 export; the pilot support file; the two 790 files excluded; fresh BART ESPIRiT;
+  the FLAIR h5 as is; seed 42 first.
+
+---
+
 # STATUS — 2026-10-09 (worktree mcgs_sg2x2_wt, branch exp/shared-geometry-2x2-ablation-20261009) — sg2x2 four-cell ablation
 
 **Read first:** `docs/experiments/2026-10-09-mcgs-shared-geometry-2x2-ablation.md` (spec), then

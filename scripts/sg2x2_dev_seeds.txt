@@ -25,3 +25,5 @@ NPTS=1800000 sg2x2_dev_af16_bd18_s44_B_T1 B_T1 4000 44
 NPTS=1800000 sg2x2_dev_af16_bd18_s44_B_FLAIR B_FLAIR 4000 44
 NPTS=1800000 sg2x2_dev_af16_bd18_s44_D_T1 D_T1 4000 44
 NPTS=1800000 sg2x2_dev_af16_bd18_s44_D_FLAIR D_FLAIR 4000 44
+# 2026-10-10 08:22: bd18_s43_B_FLAIR stopped at 1300/4000 after landing on card 0 together with another user's job (8x slower); re-run under a new name (ledger, core-test plan)
+NPTS=1800000 sg2x2_dev_af16_bd18b_s43_B_FLAIR B_FLAIR 4000 43
