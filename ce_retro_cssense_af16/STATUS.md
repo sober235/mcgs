@@ -2,6 +2,70 @@
 
 新会话先读本文件，再读 README，关键数字先重跑。
 
+## 2026-10-10 对比方法逐臂审计(本节最新;下面 09-29 起的段落是历史)
+
+用户 10-09:逐个检查对比方法有没有提升空间,有就适当提,别让审稿人一眼看出对比方法实现不对。入口 `CMP_ARMS_AUDIT.md`
+(逐臂诊断、出分前写定的选择规则、每个探针的数、全部过程)。worktree 根目录的 `../CLAUDE.md` 是新会话入口。
+确认目录 `Results_20260908/CE_retro_cssense_af16_vdpois_cmp` 由收尾链 `scripts/cmp_final_chain.sh` 建
+(等平扫三个作业出分,最晚 15:00),**建好之前本节的表是中期数,平扫 DIP 与平扫 ZS 两格可能还会变**。
+
+### 已完成且已验证
+
+规则:每臂只按自己原本的协议选——经典臂、L1-SPIRiT、MC-INR 看真值头内 PSNR(与登记时一样);3D-DIP、3D-INR 看留出 k 空间残差;
+ZS-SSDU 看共同 10 % Γ 上的损失。不看真值的三臂没有用真值挑过任何设置。MC-GS 与公平 GS-single 用 `_ar2` 定稿,本轮未动。
+
+| 臂 | 登记(头内 PSNR 平扫 / 增强) | 审计后 | 改了什么 |
+|---|---|---|---|
+| CG-SENSE | 31.553 / 33.623 | 不变 | Tikhonov × 步数扫过,登记点就是最优 |
+| CS-SENSE | 33.978 / 36.371 | 不变 | 400 外层 +0.007 / +0.017(已收敛),μ 0.1 最好 |
+| Joint SENSE | 33.948 / 36.257 | 不变 | 同上,+0.008 / +0.025 |
+| L1-SPIRiT | 32.340 / 34.617 | 32.414 / 34.632 | 逐层 SVD 线圈压缩 24 / 32 虚拟线圈,增益在噪声量级 |
+| MC-INR | 30.098 / 32.660 | 不变 | 论文 200 步 lr 1e-2 是步数 × lr 族的最优点 |
+| 3D-INR | 28.223 / 30.528 | 33.139 / 35.130 | 登记网络 + 头部支撑 + TV 0.03(两扫描留出曲线都在 0.03 见底) |
+| 3D-DIP | 30.093 / 31.236 | 31.643(中期) / 32.899 | base 96 + 头部支撑 + 12000 步;增强按留出规则选了 + TV 0.03 |
+| ZS-SSDU | 33.177 / 35.138 | 35.298(中期) / 37.527 | 原文网络规模:15 残差块、CG 10;增强为 patience 40 版 |
+| GS-single / MC-GS | 34.583 / 36.809、34.690 / 36.940 | 不变 | `_ar2` 定稿 |
+
+- ZS-SSDU 的网络规模按一手来源核对过:SSDU(MRM 2020)正文、ZS-SSL(ICLR 2022)§4.2、官方代码 `parser_ops.py` 默认值都是 15 个残差块、
+  展开 10、CG 10。官方切分比例(Γ 20 %、Λ 40 %)的增强对照与我们的比例结果相同(共同 Γ10 损失 0.4464 对 0.4463)。
+- 中期确认目录(scratchpad)里 12 个替换体 `ALL GAUGE OK`;课题测试 31 passed;mcinr 仓库 27 passed 1 skipped。
+- 三面图目测(`~/figs/ce_retro_af16/*_cmp_interim_*`):改进后的臂没有凭空结构,误差图均匀;MC-INR 仍有明显颗粒(论文配置本身)。
+- 复现选择:`cd $N && env RETRO_TOPIC=$N PYTHONNOUSERSITE=1 PYTHONPATH= $PY $WT/ce_retro_cssense_af16/scripts/cmp_select.py`
+  (`N=/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois`,`WT=/data0/congcong/code/GS/mcgs_ce_mask_wt`)。
+
+### 待用户拍板
+
+1. **ZS-SSDU 配到原文规模后,两扫描四项指标都超过 MC-GS 定稿**(中期:平扫 35.30 对 34.69,增强 37.53 对 36.94;逐层第一 598 / 576 层,
+   MC-GS 6 / 28 层)。登记的 5 块 ZS-SSDU 是三分之一规模的网络,审稿人对照原文就能看出来,所以不能退回旧臂。可选:
+   (a) 如实报新排序,MC-GS 的卖点改为"无训练网络的方法里第一"(对 CS-SENSE +0.71 / +0.57 不变)或其它维度;
+   (b) 再给 MC-GS 找杠杆(用户此前限定不加可训练先验,同掩膜下的非学习先验已基本封口);(c) 其它。建议 (a)。
+2. **全线 ZS-SSDU 都是同一份 5 块代码**:jyz T1+FLAIR AF12/16/20/24、t1t2、diffmask / gauss、噪声、hparam、儿童、膝、CE 前瞻。
+   这些线上"MC-GS 胜 ZS-SSDU"的说法在 15 块重跑之前都不能用。要不要重跑、先跑哪几条,用户定(每条线每对比度约 3–5 GPU 小时)。
+3. 论文里两个网络先验臂的名字与说明:"3D-INR + 头部支撑 + TV"、"3D-DIP(base 96)+ 头部支撑(+ TV)",TV 权重按留出 k 空间残差选。
+4. 正式图要不要按新臂重渲 600 dpi PDF(每张约 140 GB 内存,串行);目前只出了 PNG。
+5. push:本轮没有推任何东西。
+6. 请手动删一个误建的目录(名字里带空格,只有 68 KB 队列日志):`Results_20260908/CE_retro_cssense_af16_vdpois RETRO_TRAINER=`。
+
+### 下一步
+
+收尾链出结果后:用最终表替换上面的中期表,写进 `CMP_ARMS_AUDIT.md`;按用户对第 1、2 条的决定再动。
+
+### 已知的坑与别重做什么
+
+- 共享卡:别的会话的队列刚起的作业在读数据时,`nvidia-smi` 看着是空卡;放作业前要 `ps` 看本用户刚起的训练进程。重建脚本现在一启动就占住 CUDA 上下文。
+- 不同大小的 Γ 上的损失不能直接比;ZS-SSDU 一律比"共同 10 % Γ"(`val_loss_gamma10`)。
+- 3D-INR / 3D-DIP 加头部支撑后整体 HFEN 被支撑边界的台阶拉高,只看头内指标。
+- `cmp_queue.py` 启动时读清单,改清单要重起队列;zsh 不对 `$VAR` 分词;pgrep 模式别包含自己命令里的字符串。
+- 别重做:CG-SENSE 的 Tikhonov × 步数、CS-SENSE / Joint SENSE 的收敛与 μ、MC-INR 的步数 × lr、L1-SPIRiT 的线圈压缩,都已封口。
+
+### 关键决定的为什么
+
+- 每臂按自己原本的协议选,不看真值的方法不拿真值挑:这样审稿人挑不出"给对手调参不对称"的毛病,也不会被说成替对手作弊。
+- CS-SENSE / Joint SENSE 保留 200 外层的登记运行:400 外层只差 ≤ 0.025 dB,改登记要连带改文件名规则,不值。
+- 3D-DIP 给与 3D-INR 同样的 TV 项:两臂都是无训练网络先验,只给一个加正则会被问。
+- MC-INR 只扫步数与 lr:用户此前定过复现只做方法本身,不做互补掩膜与 PICS。
+- 撞卡时只停自己的作业,不动其它会话的作业。
+
 `$TOPIC` = `/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16`，`$WT` =
 `/data0/congcong/code/GS/mcgs_ce_retro_wt`，`$PY` = `/home/congcongliu/anaconda3/envs/GSTMI/bin/python`。
 
