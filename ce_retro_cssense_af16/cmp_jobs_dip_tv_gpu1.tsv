@@ -1,0 +1,3 @@
+# 04:20 GPU 1, after its 20k-iteration ceiling probe: 3D-DIP + TV 0.1 on post
+wait_dip_pre_20k	logs/cmp/.gpu1_free	until [ -f logs/dip_sup_b96_it20k_pre.json ]; do sleep 60; done; touch logs/cmp/.gpu1_free
+dip_post_b96_sup_tv0.1	logs/dip_sup_b96_tv0.1_post.json	PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python; S=/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts; $PY -u $S/recon_dip_inr.py --method dip --scan post --gpu {gpu} --iters 12000 --lr 3e-3 --eval_every 200 --support 6 --dip_base 96 --tv 0.1 --suffix _sup_b96_tv0.1
