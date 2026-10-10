@@ -1,0 +1,3 @@
+# 03:05 GPU 7 (after its INR probe and the GPU 3 smoke): the official-ratio ZS-SSDU on post
+wait_inr_post_i9_and_smoke	logs/cmp/.gpu7_free	until [ -f logs/inr_i9_n256_sup6_tv0.01_post.json ] && [ -f logs/zsssdu_smoke_z3_pre.json ]; do sleep 60; done; touch logs/cmp/.gpu7_free
+zs_post_z3_official	logs/zsssdu_z3_official_post.json	PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python; S=/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts; $PY -u $S/recon_zsssdu.py --scan post --gpu {gpu} --blocks 15 --cg_iters_net 10 --rho_val 0.2 --theta_frac 0.6 --patience 25 --epochs 300 --suffix _z3_official

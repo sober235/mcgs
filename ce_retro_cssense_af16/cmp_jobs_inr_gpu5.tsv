@@ -1,0 +1,2 @@
+# 02:50 GPU 5: nmax 512 (the registered grid cap) + support + TV 0.03, pre
+inr_pre_i10_n512_sup6_tv0.03	logs/inr_i10_n512_sup6_tv0.03_pre.json	PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python; S=/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts; $PY -u $S/recon_dip_inr.py --method inr --scan pre --gpu {gpu} --eval_every 50 --inr_nmax 512 --support 6 --iters 1500 --tv 0.03 --suffix _i10_n512_sup6_tv0.03

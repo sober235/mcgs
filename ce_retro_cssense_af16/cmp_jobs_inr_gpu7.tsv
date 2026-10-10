@@ -1,0 +1,2 @@
+# 02:50 GPU 7: post TV 0.01 (brackets the post TV curve)
+inr_post_i9_n256_sup6_tv0.01	logs/inr_i9_n256_sup6_tv0.01_post.json	PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python; S=/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts; $PY -u $S/recon_dip_inr.py --method inr --scan post --gpu {gpu} --eval_every 50 --inr_nmax 256 --support 6 --iters 1500 --tv 0.01 --suffix _i9_n256_sup6_tv0.01

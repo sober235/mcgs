@@ -171,6 +171,21 @@ d2 出分(22:44):留出 0.1698 @ 7000,头内 30.873 / 0.8798 —— 不如小解
 **ZS-SSDU 增强(卡 6,00:46)**:第 93 epoch 早停,最优 Γ **0.4463**(登记 0.4685 @ 50),头内 **37.260 / 0.9560 / NMSE 0.0094 / HFEN 0.0999**,
 对登记 35.138 / 0.9399 / 0.0153 / 0.1768 **+2.12 dB**;口径复核 `GAUGE OK`。**同样四项全超 MC-GS 定稿(36.940 / 0.9509 / 0.0101 / 0.1111),MC-GS 增强落后 0.32 dB。**
 两张扫描的结论一致:对手配置到位后,MC-GS 在本数据上不是第一。
+**原文核对(03:00,一手来源)**:SSDU(Yaman et al., MRM 2020, arXiv 1912.07669)"Network and Training Details":展开 10 次;数据一致性用 CG,
+"itself was unrolled for 10 iterations";ResNet = 输入 / 输出卷积 + "15 residual blocks (RB)",每块两层卷积(第一层后 ReLU、第二层后乘 C = 0.1),
+3×3、64 通道。ZS-SSL(Yaman, Hosseini, Akçakaya, ICLR 2022, arXiv 2102.07737 v4 §4.2)同一网络:"15 residual blocks (RB) each containing two
+convolutional layers",10 次展开,Adam 5e-4,batch 1,|Γ|/|Ω| = 0.2。官方代码 github.com/byaman14/ZS-SSL `parser_ops.py` 默认:nb_res_blocks 15、
+nb_unroll_blocks 10、CG_Iter 10、learning_rate 5e-4、epochs 300、rho_val 0.2、rho_train 0.4、num_reps 25、stop_training 25。
+**所以登记臂的 5 块 / CG 6 / patience 10 是三分之一规模的网络,z1(15 块 / CG 10)才是原文网络。** 注意原文报的参数量 592,129 与 15 块的算数
+(30 层 64→64 卷积 ≈ 111 万)对不上,接近 16 层的量;以正文"15 RB"与官方代码默认为准,这点论文里不用提。
+z1 与官方仍有的差别:Γ 10 %(官方 20 %)、Λ 为训练池的 20 %(官方 40 %)、每步重采 Θ/Λ(官方 25 组固定切分)、patience 20(官方 25)、batch 4 个读出层
+(官方 2D 单层 batch 1)。03:05 起跑"官方比例"z3(Γ 0.2、Θ 0.6、patience 25、≤ 300 epoch;卡 3 平扫、卡 7 增强),并新增"登记 10 % Γ 上的损失"
+(`val_loss_gamma10`:同一组目标点、同一输入 Ω∖Γ10,所以不同 Γ 比例的运行可以按同一把尺比)。选择规则不变:ZS-SSDU 按 Γ10 损失选。
+
+**全线波及(03:00 grep)**:本机所有 mcgs 课题线的 ZS-SSDU 都是同一份代码(`nb=5`、`--cg_iters_net` 默认 6、patience 10):jyz T1+FLAIR AF12/16/20/24
+(各 worktree)、t1t2 AF12、tangbing v4、diffmask / gauss 掩膜线、噪声线、hparam 线、儿童 peds_tsc_mtp_af12、膝 `knee/baselines/recon_zsssdu.py`、
+CE 前瞻 `ce_pre_post_contrast/scripts/ce_classical.py`。**这些线上"MC-GS 胜 ZS-SSDU"的余量都建立在欠配置的 ZS-SSDU 上,需要用 15 块重跑后才能再说。**
+
 核验(00:25):口径复核 `GAUGE OK`(CPU 双精度逐项一致);k 空间相对残差——已采样线 真值 0.1087、ZS 新 0.1048、MC-GS 定稿 0.1052、CS-SENSE 0.1046、ZS 登记 0.1077;
 未采样线(对含噪满采 k 空间)真值 0.628、**ZS 新 0.668**、MC-GS 0.675、CS-SENSE 0.682、ZS 登记 0.690。它赢在未采样 k 空间的外推最贴真值,不是过拟合采样数据。
 

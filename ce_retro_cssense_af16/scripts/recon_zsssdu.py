@@ -31,6 +31,8 @@ ap.add_argument("--mu", type=float, default=0.05)
 ap.add_argument("--patience", type=int, default=10)
 ap.add_argument("--blocks", type=int, default=5, help="residual blocks of the denoiser (5 = the registered arm; SSDU / ZS-SSL use 15)")
 ap.add_argument("--suffix", default="", help="appended to the method key and the output file names (sweeps); empty = the registered arm")
+ap.add_argument("--rho_val", type=float, default=0.10, help="|Gamma| / |Omega|, the early-stopping hold-out (0.10 = the registered arm; official ZS-SSL code 0.2)")
+ap.add_argument("--theta_frac", type=float, default=0.80, help="|Theta| / |Omega minus Gamma| per step (0.80 = the registered arm; official ZS-SSL rho_train 0.4 -> 0.60)")
 args = ap.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -136,8 +138,9 @@ def unrolled(y_dc, Sr, mk):
 idx = torch.nonzero(m2, as_tuple=False)
 Na = idx.shape[0]
 perm = torch.randperm(Na, generator=torch.Generator(device="cpu").manual_seed(0))
-n_val = int(0.10 * Na)
+n_val = int(args.rho_val * Na)
 val_idx, tr_idx = perm[:n_val], perm[n_val:]
+n_val10 = int(0.10 * Na)   # the registered arm's Gamma: perm[:n_val10] is a subset of every larger Gamma drawn from the same perm
 
 
 def mk_mask(sel):
@@ -154,7 +157,7 @@ tr_pool = tr_idx.clone()
 def split_theta_lambda(step):
     gg = torch.Generator(device="cpu").manual_seed(1234 + step)
     p = torch.randperm(tr_pool.numel(), generator=gg)
-    cut = int(0.80 * p.numel())
+    cut = int(args.theta_frac * p.numel())
     return mk_mask(tr_pool[p[:cut]]), mk_mask(tr_pool[p[cut:]])
 
 
@@ -206,6 +209,20 @@ for ep in range(args.epochs):
 if best_state is not None:
     net.load_state_dict(best_state)
 
+# the loss on the registered 10 % Gamma with the registered input (Omega minus that Gamma): the same targets and the same
+# input for every split ratio, so runs with a different rho_val stay comparable (perm[:n_val10] was held out of training
+# in every such run). For the registered ratio it is the early-stopping loss itself, recomputed.
+net.eval(); m_val10 = mk_mask(perm[:n_val10]); m_in10 = mk_mask(perm[n_val10:]); vs10 = 0.0; nv10 = 0
+with torch.no_grad():
+    for s in range(0, NX, 16):
+        sl = torch.arange(s, min(s + 16, NX))
+        Sr = S[:, sl].permute(1, 0, 2, 3).contiguous()
+        yr = yh[:, sl].permute(1, 0, 2, 3).contiguous()
+        x = unrolled(yr * m_in10, Sr, m_in10)
+        vs10 += nloss(A2(x, Sr, m_val10), yr * m_val10, m_val10).item() * sl.numel(); nv10 += sl.numel()
+val10 = vs10 / nv10
+log(f"loss on the registered 10 % Gamma (input Omega minus it): {val10:.4f}")
+
 # ---- inference with the FULL acquired mask ---------------------------------------------------
 net.eval()
 xn = torch.zeros(G, dtype=torch.complex64, device=dev)
@@ -219,7 +236,8 @@ del yh
 
 row = P.score(xn, "zsssdu" + args.suffix, seconds=time.time() - t0,
               val_loss=best, epochs_run=ep + 1, unrolls=K, cg_iters_net=CGN, blocks=args.blocks, lr=args.lr,
-              patience=args.patience, max_epochs=args.epochs)
+              patience=args.patience, max_epochs=args.epochs, rho_val=args.rho_val, theta_frac=args.theta_frac,
+              val_loss_gamma10=val10)
 np.save(R / f"recon/zsssdu{args.suffix}_{args.contrast}_complex.npy", xn.cpu().numpy().astype(np.complex64))
 json.dump({"contrast": args.contrast, "rows": [row], "scale_p999": P.scale, "coils": int(NC)},
           open(R / f"logs/zsssdu{args.suffix}_{args.contrast}.json", "w"), indent=2)
