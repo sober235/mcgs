@@ -2,7 +2,19 @@
 
 新会话先读本文件，再读 README，关键数字先重跑。
 
-## ▶ 2026-10-10 12:31 起:MC-GS 第六阶段 autoresearch 进行中(用户要求,本节最新)
+## ⏸ 2026-10-10 12:45 第六阶段暂停(用户要处理别的任务,回来接着做)
+
+暂停时**没有任何进程在跑,不占任何 GPU**:链在等空卡(8 张卡都被用户的 AnatoBind、膝与其他用户占着),60 步冒烟与 6 个探针**一个都还没放出去**,
+`results_arc/` 里没有任何 `ar_k*` 输出,所以没有半截作业、恢复时不会撞名。已停:链 `phase6a_chain.sh`、空卡队列 `ar_free_queue.py`、后台等待器。
+
+**恢复**(一条命令,链会先等空卡跑冒烟,冒烟干净再放 6 个探针,最多同时 3 个,只用连续两次轮询都空着的卡):
+```
+N=/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois; WT=/data0/congcong/code/GS/mcgs_ce_mask_wt
+cd $N && setsid nohup bash $WT/ce_retro_cssense_af16/scripts/phase6a_chain.sh >> logs/ar/phase6a_chain.log 2>&1 < /dev/null &
+```
+进度看 `$N/logs/ar/phase6a_chain.log` 与 `$N/logs/ar/queue.log`;读数规则在 `autoresearch_vdpois.md` 末尾"第六阶段"。
+
+## ▶ 2026-10-10 12:31 起:MC-GS 第六阶段 autoresearch(用户要求)
 
 用户 10-10 看完对比方法审计:ZS-SSDU 超过 MC-GS"违背 paper 出发点",要求继续调 MC-GS 到最优,并对 GS-single 拉开 > 0.5 dB。
 目标、规则、读数标准与每轮读数都在 `autoresearch_vdpois.md` 末尾"第六阶段"。主杠杆是减影(强化稀疏)先验 `R_sub`
