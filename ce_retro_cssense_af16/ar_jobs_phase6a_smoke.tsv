@@ -1,2 +1,3 @@
 # phase 6a smoke (2026-10-10): 60 iterations, R_sub from iteration 20, WARMUP=20 (set by the chain)
-ar_k0_smoke	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9 --iters 60 --set loss.lambda_sub=0.1 --set loss.sub_mode=cauchy --set loss.sub_start=20 --set loss.sub_refresh=20
+# 13:55: renamed _r2 -- the first smoke (ar_k0_smoke) died of OOM at data setup because another session bound card 5 while still loading; nothing to do with R_sub
+ar_k0_smoke_r2	joint	--edge_tv_wfloor 0.0 --kspace_high 2.8 --kspace_high_plain 2.2 --tv_vector --edge_kappa 30 --edge_p 0.9 --iters 60 --set loss.lambda_sub=0.1 --set loss.sub_mode=cauchy --set loss.sub_start=20 --set loss.sub_refresh=20

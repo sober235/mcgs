@@ -1,0 +1,10 @@
+--- a/arc/cycle.py
++++ b/arc/cycle.py
+@@ -70,6 +70,7 @@
+ from pathlib import Path
+ import numpy as np
+ import torch
++torch.zeros(1, device="cuda:0")   # hold a CUDA context from the start (2026-10-10): other sessions' schedulers pick cards by memory.used and took this card while the data was still loading
+ import yaml
+ 
+ HERE = Path(__file__).resolve().parent           # arc/

@@ -22,7 +22,9 @@ for p in "$LOG" "$TR/results_arc/${EXP}_score.json" "$TR/results_arc/$EXP"; do
   if [[ -e "$p" ]]; then echo "refusing to overwrite existing output: $p" >&2; exit 1; fi
 done
 cd "$TR"
-env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID \
+# CUDA_VISIBLE_DEVICES is set by cycle.py from --gpu anyway; exporting the same value here makes the claim on the card
+# visible in /proc/<pid>/environ from the first second, so other schedulers (scripts/ar_free_queue.py) skip it (2026-10-10)
+env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES="$GPU" \
   "$PY" -u arc/cycle.py --exp "$EXP" --gpu "$GPU" --iters "$ITERS" \
   --lambda_geo 0.10 --warmup "$WARMUP" --max_radius 20 --kspace_high 2.2 \
   --edge_tv --edge_tv_kappa_q 0.85 --edge_tv_wfloor 0.10 --tv_eps 0.04 \

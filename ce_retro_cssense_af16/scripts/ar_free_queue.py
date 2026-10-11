@@ -17,8 +17,27 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ar_queue as Q                     # noqa: E402  (R, TR, ENV, S, read_jobs, extract, key_of, npz, log)
 
 
+def claimed_cards():
+    """cards named in the CUDA_VISIBLE_DEVICES of any process whose environment we can read (this user's). A job of
+    another session that is still loading its data holds no memory yet but already carries its card here (2026-10-10:
+    an AnatoBind run bound to card 5 loaded data for minutes, our smoke went onto 'empty' card 5 and ran out of memory)."""
+    claimed = set()
+    for env in Path("/proc").glob("[0-9]*/environ"):
+        try:
+            raw = env.read_bytes()
+        except OSError:
+            continue
+        for item in raw.split(b"\0"):
+            if item.startswith(b"CUDA_VISIBLE_DEVICES="):
+                for tok in item.split(b"=", 1)[1].split(b","):
+                    if tok.strip().isdigit():
+                        claimed.add(int(tok))
+    return claimed
+
+
 def empty_cards(cards):
-    """cards with memory.used < 1500 MiB and no compute process, per nvidia-smi."""
+    """cards with memory.used < 1500 MiB and no compute process, per nvidia-smi, and not claimed by any process's
+    CUDA_VISIBLE_DEVICES (claimed_cards)."""
     out = subprocess.run(["nvidia-smi", "--query-gpu=index,uuid,memory.used", "--format=csv,noheader,nounits"],
                          capture_output=True, text=True).stdout
     apps = subprocess.run(["nvidia-smi", "--query-compute-apps=gpu_uuid", "--format=csv,noheader"],
@@ -29,7 +48,7 @@ def empty_cards(cards):
         i, uuid, used = (s.strip() for s in line.split(","))
         if int(i) in cards and float(used) < 1500 and uuid not in busy_uuid:
             free.add(int(i))
-    return free
+    return free - claimed_cards()
 
 
 def main():
@@ -38,6 +57,9 @@ def main():
     ap.add_argument("--cards", default="0,1,2,3,4,5,6,7")
     ap.add_argument("--max_run", type=int, default=3)
     ap.add_argument("--poll", type=int, default=60)
+    ap.add_argument("--settle", type=int, default=2,
+                    help="consecutive empty polls before a card is used (10 = ten quiet minutes: leaves a card that another "
+                         "session of this user has just released to that session)")
     a = ap.parse_args()
     (Q.R / "logs/ar").mkdir(parents=True, exist_ok=True)
     cards = {int(g) for g in a.cards.split(",")}
@@ -61,7 +83,7 @@ def main():
                 Q.log(f"FAILED {j['exp']} on gpu {g} rc={p.returncode}; see {Q.TR / 'results_arc' / (j['exp'] + '.log')}")
         free = empty_cards(cards) - set(running)
         seen_free = {g: seen_free.get(g, 0) + 1 for g in free}
-        ready = sorted(g for g, n in seen_free.items() if n >= 2)
+        ready = sorted(g for g, n in seen_free.items() if n >= a.settle)
         if pending and ready and len(running) < a.max_run:
             g = ready[0]; j = pending.pop(0); seen_free.pop(g, None)
             cmd = ["bash", str(Q.S / "run_gs.sh"), j["exp"], str(g), j["iters"]] + j["extra"]
