@@ -2,17 +2,17 @@
 
 新会话先读本文件，再读 README，关键数字先重跑。
 
-## ⏸ 2026-10-10 12:45 第六阶段暂停(用户要处理别的任务,回来接着做)
+## ⏹ 2026-10-11 04:55 第六阶段 a 结束,等用户定方向(本节最新)
 
-暂停时**没有任何进程在跑,不占任何 GPU**:链在等空卡(8 张卡都被用户的 AnatoBind、膝与其他用户占着),60 步冒烟与 6 个探针**一个都还没放出去**,
-`results_arc/` 里没有任何 `ar_k*` 输出,所以没有半截作业、恢复时不会撞名。已停:链 `phase6a_chain.sh`、空卡队列 `ar_free_queue.py`、后台等待器。
+没有进程在跑,不占 GPU。减影(强化稀疏)先验两档都没用:λ 0.03 −0.005 / −0.001,λ 0.1 −0.062 / −0.064(四项都退),其余 4 个探针按登记规则取消。
+原因已用真值查清(`autoresearch_vdpois.md` 第六阶段 a 读数):两份真值是两次独立采集各自的 CS-SENSE 重建,|post| − s|pre| 头内中位 21 %,
+高频相关只有 0.45,不是"同一解剖加稀疏强化";强度耦合会强加假的共同纹理,边缘耦合封顶 +0.1 dB。**规则 A 下对公平单臂 > 0.5 dB 在这份数据上达不到。**
 
-**恢复**(一条命令,链会先等空卡跑冒烟,冒烟干净再放 6 个探针,最多同时 3 个,只用连续两次轮询都空着的卡):
-```
-N=/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois; WT=/data0/congcong/code/GS/mcgs_ce_mask_wt
-cd $N && setsid nohup bash $WT/ce_retro_cssense_af16/scripts/phase6a_chain.sh >> logs/ar/phase6a_chain.log 2>&1 < /dev/null &
-```
-进度看 `$N/logs/ar/phase6a_chain.log` 与 `$N/logs/ar/queue.log`;读数规则在 `autoresearch_vdpois.md` 末尾"第六阶段"。
+待用户拍板(建议 1):
+1. 如实报:MC-GS 第二、对公平单臂 +0.11 / +0.13、对 CS-SENSE +0.71 / +0.57;卖点改为"不带可训练正则器的方法里最好"。
+2. 放开"不加可训练先验":给 MC-GS 接一个只在本扫描上训练的去噪器(ZS-SSDU 那一类)。可能追上 ZS-SSDU,但规则 A 下单臂也要给,余量仍约 0.1 dB。
+3. 把"联合优于单独"的论点放到物理上真耦合的数据上(儿童 MTP 多回波,记忆里唯一没封口的方向)。
+4. 放松规则 A(和没给同样旋钮的 GS-single 比):不建议,审稿人会问单臂为什么没调。
 
 ## ▶ 2026-10-10 12:31 起:MC-GS 第六阶段 autoresearch(用户要求)
 
