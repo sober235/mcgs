@@ -1,3 +1,57 @@
+# STATUS — 2026-10-11 02:40 (worktree mcgs_sg2x2_wt, branch exp/shared-geometry-2x2-ablation-20261009) — sg2x2 core test, Tasks 1-3 complete, Task 4 next
+
+The user resumed the work on 2026-10-10 at 13:23 ("继续") after the second pause. This block supersedes the two pause
+blocks below (12:55 and 08:50); their §1 facts (export, development seeds, both capacity conventions) and their §4
+pitfalls still hold. No GPU job of this line has run since 2026-10-10 09:02, and `results_arc/.sg2x2_queue_pause`
+stays in place until the GPU steps.
+
+**Read first:** this block → the 08:50 block's §1 and §4 → ledger copy
+`docs/superpowers/records/2026-10-10-sg2x2-core-test-ledger.md` (every ruling; its last line says where to resume) →
+Task 4 addendum copy `docs/superpowers/records/2026-10-10-sg2x2-core-test-task4-addendum.md` (§A-§E) → plan
+`docs/superpowers/plans/2026-10-10-sg2x2-core-test.md`. Live ledger: `.superpowers/sdd/2026-10-10-sg2x2-core-test/progress.md`.
+
+## 1. Done and verified
+
+```
+$ cd /data0/congcong/code/GS/mcgs_sg2x2_wt; PY=/home/congcongliu/anaconda3/envs/GSTMI/bin/python
+$ env PYTHONNOUSERSITE=1 PYTHONPATH= CUDA_VISIBLE_DEVICES= $PY -m pytest tests/test_sg2x2_*.py -q -p no:cacheprovider
+94 passed, 27 skipped in 56.86s       # 2026-10-11 02:35 at 0bcf4e5; the 27 skips are CUDA subprocess tests
+```
+
+- Task 1 complete (45f2afc); the export of all 14 subjects finished 2026-10-10 08:29 (08:50 block §1).
+- Task 2 complete (120ada1; review clean, eight minors deferred).
+- Task 3 complete (3887190 plus fix 0bcf4e5): each difference row is paired seed by seed over the seeds present in
+  every cell it needs, then averaged per subject (spec §4 and §5.3); four extra test assertions pin the row-wise drop.
+  Review clean after fix round 1; three minors deferred.
+- Development subject in both capacity conventions: record §4.8 (one subject, NOT EVIDENCE).
+
+## 2. Waiting for the user
+
+1. Merge into main (not done; this line tags and pushes the branch only).
+2. Hand-deletion list (08:50 block §2 item 3; the 58 GB of BART intermediates only after Task 4's verification).
+3. Whether the test subjects also get the capacity-matched convention (B and D at 1.8M; four more runs per subject).
+4. B's equal-budget own-lambda search and the `INIT=head` control (still open).
+
+## 3. Next
+
+1. Task 4 (brief plus addendum §A-§E): verification of the 14 exports including the coil-map fit check, the smoke and
+   main queue files, the setup record, its STATUS items in this block.
+2. Final whole-branch review on ea921ac..HEAD with every deferred minor and plan-text note in the ledger; one fix wave
+   and its scoped re-review.
+3. GPU steps (addendum §D and the 08:50 block's §3 step 4): check the cards first (the user asked about GPUs at both
+   pauses); rename the pause file away; smoke queue (5 two-iteration runs; audits ok with `resolved.data_subject` true);
+   then the main queue (84 runs) with `scripts/sg2x2_watch.sh` in the background.
+
+## 4. Pitfalls, new
+
+- None beyond the 12:55 and 08:50 blocks.
+
+## 5. Why
+
+- One current block on top keeps the hand-off readable; the two pause blocks stay below as the record of what was true then.
+
+---
+
 # STATUS — 2026-10-10 12:55 (worktree mcgs_sg2x2_wt, branch exp/shared-geometry-2x2-ablation-20261009) — sg2x2 core test, PAUSED again (Task 3 fix round half done)
 
 **Paused at 12:43 at the user's request** ("现将当前任务暂停,对应的GPU也暂停,我需要处理另外一个任务,然后回来 继续"). This line

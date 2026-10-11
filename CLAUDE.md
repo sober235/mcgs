@@ -6,11 +6,10 @@ Read in this order: this file → `STATUS.md` (current state, what to re-run fir
 (the long project memory, §0–19; do not re-derive anything it already closed).
 
 ## Branch `exp/shared-geometry-2x2-ablation-20261009` (this worktree `mcgs_sg2x2_wt`, 2026-10-09) — shared-geometry 2x2 ablation, code complete, pilot run (seed 42, NOT EVIDENCE)
-**2026-10-10: core test (14 subjects) PAUSED by the user mid-plan (second pause 12:43).** Resume from `STATUS.md` top
-block (dated 2026-10-10 12:55, "PAUSED again"): plan `docs/superpowers/plans/2026-10-10-sg2x2-core-test.md`, ledger copy
-`docs/superpowers/records/2026-10-10-sg2x2-core-test-ledger.md`, live ledger `.superpowers/sdd/2026-10-10-sg2x2-core-test/progress.md`
-(its last line says where to resume: finish Task 3 fix round 1, whose uncommitted edits sit in the worktree; spec in
-`docs/superpowers/records/2026-10-10-sg2x2-core-test-task3-fix1.md`). Export of the 14 subjects is done; tag
+**2026-10-10/11: core test (14 subjects), subagent-driven; paused twice by the user and resumed.** Current state in the
+`STATUS.md` top block (2026-10-11: Tasks 1-3 complete, Task 4 next): plan `docs/superpowers/plans/2026-10-10-sg2x2-core-test.md`,
+ledger copy `docs/superpowers/records/2026-10-10-sg2x2-core-test-ledger.md`, live ledger
+`.superpowers/sdd/2026-10-10-sg2x2-core-test/progress.md` (its last line says where to resume). Export of the 14 subjects is done; tag
 `handoff/2026-10-10-sg2x2-core-test-paused-2` (first pause: `handoff/2026-10-10-sg2x2-core-test-paused`).
 Entry for the pilot (2026-10-09): `STATUS.md` (2026-10-09 block) → spec `docs/experiments/2026-10-09-mcgs-shared-geometry-2x2-ablation.md` → plan
 `docs/superpowers/plans/2026-10-09-sg2x2-shared-geometry-ablation.md` → record `docs/superpowers/records/2026-10-09-sg2x2-implementation.md`.

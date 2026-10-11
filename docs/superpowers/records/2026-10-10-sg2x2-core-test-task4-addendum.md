@@ -122,10 +122,9 @@ line, stop the runner's own bash process (its launched trainers keep running), o
 only after that. Never run two queue runners at once: both can claim the same idle card (the card-sharing stall of
 2026-10-09)." Steps 2 to 4 as in the brief; step 3 re-arms the stall watcher on `results_arc/sg2x2_queue_main.log`.
 
-## E. STATUS.md (ruling, added 10:50 after the user resumed the work)
+## E. STATUS.md (ruling, revised 2026-10-11 02:40 after the second pause and resume)
 
-The top block of `STATUS.md` is now the pause hand-off of 2026-10-10 08:50 (title "... PAUSED by the user"; the user
-resumed the work at 10:24). Put your §1 item ("core-test setup done and verified", the verification command and its
-summary line) into that block's §1 as a new bullet, and your launch steps into that block's §3 (replace its step 4,
-which describes the same GPU steps, by your fuller version; leave steps 1 to 3 as they are). Do not touch the block's
-title line or its pause paragraph: the controller rewrites those after your commit.
+Add your items to the TOP block of `STATUS.md` (dated 2026-10-11 02:40, "Tasks 1-3 complete, Task 4 next"): your §1
+item ("core-test setup done and verified", the verification command and its summary line) as a new bullet in its §1,
+and your launch steps in place of its §3 step 3 (the GPU steps), keeping that step's first instruction to check the
+cards first. Leave its other steps, its title line and the two pause blocks below it untouched.
