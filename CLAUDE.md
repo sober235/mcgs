@@ -3,7 +3,7 @@
 平扫 / 增强(CE)回顾性 AF16 线,vdPoisMex 掩膜:十一臂对比、MC-GS autoresearch(第 1–5d 阶段)、对比方法逐臂审计(2026-10-09/10)。
 
 > **2026-10-11 04:55 第六阶段 a 结束**,没有进程、不占 GPU:减影先验无效(真值两扫描纹理不同,高频相关 0.45),对公平单臂 > 0.5 dB 在本数据上达不到;
-> 四个方向待用户定,见 `ce_retro_cssense_af16/STATUS.md` 第一节。对比方法审计 10-10 已收尾(确认目录 `..._vdpois_cmp`)。
+> 四个方向待用户定,见 `ce_retro_cssense_af16/STATUS.md` 第一节;10-09 至 10-12 总结 `ce_retro_cssense_af16/SESSION_SUMMARY_2026-10-12.md`。对比方法审计 10-10 已收尾(确认目录 `..._vdpois_cmp`)。
 
 ## 先读什么(按顺序)
 
