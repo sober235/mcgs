@@ -1,0 +1,9 @@
+{
+  "binary": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/carrier_builds/20261023T011403Z-bc86c383e901/7e4074ab699211d0b99e28f0766c6c6b2f12ad9f3057105fe6993faa6d95e719/carrier_cuda_7e4074ab699211d0b99e28f0.so",
+  "binary_sha256": "b8d08c0aeead3c4c6d2e9f0fd803929c4ea5252bdd6de692053da6ced4c4c95d",
+  "compiled_sources_match_first_gate": true,
+  "review": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-22-carrier-operator/final-source-review-round3.md",
+  "selected_gpu_uuid": "GPU-a9b716ea-de2e-5d23-217d-db82a1d48efb",
+  "capability": "8.0",
+  "new_test_sha256": "4a936e9b6642e65b8abe008d640cbfceda4f8b316dc3acf4ee6b1951e7f9a0e8"
+}

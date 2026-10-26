@@ -1,0 +1,46 @@
+[JointTrainer] re-seed: seed=42, deterministic=False
+>>> loading PLAIN
+Loading data from /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/pre_kspace.h5
+Using H5 key: kspace
+Detected coil axis at dim 0: (42, 256, 232, 176)
+Loaded k-space data with shape: torch.Size([42, 256, 232, 176])
+Number of coils: 42
+Volume shape: (256, 232, 176)
+Readout axis: 0, Phase axes: (1, 2)
+Loading external mask from /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/mask/mask_af16_3d.h5
+MATLAB v7.3 / .h5 mask file detected, using h5py reader.
+Using H5 mask key: mask
+Using external mask with actual acceleration: 16.00x
+Loading external CSM from /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/pre_csm.h5
+MATLAB v7.3 / .h5 CSM file detected, using h5py reader.
+Using H5 CSM key: map
+[CSM] Loaded from: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/pre_csm.h5, key: map, shape: torch.Size([42, 256, 232, 176])
+>>> loading CONTRAST
+Loading data from /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/post_kspace.h5
+Using H5 key: kspace
+Detected coil axis at dim 0: (42, 256, 232, 176)
+Loaded k-space data with shape: torch.Size([42, 256, 232, 176])
+Number of coils: 42
+Volume shape: (256, 232, 176)
+Readout axis: 0, Phase axes: (1, 2)
+Loading external mask from /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/mask/mask_af16_3d.h5
+MATLAB v7.3 / .h5 mask file detected, using h5py reader.
+Using H5 mask key: mask
+Using external mask with actual acceleration: 16.00x
+Loading external CSM from /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/post_csm.h5
+MATLAB v7.3 / .h5 CSM file detected, using h5py reader.
+Using H5 CSM key: map
+[CSM] Loaded from: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/post_csm.h5, key: map, shape: torch.Size([42, 256, 232, 176])
+shared volume_shape = (256, 232, 176)
+|zf_p| max 0.9747, |zf_c| max 1.2948
+[TileVoxelizer] volume=(256, 232, 176), tile_size=8, max_radius=20 (accepted for config compatibility; the bbox is the exact mahal<=9 extent and is never clamped), backend=tile_cuda
+output dir: /home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/caseprior512_control_smoke_v1/training/fixed_count_relocation
+[INF-05] TensorBoard writer disabled (output.use_tensorboard=False)
+/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/relocation_runner.py:208: UserWarning: loss.lambda_diff / loss.lambda_enh are silently ignored (INF-05 / A-LOSS-DROP). v2 q(a_{n,c}) posterior replaces these hand-written priors.
+  if steps: trainer.train(step_callback=callback)
+[phase-tv] lambda_ptv=0.03 eps=0.04
+[wavelet] lambda=0.1 (plain 0.12, contrast 0.1) wavelet=db4 levels=1 eps=0.0 cycle_spin=True on=complex
+[tv_shape] eps=0.04 vector=True
+[edge_tv] kappa_q=0.85 source=zf refresh_iter=0 -> kappa_plain=0.02550 kappa_contrast=0.02649 w_floor=0.0
+[iter  4501/4502] loss=3.7641e-02 dc_p=1.6786e-02 dc_c=1.6548e-02 R_geo=5.0216e-03 R_dtv=0.0000e+00 R_edge=2.8620e-01 R_vtv=0.0000e+00 R_wav=2.8659e-02 R_nl=0.0000e+00 balance_violation=False
+joint training done in 4.2s

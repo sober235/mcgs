@@ -1,0 +1,377 @@
+"""Independent CPU acceptance checks for the selected-atom carrier correction."""
+
+import importlib
+import math
+
+import pytest
+import torch
+
+
+ALG = dict(rtol=1e-10, atol=1e-10)
+FD = dict(rtol=1e-5, atol=1e-7)
+SHAPE = (3, 4, 5)
+
+
+def render(*args):
+    # Import inside the test so an absent implementation produces a real RED.
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+
+
+def fixture(zero=False, contrast=0):
+    values = [
+        torch.tensor([[-0.13, 0.17, -0.21], [0.22, -0.19, 0.11]], dtype=torch.float64),
+        torch.tensor([[0.62, 0.83, 0.71], [0.77, 0.54, 0.68]], dtype=torch.float64).log(),
+        torch.tensor([[1.7, 0.2, -0.3, 0.4], [0.8, -0.4, 0.1, 0.3]], dtype=torch.float64),
+        torch.tensor([0.7 - 0.4j, -0.3 + 0.8j], dtype=torch.complex128),
+        torch.tensor([[0.12, -0.09, 0.06], [-0.07, 0.11, -0.13]], dtype=torch.float64),
+    ]
+    if contrast:
+        values[3] = torch.tensor([-0.6 + 0.2j, 0.4 - 0.9j], dtype=torch.complex128)
+        values[4] = -0.7 * values[4]
+    if zero:
+        values[4].zero_()
+    return [v.requires_grad_() for v in values]
+
+
+def grid(shape):
+    return torch.cartesian_prod(*(torch.arange(n, dtype=torch.float64) for n in shape))
+
+
+def independent_geometry(positions, log_scales, rotations, shape):
+    """Skew-matrix quaternion construction, independent of implementation helpers."""
+    half = torch.tensor(shape, dtype=torch.float64) / 2
+    centers = (positions + 1) * half - 0.5
+    matrices = []
+    for q, logs in zip(rotations, log_scales):
+        w, x, y, z = q / (torch.linalg.vector_norm(q) + 1e-8)
+        zero = x * 0
+        skew = torch.stack((zero, -z, y, z, zero, -x, -y, x, zero)).reshape(3, 3)
+        rotation = torch.eye(3, dtype=torch.float64) + 2 * w * skew + 2 * (skew @ skew)
+        matrices.append(rotation @ torch.diag((logs.exp() + 1e-8) ** -2) @ rotation.T)
+    return centers, torch.stack(matrices)
+
+
+def independent_direct(values, shape):
+    """Ordinary Gaussian and full Gabor sums; no production geometry or correction."""
+    p, logs, q, density, freq = values
+    centers, matrices = independent_geometry(p, logs, q, shape)
+    voxels = grid(shape)
+    half = torch.tensor(shape, dtype=torch.float64) / 2
+    ordinary = torch.zeros(len(voxels), dtype=torch.complex128)
+    gabor = torch.zeros_like(ordinary)
+    supports = []
+    for center, matrix, rho, f in zip(centers, matrices, density, freq):
+        displacement = voxels - center
+        normalized = displacement / half
+        mahal = ((normalized @ matrix) * normalized).sum(-1)
+        support = mahal.detach() <= 9
+        weight = torch.where(support, torch.exp(-mahal / 2), 0)
+        phase = 2 * math.pi * (displacement * f).sum(-1)
+        ordinary = ordinary + weight * rho
+        gabor = gabor + weight * rho * torch.exp(1j * phase)
+        supports.append(support)
+    return ordinary.reshape(shape), gabor.reshape(shape), torch.stack(supports)
+
+
+def upstream(shape):
+    count = math.prod(shape)
+    return torch.complex(torch.linspace(-0.7, 0.9, count),
+                         torch.linspace(0.8, -0.2, count).square()).to(torch.complex128).reshape(shape)
+
+
+def loss(output, gradient):
+    return (output.real * gradient.real + output.imag * gradient.imag).sum()
+
+
+def analytic_local(centers, matrices, density, frequencies, shape, gradient):
+    """Documented local VJPs, including the phase's dependence on center."""
+    half = torch.tensor(shape, dtype=torch.float64) / 2
+    u = grid(shape)[None] - centers[:, None]
+    d = u / half
+    md = torch.einsum("kij,kvj->kvi", matrices, d)
+    mahal = (d * md).sum(-1)
+    weight = torch.where(mahal.detach() <= 9, torch.exp(-mahal / 2), 0)
+    theta = 2 * math.pi * (u * frequencies[:, None]).sum(-1)
+    c, s = theta.cos(), theta.sin()
+    cm1 = -2 * (theta / 2).sin().square()
+    a, b = density.real[:, None], density.imag[:, None]
+    tr, ti = a * c - b * s, a * s + b * c
+    zr, zi = a * cm1 - b * s, a * s + b * cm1
+    gr, gi = gradient.real.reshape(1, -1), gradient.imag.reshape(1, -1)
+    Q = gr * zr + gi * zi
+    T = -gr * ti + gi * tr
+    gc = (weight[..., None] * (Q[..., None] * md / half
+          - 2 * math.pi * T[..., None] * frequencies[:, None])).sum(1)
+    gm = -0.5 * torch.einsum("kv,kvi,kvj->kij", weight * Q, d, d)
+    ga = (weight * (cm1 * gr + s * gi)).sum(1)
+    gb = (weight * (-s * gr + cm1 * gi)).sum(1)
+    gf = (2 * math.pi * weight[..., None] * T[..., None] * u).sum(1)
+    return gc, gm, torch.complex(ga, gb), gf
+
+
+@pytest.mark.parametrize("contrast", [0, 1])
+@pytest.mark.parametrize("zero", [False, True])
+def test_correction_plus_gaussian_equals_independent_direct_gabor(zero, contrast):
+    # Wrong sign, missing density, quaternion order, axis scale, or support fails.
+    values = fixture(zero, contrast)
+    ordinary, gabor, _ = independent_direct(values, SHAPE)
+    correction = render(*values, SHAPE)
+    assert correction.dtype == torch.complex128 and correction.device.type == "cpu"
+    assert correction.shape == SHAPE
+    torch.testing.assert_close(correction + ordinary, gabor, **ALG)
+    grad = upstream(SHAPE)
+    actual = torch.autograd.grad(loss(correction, grad), values)
+    expected = torch.autograd.grad(loss(gabor - ordinary, grad), values)
+    for got, want in zip(actual, expected):
+        torch.testing.assert_close(got, want, **ALG)
+
+
+@pytest.mark.parametrize("zero", [False, True])
+def test_documented_local_vjps_include_phase_center_term(zero):
+    # Stopping phase-center gradients or using an unsymmetrized covariance fails.
+    values = fixture(zero)
+    c, m = independent_geometry(*values[:3], SHAPE)
+    c, m = c.detach().requires_grad_(), m.detach().requires_grad_()
+    local = (c, m, values[3], values[4])
+    module = importlib.import_module("carrier_reference")
+    out = module._correction_from_geometry(*local, SHAPE)
+    actual = torch.autograd.grad(loss(out, upstream(SHAPE)), local)
+    expected = analytic_local(*local, SHAPE, upstream(SHAPE))
+    for got, want in zip(actual, expected):
+        torch.testing.assert_close(got, want, **ALG)
+
+
+@pytest.mark.parametrize("zero", [False, True])
+def test_analytic_geometry_chain_matches_all_five_public_input_vjps(zero):
+    values = fixture(zero)
+    actual = torch.autograd.grad(loss(render(*values, SHAPE), upstream(SHAPE)), values)
+    c, m = independent_geometry(*values[:3], SHAPE)
+    gc, gm, grho, gf = analytic_local(c, m, *values[3:], SHAPE, upstream(SHAPE))
+    geometry_grad = torch.autograd.grad((c, m), values[:3], grad_outputs=(gc, gm))
+    for got, want in zip(actual, (*geometry_grad, grho, gf)):
+        torch.testing.assert_close(got, want, **ALG)
+
+
+@pytest.mark.parametrize("zero", [False, True])
+@pytest.mark.parametrize("input_index", range(5))
+def test_every_input_component_matches_central_difference_without_support_crossing(zero, input_index):
+    # Tests both components of complex density and every geometry/frequency scalar.
+    values = fixture(zero)
+    grad = upstream(SHAPE)
+    actual = torch.autograd.grad(loss(render(*values, SHAPE), grad), values)[input_index]
+    epsilon = 1e-6
+    reference_support = independent_direct(values, SHAPE)[2]
+    numerical = torch.empty_like(torch.view_as_real(actual) if actual.is_complex() else actual)
+    flat_numeric = numerical.reshape(-1)
+    for component in range(flat_numeric.numel()):
+        plus = [v.detach().clone() for v in values]
+        minus = [v.detach().clone() for v in values]
+        for changed, sign in ((plus, 1), (minus, -1)):
+            view = torch.view_as_real(changed[input_index]) if changed[input_index].is_complex() else changed[input_index]
+            view.reshape(-1)[component] += sign * epsilon
+            assert torch.equal(independent_direct(changed, SHAPE)[2], reference_support)
+        flat_numeric[component] = (loss(render(*plus, SHAPE), grad)
+                                   - loss(render(*minus, SHAPE), grad)) / (2 * epsilon)
+    target = torch.view_as_real(actual) if actual.is_complex() else actual
+    torch.testing.assert_close(target, numerical, **FD)
+
+
+def test_zero_frequency_is_exact_identity_with_learnable_frequency():
+    shape = (3, 4, 5)
+    values = fixture(zero=True)
+    out = render(*values, shape)
+    gradients = torch.autograd.grad(loss(out, upstream(shape)), values)
+    assert torch.count_nonzero(out) == 0
+    for value in gradients[:4]:
+        assert torch.count_nonzero(value) == 0
+    assert torch.isfinite(gradients[4]).all() and torch.count_nonzero(gradients[4]) > 0
+
+    # One off-center voxel, rho=1, loss=imag(output): df_D = 2*pi*G.
+    half = torch.tensor(shape, dtype=torch.float64) / 2
+    center = torch.tensor([[0.0, 1.0, 2.0]], dtype=torch.float64)
+    p = ((center + 0.5) / half - 1).requires_grad_()
+    logs = torch.zeros((1, 3), dtype=torch.float64, requires_grad=True)
+    q = torch.tensor([[1.0, 0, 0, 0]], dtype=torch.float64, requires_grad=True)
+    rho = torch.ones(1, dtype=torch.complex128, requires_grad=True)
+    f = torch.zeros((1, 3), dtype=torch.float64, requires_grad=True)
+    df, = torch.autograd.grad(render(p, logs, q, rho, f, shape)[1, 1, 2].imag, f)
+    expected = 2 * math.pi * math.exp(-0.5 / (half[0].item() * (1 + 1e-8)) ** 2)
+    torch.testing.assert_close(df, torch.tensor([[expected, 0, 0]], dtype=torch.float64), **ALG)
+
+
+@pytest.mark.parametrize("axis", range(3))
+def test_quarter_cycle_is_per_voxel_on_each_anisotropic_axis(axis):
+    # Using normalized instead of voxel displacement produces axis-specific errors.
+    shape = (3, 4, 5)
+    half = torch.tensor(shape, dtype=torch.float64) / 2
+    center = torch.tensor([[1.0, 1.0, 2.0]], dtype=torch.float64)
+    p = (center + 0.5) / half - 1
+    logs = torch.zeros((1, 3), dtype=torch.float64)
+    q = torch.zeros((1, 4), dtype=torch.float64)
+    rho = torch.tensor([1 + 0j], dtype=torch.complex128)
+    f = torch.zeros((1, 3), dtype=torch.float64)
+    f[0, axis] = 0.25
+    voxel = [1, 1, 2]
+    voxel[axis] += 1
+    weight = math.exp(-0.5 / (half[axis].item() * (1 + 1e-8)) ** 2)
+    torch.testing.assert_close(render(p, logs, q, rho, f, shape)[tuple(voxel)],
+                               torch.tensor(weight * (-1 + 1j), dtype=torch.complex128), **ALG)
+    normalized_frequency = half * f
+    displacement = grid(shape) - center
+    torch.testing.assert_close(displacement @ f[0], (displacement / half) @ normalized_frequency[0], **ALG)
+
+
+def test_stable_small_phase_retains_quadratic_real_correction():
+    # Direct cos(theta)-1 rounds to zero for theta=2*pi*1e-12.
+    shape = (3, 4, 5)
+    half = torch.tensor(shape, dtype=torch.float64) / 2
+    p = (torch.tensor([[0.5, 1.5, 2.5]], dtype=torch.float64) / half - 1)
+    f = torch.tensor([[1e-12, 0, 0]], dtype=torch.float64)
+    out = render(p, torch.zeros_like(p), torch.zeros((1, 4), dtype=torch.float64),
+                 torch.ones(1, dtype=torch.complex128), f, shape)
+    weight = math.exp(-0.5 / (half[0].item() * (1 + 1e-8)) ** 2)
+    expected = -2 * weight * math.sin(math.pi * 1e-12) ** 2
+    assert out[1, 1, 2].real < 0
+    torch.testing.assert_close(out[1, 1, 2].real, torch.tensor(expected, dtype=torch.float64),
+                               rtol=1e-10, atol=0)
+
+
+def test_empty_subset_returns_connected_zero_for_all_five_inputs():
+    values = [torch.empty((0, 3), dtype=torch.float64), torch.empty((0, 3), dtype=torch.float64),
+              torch.empty((0, 4), dtype=torch.float64), torch.empty(0, dtype=torch.complex128),
+              torch.empty((0, 3), dtype=torch.float64)]
+    values = [v.requires_grad_() for v in values]
+    output = render(*values, (2, 3, 4))
+    assert output.shape == (2, 3, 4) and output.dtype == torch.complex128
+    assert torch.count_nonzero(output) == 0
+    for actual, value in zip(torch.autograd.grad(output.real.sum() + output.imag.sum(), values), values):
+        assert actual.shape == value.shape and actual.dtype == value.dtype
+        assert actual.numel() == 0
+
+
+def test_overlap_adds_and_far_outside_support_has_zero_output_and_vjps():
+    values = fixture()
+    together = render(*values, SHAPE)
+    separated = sum(render(*(v[i:i + 1] for v in values), SHAPE) for i in range(2))
+    torch.testing.assert_close(together, separated, **ALG)
+    outside = [v[:1].detach().clone().requires_grad_() for v in values]
+    with torch.no_grad():
+        outside[0].fill_(100)
+    out = render(*outside, SHAPE)
+    assert torch.count_nonzero(out) == 0
+    for gradient in torch.autograd.grad(loss(out, upstream(SHAPE)), outside):
+        assert torch.count_nonzero(gradient) == 0
+
+
+def test_support_uses_full_ellipsoid_with_exact_mahal_nine_included():
+    # A wrong cutoff or radius clamp loses the supported boundary voxel.
+    module = importlib.import_module("carrier_reference")
+    center = torch.zeros((1, 3), dtype=torch.float64, requires_grad=True)
+    matrix = torch.diag(torch.tensor([9.0, 1.0, 1.0], dtype=torch.float64))[None]
+    out = module._correction_from_geometry(center, matrix,
+          torch.ones(1, dtype=torch.complex128), torch.tensor([[0.25, 0, 0]], dtype=torch.float64), (2, 2, 2))
+    torch.testing.assert_close(out[1, 0, 0], torch.tensor(math.exp(-4.5) * (-1 + 1j), dtype=torch.complex128), **ALG)
+    assert out[1, 1, 0] == 0
+
+
+def test_noncontiguous_inputs_preserve_output_and_autograd():
+    values = fixture()
+    strided = []
+    for value in values:
+        storage = torch.empty((*value.shape, 2), dtype=value.dtype)
+        storage[..., 0] = value.detach()
+        strided.append(storage[..., 0].requires_grad_())
+    assert all(not value.is_contiguous() for value in strided)
+    output = render(*strided, SHAPE)
+    expected = render(*values, SHAPE)
+    torch.testing.assert_close(output, expected, **ALG)
+    for actual, wanted in zip(torch.autograd.grad(loss(output, upstream(SHAPE)), strided),
+                              torch.autograd.grad(loss(expected, upstream(SHAPE)), values)):
+        torch.testing.assert_close(actual, wanted, **ALG)
+
+
+@pytest.mark.parametrize("input_index", range(5))
+def test_refuses_invalid_shapes(input_index):
+    values = fixture()
+    values[input_index] = values[input_index][:-1]
+    with pytest.raises(ValueError):
+        render(*values, SHAPE)
+
+
+@pytest.mark.parametrize("input_index", range(5))
+def test_refuses_wrong_rank(input_index):
+    values = fixture()
+    values[input_index] = values[input_index].unsqueeze(0)
+    with pytest.raises(ValueError):
+        render(*values, SHAPE)
+
+
+@pytest.mark.parametrize("input_index", [0, 1, 2, 4])
+def test_refuses_wrong_coordinate_width(input_index):
+    values = fixture()
+    values[input_index] = values[input_index][:, :-1]
+    with pytest.raises(ValueError):
+        render(*values, SHAPE)
+
+
+@pytest.mark.parametrize("input_index", range(5))
+def test_refuses_wrong_dtype(input_index):
+    values = fixture()
+    values[input_index] = values[input_index].to(torch.complex64 if input_index == 3 else torch.float32)
+    with pytest.raises(TypeError):
+        render(*values, SHAPE)
+
+
+@pytest.mark.parametrize("input_index", range(5))
+def test_refuses_non_tensor(input_index):
+    values = fixture()
+    values[input_index] = values[input_index].detach().tolist()
+    with pytest.raises(TypeError):
+        render(*values, SHAPE)
+
+
+@pytest.mark.parametrize("input_index", range(5))
+def test_refuses_non_cpu_device_before_any_numerics(input_index):
+    values = fixture()
+    values[input_index] = values[input_index].detach().to("meta")
+    with pytest.raises(ValueError):
+        render(*values, SHAPE)
+
+
+@pytest.mark.parametrize("input_index", range(5))
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+def test_refuses_nonfinite_inputs(input_index, bad):
+    values = [v.detach().clone() for v in fixture()]
+    values[input_index].reshape(-1)[0] = bad
+    with pytest.raises(ValueError):
+        render(*values, SHAPE)
+
+
+def test_refuses_nonfinite_imaginary_density():
+    values = [v.detach().clone() for v in fixture()]
+    values[3][0] = complex(1, float("nan"))
+    with pytest.raises(ValueError):
+        render(*values, SHAPE)
+
+
+@pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+@pytest.mark.parametrize("axis", range(3))
+def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+    values = [v.detach().clone() for v in fixture()]
+    values[4][0, axis] = bad
+    with pytest.raises(ValueError):
+        render(*values, SHAPE)
+
+
+def test_accepts_frequencies_arbitrarily_close_to_strict_nyquist():
+    values = [v.detach().clone() for v in fixture()]
+    values[4][0] = torch.tensor([0.5 - 1e-12, -0.5 + 1e-12, 0.0], dtype=torch.float64)
+    ordinary, gabor, _ = independent_direct(values, SHAPE)
+    torch.testing.assert_close(render(*values, SHAPE) + ordinary, gabor, **ALG)
+
+
+@pytest.mark.parametrize("shape", [(0, 2, 3), (-1, 2, 3), (2, 3), (2, 3, 4, 5),
+                                   (True, 2, 3), (2.0, 3, 4), "234", None])
+def test_refuses_invalid_volume_shape(shape):
+    with pytest.raises((TypeError, ValueError)):
+        render(*fixture(), shape)

@@ -1,0 +1,523 @@
+{
+  "units": "white-matter units (each scan / its own WM median); post - pre",
+  "regions": [
+    "lesion_core",
+    "rim_0_3mm",
+    "white_matter",
+    "cortex",
+    "vessels",
+    "plexus"
+  ],
+  "background": "post magnitude outside GTpost >0.05*P99.9 dilated six voxels",
+  "gt_role": "reference and ROI inputs used for scoring only; never denoiser targets or optimization",
+  "formula_source": "/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/enhancement_fidelity.py",
+  "formula_source_sha256": "e41a64495198611fd59263327d3e7b4aa3aa1d831a8fde745dcb22bdfbd5540c",
+  "roi_source": "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/lesion_candidates/enhance_rois_cssense.npz",
+  "roi_sha256": "3b95c5f1a0815a4e8a23d9dcd654aca0f345036052b2025c2a96eb77ca78a997",
+  "gt_source": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/sim/gt.npz",
+  "gt_sha256": "9d123ce64aa313dcd18bd037a7e76380be28f666c6337844288f9cdf3c94d8c5",
+  "roi_voxel_counts": {
+    "lesion_core": 6039,
+    "rim_0_3mm": 7522,
+    "white_matter": 486769,
+    "cortex": 580587,
+    "vessels": 39620,
+    "plexus": 1079
+  },
+  "background_voxel_count": 4774646,
+  "rows": [
+    {
+      "method": "truth",
+      "label": "truth (CS-SENSE)",
+      "lesion_core": 0.02122744731605053,
+      "rim_0_3mm": 0.02775602973997593,
+      "white_matter": 0.003258140292018652,
+      "cortex": 0.10437777638435364,
+      "vessels": 2.8406059741973877,
+      "plexus": 1.0801700353622437,
+      "background_post": 0.007088372949510813
+    },
+    {
+      "method": "zf",
+      "label": "ZF",
+      "lesion_core": 0.02075343020260334,
+      "rim_0_3mm": 0.022995956242084503,
+      "white_matter": 0.008095303550362587,
+      "cortex": 0.09988277405500412,
+      "vessels": 1.7271015644073486,
+      "plexus": 0.43246304988861084,
+      "background_post": 0.017462216317653656,
+      "err_lesion_core": -0.00047401711344718933,
+      "err_rim_0_3mm": -0.004760073497891426,
+      "err_white_matter": 0.004837163258343935,
+      "err_cortex": -0.004495002329349518,
+      "err_vessels": -1.113504409790039,
+      "err_plexus": -0.6477069854736328,
+      "err_background_post": 0.010373843368142843
+    },
+    {
+      "method": "cgsense",
+      "label": "CG-SENSE",
+      "lesion_core": 0.026837976649403572,
+      "rim_0_3mm": 0.027951687574386597,
+      "white_matter": 0.0019158540526404977,
+      "cortex": 0.10101257264614105,
+      "vessels": 2.4745118618011475,
+      "plexus": 0.8077750205993652,
+      "background_post": 0.030402692034840584,
+      "err_lesion_core": 0.005610529333353043,
+      "err_rim_0_3mm": 0.00019565783441066742,
+      "err_white_matter": -0.0013422862393781543,
+      "err_cortex": -0.0033652037382125854,
+      "err_vessels": -0.36609411239624023,
+      "err_plexus": -0.2723950147628784,
+      "err_background_post": 0.02331431908532977
+    },
+    {
+      "method": "cssense_o200",
+      "label": "CS-SENSE",
+      "lesion_core": 0.02287006750702858,
+      "rim_0_3mm": 0.027238596230745316,
+      "white_matter": 0.0028771047946065664,
+      "cortex": 0.10374626517295837,
+      "vessels": 2.726036310195923,
+      "plexus": 0.9169546365737915,
+      "background_post": 0.011665884405374527,
+      "err_lesion_core": 0.0016426201909780502,
+      "err_rim_0_3mm": -0.0005174335092306137,
+      "err_white_matter": -0.00038103549741208553,
+      "err_cortex": -0.0006315112113952637,
+      "err_vessels": -0.11456966400146484,
+      "err_plexus": -0.16321539878845215,
+      "err_background_post": 0.004577511455863714
+    },
+    {
+      "method": "jcssense",
+      "label": "Joint SENSE",
+      "lesion_core": 0.022485163062810898,
+      "rim_0_3mm": 0.02678959257900715,
+      "white_matter": 0.0019773042295128107,
+      "cortex": 0.10185278952121735,
+      "vessels": 2.675869941711426,
+      "plexus": 0.8735246062278748,
+      "background_post": 0.011778376996517181,
+      "err_lesion_core": 0.0012577157467603683,
+      "err_rim_0_3mm": -0.0009664371609687805,
+      "err_white_matter": -0.0012808360625058413,
+      "err_cortex": -0.0025249868631362915,
+      "err_vessels": -0.16473603248596191,
+      "err_plexus": -0.2066454291343689,
+      "err_background_post": 0.004690004047006369
+    },
+    {
+      "method": "spirit",
+      "label": "L1-SPIRiT",
+      "lesion_core": 0.026087576523423195,
+      "rim_0_3mm": 0.027518801391124725,
+      "white_matter": 0.0001341223542112857,
+      "cortex": 0.10147443413734436,
+      "vessels": 2.6924428939819336,
+      "plexus": 0.8946277499198914,
+      "background_post": 0.014303192496299744,
+      "err_lesion_core": 0.004860129207372665,
+      "err_rim_0_3mm": -0.00023722834885120392,
+      "err_white_matter": -0.0031240179378073663,
+      "err_cortex": -0.0029033422470092773,
+      "err_vessels": -0.1481630802154541,
+      "err_plexus": -0.1855422854423523,
+      "err_background_post": 0.007214819546788931
+    },
+    {
+      "method": "zsssdu",
+      "label": "ZS-SSDU",
+      "lesion_core": 0.02220282144844532,
+      "rim_0_3mm": 0.026508864015340805,
+      "white_matter": 0.003131905337795615,
+      "cortex": 0.10513243824243546,
+      "vessels": 2.859515905380249,
+      "plexus": 1.0462371110916138,
+      "background_post": 0.021473411470651627,
+      "err_lesion_core": 0.0009753741323947906,
+      "err_rim_0_3mm": -0.0012471657246351242,
+      "err_white_matter": -0.00012623495422303677,
+      "err_cortex": 0.0007546618580818176,
+      "err_vessels": 0.018909931182861328,
+      "err_plexus": -0.03393292427062988,
+      "err_background_post": 0.014385038521140814
+    },
+    {
+      "method": "dip",
+      "label": "3D-DIP",
+      "lesion_core": 0.02348957769572735,
+      "rim_0_3mm": 0.029516592621803284,
+      "white_matter": 0.003982982132583857,
+      "cortex": 0.10654409974813461,
+      "vessels": 2.590554714202881,
+      "plexus": 0.7724969983100891,
+      "background_post": 0.0037956740707159042,
+      "err_lesion_core": 0.002262130379676819,
+      "err_rim_0_3mm": 0.0017605628818273544,
+      "err_white_matter": 0.0007248418405652046,
+      "err_cortex": 0.0021663233637809753,
+      "err_vessels": -0.25005125999450684,
+      "err_plexus": -0.30767303705215454,
+      "err_background_post": -0.0032926988787949085
+    },
+    {
+      "method": "inr",
+      "label": "3D-INR",
+      "lesion_core": 0.024595608934760094,
+      "rim_0_3mm": 0.02726488746702671,
+      "white_matter": 0.0028000357560813427,
+      "cortex": 0.10365390032529831,
+      "vessels": 2.710634708404541,
+      "plexus": 0.8880168199539185,
+      "background_post": 0.0077592735178768635,
+      "err_lesion_core": 0.003368161618709564,
+      "err_rim_0_3mm": -0.0004911422729492188,
+      "err_white_matter": -0.00045810453593730927,
+      "err_cortex": -0.0007238760590553284,
+      "err_vessels": -0.12997126579284668,
+      "err_plexus": -0.1921532154083252,
+      "err_background_post": 0.0006709005683660507
+    },
+    {
+      "method": "mcinr",
+      "label": "MC-INR",
+      "lesion_core": 0.02422911487519741,
+      "rim_0_3mm": 0.025197729468345642,
+      "white_matter": 0.0025488154496997595,
+      "cortex": 0.10073921084403992,
+      "vessels": 2.575972318649292,
+      "plexus": 0.8507247567176819,
+      "background_post": 0.15118776261806488,
+      "err_lesion_core": 0.003001667559146881,
+      "err_rim_0_3mm": -0.002558300271630287,
+      "err_white_matter": -0.0007093248423188925,
+      "err_cortex": -0.0036385655403137207,
+      "err_vessels": -0.2646336555480957,
+      "err_plexus": -0.22944527864456177,
+      "err_background_post": 0.14409938966855407
+    },
+    {
+      "method": "gs_single",
+      "label": "GS-single",
+      "lesion_core": 0.023706596344709396,
+      "rim_0_3mm": 0.028226885944604874,
+      "white_matter": 0.0025844061747193336,
+      "cortex": 0.10649973154067993,
+      "vessels": 2.7599828243255615,
+      "plexus": 0.9414820671081543,
+      "background_post": 0.006407147739082575,
+      "err_lesion_core": 0.002479149028658867,
+      "err_rim_0_3mm": 0.0004708562046289444,
+      "err_white_matter": -0.0006737341172993183,
+      "err_cortex": 0.002121955156326294,
+      "err_vessels": -0.08062314987182617,
+      "err_plexus": -0.13868796825408936,
+      "err_background_post": -0.0006812252104282379
+    },
+    {
+      "method": "gs_joint",
+      "label": "MC-GS",
+      "lesion_core": 0.023786749690771103,
+      "rim_0_3mm": 0.028509443625807762,
+      "white_matter": 0.0026000605430454016,
+      "cortex": 0.1060861349105835,
+      "vessels": 2.760634183883667,
+      "plexus": 0.9482566714286804,
+      "background_post": 0.006160441320389509,
+      "err_lesion_core": 0.0025593023747205734,
+      "err_rim_0_3mm": 0.0007534138858318329,
+      "err_white_matter": -0.0006580797489732504,
+      "err_cortex": 0.0017083585262298584,
+      "err_vessels": -0.0799717903137207,
+      "err_plexus": -0.13191336393356323,
+      "err_background_post": -0.0009279316291213036
+    },
+    {
+      "method": "caseprior_learned500_v1",
+      "label": "Trial caseprior_learned500_v1",
+      "lesion_core": 0.023671189323067665,
+      "rim_0_3mm": 0.02779606357216835,
+      "white_matter": 0.0025927822571247816,
+      "cortex": 0.10453856736421585,
+      "vessels": 2.7539010047912598,
+      "plexus": 0.9484390616416931,
+      "background_post": 0.006535940803587437,
+      "err_lesion_core": 0.0024437420070171356,
+      "err_rim_0_3mm": 4.003383219242096e-05,
+      "err_white_matter": -0.0006653580348938704,
+      "err_cortex": 0.00016079097986221313,
+      "err_vessels": -0.08670496940612793,
+      "err_plexus": -0.13173097372055054,
+      "err_background_post": -0.0005524321459233761
+    }
+  ],
+  "inputs": {
+    "zf": {
+      "pre": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/zf_pre_complex.npy",
+        "sha256": "5b10d25b255bee255628d14ac68d4e954907bffdb838d5128dc38a1a5e0877c4",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/zf_post_complex.npy",
+        "sha256": "cf2a6db0e3a3c8d1314def466bef41e71058b5f5bf798eed6da80d4115363a2e",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "cgsense": {
+      "pre": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/cgsense_pre_complex.npy",
+        "sha256": "5f88d420d969c27f39bc32f07d027aed5444e15302224f65ce9491822478d0fd",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/cgsense_post_complex.npy",
+        "sha256": "15f47b915f5238fdcc209ba170a3b57e9ef12a12cb64b37d277f89ed3d9efd1c",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "cssense_o200": {
+      "pre": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/cssense_o200_lam0.0005_pre_complex.npy",
+        "sha256": "98f2c4ed1cb7d7d3a719cffe2fbd5d80e2c24e679d06bc9db54b988d9481e896",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/cssense_o200_lam0.00035_post_complex.npy",
+        "sha256": "9a0af18b9ea8b42018f718f1552b1797c926ef49014136534e0b45b988594700",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "jcssense": {
+      "pre": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/jcssense_o200_lam0.0007_pre_complex.npy",
+        "sha256": "4e2e16124a50f3a7a19da0789e89aced904db4543c369ef3c3e499d2585c03ac",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/jcssense_o200_lam0.0005_post_complex.npy",
+        "sha256": "4a51fa164d4d47b4a6c4b2f6da0d8e989cc6f5bbe67e06ecf75eee7793965cfb",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "spirit": {
+      "pre": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/spirit_vc24_ks5_lam0.001_pre_complex.npy",
+        "sha256": "70a9cedacd0e0e28f65d1b576945367ec48496d2581ac5bd2a7b713dc664caa4",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/spirit_vc32_ks5_lam0.0005_post_complex.npy",
+        "sha256": "fd9ce6daa13d6294f0057f3cdf715fa920fdd27c9daf6871d90e58e5b43a53aa",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "zsssdu": {
+      "pre": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/zsssdu_z2_b15_cg10_e400_pre_complex.npy",
+        "sha256": "d7bda941eef84165bd92c699eaa8408fb0b06dbbf80cbd137341b72442113955",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/zsssdu_z2_b15_cg10_e400_post_complex.npy",
+        "sha256": "e82853655610bc3fb63551472179426418778a4e286242bad8e7a50216cb2faf",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "dip": {
+      "pre": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/dip_sup_b96_tv0.03_pre_complex.npy",
+        "sha256": "252ec04d780db31f494312e8f51f86a64eaacf7f46db9584a85b2227694b841e",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/dip_sup_b96_tv0.03_post_complex.npy",
+        "sha256": "de5749d9fa17b4a2f1b77ab219cb8b0c49a754fe4d4cc7f2b48c84978db0a879",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "inr": {
+      "pre": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/inr_i10_n512_sup6_tv0.03_pre_complex.npy",
+        "sha256": "20c90bd87538d166473856a5e85bfd8d7b6716c61987300aab201203bf71809c",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/inr_i10_n512_sup6_tv0.03_post_complex.npy",
+        "sha256": "97f7b6339464c3a4b90cace45a0a9851a4efb0ea3a381f940a1c7c14f9ab582d",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "mcinr": {
+      "pre": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/mcinr_pre_complex.npy",
+        "sha256": "8b2c931e782d245e743a42ab607c24cbaaf63c23550977a6bb7d1b0af9eac6e9",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/mcinr_post_complex.npy",
+        "sha256": "5ee596dd0caf739749e371c51ad15c830707b43eae0f0af1556b3cca4291dd17",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "gs_single": {
+      "pre": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/ar_s_pre_wf00v_pre_complex.npy",
+        "sha256": "940d9def14f7f47201e2e3bc0507040ac8523c0d0d768c89bce236999a4bac15",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/ar_s_post_wf00bv_post_complex.npy",
+        "sha256": "46fac4dc9205b07150481359f5da3af7a6d8345a52d9db3172a5422867a79d93",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "gs_joint": {
+      "pre": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/ar_i1_k30p90_pre_complex.npy",
+        "sha256": "a5ada9b361c7297e7cff584c5097a75fa96c0406c269830254af154861d47dd1",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/recon/ar_i1_k30p90_post_complex.npy",
+        "sha256": "be85b55a0cee3678e805092b44d8b58588f6d72459fab9f7f8ad0426600dc82c",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "caseprior_learned500_v1": {
+      "pre": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/caseprior_learned500_v1/candidate_pre_complex.npy",
+        "sha256": "eacaa1cb742c3e34356b9c86f09af19c1a941cb4841c4f6f53ff39baec8819a2",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/caseprior_learned500_v1/candidate_post_complex.npy",
+        "sha256": "58ec39ad27ddaa0cd31591b89b1a66722894138a1d2d3cc5501ef6f88ac7ce1b",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    }
+  }
+}

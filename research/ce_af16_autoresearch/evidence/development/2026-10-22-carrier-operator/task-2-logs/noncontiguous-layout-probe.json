@@ -1,0 +1,28 @@
+{
+  "command_description": "CPU torch.stack((density,density),-1)[...,0] for K1/K2",
+  "results": [
+    {
+      "k": 1,
+      "shape": [
+        1
+      ],
+      "stride": [
+        2
+      ],
+      "is_contiguous": true,
+      "equal_to_input": true
+    },
+    {
+      "k": 2,
+      "shape": [
+        2
+      ],
+      "stride": [
+        2
+      ],
+      "is_contiguous": false,
+      "equal_to_input": true
+    }
+  ],
+  "cuda_initialized": false
+}

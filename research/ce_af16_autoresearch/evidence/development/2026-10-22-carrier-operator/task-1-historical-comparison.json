@@ -1,0 +1,6 @@
+{
+  "count": 224,
+  "unchanged": true,
+  "changes": {},
+  "scope": "Only the frozen historical source/binary paths; no MRI data accessed or rehashed."
+}

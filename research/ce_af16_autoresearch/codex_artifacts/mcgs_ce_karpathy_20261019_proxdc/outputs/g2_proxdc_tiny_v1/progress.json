@@ -1,0 +1,226 @@
+{
+  "active_domain": "complete",
+  "construction": {
+    "fft_batches": 0,
+    "ifft_batches": 0,
+    "scalar_fft_transforms": 0,
+    "scalar_ifft_transforms": 0,
+    "coil_fft_transforms": 0,
+    "coil_ifft_transforms": 0
+  },
+  "canonical": {
+    "gaussian_renders": 0,
+    "canonical_export_calls": 0,
+    "canonical_fft_batches": 0,
+    "canonical_ifft_batches": 0,
+    "canonical_coil_fft_transforms": 0,
+    "canonical_coil_ifft_transforms": 0
+  },
+  "scans": {
+    "pre": {
+      "status": "converged",
+      "algorithm_executed": true,
+      "record": {
+        "status": "converged",
+        "L": 5.0,
+        "lambda_ratio": 0.1,
+        "lambda_requested": 0.5,
+        "lambda_effective": 0.5,
+        "dtype": "torch.complex64",
+        "support_count": 63,
+        "initial_anchor_nonzero": true,
+        "initial_residual_normal_evaluations": 1,
+        "n_coils": 2,
+        "chunk_size": 4,
+        "cg_max_matvecs": 32,
+        "cg_rtol": 1e-05,
+        "cg_converged": true,
+        "cg_status": "converged",
+        "cg_iterations": 2,
+        "cg_matvecs": 3,
+        "cg_residual_history": [
+          30.71387584132814,
+          2.421005479374615,
+          2.518859670233183e-06
+        ],
+        "rhs_norm": 12.498285412395658,
+        "true_residual_norm": 5.901687910927463e-06,
+        "true_relative_residual": 4.7219980310853163e-07,
+        "true_residual_tolerance": 2e-05,
+        "J_relative_tolerance": 2e-06,
+        "J_absolute_tolerance": 1e-10,
+        "J_anchor": 113.08345176145801,
+        "J_after": 25.16944337272794,
+        "data_anchor": 113.08345176145801,
+        "data_after": 16.81798964434715,
+        "anchor_penalty": 8.35145372838079,
+        "directional_derivative": -175.82801631617707,
+        "J_check_tolerance": 0.000226167003522916,
+        "J_check_passed": true,
+        "outside_support_exact_zero": true,
+        "true_endpoint_passed": true,
+        "terminal_normal_evaluations": 1,
+        "training_updates": 0
+      },
+      "work": {
+        "rhs_adjoint_calls": 1,
+        "normal_calls": 3,
+        "terminal_normal_calls": 1,
+        "objective_calls": 2,
+        "forward_calls": 0,
+        "adjoint_calls": 1,
+        "fft_batches": 6,
+        "ifft_batches": 5,
+        "coil_fft_transforms": 12,
+        "coil_ifft_transforms": 10,
+        "gaussian_renders": 0,
+        "gaussian_vjps": 0,
+        "roles": {
+          "rhs": {
+            "fft_batches": 0,
+            "ifft_batches": 1
+          },
+          "objective_anchor": {
+            "fft_batches": 1,
+            "ifft_batches": 0
+          },
+          "initial_normal": {
+            "fft_batches": 1,
+            "ifft_batches": 1
+          },
+          "cg_normal": {
+            "fft_batches": 2,
+            "ifft_batches": 2
+          },
+          "terminal": {
+            "fft_batches": 1,
+            "ifft_batches": 1
+          },
+          "objective_candidate": {
+            "fft_batches": 1,
+            "ifft_batches": 0
+          }
+        }
+      }
+    },
+    "post": {
+      "status": "converged",
+      "algorithm_executed": true,
+      "record": {
+        "status": "converged",
+        "L": 5.0,
+        "lambda_ratio": 0.1,
+        "lambda_requested": 0.5,
+        "lambda_effective": 0.5,
+        "dtype": "torch.complex64",
+        "support_count": 63,
+        "initial_anchor_nonzero": true,
+        "initial_residual_normal_evaluations": 1,
+        "n_coils": 2,
+        "chunk_size": 4,
+        "cg_max_matvecs": 32,
+        "cg_rtol": 1e-05,
+        "cg_converged": true,
+        "cg_status": "converged",
+        "cg_iterations": 2,
+        "cg_matvecs": 3,
+        "cg_residual_history": [
+          30.71387584132814,
+          2.421005479374615,
+          2.518859670233183e-06
+        ],
+        "rhs_norm": 12.498285412395658,
+        "true_residual_norm": 5.901687910927463e-06,
+        "true_relative_residual": 4.7219980310853163e-07,
+        "true_residual_tolerance": 2e-05,
+        "J_relative_tolerance": 2e-06,
+        "J_absolute_tolerance": 1e-10,
+        "J_anchor": 113.08345176145801,
+        "J_after": 25.16944337272794,
+        "data_anchor": 113.08345176145801,
+        "data_after": 16.81798964434715,
+        "anchor_penalty": 8.35145372838079,
+        "directional_derivative": -175.82801631617707,
+        "J_check_tolerance": 0.000226167003522916,
+        "J_check_passed": true,
+        "outside_support_exact_zero": true,
+        "true_endpoint_passed": true,
+        "terminal_normal_evaluations": 1,
+        "training_updates": 0
+      },
+      "work": {
+        "rhs_adjoint_calls": 1,
+        "normal_calls": 3,
+        "terminal_normal_calls": 1,
+        "objective_calls": 2,
+        "forward_calls": 0,
+        "adjoint_calls": 1,
+        "fft_batches": 6,
+        "ifft_batches": 5,
+        "coil_fft_transforms": 12,
+        "coil_ifft_transforms": 10,
+        "gaussian_renders": 0,
+        "gaussian_vjps": 0,
+        "roles": {
+          "rhs": {
+            "fft_batches": 0,
+            "ifft_batches": 1
+          },
+          "objective_anchor": {
+            "fft_batches": 1,
+            "ifft_batches": 0
+          },
+          "initial_normal": {
+            "fft_batches": 1,
+            "ifft_batches": 1
+          },
+          "cg_normal": {
+            "fft_batches": 2,
+            "ifft_batches": 2
+          },
+          "terminal": {
+            "fft_batches": 1,
+            "ifft_batches": 1
+          },
+          "objective_candidate": {
+            "fft_batches": 1,
+            "ifft_batches": 0
+          }
+        }
+      }
+    }
+  },
+  "tiny_identity_physics": {
+    "pre": {
+      "rhs_adjoint_calls": 0,
+      "normal_calls": 3,
+      "terminal_normal_calls": 0,
+      "objective_calls": 0,
+      "forward_calls": 1,
+      "adjoint_calls": 1,
+      "fft_batches": 4,
+      "ifft_batches": 4,
+      "coil_fft_transforms": 8,
+      "coil_ifft_transforms": 8,
+      "gaussian_renders": 0,
+      "gaussian_vjps": 0
+    },
+    "post": {
+      "rhs_adjoint_calls": 0,
+      "normal_calls": 3,
+      "terminal_normal_calls": 0,
+      "objective_calls": 0,
+      "forward_calls": 1,
+      "adjoint_calls": 1,
+      "fft_batches": 4,
+      "ifft_batches": 4,
+      "coil_fft_transforms": 8,
+      "coil_ifft_transforms": 8,
+      "gaussian_renders": 0,
+      "gaussian_vjps": 0
+    }
+  },
+  "gaussian_reference_renders": 0,
+  "current_scan": null,
+  "unassigned_proximal_work": null
+}

@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "scope": "reference-free CPU checkpoint geometry diagnostic; no MRI data, training, reference or score",
+  "checkpoint": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/training/ar_i1_k30p90/checkpoints/latest.pth",
+  "checkpoint_sha256": "282e0303c46a6c18775d6224c032611072bd465b4ef975ba7a7e2ea636230fd0",
+  "iteration": 4500,
+  "N": 3600000,
+  "K": 18000,
+  "selection_seed": 42023,
+  "selection_sha256": "36ffc5b0c6d89f422015d9cfe71fe99a24f03537074c6a18ce257d1f1d0ee83d",
+  "caller_cpu_rng_preserved": true,
+  "shape": [
+    256,
+    232,
+    176
+  ],
+  "tile_shape": [
+    32,
+    29,
+    22
+  ],
+  "full_volume_fallback_rows": 0,
+  "upper_pair_total": 104998,
+  "upper_pair_max_per_row": 64,
+  "operator_bound_pair_total_without_allocation": 101071,
+  "declared_upper_limit": 2000000,
+  "within_declared_limit": true,
+  "upper_dominates_operator_count": true,
+  "cuda_initialized": false,
+  "operator_source_sha256": "69e862bc6f07bab543af2f19d5c8bfc8bdb1ad96b67fcf6a5df257bd7ddd2824",
+  "contract_sha256": "b0c87b6434d711e086143dd24c63821cc969e2c1c3ad9e31d038912b055ce32e"
+}

@@ -1,0 +1,571 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF                                        [100%]
+=================================== FAILURES ===================================
+________ test_loader_refuses_unbound_toolchain_overrides[PYTORCH_NVCC] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a55515d90>
+variable = 'PYTORCH_NVCC'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_____________ test_loader_refuses_unbound_toolchain_overrides[CC] ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754b1347efd0>
+variable = 'CC'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_________ test_loader_refuses_unbound_toolchain_overrides[NVCC_CCBIN] __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4dff0210>
+variable = 'NVCC_CCBIN'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_____ test_loader_refuses_unbound_toolchain_overrides[NVCC_PREPEND_FLAGS] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4e3e5c90>
+variable = 'NVCC_PREPEND_FLAGS'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+______ test_loader_refuses_unbound_toolchain_overrides[NVCC_APPEND_FLAGS] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4dff9350>
+variable = 'NVCC_APPEND_FLAGS'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+___________ test_loader_refuses_unbound_toolchain_overrides[CUDACXX] ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4de08d10>
+variable = 'CUDACXX'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_________ test_loader_refuses_unbound_toolchain_overrides[CUDAHOSTCXX] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4e3ca790>
+variable = 'CUDAHOSTCXX'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+__________ test_loader_refuses_unbound_toolchain_overrides[CUDA_PATH] __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4dfff910>
+variable = 'CUDA_PATH'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+________ test_loader_refuses_unbound_toolchain_overrides[CUDA_INC_PATH] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4e3e7090>
+variable = 'CUDA_INC_PATH'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_________ test_loader_refuses_unbound_toolchain_overrides[CUDNN_HOME] __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4dfda190>
+variable = 'CUDNN_HOME'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_________ test_loader_refuses_unbound_toolchain_overrides[CUDNN_PATH] __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4e3ada10>
+variable = 'CUDNN_PATH'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+__________ test_loader_refuses_unbound_toolchain_overrides[ROCM_HOME] __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4e3b97d0>
+variable = 'ROCM_HOME'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+__________ test_loader_refuses_unbound_toolchain_overrides[ROCM_PATH] __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754b1347d550>
+variable = 'ROCM_PATH'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+___________ test_loader_refuses_unbound_toolchain_overrides[CFLAGS] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4df334d0>
+variable = 'CFLAGS'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+__________ test_loader_refuses_unbound_toolchain_overrides[CXXFLAGS] ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4df49b10>
+variable = 'CXXFLAGS'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+__________ test_loader_refuses_unbound_toolchain_overrides[CPPFLAGS] ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4de08090>
+variable = 'CPPFLAGS'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+___________ test_loader_refuses_unbound_toolchain_overrides[LDFLAGS] ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754b1348d8d0>
+variable = 'LDFLAGS'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_______ test_loader_refuses_unbound_toolchain_overrides[GCC_EXEC_PREFIX] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4e390c50>
+variable = 'GCC_EXEC_PREFIX'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+________ test_loader_refuses_unbound_toolchain_overrides[COMPILER_PATH] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4de15210>
+variable = 'COMPILER_PATH'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+____________ test_loader_refuses_unbound_toolchain_overrides[CPATH] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4df3c250>
+variable = 'CPATH'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_____ test_loader_refuses_unbound_toolchain_overrides[CPLUS_INCLUDE_PATH] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4e3b7f10>
+variable = 'CPLUS_INCLUDE_PATH'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_______ test_loader_refuses_unbound_toolchain_overrides[C_INCLUDE_PATH] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4de0d090>
+variable = 'C_INCLUDE_PATH'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+______ test_loader_refuses_unbound_toolchain_overrides[OBJC_INCLUDE_PATH] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4df305d0>
+variable = 'OBJC_INCLUDE_PATH'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+________ test_loader_refuses_unbound_toolchain_overrides[LIBRARY_PATH] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4df27050>
+variable = 'LIBRARY_PATH'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_________ test_loader_refuses_unbound_toolchain_overrides[LD_PRELOAD] __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4df6ab10>
+variable = 'LD_PRELOAD'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_______ test_loader_refuses_unbound_toolchain_overrides[LD_LIBRARY_PATH] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4e3ca850>
+variable = 'LD_LIBRARY_PATH'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_ test_loader_refuses_unbound_toolchain_overrides[TORCH_DONT_CHECK_COMPILER_ABI] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4df3c210>
+variable = 'TORCH_DONT_CHECK_COMPILER_ABI'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_ test_loader_refuses_unbound_toolchain_overrides[TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4de12490>
+variable = 'TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+____ test_loader_refuses_unbound_toolchain_overrides[TORCH_EXTENSIONS_DIR] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4e3af8d0>
+variable = 'TORCH_EXTENSIONS_DIR'
+
+    @pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
+    def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
+        build_environment(monkeypatch)
+        monkeypatch.setenv(variable, 'unreviewed-override')
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate all effective build selectors'
+E       AssertionError: loader must validate all effective build selectors
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:197: AssertionError
+_________ test_loader_refuses_unpinned_effective_executables[CXX-None] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4de1d750>
+variable = 'CXX', value = None
+
+    @pytest.mark.parametrize('variable,value', [('CXX', None), ('CXX', '/tmp/c++'), ('PATH', '/tmp:/usr/bin')])
+    def test_loader_refuses_unpinned_effective_executables(monkeypatch, variable, value):
+        build_environment(monkeypatch)
+        if value is None:
+            monkeypatch.delenv(variable)
+        else:
+            monkeypatch.setenv(variable, value)
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate effective compiler execution'
+E       AssertionError: loader must validate effective compiler execution
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:210: AssertionError
+_______ test_loader_refuses_unpinned_effective_executables[CXX-/tmp/c++] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4df31e50>
+variable = 'CXX', value = '/tmp/c++'
+
+    @pytest.mark.parametrize('variable,value', [('CXX', None), ('CXX', '/tmp/c++'), ('PATH', '/tmp:/usr/bin')])
+    def test_loader_refuses_unpinned_effective_executables(monkeypatch, variable, value):
+        build_environment(monkeypatch)
+        if value is None:
+            monkeypatch.delenv(variable)
+        else:
+            monkeypatch.setenv(variable, value)
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate effective compiler execution'
+E       AssertionError: loader must validate effective compiler execution
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:210: AssertionError
+____ test_loader_refuses_unpinned_effective_executables[PATH-/tmp:/usr/bin] ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4e3bad50>
+variable = 'PATH', value = '/tmp:/usr/bin'
+
+    @pytest.mark.parametrize('variable,value', [('CXX', None), ('CXX', '/tmp/c++'), ('PATH', '/tmp:/usr/bin')])
+    def test_loader_refuses_unpinned_effective_executables(monkeypatch, variable, value):
+        build_environment(monkeypatch)
+        if value is None:
+            monkeypatch.delenv(variable)
+        else:
+            monkeypatch.setenv(variable, value)
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must validate effective compiler execution'
+E       AssertionError: loader must validate effective compiler execution
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:210: AssertionError
+______ test_loader_effective_toolchain_identity_changes_with_architecture ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x754a4df36410>
+
+    def test_loader_effective_toolchain_identity_changes_with_architecture(monkeypatch):
+        build_environment(monkeypatch)
+        validate_environment = getattr(operator(), '_validated_build_environment', None)
+>       assert callable(validate_environment), 'loader must bind effective build environment'
+E       AssertionError: loader must bind effective build environment
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:218: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[PYTORCH_NVCC]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[CC]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[NVCC_CCBIN]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[NVCC_PREPEND_FLAGS]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[NVCC_APPEND_FLAGS]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[CUDACXX]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[CUDAHOSTCXX]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[CUDA_PATH]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[CUDA_INC_PATH]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[CUDNN_HOME]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[CUDNN_PATH]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[ROCM_HOME]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[ROCM_PATH]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[CFLAGS]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[CXXFLAGS]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[CPPFLAGS]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[LDFLAGS]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[GCC_EXEC_PREFIX]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[COMPILER_PATH]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[CPATH]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[CPLUS_INCLUDE_PATH]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[C_INCLUDE_PATH]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[OBJC_INCLUDE_PATH]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[LIBRARY_PATH]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[LD_PRELOAD]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[LD_LIBRARY_PATH]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[TORCH_DONT_CHECK_COMPILER_ABI]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unbound_toolchain_overrides[TORCH_EXTENSIONS_DIR]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unpinned_effective_executables[CXX-None]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unpinned_effective_executables[CXX-/tmp/c++]
+FAILED tests/test_carrier_cuda.py::test_loader_refuses_unpinned_effective_executables[PATH-/tmp:/usr/bin]
+FAILED tests/test_carrier_cuda.py::test_loader_effective_toolchain_identity_changes_with_architecture
+33 failed, 43 deselected in 1.85s

@@ -1,0 +1,9 @@
+{
+  "seed": 42,
+  "deterministic": false,
+  "gpu_pci_index": -1,
+  "cuda_visible_devices": "GPU-d7cbc50e-d509-5e17-ff73-ba92660219a1",
+  "config_snapshot": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/g2_relocation_event500_v1/training/fixed_count_relocation/config.yaml",
+  "gaussian_model_sha256": "9303c79e70dfced8631d10261fd4c06b1f87958a5ddaa4a80d3b93e722ce8622",
+  "timestamp_utc": "2026-10-22T09:17:33.901865Z"
+}

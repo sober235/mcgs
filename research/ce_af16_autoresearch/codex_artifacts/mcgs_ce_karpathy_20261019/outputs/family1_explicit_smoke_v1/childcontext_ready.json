@@ -1,0 +1,7 @@
+{
+  "pid": 3676972,
+  "gpu_uuid": "GPU-64b093fe-3c70-3b73-51f9-083bf88c8970",
+  "logical_device": "cuda:0",
+  "torch": "2.7.1+cu118",
+  "cuda": "11.8"
+}

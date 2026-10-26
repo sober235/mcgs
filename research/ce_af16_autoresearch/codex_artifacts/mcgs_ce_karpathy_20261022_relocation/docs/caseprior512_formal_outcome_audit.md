@@ -1,0 +1,54 @@
+Actionable finding count: **0 remaining**. There are no unresolved numerical, scoring or reporting blockers. A stale progress-summary count was corrected during the audit.
+
+**Formal-outcome integrity verdict: PASS. Discard decision: SUPPORTED.** The actual CNN512 candidate completed the declared work and was scored against the unchanged benchmark. It improves the minimum-six margin over CNN128, but remains below both matched native500 and the retained keeper. This is a negative result for this bounded single-case candidate; it establishes neither a general failure of case-internal priors nor overall scientific success.
+
+Scope: `outputs/caseprior512_learned500_v1`, `scores/caseprior512_learned500_v1`, `docs/caseprior512_outcome.md`, `caseprior512_state.json`, the task progress record, the final two root JSONL entries and final TSV row. The completed source review, 606-test suite and actual controls/native-reuse audit were reused, not repeated. Only this report was written by the reviewer.
+
+| Actual observation | Result |
+| --- | ---: |
+| Gaussian updates | 500 |
+| Gaussian forwards / VJPs | 1002 / 1000 |
+| Relocation events | 0 |
+| Retained Gaussian rows | 3,600,000 |
+| Final seven Adam clocks | 5000 |
+| Scheduler epoch / count | 5000 / 5001 |
+| Fresh CNN calls / CNN updates | 10 / 5120 |
+| Refresh iterations per scan | 4501, 4601, 4701, 4801, 4901 |
+| Training seconds | 649.419958 |
+| Child-stage seconds | 844.116274 |
+| Supervisor seconds | 1100.070529 |
+| Peak allocated GiB | 36.015851 |
+| Whole-head minimum-six margin | -0.11867860310970936 |
+| Difference from native500 | -0.0014930173116787099 |
+| Difference from keeper | -0.0074973177807388935 |
+| Difference from CNN128 | +0.006585382529199116 |
+| Jointly passing planes | 0/59 |
+| Pre-only / post-only passing planes | 0/59 / 2/59 |
+
+I independently verified completion SHA256 `b89ee3020b304038460a6af62a8bc7057d53fedc86d6eafadf4aaddf1e341f57` and metrics SHA256 `50a04d88850cafd9604e56b003517f7c1b7dddb215ce9081747744aef8c21fd5`. Launch, completion, metrics and identical provenance bind the same 224-source closure and frozen inputs as the audited new-route controls. The exact selected trial/learned/500 recipe and CNN512 policy agree. The verified post-run proof has equal before/after source-input maps and 177 unchanged transitive prerequisite bindings. Selected small prerequisite records were hashed, without repeating control-array checks. Started/ready/ACK/completion records agree on child1216482, parent and device. Completion reports supervised exit0; the controller separately reports public-command exit0. Saved runtime retains strict original CUDA rendering and no autocast.
+
+The actual restore return equals the initial continuation snapshot at4500. All seven Parameter/storage identities and Adam-state tensor identities persist, with3.6M rows. Final Adam clocks, scheduler gamma/state and optimizer/scheduler identities agree with the declared continuation. I checked all500 actual trace rows against `step_trace.jsonl`: consecutive iterations4501–5000, seven finite gradient observations, exact Adam/scheduler clocks, paired flat-t1 frequency calls and cumulative loss-call counts. Ordered render records account for1000 training forwards/VJPs and two export forwards, with no relocation. Training physics records42000 coil FFTs, and exports84 coil FFTs/168 coil inverse FFTs. The acquired-only evidence remains42 coils, no ground-truth construction, mask inference or nonzero values outside the mask. The saved training log reaches5000 and reports completion.
+
+The original RED remains active across the500 steps. Its weighted/per-scan losses and cumulative refresh clocks agree with the trace and summary. Observed minimum/maximum weighted prior losses are `3.0157585570123047e-05` and `9.538447193335742e-05`. Every CNN call has the ordered index, seed42+1009*j, trained status, width32/patch32/batch4/tile32/lr0.001 and512 actual updates. All ten records report512 finite nonzero-gradient steps, all ten parameter tensors changed and differing initial/final parameter hashes; initial hashes differ between calls. Pre/post refresh histories bind the same records to their actual iterations.
+
+All ten CNN checkpoint/manifest/target descriptors were independently hashed. Manifests equal the saved call records, and streamed target payload hashes match recorded outputs and float32 NPY shapes. Each CPU and visible CUDA0 RNG observation has equal before/after hashes and preserved=true. All ten reviewed-child checkpoint readbacks bind the actual checkpoint descriptor, metadata, finite float32 CPU state, fixed tensor shapes and final parameter digest. The earlier control audit independently loaded both small smoke checkpoints; no concrete new discrepancy justified another Torch load here. This audit checks the new formal files and their reviewed-child readback evidence, not a recreation of fitting, inference or live RNG observations.
+
+The final Gaussian checkpoint descriptor is `training/fixed_count_relocation/checkpoints/latest.pth`, SHA256 `84efb5475d6b3ecdd252572d97de5309c182a6d8230352db952292c3aae0806e`. Its child readback evidence records iteration5000 and matches every final model/Adam hash and optimizer group. I checked that linkage without loading or rehashing the large checkpoint.
+
+I streamed and hashed all six new raw/canonical/candidate reconstruction files. Completion descriptors agree; candidate bytes equal canonical bytes and raw hashes remain distinct. The scored candidate hashes are pre `0950fe4e8a75f5ddcd4e3ae8a7dc0941fda52fd990a5787228ec605eb40bbac3` and post `dafdd445e20eaca9ffc331e5be19c5903ff238616618f0e49423db48cd5111b3`. Those exact descriptors appear in the objective, scoring input manifest and enhancement inputs. The new objective SHA256 is `d22555789f178a3fc486286a820269fb98c23c62160d9b4b57dfd91e6065f7a6`; enhancement SHA256 is `c47ae2354233df46c70b96ed11d12a031ee6cbbd9a2bc6927becee6ee6d6259a`. Saved scoring runtime is CPU and all_inputs_unchanged=true. The controller reports scorer exit0. Whole-head and slice contracts, every noncandidate scoring-input binding and the evaluator-source binding agree with the previously audited native scoring evidence.
+
+I checked the saved scalar arithmetic for all six whole-head conditions: ten opponents, correct best opponent, raw strict inequality, normalized margin and aggregate minimum. They reproduce the reported score. All six strongest opponents are ZS-SSDU and no whole-head condition wins. The report's current/native/CNN128 whole-head rows and current CSV rows agree with the actual score records to their printed precision. Against native500, pre PSNR/SSIM decrease and pre NMSE increases; post PSNR/NMSE improve while post SSIM decreases. The report now describes the pre results as deterioration, avoiding ambiguity about NMSE direction. The candidate does not reach keeper+0.0001. The retained keeper remains `lowreg_f075_solve_v1`, score -0.11118128532897047; its earlier audited result is not re-audited here.
+
+All59 plane records were checked for frozen axis/index/core counts, all six condition comparisons, ten opponents, normalized margins and strict flags. Their aggregate counts reproduce0 jointly passing planes, pre0/post2 and best-plane minimum-six score `-0.03559653745260811`. The objective's plane summary equals `lesion_planes.json` excluding its full row list. This is an audit of saved arithmetic and completeness, not image-metric recomputation.
+
+Enhancement includes lesion core,0–3mm rim, white matter, cortex, vessels, plexus and background. Formula/ROI/reference bindings, region definitions, voxel counts and all reference/opponent rows agree with the audited native report. Every saved regional error equals method-minus-reference. The report's seven displayed current/native/CNN128/reference values match their actual reports to the displayed precision. It correctly separates per-scan white-matter normalization for enhancement from post-magnitude background units and identifies reference/ROI use as scoring-only. Enhancement does not enter the keeper decision.
+
+All ten displayed fit-diagnostic rows agree with actual call losses, history iterations and target-relative changes. The report preserves weak-change calls and the final post loss increase. Its explicit warning that first/last losses use different random patches/noise prevents a strict-convergence or MRI-gain inference. Stopping this128-to512 budget branch is consistent with the negative benchmark outcome; the report's proposed carrier candidate is identified as future feasibility work with no new MRI result claim. That proposed method's technical merit is outside this audit.
+
+Timing and memory figures agree with actual records. The measured training increase over CNN128 is57.6298023336567 seconds. The report correctly states that supervisor timing excludes initial input snapshot/gate preflight and is not complete CLI elapsed time. No equal-compute claim is made.
+
+Accounting is consistent: exactly one `training_completed` JSONL event for this candidate adds one formal experiment, raising31 to32. The following scored event adds zero, binds the actual objective/enhancement and records discard with the correct comparison deltas and plane counts. The final TSV row has the correct source revision, rounded score and discard decision. State retains the keeper, strict success false, no active GPU/scorer, formalcount32 and historical rescorings65. The progress opening initially still said current count31 despite its updated current-phase line and appended completion. The controller corrected it to32; I reread the correction. The report/state correctly leave the formal audit pending until this audit is handed back.
+
+Both independent audit scripts exited0. The run script hashed119 selected files, checked all500 trace rows, ten call-artifact sets and six new reconstruction files. The scoring/report script checked all six whole-head conditions, all59 planes, enhancement arithmetic, printed result/diagnostic values and accounting. Only a small existing margin-formula excerpt was read to resolve scalar normalization; no source review was reopened.
+
+Exclusions and limits: no GPU work, test-suite/public-validator rerun, acquisition/reference input rehash, control-array rehash, large checkpoint load, rerender, CNN refit/inference, image-metric recomputation or ROI recomputation occurred. Existing source/input proofs and reviewed-child readbacks remain the trust boundary for runtime observations and checkpoint contents. I did not independently reproduce live process reaping or RNG snapshots. No repeat, cross-case result, matched improved GS-single result or scientific superiority is established. All negative evidence remains preserved; the next candidate requires its own implementation and execution evidence.

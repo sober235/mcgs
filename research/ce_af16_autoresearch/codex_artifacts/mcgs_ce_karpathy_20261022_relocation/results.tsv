@@ -1,0 +1,7 @@
+commit	min_six_margin	memory_gb	status	description
+80de16d	-0.11778703065863405	34.0650954246521	keep	G2 zero-update full-state baseline; score reused by exact arrays
+80de16d	-0.117185585798	35.8	discard	g2_relocation_control500_v1 native G2 continuation 500 steps below lowreg keeper; both scans 0/59
+80de16d	-0.117187725930	35.8	discard	g2_relocation_event500_v1 fixed-count 18000-pair event plus 500 updates; below keeper; both scans 0/59
+0aec561	-0.117787030659	34.1	keep	caseprior_zero_v1 G2 baseline verified by exact arrays; no training
+0aec561	-0.125263985639	36.0	discard	caseprior_learned500_v1 case-only learned magnitude prior CNN128 per call; below keeper/native; paired0/59
+9118e94	-0.118678603110	36.0	discard	caseprior512_learned500_v1 CNN512 per fit; improves128 but below keeper/native; paired0/59

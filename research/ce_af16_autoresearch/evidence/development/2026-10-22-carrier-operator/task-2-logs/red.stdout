@@ -1,0 +1,20 @@
+F
+=================================== FAILURES ===================================
+________________ test_import_has_no_cuda_or_build_side_effects _________________
+
+    def test_import_has_no_cuda_or_build_side_effects():
+        code = 'import sys,torch; import carrier_operator; assert not torch.cuda.is_initialized(); assert "torch.utils.cpp_extension" not in sys.modules'
+        result = subprocess.run([sys.executable, '-B', '-c', code], cwd=ROOT, capture_output=True, text=True)
+>       assert result.returncode == 0, result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 1, in <module>
+E         ModuleNotFoundError: No module named 'carrier_operator'
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/congcongliu/anaconda3/envs/GSTMI/bin/python', '-B', '-c', 'import sys,torch; import carr...cent call last):\n  File "<string>", line 1, in <module>\nModuleNotFoundError: No module named \'carrier_operator\'\n').returncode
+
+tests/test_carrier_cuda.py:34: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_carrier_cuda.py::test_import_has_no_cuda_or_build_side_effects
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed in 2.79s

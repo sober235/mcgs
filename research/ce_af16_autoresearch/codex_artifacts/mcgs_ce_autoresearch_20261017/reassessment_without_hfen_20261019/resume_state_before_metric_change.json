@@ -1,0 +1,972 @@
+{
+  "campaign": "CE pre/post AF16 vdPoisMex MC-GS autoresearch resume",
+  "date": "2026-10-19",
+  "status": "25closed_all0of59_PX_CPU_implementation_goalunmet",
+  "nonlocal_autoresearch": {
+    "directory": "nonlocal_autoresearch",
+    "user_authorization": "Use Karpathy autoresearch to make MC-GS exceed all comparison methods; no external database-trained prior",
+    "baseline_objective": -0.10083886597946894,
+    "baseline_passing_slices": 0,
+    "initial_cpu_suite": "74 passed including seven inherited trainer tests; independent campaign tests67 passed",
+    "review_round1": "Two verified driver findings resolved: mandatory preflight gates and UUID GPU claims. Kernel/integration had no additional actionable findings.",
+    "gpu_preflight": "Both two-step smokes complete. Recovered and validated existing outputs without rerunning GPU work. parity_gate.json and active_gate.json passed; maximum zero-loss/gradient difference2.3283064e-10. Low-rank refreshes4.56/4.37seconds, peakallocated35.94GiB, peakreserved44.76GiB.",
+    "gpu_policy": "User grants standing authorization: current utilization/memory/workload check, prefer idle, else lightest compatible sufficient-memory card, respect scheduler/visibility and leave other workloads running. Earlier self-imposed600-second wait superseded.",
+    "current_review": "FINAL ROUND3 complete:0 actionable/unresolved,149 CPU tests passed independently. All prior findings fixed.13 production hashes bound in verification/review_gate.json. GPU parity is numerical, not bit-exact; original repeat calibrated reconstruction relative L2<=1e-5 without changing scoring/acceptance.",
+    "formal_500_step_trials_started": "C/D/E/F/G completed500 andscored; B infrastructureOOM then B_retry500completedscored pending registration",
+    "driver_pid": 3215255,
+    "driver_exec_session": 46957,
+    "previous_driver_exit": "First launch3202009/session66976 stopped before B on HFEN recomputation last-bit equality.161-test scoring-only fix+independent94-test real replay now verified; all35input hashes unchanged. Restarted with review_gate_scoring_v2.json.",
+    "preferred_gpu": 5,
+    "driver_command": "GSTMI/python -u nonlocal_autoresearch/autoresearch.py --gpu5 --max-trials6 --control-parity verification/parity_gate_v2.json --active-smoke verification/active_gate_v2.json --review-gate verification/review_gate_scoring_v2.json (actual argv uses separate flag/value tokens)",
+    "formal_ledger": "nonlocal_autoresearch/autoresearch.jsonl (symlink verification/loop_results.jsonl)",
+    "fair_single_zero_audits": "worker /root/nlr_kernel authorized to run pre/post zero-step audits serially on compatible GPU7 while mainloop prefers5; no production edits allowed",
+    "fair_single_pre_audit_result": "Completed: headPSNR34.58345896376352;0dB reference delta,0complexrelativeL2,8metricchecks passed,all7model/Adam hashes unchanged. Post audit held until main cohort completes to avoid contention.",
+    "infrastructure_retry": {
+      "failed_exp": "B",
+      "cause": "Parent-scheduled audit and B both selectedGPU7 while audit context was still loading; CUDA OOM after first step. No scientific rejection of B parameters.",
+      "retry_exp": "B_retry",
+      "parent_pid": 3272738,
+      "child_pid": 3273703,
+      "exec_session": 61195,
+      "gpu": 7,
+      "reservation": "CPU parent re-execed with initialCUDA_VISIBLE_DEVICES7 throughout childrun so mainselector treats it as reserved",
+      "status": "completed500andscoredCPU",
+      "score": -0.17542116234064967,
+      "strict_success": false,
+      "accepted": false,
+      "head_psnr_pre_post": [
+        34.48283018525868,
+        36.64254875838796
+      ],
+      "pending_score_record": "nonlocal_autoresearch/verification/B_retry_score_pending_registration.json",
+      "registration": "Completed underexclusiveglobaldriverlock; evidence campaign_summary/B_retry_registration.json; originalBfailedretained"
+    },
+    "first_completed_candidate": {
+      "exp": "C",
+      "local_factor": 1.0,
+      "nlambda": 0.3,
+      "sigma_rel": 0.015,
+      "score": -0.12620082163762747,
+      "strict_success": false,
+      "accepted": false,
+      "head_psnr_pre_post": [
+        34.68202539169593,
+        36.93588191362279
+      ],
+      "head_hfen_pre_post": [
+        0.13565818979855213,
+        0.11874047543725538
+      ],
+      "training_seconds": 1161.9257587492466
+    },
+    "current_jobs_note": "Cmainexited;10validjointtrials(C7includingAandBretry plusO3)scoredall0/59.OnlyA_controlacceptedinternalSgain. Newsummary independentlyreviewing.",
+    "next_optimizer_probe": {
+      "directory": "optimizer_probe",
+      "status": "all3actual500completed_scored_rejected",
+      "gates": [
+        "verification/review_gate.json",
+        "verification/noop_gate.json",
+        "verification/selected_recipe.json"
+      ],
+      "base": "A_control local_factor1 nlambda0 sigma.015",
+      "experiments": [
+        {
+          "exp": "opt_lr2",
+          "gpu": 3,
+          "parent_pid": 3346402,
+          "child_pid": 3347799,
+          "exec_session": 76107,
+          "density_lr_factor": 2,
+          "density_beta2": 0.999
+        },
+        {
+          "exp": "opt_beta99",
+          "gpu": 0,
+          "parent_pid": 3346440,
+          "child_pid": 3347881,
+          "exec_session": 85749,
+          "density_lr_factor": 1,
+          "density_beta2": 0.99
+        },
+        {
+          "exp": "opt_lr2_beta99",
+          "gpu": 7,
+          "parent_pid": 3346482,
+          "child_pid": 3348150,
+          "exec_session": 49046,
+          "density_lr_factor": 2,
+          "density_beta2": 0.99
+        }
+      ],
+      "noop": "Actualdefault2stepnumericalparitypassed; alloriginalstates/inputshashesunchanged;38core+10helperCPUtests;freshreviewcleanround3",
+      "success_assumed": false,
+      "scores": {
+        "opt_lr2": -0.1005368416812052,
+        "opt_beta99": -0.09899303490283275,
+        "opt_lr2_beta99": -0.10196203801780103
+      }
+    },
+    "source_checkpoint_sha256": "39e1632ff07e530fb7a3454e78698363a62a856f301c4159d3b4c9a784a48c9e",
+    "frozen_input_manifest": "nonlocal_autoresearch/verification/loop_input_freeze.json",
+    "planned_trial_count": 6,
+    "success_not_assumed": true,
+    "current_results": [
+      {
+        "exp": "A_control",
+        "score": -0.09800995877818577,
+        "strict_success": false,
+        "accepted": true,
+        "objective": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/A_control_1792220854700842104/objective.json"
+      },
+      {
+        "exp": "C",
+        "score": -0.12620082163762747,
+        "strict_success": false,
+        "accepted": false,
+        "objective": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/C_1792222413871949326/objective.json"
+      },
+      {
+        "exp": "D",
+        "score": -0.12811035992951103,
+        "strict_success": false,
+        "accepted": false,
+        "objective": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/D_1792223288755296497/objective.json"
+      },
+      {
+        "exp": "E",
+        "score": -0.11284745263020242,
+        "strict_success": false,
+        "accepted": false,
+        "objective": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/E_1792224168422359421/objective.json"
+      },
+      {
+        "exp": "F",
+        "score": -0.14226950127691143,
+        "strict_success": false,
+        "accepted": false,
+        "objective": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/F_1792225044134503895/objective.json"
+      },
+      {
+        "exp": "G",
+        "score": -0.30066107977922873,
+        "strict_success": false,
+        "accepted": false,
+        "objective": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/G_1792225924345978005/objective.json"
+      }
+    ],
+    "status": "main_driver_exited_after_G"
+  },
+  "constraints": {
+    "preserve_overall_mcgs_model": true,
+    "formal_reconstruction_uses_existing_undersampled_y": true,
+    "no_large_dataset_trained_prior": true,
+    "all_comparison_arms_use_latest_audited_versions": true,
+    "single_scan_improvements_must_also_be_checked_on_gs_single": true
+  },
+  "target": {
+    "source": "previously authorized lesion-slice objective; optional clarification pending",
+    "same_slice_both_scans": true,
+    "metrics": [
+      "psnr",
+      "ssim",
+      "nmse",
+      "hfen"
+    ],
+    "minimum_core_voxels": 150,
+    "eligible_slices": 59,
+    "minimum_passing_slices": 1,
+    "metric_region": "head mask of each lesion-containing slice, not lesion ROI alone",
+    "whole_volume_metrics": "report separately; not substituted for slice success"
+  },
+  "baseline": {
+    "recipe": "ar_i1_k30p90",
+    "reference_topic": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp",
+    "fresh_scores": "baseline_lesion_allmetrics.json",
+    "passing_slices": 0,
+    "reproduction": "PSNR/SSIM/NMSE identical to registered table; maximum HFEN absolute difference 3.3306690738754696e-16",
+    "mcgs_head_psnr_pre_post": [
+      34.69,
+      36.94
+    ],
+    "zsssdu_15_blocks_head_psnr_pre_post": [
+      35.319,
+      37.527
+    ]
+  },
+  "prior_probe": {
+    "date": "2026-10-14",
+    "i1_exit_code": 1,
+    "noreg_exit_code": 1,
+    "failure": "all-ones diagnostic mask conflicts with configured acceleration_factor=16",
+    "second_issue": "cycle.py hard-DC output is independent of the Gaussian model when mask=1",
+    "valid_repair": "diagnostic AF1 with existing mask checks retained; train then capture and score raw complex renders",
+    "interpretation": "finite-budget full-data fit diagnostic, not an AF16 result or universal representation upper bound",
+    "never_transfer_diagnostic_checkpoints_to_formal_y_only_reconstruction": true
+  },
+  "raw_probe": {
+    "directory": "raw_probe",
+    "planned_modes": [
+      "i1",
+      "noreg"
+    ],
+    "full_iterations_per_mode": 4000,
+    "points": 3600000,
+    "seed": 42,
+    "gpu_training_started": true,
+    "dispatcher_pid": 2818953,
+    "dispatcher_log": "pair_queue.log",
+    "gpu_cards": [
+      0,
+      2
+    ],
+    "quiet_period_seconds": 600,
+    "both_smokes_must_pass_before_full_runs": true,
+    "cpu_tests": "5 passed in 1.81s; final parent verification",
+    "review": "independent configuration equivalence and raw route review; substantive findings fixed",
+    "stage_status_note": "Both 4000-step raw-render diagnostic runs completed and validated. Results in outputs/round1_results.json; they are not AF16 reconstruction scores."
+  },
+  "block_update_probe": {
+    "status": "completed_scored_and_figures_verified",
+    "plan": "docs/superpowers/plans/2026-10-17-ce-block-update.md",
+    "spec": "docs/superpowers/specs/2026-10-17-ce-block-update.md",
+    "source_checkpoint_iteration": 4000,
+    "source_checkpoint_kind": "formal_AF16_i1_latest_not_diagnostic",
+    "additional_iterations_per_arm": 500,
+    "arms": [
+      "all_parameter_Adam_continuation",
+      "density_only_updates_after_original_full_gradient_clipping"
+    ],
+    "planned_gpus": [
+      3,
+      5
+    ],
+    "required_gate": "zero_step_registered_reconstruction_reproduction_then_two_step_paired_smoke",
+    "maximum_review_fix_rounds": 3,
+    "no_learning_prior_added": true,
+    "dispatcher_pid": 2904392,
+    "dispatcher_log": "block_pair_queue.log",
+    "cpu_validation": {
+      "resume_and_runner_tests": 12,
+      "dispatch_gate_tests": 7
+    },
+    "independent_review": "0 actionable findings after gate fixes; GPU reproduction pending",
+    "source_checkpoint_sha256": "39e1632ff07e530fb7a3454e78698363a62a856f301c4159d3b4c9a784a48c9e",
+    "audit": {
+      "head_psnr_pre": 34.690260046170366,
+      "head_psnr_post": 36.93978348808641,
+      "psnr_delta_vs_registered_pre_post": [
+        0.0,
+        0.0
+      ],
+      "model_and_optimizer_unchanged": true,
+      "independent_score_volume_checks": "pre and post GAUGE OK, exit 0"
+    },
+    "paired_smoke": {
+      "end_iteration": 4002,
+      "first_step_loss": 0.0374051071703434,
+      "first_step_loss_difference": 0.0,
+      "first_step_unclipped_gradient_norm_difference": 0.0,
+      "wavelet_shift": [
+        1,
+        1,
+        1
+      ],
+      "full_gradient_groups_both_arms": 7,
+      "updated_groups_all_density": [
+        7,
+        4
+      ],
+      "density_arm_geometry_parameters_and_adam_state_unchanged": true
+    },
+    "full_pilot_pids": {
+      "all": 2934043,
+      "density": 2934044
+    },
+    "full_pilot_started_utc": "2026-10-17T04:59:37Z",
+    "automatic_outputs": [
+      "block_launch_logs/all_lesion.json",
+      "block_launch_logs/density_lesion.json",
+      "block_report/results/summary.json",
+      "block_report/results/comparison.png"
+    ],
+    "result_record": "outputs/round1_results.json",
+    "decision": "No canonical promotion: best gain is <0.01 dB and both arms have 0/59 qualifying slices. Nonlocal prior remains a proposal, not launched."
+  },
+  "density_mm": {
+    "directory": "density_mm",
+    "status": "v2rejected_v3uniform8completed_scored_keep_as_development_incumbent_goalunmet",
+    "workers": {
+      "mm_operator": "operator+pcg complete29CPUchecks",
+      "mm_priors": "sourcefaithfulfrozenpriorscomplete32CPUchecks",
+      "mm_runner": "driver+crossedgeinprogress",
+      "mm_review": "freshcontextindependentreviewstablecoreinprogress"
+    },
+    "last_full_cpu_suite": 61,
+    "future_gates": [
+      "freshreview",
+      "tinyCUDAlinearity/adjoint",
+      "clinicalzerostepreproduction",
+      "boundedclinicalprobe"
+    ],
+    "no_external_prior": true,
+    "driver": "78CPUchecksplusguardregression;reviewerlambda_subfindingfixed;86sixmodulechecksafterGPUmathhelper",
+    "review": "mm_reviewcore+driver+preflight0unresolved;run_gpuhelperpending",
+    "plan": "density_mm/autoresearch.md",
+    "planned_experiments": [
+      "tiny_cuda_v1",
+      "zero_audit_v1",
+      "mm5_cg80_v1"
+    ],
+    "gpu_prefix_approved": "GSTMI/python -u density_mm/run_gpu.py",
+    "preflight_attempt": {
+      "exp": "tiny_cuda_v1",
+      "supervisor_pid": 648444,
+      "child_pid": 650983,
+      "gpu": 5,
+      "exit_code": 1,
+      "error": "UnicodeDecodeError_ASCII_read_text_onUTF8Chinesecomments",
+      "proof": "verification/tiny_cuda_v1_post_run_invariants.json verifiedbeforeafterunchanged",
+      "physics_metrics_measured": false,
+      "audit_started": false,
+      "solve_started": false
+    },
+    "focused_repair": "ExplicitUTF8sourceASTread and -Xutf8childprefix only3productionlines; independentASCIIreplay/inversehashchecksclean110CPUtests; immutable review_gate_v2.json",
+    "preflight_v2": {
+      "supervisor_pid": 659477,
+      "exec_session": 66121,
+      "selected_gpu": 5,
+      "measured_physics": "allfourpassed2e-5threshold",
+      "errors": {
+        "superposition": 7.41e-08,
+        "adjoint": 1.44e-07,
+        "normal_linearity": 1.95e-07,
+        "normal_hermitian": 6.09e-07
+      },
+      "positive_curvature": 1.172666,
+      "proof_status": "completedexit0beforeafterunchanged",
+      "production_sources": "immutableunderreview_gate_v2",
+      "next_exp": [
+        "zero_audit_v2",
+        "mm5_cg80_v2"
+      ],
+      "execution_agent": "mm_runner"
+    },
+    "zero_audit_v2": {
+      "status": "completedexit0proofverified",
+      "complex_reconstruction_relative_L2": [
+        0.0,
+        0.0
+      ],
+      "head_psnr_db": [
+        34.690260046170366,
+        36.93978348808641
+      ],
+      "head_psnr_deltas_db": [
+        0.0,
+        0.0
+      ],
+      "all_metrics_and_gauge_checks_passed": true,
+      "original_geometry_and_Adam_unchanged": true,
+      "solver_work_renders_vjp": [
+        0,
+        0
+      ],
+      "child_elapsed_seconds": 230.85,
+      "peak_allocated_GiB": 33.86,
+      "peak_reserved_GiB": 36.07
+    },
+    "actual_solve": {
+      "exp": "mm5_cg80_v2",
+      "exec_session": 28207,
+      "supervisor_pid": 672300,
+      "gpu": 5,
+      "status": "completedexit0_verified_andCPUscored_rejected",
+      "caps": {
+        "outer": 5,
+        "CG_per_outer": 80,
+        "pairedVJP": 500,
+        "pairedrenders": 700,
+        "meritforwards": 100
+      },
+      "local_factor": 1,
+      "wavelet_shift": [
+        1,
+        1,
+        1
+      ],
+      "damping_rel": 0.001,
+      "observed_device_memory_MiB": 41165,
+      "source_iteration": 4000,
+      "no_quality_claim": true,
+      "execution_agent": "mm_runner",
+      "CPU_scoring_agent": "density_scoring",
+      "CPU_scoring_review_agent": "mm_review",
+      "head_metrics": {
+        "pre": {
+          "psnr": 34.527951062912905,
+          "ssim": 0.9364380836486816,
+          "nmse": 0.010595654240120047,
+          "hfen": 0.1288235460581443
+        },
+        "post": {
+          "psnr": 36.80647005784304,
+          "ssim": 0.9495204091072083,
+          "nmse": 0.010410046449119376,
+          "hfen": 0.11299838592286744
+        }
+      },
+      "score": -0.13055265819306694,
+      "strict_planes": 0,
+      "accepted": false,
+      "actual_work": {
+        "pairedVJP": 410,
+        "pairedrenders": 416,
+        "meritforwards": 5,
+        "accepted_outer": 5,
+        "CG_iterations_each": 80,
+        "all_CG_converged": false
+      },
+      "summary": "density_mm/scoring/mm5_cg80_v2_v1/summary.json",
+      "validator": "density_mm/scoring/mm5_cg80_v2_v1/validator_proof.json",
+      "source_archive": "density_mm/source_versions/review_gate_v2",
+      "scoring_archive": "density_mm/source_versions/scoring_mm5_v2"
+    },
+    "cycle_average_candidate": {
+      "exp": "mm_cycle8_v3",
+      "status": "completedexit0_proofsverified_formalscored_keep_goalunmet",
+      "reason": "testexpectationofsource8randomwaveletphasesversusv2fixed111;notanexternallytrainedprior",
+      "spec": "docs/superpowers/specs/2026-10-18-cycle-average-candidate.md",
+      "plan": "docs/superpowers/plans/2026-10-18-density-cycle-average.md",
+      "module_agent": "cycle_average",
+      "integration_agent": "mm_runner",
+      "review_agent": "mm_review",
+      "scoring_agent": "density_scoring",
+      "sources_may_now_change_for_newversion": false,
+      "v2source_archive_preserved": true,
+      "no_quality_claim": true,
+      "score": -0.0969620720124726,
+      "strict_planes": 0,
+      "strict_success": false,
+      "summary": "density_mm/scoring/mm_cycle8_v3_v1/summary.json",
+      "validator": "density_mm/scoring/mm_cycle8_v3_v1/validator_proof.json",
+      "source_archive": "density_mm/source_versions/review_gate_v3",
+      "actual_work": {
+        "outer_steps": 5,
+        "CG_per_outer": 80,
+        "paired_VJP": 410,
+        "paired_renders": 416,
+        "wavelet_transform_batches": 3440,
+        "total_child_seconds": 799.9757956578396
+      },
+      "CPU_tests": "162 solver tests plus45 separate scoring tests; independent clean review"
+    }
+  },
+  "updated_utc": "2026-10-18T13:47:42.992813+00:00",
+  "completed_campaign_summary": {
+    "directory": "campaign_summary",
+    "summary": "campaign_summary/combined_20261017_v1/summary.json",
+    "report_summary": "nonlocal_autoresearch/reports/combined_final_20261017_v1/summary.json",
+    "figure": "campaign_summary/polished_v2/campaign.png",
+    "figure_visual_QA": "originalresolution inspected and accepted; actual costs disclosed; no equalcompute claim",
+    "http_figure": "http://127.0.0.1:8765/ce_retro_af16/ce_af16_autoresearch_15_trials_20261018.png",
+    "valid_trials": 15,
+    "failed_attempts": 1,
+    "strict_success_trials": 0,
+    "incumbent": "mm_cycle8_v3",
+    "score": -0.0969620720124726,
+    "fresh_review_agent": "summary_review",
+    "latest_figure": "campaign_summary/polished_15_trials_20261018/campaign.png",
+    "latest_summary": "geometry_restart/scoring/combined_geometry_v1/summary.json"
+  },
+  "error_analysis_20261018": {
+    "agent": "error_spectrum",
+    "scope": "oneboundedCPUdiagnosticofA_controlvsZS-SSDUmagnitudefrequency/headedgeerrors",
+    "no_new_reconstruction": true,
+    "status": "complete_independentreviewP3wordingfixed0unresolved",
+    "results": {
+      "head_MC_vs_ZS_squared_error_ratio": [
+        1.15487,
+        1.14467
+      ],
+      "bias_fraction_MC_MSE": [
+        0.0217,
+        0.0142
+      ],
+      "head_excess_outside_top10pct_GT_gradient_mask": [
+        0.7068,
+        0.7329
+      ],
+      "strongest_relative_freq_bands": [
+        ".1-.3",
+        ".3-.6"
+      ]
+    },
+    "interpretation": "Outside-defined-edge-maskdominance doesnotprovewidespatialdistributionorexcludeboundarymechanisms;highfreqcoefficientcountconfoundexplicit.Nocausalremedyorqualitywin.",
+    "report": "error_analysis_20261018/report.md",
+    "review": "error_analysis_20261018/review.md"
+  },
+  "validation_layout": "D/pytest.ini defaults tests/; standalone scoring/test_evaluate.py in separate interpreter. Source archives are evidence notlive tests.",
+  "development_incumbent": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/development_incumbent.json",
+    "sha256": "ae1dbe1492b4f891b73d62868a993b63a74569b7b0c7c7f7a4909e881035c855",
+    "exp": "precision96_f1_solve_v1",
+    "score": -0.06104664106049245,
+    "goal_met": false
+  },
+  "archival_scoring_20261018": {
+    "status": "six_predeclared_archival_configs_rescored_all0of59",
+    "report": "archival_scoring_20261018/REPORT.md",
+    "summary": "archival_scoring_20261018/summary.csv",
+    "best_archive": "ar_i3_k30p90e05",
+    "best_score": -0.10117806411737072,
+    "counted_as_new_training_trials": false,
+    "trust_boundary": "archival retrospective only; historical immutable training input hashes and fresh checkpoint reproduction unavailable; no promotion"
+  },
+  "geometry_restart": {
+    "status": "all3actual500_scored_rejected_closed",
+    "directory": "geometry_restart",
+    "worker": "geometry_override",
+    "reviewer": "geometry_review",
+    "scorer": "density_scoring",
+    "source_checkpoint_sha256": "39e1632ff07e530fb7a3454e78698363a62a856f301c4159d3b4c9a784a48c9e",
+    "formal_factors": [
+      2,
+      4,
+      8
+    ],
+    "source_iteration": 4000,
+    "formal_end_iteration": 4500,
+    "required_controls": [
+      "audit0factor1",
+      "noop2factor1"
+    ],
+    "current_incumbent_score": -0.0969620720124726,
+    "large_external_prior": false,
+    "parent_interpreter": "NVGEN stdlib CPU only",
+    "all_numeric_children": "GSTMI Torch2.7.1+cu118",
+    "latest_gpu_snapshot_note": "GPU0-4/6 occupied;5/7idle as of snapshot; recheck before each selection",
+    "review_gate": "geometry_restart/verification/review_gate_v2.json",
+    "review_report": "geometry_restart/evidence/review_round1.md",
+    "source_archive": "geometry_restart/source_versions/review_gate_v2",
+    "audit0": {
+      "exp": "geo_audit0_v2",
+      "exec_session": 82690,
+      "supervisor_pid": 823578,
+      "child_pid": 825513,
+      "actual_gpu": 7,
+      "status": "completed_exit0_full_invariants_verified",
+      "relative_complex_l2": [
+        0.0,
+        0.0
+      ],
+      "head_psnr": [
+        34.690260046170366,
+        36.93978348808641
+      ],
+      "gate": "geometry_restart/verification/zero_audit_gate_v1.json"
+    },
+    "preserved_setup_failures": [
+      "geometry_restart/evidence/prelaunch_failure_membership_v1.json",
+      "geometry_restart/evidence/audit0_v1_gate_format_failure.json"
+    ],
+    "noop2": {
+      "exp": "geo_noop2_v1",
+      "exec_session": 95972,
+      "supervisor_pid": 834015,
+      "child_pid": 835994,
+      "actual_gpu": 5,
+      "status": "completed_exit0_full_invariants_verified",
+      "gate": "geometry_restart/verification/noop_gate_v1.json",
+      "maximum_loss_gradient_difference": 5.820766091346741e-11,
+      "max_reconstruction_relative_L2_vs_C": 3.0637355640665953e-06
+    },
+    "scoring_review_gate": "geometry_restart/verification/scoring_review_gate_v1.json",
+    "scoring_CPU_checks": 49,
+    "selected_recipe": "geometry_restart/verification/selected_recipe_v1.json",
+    "formal_trials": [
+      {
+        "exp": "geo_factor2_v1",
+        "factor": 2,
+        "exec_session": 43792,
+        "status": "supervisor_started_pending_fresh_resource_selection"
+      },
+      {
+        "exp": "geo_factor4_v1",
+        "factor": 4,
+        "exec_session": 71203,
+        "status": "supervisor_started_pending_fresh_resource_selection"
+      },
+      {
+        "exp": "geo_factor8_retry_v2",
+        "factor": 8,
+        "exec_session": 21120,
+        "supervisor_pid": 873621,
+        "child_pid": 876339,
+        "gpu": 7,
+        "status": "training500",
+        "supersedes": "geo_factor8_v1"
+      }
+    ],
+    "individually_verified_scores": {
+      "geo_factor2_v1": -0.09961896335658459,
+      "geo_factor4_v1": -0.10147739722074203
+    },
+    "superseded_attempts": [
+      {
+        "exp": "geo_factor8_v1",
+        "steps": 292,
+        "reason": "resource migration before image quality measurement",
+        "supervisor_exit": 130,
+        "child_returncode": -15,
+        "proof": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/geometry_restart/verification/geo_factor8_v1_post_run_invariants.json",
+        "proof_status": "verified",
+        "failure_record": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/geometry_restart/verification/geo_factor8_v1_failure.json"
+      }
+    ],
+    "latest_summary": "geometry_restart/scoring/combined_geometry_v1/summary.json",
+    "summary_sha256": "76273d5be909051ab8ae5c4a21d0b1d96e989a5d9998fc119e572a0a0d8d1233",
+    "scores": {
+      "geo_factor2_v1": -0.09961896335658459,
+      "geo_factor4_v1": -0.10147739722074203,
+      "geo_factor8_retry_v2": -0.1031063534514245
+    },
+    "closed_anchor_archive": "closed_campaigns/geometry_v1"
+  },
+  "frequency_mm": {
+    "status": "completed_2_scored_17_aggregate_verified",
+    "summary": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_mm/scoring/combined_frequency_v1/summary.json",
+    "summary_sha256": "5d0ad0e73fd25791047d761ff8fc4560ecc92feb32ad8378f8b2a513fd0eb8dd",
+    "scores": {
+      "freq_t05_solve_v1": -0.06773771141120705,
+      "freq_t1_solve_v1": -0.06121176328519386
+    },
+    "new_incumbent": "freq_t1_solve_v1",
+    "strict_planes": 0
+  },
+  "interim_results": {
+    "summary": "campaign_summary/interim_14_trials_20261018/summary.json",
+    "figure": "campaign_summary/polished_14_trials_20261018/campaign.png",
+    "completed": 14,
+    "pending": 1,
+    "superseded_partial": 1,
+    "http_figure": "http://127.0.0.1:8765/ce_retro_af16/ce_af16_autoresearch_14_trials_20261018.png"
+  },
+  "archival_allplanes_20261018": {
+    "status": "all65completed_all0of59_942filesunchanged",
+    "report": "archival_allplanes_20261018/REPORT.md",
+    "ranking": "archival_allplanes_20261018/ranking.csv",
+    "best": "ar_i1_k30p90",
+    "best_score": -0.10083886597946873,
+    "newCLI": 59,
+    "reused_verified": 6,
+    "counted_as_new_training": false,
+    "fullhead_ROI_all65_recomputed": false
+  },
+  "variant_clarification": {
+    "status": "pendingasyncuseranswer_currentFMcontinues",
+    "actual_formal_variant": "deterministic7group sharedgeometry",
+    "other_repo_variant": "Bayesian13group; notincludedcurrentfigures; confirmed detachedRgeo defect requiresfixbeforeevaluating",
+    "scope": "No claimuserintendedwrongbranch; explicitpreferencequestionpending"
+  },
+  "frequency_tvwave_mm": {
+    "status": "bothcompleted_scored_rejected_19aggregate_closed",
+    "frequency_t": 1,
+    "local_factors": [
+      2,
+      4
+    ],
+    "scaled_priors": [
+      "magnitude_TV",
+      "wavelet"
+    ],
+    "phase_and_edge_fixed": true,
+    "anchor": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/development_incumbent.json",
+    "anchor_sha256": "9c91c1de0baa655803c9193df56b18da332e5b7ed570aee3ff5b0022a4d181e5",
+    "prior_summary": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_mm/scoring/combined_frequency_v1/summary.json",
+    "prior_summary_sha256": "5d0ad0e73fd25791047d761ff8fc4560ecc92feb32ad8378f8b2a513fd0eb8dd",
+    "review_gate": "frequency_tvwave_mm/verification/review_gate_v1.json",
+    "scoring_review_gate": "frequency_tvwave_mm/verification/scoring_review_gate_v1.json",
+    "selected_recipe": "frequency_tvwave_mm/verification/selected_recipe_v1.json",
+    "zero_jobs": [
+      {
+        "exp": "tvwave_f2_zero_v1",
+        "gpu": 5,
+        "parent_pid": 1028208,
+        "exec_session": 64724
+      },
+      {
+        "exp": "tvwave_f4_zero_v1",
+        "gpu": 7,
+        "parent_pid": 1028256,
+        "exec_session": 57165
+      }
+    ],
+    "summary": "frequency_tvwave_mm/scoring/combined_tvwave_v1/summary.json",
+    "scores": {
+      "tvwave_f2_solve_v1": -0.0981087874218877,
+      "tvwave_f4_solve_v1": -0.20560120766652326
+    },
+    "strict_planes": 0
+  },
+  "latest_figure": {
+    "valid_completed_trials": 25,
+    "url": "http://127.0.0.1:8765/ce_retro_af16/ce_af16_autoresearch_25_trials_20261019.png",
+    "catalog": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/campaign_summary/figure_catalog_25_trials_20261019.json"
+  },
+  "inner_precision_mm": {
+    "status": "complete_scored20aggregate_closed_keep_goalunmet",
+    "directory": "inner_precision_mm",
+    "cg_steps": 96,
+    "outer_steps": 5,
+    "local_factor": 1,
+    "true_endpoint_residual_checks": 5,
+    "expected_VJP_cap": 495,
+    "plan": "docs/superpowers/plans/2026-10-18-inner-cg-precision.md",
+    "selected_recipe": "inner_precision_mm/verification/selected_recipe_v1.json",
+    "source_iteration": 4000,
+    "actual_tiny_gate": "inner_precision_mm/verification/precision96_f1_tiny_retry_v2_completed.json",
+    "preselection_refusal": "inner_precision_mm/evidence/precision96_f1_tiny_v1_preselection_resource_refusal.json",
+    "exp": "precision96_f1_solve_v1",
+    "gpu": 7,
+    "exec_session": 7673,
+    "launch_bootstrap": "launch_gpu.py",
+    "head_psnr_pre_post": [
+      34.81689881976307,
+      37.138345154992834
+    ],
+    "actual_VJP": 495,
+    "actual_paired_renders": 501,
+    "score_output": "inner_precision_mm/scoring/precision96_f1_solve_v1_v1",
+    "summary": "inner_precision_mm/scoring/combined_precision_v1/summary.json",
+    "score": -0.06104664106049245,
+    "strict_planes": 0
+  },
+  "frequency_adam": {
+    "status": "actualt1zero_andt0noop2_verified_formal500next",
+    "directory": "frequency_adam",
+    "source_iteration": 4000,
+    "additional_Adam_steps": 500,
+    "all7groups": true,
+    "local_factor": 1,
+    "frequency_t": 1,
+    "geometry_LR_factors": [
+      1,
+      2
+    ],
+    "wavelet": "original perstep singlephase, CPUgenerator source4000 replay",
+    "quality_anchor": "only after Q20 complete",
+    "plan": "docs/superpowers/plans/2026-10-18-full-adam-flat-frequency.md",
+    "launch_bootstrap": "launch_gpu_v2.py",
+    "zero_exp": "adamflat_audit0_v1",
+    "zero_gpu": 2,
+    "zero_exec_session": 31308,
+    "review_gate": "frequency_adam/verification/review_gate_v1.json",
+    "selected_recipe": "frequency_adam/verification/selected_recipe_v1.json",
+    "noop_exp": "adamflat_noop2_v1",
+    "noop_exec_session": 54438,
+    "noop_gpu": 7
+  },
+  "frequency_lowreg_mm": {
+    "directory": "frequency_lowreg_mm",
+    "status": "250core_149scorer_independentreviewclean_noGPUyet",
+    "frequency_t": 1,
+    "cg_steps": 96,
+    "local_factors_ordered": [
+      0.75,
+      0.5
+    ],
+    "phase_and_edge_fixed": true,
+    "quality_anchor": "only after actualH1/2familyclosed;noformal ifanystrictwin",
+    "plan": "docs/superpowers/plans/2026-10-18-lower-tvwave-flat-frequency.md",
+    "launch_bootstrap": "launch_gpu_v3.py"
+  },
+  "active_20261018_1427": {
+    "updated_utc": "2026-10-18T14:37:51.400074+00:00",
+    "global_incumbent_frozen_sha256": "29448c8df23a260dbdb67395adeb432d13e223b2bae65679dd56756df739ab25",
+    "H": {
+      "status": "closed22_aggregate_verified",
+      "summary": "frequency_adam/scoring/combined_adamflat_v1/summary.json",
+      "summary_sha256": "2de4d31852dad7f14c1e18d55b09155713679defc7f8b2f69b73533ab896dbcd",
+      "g1_score": -0.05958285769098789,
+      "g2_score": -0.059701645558606464,
+      "winner": "adamflat_g1_v1",
+      "strict_success": false
+    },
+    "L": {
+      "status": "both_formal_launched_after_actual_controls_and_H22",
+      "recipe_sha256": "bbd7dc497d730cffdc036c54cc77ae25b81e4a3d7ae957fd7807dc15375d5b0b",
+      "gates": "both factors actual tiny+zero revalidated; zero canonical complex exact0",
+      "lowreg_f075_solve_v1": {
+        "gpu": 7,
+        "parent_pid": 1671327,
+        "worker_pid": 1674555,
+        "exec_session": 38192
+      },
+      "lowreg_f050_solve_v1": {
+        "gpu": 5,
+        "parent_pid": 1672078,
+        "worker_pid": 1675795,
+        "exec_session": 92052
+      },
+      "global_anchor": "freeze H winner through both scores+aggregate"
+    },
+    "oracle": "source2/tests/docs frozen,93CPUauthor tests; independent review in progress; newv4launcher route-only diff pending review; noGPU yet",
+    "figures": {
+      "latest_served": "ce_retro_af16/ce_af16_autoresearch_22_trials_20261018.png",
+      "qualitative_q20_served": [
+        "ce_retro_af16/ce_af16_q20_axis1_index118_20261018_v2.png",
+        "ce_retro_af16/ce_af16_q20_axis1_index130_20261018_v2.png"
+      ],
+      "qa": "Both qualitative PNGs/PDF renders inspected; legend clarified, inputs/windows/clipping identical to v1."
+    },
+    "original_worktree": "git status --short empty at1427UTC",
+    "noise_audit": "diagnostics/noise_frequency_calibration_20261018.json: normalized weighted noise variance post/pre1.0012903, measurednoise expectedvalue notlossfloor"
+  },
+  "active_20261019": {
+    "L": {
+      "status": "both actual original runs complete, verified scores+ordered aggregate; rejected both",
+      "f075_S": -0.0617335227227419,
+      "f050_S": -0.07301087701058773,
+      "resource_preempt": "No signal delivered/no retry; both original jobs finished0; no new failure."
+    },
+    "oracle": {
+      "status": "tiny/audit/fit all actual complete0 and root validated",
+      "fit_exp": "raw_geometry_fit200_v1",
+      "fitting_objective_reduction": 0.7974066432189136,
+      "true_stationarity_relative": 0.09746178572139212,
+      "CG": "200maxiter nonconverged",
+      "independent_saved_array_check": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/fixed_geometry_oracle/evidence/fit200_independent_array_check_v1.json",
+      "formal_use_forbidden": true
+    },
+    "phase_firstorder": {
+      "status": "complete_scored_rejected_25aggregate_closed",
+      "source9_freeze_sha256": "7192db17240b0f00126c39f76733edee8af9af1d1b570110e66990ce81b8f7b3",
+      "main_review_sha256": "f38f52ed6fc3f6806c441a2a1cfc0dd052a8c5302ec5bebd20cd8a704e6e2f1d",
+      "main_gate": "phase_firstorder/verification/review_gate_v2.json",
+      "main_gate_sha256": "cb58dff10f08152503dfa5f84d068366788df8d4dd1a1c960b5c73445803229d",
+      "scorer_gate_sha256": "63b7957707554fc07370ddd0e02530b65569d2e7b6a250b253efdaa1d0e9f9bc",
+      "recipe": "phase_firstorder/verification/selected_recipe_v2.json",
+      "recipe_sha256": "97bf3993fdee4dfa6db77adafb9b6603656d551ecb5965bcb50160d04f7c089e",
+      "full_invariants_file": "phase_firstorder/evidence/route_invariants_before_review_v1.json",
+      "full_I_sha256": "68cb609fe9f4b04ddd38d523715f6e04df410d3e229c78308f3db44f1e4560fb",
+      "tiny_v1_note": "Root gate incorrectly stored I manifest descriptor, lacking actual snapshot/top definitions; blocked before numerical worker. No code/training/model score. All v1 records preserved.",
+      "tiny_v2_gpu": 7,
+      "tiny_v2_session": 41593,
+      "formal_exp": "phase_fo_f1_solve_v1",
+      "formal_started": true,
+      "next": "closed; preserve actual H1 incumbent and prepare separately labelled proximal_dc CPU pilot",
+      "tiny_v2_parent_pid": 3042807,
+      "tiny_v2_worker_pid": 3045359,
+      "root_metadata_fix_independent_report": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/phase_firstorder/evidence/root_gate_schema_fix_review_v2.md",
+      "root_metadata_fix_independent_sha256": "4ab7d46df92b64847406bdf532d716627c759b2299f8bd047f7a87db06732548",
+      "future_prelaunch_requirement": "Dereference verified handoff path/hash to full I; compare fresh supervisor snapshot, then actual validate_stage_gates. Shared R/AGENTS.md records this invariant.",
+      "tiny_v2_status": "actualcomplete_exit0; full before/after proof and fresh I validated",
+      "tiny_phase_gpu_checks": {
+        "nonzero_phase_gradient_retained": true,
+        "source_gradient_rel_error": 2.9093123939769364e-07,
+        "reduced_phase_quadratic_gradient": 0.0,
+        "full_control_eta_rel_error": 4.362224793119104e-08
+      },
+      "zero": {
+        "exp": "phase_f1_zero_v1",
+        "gpu": 7,
+        "exec_session": 90717,
+        "parent_pid": 3051869,
+        "worker_pid": 3054103,
+        "parent_exit_code": 0,
+        "source_export": "exact pre/post array equality; complexrelativeL2=0"
+      },
+      "formal": {
+        "exp": "phase_fo_f1_solve_v1",
+        "gpu": 7,
+        "exec_session": 11148,
+        "started_utc": "2026-10-19T03:58:28+00:00",
+        "review_gate": "verification/review_gate_v2.json",
+        "tiny_gate": "verification/phase_f1_tiny_v2_completed.json",
+        "zero_gate": "verification/phase_f1_zero_v1_completed.json",
+        "recipe": "verification/selected_recipe_v2.json",
+        "recipe_sha256": "97bf3993fdee4dfa6db77adafb9b6603656d551ecb5965bcb50160d04f7c089e",
+        "parent_pid": 3073100,
+        "worker_pid": 3075662,
+        "parent_exit_code": 0,
+        "training_and_export": "complete0, full afterproof passed",
+        "actual_work": {
+          "outer": 5,
+          "CGcap": 96,
+          "VJP": 495,
+          "render_pairs": 501,
+          "WT": 4120,
+          "full_normal_probes": 5,
+          "reduced_normals": 485
+        },
+        "true_relative_residuals": [
+          0.03198620416391737,
+          0.4053857452838005,
+          0.06554839134509456,
+          1.8861813323260685,
+          0.012378153513224636
+        ],
+        "all_alpha": 1.0
+      },
+      "additional_cpu_diagnostic": "density_scoring read-only basis_conditioning_20261019, no GPU/formal modifications; PF priority",
+      "score": {
+        "status": "verified",
+        "S": -0.06079271655029386,
+        "strict_planes": 0,
+        "improves_global_anchor": false,
+        "action": "reject after ordered single-trial aggregate"
+      },
+      "aggregate": "completed25_exit0_all0of59",
+      "next_diagnostic": "proximal_dc_feasibility CPU only, precision validation being corrected; no newclinicalroute or parameter selected"
+    },
+    "updated_utc": "2026-10-19T04:42:50.950555+00:00",
+    "current_global_sha256": "4141022ee6b0fa258b99c25062a72f8daa4aef4a9adc55bddf744f7a244eeefb",
+    "completed_24_summary": {
+      "path": "frequency_lowreg_mm/scoring/combined_lowreg_v1/summary.json",
+      "sha256": "0139780fff39c7f76c33e66b64f3fa0396a61d536fefe29fcf819d7c581c3cb8",
+      "counts": {
+        "completed": 24,
+        "accepted": 6,
+        "rejected": 18,
+        "failed": 1,
+        "pending": 0
+      },
+      "S": -0.05958285769098789,
+      "strict_planes": 0
+    },
+    "latest_figure": "http://127.0.0.1:8765/ce_retro_af16/ce_af16_autoresearch_25_trials_20261019.png",
+    "completed_25_summary": {
+      "path": "phase_firstorder/scoring/combined_phase_firstorder_v1/summary.json",
+      "sha256": "ce12805b84710cfe119fabfc063bf62931aa7e797f28174a627df000d2422413",
+      "counts": {
+        "completed": 25,
+        "accepted": 6,
+        "rejected": 19,
+        "failed": 1,
+        "pending": 0
+      },
+      "S": -0.05958285769098789,
+      "strict_planes": 0
+    },
+    "proximal_dc": {
+      "status": "CPU_only_implementation_in_progress_no_review_gate_or_GPU",
+      "plan": "docs/superpowers/plans/2026-10-19-proximal-dc.md",
+      "base": "accepted H1 export-only verified 4500 restore; no optimizer steps",
+      "method_label": "MC-GS+proxDC",
+      "lambda_rule": "0.1 * max_voxel(sum_coils(abs(CSM)**2)) independently per scan; no GT/ROI/S selection",
+      "CG": "max32 normal matvecs per scan including initial nonzero anchor residual; independent terminal check separately counted; rtol1e-5",
+      "owner": "/root/density_scoring",
+      "reviewer": "/root/tvwave_review coordinates a fork_turns=none fresh reviewer after author/scorer complete freeze; no duplicate full review",
+      "launcher": "launch_gpu_v6.py",
+      "launcher_sha256": "bf780e957e86e9e1ad9fba8b522fa7a4bfe1b17de9cd499a366858cb2fd17ec7",
+      "next": "complete CPU/TDD+independent review; root verified full snapshot/gates/recipe and complete CLI validation; then actual tiny and H1 canonical control before one pilot",
+      "claim_gate": "any provisional strict win requires fresh repeat and matched improved GS-single"
+    },
+    "problem_explanation": {
+      "report": "diagnostics/problem_explanation_20261019/REPORT.md",
+      "data": "diagnostics/problem_explanation_20261019/measured_gap_v1.json",
+      "data_sha256": "107335e70b0eaaefe48429d6f7400fa410754d8cea9074241650ef5a1197d029",
+      "scope": "Existing H1 frozen score read-only; no new candidate or modified threshold"
+    }
+  }
+}

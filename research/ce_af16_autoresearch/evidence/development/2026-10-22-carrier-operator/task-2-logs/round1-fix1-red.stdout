@@ -1,0 +1,61 @@
+FFF.                                                                     [100%]
+=================================== FAILURES ===================================
+___________ test_nonfinite_geometry_intermediates_refused[exp_scale] ___________
+
+bad_intermediate = 'exp_scale'
+
+    @pytest.mark.parametrize('bad_intermediate', ['exp_scale', 'rotation_norm', 'centers'])
+    def test_nonfinite_geometry_intermediates_refused(bad_intermediate):
+        values = inputs()
+        if bad_intermediate == 'exp_scale':
+            values[1].fill_(100)
+        elif bad_intermediate == 'rotation_norm':
+            values[2].fill_(1e30)
+        else:
+            values[0].fill_(torch.finfo(torch.float32).max)
+        assert all(torch.isfinite(t).all() for t in values)
+>       with pytest.raises(ValueError, match='derived'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_carrier_cuda.py:151: Failed
+_________ test_nonfinite_geometry_intermediates_refused[rotation_norm] _________
+
+bad_intermediate = 'rotation_norm'
+
+    @pytest.mark.parametrize('bad_intermediate', ['exp_scale', 'rotation_norm', 'centers'])
+    def test_nonfinite_geometry_intermediates_refused(bad_intermediate):
+        values = inputs()
+        if bad_intermediate == 'exp_scale':
+            values[1].fill_(100)
+        elif bad_intermediate == 'rotation_norm':
+            values[2].fill_(1e30)
+        else:
+            values[0].fill_(torch.finfo(torch.float32).max)
+        assert all(torch.isfinite(t).all() for t in values)
+>       with pytest.raises(ValueError, match='derived'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_carrier_cuda.py:151: Failed
+____________ test_nonfinite_geometry_intermediates_refused[centers] ____________
+
+bad_intermediate = 'centers'
+
+    @pytest.mark.parametrize('bad_intermediate', ['exp_scale', 'rotation_norm', 'centers'])
+    def test_nonfinite_geometry_intermediates_refused(bad_intermediate):
+        values = inputs()
+        if bad_intermediate == 'exp_scale':
+            values[1].fill_(100)
+        elif bad_intermediate == 'rotation_norm':
+            values[2].fill_(1e30)
+        else:
+            values[0].fill_(torch.finfo(torch.float32).max)
+        assert all(torch.isfinite(t).all() for t in values)
+>       with pytest.raises(ValueError, match='derived'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_carrier_cuda.py:151: Failed
+=========================== short test summary info ============================
+FAILED tests/test_carrier_cuda.py::test_nonfinite_geometry_intermediates_refused[exp_scale]
+FAILED tests/test_carrier_cuda.py::test_nonfinite_geometry_intermediates_refused[rotation_norm]
+FAILED tests/test_carrier_cuda.py::test_nonfinite_geometry_intermediates_refused[centers]
+3 failed, 1 passed, 39 deselected in 1.68s

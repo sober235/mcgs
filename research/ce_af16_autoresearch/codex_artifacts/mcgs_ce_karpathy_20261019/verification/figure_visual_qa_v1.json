@@ -1,0 +1,53 @@
+{
+  "status": "visual_QA_passed",
+  "candidate": "family1_explicit_trial_v1",
+  "generator_sha256": "4f862f2e0f5a2b3662d350426e41252fd101ff1971c1aad3756850b0f9a769b7",
+  "source_objective": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/scores/family1_explicit_trial_v1/objective.json",
+    "sha256": "c13016e5054261723de25ce4814282a68307b526750d7af1e19dad9b747b4e5f"
+  },
+  "source_completed": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/outputs/family1_explicit_trial_v1/completed.json",
+    "sha256": "c0d28ec4e75858326c1bcd8b3d5f7af3f5616ee550439055f2bea21476a72afb"
+  },
+  "candidate_sha256": {
+    "pre": "471dab59f129c55fa6e658de5fe22cb72fbb6da43d36b528a26c96002ff2d6a8",
+    "post": "fb7096412a7e454dc3b504b07dfd1222653593d8324da1192d40d57ed732a289"
+  },
+  "formal_mri_experiment_count_increment": 0,
+  "observed_cpu_render_exit_code": 0,
+  "display_metric_parity": {
+    "checks": 264,
+    "max_absolute_difference": 0.0
+  },
+  "inputs_unchanged": true,
+  "output_hash_verification": {
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/figures/family1_explicit_trial_v1_20261019_v1/comparison_t204_c118_s44.png": true,
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/figures/family1_explicit_trial_v1_20261019_v1/comparison_t204_c118_s44.pdf": true,
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/figures/family1_explicit_trial_v1_20261019_v1/historical_coronal129.png": true,
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/figures/family1_explicit_trial_v1_20261019_v1/historical_coronal129.pdf": true
+  },
+  "metadata_regressions": {
+    "tests": 9,
+    "passed": 9,
+    "record": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/verification/figure_adapter_checks_v1.json"
+  },
+  "fresh_output_refusal": {
+    "observed_exit_code": 1,
+    "reason": "Existing output directory refused before metadata loading or writes"
+  },
+  "inspected_images": [
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/figures/family1_explicit_trial_v1_20261019_v1/qa_overview.png",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/figures/family1_explicit_trial_v1_20261019_v1/qa_transverse_last_four_columns.png",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/figures/family1_explicit_trial_v1_20261019_v1/qa_historical_overview.png"
+  ],
+  "visual_observations": [
+    "All twelve columns, complete candidate label and actual run title are visible.",
+    "Full-slice, lesion-zoom, error and reference-mask panels align in the original plane/scan order.",
+    "Native-resolution crop shows legible three-metric text and zoom/error details.",
+    "Common gray windows and muted error colormap are preserved; colorbar and footer are visible without overlap.",
+    "Actual 0/59 paired, pre0/59, post1/59 counts and whole-head target unmet are displayed.",
+    "Historical coronal129 is explicitly labeled as selected using earlier G2 rather than this candidate."
+  ],
+  "coverage_limits": "Visual QA of PNG overview and native-resolution crop; PDF generated and byte hashes checked, not independently rasterized. This figure does not establish quality improvement or generalization."
+}

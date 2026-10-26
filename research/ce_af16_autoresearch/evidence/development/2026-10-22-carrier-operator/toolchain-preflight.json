@@ -1,0 +1,14 @@
+{
+  "scope": "read_only_no_build_no_GPU",
+  "torch": "2.7.1+cu118",
+  "torch_cuda": "11.8",
+  "default_CUDA_HOME": "/usr/local/cuda-12.6",
+  "default_nvcc": "/usr/local/cuda-12.6/bin/nvcc",
+  "compatible_nvcc": "/usr/local/cuda-11.8/bin/nvcc",
+  "compatible_nvcc_release": "11.8 V11.8.89",
+  "cxx": "/usr/bin/c++",
+  "cxx_version": "Ubuntu10.5.0",
+  "ninja": "/usr/bin/ninja",
+  "cuda_initialized": false,
+  "ruling": "Pin CUDA_HOME=/usr/local/cuda-11.8 in new-extension build process before importing cpp_extension; preserve global environment and existing binaries."
+}

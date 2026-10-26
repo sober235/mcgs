@@ -1,0 +1,221 @@
+adaptive_control: {}
+campaign_overrides:
+  changes:
+    loss.lambda_nl:
+      effective: 0.0
+      source: null
+      source_present: false
+    loss.lambda_nl_contrast:
+      effective: 0.0
+      source: null
+      source_present: false
+    loss.lambda_nl_plain:
+      effective: 0.0
+      source: null
+      source_present: false
+    loss.lambda_wav:
+      effective: 0.1
+      source: 0.1
+      source_present: true
+    loss.lambda_wav_plain:
+      effective: 0.12
+      source: 0.12
+      source_present: true
+    loss.nl_denoiser:
+      effective: patch_lowrank
+      source: null
+      source_present: false
+    loss.nl_denoiser_kwargs:
+      effective: &id001
+        anchor_stride: 3
+        batch_size: 256
+        device: cuda:0
+        distance_factor: 3.0
+        group_size: 16
+        min_group_size: 4
+        patch_size: 5
+        search_radius: 8
+        search_stride: 2
+        threshold_scale: 1.0
+      source: null
+      source_present: false
+    loss.nl_refresh:
+      effective: 250
+      source: null
+      source_present: false
+    loss.nl_sigma_rel:
+      effective: 0.015
+      source: null
+      source_present: false
+    loss.nl_start:
+      effective: 4001
+      source: null
+      source_present: false
+    loss.tv_weight:
+      effective: 0.1
+      source: 0.1
+      source_present: true
+    output.output_dir:
+      effective: /home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/training
+      source: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/trainer/_trainer_e778bf2_ar/results_arc/ar_i1_k30p90
+      source_present: true
+    training.max_iterations:
+      effective: 4500
+      source: 4000
+      source_present: true
+    training.resume_offset:
+      effective: 4000
+      source: null
+      source_present: false
+  geometry_restart:
+    apply_after_strict_restore_iteration: 4000
+    betas: &id002
+    - 0.9
+    - 0.999
+    density_lr_factor: 1.0
+    geometry_factor: 2.0
+    geometry_groups: &id003
+    - positions
+    - scales
+    - rotations
+    moment_policy: retain source Adam moments and step4000; no reset
+    scheduler_policy: retain clock; scale three current/initial/base/last LRs coherently
+  local_factor: 1.0
+  local_regularization:
+    contrast_wavelet:
+      effective: 0.1
+      source: 0.1
+      source_key: loss.lambda_wav (inherited)
+      source_present: true
+    plain_wavelet:
+      effective: 0.12
+      source: 0.12
+      source_key: loss.lambda_wav_plain
+      source_present: true
+    tv:
+      effective: 0.1
+      source: 0.1
+      source_key: loss.tv_weight
+      source_present: true
+  nlambda: 0.0
+  runtime_backend:
+    mode.strict_cuda:
+      effective: true
+      source: null
+      source_present: false
+  sigma_rel: 0.015
+  sigma_source: current detached per-scan rendered magnitude P99 inside fixed ZF head
+    support
+data:
+  contrast:
+    acceleration_factor: 16
+    csm_path: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/post_csm.h5
+    data_path: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/post_kspace.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/mask/mask_af16_3d.h5
+    mask_type: external
+    name: post
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes:
+    - 1
+    - 2
+    presampled: false
+    readout_axis: 0
+    skip_readout_check: false
+  plain:
+    acceleration_factor: 16
+    csm_path: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/pre_csm.h5
+    data_path: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/pre_kspace.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/mask/mask_af16_3d.h5
+    mask_type: external
+    name: pre
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes:
+    - 1
+    - 2
+    presampled: false
+    readout_axis: 0
+    skip_readout_check: false
+frequency_overrides:
+  frequency_t: 1.0
+  mask_source: original acquired mask_p/mask_c; never fit masks
+  utility_sha256: a150298dd8de4fcaa4ab77d7b60e00c79c8f6b1da8ad5448c3fe3c7182806933
+gaussian:
+  density_lr: 0.015
+  init_mode: head
+  init_scale: 0.008
+  init_scale_mode: 3nn
+  initial_num_points: 3600000
+  position_lr: 0.0003
+  rotation_lr: 0.0003
+  scale_lr: 0.002
+hardware:
+  device: cuda:0
+loss:
+  dtv_eta_scale: 1.0
+  edge_kappa: 30.0
+  edge_p: 0.9
+  edge_tv: true
+  edge_tv_kappa_q: 0.85
+  edge_tv_kappa_source: zf
+  edge_tv_wfloor: 0.0
+  kspace_center_fraction: 0.05
+  kspace_center_weight: 0.3
+  kspace_freq_adaptive: true
+  kspace_high_weight: 2.8
+  kspace_high_weight_plain: 2.2
+  kspace_mid_weight: 1.0
+  lambda_diff: 0.01
+  lambda_dtv: 0.0
+  lambda_edge: 0.001
+  lambda_enh: 0
+  lambda_nl: 0.0
+  lambda_nl_contrast: 0.0
+  lambda_nl_plain: 0.0
+  lambda_ptv: 0.03
+  lambda_vtv: 0.0
+  lambda_wav: 0.1
+  lambda_wav_plain: 0.12
+  loss_type: l2
+  nl_denoiser: patch_lowrank
+  nl_denoiser_kwargs: *id001
+  nl_refresh: 250
+  nl_sigma_rel: 0.015
+  nl_start: 4001
+  tv_eps: 0.04
+  tv_vector: true
+  tv_weight: 0.1
+  wav_levels: 1
+  wav_name: db4
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+  strict_cuda: true
+optimizer_overrides:
+  apply_after_strict_restore_iteration: 4000
+  betas: *id002
+  density_lr_factor: 1.0
+  geometry_factor: 2.0
+  geometry_groups: *id003
+  moment_policy: retain source Adam moments and step4000; no reset
+  scheduler_policy: retain clock; scale three current/initial/base/last LRs coherently
+output:
+  exp_name: residual_amplitude
+  output_dir: /home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_smoke_v1/training
+training:
+  eval_every: 1000
+  log_every: 20
+  lr_scheduler:
+    gamma: 0.9995
+    type: exponential
+  max_grad_norm: 1.0
+  max_iterations: 4502
+  resume_offset: 4500
+  save_every: 1000
+  seed: 42
+  shared_warmup_iters: 500
+voxelizer:
+  max_radius: 20
+  tile_size: 8

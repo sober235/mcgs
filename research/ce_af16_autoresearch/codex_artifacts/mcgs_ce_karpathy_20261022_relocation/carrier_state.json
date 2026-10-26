@@ -1,0 +1,67 @@
+{
+  "status": "runtime_reviewed_github_publication",
+  "completed_formal_mri_experiments": 32,
+  "historical_rescorings": 65,
+  "overall_strict_success": false,
+  "active_gpu_run": null,
+  "whole_head_keeper": {
+    "name": "lowreg_f075_solve_v1",
+    "score": -0.11118128532897047
+  },
+  "previous_result": "docs/caseprior512_outcome.md",
+  "spec": "docs/superpowers/specs/2026-10-22-carrier-operator-design.md",
+  "plan": "docs/superpowers/plans/2026-10-22-carrier-operator.md",
+  "implementation_base": "3764b5c",
+  "source_revision": "9b74291",
+  "cpu_tests": 93,
+  "cpu_seconds": 3.85,
+  "reviewer": null,
+  "cpu_reference_review": {
+    "path": ".superpowers/sdd/2026-10-22-carrier-operator/task-1-review-round1.md",
+    "findings": 0,
+    "verdict": "APPROVED"
+  },
+  "task2_base": "db841cb",
+  "task2_initial_cpu_checks": {
+    "passed": 21,
+    "gpu_skipped": 13,
+    "is_gpu_acceptance": false
+  },
+  "toolchain_note": "CUDA11.8 isolated binary compiled and verified reuse passed on A100 sm80",
+  "component_cpu_tests": 118,
+  "explicit_gpu_skips": 15,
+  "native_compiled": true,
+  "gpu_microgate_passed": true,
+  "source_review_findings": 0,
+  "source_review_report": ".superpowers/sdd/2026-10-22-carrier-operator/final-source-review-round3.md",
+  "fix_round": 2,
+  "latest_affected_cpu_tests": 67,
+  "latest_affected_cpu_seconds": 3.47,
+  "preferred_gpu_uuid": "GPU-a9b716ea-de2e-5d23-217d-db82a1d48efb",
+  "first_microgate": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/carrier_verification/20261023T011403Z-bc86c383e901",
+  "microgate": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/carrier_verification/20261026T063900Z-7a66d90c3cf1/microgate.json",
+  "microgate_audit": "docs/carrier_microgate-outcome-audit.md",
+  "cpu_reference_evidence": {
+    "passed": 93,
+    "seconds": 2.05
+  },
+  "latest_affected_cpu_evidence": {
+    "passed": 67,
+    "gpu_skipped": 15,
+    "seconds": 3.47
+  },
+  "noncontiguous_regression": {
+    "passed": 1,
+    "seconds": 1.35
+  },
+  "integration_spec": "docs/superpowers/specs/2026-10-26-carrier-mri-design.md",
+  "integration_plan": "docs/superpowers/plans/2026-10-26-carrier-mri.md",
+  "integration_runtime": {
+    "cpu_passed": 30,
+    "cpu_seconds": 11.52,
+    "review_findings": 0,
+    "review": "docs/carrier_mri_runtime_review.md"
+  },
+  "clinical_protocol_complete": false,
+  "clinical_carrier_controls_complete": false
+}

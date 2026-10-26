@@ -1,0 +1,643 @@
+{
+  "purpose": "G2-internal coefficient-modulus teacher fit only; no MRI quality or formal trial",
+  "checkpoint": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/training/ar_i1_k30p90/checkpoints/latest.pth",
+    "sha256": "282e0303c46a6c18775d6224c032611072bd465b4ef975ba7a7e2ea636230fd0"
+  },
+  "script_sha256": "ffe73a74409b449a6fed9453396919791f7b81b46dd5ab59f793a37c7bbc1f84",
+  "torch_version": "2.7.1+cu118",
+  "device": "cpu",
+  "threads": 1,
+  "cuda_visible_devices": "",
+  "seed": 20261019,
+  "train_count": 60000,
+  "holdout_count": 20000,
+  "sample_indices_sha256": "7da8f471e6add59adead94cd81739ffbb8d7aaea589c42f64e1234eba46f1982",
+  "coefficient_channels": [
+    "plain",
+    "enhanced"
+  ],
+  "split": "Random distinct Gaussian indices, not unseen MRI data; G2 was optimized from all acquired measurements",
+  "teacher": "log(max(abs(density_real+i*density_imag),1e-12)), independently per contrast",
+  "target_train_mean": [
+    -2.574018955230713,
+    -2.407092809677124
+  ],
+  "target_train_std_population": [
+    0.8159711956977844,
+    0.8006783723831177
+  ],
+  "scale_train_mean": [
+    -4.897134304046631,
+    -4.86165189743042,
+    -4.8431854248046875
+  ],
+  "scale_train_std_population": [
+    0.22161857783794403,
+    0.18583321571350098,
+    0.17307305335998535
+  ],
+  "scale_definition": "frozen G2 scales stores log Gaussian sigma; append train-standardized log sigma xyz",
+  "coordinate_features": "raw_xyz,sin(pi*2**k*xyz),cos(pi*2**k*xyz);k=0..bands-1; original normalized G2 coordinates",
+  "input_source": "Frozen positions and optionally log scales only; no coefficient modulus input",
+  "sample_stats": {
+    "positions": {
+      "min": [
+        -1.0094141960144043,
+        -1.0188345909118652,
+        -1.0160846710205078
+      ],
+      "max": [
+        0.923990786075592,
+        1.0123268365859985,
+        1.0070021152496338
+      ],
+      "mean": [
+        -0.03985659115843226,
+        0.13890355843090582,
+        -0.0009375278570847286
+      ],
+      "std_population": [
+        0.4762849042847275,
+        0.420486417678653,
+        0.45877498133179345
+      ],
+      "quantile_levels": [
+        0.0,
+        0.01,
+        0.25,
+        0.5,
+        0.75,
+        0.99,
+        1.0
+      ],
+      "quantiles": [
+        [
+          -1.0094141960144043,
+          -1.0188345909118652,
+          -1.0160846710205078
+        ],
+        [
+          -0.9675253915786743,
+          -0.7106500256061554,
+          -0.8860782045125961
+        ],
+        [
+          -0.4189624786376953,
+          -0.187252439558506,
+          -0.3654940724372864
+        ],
+        [
+          -0.02300205547362566,
+          0.1579994261264801,
+          -0.0015982387703843415
+        ],
+        [
+          0.3495643064379692,
+          0.4762270003557205,
+          0.3652966171503067
+        ],
+        [
+          0.8303266048431396,
+          0.9170688247680657,
+          0.8699399143457411
+        ],
+        [
+          0.923990786075592,
+          1.0123268365859985,
+          1.0070021152496338
+        ]
+      ]
+    },
+    "log_scales": {
+      "min": [
+        -6.039527416229248,
+        -6.0396294593811035,
+        -6.037652015686035
+      ],
+      "max": [
+        -3.0703065395355225,
+        -3.5986883640289307,
+        -3.2225773334503174
+      ],
+      "mean": [
+        -4.89666440000534,
+        -4.861310495740176,
+        -4.842768080049753
+      ],
+      "std_population": [
+        0.22157080213854854,
+        0.18604912778568758,
+        0.17336235271515923
+      ],
+      "quantile_levels": [
+        0.0,
+        0.01,
+        0.25,
+        0.5,
+        0.75,
+        0.99,
+        1.0
+      ],
+      "quantiles": [
+        [
+          -6.039527416229248,
+          -6.0396294593811035,
+          -6.037652015686035
+        ],
+        [
+          -5.494798178672791,
+          -5.357327098846436,
+          -5.296795840263367
+        ],
+        [
+          -5.0274999141693115,
+          -4.9750601053237915,
+          -4.948918342590332
+        ],
+        [
+          -4.8667778968811035,
+          -4.848714351654053,
+          -4.834266424179077
+        ],
+        [
+          -4.740335702896118,
+          -4.7349889278411865,
+          -4.727580189704895
+        ],
+        [
+          -4.478853359222413,
+          -4.4741303253173825,
+          -4.467554931640625
+        ],
+        [
+          -3.0703065395355225,
+          -3.5986883640289307,
+          -3.2225773334503174
+        ]
+      ]
+    },
+    "moduli": {
+      "min": [
+        0.0001261956786038354,
+        0.0005744865047745407
+      ],
+      "max": [
+        1.0778322219848633,
+        0.9858440160751343
+      ],
+      "mean": [
+        0.10314529376007377,
+        0.1201432093764408
+      ],
+      "std_population": [
+        0.08512809079915898,
+        0.09485078842438521
+      ],
+      "quantile_levels": [
+        0.0,
+        0.01,
+        0.25,
+        0.5,
+        0.75,
+        0.99,
+        1.0
+      ],
+      "quantiles": [
+        [
+          0.0001261956786038354,
+          0.0005744865047745407
+        ],
+        [
+          0.007972823465242982,
+          0.009714882289990782
+        ],
+        [
+          0.04750163573771715,
+          0.05551805719733238
+        ],
+        [
+          0.0791274718940258,
+          0.09379545226693153
+        ],
+        [
+          0.1314043588936329,
+          0.15553367510437965
+        ],
+        [
+          0.4246985200047484,
+          0.46153258115053053
+        ],
+        [
+          1.0778322219848633,
+          0.9858440160751343
+        ]
+      ]
+    },
+    "log_moduli": {
+      "min": [
+        -8.977676391601562,
+        -7.462033748626709
+      ],
+      "max": [
+        0.07495182007551193,
+        -0.014257135801017284
+      ],
+      "mean": [
+        -2.571582773635234,
+        -2.40759187017855
+      ],
+      "std_population": [
+        0.8161001686138638,
+        0.8020940003474216
+      ],
+      "quantile_levels": [
+        0.0,
+        0.01,
+        0.25,
+        0.5,
+        0.75,
+        0.99,
+        1.0
+      ],
+      "quantiles": [
+        [
+          -8.977676391601562,
+          -7.462033748626709
+        ],
+        [
+          -4.831716585159302,
+          -4.6340962266922
+        ],
+        [
+          -3.0469910502433777,
+          -2.891046941280365
+        ],
+        [
+          -2.536695122718811,
+          -2.3666388988494873
+        ],
+        [
+          -2.02947598695755,
+          -1.860893040895462
+        ],
+        [
+          -0.8563757055997869,
+          -0.7732026493549373
+        ],
+        [
+          0.07495182007551193,
+          -0.014257135801017284
+        ]
+      ]
+    }
+  },
+  "source_tensor_shapes": {
+    "positions": [
+      3600000,
+      3
+    ],
+    "scales": [
+      3600000,
+      3
+    ],
+    "rotations": [
+      3600000,
+      4
+    ],
+    "complex_coefficients_per_contrast": [
+      3600000
+    ]
+  },
+  "arms": [
+    {
+      "name": "coordinates_bands4",
+      "bands": 4,
+      "use_scales": false,
+      "input_dimensions": 27,
+      "hidden_layers": [
+        64,
+        64
+      ],
+      "activation": "SiLU",
+      "parameter_count": 6082,
+      "optimizer": "Adam",
+      "learning_rate": 0.001,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "actual_updates": 1000,
+      "batch_size": 1024,
+      "seed": 20261019,
+      "batch_seed": 20261020,
+      "loss_history": [
+        {
+          "step": 1,
+          "standardized_log_mse": 0.9593749642372131
+        },
+        {
+          "step": 100,
+          "standardized_log_mse": 0.8883653283119202
+        },
+        {
+          "step": 200,
+          "standardized_log_mse": 0.8101580142974854
+        },
+        {
+          "step": 300,
+          "standardized_log_mse": 0.8338152170181274
+        },
+        {
+          "step": 400,
+          "standardized_log_mse": 0.8310408592224121
+        },
+        {
+          "step": 500,
+          "standardized_log_mse": 0.8097031116485596
+        },
+        {
+          "step": 600,
+          "standardized_log_mse": 0.7944647669792175
+        },
+        {
+          "step": 700,
+          "standardized_log_mse": 0.7656619548797607
+        },
+        {
+          "step": 800,
+          "standardized_log_mse": 0.8203892111778259
+        },
+        {
+          "step": 900,
+          "standardized_log_mse": 0.801792562007904
+        },
+        {
+          "step": 1000,
+          "standardized_log_mse": 0.8235365748405457
+        }
+      ],
+      "train": {
+        "log_r2": [
+          0.2214976226642108,
+          0.18908974078748664
+        ],
+        "relative_modulus_l2": [
+          0.5819355123715483,
+          0.5802713780561556
+        ],
+        "log_rmse": [
+          0.7199540881433104,
+          0.7210153303554153
+        ]
+      },
+      "holdout": {
+        "log_r2": [
+          0.214951138705058,
+          0.19018858157553986
+        ],
+        "relative_modulus_l2": [
+          0.5856563403663524,
+          0.5821082593632196
+        ],
+        "log_rmse": [
+          0.7233931497844668,
+          0.7256072079773456
+        ]
+      },
+      "elapsed_seconds_including_feature_build_and_metric_eval": 2.401354945730418
+    },
+    {
+      "name": "coordinates_bands8",
+      "bands": 8,
+      "use_scales": false,
+      "input_dimensions": 51,
+      "hidden_layers": [
+        64,
+        64
+      ],
+      "activation": "SiLU",
+      "parameter_count": 7618,
+      "optimizer": "Adam",
+      "learning_rate": 0.001,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "actual_updates": 1000,
+      "batch_size": 1024,
+      "seed": 20261019,
+      "batch_seed": 20261020,
+      "loss_history": [
+        {
+          "step": 1,
+          "standardized_log_mse": 0.9516785144805908
+        },
+        {
+          "step": 100,
+          "standardized_log_mse": 0.9028918743133545
+        },
+        {
+          "step": 200,
+          "standardized_log_mse": 0.8265588283538818
+        },
+        {
+          "step": 300,
+          "standardized_log_mse": 0.8519014716148376
+        },
+        {
+          "step": 400,
+          "standardized_log_mse": 0.8322961926460266
+        },
+        {
+          "step": 500,
+          "standardized_log_mse": 0.8206662535667419
+        },
+        {
+          "step": 600,
+          "standardized_log_mse": 0.804282546043396
+        },
+        {
+          "step": 700,
+          "standardized_log_mse": 0.7809429168701172
+        },
+        {
+          "step": 800,
+          "standardized_log_mse": 0.8326548337936401
+        },
+        {
+          "step": 900,
+          "standardized_log_mse": 0.8126044273376465
+        },
+        {
+          "step": 1000,
+          "standardized_log_mse": 0.8293156027793884
+        }
+      ],
+      "train": {
+        "log_r2": [
+          0.2181051290185273,
+          0.18714343508896603
+        ],
+        "relative_modulus_l2": [
+          0.5847404077765268,
+          0.5823414915486397
+        ],
+        "log_rmse": [
+          0.7215210612550557,
+          0.7218800840054825
+        ]
+      },
+      "holdout": {
+        "log_r2": [
+          0.19943984880480004,
+          0.18136640677813987
+        ],
+        "relative_modulus_l2": [
+          0.5911828857807163,
+          0.5861549163984844
+        ],
+        "log_rmse": [
+          0.7305047299053036,
+          0.7295489241114225
+        ]
+      },
+      "elapsed_seconds_including_feature_build_and_metric_eval": 1.6685410388745368
+    },
+    {
+      "name": "coordinates_bands8_logscales",
+      "bands": 8,
+      "use_scales": true,
+      "input_dimensions": 54,
+      "hidden_layers": [
+        64,
+        64
+      ],
+      "activation": "SiLU",
+      "parameter_count": 7810,
+      "optimizer": "Adam",
+      "learning_rate": 0.001,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "actual_updates": 1000,
+      "batch_size": 1024,
+      "seed": 20261019,
+      "batch_seed": 20261020,
+      "loss_history": [
+        {
+          "step": 1,
+          "standardized_log_mse": 0.9452998638153076
+        },
+        {
+          "step": 100,
+          "standardized_log_mse": 0.8010860681533813
+        },
+        {
+          "step": 200,
+          "standardized_log_mse": 0.7083876132965088
+        },
+        {
+          "step": 300,
+          "standardized_log_mse": 0.7359081506729126
+        },
+        {
+          "step": 400,
+          "standardized_log_mse": 0.7311911582946777
+        },
+        {
+          "step": 500,
+          "standardized_log_mse": 0.7193477153778076
+        },
+        {
+          "step": 600,
+          "standardized_log_mse": 0.6761423349380493
+        },
+        {
+          "step": 700,
+          "standardized_log_mse": 0.6578100919723511
+        },
+        {
+          "step": 800,
+          "standardized_log_mse": 0.7184610366821289
+        },
+        {
+          "step": 900,
+          "standardized_log_mse": 0.71589195728302
+        },
+        {
+          "step": 1000,
+          "standardized_log_mse": 0.6935806274414062
+        }
+      ],
+      "train": {
+        "log_r2": [
+          0.3038422575527182,
+          0.32898374401186004
+        ],
+        "relative_modulus_l2": [
+          0.5224140219616962,
+          0.49363073849403255
+        ],
+        "log_rmse": [
+          0.6808142845573564,
+          0.6558803536154242
+        ]
+      },
+      "holdout": {
+        "log_r2": [
+          0.2851885500757858,
+          0.32240520030816633
+        ],
+        "relative_modulus_l2": [
+          0.5260831214761043,
+          0.4979586526855655
+        ],
+        "log_rmse": [
+          0.6902744492148966,
+          0.6637349280458198
+        ]
+      },
+      "elapsed_seconds_including_feature_build_and_metric_eval": 1.7493348098360002
+    }
+  ],
+  "formal_mri_experiment_count_increment": 0,
+  "constant_train_median_modulus": {
+    "values": [
+      0.0789148360490799,
+      0.09378693252801895
+    ],
+    "train": {
+      "log_r2": [
+        -0.0018014827919448084,
+        -0.002541294902774771
+      ],
+      "relative_modulus_l2": [
+        0.6615445509163779,
+        0.6423591078057029
+      ],
+      "log_rmse": [
+        0.8167058485451857,
+        0.8016951136636105
+      ]
+    },
+    "holdout": {
+      "log_r2": [
+        -0.0009292408992513934,
+        -0.0027597550694979933
+      ],
+      "relative_modulus_l2": [
+        0.662605304498578,
+        0.6453969383092784
+      ],
+      "log_rmse": [
+        0.8168225828612379,
+        0.8074359613543516
+      ]
+    }
+  },
+  "preparation_seconds": 2.3628622638061643,
+  "weights_sha256": "8b1bc866d566ad90c7f3779b0286d910f3e6bf15dbfcbc1cc38d6cc71c0d679c",
+  "total_seconds": 8.184934502933174
+}

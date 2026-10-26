@@ -1,0 +1,53 @@
+...........F.................                                            [100%]
+=================================== FAILURES ===================================
+___ test_original_loop_restoration_export_and_separate_work[control-0-2-0-0] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4026/test_original_loop_restoration0')
+mode = 'control', steps = 0, forwards = 2, backwards = 0, updates = 0
+
+    @pytest.mark.parametrize('mode,steps,forwards,backwards,updates',[
+        ('control',0,2,0,0),('control',2,0,0,0),('carrier',2,6,4,2)])
+    def test_original_loop_restoration_export_and_separate_work(tmp_path,mode,steps,forwards,backwards,updates):
+        trainer, restored, result, native = run(tmp_path,mode,steps)
+        c = result['carrier']
+        assert result['before'] == restored['after']
+        assert result['counters']['gaussian_forwards'] == 2*steps+2
+        assert result['counters']['gaussian_vjps'] == 2*steps
+        assert result['counters']['event_calls'] == 0
+        assert c['work']['forwards'] == native.forwards == forwards
+        assert c['work']['backwards'] == native.backwards == backwards
+        assert c['work']['optimizer_steps'] == updates and c['work']['scheduler_steps'] == 0
+        assert c['export_state']['unchanged'] and c['export_state']['calls'] == (2 if forwards else 0)
+        assert c['initial_state']['eta']['pre']['zero'] and c['initial_state']['eta']['post']['zero']
+        assert c['final_state']['adam_steps'] == {'pre':updates,'post':updates}
+        assert c['selection']['k'] == 2 and c['selection']['n'] == 5
+        ids = torch.load(c['selection']['file']['path'], weights_only=True)
+        expected = torch.randperm(5,generator=torch.Generator().manual_seed(42023))[:2].sort().values
+        assert torch.equal(ids,expected)
+        assert c['readback']['live_state_equal']
+        assert c['checkpoint']['path'] != result['final_checkpoint']
+        manifest = json.loads(Path(c['paired_checkpoint_manifest']['path']).read_text())
+        assert manifest['iteration'] == 4500+steps
+        assert manifest['gaussian'] == result['final_checkpoint_evidence']['file']
+        assert tuple(dict(trainer.model.named_parameters())) == NAMES
+        for name in NAMES:
+            assert result['after']['parameters'][name]['tensor_id'] == restored['after']['parameters'][name]['tensor_id']
+            assert result['after']['optimizer']['states'][name]['step']['value'] == 4500+steps
+        if updates:
+            assert all(row['pre_clip_norm']>0 and 0<row['post_clip_norm']<=1.00001 for row in c['trace'])
+            for name in ('pre','post'):
+                assert c['final_state']['eta'][name]['sha256'] != c['initial_state']['eta'][name]['sha256']
+            assert all(result['trace'][1]['gradient_norms'][n]>0 for n in NAMES)
+            assert all(float(g.abs().sum())>0 for g in native.gradients[-1])
+            assert [r['iteration'] for r in c['trace']] == [4501,4502]
+            assert c['work']['roles']['training'] == {'forwards':4,'backwards':4}
+        else: assert c['trace'] == []
+        if steps==0:
+>           assert set(c['export_state']['zero_raw_parity'])=={'pre','post'}
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'zero_raw_parity'
+
+tests/test_carrier_runtime.py:107: KeyError
+=========================== short test summary info ============================
+FAILED tests/test_carrier_runtime.py::test_original_loop_restoration_export_and_separate_work[control-0-2-0-0]
+1 failed, 28 passed in 4.30s

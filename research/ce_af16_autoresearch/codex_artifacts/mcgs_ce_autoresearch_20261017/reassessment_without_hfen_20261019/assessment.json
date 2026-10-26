@@ -1,0 +1,149 @@
+{
+  "summary": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/reassessment_without_hfen_20261019/summary.json",
+    "sha256": "854dc7aa0da4cee274df58f98631d2dbae1b1e4372f1c5903e230da12cebaf3b"
+  },
+  "all_results": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/reassessment_without_hfen_20261019/all_results.json",
+    "sha256": "5d2b3688748b43023ab5b8671b799081e1d7ac3e8aac5fd52977356da8e4fbd7"
+  },
+  "formal_best": "adamflat_g2_v1",
+  "score_six": -0.033818449923473944,
+  "formal_passing_planes": 0,
+  "formal_pre_all_three": 0,
+  "formal_post_all_three": 1,
+  "post_witness": {
+    "axis": 1,
+    "index": 129,
+    "core": 215,
+    "score_six": -0.05262052371698652,
+    "strict_success": false,
+    "comparisons": {
+      "pre:psnr": {
+        "candidate": 36.611976060626446,
+        "best_opponent": 36.84050409147791,
+        "labels": [
+          "ZS-SSDU"
+        ],
+        "strict_win": false,
+        "margin": -0.05262052371698652
+      },
+      "pre:ssim": {
+        "candidate": 0.9270921226632856,
+        "best_opponent": 0.9287268288998544,
+        "labels": [
+          "ZS-SSDU"
+        ],
+        "strict_win": false,
+        "margin": -0.022676715218897702
+      },
+      "pre:nmse": {
+        "candidate": 0.013068026959840532,
+        "best_opponent": 0.012398159486202084,
+        "labels": [
+          "ZS-SSDU"
+        ],
+        "strict_win": false,
+        "margin": -0.05262052371698648
+      },
+      "post:psnr": {
+        "candidate": 38.34563478216152,
+        "best_opponent": 38.32551644954814,
+        "labels": [
+          "ZS-SSDU"
+        ],
+        "strict_win": true,
+        "margin": 0.004632417277146174
+      },
+      "post:ssim": {
+        "candidate": 0.9499549786768144,
+        "best_opponent": 0.9496665464347387,
+        "labels": [
+          "ZS-SSDU"
+        ],
+        "strict_win": true,
+        "margin": 0.005746910106632291
+      },
+      "post:nmse": {
+        "candidate": 0.010483649323911713,
+        "best_opponent": 0.010532326621897115,
+        "labels": [
+          "ZS-SSDU"
+        ],
+        "strict_win": true,
+        "margin": 0.004632417277145953
+      }
+    }
+  },
+  "whole_head_best_by_six_margin": "lowreg_f075_solve_v1",
+  "whole_head_best_metrics": {
+    "pre": {
+      "psnr": 34.83664421852701,
+      "ssim": 0.9412524700164795,
+      "nmse": 0.009868666263386654
+    },
+    "post": {
+      "psnr": 37.14367982759124,
+      "ssim": 0.9538549780845642,
+      "nmse": 0.009632337481701822
+    }
+  },
+  "whole_head_best_comparisons": {
+    "pre:psnr": {
+      "candidate": 34.83664421852701,
+      "best_opponent": 35.3194982813409,
+      "labels": [
+        "ZS-SSDU"
+      ],
+      "strict_win": false,
+      "margin": -0.1111812567126863
+    },
+    "pre:ssim": {
+      "candidate": 0.9412524700164795,
+      "best_opponent": 0.9463346004486084,
+      "labels": [
+        "ZS-SSDU"
+      ],
+      "strict_win": false,
+      "margin": -0.090480644112772
+    },
+    "pre:nmse": {
+      "candidate": 0.009868666263386654,
+      "best_opponent": 0.008830250899305128,
+      "labels": [
+        "ZS-SSDU"
+      ],
+      "strict_win": false,
+      "margin": -0.11118128532897047
+    },
+    "post:psnr": {
+      "candidate": 37.14367982759124,
+      "best_opponent": 37.527184786498296,
+      "labels": [
+        "ZS-SSDU"
+      ],
+      "strict_win": false,
+      "margin": -0.08830528014686759
+    },
+    "post:ssim": {
+      "candidate": 0.9538549780845642,
+      "best_opponent": 0.9578452110290527,
+      "labels": [
+        "ZS-SSDU"
+      ],
+      "strict_win": false,
+      "margin": -0.09044079230742143
+    },
+    "post:nmse": {
+      "candidate": 0.009632337481701822,
+      "best_opponent": 0.008818225694366846,
+      "labels": [
+        "ZS-SSDU"
+      ],
+      "strict_win": false,
+      "margin": -0.08830524416228167
+    }
+  },
+  "whole_head_strict_winning_formal_trials": 0,
+  "scope": "Retrospective re-evaluation only; no new training, no GPU. Keep original four-metric ledger and model untouched. Future selection follows the separately versioned three-metric contract."
+}

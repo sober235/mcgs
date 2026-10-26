@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "frequency_t": 1.0,
+  "mass_relative_tolerance": 2e-06,
+  "scans": {
+    "pre": {
+      "acquired_count": 653312,
+      "c": 1.9552438979670779,
+      "source_mean_squared_weight": 3.822978700537494,
+      "effective_mean_squared_weight": 3.822978884935316,
+      "relative_mass_error": 4.823407007137348e-08,
+      "t0_exact_equal": null,
+      "source_weight": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_zero_v1/frequency_weights/pre_source_weight.npy",
+        "file_sha256": "6f9832088888c1f7f146a151e426aaf5908a375723245aea1b49146daae3ce5e",
+        "byte_sha256": "7c06b6178cf2034840a39030b619fa41767bb1e0c9c3b59b0440fc19f7e4cc3d",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "torch.float32",
+        "device": "cuda:0"
+      },
+      "effective_weight": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_zero_v1/frequency_weights/pre_effective_weight.npy",
+        "file_sha256": "785ddc2f18991d4899335c07c168e289c5a6fb766f07c3480937af8c96acbb0b",
+        "byte_sha256": "9a83075d78c80919a2c35bc74f71fb7793e87d49a881aeca7a16ee8ec8c67c47",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "torch.float32",
+        "device": "cuda:0"
+      },
+      "acquired_mask": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_zero_v1/frequency_weights/pre_acquired_mask.npy",
+        "file_sha256": "63f1d8244d9a6d69ae99d26dae51bfad3e1b5a603dc4bd33a5109d2729b7dedf",
+        "byte_sha256": "fc9357f6f1a34514845ccc9d47955286fc954bc0dfbeb719e424cb1a0405648f",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "torch.float32",
+        "device": "cuda:0"
+      }
+    },
+    "post": {
+      "acquired_count": 653312,
+      "c": 2.4554351168379642,
+      "source_mean_squared_weight": 6.029161613001066,
+      "effective_mean_squared_weight": 6.0291612239371375,
+      "relative_mass_error": 6.453035328313206e-08,
+      "t0_exact_equal": null,
+      "source_weight": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_zero_v1/frequency_weights/post_source_weight.npy",
+        "file_sha256": "7b94259f98c1d69882cce6e0fb39b0ec594bc6bf5aca1ba8d0877448d1db2e21",
+        "byte_sha256": "c1484869b97bf59187f80265e932f4d189b5a59a1033a0b61f6a6634f5b0f4c2",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "torch.float32",
+        "device": "cuda:0"
+      },
+      "effective_weight": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_zero_v1/frequency_weights/post_effective_weight.npy",
+        "file_sha256": "71d81b0dc8b197d24d6db30deeed979ab7f92e5c4101510ba1fb07bbd8949942",
+        "byte_sha256": "06c002981d11de8d4c99fed8664f1fb0b01b72791c0186a2bd6b36987d053ad6",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "torch.float32",
+        "device": "cuda:0"
+      },
+      "acquired_mask": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_zero_v1/frequency_weights/post_acquired_mask.npy",
+        "file_sha256": "63f1d8244d9a6d69ae99d26dae51bfad3e1b5a603dc4bd33a5109d2729b7dedf",
+        "byte_sha256": "fc9357f6f1a34514845ccc9d47955286fc954bc0dfbeb719e424cb1a0405648f",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "torch.float32",
+        "device": "cuda:0"
+      }
+    }
+  }
+}

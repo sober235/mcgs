@@ -1,0 +1,170 @@
+{
+  "status": "ready",
+  "driver": "active_codex_session",
+  "route": "g2_fixed_count_relocation_v1",
+  "ordered_runs": [
+    {
+      "stage": "zero",
+      "mode": "control",
+      "exp": "g2_relocation_zero_v1",
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_zero_recipe_v1.json",
+        "sha256": "8b9ef4b37625b41af2a19cf281f4efa252bfebeebb0ee0f9a6279fbc48ab1a85"
+      },
+      "command": [
+        "/home/congcongliu/anaconda3/envs/nvgen/bin/python",
+        "-B",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/run_relocation.py",
+        "--stage",
+        "zero",
+        "--mode",
+        "control",
+        "--steps",
+        "0",
+        "--exp",
+        "g2_relocation_zero_v1",
+        "--review-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_review_gate_v1.json",
+        "--recipe",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_zero_recipe_v1.json",
+        "--preferred-gpu",
+        "2",
+        "--timeout",
+        "3600"
+      ]
+    },
+    {
+      "stage": "smoke",
+      "mode": "control",
+      "exp": "g2_relocation_control_smoke_v1",
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_control_smoke_recipe_v1.json",
+        "sha256": "10eed2b218fb34b70e564607164d143855f9a16a823ce5bf71b844ff372a97b1"
+      },
+      "command": [
+        "/home/congcongliu/anaconda3/envs/nvgen/bin/python",
+        "-B",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/run_relocation.py",
+        "--stage",
+        "smoke",
+        "--mode",
+        "control",
+        "--steps",
+        "2",
+        "--exp",
+        "g2_relocation_control_smoke_v1",
+        "--review-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_review_gate_v1.json",
+        "--recipe",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_control_smoke_recipe_v1.json",
+        "--preferred-gpu",
+        "2",
+        "--timeout",
+        "3600",
+        "--zero-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/g2_relocation_zero_v1/completed.json"
+      ]
+    },
+    {
+      "stage": "smoke",
+      "mode": "relocate",
+      "exp": "g2_relocation_event_smoke_v1",
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_event_smoke_recipe_v1.json",
+        "sha256": "f594a00c4399e9a1b222e6d3b96fe54cd798e1d2a0d89821f083c2dea38329ee"
+      },
+      "command": [
+        "/home/congcongliu/anaconda3/envs/nvgen/bin/python",
+        "-B",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/run_relocation.py",
+        "--stage",
+        "smoke",
+        "--mode",
+        "relocate",
+        "--steps",
+        "2",
+        "--exp",
+        "g2_relocation_event_smoke_v1",
+        "--review-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_review_gate_v1.json",
+        "--recipe",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_event_smoke_recipe_v1.json",
+        "--preferred-gpu",
+        "2",
+        "--timeout",
+        "3600",
+        "--zero-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/g2_relocation_zero_v1/completed.json"
+      ]
+    },
+    {
+      "stage": "trial",
+      "mode": "control",
+      "exp": "g2_relocation_control500_v1",
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_control500_recipe_v1.json",
+        "sha256": "9eb2459971f79f457ba4640840b70b4b97fe76584dc35ef7a6073c28f4438997"
+      },
+      "command": [
+        "/home/congcongliu/anaconda3/envs/nvgen/bin/python",
+        "-B",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/run_relocation.py",
+        "--stage",
+        "trial",
+        "--mode",
+        "control",
+        "--steps",
+        "500",
+        "--exp",
+        "g2_relocation_control500_v1",
+        "--review-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_review_gate_v1.json",
+        "--recipe",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_control500_recipe_v1.json",
+        "--preferred-gpu",
+        "2",
+        "--timeout",
+        "3600",
+        "--zero-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/g2_relocation_zero_v1/completed.json",
+        "--smoke-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/g2_relocation_control_smoke_v1/completed.json"
+      ]
+    },
+    {
+      "stage": "trial",
+      "mode": "relocate",
+      "exp": "g2_relocation_event500_v1",
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_event500_recipe_v1.json",
+        "sha256": "51d63b2645b64a81abc252618bbb08f0a54038f757f5ff74c8dd2c3dcbd2dbe7"
+      },
+      "command": [
+        "/home/congcongliu/anaconda3/envs/nvgen/bin/python",
+        "-B",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/run_relocation.py",
+        "--stage",
+        "trial",
+        "--mode",
+        "relocate",
+        "--steps",
+        "500",
+        "--exp",
+        "g2_relocation_event500_v1",
+        "--review-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_review_gate_v1.json",
+        "--recipe",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/relocation_event500_recipe_v1.json",
+        "--preferred-gpu",
+        "2",
+        "--timeout",
+        "3600",
+        "--zero-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/g2_relocation_zero_v1/completed.json",
+        "--smoke-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/g2_relocation_event_smoke_v1/completed.json"
+      ]
+    }
+  ],
+  "formal_mri_experiments_before": 28
+}

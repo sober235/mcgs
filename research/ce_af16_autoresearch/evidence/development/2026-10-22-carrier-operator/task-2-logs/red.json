@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-x",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_carrier_cuda.py"
+  ],
+  "cwd": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "exit_code": 1,
+  "test_sha256": "d933d784bda40781e57dd927350d9152a61790cac6db7b0b725a8605685e0104"
+}

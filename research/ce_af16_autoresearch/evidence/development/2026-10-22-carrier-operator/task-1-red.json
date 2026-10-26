@@ -1,0 +1,19 @@
+{
+  "command": [
+    "env",
+    "CUDA_VISIBLE_DEVICES=",
+    "OMP_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_carrier_reference.py"
+  ],
+  "exit_code": 1,
+  "seconds": 4.084273682907224,
+  "test_sha256": "637082ab365cc18ded133f1e6a46cb4a6ed060cc4a30b95f0cdba5a82b4345ca"
+}

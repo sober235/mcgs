@@ -1,0 +1,976 @@
+...........FFF..FFFFFFFFF.                                               [100%]
+=================================== FAILURES ===================================
+___ test_original_loop_restoration_export_and_separate_work[control-0-2-0-0] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_original_loop_restoration0')
+mode = 'control', steps = 0, forwards = 2, backwards = 0, updates = 0
+
+    @pytest.mark.parametrize('mode,steps,forwards,backwards,updates',[
+        ('control',0,2,0,0),('control',2,0,0,0),('carrier',2,6,4,2)])
+    def test_original_loop_restoration_export_and_separate_work(tmp_path,mode,steps,forwards,backwards,updates):
+>       trainer, restored, result, native = run(tmp_path,mode,steps)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_runtime.py:61: in run
+    result = m._run_carrier_continuation(trainer,frequency,directory,mode=mode,steps=steps,
+carrier_runtime.py:301: in _run_carrier_continuation
+    read = validate_carrier_checkpoint(checkpoint_path, expected_iteration=iteration, expected_policy=policy,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_original_loop_restoration0/carrier_checkpoint.pt')
+
+    def validate_carrier_checkpoint(path, *, expected_iteration, expected_policy,
+                                    expected_selection_sha256, expected_binary_sha256):
+        """Safe CPU paired-component validation; no implicit zero-state resume."""
+        import torch
+        path = Path(path)
+        value = torch.load(path, map_location='cpu', weights_only=True)
+        required = {'schema', 'iteration', 'policy', 'n', 'ids', 'eta', 'optimizer', 'local_updates', 'enabled',
+                    'binary_sha256', 'identity_sha256', 'gaussian', 'selection_sha256', 'schedule'}
+        if (type(value) is not dict or set(value) != required or value['schema'] != _SCHEMA
+                or type(value['iteration']) is not int or value['iteration'] != expected_iteration
+                or not _equal(value['policy'], expected_policy) or value['schedule'] != 'constant'
+                or value['binary_sha256'] != expected_binary_sha256
+                or value['identity_sha256'] != _contract()['artifact']['identity_sha256']
+                or value['selection_sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint schema/iteration/policy/artifact differs')
+        ids = value['ids']; n = value['n']
+        if (not isinstance(ids, torch.Tensor) or ids.dtype != torch.int64 or ids.ndim != 1 or ids.numel() == 0
+                or type(n) is not int or n < len(ids) or not bool(((ids >= 0) & (ids < n)).all())
+                or not bool((ids[1:] > ids[:-1]).all()) or _tensor(ids)['sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint selection differs')
+        eta = value['eta']
+        if not isinstance(eta, dict) or set(eta) != {'pre', 'post'}:
+            raise ValueError('carrier contrast state differs')
+        for p in eta.values():
+            if (not isinstance(p, torch.Tensor) or p.dtype != torch.float32 or tuple(p.shape) != (len(ids), 3)
+                    or not bool(torch.isfinite(p).all())):
+                raise ValueError('carrier eta shape/dtype/finiteness differs')
+        updates = value['local_updates']
+        if (type(updates) is not int or type(value['enabled']) is not bool
+                or updates != (expected_iteration-_contract()['policy']['source_iteration'] if value['enabled'] else 0)
+                or updates < 0):
+            raise ValueError('carrier local update clock differs')
+        dummy = [torch.nn.Parameter(torch.zeros_like(p)) for p in eta.values()]
+        expected_groups = _optimizer(dummy, expected_policy).state_dict()['param_groups']
+        opt = value['optimizer']
+        if not isinstance(opt, dict) or set(opt) != {'state', 'param_groups'} or not _equal(opt['param_groups'], expected_groups):
+            raise ValueError('carrier Adam options differ')
+        if set(opt['state']) != ({0, 1} if updates else set()): raise ValueError('carrier Adam membership differs')
+        for row in opt['state'].values():
+            if set(row) != {'step', 'exp_avg', 'exp_avg_sq'}: raise ValueError('carrier Adam fields differ')
+            for name, tensor in row.items():
+                if (not isinstance(tensor, torch.Tensor) or tensor.dtype != torch.float32
+                        or tuple(tensor.shape) != (() if name == 'step' else (len(ids), 3))
+                        or not bool(torch.isfinite(tensor).all())):
+                    raise ValueError('carrier Adam shape/dtype/finite differs')
+            if float(row['step']) != updates or bool((row['exp_avg_sq'] < 0).any()):
+                raise ValueError('carrier Adam clock/moment differs')
+        pair_path = path.parent/'paired_carrier_checkpoint.json'
+        paired = json.loads(pair_path.read_text())
+        expected_pair = dict(schema='carrier_checkpoint_pair_v1', iteration=expected_iteration, gaussian=value['gaussian'],
+            carrier=_descriptor(path), policy=expected_policy, selection_sha256=expected_selection_sha256,
+            binary_sha256=expected_binary_sha256)
+        if not _equal(paired, expected_pair) or _descriptor(value['gaussian']['path']) != value['gaussian']:
+>           raise ValueError('carrier/Gaussian paired checkpoint incomplete or different')
+E           ValueError: carrier/Gaussian paired checkpoint incomplete or different
+
+carrier_runtime.py:367: ValueError
+___ test_original_loop_restoration_export_and_separate_work[control-2-0-0-0] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_original_loop_restoration1')
+mode = 'control', steps = 2, forwards = 0, backwards = 0, updates = 0
+
+    @pytest.mark.parametrize('mode,steps,forwards,backwards,updates',[
+        ('control',0,2,0,0),('control',2,0,0,0),('carrier',2,6,4,2)])
+    def test_original_loop_restoration_export_and_separate_work(tmp_path,mode,steps,forwards,backwards,updates):
+>       trainer, restored, result, native = run(tmp_path,mode,steps)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_runtime.py:61: in run
+    result = m._run_carrier_continuation(trainer,frequency,directory,mode=mode,steps=steps,
+carrier_runtime.py:301: in _run_carrier_continuation
+    read = validate_carrier_checkpoint(checkpoint_path, expected_iteration=iteration, expected_policy=policy,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_original_loop_restoration1/carrier_checkpoint.pt')
+
+    def validate_carrier_checkpoint(path, *, expected_iteration, expected_policy,
+                                    expected_selection_sha256, expected_binary_sha256):
+        """Safe CPU paired-component validation; no implicit zero-state resume."""
+        import torch
+        path = Path(path)
+        value = torch.load(path, map_location='cpu', weights_only=True)
+        required = {'schema', 'iteration', 'policy', 'n', 'ids', 'eta', 'optimizer', 'local_updates', 'enabled',
+                    'binary_sha256', 'identity_sha256', 'gaussian', 'selection_sha256', 'schedule'}
+        if (type(value) is not dict or set(value) != required or value['schema'] != _SCHEMA
+                or type(value['iteration']) is not int or value['iteration'] != expected_iteration
+                or not _equal(value['policy'], expected_policy) or value['schedule'] != 'constant'
+                or value['binary_sha256'] != expected_binary_sha256
+                or value['identity_sha256'] != _contract()['artifact']['identity_sha256']
+                or value['selection_sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint schema/iteration/policy/artifact differs')
+        ids = value['ids']; n = value['n']
+        if (not isinstance(ids, torch.Tensor) or ids.dtype != torch.int64 or ids.ndim != 1 or ids.numel() == 0
+                or type(n) is not int or n < len(ids) or not bool(((ids >= 0) & (ids < n)).all())
+                or not bool((ids[1:] > ids[:-1]).all()) or _tensor(ids)['sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint selection differs')
+        eta = value['eta']
+        if not isinstance(eta, dict) or set(eta) != {'pre', 'post'}:
+            raise ValueError('carrier contrast state differs')
+        for p in eta.values():
+            if (not isinstance(p, torch.Tensor) or p.dtype != torch.float32 or tuple(p.shape) != (len(ids), 3)
+                    or not bool(torch.isfinite(p).all())):
+                raise ValueError('carrier eta shape/dtype/finiteness differs')
+        updates = value['local_updates']
+        if (type(updates) is not int or type(value['enabled']) is not bool
+                or updates != (expected_iteration-_contract()['policy']['source_iteration'] if value['enabled'] else 0)
+                or updates < 0):
+            raise ValueError('carrier local update clock differs')
+        dummy = [torch.nn.Parameter(torch.zeros_like(p)) for p in eta.values()]
+        expected_groups = _optimizer(dummy, expected_policy).state_dict()['param_groups']
+        opt = value['optimizer']
+        if not isinstance(opt, dict) or set(opt) != {'state', 'param_groups'} or not _equal(opt['param_groups'], expected_groups):
+            raise ValueError('carrier Adam options differ')
+        if set(opt['state']) != ({0, 1} if updates else set()): raise ValueError('carrier Adam membership differs')
+        for row in opt['state'].values():
+            if set(row) != {'step', 'exp_avg', 'exp_avg_sq'}: raise ValueError('carrier Adam fields differ')
+            for name, tensor in row.items():
+                if (not isinstance(tensor, torch.Tensor) or tensor.dtype != torch.float32
+                        or tuple(tensor.shape) != (() if name == 'step' else (len(ids), 3))
+                        or not bool(torch.isfinite(tensor).all())):
+                    raise ValueError('carrier Adam shape/dtype/finite differs')
+            if float(row['step']) != updates or bool((row['exp_avg_sq'] < 0).any()):
+                raise ValueError('carrier Adam clock/moment differs')
+        pair_path = path.parent/'paired_carrier_checkpoint.json'
+        paired = json.loads(pair_path.read_text())
+        expected_pair = dict(schema='carrier_checkpoint_pair_v1', iteration=expected_iteration, gaussian=value['gaussian'],
+            carrier=_descriptor(path), policy=expected_policy, selection_sha256=expected_selection_sha256,
+            binary_sha256=expected_binary_sha256)
+        if not _equal(paired, expected_pair) or _descriptor(value['gaussian']['path']) != value['gaussian']:
+>           raise ValueError('carrier/Gaussian paired checkpoint incomplete or different')
+E           ValueError: carrier/Gaussian paired checkpoint incomplete or different
+
+carrier_runtime.py:367: ValueError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+___ test_original_loop_restoration_export_and_separate_work[carrier-2-6-4-2] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_original_loop_restoration2')
+mode = 'carrier', steps = 2, forwards = 6, backwards = 4, updates = 2
+
+    @pytest.mark.parametrize('mode,steps,forwards,backwards,updates',[
+        ('control',0,2,0,0),('control',2,0,0,0),('carrier',2,6,4,2)])
+    def test_original_loop_restoration_export_and_separate_work(tmp_path,mode,steps,forwards,backwards,updates):
+>       trainer, restored, result, native = run(tmp_path,mode,steps)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_runtime.py:61: in run
+    result = m._run_carrier_continuation(trainer,frequency,directory,mode=mode,steps=steps,
+carrier_runtime.py:301: in _run_carrier_continuation
+    read = validate_carrier_checkpoint(checkpoint_path, expected_iteration=iteration, expected_policy=policy,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_original_loop_restoration2/carrier_checkpoint.pt')
+
+    def validate_carrier_checkpoint(path, *, expected_iteration, expected_policy,
+                                    expected_selection_sha256, expected_binary_sha256):
+        """Safe CPU paired-component validation; no implicit zero-state resume."""
+        import torch
+        path = Path(path)
+        value = torch.load(path, map_location='cpu', weights_only=True)
+        required = {'schema', 'iteration', 'policy', 'n', 'ids', 'eta', 'optimizer', 'local_updates', 'enabled',
+                    'binary_sha256', 'identity_sha256', 'gaussian', 'selection_sha256', 'schedule'}
+        if (type(value) is not dict or set(value) != required or value['schema'] != _SCHEMA
+                or type(value['iteration']) is not int or value['iteration'] != expected_iteration
+                or not _equal(value['policy'], expected_policy) or value['schedule'] != 'constant'
+                or value['binary_sha256'] != expected_binary_sha256
+                or value['identity_sha256'] != _contract()['artifact']['identity_sha256']
+                or value['selection_sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint schema/iteration/policy/artifact differs')
+        ids = value['ids']; n = value['n']
+        if (not isinstance(ids, torch.Tensor) or ids.dtype != torch.int64 or ids.ndim != 1 or ids.numel() == 0
+                or type(n) is not int or n < len(ids) or not bool(((ids >= 0) & (ids < n)).all())
+                or not bool((ids[1:] > ids[:-1]).all()) or _tensor(ids)['sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint selection differs')
+        eta = value['eta']
+        if not isinstance(eta, dict) or set(eta) != {'pre', 'post'}:
+            raise ValueError('carrier contrast state differs')
+        for p in eta.values():
+            if (not isinstance(p, torch.Tensor) or p.dtype != torch.float32 or tuple(p.shape) != (len(ids), 3)
+                    or not bool(torch.isfinite(p).all())):
+                raise ValueError('carrier eta shape/dtype/finiteness differs')
+        updates = value['local_updates']
+        if (type(updates) is not int or type(value['enabled']) is not bool
+                or updates != (expected_iteration-_contract()['policy']['source_iteration'] if value['enabled'] else 0)
+                or updates < 0):
+            raise ValueError('carrier local update clock differs')
+        dummy = [torch.nn.Parameter(torch.zeros_like(p)) for p in eta.values()]
+        expected_groups = _optimizer(dummy, expected_policy).state_dict()['param_groups']
+        opt = value['optimizer']
+        if not isinstance(opt, dict) or set(opt) != {'state', 'param_groups'} or not _equal(opt['param_groups'], expected_groups):
+            raise ValueError('carrier Adam options differ')
+        if set(opt['state']) != ({0, 1} if updates else set()): raise ValueError('carrier Adam membership differs')
+        for row in opt['state'].values():
+            if set(row) != {'step', 'exp_avg', 'exp_avg_sq'}: raise ValueError('carrier Adam fields differ')
+            for name, tensor in row.items():
+                if (not isinstance(tensor, torch.Tensor) or tensor.dtype != torch.float32
+                        or tuple(tensor.shape) != (() if name == 'step' else (len(ids), 3))
+                        or not bool(torch.isfinite(tensor).all())):
+                    raise ValueError('carrier Adam shape/dtype/finite differs')
+            if float(row['step']) != updates or bool((row['exp_avg_sq'] < 0).any()):
+                raise ValueError('carrier Adam clock/moment differs')
+        pair_path = path.parent/'paired_carrier_checkpoint.json'
+        paired = json.loads(pair_path.read_text())
+        expected_pair = dict(schema='carrier_checkpoint_pair_v1', iteration=expected_iteration, gaussian=value['gaussian'],
+            carrier=_descriptor(path), policy=expected_policy, selection_sha256=expected_selection_sha256,
+            binary_sha256=expected_binary_sha256)
+        if not _equal(paired, expected_pair) or _descriptor(value['gaussian']['path']) != value['gaussian']:
+>           raise ValueError('carrier/Gaussian paired checkpoint incomplete or different')
+E           ValueError: carrier/Gaussian paired checkpoint incomplete or different
+
+carrier_runtime.py:367: ValueError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+__________________ test_checkpoint_corruption_refused[schema] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref0')
+defect = 'schema'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_runtime.py:61: in run
+    result = m._run_carrier_continuation(trainer,frequency,directory,mode=mode,steps=steps,
+carrier_runtime.py:301: in _run_carrier_continuation
+    read = validate_carrier_checkpoint(checkpoint_path, expected_iteration=iteration, expected_policy=policy,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref0/carrier_checkpoint.pt')
+
+    def validate_carrier_checkpoint(path, *, expected_iteration, expected_policy,
+                                    expected_selection_sha256, expected_binary_sha256):
+        """Safe CPU paired-component validation; no implicit zero-state resume."""
+        import torch
+        path = Path(path)
+        value = torch.load(path, map_location='cpu', weights_only=True)
+        required = {'schema', 'iteration', 'policy', 'n', 'ids', 'eta', 'optimizer', 'local_updates', 'enabled',
+                    'binary_sha256', 'identity_sha256', 'gaussian', 'selection_sha256', 'schedule'}
+        if (type(value) is not dict or set(value) != required or value['schema'] != _SCHEMA
+                or type(value['iteration']) is not int or value['iteration'] != expected_iteration
+                or not _equal(value['policy'], expected_policy) or value['schedule'] != 'constant'
+                or value['binary_sha256'] != expected_binary_sha256
+                or value['identity_sha256'] != _contract()['artifact']['identity_sha256']
+                or value['selection_sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint schema/iteration/policy/artifact differs')
+        ids = value['ids']; n = value['n']
+        if (not isinstance(ids, torch.Tensor) or ids.dtype != torch.int64 or ids.ndim != 1 or ids.numel() == 0
+                or type(n) is not int or n < len(ids) or not bool(((ids >= 0) & (ids < n)).all())
+                or not bool((ids[1:] > ids[:-1]).all()) or _tensor(ids)['sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint selection differs')
+        eta = value['eta']
+        if not isinstance(eta, dict) or set(eta) != {'pre', 'post'}:
+            raise ValueError('carrier contrast state differs')
+        for p in eta.values():
+            if (not isinstance(p, torch.Tensor) or p.dtype != torch.float32 or tuple(p.shape) != (len(ids), 3)
+                    or not bool(torch.isfinite(p).all())):
+                raise ValueError('carrier eta shape/dtype/finiteness differs')
+        updates = value['local_updates']
+        if (type(updates) is not int or type(value['enabled']) is not bool
+                or updates != (expected_iteration-_contract()['policy']['source_iteration'] if value['enabled'] else 0)
+                or updates < 0):
+            raise ValueError('carrier local update clock differs')
+        dummy = [torch.nn.Parameter(torch.zeros_like(p)) for p in eta.values()]
+        expected_groups = _optimizer(dummy, expected_policy).state_dict()['param_groups']
+        opt = value['optimizer']
+        if not isinstance(opt, dict) or set(opt) != {'state', 'param_groups'} or not _equal(opt['param_groups'], expected_groups):
+            raise ValueError('carrier Adam options differ')
+        if set(opt['state']) != ({0, 1} if updates else set()): raise ValueError('carrier Adam membership differs')
+        for row in opt['state'].values():
+            if set(row) != {'step', 'exp_avg', 'exp_avg_sq'}: raise ValueError('carrier Adam fields differ')
+            for name, tensor in row.items():
+                if (not isinstance(tensor, torch.Tensor) or tensor.dtype != torch.float32
+                        or tuple(tensor.shape) != (() if name == 'step' else (len(ids), 3))
+                        or not bool(torch.isfinite(tensor).all())):
+                    raise ValueError('carrier Adam shape/dtype/finite differs')
+            if float(row['step']) != updates or bool((row['exp_avg_sq'] < 0).any()):
+                raise ValueError('carrier Adam clock/moment differs')
+        pair_path = path.parent/'paired_carrier_checkpoint.json'
+        paired = json.loads(pair_path.read_text())
+        expected_pair = dict(schema='carrier_checkpoint_pair_v1', iteration=expected_iteration, gaussian=value['gaussian'],
+            carrier=_descriptor(path), policy=expected_policy, selection_sha256=expected_selection_sha256,
+            binary_sha256=expected_binary_sha256)
+        if not _equal(paired, expected_pair) or _descriptor(value['gaussian']['path']) != value['gaussian']:
+>           raise ValueError('carrier/Gaussian paired checkpoint incomplete or different')
+E           ValueError: carrier/Gaussian paired checkpoint incomplete or different
+
+carrier_runtime.py:367: ValueError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+________________ test_checkpoint_corruption_refused[iteration] _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref1')
+defect = 'iteration'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_runtime.py:61: in run
+    result = m._run_carrier_continuation(trainer,frequency,directory,mode=mode,steps=steps,
+carrier_runtime.py:301: in _run_carrier_continuation
+    read = validate_carrier_checkpoint(checkpoint_path, expected_iteration=iteration, expected_policy=policy,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref1/carrier_checkpoint.pt')
+
+    def validate_carrier_checkpoint(path, *, expected_iteration, expected_policy,
+                                    expected_selection_sha256, expected_binary_sha256):
+        """Safe CPU paired-component validation; no implicit zero-state resume."""
+        import torch
+        path = Path(path)
+        value = torch.load(path, map_location='cpu', weights_only=True)
+        required = {'schema', 'iteration', 'policy', 'n', 'ids', 'eta', 'optimizer', 'local_updates', 'enabled',
+                    'binary_sha256', 'identity_sha256', 'gaussian', 'selection_sha256', 'schedule'}
+        if (type(value) is not dict or set(value) != required or value['schema'] != _SCHEMA
+                or type(value['iteration']) is not int or value['iteration'] != expected_iteration
+                or not _equal(value['policy'], expected_policy) or value['schedule'] != 'constant'
+                or value['binary_sha256'] != expected_binary_sha256
+                or value['identity_sha256'] != _contract()['artifact']['identity_sha256']
+                or value['selection_sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint schema/iteration/policy/artifact differs')
+        ids = value['ids']; n = value['n']
+        if (not isinstance(ids, torch.Tensor) or ids.dtype != torch.int64 or ids.ndim != 1 or ids.numel() == 0
+                or type(n) is not int or n < len(ids) or not bool(((ids >= 0) & (ids < n)).all())
+                or not bool((ids[1:] > ids[:-1]).all()) or _tensor(ids)['sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint selection differs')
+        eta = value['eta']
+        if not isinstance(eta, dict) or set(eta) != {'pre', 'post'}:
+            raise ValueError('carrier contrast state differs')
+        for p in eta.values():
+            if (not isinstance(p, torch.Tensor) or p.dtype != torch.float32 or tuple(p.shape) != (len(ids), 3)
+                    or not bool(torch.isfinite(p).all())):
+                raise ValueError('carrier eta shape/dtype/finiteness differs')
+        updates = value['local_updates']
+        if (type(updates) is not int or type(value['enabled']) is not bool
+                or updates != (expected_iteration-_contract()['policy']['source_iteration'] if value['enabled'] else 0)
+                or updates < 0):
+            raise ValueError('carrier local update clock differs')
+        dummy = [torch.nn.Parameter(torch.zeros_like(p)) for p in eta.values()]
+        expected_groups = _optimizer(dummy, expected_policy).state_dict()['param_groups']
+        opt = value['optimizer']
+        if not isinstance(opt, dict) or set(opt) != {'state', 'param_groups'} or not _equal(opt['param_groups'], expected_groups):
+            raise ValueError('carrier Adam options differ')
+        if set(opt['state']) != ({0, 1} if updates else set()): raise ValueError('carrier Adam membership differs')
+        for row in opt['state'].values():
+            if set(row) != {'step', 'exp_avg', 'exp_avg_sq'}: raise ValueError('carrier Adam fields differ')
+            for name, tensor in row.items():
+                if (not isinstance(tensor, torch.Tensor) or tensor.dtype != torch.float32
+                        or tuple(tensor.shape) != (() if name == 'step' else (len(ids), 3))
+                        or not bool(torch.isfinite(tensor).all())):
+                    raise ValueError('carrier Adam shape/dtype/finite differs')
+            if float(row['step']) != updates or bool((row['exp_avg_sq'] < 0).any()):
+                raise ValueError('carrier Adam clock/moment differs')
+        pair_path = path.parent/'paired_carrier_checkpoint.json'
+        paired = json.loads(pair_path.read_text())
+        expected_pair = dict(schema='carrier_checkpoint_pair_v1', iteration=expected_iteration, gaussian=value['gaussian'],
+            carrier=_descriptor(path), policy=expected_policy, selection_sha256=expected_selection_sha256,
+            binary_sha256=expected_binary_sha256)
+        if not _equal(paired, expected_pair) or _descriptor(value['gaussian']['path']) != value['gaussian']:
+>           raise ValueError('carrier/Gaussian paired checkpoint incomplete or different')
+E           ValueError: carrier/Gaussian paired checkpoint incomplete or different
+
+carrier_runtime.py:367: ValueError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+__________________ test_checkpoint_corruption_refused[policy] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref2')
+defect = 'policy'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_runtime.py:61: in run
+    result = m._run_carrier_continuation(trainer,frequency,directory,mode=mode,steps=steps,
+carrier_runtime.py:301: in _run_carrier_continuation
+    read = validate_carrier_checkpoint(checkpoint_path, expected_iteration=iteration, expected_policy=policy,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref2/carrier_checkpoint.pt')
+
+    def validate_carrier_checkpoint(path, *, expected_iteration, expected_policy,
+                                    expected_selection_sha256, expected_binary_sha256):
+        """Safe CPU paired-component validation; no implicit zero-state resume."""
+        import torch
+        path = Path(path)
+        value = torch.load(path, map_location='cpu', weights_only=True)
+        required = {'schema', 'iteration', 'policy', 'n', 'ids', 'eta', 'optimizer', 'local_updates', 'enabled',
+                    'binary_sha256', 'identity_sha256', 'gaussian', 'selection_sha256', 'schedule'}
+        if (type(value) is not dict or set(value) != required or value['schema'] != _SCHEMA
+                or type(value['iteration']) is not int or value['iteration'] != expected_iteration
+                or not _equal(value['policy'], expected_policy) or value['schedule'] != 'constant'
+                or value['binary_sha256'] != expected_binary_sha256
+                or value['identity_sha256'] != _contract()['artifact']['identity_sha256']
+                or value['selection_sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint schema/iteration/policy/artifact differs')
+        ids = value['ids']; n = value['n']
+        if (not isinstance(ids, torch.Tensor) or ids.dtype != torch.int64 or ids.ndim != 1 or ids.numel() == 0
+                or type(n) is not int or n < len(ids) or not bool(((ids >= 0) & (ids < n)).all())
+                or not bool((ids[1:] > ids[:-1]).all()) or _tensor(ids)['sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint selection differs')
+        eta = value['eta']
+        if not isinstance(eta, dict) or set(eta) != {'pre', 'post'}:
+            raise ValueError('carrier contrast state differs')
+        for p in eta.values():
+            if (not isinstance(p, torch.Tensor) or p.dtype != torch.float32 or tuple(p.shape) != (len(ids), 3)
+                    or not bool(torch.isfinite(p).all())):
+                raise ValueError('carrier eta shape/dtype/finiteness differs')
+        updates = value['local_updates']
+        if (type(updates) is not int or type(value['enabled']) is not bool
+                or updates != (expected_iteration-_contract()['policy']['source_iteration'] if value['enabled'] else 0)
+                or updates < 0):
+            raise ValueError('carrier local update clock differs')
+        dummy = [torch.nn.Parameter(torch.zeros_like(p)) for p in eta.values()]
+        expected_groups = _optimizer(dummy, expected_policy).state_dict()['param_groups']
+        opt = value['optimizer']
+        if not isinstance(opt, dict) or set(opt) != {'state', 'param_groups'} or not _equal(opt['param_groups'], expected_groups):
+            raise ValueError('carrier Adam options differ')
+        if set(opt['state']) != ({0, 1} if updates else set()): raise ValueError('carrier Adam membership differs')
+        for row in opt['state'].values():
+            if set(row) != {'step', 'exp_avg', 'exp_avg_sq'}: raise ValueError('carrier Adam fields differ')
+            for name, tensor in row.items():
+                if (not isinstance(tensor, torch.Tensor) or tensor.dtype != torch.float32
+                        or tuple(tensor.shape) != (() if name == 'step' else (len(ids), 3))
+                        or not bool(torch.isfinite(tensor).all())):
+                    raise ValueError('carrier Adam shape/dtype/finite differs')
+            if float(row['step']) != updates or bool((row['exp_avg_sq'] < 0).any()):
+                raise ValueError('carrier Adam clock/moment differs')
+        pair_path = path.parent/'paired_carrier_checkpoint.json'
+        paired = json.loads(pair_path.read_text())
+        expected_pair = dict(schema='carrier_checkpoint_pair_v1', iteration=expected_iteration, gaussian=value['gaussian'],
+            carrier=_descriptor(path), policy=expected_policy, selection_sha256=expected_selection_sha256,
+            binary_sha256=expected_binary_sha256)
+        if not _equal(paired, expected_pair) or _descriptor(value['gaussian']['path']) != value['gaussian']:
+>           raise ValueError('carrier/Gaussian paired checkpoint incomplete or different')
+E           ValueError: carrier/Gaussian paired checkpoint incomplete or different
+
+carrier_runtime.py:367: ValueError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+___________________ test_checkpoint_corruption_refused[ids] ____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref3')
+defect = 'ids'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_runtime.py:61: in run
+    result = m._run_carrier_continuation(trainer,frequency,directory,mode=mode,steps=steps,
+carrier_runtime.py:301: in _run_carrier_continuation
+    read = validate_carrier_checkpoint(checkpoint_path, expected_iteration=iteration, expected_policy=policy,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref3/carrier_checkpoint.pt')
+
+    def validate_carrier_checkpoint(path, *, expected_iteration, expected_policy,
+                                    expected_selection_sha256, expected_binary_sha256):
+        """Safe CPU paired-component validation; no implicit zero-state resume."""
+        import torch
+        path = Path(path)
+        value = torch.load(path, map_location='cpu', weights_only=True)
+        required = {'schema', 'iteration', 'policy', 'n', 'ids', 'eta', 'optimizer', 'local_updates', 'enabled',
+                    'binary_sha256', 'identity_sha256', 'gaussian', 'selection_sha256', 'schedule'}
+        if (type(value) is not dict or set(value) != required or value['schema'] != _SCHEMA
+                or type(value['iteration']) is not int or value['iteration'] != expected_iteration
+                or not _equal(value['policy'], expected_policy) or value['schedule'] != 'constant'
+                or value['binary_sha256'] != expected_binary_sha256
+                or value['identity_sha256'] != _contract()['artifact']['identity_sha256']
+                or value['selection_sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint schema/iteration/policy/artifact differs')
+        ids = value['ids']; n = value['n']
+        if (not isinstance(ids, torch.Tensor) or ids.dtype != torch.int64 or ids.ndim != 1 or ids.numel() == 0
+                or type(n) is not int or n < len(ids) or not bool(((ids >= 0) & (ids < n)).all())
+                or not bool((ids[1:] > ids[:-1]).all()) or _tensor(ids)['sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint selection differs')
+        eta = value['eta']
+        if not isinstance(eta, dict) or set(eta) != {'pre', 'post'}:
+            raise ValueError('carrier contrast state differs')
+        for p in eta.values():
+            if (not isinstance(p, torch.Tensor) or p.dtype != torch.float32 or tuple(p.shape) != (len(ids), 3)
+                    or not bool(torch.isfinite(p).all())):
+                raise ValueError('carrier eta shape/dtype/finiteness differs')
+        updates = value['local_updates']
+        if (type(updates) is not int or type(value['enabled']) is not bool
+                or updates != (expected_iteration-_contract()['policy']['source_iteration'] if value['enabled'] else 0)
+                or updates < 0):
+            raise ValueError('carrier local update clock differs')
+        dummy = [torch.nn.Parameter(torch.zeros_like(p)) for p in eta.values()]
+        expected_groups = _optimizer(dummy, expected_policy).state_dict()['param_groups']
+        opt = value['optimizer']
+        if not isinstance(opt, dict) or set(opt) != {'state', 'param_groups'} or not _equal(opt['param_groups'], expected_groups):
+            raise ValueError('carrier Adam options differ')
+        if set(opt['state']) != ({0, 1} if updates else set()): raise ValueError('carrier Adam membership differs')
+        for row in opt['state'].values():
+            if set(row) != {'step', 'exp_avg', 'exp_avg_sq'}: raise ValueError('carrier Adam fields differ')
+            for name, tensor in row.items():
+                if (not isinstance(tensor, torch.Tensor) or tensor.dtype != torch.float32
+                        or tuple(tensor.shape) != (() if name == 'step' else (len(ids), 3))
+                        or not bool(torch.isfinite(tensor).all())):
+                    raise ValueError('carrier Adam shape/dtype/finite differs')
+            if float(row['step']) != updates or bool((row['exp_avg_sq'] < 0).any()):
+                raise ValueError('carrier Adam clock/moment differs')
+        pair_path = path.parent/'paired_carrier_checkpoint.json'
+        paired = json.loads(pair_path.read_text())
+        expected_pair = dict(schema='carrier_checkpoint_pair_v1', iteration=expected_iteration, gaussian=value['gaussian'],
+            carrier=_descriptor(path), policy=expected_policy, selection_sha256=expected_selection_sha256,
+            binary_sha256=expected_binary_sha256)
+        if not _equal(paired, expected_pair) or _descriptor(value['gaussian']['path']) != value['gaussian']:
+>           raise ValueError('carrier/Gaussian paired checkpoint incomplete or different')
+E           ValueError: carrier/Gaussian paired checkpoint incomplete or different
+
+carrier_runtime.py:367: ValueError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+__________________ test_checkpoint_corruption_refused[binary] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref4')
+defect = 'binary'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_runtime.py:61: in run
+    result = m._run_carrier_continuation(trainer,frequency,directory,mode=mode,steps=steps,
+carrier_runtime.py:301: in _run_carrier_continuation
+    read = validate_carrier_checkpoint(checkpoint_path, expected_iteration=iteration, expected_policy=policy,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref4/carrier_checkpoint.pt')
+
+    def validate_carrier_checkpoint(path, *, expected_iteration, expected_policy,
+                                    expected_selection_sha256, expected_binary_sha256):
+        """Safe CPU paired-component validation; no implicit zero-state resume."""
+        import torch
+        path = Path(path)
+        value = torch.load(path, map_location='cpu', weights_only=True)
+        required = {'schema', 'iteration', 'policy', 'n', 'ids', 'eta', 'optimizer', 'local_updates', 'enabled',
+                    'binary_sha256', 'identity_sha256', 'gaussian', 'selection_sha256', 'schedule'}
+        if (type(value) is not dict or set(value) != required or value['schema'] != _SCHEMA
+                or type(value['iteration']) is not int or value['iteration'] != expected_iteration
+                or not _equal(value['policy'], expected_policy) or value['schedule'] != 'constant'
+                or value['binary_sha256'] != expected_binary_sha256
+                or value['identity_sha256'] != _contract()['artifact']['identity_sha256']
+                or value['selection_sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint schema/iteration/policy/artifact differs')
+        ids = value['ids']; n = value['n']
+        if (not isinstance(ids, torch.Tensor) or ids.dtype != torch.int64 or ids.ndim != 1 or ids.numel() == 0
+                or type(n) is not int or n < len(ids) or not bool(((ids >= 0) & (ids < n)).all())
+                or not bool((ids[1:] > ids[:-1]).all()) or _tensor(ids)['sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint selection differs')
+        eta = value['eta']
+        if not isinstance(eta, dict) or set(eta) != {'pre', 'post'}:
+            raise ValueError('carrier contrast state differs')
+        for p in eta.values():
+            if (not isinstance(p, torch.Tensor) or p.dtype != torch.float32 or tuple(p.shape) != (len(ids), 3)
+                    or not bool(torch.isfinite(p).all())):
+                raise ValueError('carrier eta shape/dtype/finiteness differs')
+        updates = value['local_updates']
+        if (type(updates) is not int or type(value['enabled']) is not bool
+                or updates != (expected_iteration-_contract()['policy']['source_iteration'] if value['enabled'] else 0)
+                or updates < 0):
+            raise ValueError('carrier local update clock differs')
+        dummy = [torch.nn.Parameter(torch.zeros_like(p)) for p in eta.values()]
+        expected_groups = _optimizer(dummy, expected_policy).state_dict()['param_groups']
+        opt = value['optimizer']
+        if not isinstance(opt, dict) or set(opt) != {'state', 'param_groups'} or not _equal(opt['param_groups'], expected_groups):
+            raise ValueError('carrier Adam options differ')
+        if set(opt['state']) != ({0, 1} if updates else set()): raise ValueError('carrier Adam membership differs')
+        for row in opt['state'].values():
+            if set(row) != {'step', 'exp_avg', 'exp_avg_sq'}: raise ValueError('carrier Adam fields differ')
+            for name, tensor in row.items():
+                if (not isinstance(tensor, torch.Tensor) or tensor.dtype != torch.float32
+                        or tuple(tensor.shape) != (() if name == 'step' else (len(ids), 3))
+                        or not bool(torch.isfinite(tensor).all())):
+                    raise ValueError('carrier Adam shape/dtype/finite differs')
+            if float(row['step']) != updates or bool((row['exp_avg_sq'] < 0).any()):
+                raise ValueError('carrier Adam clock/moment differs')
+        pair_path = path.parent/'paired_carrier_checkpoint.json'
+        paired = json.loads(pair_path.read_text())
+        expected_pair = dict(schema='carrier_checkpoint_pair_v1', iteration=expected_iteration, gaussian=value['gaussian'],
+            carrier=_descriptor(path), policy=expected_policy, selection_sha256=expected_selection_sha256,
+            binary_sha256=expected_binary_sha256)
+        if not _equal(paired, expected_pair) or _descriptor(value['gaussian']['path']) != value['gaussian']:
+>           raise ValueError('carrier/Gaussian paired checkpoint incomplete or different')
+E           ValueError: carrier/Gaussian paired checkpoint incomplete or different
+
+carrier_runtime.py:367: ValueError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+__________________ test_checkpoint_corruption_refused[shape] ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref5')
+defect = 'shape'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_runtime.py:61: in run
+    result = m._run_carrier_continuation(trainer,frequency,directory,mode=mode,steps=steps,
+carrier_runtime.py:301: in _run_carrier_continuation
+    read = validate_carrier_checkpoint(checkpoint_path, expected_iteration=iteration, expected_policy=policy,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref5/carrier_checkpoint.pt')
+
+    def validate_carrier_checkpoint(path, *, expected_iteration, expected_policy,
+                                    expected_selection_sha256, expected_binary_sha256):
+        """Safe CPU paired-component validation; no implicit zero-state resume."""
+        import torch
+        path = Path(path)
+        value = torch.load(path, map_location='cpu', weights_only=True)
+        required = {'schema', 'iteration', 'policy', 'n', 'ids', 'eta', 'optimizer', 'local_updates', 'enabled',
+                    'binary_sha256', 'identity_sha256', 'gaussian', 'selection_sha256', 'schedule'}
+        if (type(value) is not dict or set(value) != required or value['schema'] != _SCHEMA
+                or type(value['iteration']) is not int or value['iteration'] != expected_iteration
+                or not _equal(value['policy'], expected_policy) or value['schedule'] != 'constant'
+                or value['binary_sha256'] != expected_binary_sha256
+                or value['identity_sha256'] != _contract()['artifact']['identity_sha256']
+                or value['selection_sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint schema/iteration/policy/artifact differs')
+        ids = value['ids']; n = value['n']
+        if (not isinstance(ids, torch.Tensor) or ids.dtype != torch.int64 or ids.ndim != 1 or ids.numel() == 0
+                or type(n) is not int or n < len(ids) or not bool(((ids >= 0) & (ids < n)).all())
+                or not bool((ids[1:] > ids[:-1]).all()) or _tensor(ids)['sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint selection differs')
+        eta = value['eta']
+        if not isinstance(eta, dict) or set(eta) != {'pre', 'post'}:
+            raise ValueError('carrier contrast state differs')
+        for p in eta.values():
+            if (not isinstance(p, torch.Tensor) or p.dtype != torch.float32 or tuple(p.shape) != (len(ids), 3)
+                    or not bool(torch.isfinite(p).all())):
+                raise ValueError('carrier eta shape/dtype/finiteness differs')
+        updates = value['local_updates']
+        if (type(updates) is not int or type(value['enabled']) is not bool
+                or updates != (expected_iteration-_contract()['policy']['source_iteration'] if value['enabled'] else 0)
+                or updates < 0):
+            raise ValueError('carrier local update clock differs')
+        dummy = [torch.nn.Parameter(torch.zeros_like(p)) for p in eta.values()]
+        expected_groups = _optimizer(dummy, expected_policy).state_dict()['param_groups']
+        opt = value['optimizer']
+        if not isinstance(opt, dict) or set(opt) != {'state', 'param_groups'} or not _equal(opt['param_groups'], expected_groups):
+            raise ValueError('carrier Adam options differ')
+        if set(opt['state']) != ({0, 1} if updates else set()): raise ValueError('carrier Adam membership differs')
+        for row in opt['state'].values():
+            if set(row) != {'step', 'exp_avg', 'exp_avg_sq'}: raise ValueError('carrier Adam fields differ')
+            for name, tensor in row.items():
+                if (not isinstance(tensor, torch.Tensor) or tensor.dtype != torch.float32
+                        or tuple(tensor.shape) != (() if name == 'step' else (len(ids), 3))
+                        or not bool(torch.isfinite(tensor).all())):
+                    raise ValueError('carrier Adam shape/dtype/finite differs')
+            if float(row['step']) != updates or bool((row['exp_avg_sq'] < 0).any()):
+                raise ValueError('carrier Adam clock/moment differs')
+        pair_path = path.parent/'paired_carrier_checkpoint.json'
+        paired = json.loads(pair_path.read_text())
+        expected_pair = dict(schema='carrier_checkpoint_pair_v1', iteration=expected_iteration, gaussian=value['gaussian'],
+            carrier=_descriptor(path), policy=expected_policy, selection_sha256=expected_selection_sha256,
+            binary_sha256=expected_binary_sha256)
+        if not _equal(paired, expected_pair) or _descriptor(value['gaussian']['path']) != value['gaussian']:
+>           raise ValueError('carrier/Gaussian paired checkpoint incomplete or different')
+E           ValueError: carrier/Gaussian paired checkpoint incomplete or different
+
+carrier_runtime.py:367: ValueError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+__________________ test_checkpoint_corruption_refused[clock] ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref6')
+defect = 'clock'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_runtime.py:61: in run
+    result = m._run_carrier_continuation(trainer,frequency,directory,mode=mode,steps=steps,
+carrier_runtime.py:301: in _run_carrier_continuation
+    read = validate_carrier_checkpoint(checkpoint_path, expected_iteration=iteration, expected_policy=policy,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref6/carrier_checkpoint.pt')
+
+    def validate_carrier_checkpoint(path, *, expected_iteration, expected_policy,
+                                    expected_selection_sha256, expected_binary_sha256):
+        """Safe CPU paired-component validation; no implicit zero-state resume."""
+        import torch
+        path = Path(path)
+        value = torch.load(path, map_location='cpu', weights_only=True)
+        required = {'schema', 'iteration', 'policy', 'n', 'ids', 'eta', 'optimizer', 'local_updates', 'enabled',
+                    'binary_sha256', 'identity_sha256', 'gaussian', 'selection_sha256', 'schedule'}
+        if (type(value) is not dict or set(value) != required or value['schema'] != _SCHEMA
+                or type(value['iteration']) is not int or value['iteration'] != expected_iteration
+                or not _equal(value['policy'], expected_policy) or value['schedule'] != 'constant'
+                or value['binary_sha256'] != expected_binary_sha256
+                or value['identity_sha256'] != _contract()['artifact']['identity_sha256']
+                or value['selection_sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint schema/iteration/policy/artifact differs')
+        ids = value['ids']; n = value['n']
+        if (not isinstance(ids, torch.Tensor) or ids.dtype != torch.int64 or ids.ndim != 1 or ids.numel() == 0
+                or type(n) is not int or n < len(ids) or not bool(((ids >= 0) & (ids < n)).all())
+                or not bool((ids[1:] > ids[:-1]).all()) or _tensor(ids)['sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint selection differs')
+        eta = value['eta']
+        if not isinstance(eta, dict) or set(eta) != {'pre', 'post'}:
+            raise ValueError('carrier contrast state differs')
+        for p in eta.values():
+            if (not isinstance(p, torch.Tensor) or p.dtype != torch.float32 or tuple(p.shape) != (len(ids), 3)
+                    or not bool(torch.isfinite(p).all())):
+                raise ValueError('carrier eta shape/dtype/finiteness differs')
+        updates = value['local_updates']
+        if (type(updates) is not int or type(value['enabled']) is not bool
+                or updates != (expected_iteration-_contract()['policy']['source_iteration'] if value['enabled'] else 0)
+                or updates < 0):
+            raise ValueError('carrier local update clock differs')
+        dummy = [torch.nn.Parameter(torch.zeros_like(p)) for p in eta.values()]
+        expected_groups = _optimizer(dummy, expected_policy).state_dict()['param_groups']
+        opt = value['optimizer']
+        if not isinstance(opt, dict) or set(opt) != {'state', 'param_groups'} or not _equal(opt['param_groups'], expected_groups):
+            raise ValueError('carrier Adam options differ')
+        if set(opt['state']) != ({0, 1} if updates else set()): raise ValueError('carrier Adam membership differs')
+        for row in opt['state'].values():
+            if set(row) != {'step', 'exp_avg', 'exp_avg_sq'}: raise ValueError('carrier Adam fields differ')
+            for name, tensor in row.items():
+                if (not isinstance(tensor, torch.Tensor) or tensor.dtype != torch.float32
+                        or tuple(tensor.shape) != (() if name == 'step' else (len(ids), 3))
+                        or not bool(torch.isfinite(tensor).all())):
+                    raise ValueError('carrier Adam shape/dtype/finite differs')
+            if float(row['step']) != updates or bool((row['exp_avg_sq'] < 0).any()):
+                raise ValueError('carrier Adam clock/moment differs')
+        pair_path = path.parent/'paired_carrier_checkpoint.json'
+        paired = json.loads(pair_path.read_text())
+        expected_pair = dict(schema='carrier_checkpoint_pair_v1', iteration=expected_iteration, gaussian=value['gaussian'],
+            carrier=_descriptor(path), policy=expected_policy, selection_sha256=expected_selection_sha256,
+            binary_sha256=expected_binary_sha256)
+        if not _equal(paired, expected_pair) or _descriptor(value['gaussian']['path']) != value['gaussian']:
+>           raise ValueError('carrier/Gaussian paired checkpoint incomplete or different')
+E           ValueError: carrier/Gaussian paired checkpoint incomplete or different
+
+carrier_runtime.py:367: ValueError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+__________________ test_checkpoint_corruption_refused[moment] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref7')
+defect = 'moment'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_runtime.py:61: in run
+    result = m._run_carrier_continuation(trainer,frequency,directory,mode=mode,steps=steps,
+carrier_runtime.py:301: in _run_carrier_continuation
+    read = validate_carrier_checkpoint(checkpoint_path, expected_iteration=iteration, expected_policy=policy,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref7/carrier_checkpoint.pt')
+
+    def validate_carrier_checkpoint(path, *, expected_iteration, expected_policy,
+                                    expected_selection_sha256, expected_binary_sha256):
+        """Safe CPU paired-component validation; no implicit zero-state resume."""
+        import torch
+        path = Path(path)
+        value = torch.load(path, map_location='cpu', weights_only=True)
+        required = {'schema', 'iteration', 'policy', 'n', 'ids', 'eta', 'optimizer', 'local_updates', 'enabled',
+                    'binary_sha256', 'identity_sha256', 'gaussian', 'selection_sha256', 'schedule'}
+        if (type(value) is not dict or set(value) != required or value['schema'] != _SCHEMA
+                or type(value['iteration']) is not int or value['iteration'] != expected_iteration
+                or not _equal(value['policy'], expected_policy) or value['schedule'] != 'constant'
+                or value['binary_sha256'] != expected_binary_sha256
+                or value['identity_sha256'] != _contract()['artifact']['identity_sha256']
+                or value['selection_sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint schema/iteration/policy/artifact differs')
+        ids = value['ids']; n = value['n']
+        if (not isinstance(ids, torch.Tensor) or ids.dtype != torch.int64 or ids.ndim != 1 or ids.numel() == 0
+                or type(n) is not int or n < len(ids) or not bool(((ids >= 0) & (ids < n)).all())
+                or not bool((ids[1:] > ids[:-1]).all()) or _tensor(ids)['sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint selection differs')
+        eta = value['eta']
+        if not isinstance(eta, dict) or set(eta) != {'pre', 'post'}:
+            raise ValueError('carrier contrast state differs')
+        for p in eta.values():
+            if (not isinstance(p, torch.Tensor) or p.dtype != torch.float32 or tuple(p.shape) != (len(ids), 3)
+                    or not bool(torch.isfinite(p).all())):
+                raise ValueError('carrier eta shape/dtype/finiteness differs')
+        updates = value['local_updates']
+        if (type(updates) is not int or type(value['enabled']) is not bool
+                or updates != (expected_iteration-_contract()['policy']['source_iteration'] if value['enabled'] else 0)
+                or updates < 0):
+            raise ValueError('carrier local update clock differs')
+        dummy = [torch.nn.Parameter(torch.zeros_like(p)) for p in eta.values()]
+        expected_groups = _optimizer(dummy, expected_policy).state_dict()['param_groups']
+        opt = value['optimizer']
+        if not isinstance(opt, dict) or set(opt) != {'state', 'param_groups'} or not _equal(opt['param_groups'], expected_groups):
+            raise ValueError('carrier Adam options differ')
+        if set(opt['state']) != ({0, 1} if updates else set()): raise ValueError('carrier Adam membership differs')
+        for row in opt['state'].values():
+            if set(row) != {'step', 'exp_avg', 'exp_avg_sq'}: raise ValueError('carrier Adam fields differ')
+            for name, tensor in row.items():
+                if (not isinstance(tensor, torch.Tensor) or tensor.dtype != torch.float32
+                        or tuple(tensor.shape) != (() if name == 'step' else (len(ids), 3))
+                        or not bool(torch.isfinite(tensor).all())):
+                    raise ValueError('carrier Adam shape/dtype/finite differs')
+            if float(row['step']) != updates or bool((row['exp_avg_sq'] < 0).any()):
+                raise ValueError('carrier Adam clock/moment differs')
+        pair_path = path.parent/'paired_carrier_checkpoint.json'
+        paired = json.loads(pair_path.read_text())
+        expected_pair = dict(schema='carrier_checkpoint_pair_v1', iteration=expected_iteration, gaussian=value['gaussian'],
+            carrier=_descriptor(path), policy=expected_policy, selection_sha256=expected_selection_sha256,
+            binary_sha256=expected_binary_sha256)
+        if not _equal(paired, expected_pair) or _descriptor(value['gaussian']['path']) != value['gaussian']:
+>           raise ValueError('carrier/Gaussian paired checkpoint incomplete or different')
+E           ValueError: carrier/Gaussian paired checkpoint incomplete or different
+
+carrier_runtime.py:367: ValueError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+_______________ test_checkpoint_corruption_refused[missing_pair] _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref8')
+defect = 'missing_pair'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_runtime.py:61: in run
+    result = m._run_carrier_continuation(trainer,frequency,directory,mode=mode,steps=steps,
+carrier_runtime.py:301: in _run_carrier_continuation
+    read = validate_carrier_checkpoint(checkpoint_path, expected_iteration=iteration, expected_policy=policy,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4012/test_checkpoint_corruption_ref8/carrier_checkpoint.pt')
+
+    def validate_carrier_checkpoint(path, *, expected_iteration, expected_policy,
+                                    expected_selection_sha256, expected_binary_sha256):
+        """Safe CPU paired-component validation; no implicit zero-state resume."""
+        import torch
+        path = Path(path)
+        value = torch.load(path, map_location='cpu', weights_only=True)
+        required = {'schema', 'iteration', 'policy', 'n', 'ids', 'eta', 'optimizer', 'local_updates', 'enabled',
+                    'binary_sha256', 'identity_sha256', 'gaussian', 'selection_sha256', 'schedule'}
+        if (type(value) is not dict or set(value) != required or value['schema'] != _SCHEMA
+                or type(value['iteration']) is not int or value['iteration'] != expected_iteration
+                or not _equal(value['policy'], expected_policy) or value['schedule'] != 'constant'
+                or value['binary_sha256'] != expected_binary_sha256
+                or value['identity_sha256'] != _contract()['artifact']['identity_sha256']
+                or value['selection_sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint schema/iteration/policy/artifact differs')
+        ids = value['ids']; n = value['n']
+        if (not isinstance(ids, torch.Tensor) or ids.dtype != torch.int64 or ids.ndim != 1 or ids.numel() == 0
+                or type(n) is not int or n < len(ids) or not bool(((ids >= 0) & (ids < n)).all())
+                or not bool((ids[1:] > ids[:-1]).all()) or _tensor(ids)['sha256'] != expected_selection_sha256):
+            raise ValueError('carrier checkpoint selection differs')
+        eta = value['eta']
+        if not isinstance(eta, dict) or set(eta) != {'pre', 'post'}:
+            raise ValueError('carrier contrast state differs')
+        for p in eta.values():
+            if (not isinstance(p, torch.Tensor) or p.dtype != torch.float32 or tuple(p.shape) != (len(ids), 3)
+                    or not bool(torch.isfinite(p).all())):
+                raise ValueError('carrier eta shape/dtype/finiteness differs')
+        updates = value['local_updates']
+        if (type(updates) is not int or type(value['enabled']) is not bool
+                or updates != (expected_iteration-_contract()['policy']['source_iteration'] if value['enabled'] else 0)
+                or updates < 0):
+            raise ValueError('carrier local update clock differs')
+        dummy = [torch.nn.Parameter(torch.zeros_like(p)) for p in eta.values()]
+        expected_groups = _optimizer(dummy, expected_policy).state_dict()['param_groups']
+        opt = value['optimizer']
+        if not isinstance(opt, dict) or set(opt) != {'state', 'param_groups'} or not _equal(opt['param_groups'], expected_groups):
+            raise ValueError('carrier Adam options differ')
+        if set(opt['state']) != ({0, 1} if updates else set()): raise ValueError('carrier Adam membership differs')
+        for row in opt['state'].values():
+            if set(row) != {'step', 'exp_avg', 'exp_avg_sq'}: raise ValueError('carrier Adam fields differ')
+            for name, tensor in row.items():
+                if (not isinstance(tensor, torch.Tensor) or tensor.dtype != torch.float32
+                        or tuple(tensor.shape) != (() if name == 'step' else (len(ids), 3))
+                        or not bool(torch.isfinite(tensor).all())):
+                    raise ValueError('carrier Adam shape/dtype/finite differs')
+            if float(row['step']) != updates or bool((row['exp_avg_sq'] < 0).any()):
+                raise ValueError('carrier Adam clock/moment differs')
+        pair_path = path.parent/'paired_carrier_checkpoint.json'
+        paired = json.loads(pair_path.read_text())
+        expected_pair = dict(schema='carrier_checkpoint_pair_v1', iteration=expected_iteration, gaussian=value['gaussian'],
+            carrier=_descriptor(path), policy=expected_policy, selection_sha256=expected_selection_sha256,
+            binary_sha256=expected_binary_sha256)
+        if not _equal(paired, expected_pair) or _descriptor(value['gaussian']['path']) != value['gaussian']:
+>           raise ValueError('carrier/Gaussian paired checkpoint incomplete or different')
+E           ValueError: carrier/Gaussian paired checkpoint incomplete or different
+
+carrier_runtime.py:367: ValueError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+=========================== short test summary info ============================
+FAILED tests/test_carrier_runtime.py::test_original_loop_restoration_export_and_separate_work[control-0-2-0-0]
+FAILED tests/test_carrier_runtime.py::test_original_loop_restoration_export_and_separate_work[control-2-0-0-0]
+FAILED tests/test_carrier_runtime.py::test_original_loop_restoration_export_and_separate_work[carrier-2-6-4-2]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[schema]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[iteration]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[policy]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[ids]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[binary]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[shape]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[clock]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[moment]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[missing_pair]
+12 failed, 14 passed in 4.54s

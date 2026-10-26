@@ -1,0 +1,26 @@
+{
+  "observed_run_exit_code": 0,
+  "run_command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -B -u probe.py",
+  "checks": {
+    "script_syntax": "passed",
+    "script_hash_matches_result": true,
+    "weights_hash_matches_result": true,
+    "actual_updates": [
+      1000,
+      1000,
+      1000
+    ],
+    "feature_dimensions": [
+      27,
+      51,
+      54
+    ],
+    "formal_mri_experiment_count_increment": 0
+  },
+  "sha256": {
+    "probe.py": "ffe73a74409b449a6fed9453396919791f7b81b46dd5ab59f793a37c7bbc1f84",
+    "results.json": "51981ea9f3d07e7b6c4a461fea30f5a46a2f4f04c4920fe1f12d2fdc55d3cbc1",
+    "probe_weights.pt": "8b1bc866d566ad90c7f3779b0286d910f3e6bf15dbfcbc1cc38d6cc71c0d679c",
+    "BRIEF.md": "49ab3ac76ed29e557dccc3bb66cfe300abfb396cb83314fd797e35a18ed3d51e"
+  }
+}

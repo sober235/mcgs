@@ -1,0 +1,55 @@
+{
+  "updated_at_utc": "2026-10-22T09:36:39.558036+00:00",
+  "status": "phase_complete_next_hypothesis_research",
+  "source_revision": "80de16da561b50fbbe65bf078ab4e05e9314f798",
+  "completed_formal_mri_experiments": 30,
+  "historical_rescorings": 65,
+  "representation_diagnostics": 2,
+  "active_trial": null,
+  "active_scoring": null,
+  "whole_head_keeper": {
+    "name": "lowreg_f075_solve_v1",
+    "score": -0.11118128532897047
+  },
+  "strict_success": false,
+  "latest_scored": {
+    "event": "scored",
+    "observed_at_utc": "2026-10-22T09:36:39.558036+00:00",
+    "run": "g2_relocation_event500_v1",
+    "source_revision": "80de16da561b50fbbe65bf078ab4e05e9314f798",
+    "formal_mri_experiments_added": 0,
+    "status": "discard",
+    "decision": "no_promotion_below_whole_head_keeper",
+    "objective": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/scores/g2_relocation_event500_v1/objective.json",
+      "sha256": "bdc710990f54bb23398d971187ebf8c19fef3472faeff83908763a86413e8877"
+    },
+    "enhancement": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/scores/g2_relocation_event500_v1/enhancement.json",
+      "sha256": "496a5c2cf392be5c8204eafaa4693bc06d6c9f760285c05b02177eb4c1429bf5"
+    },
+    "score": -0.11718772593014594,
+    "whole_head_metrics": {
+      "pre": {
+        "psnr": 34.81055857613262,
+        "ssim": 0.9415609836578369,
+        "nmse": 0.009928120195621936
+      },
+      "post": {
+        "psnr": 37.166259710772124,
+        "ssim": 0.9542386531829834,
+        "nmse": 0.009582386904159851
+      }
+    },
+    "whole_head_strict_wins": 0,
+    "lesion_plane_passes_both": 0,
+    "lesion_plane_passes_by_scan": {
+      "pre": 0,
+      "post": 2
+    },
+    "keeper_score": -0.11118128532897047,
+    "delta_score_vs_keeper": -0.006006440601175472,
+    "strict_success": false,
+    "evidence_preserved": true
+  }
+}

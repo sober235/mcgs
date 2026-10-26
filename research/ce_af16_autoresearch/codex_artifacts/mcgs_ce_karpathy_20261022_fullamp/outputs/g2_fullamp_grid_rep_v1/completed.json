@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "status": "complete",
+  "route": "g2_full_amplitude_representation_v1",
+  "stage": "fit",
+  "encoder": "grid",
+  "seed": 42,
+  "bands": 8,
+  "width": 64,
+  "chunk_size": 131072,
+  "coefficient_updates": 2000,
+  "coefficient_batch": 32768,
+  "raw_updates": 128,
+  "lr": 0.001,
+  "betas": [
+    0.9,
+    0.999
+  ],
+  "epsilon": 1e-08,
+  "weight_decay": 0.0,
+  "clip_max_norm": 1.0,
+  "log_floor": 1e-12,
+  "std_floor": 1e-06,
+  "admission_relative_l2": 0.01,
+  "anchor_relative_l2": 1e-05,
+  "parameters": {
+    "route": "g2_full_amplitude_representation_v1",
+    "stage": "fit",
+    "encoder": "grid",
+    "seed": 42,
+    "bands": 8,
+    "width": 64,
+    "chunk_size": 131072,
+    "coefficient_updates": 2000,
+    "coefficient_batch": 32768,
+    "raw_updates": 128,
+    "lr": 0.001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "epsilon": 1e-08,
+    "weight_decay": 0.0,
+    "clip_max_norm": 1.0,
+    "log_floor": 1e-12,
+    "std_floor": 1e-06,
+    "admission_relative_l2": 0.01,
+    "anchor_relative_l2": 1e-05
+  },
+  "run_dir": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_grid_rep_v1",
+  "code_sha256": {
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/run_representation.py": "f18971113a053a5eb89e3eb2b9434cd7099a3ad26dee9a1ae533ec86ee639c19",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/representation_runner.py": "4beb350b10e91cc4e71a516c49c317759439d8f417d66a4aae360e9dd7765416",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/full_amplitude.py": "840d88ff1c19f887c0bd6c4ee2245e2e30103d86aa26ae3baec59344dca5c972",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/raw_g2.py": "81caa91448b1e4207fb17b3994aa3722404b579c05c9d2fd8b5498d8b63604e0",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/run_gpu.py": "983688ada3c2c3e37e4dcd0fe7cb64dbbc4dff587f302ed16fd99bad58136ac3",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/proxdc_runner.py": "68a1b36c36ca29f62aec3b64371a0933e1b3f66edaae77471ddce1a055618124",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/run_proxdc.py": "894f43a120029b16a66f65900b1593959d675b85e6ef7003cdd790046aab0106",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/runner.py": "fb5d2e3097e37c6bec84a3d5a5bae6e0452d1f37bb7835acc32be86f7ad91af4",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/autoresearch.py": "e2fc21e3a9712006da2fdf58cb2066162dc1f9ee6c93214d3c193287003fdf81",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/objective.py": "cb9fa0c4ae2227947e06d3384559f31138086780aa729540b6ebfd3cc0a0bd41",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/__init__.py": "dcf951376a40e6f6830041cd27b5189af8d491b214e54c02d1da34e5bc9f8bfe",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/gaussian_model.py": "9303c79e70dfced8631d10261fd4c06b1f87958a5ddaa4a80d3b93e722ce8622",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/joint_gaussian_model.py": "31eea44eb636113e29b1f99192f297e38ac0c7b937e8dc3b5daff11c349fd966",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/bayesian_joint_model.py": "b2d8d1275eb28f395f9102d373f3f33904ede4c205b276c4087f20527d6439c2",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/voxelizer.py": "8d63e1c93b7482d9d236c8756d050c5b83ba01f79b3bf14421445579f66b1c93",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/tile_voxelizer.py": "2769454cde8276b11ded79f6729ba62e3ed67b7a2af585de15807d3f7957dc0a",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/__init__.py": "8ff1e8e2db6dbea65b9a2bc87d724c16952fc8a78ac190eb84b560ab653d1476",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/kspace_loss.py": "23bdcf9980656592e052b63d9a04f4fffd39477ab644c4815b43c65d04136f90",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/multiscale_loss.py": "e4d242df6dec1e31f5634eb9d7fba31103ba615775e49d0ea1e0d2c6e727afee",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/losses.py": "afb06a60ada378760051898cbf43fa1ec89d0260b1943429b714a06bb0baee1e",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/complex_gaussian_kl.py": "852a1f5ee6caccc2ea2310444c1fac39c9b3ac693a44640ed236548807622134",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/elbo.py": "69ab91ad29f6476cb6daf99e40f0d38f8475f2bd713ccf7a9744e12f19ab3144",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/cf_safe.py": "eac4a27e702c789f1af28c5cd00a2d686cdffeaf36303b56b80b293f1ebe8766",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/cf_damp.py": "783c89a0ae1a7ddc4507e5d681e9e4bea3dbd4bdad0c292a18c5fdbd5429b517",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/data/__init__.py": "4954a1d4db61951b7fb87ee7e8871835dfae5732eca3286cd1fa3e8173551033",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/data/transforms.py": "0037b2ee2c085af69ab18637bfaf87d3146f86b0b7e6fdf96a73b7bcd40d7015",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/data/mask_three_way_split.py": "a790539f5f349276666db51ca4bc52c44e19a8c9aaf17284dc30c6d41cb5a092",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/data/dataset.py": "28ae44153e8085bc36636aa210024ab49d882d056ec08602e683051fba2fc909",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/build/tile_voxelize_cuda_0141c525_7aedd3b0.so": "3973daeef5f55ebfed931c38538a37d83921a9287b96b69a431da238057194b5",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/tile_voxelize_cuda.cpp": "e412af61cc4f5c75b9988d4f433a73e2e1c2b5910feff48b7beaea8737012d49",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/tile_voxelize_cuda_kernel.cu": "515673bd9bf0af1d23b91679f5d9e177d9b034c9172f75ec0ce937258686da14"
+  },
+  "invariants": {
+    "route": "g2_full_amplitude_representation_v1",
+    "source_definition": {
+      "checkpoint": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/training/ar_i1_k30p90/checkpoints/latest.pth",
+      "source_dir": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian",
+      "binary": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/build/tile_voxelize_cuda_0141c525_7aedd3b0.so",
+      "descriptor": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_proxdc/outputs/g2_proxdc_canonical_v1/completed.json",
+      "anchors": {
+        "pre": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_proxdc/outputs/g2_proxdc_canonical_v1/raw_pre_complex.npy",
+        "post": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_proxdc/outputs/g2_proxdc_canonical_v1/raw_post_complex.npy"
+      },
+      "expected_sha256": {
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/__init__.py": "dcf951376a40e6f6830041cd27b5189af8d491b214e54c02d1da34e5bc9f8bfe",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/gaussian_model.py": "9303c79e70dfced8631d10261fd4c06b1f87958a5ddaa4a80d3b93e722ce8622",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/joint_gaussian_model.py": "31eea44eb636113e29b1f99192f297e38ac0c7b937e8dc3b5daff11c349fd966",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/bayesian_joint_model.py": "b2d8d1275eb28f395f9102d373f3f33904ede4c205b276c4087f20527d6439c2",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/voxelizer.py": "8d63e1c93b7482d9d236c8756d050c5b83ba01f79b3bf14421445579f66b1c93",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/tile_voxelizer.py": "2769454cde8276b11ded79f6729ba62e3ed67b7a2af585de15807d3f7957dc0a",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/__init__.py": "8ff1e8e2db6dbea65b9a2bc87d724c16952fc8a78ac190eb84b560ab653d1476",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/kspace_loss.py": "23bdcf9980656592e052b63d9a04f4fffd39477ab644c4815b43c65d04136f90",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/multiscale_loss.py": "e4d242df6dec1e31f5634eb9d7fba31103ba615775e49d0ea1e0d2c6e727afee",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/losses.py": "afb06a60ada378760051898cbf43fa1ec89d0260b1943429b714a06bb0baee1e",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/complex_gaussian_kl.py": "852a1f5ee6caccc2ea2310444c1fac39c9b3ac693a44640ed236548807622134",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/elbo.py": "69ab91ad29f6476cb6daf99e40f0d38f8475f2bd713ccf7a9744e12f19ab3144",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/cf_safe.py": "eac4a27e702c789f1af28c5cd00a2d686cdffeaf36303b56b80b293f1ebe8766",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/cf_damp.py": "783c89a0ae1a7ddc4507e5d681e9e4bea3dbd4bdad0c292a18c5fdbd5429b517",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/data/__init__.py": "4954a1d4db61951b7fb87ee7e8871835dfae5732eca3286cd1fa3e8173551033",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/data/transforms.py": "0037b2ee2c085af69ab18637bfaf87d3146f86b0b7e6fdf96a73b7bcd40d7015",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/data/mask_three_way_split.py": "a790539f5f349276666db51ca4bc52c44e19a8c9aaf17284dc30c6d41cb5a092",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/data/dataset.py": "28ae44153e8085bc36636aa210024ab49d882d056ec08602e683051fba2fc909",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/training/ar_i1_k30p90/checkpoints/latest.pth": "282e0303c46a6c18775d6224c032611072bd465b4ef975ba7a7e2ea636230fd0",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/build/tile_voxelize_cuda_0141c525_7aedd3b0.so": "3973daeef5f55ebfed931c38538a37d83921a9287b96b69a431da238057194b5",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_proxdc/outputs/g2_proxdc_canonical_v1/completed.json": "9ab09a15fe422df7c188ac6a4951985281cf917d071ff5b7dc2cf95aa663b0ee",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_proxdc/outputs/g2_proxdc_canonical_v1/raw_pre_complex.npy": "202985d20e2a6554e369e5573668169d30ae73096f985753acd0caa172da92ab",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_proxdc/outputs/g2_proxdc_canonical_v1/raw_post_complex.npy": "9830d5bcb22a70d5af5cd56c2d4c01d248e694911d81888295cc796f253dee75",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/actual_config.yaml": "c91610d5d4bbd61c333d60f26af1f9319a4cb3413c8ca003378f290f28ab8311",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/metrics.json": "47831297a2359bca7d1b2f72e75f1fbf14b3fb2ed8f43062a04461650442b556",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/provenance.json": "74bc739b1498eaf666ffb25881c3bed8de886dbfae69f79b287370d3e4e14461",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/frequency_provenance.json": "49b85db4a11eb7c8b1932b06833a0962cc3749e27164561019b5de3c0357e46b",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/tile_voxelize_cuda.cpp": "e412af61cc4f5c75b9988d4f433a73e2e1c2b5910feff48b7beaea8737012d49",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/tile_voxelize_cuda_kernel.cu": "515673bd9bf0af1d23b91679f5d9e177d9b034c9172f75ec0ce937258686da14"
+      },
+      "volume_shape": [
+        256,
+        232,
+        176
+      ],
+      "num_points": 3600000,
+      "source_names": [
+        "positions",
+        "scales",
+        "rotations",
+        "density_real",
+        "density_imag",
+        "density_real_contrast",
+        "density_imag_contrast"
+      ],
+      "source_iteration": 4500,
+      "frequency_t": 1.0,
+      "geometry_factor": 2.0,
+      "geometry_factor_role": "historical optimizer LR policy only",
+      "state_shapes": {
+        "positions": [
+          3600000,
+          3
+        ],
+        "scales": [
+          3600000,
+          3
+        ],
+        "rotations": [
+          3600000,
+          4
+        ],
+        "density_real": [
+          3600000
+        ],
+        "density_imag": [
+          3600000
+        ],
+        "density_real_contrast": [
+          3600000
+        ],
+        "density_imag_contrast": [
+          3600000
+        ]
+      },
+      "gauges": {
+        "pre": 0.9997583823636317,
+        "post": 1.0003600786949414
+      }
+    },
+    "verified_input_sha256": {
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/__init__.py": "dcf951376a40e6f6830041cd27b5189af8d491b214e54c02d1da34e5bc9f8bfe",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/gaussian_model.py": "9303c79e70dfced8631d10261fd4c06b1f87958a5ddaa4a80d3b93e722ce8622",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/joint_gaussian_model.py": "31eea44eb636113e29b1f99192f297e38ac0c7b937e8dc3b5daff11c349fd966",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/bayesian_joint_model.py": "b2d8d1275eb28f395f9102d373f3f33904ede4c205b276c4087f20527d6439c2",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/voxelizer.py": "8d63e1c93b7482d9d236c8756d050c5b83ba01f79b3bf14421445579f66b1c93",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/tile_voxelizer.py": "2769454cde8276b11ded79f6729ba62e3ed67b7a2af585de15807d3f7957dc0a",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/__init__.py": "8ff1e8e2db6dbea65b9a2bc87d724c16952fc8a78ac190eb84b560ab653d1476",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/kspace_loss.py": "23bdcf9980656592e052b63d9a04f4fffd39477ab644c4815b43c65d04136f90",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/multiscale_loss.py": "e4d242df6dec1e31f5634eb9d7fba31103ba615775e49d0ea1e0d2c6e727afee",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/losses.py": "afb06a60ada378760051898cbf43fa1ec89d0260b1943429b714a06bb0baee1e",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/complex_gaussian_kl.py": "852a1f5ee6caccc2ea2310444c1fac39c9b3ac693a44640ed236548807622134",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/elbo.py": "69ab91ad29f6476cb6daf99e40f0d38f8475f2bd713ccf7a9744e12f19ab3144",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/cf_safe.py": "eac4a27e702c789f1af28c5cd00a2d686cdffeaf36303b56b80b293f1ebe8766",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/losses/cf_damp.py": "783c89a0ae1a7ddc4507e5d681e9e4bea3dbd4bdad0c292a18c5fdbd5429b517",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/data/__init__.py": "4954a1d4db61951b7fb87ee7e8871835dfae5732eca3286cd1fa3e8173551033",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/data/transforms.py": "0037b2ee2c085af69ab18637bfaf87d3146f86b0b7e6fdf96a73b7bcd40d7015",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/data/mask_three_way_split.py": "a790539f5f349276666db51ca4bc52c44e19a8c9aaf17284dc30c6d41cb5a092",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/data/dataset.py": "28ae44153e8085bc36636aa210024ab49d882d056ec08602e683051fba2fc909",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/training/ar_i1_k30p90/checkpoints/latest.pth": "282e0303c46a6c18775d6224c032611072bd465b4ef975ba7a7e2ea636230fd0",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/build/tile_voxelize_cuda_0141c525_7aedd3b0.so": "3973daeef5f55ebfed931c38538a37d83921a9287b96b69a431da238057194b5",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_proxdc/outputs/g2_proxdc_canonical_v1/completed.json": "9ab09a15fe422df7c188ac6a4951985281cf917d071ff5b7dc2cf95aa663b0ee",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_proxdc/outputs/g2_proxdc_canonical_v1/raw_pre_complex.npy": "202985d20e2a6554e369e5573668169d30ae73096f985753acd0caa172da92ab",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_proxdc/outputs/g2_proxdc_canonical_v1/raw_post_complex.npy": "9830d5bcb22a70d5af5cd56c2d4c01d248e694911d81888295cc796f253dee75",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/actual_config.yaml": "c91610d5d4bbd61c333d60f26af1f9319a4cb3413c8ca003378f290f28ab8311",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/metrics.json": "47831297a2359bca7d1b2f72e75f1fbf14b3fb2ed8f43062a04461650442b556",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/provenance.json": "74bc739b1498eaf666ffb25881c3bed8de886dbfae69f79b287370d3e4e14461",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/frequency_provenance.json": "49b85db4a11eb7c8b1932b06833a0962cc3749e27164561019b5de3c0357e46b",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/tile_voxelize_cuda.cpp": "e412af61cc4f5c75b9988d4f433a73e2e1c2b5910feff48b7beaea8737012d49",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/tile_voxelize_cuda_kernel.cu": "515673bd9bf0af1d23b91679f5d9e177d9b034c9172f75ec0ce937258686da14"
+    },
+    "runtime_contract": {
+      "model_class": "gaussian.joint_gaussian_model.JointGaussianModel3D",
+      "model_source": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/joint_gaussian_model.py",
+      "voxelizer_class": "gaussian.tile_voxelizer.TileVoxelizer",
+      "voxelizer_source": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/tile_voxelizer.py",
+      "binary": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/build/tile_voxelize_cuda_0141c525_7aedd3b0.so",
+      "backend": "tile_cuda",
+      "use_cuda": true,
+      "use_cupy": false,
+      "strict_cuda": true,
+      "tile_size": 8,
+      "max_radius": 20,
+      "volume_shape": [
+        256,
+        232,
+        176
+      ],
+      "num_points": 3600000,
+      "device_type": "cuda",
+      "dtype": "torch.float32"
+    },
+    "input_policy": "G2_model_metadata_original_Gaussian_and_raw_anchors_only",
+    "formal_mri_experiments": 0,
+    "mri_arrays_loaded": false
+  },
+  "artifacts": {
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_grid_rep_v1/launch.json": "e6927bb1ab643398179afa24637464ec561c6122e62c363a4785a690675e44ef",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_grid_rep_v1/metrics.json": "e522a66b14c30a953dcaa349b3f2e34e5e37da230e8659bdefadc6adcb259767",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_grid_rep_v1/provenance.json": "e522a66b14c30a953dcaa349b3f2e34e5e37da230e8659bdefadc6adcb259767",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_grid_rep_v1/step_trace.jsonl": "f8fab6405d0594f525d1eca5d86419fd0cae97388c4be5e1da5cc10fcbc5dae2",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_grid_rep_v1/progress.json": "97d6338fcef27ab2f24cc6afa8d4a98140ae1adb2c35292db53e91048c08dbdd",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_grid_rep_v1/childcontext_ready.json": "eb78cc9d6e17ad7c6e9fcf1d1f30f301c0da9f95ccfee30ffcc68ecf4b428455",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_grid_rep_v1/childcontext_ack.json": "47d35c87d41f1028d72a211b6b7bc151b86e4f89bd12bc06afbd8236d599d473",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_grid_rep_v1/final_field.pth": "99843b569cf734ca0d06d0b95ee4e498a54ba3e21bb81cf2b5accca71db71469"
+  },
+  "control_bindings": {
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/verification/representation_review_gate_v1.json": "c4c434e7979044384abf4398a311680fced93f777e7d933915eeab554aadbaa5",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/verification/representation_grid_recipe_v1.json": "c507c4885b779567fdca66d0e8e2fa7542e342f7fec543895c81a8f9a4118882",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/docs/review_representation_round1.md": "48c5e32ec9df8e96dcd104670646c548f7e41fcb26b1c363b88b8a7ccc7113d5",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_raw_control_v1/completed.json": "303b96d63383b54534dc79861aa7c41f7e834f02ece13199264aa65763fff48a"
+  },
+  "post_run_invariants": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_grid_rep_v1/post_run_invariants.json",
+    "sha256": "6fd443bf7ff14756414a4b3b2b02c8e0e79c26badc5dde2476b050c498d1f82b"
+  },
+  "worker_pid": 375254,
+  "returncode": 0,
+  "gpu_claim_policy": "common_lock_until_child_exit_serialized",
+  "wall_seconds": 156.77273774147034
+}

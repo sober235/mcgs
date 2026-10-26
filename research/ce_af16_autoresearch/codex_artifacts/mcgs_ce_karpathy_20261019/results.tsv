@@ -1,0 +1,4 @@
+commit	whole_head_margin	memory_gb	status	description
+000c53d9743183c7d5f365690bc4f83d9cf34273	-0.11778703065863405	33.45594358444214	baseline	family1_g2_baseline_v1; fixed geometry; baseline; 0 updates
+000c53d9743183c7d5f365690bc4f83d9cf34273	-0.11734112169073506	34.32051992416382	discard	family1_shared_trial_v1; fixed geometry; shared; 500 updates
+000c53d9743183c7d5f365690bc4f83d9cf34273	-0.11716265518481501	34.60749626159668	discard	family1_explicit_trial_v1; fixed geometry; explicit; 500 updates

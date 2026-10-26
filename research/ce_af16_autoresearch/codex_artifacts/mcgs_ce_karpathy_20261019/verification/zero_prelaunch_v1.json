@@ -1,0 +1,33 @@
+{
+  "actual_argv": [
+    "--stage",
+    "zero",
+    "--mode",
+    "baseline",
+    "--steps",
+    "0",
+    "--exp",
+    "g2_zero_v1",
+    "--review-gate",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/verification/review_gate_v1.json",
+    "--recipe",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/verification/zero_recipe_v1.json",
+    "--preferred-gpu",
+    "0"
+  ],
+  "actual_parameters": {
+    "stage": "zero",
+    "mode": "baseline",
+    "steps": 0,
+    "bands": 4,
+    "width": 64,
+    "gain_bound": 0.25,
+    "lr": 0.001
+  },
+  "review_and_recipe_validated": true,
+  "control_bindings": {
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/verification/review_gate_v1.json": "cddb06e6f3d3977b81f43b084e827f6ee77243f86d34572b532228f9004a4798",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/verification/zero_recipe_v1.json": "e1c48c8c1676fbe30e1899e96f816c51d474c2ad40566f76e104a9a0aabf0bbb",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/docs/review_round3.md": "240a138290bf74697892decd0ddc2273bd787ac9ae89a5c37fffb3a43a517451"
+  }
+}

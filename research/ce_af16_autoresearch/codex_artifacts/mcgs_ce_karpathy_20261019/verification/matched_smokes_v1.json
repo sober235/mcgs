@@ -1,0 +1,15 @@
+{
+  "both_completed_gates": true,
+  "first_loss_exact": true,
+  "first_loss": 0.037641264498233795,
+  "wavelet_shifts_identical": true,
+  "fixed_models_unchanged": true,
+  "actual_steps": {
+    "shared": 2,
+    "explicit": 2
+  },
+  "training_seconds": {
+    "shared": 4.038095180876553,
+    "explicit": 3.6193140260875225
+  }
+}

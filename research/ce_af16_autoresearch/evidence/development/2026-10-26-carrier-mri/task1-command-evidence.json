@@ -1,0 +1,133 @@
+{
+  "runs": [
+    {
+      "command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -B -m pytest -q -p no:cacheprovider tests/test_carrier_artifact.py tests/test_carrier_runtime.py > .superpowers/sdd/2026-10-26-carrier-mri/task1-red.stdout 2> .superpowers/sdd/2026-10-26-carrier-mri/task1-red.stderr",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-red.stdout",
+        "sha256": "7ca6e4f083a8b471e88406b3a12c9a522e4f6092e83b40b67f54611e329d9b80"
+      },
+      "stderr": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-red.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "summary": "26 failed in 1.43s",
+      "stderr_bytes": 0
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -B -m pytest -q -p no:cacheprovider tests/test_carrier_artifact.py tests/test_carrier_runtime.py > .superpowers/sdd/2026-10-26-carrier-mri/task1-development-1.stdout 2> .superpowers/sdd/2026-10-26-carrier-mri/task1-development-1.stderr",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-1.stdout",
+        "sha256": "4f9deaee509673f38f67671fdfd5cbc94febac1b784805209d0050bb04f42804"
+      },
+      "stderr": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-1.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "summary": "13 failed, 13 passed in 3.46s",
+      "stderr_bytes": 0
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -B -m pytest -q -p no:cacheprovider tests/test_carrier_artifact.py tests/test_carrier_runtime.py > .superpowers/sdd/2026-10-26-carrier-mri/task1-development-2.stdout 2> .superpowers/sdd/2026-10-26-carrier-mri/task1-development-2.stderr",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-2.stdout",
+        "sha256": "f6767ae27210cd07973dee3a30178cd4af40049ce7d76f9e4ee0b545dd4da20c"
+      },
+      "stderr": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-2.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "summary": "12 failed, 14 passed in 4.54s",
+      "stderr_bytes": 0
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -B -m pytest -q -p no:cacheprovider tests/test_carrier_artifact.py tests/test_carrier_runtime.py > .superpowers/sdd/2026-10-26-carrier-mri/task1-development-3.stdout 2> .superpowers/sdd/2026-10-26-carrier-mri/task1-development-3.stderr",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-3.stdout",
+        "sha256": "3f7da69518fcb2b5ceaae9c6d396ca382e2107f36fbaf411b870a78a61d23237"
+      },
+      "stderr": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-3.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "summary": "26 passed in 4.24s",
+      "stderr_bytes": 0
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -B -m pytest -q -p no:cacheprovider tests/test_carrier_artifact.py tests/test_carrier_runtime.py > .superpowers/sdd/2026-10-26-carrier-mri/task1-development-4.stdout 2> .superpowers/sdd/2026-10-26-carrier-mri/task1-development-4.stderr",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-4.stdout",
+        "sha256": "9e49721aa9f522031dd71af9c24fa9f470dfe27a378fd175f9312fb2c0a2f915"
+      },
+      "stderr": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-4.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "summary": "10 failed, 19 passed in 4.58s",
+      "stderr_bytes": 0
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -B -m pytest -q -p no:cacheprovider tests/test_carrier_artifact.py tests/test_carrier_runtime.py > .superpowers/sdd/2026-10-26-carrier-mri/task1-development-5.stdout 2> .superpowers/sdd/2026-10-26-carrier-mri/task1-development-5.stderr",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-5.stdout",
+        "sha256": "21a1562fd72d6ba5ebc79faf1e16d6f63ed212386186f4a8e44e60b662979ade"
+      },
+      "stderr": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-5.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "summary": "29 passed in 4.33s",
+      "stderr_bytes": 0
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -B -m pytest -q -p no:cacheprovider tests/test_carrier_artifact.py tests/test_carrier_runtime.py > .superpowers/sdd/2026-10-26-carrier-mri/task1-development-6.stdout 2> .superpowers/sdd/2026-10-26-carrier-mri/task1-development-6.stderr",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-6.stdout",
+        "sha256": "121e267e6fff75dfa93b68192ecd5197ecbdea1ce3cc62120db372cbc950ff20"
+      },
+      "stderr": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-6.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "summary": "1 failed, 28 passed in 4.30s",
+      "stderr_bytes": 0
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -B -m pytest -q -p no:cacheprovider tests/test_carrier_artifact.py tests/test_carrier_runtime.py > .superpowers/sdd/2026-10-26-carrier-mri/task1-development-7.stdout 2> .superpowers/sdd/2026-10-26-carrier-mri/task1-development-7.stderr",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-7.stdout",
+        "sha256": "eea72d27a27c1b13e3b9b223891f563ba018f4544b709c19944b9b1d1f349209"
+      },
+      "stderr": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-development-7.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "summary": "30 passed in 11.13s",
+      "stderr_bytes": 0
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/congcongliu/anaconda3/envs/GSTMI/bin/python -B -m pytest -q -p no:cacheprovider tests/test_carrier_artifact.py tests/test_carrier_runtime.py > .superpowers/sdd/2026-10-26-carrier-mri/task1-green.stdout 2> .superpowers/sdd/2026-10-26-carrier-mri/task1-green.stderr",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-green.stdout",
+        "sha256": "d627e95e14e24612d03d6fc79dd310e37c73deb88990e7d3e793da0c8e1e8e38"
+      },
+      "stderr": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/.superpowers/sdd/2026-10-26-carrier-mri/task1-green.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "summary": "30 passed in 11.52s",
+      "stderr_bytes": 0
+    }
+  ],
+  "source_before_after_equal": true,
+  "preserved_230_unchanged": true,
+  "owned_ast_and_whitespace": "pass"
+}

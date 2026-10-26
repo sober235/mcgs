@@ -1,0 +1,44 @@
+{
+  "status": "complete",
+  "counters": {
+    "optimizer_steps": 0,
+    "scheduler_steps": 0,
+    "loss_calls": 0,
+    "event_calls": 0,
+    "gaussian_forwards": 2,
+    "gaussian_vjps": 0,
+    "roles": {
+      "initialization": {
+        "forwards": 0,
+        "vjps": 0
+      },
+      "training": {
+        "forwards": 0,
+        "vjps": 0
+      },
+      "event": {
+        "forwards": 0,
+        "vjps": 0
+      },
+      "export": {
+        "forwards": 2,
+        "vjps": 0
+      }
+    },
+    "render_calls": [
+      {
+        "role": "export",
+        "iteration": 4500,
+        "channel": "plain",
+        "vjps": 0
+      },
+      {
+        "role": "export",
+        "iteration": 4500,
+        "channel": "contrast",
+        "vjps": 0
+      }
+    ]
+  },
+  "final_iteration": 4500
+}

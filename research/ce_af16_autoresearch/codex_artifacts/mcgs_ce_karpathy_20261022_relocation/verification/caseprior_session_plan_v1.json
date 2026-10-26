@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "status": "ready_for_genuine_zero",
+  "driver": "active_codex_session",
+  "source_revision": "0aec561",
+  "observed_at_utc": "2026-10-22T10:55:11.013969+00:00",
+  "review_gate": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/caseprior_review_gate_v1.json",
+    "sha256": "4395ff337b0fdb2fb312bf35617eec2d1040cf8d27af90ff3b5268d9456fbcfb"
+  },
+  "planned_stages": [
+    {
+      "run": "caseprior_zero_v1",
+      "stage": "zero",
+      "mode": "control",
+      "steps": 0,
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/caseprior_zero_v1_recipe.json",
+        "sha256": "6dad8be383a5fc9c9db04173f61ceef6c7dcc98d9c81bc3d183597b2b9ee61b2"
+      },
+      "actual_completion": null
+    },
+    {
+      "run": "caseprior_control_smoke_v1",
+      "stage": "smoke",
+      "mode": "control",
+      "steps": 2,
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/caseprior_control_smoke_v1_recipe.json",
+        "sha256": "6fb58aff52aa9554d292fa83c4b489e088cc3c1b495cd27377c87ff5ae75e286"
+      },
+      "actual_completion": null
+    },
+    {
+      "run": "caseprior_learned_smoke_v1",
+      "stage": "smoke",
+      "mode": "learned",
+      "steps": 2,
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/caseprior_learned_smoke_v1_recipe.json",
+        "sha256": "4cca4dbc141198a81d703d2d81d600d21141a914611fbf3a840ed0565d4322c2"
+      },
+      "actual_completion": null
+    },
+    {
+      "run": "caseprior_control500_v1",
+      "stage": "trial",
+      "mode": "control",
+      "steps": 500,
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/caseprior_control500_v1_recipe.json",
+        "sha256": "136b303713ed13defbfc35ed5d7d9f2d84fdca1a514513b46d5c510dbde30cf9"
+      },
+      "actual_completion": null
+    },
+    {
+      "run": "caseprior_learned500_v1",
+      "stage": "trial",
+      "mode": "learned",
+      "steps": 500,
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/caseprior_learned500_v1_recipe.json",
+        "sha256": "9436ea0301381227e7c9c1cb6f1e674ff6fff3aa4ffc5bd58fa3bea4aa2e2bdb"
+      },
+      "actual_completion": null
+    }
+  ],
+  "native_reuse": "not_yet_verified",
+  "actual_numerical_passes": []
+}

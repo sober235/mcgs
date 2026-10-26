@@ -1,0 +1,735 @@
+{
+  "schema_version": 1,
+  "name": "paired_anchor_g2_baseline_v1",
+  "run_dir": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_zero_v1",
+  "metrics": [
+    "psnr",
+    "ssim",
+    "nmse"
+  ],
+  "primary_objective": "whole_head_min_six_normalized_margin",
+  "score": -0.11778703065863405,
+  "strict_success": false,
+  "whole_head_metrics": {
+    "pre": {
+      "psnr": 34.80795582896276,
+      "ssim": 0.9415072798728943,
+      "nmse": 0.009934071948278786
+    },
+    "post": {
+      "psnr": 37.15822506984288,
+      "ssim": 0.9541497230529785,
+      "nmse": 0.009600131154803154
+    }
+  },
+  "whole_head_comparisons": {
+    "pre:psnr": {
+      "candidate": 34.80795582896276,
+      "best_opponent": 35.3194982813409,
+      "labels": [
+        "ZS-SSDU"
+      ],
+      "opponents": {
+        "ZF": 25.382007193545586,
+        "CG-SENSE": 31.553066153599605,
+        "CS-SENSE": 33.977779394178924,
+        "Joint SENSE": 33.94815090584603,
+        "L1-SPIRiT": 32.41402760030398,
+        "ZS-SSDU": 35.3194982813409,
+        "3D-DIP": 31.484746809625065,
+        "3D-INR": 33.139070773050136,
+        "MC-INR": 30.098392395445472,
+        "GS-single": 34.58345896376352
+      },
+      "strict_win": false,
+      "margin": -0.11778700252795152
+    },
+    "pre:ssim": {
+      "candidate": 0.9415072798728943,
+      "best_opponent": 0.9463346004486084,
+      "labels": [
+        "ZS-SSDU"
+      ],
+      "opponents": {
+        "ZF": 0.7179952263832092,
+        "CG-SENSE": 0.8744746446609497,
+        "CS-SENSE": 0.93056321144104,
+        "Joint SENSE": 0.9298652410507202,
+        "L1-SPIRiT": 0.8998019695281982,
+        "ZS-SSDU": 0.9463346004486084,
+        "3D-DIP": 0.8971994519233704,
+        "3D-INR": 0.9157891273498535,
+        "MC-INR": 0.8084923624992371,
+        "GS-single": 0.9375621676445007
+      },
+      "strict_win": false,
+      "margin": -0.08613383902855348
+    },
+    "pre:nmse": {
+      "candidate": 0.009934071948278786,
+      "best_opponent": 0.008830250899305128,
+      "labels": [
+        "ZS-SSDU"
+      ],
+      "opponents": {
+        "ZF": 0.08704065663769525,
+        "CG-SENSE": 0.021019204277882127,
+        "CS-SENSE": 0.012026657226619875,
+        "Joint SENSE": 0.012108986353580719,
+        "L1-SPIRiT": 0.017239319572817643,
+        "ZS-SSDU": 0.008830250899305128,
+        "3D-DIP": 0.021352473198840424,
+        "3D-INR": 0.014588673362016295,
+        "MC-INR": 0.02938215494857357,
+        "GS-single": 0.01046109086553735
+      },
+      "strict_win": false,
+      "margin": -0.11778703065863405
+    },
+    "post:psnr": {
+      "candidate": 37.15822506984288,
+      "best_opponent": 37.527184786498296,
+      "labels": [
+        "ZS-SSDU"
+      ],
+      "opponents": {
+        "ZF": 26.931413270884914,
+        "CG-SENSE": 33.62325622149248,
+        "CS-SENSE": 36.370883613064514,
+        "Joint SENSE": 36.25705069573118,
+        "L1-SPIRiT": 34.63190133416194,
+        "ZS-SSDU": 37.527184786498296,
+        "3D-DIP": 32.8992433857498,
+        "3D-INR": 35.13027520599827,
+        "MC-INR": 32.65977508036479,
+        "GS-single": 36.80854364320148
+      },
+      "strict_win": false,
+      "margin": -0.08495611434860724
+    },
+    "post:ssim": {
+      "candidate": 0.9541497230529785,
+      "best_opponent": 0.9578452110290527,
+      "labels": [
+        "ZS-SSDU"
+      ],
+      "opponents": {
+        "ZF": 0.7140146493911743,
+        "CG-SENSE": 0.9012788534164429,
+        "CS-SENSE": 0.9452770948410034,
+        "Joint SENSE": 0.943475067615509,
+        "L1-SPIRiT": 0.9173221588134766,
+        "ZS-SSDU": 0.9578452110290527,
+        "3D-DIP": 0.8901784420013428,
+        "3D-INR": 0.9280303716659546,
+        "MC-INR": 0.8590739369392395,
+        "GS-single": 0.9495295882225037
+      },
+      "strict_win": false,
+      "margin": -0.08403294363275796
+    },
+    "post:nmse": {
+      "candidate": 0.009600131154803154,
+      "best_opponent": 0.008818225694366846,
+      "labels": [
+        "ZS-SSDU"
+      ],
+      "opponents": {
+        "ZF": 0.10114825033657747,
+        "CG-SENSE": 0.021665767645656937,
+        "CS-SENSE": 0.011508304789110226,
+        "Joint SENSE": 0.011813936962574203,
+        "L1-SPIRiT": 0.01717550719981027,
+        "ZS-SSDU": 0.008818225694366846,
+        "3D-DIP": 0.02559619199288544,
+        "3D-INR": 0.015313420193569616,
+        "MC-INR": 0.027047190830922618,
+        "GS-single": 0.010405076446146449
+      },
+      "strict_win": false,
+      "margin": -0.08495607899664646
+    }
+  },
+  "lesion_planes": {
+    "score_six": -0.03381844992347395,
+    "strict_success": false,
+    "eligible_planes": 59,
+    "best_plane": {
+      "axis": 1,
+      "index": 130,
+      "core": 255,
+      "score_six": -0.03381844992347395,
+      "strict_success": false,
+      "comparisons": {
+        "pre:psnr": {
+          "candidate": 36.786110913920695,
+          "best_opponent": 36.93298257580355,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "opponents": {
+            "ZF": 28.709845168153606,
+            "CG-SENSE": 33.34961298281206,
+            "CS-SENSE": 35.84965838111428,
+            "Joint SENSE": 35.803079764067746,
+            "L1-SPIRiT": 34.689121056360186,
+            "ZS-SSDU": 36.93298257580355,
+            "3D-DIP": 34.347655169779486,
+            "3D-INR": 35.13078160241523,
+            "MC-INR": 31.23412042054376,
+            "GS-single": 36.46779319887311
+          },
+          "strict_win": false,
+          "margin": -0.03381844992347241
+        },
+        "pre:ssim": {
+          "candidate": 0.9286325263442767,
+          "best_opponent": 0.9292665117666741,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "opponents": {
+            "ZF": 0.770998140726959,
+            "CG-SENSE": 0.842688405643108,
+            "CS-SENSE": 0.9147308098359115,
+            "Joint SENSE": 0.9123572107610953,
+            "L1-SPIRiT": 0.8868832009448024,
+            "ZS-SSDU": 0.9292665117666741,
+            "3D-DIP": 0.8918850005934114,
+            "3D-INR": 0.9002877178038453,
+            "MC-INR": 0.7497010207495026,
+            "GS-single": 0.923518291182298
+          },
+          "strict_win": false,
+          "margin": -0.008923087085904566
+        },
+        "pre:nmse": {
+          "candidate": 0.012471962004179351,
+          "best_opponent": 0.012057231872836903,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "opponents": {
+            "ZF": 0.08008687609053852,
+            "CG-SENSE": 0.027515953839880605,
+            "CS-SENSE": 0.015473196198685332,
+            "Joint SENSE": 0.015640041247487416,
+            "L1-SPIRiT": 0.020213139108649743,
+            "ZS-SSDU": 0.012057231872836903,
+            "3D-DIP": 0.02186655432952757,
+            "3D-INR": 0.018258609914751776,
+            "MC-INR": 0.044785128890668734,
+            "GS-single": 0.013420433691323647
+          },
+          "strict_win": false,
+          "margin": -0.03381844992347395
+        },
+        "post:psnr": {
+          "candidate": 38.24202200153187,
+          "best_opponent": 38.30875015535582,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "opponents": {
+            "ZF": 28.935961585425048,
+            "CG-SENSE": 34.90280970490003,
+            "CS-SENSE": 37.365801113808814,
+            "Joint SENSE": 37.20951606352972,
+            "L1-SPIRiT": 35.82009946682869,
+            "ZS-SSDU": 38.30875015535582,
+            "3D-DIP": 34.493363809500316,
+            "3D-INR": 36.288726018665514,
+            "MC-INR": 33.346776825182175,
+            "GS-single": 37.85145371314878
+          },
+          "strict_win": false,
+          "margin": -0.015364725227802948
+        },
+        "post:ssim": {
+          "candidate": 0.949150199070661,
+          "best_opponent": 0.9498657828661274,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "opponents": {
+            "ZF": 0.7561874296897686,
+            "CG-SENSE": 0.8948337695404976,
+            "CS-SENSE": 0.939014255448972,
+            "Joint SENSE": 0.9371295444497872,
+            "L1-SPIRiT": 0.9131990765782703,
+            "ZS-SSDU": 0.9498657828661274,
+            "3D-DIP": 0.8935326823637716,
+            "3D-INR": 0.9229084595288041,
+            "MC-INR": 0.8327914742615501,
+            "GS-single": 0.9437736489860151
+          },
+          "strict_win": false,
+          "margin": -0.014172455933957478
+        },
+        "post:nmse": {
+          "candidate": 0.010684833229114324,
+          "best_opponent": 0.010521918477632864,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "opponents": {
+            "ZF": 0.09106967560815891,
+            "CG-SENSE": 0.023050957906885692,
+            "CS-SENSE": 0.013073438757496862,
+            "Joint SENSE": 0.013552466480368505,
+            "L1-SPIRiT": 0.018662078051598578,
+            "ZS-SSDU": 0.010521918477632864,
+            "3D-DIP": 0.025329905363789346,
+            "3D-INR": 0.016753183533954327,
+            "MC-INR": 0.032983160312648564,
+            "GS-single": 0.011690270943247828
+          },
+          "strict_win": false,
+          "margin": -0.015364725227803444
+        }
+      }
+    },
+    "passing_planes_both_scans": 0,
+    "passing_planes_by_scan": {
+      "pre": 0,
+      "post": 1
+    },
+    "per_condition_passing_planes": {
+      "pre:psnr": 0,
+      "pre:ssim": 0,
+      "pre:nmse": 0,
+      "post:psnr": 3,
+      "post:ssim": 1,
+      "post:nmse": 3
+    },
+    "region": "head mask on each frozen lesion-containing plane; not lesion ROI"
+  },
+  "candidate_sha256": {
+    "pre": "57df744a30b690c5ac61ba87e268882f71501b2bad043fdb9452f99fce6bff42",
+    "post": "e64a0f97d4bb4e27ef64024708c16373898bba11d4157fd9f8214d0a37da91dd"
+  },
+  "input_hashes": {
+    "candidate": {
+      "pre": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_zero_v1/candidate_pre_complex.npy",
+        "sha256": "57df744a30b690c5ac61ba87e268882f71501b2bad043fdb9452f99fce6bff42",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      },
+      "post": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_zero_v1/candidate_post_complex.npy",
+        "sha256": "e64a0f97d4bb4e27ef64024708c16373898bba11d4157fd9f8214d0a37da91dd",
+        "shape": [
+          256,
+          232,
+          176
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "files": {
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_input_freeze.json": "fecc6fba1edc03fe06377717f45c8c51923c6b8656b123f7ed878f5288a358d7",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/report_reference_freeze.json": "6ebe48fa543af773274f7d0c10bc0c21593669b9305784a8382fab7e9896e634",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/reassessment_without_hfen_20261019/metric_contract_v1.json": "7404413f695bce3b59886de802815011615f7473a0a59626542ffd4dbe60cd13",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/report.py": "fcce12451ba3983a00b232e4c7c34f927a7c7a6827949d9e0e5f8c657d20b800",
+      "/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/diag_artefact/headonly.py": "a005c5de667a9f671eb33531cb68648c55cea064d3594c83e1c0d748483f0f9e",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/cgsense_post_complex.npy": "15f47b915f5238fdcc209ba170a3b57e9ef12a12cb64b37d277f89ed3d9efd1c",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/spirit_ks5_lam0.0005_post_complex.npy": "fd9ce6daa13d6294f0057f3cdf715fa920fdd27c9daf6871d90e58e5b43a53aa",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/spirit_ks5_lam0.001_pre_complex.npy": "70a9cedacd0e0e28f65d1b576945367ec48496d2581ac5bd2a7b713dc664caa4",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/zf_post_complex.npy": "cf2a6db0e3a3c8d1314def466bef41e71058b5f5bf798eed6da80d4115363a2e",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/gs_single_post_complex.npy": "46fac4dc9205b07150481359f5da3af7a6d8345a52d9db3172a5422867a79d93",
+      "/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/lesion_slice_allmetrics.py": "0e62741d39e0ec739c01382ec48f293e2137b76872a6ae751c5d1bbe58f16b2b",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/zsssdu_pre_complex.npy": "d7bda941eef84165bd92c699eaa8408fb0b06dbbf80cbd137341b72442113955",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/zf_pre_complex.npy": "5b10d25b255bee255628d14ac68d4e954907bffdb838d5128dc38a1a5e0877c4",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/inr_post_complex.npy": "97f7b6339464c3a4b90cace45a0a9851a4efb0ea3a381f940a1c7c14f9ab582d",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/jcssense_o200_lam0.0005_post_complex.npy": "4a51fa164d4d47b4a6c4b2f6da0d8e989cc6f5bbe67e06ecf75eee7793965cfb",
+      "/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/arms.py": "592a9443ed9d4d5a8ea306cfe844e401d088a6e472112db305c2879c1ccd27c4",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/zsssdu_post_complex.npy": "e82853655610bc3fb63551472179426418778a4e286242bad8e7a50216cb2faf",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/summary.json": "333ced7bb208875ad21a52d06a8f520cd2ab7b55f59c036281a39f0d8940963f",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/gt_post_complex.npy": "072ae9581192860c29d3bffa981bf5d485da8db8385cc9b7718018a5170a3cdf",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/mcinr_pre_complex.npy": "8b2c931e782d245e743a42ab607c24cbaaf63c23550977a6bb7d1b0af9eac6e9",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/mcinr_post_complex.npy": "5ee596dd0caf739749e371c51ad15c830707b43eae0f0af1556b3cca4291dd17",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/cssense_o200_lam0.0005_pre_complex.npy": "98f2c4ed1cb7d7d3a719cffe2fbd5d80e2c24e679d06bc9db54b988d9481e896",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/inr_pre_complex.npy": "20c90bd87538d166473856a5e85bfd8d7b6716c61987300aab201203bf71809c",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/gt_pre_complex.npy": "4c0758648be4a3b93fc6a93ebda98609c6921df66e4361c817652e62b7ad0cfc",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/gs_single_pre_complex.npy": "940d9def14f7f47201e2e3bc0507040ac8523c0d0d768c89bce236999a4bac15",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/baseline_lesion_allmetrics.json": "eb351e158b8029b846b37a45d85bf0b6a99825b326ad5c411f59095d9db0df22",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/cgsense_pre_complex.npy": "5f88d420d969c27f39bc32f07d027aed5444e15302224f65ce9491822478d0fd",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/cssense_o200_lam0.00035_post_complex.npy": "9a0af18b9ea8b42018f718f1552b1797c926ef49014136534e0b45b988594700",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/jcssense_o200_lam0.0007_pre_complex.npy": "4e2e16124a50f3a7a19da0789e89aced904db4543c369ef3c3e499d2585c03ac",
+      "/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/t1t2_common.py": "8f057bc880e44733e525daf26b8e9e8097591f8d894ea0a7264b97fca75d71e8",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/dip_pre_complex.npy": "252ec04d780db31f494312e8f51f86a64eaacf7f46db9584a85b2227694b841e",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/dip_post_complex.npy": "de5749d9fa17b4a2f1b77ab219cb8b0c49a754fe4d4cc7f2b48c84978db0a879",
+      "/data0/congcong/code/GS/Results_20260908/CE_pre_post_contrast/lesion_candidates/enhance_rois_cssense.npz": "3b95c5f1a0815a4e8a23d9dcd654aca0f345036052b2025c2a96eb77ca78a997",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/gs_joint_post_complex.npy": "be85b55a0cee3678e805092b44d8b58588f6d72459fab9f7f8ad0426600dc82c",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/gs_joint_pre_complex.npy": "a5ada9b361c7297e7cff584c5097a75fa96c0406c269830254af154861d47dd1",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/sim/gt.npz": "9d123ce64aa313dcd18bd037a7e76380be28f666c6337844288f9cdf3c94d8c5",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/objective.py": "cb9fa0c4ae2227947e06d3384559f31138086780aa729540b6ebfd3cc0a0bd41",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/autoresearch.py": "e2fc21e3a9712006da2fdf58cb2066162dc1f9ee6c93214d3c193287003fdf81",
+      "/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/diag_artefact/volumes.py": "28bc67f4bcb76729f8e7611fe641607d0f9c4e7222438f8de5b56dba929d5878",
+      "/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/enhancement_fidelity.py": "e41a64495198611fd59263327d3e7b4aa3aa1d831a8fde745dcb22bdfbd5540c",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/zsssdu_pre.json": "0c7358b3613c146f65aa9424834313bbc70e2f277f5ac4be5290d3123b5d5fa6",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/zsssdu_post.json": "80829b7b7fe3c7c052f59be2710c030b85569472bb4bb98d3d771ed40af10692",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_zero_v1/candidate_pre_complex.npy": "57df744a30b690c5ac61ba87e268882f71501b2bad043fdb9452f99fce6bff42",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_zero_v1/candidate_post_complex.npy": "e64a0f97d4bb4e27ef64024708c16373898bba11d4157fd9f8214d0a37da91dd",
+      "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/evaluate.py": "9a2c38d1942d6d6ad2331f3364dfad5be86a03cb316fec96f27deb7c5e40a875"
+    }
+  },
+  "whole_head_contract": {
+    "version": 1,
+    "metrics": [
+      "psnr",
+      "ssim",
+      "nmse"
+    ],
+    "scans": [
+      "pre",
+      "post"
+    ],
+    "opponents": {
+      "ZF": {
+        "key": "zf",
+        "whole_head_metrics": {
+          "pre": {
+            "psnr": 25.382007193545586,
+            "ssim": 0.7179952263832092,
+            "nmse": 0.08704065663769525
+          },
+          "post": {
+            "psnr": 26.931413270884914,
+            "ssim": 0.7140146493911743,
+            "nmse": 0.10114825033657747
+          }
+        },
+        "volumes": {
+          "pre": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/zf_pre_complex.npy",
+            "sha256": "5b10d25b255bee255628d14ac68d4e954907bffdb838d5128dc38a1a5e0877c4"
+          },
+          "post": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/zf_post_complex.npy",
+            "sha256": "cf2a6db0e3a3c8d1314def466bef41e71058b5f5bf798eed6da80d4115363a2e"
+          }
+        },
+        "metric_source": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/summary.json",
+          "sha256": "333ced7bb208875ad21a52d06a8f520cd2ab7b55f59c036281a39f0d8940963f"
+        }
+      },
+      "CG-SENSE": {
+        "key": "cgsense",
+        "whole_head_metrics": {
+          "pre": {
+            "psnr": 31.553066153599605,
+            "ssim": 0.8744746446609497,
+            "nmse": 0.021019204277882127
+          },
+          "post": {
+            "psnr": 33.62325622149248,
+            "ssim": 0.9012788534164429,
+            "nmse": 0.021665767645656937
+          }
+        },
+        "volumes": {
+          "pre": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/cgsense_pre_complex.npy",
+            "sha256": "5f88d420d969c27f39bc32f07d027aed5444e15302224f65ce9491822478d0fd"
+          },
+          "post": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/cgsense_post_complex.npy",
+            "sha256": "15f47b915f5238fdcc209ba170a3b57e9ef12a12cb64b37d277f89ed3d9efd1c"
+          }
+        },
+        "metric_source": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/summary.json",
+          "sha256": "333ced7bb208875ad21a52d06a8f520cd2ab7b55f59c036281a39f0d8940963f"
+        }
+      },
+      "CS-SENSE": {
+        "key": "cssense_o200",
+        "whole_head_metrics": {
+          "pre": {
+            "psnr": 33.977779394178924,
+            "ssim": 0.93056321144104,
+            "nmse": 0.012026657226619875
+          },
+          "post": {
+            "psnr": 36.370883613064514,
+            "ssim": 0.9452770948410034,
+            "nmse": 0.011508304789110226
+          }
+        },
+        "volumes": {
+          "pre": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/cssense_o200_lam0.0005_pre_complex.npy",
+            "sha256": "98f2c4ed1cb7d7d3a719cffe2fbd5d80e2c24e679d06bc9db54b988d9481e896"
+          },
+          "post": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/cssense_o200_lam0.00035_post_complex.npy",
+            "sha256": "9a0af18b9ea8b42018f718f1552b1797c926ef49014136534e0b45b988594700"
+          }
+        },
+        "metric_source": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/summary.json",
+          "sha256": "333ced7bb208875ad21a52d06a8f520cd2ab7b55f59c036281a39f0d8940963f"
+        }
+      },
+      "Joint SENSE": {
+        "key": "jcssense",
+        "whole_head_metrics": {
+          "pre": {
+            "psnr": 33.94815090584603,
+            "ssim": 0.9298652410507202,
+            "nmse": 0.012108986353580719
+          },
+          "post": {
+            "psnr": 36.25705069573118,
+            "ssim": 0.943475067615509,
+            "nmse": 0.011813936962574203
+          }
+        },
+        "volumes": {
+          "pre": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/jcssense_o200_lam0.0007_pre_complex.npy",
+            "sha256": "4e2e16124a50f3a7a19da0789e89aced904db4543c369ef3c3e499d2585c03ac"
+          },
+          "post": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/jcssense_o200_lam0.0005_post_complex.npy",
+            "sha256": "4a51fa164d4d47b4a6c4b2f6da0d8e989cc6f5bbe67e06ecf75eee7793965cfb"
+          }
+        },
+        "metric_source": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/summary.json",
+          "sha256": "333ced7bb208875ad21a52d06a8f520cd2ab7b55f59c036281a39f0d8940963f"
+        }
+      },
+      "L1-SPIRiT": {
+        "key": "spirit",
+        "whole_head_metrics": {
+          "pre": {
+            "psnr": 32.41402760030398,
+            "ssim": 0.8998019695281982,
+            "nmse": 0.017239319572817643
+          },
+          "post": {
+            "psnr": 34.63190133416194,
+            "ssim": 0.9173221588134766,
+            "nmse": 0.01717550719981027
+          }
+        },
+        "volumes": {
+          "pre": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/spirit_ks5_lam0.001_pre_complex.npy",
+            "sha256": "70a9cedacd0e0e28f65d1b576945367ec48496d2581ac5bd2a7b713dc664caa4"
+          },
+          "post": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/spirit_ks5_lam0.0005_post_complex.npy",
+            "sha256": "fd9ce6daa13d6294f0057f3cdf715fa920fdd27c9daf6871d90e58e5b43a53aa"
+          }
+        },
+        "metric_source": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/summary.json",
+          "sha256": "333ced7bb208875ad21a52d06a8f520cd2ab7b55f59c036281a39f0d8940963f"
+        }
+      },
+      "ZS-SSDU": {
+        "key": "zsssdu",
+        "whole_head_metrics": {
+          "pre": {
+            "psnr": 35.3194982813409,
+            "ssim": 0.9463346004486084,
+            "nmse": 0.008830250899305128
+          },
+          "post": {
+            "psnr": 37.527184786498296,
+            "ssim": 0.9578452110290527,
+            "nmse": 0.008818225694366846
+          }
+        },
+        "volumes": {
+          "pre": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/zsssdu_pre_complex.npy",
+            "sha256": "d7bda941eef84165bd92c699eaa8408fb0b06dbbf80cbd137341b72442113955"
+          },
+          "post": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/zsssdu_post_complex.npy",
+            "sha256": "e82853655610bc3fb63551472179426418778a4e286242bad8e7a50216cb2faf"
+          }
+        },
+        "metric_source": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/summary.json",
+          "sha256": "333ced7bb208875ad21a52d06a8f520cd2ab7b55f59c036281a39f0d8940963f"
+        }
+      },
+      "3D-DIP": {
+        "key": "dip",
+        "whole_head_metrics": {
+          "pre": {
+            "psnr": 31.484746809625065,
+            "ssim": 0.8971994519233704,
+            "nmse": 0.021352473198840424
+          },
+          "post": {
+            "psnr": 32.8992433857498,
+            "ssim": 0.8901784420013428,
+            "nmse": 0.02559619199288544
+          }
+        },
+        "volumes": {
+          "pre": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/dip_pre_complex.npy",
+            "sha256": "252ec04d780db31f494312e8f51f86a64eaacf7f46db9584a85b2227694b841e"
+          },
+          "post": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/dip_post_complex.npy",
+            "sha256": "de5749d9fa17b4a2f1b77ab219cb8b0c49a754fe4d4cc7f2b48c84978db0a879"
+          }
+        },
+        "metric_source": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/summary.json",
+          "sha256": "333ced7bb208875ad21a52d06a8f520cd2ab7b55f59c036281a39f0d8940963f"
+        }
+      },
+      "3D-INR": {
+        "key": "inr",
+        "whole_head_metrics": {
+          "pre": {
+            "psnr": 33.139070773050136,
+            "ssim": 0.9157891273498535,
+            "nmse": 0.014588673362016295
+          },
+          "post": {
+            "psnr": 35.13027520599827,
+            "ssim": 0.9280303716659546,
+            "nmse": 0.015313420193569616
+          }
+        },
+        "volumes": {
+          "pre": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/inr_pre_complex.npy",
+            "sha256": "20c90bd87538d166473856a5e85bfd8d7b6716c61987300aab201203bf71809c"
+          },
+          "post": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/inr_post_complex.npy",
+            "sha256": "97f7b6339464c3a4b90cace45a0a9851a4efb0ea3a381f940a1c7c14f9ab582d"
+          }
+        },
+        "metric_source": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/summary.json",
+          "sha256": "333ced7bb208875ad21a52d06a8f520cd2ab7b55f59c036281a39f0d8940963f"
+        }
+      },
+      "MC-INR": {
+        "key": "mcinr",
+        "whole_head_metrics": {
+          "pre": {
+            "psnr": 30.098392395445472,
+            "ssim": 0.8084923624992371,
+            "nmse": 0.02938215494857357
+          },
+          "post": {
+            "psnr": 32.65977508036479,
+            "ssim": 0.8590739369392395,
+            "nmse": 0.027047190830922618
+          }
+        },
+        "volumes": {
+          "pre": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/mcinr_pre_complex.npy",
+            "sha256": "8b2c931e782d245e743a42ab607c24cbaaf63c23550977a6bb7d1b0af9eac6e9"
+          },
+          "post": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/mcinr_post_complex.npy",
+            "sha256": "5ee596dd0caf739749e371c51ad15c830707b43eae0f0af1556b3cca4291dd17"
+          }
+        },
+        "metric_source": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/summary.json",
+          "sha256": "333ced7bb208875ad21a52d06a8f520cd2ab7b55f59c036281a39f0d8940963f"
+        }
+      },
+      "GS-single": {
+        "key": "gs_single",
+        "whole_head_metrics": {
+          "pre": {
+            "psnr": 34.58345896376352,
+            "ssim": 0.9375621676445007,
+            "nmse": 0.01046109086553735
+          },
+          "post": {
+            "psnr": 36.80854364320148,
+            "ssim": 0.9495295882225037,
+            "nmse": 0.010405076446146449
+          }
+        },
+        "volumes": {
+          "pre": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/gs_single_pre_complex.npy",
+            "sha256": "940d9def14f7f47201e2e3bc0507040ac8523c0d0d768c89bce236999a4bac15"
+          },
+          "post": {
+            "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/recon/gs_single_post_complex.npy",
+            "sha256": "46fac4dc9205b07150481359f5da3af7a6d8345a52d9db3172a5422867a79d93"
+          }
+        },
+        "metric_source": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp/logs/summary.json",
+          "sha256": "333ced7bb208875ad21a52d06a8f520cd2ab7b55f59c036281a39f0d8940963f"
+        }
+      }
+    },
+    "ranking": "minimum of six normalized whole-head margins",
+    "strict_success": "all six raw inequalities strictly beat all ten frozen opponents; no tolerance",
+    "normalization": {
+      "psnr": "(candidate-best)*ln(10)/10",
+      "ssim": "ln((1-best)/(1-candidate))",
+      "nmse": "ln(best/candidate)"
+    },
+    "helper_sources": {
+      "/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/t1t2_common.py": "8f057bc880e44733e525daf26b8e9e8097591f8d894ea0a7264b97fca75d71e8",
+      "/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/diag_artefact/headonly.py": "a005c5de667a9f671eb33531cb68648c55cea064d3594c83e1c0d748483f0f9e"
+    },
+    "mask": "GT magnitude > 0.05 * P99.9; headonly float32 mask for PSNR/SSIM, Pair float64 mask for NMSE",
+    "psnr": "headonly.head_psnr; float32 magnitudes, float64 squared difference, global GT max; no amplitude fitting",
+    "ssim": "headonly.head_ssim; float32 magnitudes; skimage 7^3 uniform SSIM map, K1=.01 K2=.03, data_range=max GT; head mean",
+    "nmse": "Pair.score CPU: sum((abs(candidate complex128)-GT magnitude float64)^2)[head] / sum(GT magnitude^2)[head]; GT magnitude formed in complex64 before promotion",
+    "gauge": {
+      "pre": {
+        "scale_source": "sim/gt.npz:scale_pre",
+        "scale_float64": 183.57667347717228,
+        "division_scale_float32": 183.57667541503906,
+        "complex_exact_after_scale": true,
+        "magnitude_exact_after_scale": true,
+        "normalization": "sim complex / float32(stored scale); no fitted scale or tolerance"
+      },
+      "post": {
+        "scale_source": "sim/gt.npz:scale_post",
+        "scale_float64": 243.4532769927959,
+        "division_scale_float32": 243.45327758789062,
+        "complex_exact_after_scale": true,
+        "magnitude_exact_after_scale": true,
+        "normalization": "sim complex / float32(stored scale); no fitted scale or tolerance"
+      }
+    },
+    "whole_head_gt_loading": "Pair.__init__: torch complex64(sim/gt.npz[scan]) / stored scale; no fitted normalization"
+  },
+  "slice_contract": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/reassessment_without_hfen_20261019/metric_contract_v1.json",
+    "sha256": "7404413f695bce3b59886de802815011615f7473a0a59626542ffd4dbe60cd13",
+    "formula_source": "/data0/congcong/code/GS/mcgs_ce_mask_wt/ce_retro_cssense_af16/scripts/lesion_slice_allmetrics.py",
+    "formula_source_sha256": "0e62741d39e0ec739c01382ec48f293e2137b76872a6ae751c5d1bbe58f16b2b"
+  },
+  "all_inputs_unchanged": true,
+  "runtime": {
+    "python": "3.11.5",
+    "executable": "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+    "torch": "2.7.1+cu118",
+    "numpy": "1.26.4",
+    "skimage": "0.26.0",
+    "device": "cpu"
+  }
+}

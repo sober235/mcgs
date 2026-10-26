@@ -1,0 +1,605 @@
+{
+  "created_utc": "2026-10-19T05:48:05.293588+00:00",
+  "contract": {
+    "version": 1,
+    "user_instruction": "不考虑HFEN指标，重新评估",
+    "metrics": [
+      "psnr",
+      "ssim",
+      "nmse"
+    ],
+    "scans": [
+      "pre",
+      "post"
+    ],
+    "conditions": [
+      "pre:psnr",
+      "pre:ssim",
+      "pre:nmse",
+      "post:psnr",
+      "post:ssim",
+      "post:nmse"
+    ],
+    "opponents": [
+      "ZF",
+      "CG-SENSE",
+      "CS-SENSE",
+      "Joint SENSE",
+      "L1-SPIRiT",
+      "ZS-SSDU",
+      "3D-DIP",
+      "3D-INR",
+      "MC-INR",
+      "GS-single"
+    ],
+    "eligible_planes": 59,
+    "strict_success_rule": "Same predeclared plane; both scans; all three metrics strictly beat every one of the ten frozen opponents. No equality tolerance in wins.",
+    "metric_region": "Head mask on each lesion-containing plane, not lesion ROI",
+    "ranking": "max over planes of min over the six original normalized margins",
+    "normalization": {
+      "psnr": "(candidate-best)*ln(10)/10",
+      "ssim": "ln((1-best)/(1-candidate))",
+      "nmse": "ln(best/candidate)"
+    },
+    "HFEN": "Excluded from ranking, acceptance and reported comparisons",
+    "keep_threshold": 0.0001,
+    "fixed": "Existing reconstructions, masks, normalization, reference images, 59 planes and full-size opponents; no retraining or amplitude fitting",
+    "scope": "Retrospective metric ablation; one case/one seed adaptive development. The 65 archival records have the pre-existing provenance limits and are not 65 new training experiments. Archival whole-head and ROI scores are not recomputed.",
+    "parent_summary": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/phase_firstorder/scoring/combined_phase_firstorder_v1/summary.json",
+    "parent_summary_sha256": "ce12805b84710cfe119fabfc063bf62931aa7e797f28174a627df000d2422413"
+  },
+  "completed_formal_trials": 25,
+  "archival_reconstructions": 65,
+  "formal_trials_with_strict_win": 0,
+  "archival_models_with_strict_win": 0,
+  "best_formal": {
+    "name": "adamflat_g2_v1",
+    "cohort": "formal25",
+    "source_objective": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/scoring/adamflat_g2_v1_v1/objective.json",
+    "source_objective_sha256": "53d2cc234bf4f161e95b9ee555df160772af93d206e74c3945bc7b9a3506ebfd",
+    "score_six": -0.033818449923473944,
+    "strict_success": false,
+    "passing_planes_both_scans": 0,
+    "passing_planes_by_scan": {
+      "pre": 0,
+      "post": 1
+    },
+    "per_condition_passing_planes": {
+      "pre:psnr": 0,
+      "pre:ssim": 0,
+      "pre:nmse": 0,
+      "post:psnr": 3,
+      "post:ssim": 1,
+      "post:nmse": 3
+    },
+    "best_plane": {
+      "axis": 1,
+      "index": 130,
+      "core": 255,
+      "score_six": -0.033818449923473944,
+      "strict_success": false,
+      "comparisons": {
+        "pre:psnr": {
+          "candidate": 36.786110913920695,
+          "best_opponent": 36.93298257580355,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "strict_win": false,
+          "margin": -0.03381844992347241
+        },
+        "pre:ssim": {
+          "candidate": 0.9286325263442767,
+          "best_opponent": 0.9292665117666741,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "strict_win": false,
+          "margin": -0.008923087085904554
+        },
+        "pre:nmse": {
+          "candidate": 0.012471962004179351,
+          "best_opponent": 0.012057231872836903,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "strict_win": false,
+          "margin": -0.033818449923473944
+        },
+        "post:psnr": {
+          "candidate": 38.24202200153187,
+          "best_opponent": 38.30875015535582,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "strict_win": false,
+          "margin": -0.015364725227802948
+        },
+        "post:ssim": {
+          "candidate": 0.949150199070661,
+          "best_opponent": 0.9498657828661274,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "strict_win": false,
+          "margin": -0.014172455933957474
+        },
+        "post:nmse": {
+          "candidate": 0.010684833229114324,
+          "best_opponent": 0.010521918477632864,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "strict_win": false,
+          "margin": -0.015364725227803492
+        }
+      }
+    },
+    "whole_head_metrics": {
+      "pre": {
+        "psnr": 34.80795582896276,
+        "ssim": 0.9415072798728943,
+        "nmse": 0.009934071948278786
+      },
+      "post": {
+        "psnr": 37.15822506984288,
+        "ssim": 0.9541497230529785,
+        "nmse": 0.009600131154803154
+      }
+    },
+    "whole_head_comparisons": {
+      "pre:psnr": {
+        "candidate": 34.80795582896276,
+        "best_opponent": 35.3194982813409,
+        "labels": [
+          "ZS-SSDU"
+        ],
+        "strict_win": false,
+        "margin": -0.11778700252795152
+      },
+      "pre:ssim": {
+        "candidate": 0.9415072798728943,
+        "best_opponent": 0.9463346004486084,
+        "labels": [
+          "ZS-SSDU"
+        ],
+        "strict_win": false,
+        "margin": -0.08613383902855345
+      },
+      "pre:nmse": {
+        "candidate": 0.009934071948278786,
+        "best_opponent": 0.008830250899305128,
+        "labels": [
+          "ZS-SSDU"
+        ],
+        "strict_win": false,
+        "margin": -0.11778703065863404
+      },
+      "post:psnr": {
+        "candidate": 37.15822506984288,
+        "best_opponent": 37.527184786498296,
+        "labels": [
+          "ZS-SSDU"
+        ],
+        "strict_win": false,
+        "margin": -0.08495611434860724
+      },
+      "post:ssim": {
+        "candidate": 0.9541497230529785,
+        "best_opponent": 0.9578452110290527,
+        "labels": [
+          "ZS-SSDU"
+        ],
+        "strict_win": false,
+        "margin": -0.084032943632758
+      },
+      "post:nmse": {
+        "candidate": 0.009600131154803154,
+        "best_opponent": 0.008818225694366846,
+        "labels": [
+          "ZS-SSDU"
+        ],
+        "strict_win": false,
+        "margin": -0.08495607899664646
+      }
+    }
+  },
+  "best_archival": {
+    "name": "ar_i2_k50",
+    "cohort": "archival65",
+    "source_objective": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_i2_k50.json",
+    "source_objective_sha256": "76ee82eb0727324bf63eb7a477a7a0d9f1caa691f0337c48f365afda2208972a",
+    "score_six": -0.07873549033938135,
+    "strict_success": false,
+    "passing_planes_both_scans": 0,
+    "passing_planes_by_scan": {
+      "pre": 0,
+      "post": 0
+    },
+    "per_condition_passing_planes": {
+      "pre:psnr": 0,
+      "pre:ssim": 0,
+      "pre:nmse": 0,
+      "post:psnr": 0,
+      "post:ssim": 0,
+      "post:nmse": 0
+    },
+    "best_plane": {
+      "axis": 1,
+      "index": 133,
+      "core": 271,
+      "score_six": -0.07873549033938135,
+      "strict_success": false,
+      "comparisons": {
+        "pre:psnr": {
+          "candidate": 36.4826578416134,
+          "best_opponent": 36.82163863082077,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "strict_win": false,
+          "margin": -0.0780532112040245
+        },
+        "pre:ssim": {
+          "candidate": 0.9251281258256138,
+          "best_opponent": 0.9304564644743454,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "strict_win": false,
+          "margin": -0.07382534141187265
+        },
+        "pre:nmse": {
+          "candidate": 0.0130157742165669,
+          "best_opponent": 0.012038487534787251,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "strict_win": false,
+          "margin": -0.07805321120402393
+        },
+        "post:psnr": {
+          "candidate": 38.10092601451398,
+          "best_opponent": 38.41438298083819,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "strict_win": false,
+          "margin": -0.07217613379532635
+        },
+        "post:ssim": {
+          "candidate": 0.9472364096017907,
+          "best_opponent": 0.9512314378650726,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "strict_win": false,
+          "margin": -0.07873549033938135
+        },
+        "post:nmse": {
+          "candidate": 0.011198754786627277,
+          "best_opponent": 0.01041895203238185,
+          "labels": [
+            "ZS-SSDU"
+          ],
+          "strict_win": false,
+          "margin": -0.07217613379532781
+        }
+      }
+    }
+  },
+  "old_four_metric_incumbent": "adamflat_g1_v1",
+  "best_formal_changed": true,
+  "top_five_formal": [
+    {
+      "name": "adamflat_g2_v1",
+      "score_six": -0.033818449923473944,
+      "passing_planes_both_scans": 0,
+      "passing_planes_by_scan": {
+        "pre": 0,
+        "post": 1
+      },
+      "per_condition_passing_planes": {
+        "pre:psnr": 0,
+        "pre:ssim": 0,
+        "pre:nmse": 0,
+        "post:psnr": 3,
+        "post:ssim": 1,
+        "post:nmse": 3
+      }
+    },
+    {
+      "name": "adamflat_g1_v1",
+      "score_six": -0.0343123204927419,
+      "passing_planes_both_scans": 0,
+      "passing_planes_by_scan": {
+        "pre": 0,
+        "post": 1
+      },
+      "per_condition_passing_planes": {
+        "pre:psnr": 0,
+        "pre:ssim": 0,
+        "pre:nmse": 0,
+        "post:psnr": 3,
+        "post:ssim": 1,
+        "post:nmse": 3
+      }
+    },
+    {
+      "name": "phase_fo_f1_solve_v1",
+      "score_six": -0.03715252840524704,
+      "passing_planes_both_scans": 0,
+      "passing_planes_by_scan": {
+        "pre": 0,
+        "post": 0
+      },
+      "per_condition_passing_planes": {
+        "pre:psnr": 0,
+        "pre:ssim": 0,
+        "pre:nmse": 0,
+        "post:psnr": 0,
+        "post:ssim": 0,
+        "post:nmse": 0
+      }
+    },
+    {
+      "name": "precision96_f1_solve_v1",
+      "score_six": -0.037322433444369876,
+      "passing_planes_both_scans": 0,
+      "passing_planes_by_scan": {
+        "pre": 0,
+        "post": 0
+      },
+      "per_condition_passing_planes": {
+        "pre:psnr": 0,
+        "pre:ssim": 0,
+        "pre:nmse": 0,
+        "post:psnr": 0,
+        "post:ssim": 0,
+        "post:nmse": 0
+      }
+    },
+    {
+      "name": "freq_t1_solve_v1",
+      "score_six": -0.03767998246100907,
+      "passing_planes_both_scans": 0,
+      "passing_planes_by_scan": {
+        "pre": 0,
+        "post": 0
+      },
+      "per_condition_passing_planes": {
+        "pre:psnr": 0,
+        "pre:ssim": 0,
+        "pre:nmse": 0,
+        "post:psnr": 0,
+        "post:ssim": 0,
+        "post:nmse": 0
+      }
+    }
+  ],
+  "whole_head_opponents": {
+    "ZF": {
+      "pre": {
+        "psnr": 25.382007193545586,
+        "ssim": 0.7179952263832092,
+        "nmse": 0.08704065663769525
+      },
+      "post": {
+        "psnr": 26.931413270884914,
+        "ssim": 0.7140146493911743,
+        "nmse": 0.10114825033657747
+      }
+    },
+    "CG-SENSE": {
+      "pre": {
+        "psnr": 31.553066153599605,
+        "ssim": 0.8744746446609497,
+        "nmse": 0.021019204277882127
+      },
+      "post": {
+        "psnr": 33.62325622149248,
+        "ssim": 0.9012788534164429,
+        "nmse": 0.021665767645656937
+      }
+    },
+    "CS-SENSE": {
+      "pre": {
+        "psnr": 33.977779394178924,
+        "ssim": 0.93056321144104,
+        "nmse": 0.012026657226619875
+      },
+      "post": {
+        "psnr": 36.370883613064514,
+        "ssim": 0.9452770948410034,
+        "nmse": 0.011508304789110226
+      }
+    },
+    "Joint SENSE": {
+      "pre": {
+        "psnr": 33.94815090584603,
+        "ssim": 0.9298652410507202,
+        "nmse": 0.012108986353580719
+      },
+      "post": {
+        "psnr": 36.25705069573118,
+        "ssim": 0.943475067615509,
+        "nmse": 0.011813936962574203
+      }
+    },
+    "L1-SPIRiT": {
+      "pre": {
+        "psnr": 32.41402760030398,
+        "ssim": 0.8998019695281982,
+        "nmse": 0.017239319572817643
+      },
+      "post": {
+        "psnr": 34.63190133416194,
+        "ssim": 0.9173221588134766,
+        "nmse": 0.01717550719981027
+      }
+    },
+    "ZS-SSDU": {
+      "pre": {
+        "psnr": 35.3194982813409,
+        "ssim": 0.9463346004486084,
+        "nmse": 0.008830250899305128
+      },
+      "post": {
+        "psnr": 37.527184786498296,
+        "ssim": 0.9578452110290527,
+        "nmse": 0.008818225694366846
+      }
+    },
+    "3D-DIP": {
+      "pre": {
+        "psnr": 31.484746809625065,
+        "ssim": 0.8971994519233704,
+        "nmse": 0.021352473198840424
+      },
+      "post": {
+        "psnr": 32.8992433857498,
+        "ssim": 0.8901784420013428,
+        "nmse": 0.02559619199288544
+      }
+    },
+    "3D-INR": {
+      "pre": {
+        "psnr": 33.139070773050136,
+        "ssim": 0.9157891273498535,
+        "nmse": 0.014588673362016295
+      },
+      "post": {
+        "psnr": 35.13027520599827,
+        "ssim": 0.9280303716659546,
+        "nmse": 0.015313420193569616
+      }
+    },
+    "MC-INR": {
+      "pre": {
+        "psnr": 30.098392395445472,
+        "ssim": 0.8084923624992371,
+        "nmse": 0.02938215494857357
+      },
+      "post": {
+        "psnr": 32.65977508036479,
+        "ssim": 0.8590739369392395,
+        "nmse": 0.027047190830922618
+      }
+    },
+    "GS-single": {
+      "pre": {
+        "psnr": 34.58345896376352,
+        "ssim": 0.9375621676445007,
+        "nmse": 0.01046109086553735
+      },
+      "post": {
+        "psnr": 36.80854364320148,
+        "ssim": 0.9495295882225037,
+        "nmse": 0.010405076446146449
+      }
+    }
+  },
+  "source_sha256": {
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/phase_firstorder/scoring/combined_phase_firstorder_v1/summary.json": "ce12805b84710cfe119fabfc063bf62931aa7e797f28174a627df000d2422413",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/baseline_lesion_allmetrics.json": "eb351e158b8029b846b37a45d85bf0b6a99825b326ad5c411f59095d9db0df22",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/development_incumbent.json": "4141022ee6b0fa258b99c25062a72f8daa4aef4a9adc55bddf744f7a244eeefb",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/A_control_1792220854700842104/objective.json": "927bb0629fc661815f7bed38ce43e4de13e5337851d09c5909e91f5078f54331",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/C_1792222413871949326/objective.json": "14c16c649b0ba156599230be783ca314ed884885a1f2e4b23664f9539f2e261a",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/D_1792223288755296497/objective.json": "c1464fceeb81d402e03db3b2879d2d4c2040927d58176685dfb8ee56c84acf5d",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/E_1792224168422359421/objective.json": "1d43ac1a27b8f539b5c7e38ff18b49aa76a3936db56477827367b5d925b48307",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/F_1792225044134503895/objective.json": "7595aac13a90daabab5429d82c316429fa2419aa8504729c5e7a1741b59bc91e",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/G_1792225924345978005/objective.json": "1bd09a8a76d99b6708e4f90fbebd62766cd24a94ff96826ee4736c1de058cf92",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/verification/loop_scores/B_retry_1792223845008263140/objective.json": "43808b1932e132478603439726cac1c136a9f741b5805e3418ddb179a0d0b229",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/campaign_summary/combined_20261017_v1/opt_lr2/objective.json": "55eb930c972d0e46fbc708bada55e73cf69a46e263c79e23e70e710cb28034a8",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/campaign_summary/combined_20261017_v1/opt_beta99/objective.json": "c0db0a360d10a6429023a5e4c089ee6413916d182bb8e83fb5aba267402a8544",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/campaign_summary/combined_20261017_v1/opt_lr2_beta99/objective.json": "a489eb9b4d6e8f50a959404f74eb22ca19de63f5978e2ce7f12621d9a58074bd",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/density_mm/scoring/mm5_cg80_v2_v1/objective.json": "d6d9f4d46317d35a98db450955a54a0e1d53342a319564d112c68d831c32bff8",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/density_mm/scoring/mm_cycle8_v3_v1/objective.json": "7b2338ffcff997af8b33361905ec0f3c8ffccf6e6ad00ae44d0ea049576ea15f",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/geometry_restart/scoring/geo_factor2_v1_v1/objective.json": "f46c9d7f48a20265589946fc417671c9baf2c242927b5b83a3cccc5947636e58",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/geometry_restart/scoring/geo_factor4_v1_v1/objective.json": "930f86f892a19d06ce1793d25c68adf39a73c7b9b2e008eb08d1ea05722593c1",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/geometry_restart/scoring/geo_factor8_retry_v2_v1/objective.json": "82c8140d4ef4606184250c4703e3c6407b3b9581fa65964080e70ad9dd31493f",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_mm/scoring/freq_t05_solve_v1_v1/objective.json": "c25d63823d7a1fab7e5a1c629cf455bab00b6211ec934b029af082efc725633b",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_mm/scoring/freq_t1_solve_v1_v1/objective.json": "22705b5378f80d9968a226bf6cb46bc5f985a5efcffd9e90933e3674ee4b1cb5",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_tvwave_mm/scoring/tvwave_f2_solve_v1_v1/objective.json": "e5cd882e39e2535a6892d8ef3c53baf7550bec29ab127777b42341813be8807a",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_tvwave_mm/scoring/tvwave_f4_solve_v1_v1/objective.json": "d053d482a7cfb29b7c7afa1cde31fb943ed1aec5cfec5d8e79f380a36231dbfb",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/inner_precision_mm/scoring/precision96_f1_solve_v1_v1/objective.json": "d7c5bffca3550fcaf447c832fa31f45a7ea1b29ff5e90c49f47fc393dd01b7fd",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/scoring/adamflat_g1_v1_v1/objective.json": "d8518e01eccfaccb7a9738de0e38f964e274fe2261be12dd37bc24d552953da3",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/scoring/adamflat_g2_v1_v1/objective.json": "53d2cc234bf4f161e95b9ee555df160772af93d206e74c3945bc7b9a3506ebfd",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_lowreg_mm/scoring/lowreg_f075_solve_v1_v1/objective.json": "e61ee8f9dbf74aa3cb0eee8314f8cddc76987c0d407ed5a96d3e7d0b66caf75b",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_lowreg_mm/scoring/lowreg_f050_solve_v1_v1/objective.json": "942f04bda167535d1e430932bb3ffe5d58372887db9154da620ace4d42890d8c",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/phase_firstorder/scoring/phase_fo_f1_solve_v1_v1/objective.json": "ee51ae7018692f1ec9865a2c0ce50fcba090dad4066b3dd18f3ae97400a6ff6a",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/summary.json": "655e8585655950071ff8f386bdcef59b17f9f28eaeacd8050234b7f9c040cc08",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_c1_ab.json": "354c6bb4cf157c7bfe3f2803041e9644465c492cab3f3033a0795cefbd45dcf9",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_c2_abc.json": "c5bcb1d75fd9e17e874d933ee99ce4efbe080e97b862a833be0ec77729fe9d8d",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_c3_abd.json": "ccf76f8da257e251dd63b8b2ce426b3811139d104d9ee3bf93787ee67127f7a9",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_c4_abcd.json": "3a89b8c32ed3c7c9d3c45935bdc983974816ea2002bcf7901f97c1763e219faa",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_c5_abcde.json": "9737be57a6e019848769e78de7a1266f10168226cbbcd2e3855b8901aed89a57",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_c6_abhalf.json": "a78b38cb6b719775c5d6c534a252f9e1016b53bb64138f6f2380bab3bdaa7980",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_c7_abcdp.json": "ddf27c63b68e2be2ee5a349f7e4d9c6f9636d7ce0e923ec4a582eb76716a8f0d",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_d1_wf02b.json": "ca70b4a38f408786a65f246f04d13f73a710f24cfe10d91f0b870a4e3af0c0a5",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_d2_wf00b.json": "0e49a5c1b7e6dd814b610ec4d71a7849764899eecb0d1c0f43d497231e4053ac",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_d3_wf02bv.json": "7d86f478dbbcb1c7e47dbf7aa96d05dd9f3296e297c3db892246b5dcbd6bbe0d",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_d4_wf02b25.json": "49219f1300708553d9fabd778d1ceb038a333c517e4398f2f2c9cb84e8faec4d",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_d5_wf00.json": "b7cd62bc1c45f20253a92e3c734feccf61f13fca3f28ab2fda3d02292913504e",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_e1b_wf00bv.json": "7ff039d5867c4e5f9f5a29e911fb493050904f0b53bd3a5d2231ebd74005e860",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_g1_vtv005.json": "79ab7e7f26b3ef228dbc97ba22373cae8ed50383f00c1812683429943b4bb056",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_g2_vtv02.json": "b0b3feca13814892398799418d91831283cce3c7f172a906213420cffd10e3c7",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_g3_dtv005.json": "538626481c3de60f3bab2743f5f6a0ed8a5d9af0fd71746677f6b6d9550bcc71",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_g4_dtv02.json": "8503fd70c26207523a4c3812ee22b249cc88e69b7c144a30494621d714198986",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_g5_edge05.json": "0538d81ea9b3ac5a39fe52ad13c5f75235874dbb4533b8ab2d38c173dc344cb2",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_g6_ekap30.json": "37dd97a23c6d253504ee26f77e54e7c95d27f8e9ac5e594a4eee8ef15f8e3ab0",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_g7_ep90.json": "50d6dbb444ccf144d2b83a9082545ec8c36d3637c6838df2796d29c9721276cd",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_g8_nl05.json": "1162856477a3d0400d22ce0233d2b083705aec0de566745c7ab1736f39fd9442",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_h1_priv0.json": "9797ee11f33bda196a7e4f2b8300e5ac7855d0aabaaf4d750221ffaa4bee5264",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_h2_priv01.json": "ff57d38108eb08c244d8b3542fc58cc80076defe061620cd2dbb48953fafe97a",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_h3_priv05.json": "9b2bc813acb3ce2ac5f0e80589155a58d198d09950f91885c90234fdd0715dfa",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_i1_k30p90.json": "5260e27480aed0e4d9429da268ed0d9276ac759b473aa094646dfe71d32616da",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_i2_k50.json": "76ee82eb0727324bf63eb7a477a7a0d9f1caa691f0337c48f365afda2208972a",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_i3_k30p90e05.json": "801247dc754652f8e4553e795af5149da6683cbf91892e0d81b898ff4ac0fc31",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_i4_k30p90e2.json": "d629cad21915189b436af1680c790efab5b250409f43f09a9ac7bc3c2ee14318",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_i5_k30p95.json": "a7ef2da44db3dff3231bd651d6fcdfc4eb705c59903a47778d485d6d869ca12a",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_i6_k50p90.json": "2dc44f96f1c1dc26ee248b1c12aab890d10c43e455354a587549472aca9b79af",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_j1_k20p90.json": "eec59dd3cff3bb03efcf2eb56ba9cb0d1ae263f53f0f857dc20bd9828a91cabd",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_j2_k40p90.json": "082eeee36e8fc0a8af8759a2704a46d36dcf4628e714971ec3a62e4037ef2acc",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_j3c_k30p85.json": "cc993b174a6c570a79abb67738f97bb6ae79e8f78c9883ed4a4e90ecc809a87f",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_j4_k30p90e14.json": "515ae000681921815d4a95cbb612f29b3da3669390750aa4b3fb24185d276942",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_k1_sub003.json": "50d6173ff0c34a7f747b886a5ddccb0717fc808794ab73808fc216cf50869db0",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_k2_sub01.json": "3a5599c4f626b9678b5c4a3b1ff3708f5cb7e6db26600e96b943add6cc353ed7",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_p1_kh10.json": "641d52bfc65136190f29e1888429c410a41f352113dee7c5b80bca0b9204227b",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_p2_tv20.json": "6b430c966262c5215b2a6ea86aac84c1097c4276213dae71b62236621dfd3588",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_p3_wav20.json": "cc94fa20407d631fabb3fa93f30d188cfb21619502e7f16261bb36a1b95991ad",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_p4_ptv10.json": "208a0442a2e142414b7cd6366d84deeceb5eda34a992796160464d827723ea00",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_p5_it6000.json": "3b8e7cf877703b6bbdc6f714cd8d450d6779753599a293d6259e8fc01a4075d3",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_q1_kh35.json": "79d6144c8f5479d67f500a85f48da8e00d32358a69ff204297b8e98d37da9777",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_q2_tv05.json": "113994ef41b8799194d48476af61de27d504a285a86293d6a22e300ab8f8512b",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_q3_wav06.json": "55f76531ef446a39ccd65bf9ba15665d494843adc0d14d9b4010e1217d40ec4a",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_q4_ptv01.json": "d3f63e640bc25e854b9e3e08fa792c29402bac02efe9fe34d955b21efc65dae0",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_q5_n50.json": "6d71bdac3f02c4817198b37376d3f0c7a35c34fe153393a7206d3a1bcdbc7fd5",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_q6_kc10.json": "266008d23af5a5d28bd207759d6291e2d3d6f61bc5d9823cff5c35aa5de3bba1",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_q7_diff05.json": "dadf0281985128c02af4c39aa57d97a441920a2d1943512f022bbced887681b1",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_q8_kq70.json": "ba5b49149fa8ff076f2f7ad340d86629049d2640530f443b438842d32f5f2038",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_q9_edge3.json": "2ee0108aa442c08463319b0e079e79b975040bffb6bf1ccac38966d541e70184",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r0_ctrl.json": "5a422cfc9037e832534c242f596ba72edbe42ef2ccc59ec7b3120996e2c9fbaf",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r10_eps02.json": "1100e991ea2e139a1000c66bde0710975d77e5bb8fb5ddfd9d344d404a73f149",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r11_kh27.json": "085913058b7b119830d8673b3312c190e5633b2720fa0c4a153eca98586e5e8b",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r12_wf05.json": "5868f4993a051c4f3765afc514c62b218e6a0a74440daab9e398519c4ad02475",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r13_tvc03.json": "9ac81892ea12037f13f4ca769bfb841046204849b54eeede89f717d4f6a6250c",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r14_wf02.json": "82bfbf260d45242fdced6327cb41e8d2517bed162413201c2b85da4f6912b53c",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r15_tvvec.json": "c018b6d0d299d8c2dc102001b41598886ca713c1c5e07ef4db479ff7f617cbf8",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r1_tvc05.json": "ef7115ec4937ac851ed735ccf00cd5318f2f8e5f07e3794148553f8094e19542",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r2_wavc05.json": "380c7bd9f3552af9b948f0dafb629369457228a9ea82cdba5ac45fb10a0b881c",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r3_kqc70.json": "a1eedd2b4ab3300512de7985e7b8a28b546ba2232dd77634aa7962aa789686fd",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r4_khc28.json": "bb2685e1f9f7c6e6e16fcf4e2b9702c3930420b2a17f7770c56ad29497fb1483",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r5_tv075.json": "23fbda7e18f897f2901cb914b01f10f6c12309eae80b07b0e40c261a88cf5c65",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r6_wavmid.json": "ed665f56d0df6fcf4fce37709fe22b38c6fbcfee5e46854ae9f5393b0f251a39",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r7_kq775.json": "c74e8fa74c13d49e65cbb9cf9b0fbc4613fcc4d54fbef81819680e229e7e07d4",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/archival_allplanes_20261018/objective_ar_r8_edge0.json": "dbbb7e97cf56387543b2713a912c4b28d085c10fe68630b89e7f92e41a854080"
+  },
+  "runtime": {
+    "python": "3.11.5",
+    "executable": "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+    "numerics": "Python stdlib exact saved float values; no CUDA/array reconstruction"
+  },
+  "all_inputs_unchanged": true,
+  "script_sha256": "b0706a5a0773b0a40b330116863819793a7b1744c022c68707ec58a7c58b20fe"
+}

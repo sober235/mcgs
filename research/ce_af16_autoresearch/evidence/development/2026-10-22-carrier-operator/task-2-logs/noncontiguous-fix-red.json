@@ -1,0 +1,38 @@
+{
+  "command": [
+    "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_carrier_cuda.py",
+    "-k",
+    "noncontiguous_fixture_preserves"
+  ],
+  "cwd": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "CARRIER_RUN_GPU": "0",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "exit_code": 1,
+  "sources_before": {
+    "tests/test_carrier_cuda.py": "f4f2e355c045f6205722d3fb014576f2a3fef07a99c178113bc9217e25ca0b72",
+    "carrier_operator.py": "69e862bc6f07bab543af2f19d5c8bfc8bdb1ad96b67fcf6a5df257bd7ddd2824",
+    "carrier_cuda/carrier.cpp": "36dbf4b5d7140ba91917823f26e2779bc1edfd0829f5b425413c386c8b7a521d",
+    "carrier_cuda/carrier_kernel.cu": "8a8e8097c63010b031c3b3826b4c5427a5fad0987f7b7c4e85d5c2a7a2752139",
+    "carrier_reference.py": "4d7e0ec7ca32d50462dde583a1b573485b6971c82641145ef6a3726e9f376c78",
+    "tests/test_carrier_reference.py": "637082ab365cc18ded133f1e6a46cb4a6ed060cc4a30b95f0cdba5a82b4345ca"
+  },
+  "sources_after": {
+    "tests/test_carrier_cuda.py": "f4f2e355c045f6205722d3fb014576f2a3fef07a99c178113bc9217e25ca0b72",
+    "carrier_operator.py": "69e862bc6f07bab543af2f19d5c8bfc8bdb1ad96b67fcf6a5df257bd7ddd2824",
+    "carrier_cuda/carrier.cpp": "36dbf4b5d7140ba91917823f26e2779bc1edfd0829f5b425413c386c8b7a521d",
+    "carrier_cuda/carrier_kernel.cu": "8a8e8097c63010b031c3b3826b4c5427a5fad0987f7b7c4e85d5c2a7a2752139",
+    "carrier_reference.py": "4d7e0ec7ca32d50462dde583a1b573485b6971c82641145ef6a3726e9f376c78",
+    "tests/test_carrier_reference.py": "637082ab365cc18ded133f1e6a46cb4a6ed060cc4a30b95f0cdba5a82b4345ca"
+  }
+}

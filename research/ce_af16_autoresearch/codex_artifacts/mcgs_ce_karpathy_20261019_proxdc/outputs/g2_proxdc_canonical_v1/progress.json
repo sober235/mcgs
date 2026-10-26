@@ -1,0 +1,91 @@
+{
+  "active_domain": "state_verification",
+  "construction": {
+    "fft_batches": 0,
+    "ifft_batches": 4,
+    "scalar_fft_transforms": 0,
+    "scalar_ifft_transforms": 0,
+    "coil_fft_transforms": 0,
+    "coil_ifft_transforms": 168
+  },
+  "canonical": {
+    "gaussian_renders": 2,
+    "canonical_export_calls": 2,
+    "canonical_fft_batches": 2,
+    "canonical_ifft_batches": 4,
+    "canonical_coil_fft_transforms": 84,
+    "canonical_coil_ifft_transforms": 168
+  },
+  "scans": {
+    "pre": {
+      "status": "canonical_only",
+      "algorithm_executed": false,
+      "record": null,
+      "work": {
+        "rhs_adjoint_calls": 0,
+        "normal_calls": 0,
+        "terminal_normal_calls": 0,
+        "objective_calls": 0,
+        "forward_calls": 0,
+        "adjoint_calls": 0,
+        "fft_batches": 0,
+        "ifft_batches": 0,
+        "coil_fft_transforms": 0,
+        "coil_ifft_transforms": 0,
+        "gaussian_renders": 0,
+        "gaussian_vjps": 0,
+        "roles": {}
+      }
+    },
+    "post": {
+      "status": "canonical_only",
+      "algorithm_executed": false,
+      "record": null,
+      "work": {
+        "rhs_adjoint_calls": 0,
+        "normal_calls": 0,
+        "terminal_normal_calls": 0,
+        "objective_calls": 0,
+        "forward_calls": 0,
+        "adjoint_calls": 0,
+        "fft_batches": 0,
+        "ifft_batches": 0,
+        "coil_fft_transforms": 0,
+        "coil_ifft_transforms": 0,
+        "gaussian_renders": 0,
+        "gaussian_vjps": 0,
+        "roles": {}
+      }
+    }
+  },
+  "tiny_identity_physics": {},
+  "gaussian_reference_renders": 0,
+  "current_scan": null,
+  "unassigned_proximal_work": null,
+  "canonical_parity": {
+    "pre": {
+      "passed": true,
+      "complex_relative_l2": 0.0,
+      "tolerance": 1e-05,
+      "shape": [
+        256,
+        232,
+        176
+      ],
+      "dtype": "complex64",
+      "array_equal": true
+    },
+    "post": {
+      "passed": true,
+      "complex_relative_l2": 0.0,
+      "tolerance": 1e-05,
+      "shape": [
+        256,
+        232,
+        176
+      ],
+      "dtype": "complex64",
+      "array_equal": true
+    }
+  }
+}

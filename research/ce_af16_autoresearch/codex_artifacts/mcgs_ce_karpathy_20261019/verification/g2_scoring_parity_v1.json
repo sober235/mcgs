@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "differences": {
+    "pre": {
+      "psnr": 0.0,
+      "ssim": 0.0,
+      "nmse": 0.0
+    },
+    "post": {
+      "psnr": 0.0,
+      "ssim": 0.0,
+      "nmse": 0.0
+    }
+  },
+  "primary_score": -0.11778703065863405,
+  "slice_S6": -0.03381844992347395
+}

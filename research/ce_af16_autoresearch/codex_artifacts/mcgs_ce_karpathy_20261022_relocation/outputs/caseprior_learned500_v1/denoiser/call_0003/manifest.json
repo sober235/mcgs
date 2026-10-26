@@ -1,0 +1,67 @@
+{
+  "batch_size": 4,
+  "call_index": 3,
+  "changed_parameters": [
+    "network.0.weight",
+    "network.0.bias",
+    "network.2.weight",
+    "network.2.bias",
+    "network.4.weight",
+    "network.4.bias",
+    "network.6.weight",
+    "network.6.bias",
+    "network.8.weight",
+    "network.8.bias"
+  ],
+  "checkpoint": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/caseprior_learned500_v1/denoiser/call_0003/checkpoint.pt",
+    "sha256": "8643944d61eeb18a72fc488e9315f58525b0b0f3c625b9318f2ea84c1669ab13"
+  },
+  "elapsed_seconds": 2.7735254648141563,
+  "final_parameter_sha256": "fc184402510f92aedfc1179a05ed06ad6dede916f19d30df0f1c529541391b01",
+  "gradients": {
+    "all_finite": true,
+    "any_nonzero": true,
+    "max_abs": 0.01669292151927948,
+    "steps_with_nonzero": 128
+  },
+  "initial_parameter_sha256": "d25e4727a9757d0a023fbd0bc666389c935b413906d6152a51012e6373bc22c4",
+  "input": {
+    "dtype": "float32",
+    "sha256": "f95ac347a70404259897ea7c75c8076c9f3b8b90062ec0929efb347dfcf3cc8a",
+    "shape": [
+      255,
+      232,
+      176
+    ]
+  },
+  "losses": {
+    "first": 0.0003033481480088085,
+    "last": 0.0003021177835762501
+  },
+  "lr": 0.001,
+  "normalization": 0.6220011472702032,
+  "normalized_sigma": 0.017367794554399355,
+  "output": {
+    "clipped_count": 0,
+    "dtype": "float32",
+    "sha256": "819fab65040e997580a395c8fd2aada46e9803a580c74600d6fe1a80a9af9a4b",
+    "shape": [
+      255,
+      232,
+      176
+    ]
+  },
+  "patch_size": 32,
+  "schema": "case_magnitude_denoiser_call_v1",
+  "seed": 3069,
+  "sigma": 0.010802788138389587,
+  "status": "trained",
+  "target": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/caseprior_learned500_v1/denoiser/call_0003/target.npy",
+    "sha256": "93bff803bd17406f3ef94b8152bee819ab97e234906ec0fdf764a9b45596fd76"
+  },
+  "tile_size": 32,
+  "updates": 128,
+  "width": 32
+}

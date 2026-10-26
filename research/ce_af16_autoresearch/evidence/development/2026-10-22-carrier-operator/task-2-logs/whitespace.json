@@ -1,0 +1,27 @@
+{
+  "carrier_operator.py": {
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "carrier_cuda/carrier.cpp": {
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "carrier_cuda/carrier_kernel.cu": {
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "tests/test_carrier_cuda.py": {
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "docs/carrier_operator_commands.md": {
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": ""
+  }
+}

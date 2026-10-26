@@ -1,0 +1,30 @@
+{
+  "input_path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/mask/mask_af16_3d.h5",
+  "file_sha256": "93a50c2a4bb299e110b3938f15761a0420434354b29f4894476f215f7abdd5f0",
+  "stored_shape": [
+    256,
+    232,
+    176
+  ],
+  "reconstruction_shape": [
+    256,
+    232,
+    176
+  ],
+  "storage_mapping": "as_stored",
+  "readout_axis": 0,
+  "phase_grid": [
+    232,
+    176
+  ],
+  "sampled_voxels": 653312,
+  "sampled_phase_points": 2552,
+  "measured_af": 16.0,
+  "central_acs_shape": [
+    24,
+    24
+  ],
+  "central_acs_all_readouts_full": true,
+  "readout_repeated": true,
+  "h5_attributes": {}
+}

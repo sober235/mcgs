@@ -1,0 +1,452 @@
+...........FFF..FFFFFFFFFF                                               [100%]
+=================================== FAILURES ===================================
+___ test_original_loop_restoration_export_and_separate_work[control-0-2-0-0] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_original_loop_restoration0')
+mode = 'control', steps = 0, forwards = 2, backwards = 0, updates = 0
+
+    @pytest.mark.parametrize('mode,steps,forwards,backwards,updates',[
+        ('control',0,2,0,0),('control',2,0,0,0),('carrier',2,6,4,2)])
+    def test_original_loop_restoration_export_and_separate_work(tmp_path,mode,steps,forwards,backwards,updates):
+>       trainer, restored, result, native = run(tmp_path,mode,steps)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_original_loop_restoration0')
+mode = 'control', steps = 0, native = None
+
+    def run(directory, mode='carrier', steps=2, native=None):
+        m = module()
+        import relocation_runtime as rr
+        restore = rr.restore_training_state
+        captured = []
+        def configured(trainer, checkpoint):
+            # Configuration is completed before the actual original restoration.
+            trainer.config['data'] = {'plain':{'name':'pre'}, 'contrast':{'name':'post'}}
+            record = restore(trainer, checkpoint)
+            captured.append(copy.deepcopy(record))
+            return record
+        with patch.object(rr, 'restore_training_state', configured):
+            trainer, restored, frequency, rotation = tiny_trainer(directory,steps)
+        original_rng = torch.random.get_rng_state().clone()
+>       original = (trainer._render.__func__, trainer.train.__func__)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:59: AttributeError
+___ test_original_loop_restoration_export_and_separate_work[control-2-0-0-0] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_original_loop_restoration1')
+mode = 'control', steps = 2, forwards = 0, backwards = 0, updates = 0
+
+    @pytest.mark.parametrize('mode,steps,forwards,backwards,updates',[
+        ('control',0,2,0,0),('control',2,0,0,0),('carrier',2,6,4,2)])
+    def test_original_loop_restoration_export_and_separate_work(tmp_path,mode,steps,forwards,backwards,updates):
+>       trainer, restored, result, native = run(tmp_path,mode,steps)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_original_loop_restoration1')
+mode = 'control', steps = 2, native = None
+
+    def run(directory, mode='carrier', steps=2, native=None):
+        m = module()
+        import relocation_runtime as rr
+        restore = rr.restore_training_state
+        captured = []
+        def configured(trainer, checkpoint):
+            # Configuration is completed before the actual original restoration.
+            trainer.config['data'] = {'plain':{'name':'pre'}, 'contrast':{'name':'post'}}
+            record = restore(trainer, checkpoint)
+            captured.append(copy.deepcopy(record))
+            return record
+        with patch.object(rr, 'restore_training_state', configured):
+            trainer, restored, frequency, rotation = tiny_trainer(directory,steps)
+        original_rng = torch.random.get_rng_state().clone()
+>       original = (trainer._render.__func__, trainer.train.__func__)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:59: AttributeError
+___ test_original_loop_restoration_export_and_separate_work[carrier-2-6-4-2] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_original_loop_restoration2')
+mode = 'carrier', steps = 2, forwards = 6, backwards = 4, updates = 2
+
+    @pytest.mark.parametrize('mode,steps,forwards,backwards,updates',[
+        ('control',0,2,0,0),('control',2,0,0,0),('carrier',2,6,4,2)])
+    def test_original_loop_restoration_export_and_separate_work(tmp_path,mode,steps,forwards,backwards,updates):
+>       trainer, restored, result, native = run(tmp_path,mode,steps)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_original_loop_restoration2')
+mode = 'carrier', steps = 2, native = None
+
+    def run(directory, mode='carrier', steps=2, native=None):
+        m = module()
+        import relocation_runtime as rr
+        restore = rr.restore_training_state
+        captured = []
+        def configured(trainer, checkpoint):
+            # Configuration is completed before the actual original restoration.
+            trainer.config['data'] = {'plain':{'name':'pre'}, 'contrast':{'name':'post'}}
+            record = restore(trainer, checkpoint)
+            captured.append(copy.deepcopy(record))
+            return record
+        with patch.object(rr, 'restore_training_state', configured):
+            trainer, restored, frequency, rotation = tiny_trainer(directory,steps)
+        original_rng = torch.random.get_rng_state().clone()
+>       original = (trainer._render.__func__, trainer.train.__func__)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:59: AttributeError
+__________________ test_checkpoint_corruption_refused[schema] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref0')
+defect = 'schema'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref0')
+mode = 'carrier', steps = 2, native = None
+
+    def run(directory, mode='carrier', steps=2, native=None):
+        m = module()
+        import relocation_runtime as rr
+        restore = rr.restore_training_state
+        captured = []
+        def configured(trainer, checkpoint):
+            # Configuration is completed before the actual original restoration.
+            trainer.config['data'] = {'plain':{'name':'pre'}, 'contrast':{'name':'post'}}
+            record = restore(trainer, checkpoint)
+            captured.append(copy.deepcopy(record))
+            return record
+        with patch.object(rr, 'restore_training_state', configured):
+            trainer, restored, frequency, rotation = tiny_trainer(directory,steps)
+        original_rng = torch.random.get_rng_state().clone()
+>       original = (trainer._render.__func__, trainer.train.__func__)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:59: AttributeError
+________________ test_checkpoint_corruption_refused[iteration] _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref1')
+defect = 'iteration'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref1')
+mode = 'carrier', steps = 2, native = None
+
+    def run(directory, mode='carrier', steps=2, native=None):
+        m = module()
+        import relocation_runtime as rr
+        restore = rr.restore_training_state
+        captured = []
+        def configured(trainer, checkpoint):
+            # Configuration is completed before the actual original restoration.
+            trainer.config['data'] = {'plain':{'name':'pre'}, 'contrast':{'name':'post'}}
+            record = restore(trainer, checkpoint)
+            captured.append(copy.deepcopy(record))
+            return record
+        with patch.object(rr, 'restore_training_state', configured):
+            trainer, restored, frequency, rotation = tiny_trainer(directory,steps)
+        original_rng = torch.random.get_rng_state().clone()
+>       original = (trainer._render.__func__, trainer.train.__func__)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:59: AttributeError
+__________________ test_checkpoint_corruption_refused[policy] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref2')
+defect = 'policy'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref2')
+mode = 'carrier', steps = 2, native = None
+
+    def run(directory, mode='carrier', steps=2, native=None):
+        m = module()
+        import relocation_runtime as rr
+        restore = rr.restore_training_state
+        captured = []
+        def configured(trainer, checkpoint):
+            # Configuration is completed before the actual original restoration.
+            trainer.config['data'] = {'plain':{'name':'pre'}, 'contrast':{'name':'post'}}
+            record = restore(trainer, checkpoint)
+            captured.append(copy.deepcopy(record))
+            return record
+        with patch.object(rr, 'restore_training_state', configured):
+            trainer, restored, frequency, rotation = tiny_trainer(directory,steps)
+        original_rng = torch.random.get_rng_state().clone()
+>       original = (trainer._render.__func__, trainer.train.__func__)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:59: AttributeError
+___________________ test_checkpoint_corruption_refused[ids] ____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref3')
+defect = 'ids'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref3')
+mode = 'carrier', steps = 2, native = None
+
+    def run(directory, mode='carrier', steps=2, native=None):
+        m = module()
+        import relocation_runtime as rr
+        restore = rr.restore_training_state
+        captured = []
+        def configured(trainer, checkpoint):
+            # Configuration is completed before the actual original restoration.
+            trainer.config['data'] = {'plain':{'name':'pre'}, 'contrast':{'name':'post'}}
+            record = restore(trainer, checkpoint)
+            captured.append(copy.deepcopy(record))
+            return record
+        with patch.object(rr, 'restore_training_state', configured):
+            trainer, restored, frequency, rotation = tiny_trainer(directory,steps)
+        original_rng = torch.random.get_rng_state().clone()
+>       original = (trainer._render.__func__, trainer.train.__func__)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:59: AttributeError
+__________________ test_checkpoint_corruption_refused[binary] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref4')
+defect = 'binary'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref4')
+mode = 'carrier', steps = 2, native = None
+
+    def run(directory, mode='carrier', steps=2, native=None):
+        m = module()
+        import relocation_runtime as rr
+        restore = rr.restore_training_state
+        captured = []
+        def configured(trainer, checkpoint):
+            # Configuration is completed before the actual original restoration.
+            trainer.config['data'] = {'plain':{'name':'pre'}, 'contrast':{'name':'post'}}
+            record = restore(trainer, checkpoint)
+            captured.append(copy.deepcopy(record))
+            return record
+        with patch.object(rr, 'restore_training_state', configured):
+            trainer, restored, frequency, rotation = tiny_trainer(directory,steps)
+        original_rng = torch.random.get_rng_state().clone()
+>       original = (trainer._render.__func__, trainer.train.__func__)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:59: AttributeError
+__________________ test_checkpoint_corruption_refused[shape] ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref5')
+defect = 'shape'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref5')
+mode = 'carrier', steps = 2, native = None
+
+    def run(directory, mode='carrier', steps=2, native=None):
+        m = module()
+        import relocation_runtime as rr
+        restore = rr.restore_training_state
+        captured = []
+        def configured(trainer, checkpoint):
+            # Configuration is completed before the actual original restoration.
+            trainer.config['data'] = {'plain':{'name':'pre'}, 'contrast':{'name':'post'}}
+            record = restore(trainer, checkpoint)
+            captured.append(copy.deepcopy(record))
+            return record
+        with patch.object(rr, 'restore_training_state', configured):
+            trainer, restored, frequency, rotation = tiny_trainer(directory,steps)
+        original_rng = torch.random.get_rng_state().clone()
+>       original = (trainer._render.__func__, trainer.train.__func__)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:59: AttributeError
+__________________ test_checkpoint_corruption_refused[clock] ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref6')
+defect = 'clock'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref6')
+mode = 'carrier', steps = 2, native = None
+
+    def run(directory, mode='carrier', steps=2, native=None):
+        m = module()
+        import relocation_runtime as rr
+        restore = rr.restore_training_state
+        captured = []
+        def configured(trainer, checkpoint):
+            # Configuration is completed before the actual original restoration.
+            trainer.config['data'] = {'plain':{'name':'pre'}, 'contrast':{'name':'post'}}
+            record = restore(trainer, checkpoint)
+            captured.append(copy.deepcopy(record))
+            return record
+        with patch.object(rr, 'restore_training_state', configured):
+            trainer, restored, frequency, rotation = tiny_trainer(directory,steps)
+        original_rng = torch.random.get_rng_state().clone()
+>       original = (trainer._render.__func__, trainer.train.__func__)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:59: AttributeError
+__________________ test_checkpoint_corruption_refused[moment] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref7')
+defect = 'moment'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref7')
+mode = 'carrier', steps = 2, native = None
+
+    def run(directory, mode='carrier', steps=2, native=None):
+        m = module()
+        import relocation_runtime as rr
+        restore = rr.restore_training_state
+        captured = []
+        def configured(trainer, checkpoint):
+            # Configuration is completed before the actual original restoration.
+            trainer.config['data'] = {'plain':{'name':'pre'}, 'contrast':{'name':'post'}}
+            record = restore(trainer, checkpoint)
+            captured.append(copy.deepcopy(record))
+            return record
+        with patch.object(rr, 'restore_training_state', configured):
+            trainer, restored, frequency, rotation = tiny_trainer(directory,steps)
+        original_rng = torch.random.get_rng_state().clone()
+>       original = (trainer._render.__func__, trainer.train.__func__)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:59: AttributeError
+_______________ test_checkpoint_corruption_refused[missing_pair] _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref8')
+defect = 'missing_pair'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+>       m=module(); _,_,result,_=run(tmp_path)
+                                 ^^^^^^^^^^^^^
+
+tests/test_carrier_runtime.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_checkpoint_corruption_ref8')
+mode = 'carrier', steps = 2, native = None
+
+    def run(directory, mode='carrier', steps=2, native=None):
+        m = module()
+        import relocation_runtime as rr
+        restore = rr.restore_training_state
+        captured = []
+        def configured(trainer, checkpoint):
+            # Configuration is completed before the actual original restoration.
+            trainer.config['data'] = {'plain':{'name':'pre'}, 'contrast':{'name':'post'}}
+            record = restore(trainer, checkpoint)
+            captured.append(copy.deepcopy(record))
+            return record
+        with patch.object(rr, 'restore_training_state', configured):
+            trainer, restored, frequency, rotation = tiny_trainer(directory,steps)
+        original_rng = torch.random.get_rng_state().clone()
+>       original = (trainer._render.__func__, trainer.train.__func__)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:59: AttributeError
+__________ test_failed_native_backward_unwinds_instance_and_extension __________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4010/test_failed_native_backward_un0')
+
+    def test_failed_native_backward_unwinds_instance_and_extension(tmp_path):
+        m=module(); import carrier_operator as op
+        trainer,_,frequency,rotation=tiny_trainer(tmp_path)
+>       original=(trainer._render.__func__,trainer.train.__func__,op._extension)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'function' object has no attribute '__func__'
+
+tests/test_carrier_runtime.py:151: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_carrier_runtime.py::test_original_loop_restoration_export_and_separate_work[control-0-2-0-0]
+FAILED tests/test_carrier_runtime.py::test_original_loop_restoration_export_and_separate_work[control-2-0-0-0]
+FAILED tests/test_carrier_runtime.py::test_original_loop_restoration_export_and_separate_work[carrier-2-6-4-2]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[schema]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[iteration]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[policy]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[ids]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[binary]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[shape]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[clock]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[moment]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[missing_pair]
+FAILED tests/test_carrier_runtime.py::test_failed_native_backward_unwinds_instance_and_extension
+13 failed, 13 passed in 3.46s

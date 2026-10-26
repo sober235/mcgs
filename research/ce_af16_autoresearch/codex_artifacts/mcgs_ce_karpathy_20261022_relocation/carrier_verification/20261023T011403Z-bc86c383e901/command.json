@@ -1,0 +1,50 @@
+{
+  "command": [
+    "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_carrier_cuda.py",
+    "-k",
+    "gpu"
+  ],
+  "cwd": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation",
+  "removed_build_override_names": [
+    "CPATH",
+    "LD_LIBRARY_PATH"
+  ],
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "GPU-18b3d14a-7ef2-870d-d438-1d6d09755a2d",
+    "TORCH_CUDA_ARCH_LIST": "8.0",
+    "CUDA_HOME": "/usr/local/cuda-11.8",
+    "CXX": "/usr/bin/c++",
+    "PATH": "/usr/local/cuda-11.8/bin:/usr/bin:/bin",
+    "CUDA_LAUNCH_BLOCKING": "0",
+    "MAX_JOBS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "CARRIER_RUN_GPU": "1",
+    "CARRIER_BUILD_DIRECTORY": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/carrier_builds/20261023T011403Z-bc86c383e901",
+    "CARRIER_REPORT_PATH": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/carrier_verification/20261023T011403Z-bc86c383e901/microgate.json",
+    "CARRIER_HISTORICAL_BINARY": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/build/tile_voxelize_cuda_0141c525_7aedd3b0.so"
+  },
+  "sources_before": {
+    "carrier_operator.py": "69e862bc6f07bab543af2f19d5c8bfc8bdb1ad96b67fcf6a5df257bd7ddd2824",
+    "carrier_reference.py": "4d7e0ec7ca32d50462dde583a1b573485b6971c82641145ef6a3726e9f376c78",
+    "carrier_cuda/carrier.cpp": "36dbf4b5d7140ba91917823f26e2779bc1edfd0829f5b425413c386c8b7a521d",
+    "carrier_cuda/carrier_kernel.cu": "8a8e8097c63010b031c3b3826b4c5427a5fad0987f7b7c4e85d5c2a7a2752139",
+    "tests/test_carrier_cuda.py": "f4d946014f6bb3ad564e229b3782011b191fdd3eb471b6f094e1d30ceb7fdd96"
+  },
+  "exit_code": 1,
+  "sources_after": {
+    "carrier_operator.py": "69e862bc6f07bab543af2f19d5c8bfc8bdb1ad96b67fcf6a5df257bd7ddd2824",
+    "carrier_reference.py": "4d7e0ec7ca32d50462dde583a1b573485b6971c82641145ef6a3726e9f376c78",
+    "carrier_cuda/carrier.cpp": "36dbf4b5d7140ba91917823f26e2779bc1edfd0829f5b425413c386c8b7a521d",
+    "carrier_cuda/carrier_kernel.cu": "8a8e8097c63010b031c3b3826b4c5427a5fad0987f7b7c4e85d5c2a7a2752139",
+    "tests/test_carrier_cuda.py": "f4d946014f6bb3ad564e229b3782011b191fdd3eb471b6f094e1d30ceb7fdd96"
+  }
+}

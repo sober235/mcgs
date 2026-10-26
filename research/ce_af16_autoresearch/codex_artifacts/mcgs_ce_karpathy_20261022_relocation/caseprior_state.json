@@ -1,0 +1,168 @@
+{
+  "updated_at_utc": "2026-10-22T11:58:57.790443+00:00",
+  "status": "phase_complete_next_budget_hypothesis",
+  "route": "g2_case_internal_magnitude_prior_v1",
+  "branch": "autoresearch/ce-af16-caseprior-20261022",
+  "spec": "docs/superpowers/specs/2026-10-22-case-prior-design.md",
+  "plan": "docs/superpowers/plans/2026-10-22-case-prior.md",
+  "implementation_task": null,
+  "worker": null,
+  "active_gpu_run": null,
+  "completed_formal_mri_experiments": 31,
+  "historical_rescorings": 65,
+  "representation_diagnostics": 2,
+  "separate_output_corrections": 1,
+  "whole_head_keeper": {
+    "name": "lowreg_f075_solve_v1",
+    "score": -0.11118128532897047
+  },
+  "overall_strict_success": false,
+  "prior_stage_result": "docs/relocation_outcome.md",
+  "open_findings": 0,
+  "last_frozen_revision": "2dc3b21",
+  "focused_tests_pre_fix": 43,
+  "focused_tests_seconds": 2.89,
+  "task1_revision": "2dc3b21",
+  "task1_review": "approved",
+  "implementation_base": "2f4531b",
+  "source_revision": "0aec561",
+  "cpu_tests": 577,
+  "cpu_seconds": 96.53,
+  "reviewer": "/root/review_caseprior_branch",
+  "review": "approved",
+  "actual_numerical_passes": [
+    "caseprior_zero_v1",
+    "caseprior_control_smoke_v1",
+    "caseprior_learned_smoke_v1"
+  ],
+  "last_completed": {
+    "event": "training_completed",
+    "observed_at_utc": "2026-10-22T11:47:22.304494+00:00",
+    "route": "g2_case_internal_magnitude_prior_v1",
+    "run": "caseprior_learned500_v1",
+    "stage": "trial",
+    "mode": "learned",
+    "source_revision": "0aec561",
+    "decision": "quality_pending",
+    "formal_mri_experiments_added": 1,
+    "completed_formal_mri_experiments": 31,
+    "gate": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/caseprior_learned500_v1/completed.json",
+      "sha256": "592a3b531ebd430a41a2281884970306f8e6f9e33ec7a486289aa04a88a73153"
+    },
+    "metrics": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/caseprior_learned500_v1/metrics.json",
+      "sha256": "576a33062b5f2677aa46e18ee97548f058769b04e276af515ac47ebd56c4c5c9"
+    },
+    "summary": {
+      "counters": {
+        "optimizer_steps": 500,
+        "scheduler_steps": 500,
+        "loss_calls": 1000,
+        "event_calls": 0,
+        "gaussian_forwards": 1002,
+        "gaussian_vjps": 1000,
+        "roles": {
+          "initialization": {
+            "forwards": 0,
+            "vjps": 0
+          },
+          "training": {
+            "forwards": 1000,
+            "vjps": 1000
+          },
+          "event": {
+            "forwards": 0,
+            "vjps": 0
+          },
+          "export": {
+            "forwards": 2,
+            "vjps": 0
+          }
+        }
+      },
+      "CNN_calls": 10,
+      "CNN_updates": 1280,
+      "final_steps": {
+        "positions": 5000,
+        "scales": 5000,
+        "rotations": 5000,
+        "density_real": 5000,
+        "density_imag": 5000,
+        "density_real_contrast": 5000,
+        "density_imag_contrast": 5000
+      },
+      "training_seconds": 591.7901551839896,
+      "stage_seconds": 779.3626907491125,
+      "supervisor_wall_seconds": 1036.4141728878021,
+      "peak_memory_gb": 36.015681743621826
+    }
+  },
+  "task1_focused_tests": 46,
+  "native_control_reuse": {
+    "event": "control_reuse_verified",
+    "observed_at_utc": "2026-10-22T11:17:33.864075+00:00",
+    "route": "g2_case_internal_magnitude_prior_v1",
+    "source_revision": "0aec561",
+    "run": "g2_relocation_control500_v1",
+    "decision": "reuse_actual_native500",
+    "formal_mri_experiments_added": 0,
+    "receipt": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/caseprior_native_control_receipt_v1.json",
+      "sha256": "bc05a75133e77c27993fc02052c6c0126b6e374354c1fb4cdb5444f5fe170bdb"
+    },
+    "validation": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/caseprior_native_control_receipt_validation_v1.json",
+      "sha256": "b78e3c5ba799f7e9381fbe8d184080df0443243afa61ca74797275ada040d661"
+    },
+    "ordinary_smoke_relative_l2": {
+      "pre": 1.4450308813879792e-07,
+      "post": 1.5060258239357403e-07
+    },
+    "binding_count": 136
+  },
+  "controls_independent_audit": "passed_zero_actionable",
+  "active_scoring": null,
+  "latest_scored": {
+    "event": "scored",
+    "observed_at_utc": "2026-10-22T11:58:57.790443+00:00",
+    "route": "g2_case_internal_magnitude_prior_v1",
+    "run": "caseprior_learned500_v1",
+    "source_revision": "0aec561",
+    "formal_mri_experiments_added": 0,
+    "status": "discard",
+    "decision": "below_keeper_and_matched_native",
+    "objective": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/scores/caseprior_learned500_v1/objective.json",
+      "sha256": "3d3479acf1b87e0b873afe3c1c30d2da612f243a7a44b3047323c95a82faff5a"
+    },
+    "enhancement": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/scores/caseprior_learned500_v1/enhancement.json",
+      "sha256": "699339e11f6566a2ed5fcbd4f1ad34d5c6b581b568c11f3e1de95fa28f0fd652"
+    },
+    "score": -0.12526398563890848,
+    "whole_head_metrics": {
+      "pre": {
+        "psnr": 34.7754838260868,
+        "ssim": 0.9408756494522095,
+        "nmse": 0.010008626931802746
+      },
+      "post": {
+        "psnr": 37.16981970790908,
+        "ssim": 0.9541699886322021,
+        "nmse": 0.009574535241679265
+      }
+    },
+    "strict_success": false,
+    "keeper_score": -0.11118128532897047,
+    "delta_score_vs_keeper": -0.01408270030993801,
+    "delta_score_vs_native": -0.008078399840877826,
+    "passing_planes_both_scans": 0,
+    "passing_planes_by_scan": {
+      "pre": 0,
+      "post": 2
+    },
+    "evidence_preserved": true
+  },
+  "next_hypothesis": "CNN512 updates per fit; Gaussian500 and other scientific settings fixed; not yet implemented"
+}

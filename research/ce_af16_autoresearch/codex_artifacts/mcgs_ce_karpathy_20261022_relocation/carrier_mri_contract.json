@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "route": "g2_fixed_subset_carrier_v1",
+  "policy": {
+    "source_iteration": 4500,
+    "seed": 42,
+    "point_count": 3600000,
+    "optimizer": "original_seven_group_Adam_full_state",
+    "gamma": 0.9995,
+    "restoration": "original_resume_protocol_no_geometry_reapply",
+    "frequency": "original_flat_t1_4500_observer",
+    "event": "none",
+    "carrier": {
+      "k": 18000,
+      "selection": "sorted_private_cpu_randperm",
+      "selection_seed": 42023,
+      "contrasts": [
+        "pre",
+        "post"
+      ],
+      "frequency_units": "cycles_per_voxel_DHW",
+      "transform": "0.25*tanh(eta)",
+      "frequency_bound": 0.25,
+      "initial_eta": 0.0,
+      "optimizer": "Adam",
+      "lr": 0.001,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "weight_decay": 0.0,
+      "amsgrad": false,
+      "schedule": "constant",
+      "clip_norm": 1.0,
+      "pair_upper_limit": 2000000,
+      "tile_size": 8,
+      "support": "old_render_plus_actual_M_correction",
+      "zero": "enabled_export_only",
+      "control": "disabled",
+      "trial_steps": 500
+    }
+  },
+  "artifact": {
+    "module": "carrier_cuda_7e4074ab699211d0b99e28f0",
+    "identity_sha256": "7e4074ab699211d0b99e28f0766c6c6b2f12ad9f3057105fe6993faa6d95e719",
+    "binary": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/carrier_builds/20261023T011403Z-bc86c383e901/7e4074ab699211d0b99e28f0766c6c6b2f12ad9f3057105fe6993faa6d95e719/carrier_cuda_7e4074ab699211d0b99e28f0.so",
+      "sha256": "b8d08c0aeead3c4c6d2e9f0fd803929c4ea5252bdd6de692053da6ced4c4c95d"
+    },
+    "manifest": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/carrier_builds/20261023T011403Z-bc86c383e901/7e4074ab699211d0b99e28f0766c6c6b2f12ad9f3057105fe6993faa6d95e719/provenance.json",
+      "sha256": "8eb5c46b60dc005db5aed805a516f028d0249ebf783b6abdced7637649e48e9a"
+    },
+    "accepted_microgate": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/carrier_verification/20261026T063900Z-7a66d90c3cf1/microgate.json",
+      "sha256": "63e8dfdaf6bd88cdc66ed8043ba569a4a8ed4274050faf57149dbae7d27d9126"
+    },
+    "sources": {
+      "carrier_cuda/carrier.cpp": "36dbf4b5d7140ba91917823f26e2779bc1edfd0829f5b425413c386c8b7a521d",
+      "carrier_cuda/carrier_kernel.cu": "8a8e8097c63010b031c3b3826b4c5427a5fad0987f7b7c4e85d5c2a7a2752139",
+      "carrier_operator.py": "69e862bc6f07bab543af2f19d5c8bfc8bdb1ad96b67fcf6a5df257bd7ddd2824"
+    },
+    "runtime": {
+      "torch": "2.7.1+cu118",
+      "torch_cuda": "11.8",
+      "cxx11_abi": true,
+      "torch_config": "PyTorch built with:\n  - GCC 11.2\n  - C++ Version: 201703\n  - Intel(R) oneAPI Math Kernel Library Version 2024.2-Product Build 20240605 for Intel(R) 64 architecture applications\n  - Intel(R) MKL-DNN v3.7.1 (Git Hash 8d263e693366ef8db40acc569cc7d8edf644556d)\n  - OpenMP 201511 (a.k.a. OpenMP 4.5)\n  - LAPACK is enabled (usually provided by MKL)\n  - NNPACK is enabled\n  - CPU capability usage: AVX512\n  - CUDA Runtime 11.8\n  - NVCC architecture flags: -gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86;-gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_90,code=sm_90\n  - CuDNN 90.1\n  - Magma 2.6.1\n  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, COMMIT_SHA=e2d141dbde55c2a4370fac5165b0561b6af4798b, CUDA_VERSION=11.8, CUDNN_VERSION=9.1.0, CXX_COMPILER=/opt/rh/gcc-toolset-11/root/usr/bin/c++, CXX_FLAGS= -D_GLIBCXX_USE_CXX11_ABI=1 -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOROCTRACER -DLIBKINETO_NOXPUPTI=ON -DUSE_FBGEMM -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=range-loop-construct -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-unknown-pragmas -Wno-unused-parameter -Wno-strict-overflow -Wno-strict-aliasing -Wno-stringop-overflow -Wsuggest-override -Wno-psabi -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, TORCH_VERSION=2.7.1, USE_CUDA=ON, USE_CUDNN=ON, USE_CUSPARSELT=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_GLOO=ON, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=1, USE_NNPACK=ON, USE_OPENMP=ON, USE_ROCM=OFF, USE_ROCM_KERNEL_ASSERT=OFF, \n",
+      "python": "3.11.5 | packaged by conda-forge | (main, Aug 27 2023, 03:34:09) [GCC 12.3.0]",
+      "python_executable": "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+      "capability": [
+        8,
+        0
+      ]
+    }
+  }
+}

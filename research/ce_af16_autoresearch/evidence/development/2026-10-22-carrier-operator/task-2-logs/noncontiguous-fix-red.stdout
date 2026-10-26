@@ -1,0 +1,16 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_noncontiguous_fixture_preserves_values_and_strides_for_all_inputs ____
+
+    def test_noncontiguous_fixture_preserves_values_and_strides_for_all_inputs():
+        reference = fixture_inputs('noncontiguous')
+        values = [x.to(dtype=torch.complex64 if i == 3 else torch.float32) for i, x in enumerate(reference)]
+        views = strided_inputs(values)
+>       assert all(not x.is_contiguous() for x in views)
+E       assert False
+E        +  where False = all(<generator object test_noncontiguous_fixture_preserves_values_and_strides_for_all_inputs.<locals>.<genexpr> at 0x7dfcf8b63ac0>)
+
+tests/test_carrier_cuda.py:45: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_carrier_cuda.py::test_noncontiguous_fixture_preserves_values_and_strides_for_all_inputs
+1 failed, 82 deselected in 1.36s

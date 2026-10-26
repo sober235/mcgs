@@ -1,0 +1,9 @@
+{
+  "gpu_query": "index, uuid, compute_cap, utilization.gpu [%], memory.used [MiB], memory.total [MiB]\n0, GPU-64b093fe-3c70-3b73-51f9-083bf88c8970, 8.0, 97 %, 66043 MiB, 81920 MiB\n1, GPU-05cb1334-b9c8-1afc-ec78-b0eef86e193d, 8.0, 98 %, 66043 MiB, 81920 MiB\n2, GPU-d7cbc50e-d509-5e17-ff73-ba92660219a1, 8.0, 98 %, 66043 MiB, 81920 MiB\n3, GPU-a9b716ea-de2e-5d23-217d-db82a1d48efb, 8.0, 68 %, 19083 MiB, 81920 MiB\n4, GPU-b9b9b8ed-8711-d341-fb0b-a69a647f4fb2, 8.0, 0 %, 2 MiB, 81920 MiB\n5, GPU-18b3d14a-7ef2-870d-d438-1d6d09755a2d, 8.0, 0 %, 2 MiB, 81920 MiB\n6, GPU-61e060ef-8507-bae3-7db9-2a4fef8d408a, 8.0, 95 %, 17839 MiB, 81920 MiB\n7, GPU-20a60eab-8897-efa2-5c04-ce8d2e284218, 8.0, 94 %, 18459 MiB, 81920 MiB\n",
+  "compute_apps": "gpu_uuid, pid, process_name, used_gpu_memory [MiB]\nGPU-64b093fe-3c70-3b73-51f9-083bf88c8970, 2537832, /home/congcongliu/anaconda3/envs/GSTMI/bin/python, 66032 MiB\nGPU-05cb1334-b9c8-1afc-ec78-b0eef86e193d, 2577027, /home/congcongliu/anaconda3/envs/GSTMI/bin/python, 66032 MiB\nGPU-d7cbc50e-d509-5e17-ff73-ba92660219a1, 2544719, /home/congcongliu/anaconda3/envs/GSTMI/bin/python, 66032 MiB\nGPU-a9b716ea-de2e-5d23-217d-db82a1d48efb, 2577031, /home/congcongliu/anaconda3/envs/GSTMI/bin/python, 19072 MiB\nGPU-61e060ef-8507-bae3-7db9-2a4fef8d408a, 2564997, /home/zhuoxucui/anaconda3/envs/hulumed/bin/python, 17828 MiB\nGPU-20a60eab-8897-efa2-5c04-ce8d2e284218, 2565002, /home/zhuoxucui/anaconda3/envs/hulumed/bin/python, 18448 MiB\n",
+  "chosen_uuid": "GPU-18b3d14a-7ef2-870d-d438-1d6d09755a2d",
+  "capability": "8.0",
+  "review_sha256": "97b12002d225751dbfefe157c433736e2d1929fc7e92489c95bdba44f9a0f6a7",
+  "document_sha256": "46439b66b4736e6b9e66a02189de43fa6c3ea0384586ebd00bb06a7e72ee1544",
+  "launcher_sha256": "0811bde29803586ce4801fe28963fa62bc26c25b08477e4ecd2a1d8953519d64"
+}

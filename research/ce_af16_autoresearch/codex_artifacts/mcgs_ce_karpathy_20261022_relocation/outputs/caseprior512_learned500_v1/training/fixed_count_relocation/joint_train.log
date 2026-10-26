@@ -1,0 +1,36 @@
+[nl] iter=4501 contrast=pre sigma=0.0118463 crop=(255, 232, 176) denoiser=8.1s target_relative_norm=0.0217161
+[nl] iter=4501 contrast=post sigma=0.0108064 crop=(255, 232, 176) denoiser=8.0s target_relative_norm=0.019739
+[iter  4501/5000] loss=3.7727e-02 dc_p=1.6786e-02 dc_c=1.6548e-02 R_geo=5.0216e-03 R_dtv=0.0000e+00 R_edge=2.8620e-01 R_vtv=0.0000e+00 R_wav=2.8659e-02 R_nl=8.6232e-04 balance_violation=False
+[iter  4520/5000] loss=3.7708e-02 dc_p=1.6816e-02 dc_c=1.6571e-02 R_geo=4.9522e-03 R_dtv=0.0000e+00 R_edge=2.8639e-01 R_vtv=0.0000e+00 R_wav=2.8116e-02 R_nl=6.8970e-04 balance_violation=False
+[iter  4540/5000] loss=3.7716e-02 dc_p=1.6822e-02 dc_c=1.6575e-02 R_geo=4.9417e-03 R_dtv=0.0000e+00 R_edge=2.8629e-01 R_vtv=0.0000e+00 R_wav=2.8142e-02 R_nl=6.4320e-04 balance_violation=False
+[iter  4560/5000] loss=3.7738e-02 dc_p=1.6826e-02 dc_c=1.6579e-02 R_geo=4.9392e-03 R_dtv=0.0000e+00 R_edge=2.8647e-01 R_vtv=0.0000e+00 R_wav=2.8285e-02 R_nl=6.1935e-04 balance_violation=False
+[iter  4580/5000] loss=3.7704e-02 dc_p=1.6828e-02 dc_c=1.6580e-02 R_geo=4.9365e-03 R_dtv=0.0000e+00 R_edge=2.8629e-01 R_vtv=0.0000e+00 R_wav=2.7945e-02 R_nl=5.9542e-04 balance_violation=False
+[iter  4600/5000] loss=3.7727e-02 dc_p=1.6829e-02 dc_c=1.6581e-02 R_geo=4.9323e-03 R_dtv=0.0000e+00 R_edge=2.8608e-01 R_vtv=0.0000e+00 R_wav=2.8146e-02 R_nl=6.0172e-04 balance_violation=False
+[nl] iter=4601 contrast=pre sigma=0.0118429 crop=(255, 232, 176) denoiser=7.9s target_relative_norm=0.0201511
+[nl] iter=4601 contrast=post sigma=0.0108032 crop=(255, 232, 176) denoiser=8.0s target_relative_norm=2.08753e-06
+[iter  4620/5000] loss=3.7737e-02 dc_p=1.6839e-02 dc_c=1.6569e-02 R_geo=4.9463e-03 R_dtv=0.0000e+00 R_edge=2.8661e-01 R_vtv=0.0000e+00 R_wav=2.8451e-02 R_nl=4.0125e-04 balance_violation=False
+[iter  4640/5000] loss=3.7711e-02 dc_p=1.6840e-02 dc_c=1.6566e-02 R_geo=4.9465e-03 R_dtv=0.0000e+00 R_edge=2.8661e-01 R_vtv=0.0000e+00 R_wav=2.8235e-02 R_nl=3.7641e-04 balance_violation=False
+[iter  4660/5000] loss=3.7743e-02 dc_p=1.6845e-02 dc_c=1.6568e-02 R_geo=4.9499e-03 R_dtv=0.0000e+00 R_edge=2.8670e-01 R_vtv=0.0000e+00 R_wav=2.8458e-02 R_nl=4.0472e-04 balance_violation=False
+[iter  4680/5000] loss=3.7719e-02 dc_p=1.6843e-02 dc_c=1.6565e-02 R_geo=4.9463e-03 R_dtv=0.0000e+00 R_edge=2.8665e-01 R_vtv=0.0000e+00 R_wav=2.8305e-02 R_nl=3.6847e-04 balance_violation=False
+[iter  4700/5000] loss=3.7698e-02 dc_p=1.6844e-02 dc_c=1.6565e-02 R_geo=4.9457e-03 R_dtv=0.0000e+00 R_edge=2.8663e-01 R_vtv=0.0000e+00 R_wav=2.8097e-02 R_nl=3.5958e-04 balance_violation=False
+[nl] iter=4701 contrast=pre sigma=0.0118403 crop=(255, 232, 176) denoiser=7.9s target_relative_norm=0.000121228
+[nl] iter=4701 contrast=post sigma=0.0108036 crop=(255, 232, 176) denoiser=8.0s target_relative_norm=0.0189186
+[iter  4720/5000] loss=3.7690e-02 dc_p=1.6824e-02 dc_c=1.6583e-02 R_geo=4.9544e-03 R_dtv=0.0000e+00 R_edge=2.8633e-01 R_vtv=0.0000e+00 R_wav=2.8058e-02 R_nl=3.3166e-04 balance_violation=False
+[iter  4740/5000] loss=3.7694e-02 dc_p=1.6821e-02 dc_c=1.6586e-02 R_geo=4.9543e-03 R_dtv=0.0000e+00 R_edge=2.8635e-01 R_vtv=0.0000e+00 R_wav=2.8113e-02 R_nl=3.1925e-04 balance_violation=False
+[iter  4760/5000] loss=3.7668e-02 dc_p=1.6819e-02 dc_c=1.6587e-02 R_geo=4.9530e-03 R_dtv=0.0000e+00 R_edge=2.8624e-01 R_vtv=0.0000e+00 R_wav=2.7884e-02 R_nl=3.0506e-04 balance_violation=False
+[iter  4780/5000] loss=3.7702e-02 dc_p=1.6819e-02 dc_c=1.6589e-02 R_geo=4.9526e-03 R_dtv=0.0000e+00 R_edge=2.8623e-01 R_vtv=0.0000e+00 R_wav=2.8210e-02 R_nl=3.0330e-04 balance_violation=False
+[iter  4800/5000] loss=3.7717e-02 dc_p=1.6818e-02 dc_c=1.6589e-02 R_geo=4.9540e-03 R_dtv=0.0000e+00 R_edge=2.8615e-01 R_vtv=0.0000e+00 R_wav=2.8345e-02 R_nl=3.1409e-04 balance_violation=False
+[nl] iter=4801 contrast=pre sigma=0.01184 crop=(255, 232, 176) denoiser=7.6s target_relative_norm=0.0220716
+[nl] iter=4801 contrast=post sigma=0.0108031 crop=(255, 232, 176) denoiser=7.9s target_relative_norm=0.0215145
+[iter  4820/5000] loss=3.7801e-02 dc_p=1.6844e-02 dc_c=1.6603e-02 R_geo=4.9169e-03 R_dtv=0.0000e+00 R_edge=2.8697e-01 R_vtv=0.0000e+00 R_wav=2.8275e-02 R_nl=8.2887e-04 balance_violation=False
+[iter  4840/5000] loss=3.7751e-02 dc_p=1.6847e-02 dc_c=1.6604e-02 R_geo=4.9107e-03 R_dtv=0.0000e+00 R_edge=2.8683e-01 R_vtv=0.0000e+00 R_wav=2.7775e-02 R_nl=7.8264e-04 balance_violation=False
+[iter  4860/5000] loss=3.7764e-02 dc_p=1.6848e-02 dc_c=1.6605e-02 R_geo=4.9060e-03 R_dtv=0.0000e+00 R_edge=2.8679e-01 R_vtv=0.0000e+00 R_wav=2.7899e-02 R_nl=7.5980e-04 balance_violation=False
+[iter  4880/5000] loss=3.7750e-02 dc_p=1.6850e-02 dc_c=1.6606e-02 R_geo=4.9043e-03 R_dtv=0.0000e+00 R_edge=2.8680e-01 R_vtv=0.0000e+00 R_wav=2.7734e-02 R_nl=7.4849e-04 balance_violation=False
+[iter  4900/5000] loss=3.7778e-02 dc_p=1.6852e-02 dc_c=1.6608e-02 R_geo=4.9033e-03 R_dtv=0.0000e+00 R_edge=2.8680e-01 R_vtv=0.0000e+00 R_wav=2.7975e-02 R_nl=7.4577e-04 balance_violation=False
+[nl] iter=4901 contrast=pre sigma=0.0118407 crop=(255, 232, 176) denoiser=7.9s target_relative_norm=0.019968
+[nl] iter=4901 contrast=post sigma=0.0108014 crop=(255, 232, 176) denoiser=7.9s target_relative_norm=2.99755e-05
+[iter  4920/5000] loss=3.7734e-02 dc_p=1.6856e-02 dc_c=1.6587e-02 R_geo=4.9289e-03 R_dtv=0.0000e+00 R_edge=2.8696e-01 R_vtv=0.0000e+00 R_wav=2.8030e-02 R_nl=4.2067e-04 balance_violation=False
+[iter  4940/5000] loss=3.7738e-02 dc_p=1.6858e-02 dc_c=1.6584e-02 R_geo=4.9319e-03 R_dtv=0.0000e+00 R_edge=2.8694e-01 R_vtv=0.0000e+00 R_wav=2.8104e-02 R_nl=4.0563e-04 balance_violation=False
+[iter  4960/5000] loss=3.7765e-02 dc_p=1.6860e-02 dc_c=1.6584e-02 R_geo=4.9390e-03 R_dtv=0.0000e+00 R_edge=2.8721e-01 R_vtv=0.0000e+00 R_wav=2.8334e-02 R_nl=4.0882e-04 balance_violation=False
+[iter  4980/5000] loss=3.7765e-02 dc_p=1.6860e-02 dc_c=1.6582e-02 R_geo=4.9356e-03 R_dtv=0.0000e+00 R_edge=2.8708e-01 R_vtv=0.0000e+00 R_wav=2.8380e-02 R_nl=3.8944e-04 balance_violation=False
+[iter  5000/5000] loss=3.7706e-02 dc_p=1.6860e-02 dc_c=1.6581e-02 R_geo=4.9355e-03 R_dtv=0.0000e+00 R_edge=2.8705e-01 R_vtv=0.0000e+00 R_wav=2.7777e-02 R_nl=4.1449e-04 balance_violation=False

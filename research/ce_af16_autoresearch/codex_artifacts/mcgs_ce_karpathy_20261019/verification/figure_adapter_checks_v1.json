@@ -1,0 +1,10 @@
+{
+  "tests_run": 9,
+  "failures": 0,
+  "errors": 0,
+  "successful": true,
+  "test_kind": "Metadata mutation regression checks; observed full-byte hashes reused",
+  "source_sha256": "4f862f2e0f5a2b3662d350426e41252fd101ff1971c1aad3756850b0f9a769b7",
+  "observed_full_byte_verification": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/figures/family1_explicit_trial_v1_20261019_v1/provenance.json",
+  "log": "test_completed_update_count_mismatch_refused (__main__.MetadataChecks.test_completed_update_count_mismatch_refused) ... ok\ntest_completion_export_digest_mismatch_refused (__main__.MetadataChecks.test_completion_export_digest_mismatch_refused) ... ok\ntest_false_raw_win_refused (__main__.MetadataChecks.test_false_raw_win_refused) ... ok\ntest_frozen_opponent_plane_tamper_refused (__main__.MetadataChecks.test_frozen_opponent_plane_tamper_refused) ... ok\ntest_observed_valid_bindings (__main__.MetadataChecks.test_observed_valid_bindings) ... ok\ntest_plane_count_tamper_refused (__main__.MetadataChecks.test_plane_count_tamper_refused) ... ok\ntest_plane_identity_tamper_refused (__main__.MetadataChecks.test_plane_identity_tamper_refused) ... ok\ntest_whole_contract_volume_swap_refused (__main__.MetadataChecks.test_whole_contract_volume_swap_refused) ... ok\ntest_wrong_candidate_label_refused (__main__.MetadataChecks.test_wrong_candidate_label_refused) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.166s\n\nOK\n"
+}

@@ -1,0 +1,80 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_accepted_shape_tile_arithmetic_without_volume_allocation[shape0-expected0] _
+
+shape = (1, 1, 2147483647), expected = (1, 1, 268435456)
+
+    @pytest.mark.parametrize('shape,expected', [((1, 1, 2147483647), (1, 1, 268435456)),
+                                             ((1, 2147483647, 1), (1, 268435456, 1)),
+                                             ((2147483647, 1, 1), (268435456, 1, 1)),
+                                             ((9, 5, 11), (2, 1, 2))])
+    def test_accepted_shape_tile_arithmetic_without_volume_allocation(shape, expected):
+        op = operator()
+        assert op._validate(inputs(), shape) == shape
+        tile_shape = getattr(op, '_tile_shape', None)
+>       assert callable(tile_shape), 'validated shape needs overflow-safe shared tile arithmetic'
+E       AssertionError: validated shape needs overflow-safe shared tile arithmetic
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:255: AssertionError
+_ test_accepted_shape_tile_arithmetic_without_volume_allocation[shape1-expected1] _
+
+shape = (1, 2147483647, 1), expected = (1, 268435456, 1)
+
+    @pytest.mark.parametrize('shape,expected', [((1, 1, 2147483647), (1, 1, 268435456)),
+                                             ((1, 2147483647, 1), (1, 268435456, 1)),
+                                             ((2147483647, 1, 1), (268435456, 1, 1)),
+                                             ((9, 5, 11), (2, 1, 2))])
+    def test_accepted_shape_tile_arithmetic_without_volume_allocation(shape, expected):
+        op = operator()
+        assert op._validate(inputs(), shape) == shape
+        tile_shape = getattr(op, '_tile_shape', None)
+>       assert callable(tile_shape), 'validated shape needs overflow-safe shared tile arithmetic'
+E       AssertionError: validated shape needs overflow-safe shared tile arithmetic
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:255: AssertionError
+_ test_accepted_shape_tile_arithmetic_without_volume_allocation[shape2-expected2] _
+
+shape = (2147483647, 1, 1), expected = (268435456, 1, 1)
+
+    @pytest.mark.parametrize('shape,expected', [((1, 1, 2147483647), (1, 1, 268435456)),
+                                             ((1, 2147483647, 1), (1, 268435456, 1)),
+                                             ((2147483647, 1, 1), (268435456, 1, 1)),
+                                             ((9, 5, 11), (2, 1, 2))])
+    def test_accepted_shape_tile_arithmetic_without_volume_allocation(shape, expected):
+        op = operator()
+        assert op._validate(inputs(), shape) == shape
+        tile_shape = getattr(op, '_tile_shape', None)
+>       assert callable(tile_shape), 'validated shape needs overflow-safe shared tile arithmetic'
+E       AssertionError: validated shape needs overflow-safe shared tile arithmetic
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:255: AssertionError
+_ test_accepted_shape_tile_arithmetic_without_volume_allocation[shape3-expected3] _
+
+shape = (9, 5, 11), expected = (2, 1, 2)
+
+    @pytest.mark.parametrize('shape,expected', [((1, 1, 2147483647), (1, 1, 268435456)),
+                                             ((1, 2147483647, 1), (1, 268435456, 1)),
+                                             ((2147483647, 1, 1), (268435456, 1, 1)),
+                                             ((9, 5, 11), (2, 1, 2))])
+    def test_accepted_shape_tile_arithmetic_without_volume_allocation(shape, expected):
+        op = operator()
+        assert op._validate(inputs(), shape) == shape
+        tile_shape = getattr(op, '_tile_shape', None)
+>       assert callable(tile_shape), 'validated shape needs overflow-safe shared tile arithmetic'
+E       AssertionError: validated shape needs overflow-safe shared tile arithmetic
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:255: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_carrier_cuda.py::test_accepted_shape_tile_arithmetic_without_volume_allocation[shape0-expected0]
+FAILED tests/test_carrier_cuda.py::test_accepted_shape_tile_arithmetic_without_volume_allocation[shape1-expected1]
+FAILED tests/test_carrier_cuda.py::test_accepted_shape_tile_arithmetic_without_volume_allocation[shape2-expected2]
+FAILED tests/test_carrier_cuda.py::test_accepted_shape_tile_arithmetic_without_volume_allocation[shape3-expected3]
+4 failed, 78 deselected in 1.36s

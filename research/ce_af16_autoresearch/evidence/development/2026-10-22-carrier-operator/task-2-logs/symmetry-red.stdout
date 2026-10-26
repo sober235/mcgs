@@ -1,0 +1,19 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________________ test_geometry_is_symmetric_at_cuda_boundary __________________
+
+    def test_geometry_is_symmetric_at_cuda_boundary():
+        values = inputs()
+        values[1][:] = torch.tensor([-.7, -1.1, -.9])
+        _, m = operator()._geometry(*values[:3], (3, 4, 5))
+>       assert torch.equal(m, m.transpose(-1, -2))
+E       assert False
+E        +  where False = <built-in method equal of type object at 0x74f1e6ba7f60>(tensor([[[ 5.6314, -2.0973, -0.9598],\n         [-2.0973,  7.3413,  0.4100],\n         [-0.9598,  0.4100,  6.1572]]]), tensor([[[ 5.6314, -2.0973, -0.9598],\n         [-2.0973,  7.3413,  0.4100],\n         [-0.9598,  0.4100,  6.1572]]]))
+E        +    where <built-in method equal of type object at 0x74f1e6ba7f60> = torch.equal
+E        +    and   tensor([[[ 5.6314, -2.0973, -0.9598],\n         [-2.0973,  7.3413,  0.4100],\n         [-0.9598,  0.4100,  6.1572]]]) = <built-in method transpose of Tensor object at 0x74f1269d0230>(-1, -2)
+E        +      where <built-in method transpose of Tensor object at 0x74f1269d0230> = tensor([[[ 5.6314, -2.0973, -0.9598],\n         [-2.0973,  7.3413,  0.4100],\n         [-0.9598,  0.4100,  6.1572]]]).transpose
+
+tests/test_carrier_cuda.py:138: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_carrier_cuda.py::test_geometry_is_symmetric_at_cuda_boundary
+1 failed, 38 deselected in 1.38s

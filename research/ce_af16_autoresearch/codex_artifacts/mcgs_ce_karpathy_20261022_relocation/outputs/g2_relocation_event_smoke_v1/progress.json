@@ -1,0 +1,80 @@
+{
+  "status": "complete",
+  "counters": {
+    "optimizer_steps": 2,
+    "scheduler_steps": 2,
+    "loss_calls": 4,
+    "event_calls": 1,
+    "gaussian_forwards": 8,
+    "gaussian_vjps": 4,
+    "roles": {
+      "initialization": {
+        "forwards": 0,
+        "vjps": 0
+      },
+      "training": {
+        "forwards": 4,
+        "vjps": 4
+      },
+      "event": {
+        "forwards": 2,
+        "vjps": 0
+      },
+      "export": {
+        "forwards": 2,
+        "vjps": 0
+      }
+    },
+    "render_calls": [
+      {
+        "role": "training",
+        "iteration": 4501,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4501,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "event",
+        "iteration": 4501,
+        "channel": "plain",
+        "vjps": 0
+      },
+      {
+        "role": "event",
+        "iteration": 4501,
+        "channel": "contrast",
+        "vjps": 0
+      },
+      {
+        "role": "training",
+        "iteration": 4502,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4502,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "export",
+        "iteration": 4502,
+        "channel": "plain",
+        "vjps": 0
+      },
+      {
+        "role": "export",
+        "iteration": 4502,
+        "channel": "contrast",
+        "vjps": 0
+      }
+    ]
+  },
+  "final_iteration": 4502
+}

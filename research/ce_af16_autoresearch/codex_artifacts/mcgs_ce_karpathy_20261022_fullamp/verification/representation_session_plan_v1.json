@@ -1,0 +1,96 @@
+{
+  "status": "ready",
+  "driver": "active_codex_session",
+  "route": "g2_full_amplitude_representation_v1",
+  "ordered_runs": [
+    {
+      "stage": "render_control",
+      "encoder": "none",
+      "exp": "g2_fullamp_raw_control_v1",
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/verification/representation_raw_control_recipe_v1.json",
+        "sha256": "6bd68cbd59e5641ec9c41aed277668ed6cc84fde0bd2b6b0a6b6806821805901"
+      },
+      "command": [
+        "/home/congcongliu/anaconda3/envs/nvgen/bin/python",
+        "-B",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/run_representation.py",
+        "--stage",
+        "render_control",
+        "--encoder",
+        "none",
+        "--exp",
+        "g2_fullamp_raw_control_v1",
+        "--review-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/verification/representation_review_gate_v1.json",
+        "--recipe",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/verification/representation_raw_control_recipe_v1.json",
+        "--preferred-gpu",
+        "2",
+        "--timeout",
+        "1800"
+      ]
+    },
+    {
+      "stage": "fit",
+      "encoder": "mlp",
+      "exp": "g2_fullamp_mlp_rep_v1",
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/verification/representation_mlp_recipe_v1.json",
+        "sha256": "28feaba5f8447692ca6be7b9034e9ac368193ef00b7e3faaac534bfad1197251"
+      },
+      "command": [
+        "/home/congcongliu/anaconda3/envs/nvgen/bin/python",
+        "-B",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/run_representation.py",
+        "--stage",
+        "fit",
+        "--encoder",
+        "mlp",
+        "--exp",
+        "g2_fullamp_mlp_rep_v1",
+        "--review-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/verification/representation_review_gate_v1.json",
+        "--recipe",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/verification/representation_mlp_recipe_v1.json",
+        "--preferred-gpu",
+        "2",
+        "--timeout",
+        "1800",
+        "--render-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_raw_control_v1/completed.json"
+      ]
+    },
+    {
+      "stage": "fit",
+      "encoder": "grid",
+      "exp": "g2_fullamp_grid_rep_v1",
+      "recipe": {
+        "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/verification/representation_grid_recipe_v1.json",
+        "sha256": "c507c4885b779567fdca66d0e8e2fa7542e342f7fec543895c81a8f9a4118882"
+      },
+      "command": [
+        "/home/congcongliu/anaconda3/envs/nvgen/bin/python",
+        "-B",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/run_representation.py",
+        "--stage",
+        "fit",
+        "--encoder",
+        "grid",
+        "--exp",
+        "g2_fullamp_grid_rep_v1",
+        "--review-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/verification/representation_review_gate_v1.json",
+        "--recipe",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/verification/representation_grid_recipe_v1.json",
+        "--preferred-gpu",
+        "2",
+        "--timeout",
+        "1800",
+        "--render-gate",
+        "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_fullamp/outputs/g2_fullamp_raw_control_v1/completed.json"
+      ]
+    }
+  ],
+  "formal_mri_experiments": 0
+}

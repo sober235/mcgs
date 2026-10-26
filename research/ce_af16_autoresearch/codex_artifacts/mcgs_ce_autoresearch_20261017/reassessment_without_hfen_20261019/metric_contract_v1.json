@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "user_instruction": "不考虑HFEN指标，重新评估",
+  "metrics": [
+    "psnr",
+    "ssim",
+    "nmse"
+  ],
+  "scans": [
+    "pre",
+    "post"
+  ],
+  "conditions": [
+    "pre:psnr",
+    "pre:ssim",
+    "pre:nmse",
+    "post:psnr",
+    "post:ssim",
+    "post:nmse"
+  ],
+  "opponents": [
+    "ZF",
+    "CG-SENSE",
+    "CS-SENSE",
+    "Joint SENSE",
+    "L1-SPIRiT",
+    "ZS-SSDU",
+    "3D-DIP",
+    "3D-INR",
+    "MC-INR",
+    "GS-single"
+  ],
+  "eligible_planes": 59,
+  "strict_success_rule": "Same predeclared plane; both scans; all three metrics strictly beat every one of the ten frozen opponents. No equality tolerance in wins.",
+  "metric_region": "Head mask on each lesion-containing plane, not lesion ROI",
+  "ranking": "max over planes of min over the six original normalized margins",
+  "normalization": {
+    "psnr": "(candidate-best)*ln(10)/10",
+    "ssim": "ln((1-best)/(1-candidate))",
+    "nmse": "ln(best/candidate)"
+  },
+  "HFEN": "Excluded from ranking, acceptance and reported comparisons",
+  "keep_threshold": 0.0001,
+  "fixed": "Existing reconstructions, masks, normalization, reference images, 59 planes and full-size opponents; no retraining or amplitude fitting",
+  "scope": "Retrospective metric ablation; one case/one seed adaptive development. The 65 archival records have the pre-existing provenance limits and are not 65 new training experiments. Archival whole-head and ROI scores are not recomputed.",
+  "parent_summary": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/phase_firstorder/scoring/combined_phase_firstorder_v1/summary.json",
+  "parent_summary_sha256": "ce12805b84710cfe119fabfc063bf62931aa7e797f28174a627df000d2422413"
+}

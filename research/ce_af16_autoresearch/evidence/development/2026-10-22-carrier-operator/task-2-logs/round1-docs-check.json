@@ -1,0 +1,16 @@
+{
+  "commands": [
+    "ast.parse(documented Python launcher extracted with splitlines)",
+    "git diff --check"
+  ],
+  "launcher_syntax": "passed",
+  "launcher_executed": false,
+  "whitespace_exit_code": 0,
+  "whitespace_stdout": "",
+  "whitespace_stderr": "",
+  "prior_probe_failure": {
+    "exit_code": 1,
+    "stderr": "IndexError: list index out of range",
+    "cause": "probe delimiter matched literal backslash-n rather than newline; document launcher was never executed"
+  }
+}

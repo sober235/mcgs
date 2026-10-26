@@ -1,0 +1,39 @@
+{
+  "command": [
+    "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_carrier_cuda.py",
+    "-k",
+    "report_refuses_missing_stream"
+  ],
+  "cwd": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "exit_code": 0,
+  "sources_before": {
+    "carrier_operator.py": "410908bc9d333d73cf3a18c6a895afa753323e2587cfc8dd741f4427e1e0933f",
+    "carrier_cuda/carrier.cpp": "9b8bab5ff8a5241fda39482f5112e0599529b72bce048d8e2b8f003984f72ac3",
+    "carrier_cuda/carrier_kernel.cu": "9969568dd37bcf185b8d1222b5732ff478d8251a4fe118a1ac7ff475df5f9f2b",
+    "tests/test_carrier_cuda.py": "b8a1e003cdfd34e81d5694184ad4c0debc0a741f77e90edebf80656f11c89f36",
+    "docs/carrier_operator_commands.md": "74f7619dbcb07426a80bbaa285ed6fc98ca72d212c91237ca67c675c0df433b4",
+    "carrier_reference.py": "4d7e0ec7ca32d50462dde583a1b573485b6971c82641145ef6a3726e9f376c78",
+    "tests/test_carrier_reference.py": "637082ab365cc18ded133f1e6a46cb4a6ed060cc4a30b95f0cdba5a82b4345ca"
+  },
+  "sources_after": {
+    "carrier_operator.py": "410908bc9d333d73cf3a18c6a895afa753323e2587cfc8dd741f4427e1e0933f",
+    "carrier_cuda/carrier.cpp": "9b8bab5ff8a5241fda39482f5112e0599529b72bce048d8e2b8f003984f72ac3",
+    "carrier_cuda/carrier_kernel.cu": "9969568dd37bcf185b8d1222b5732ff478d8251a4fe118a1ac7ff475df5f9f2b",
+    "tests/test_carrier_cuda.py": "b8a1e003cdfd34e81d5694184ad4c0debc0a741f77e90edebf80656f11c89f36",
+    "docs/carrier_operator_commands.md": "74f7619dbcb07426a80bbaa285ed6fc98ca72d212c91237ca67c675c0df433b4",
+    "carrier_reference.py": "4d7e0ec7ca32d50462dde583a1b573485b6971c82641145ef6a3726e9f376c78",
+    "tests/test_carrier_reference.py": "637082ab365cc18ded133f1e6a46cb4a6ed060cc4a30b95f0cdba5a82b4345ca"
+  }
+}

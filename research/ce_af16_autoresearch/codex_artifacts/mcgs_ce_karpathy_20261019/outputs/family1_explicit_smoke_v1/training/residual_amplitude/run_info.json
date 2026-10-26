@@ -1,0 +1,9 @@
+{
+  "seed": 42,
+  "deterministic": false,
+  "gpu_pci_index": -1,
+  "cuda_visible_devices": "GPU-64b093fe-3c70-3b73-51f9-083bf88c8970",
+  "config_snapshot": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/outputs/family1_explicit_smoke_v1/training/residual_amplitude/config.yaml",
+  "gaussian_model_sha256": "9303c79e70dfced8631d10261fd4c06b1f87958a5ddaa4a80d3b93e722ce8622",
+  "timestamp_utc": "2026-10-19T09:18:03.427432Z"
+}

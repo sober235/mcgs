@@ -1,0 +1,22 @@
+{
+  "owned_source_sha256": {
+    "carrier_reference.py": "4d7e0ec7ca32d50462dde583a1b573485b6971c82641145ef6a3726e9f376c78",
+    "tests/test_carrier_reference.py": "637082ab365cc18ded133f1e6a46cb4a6ed060cc4a30b95f0cdba5a82b4345ca"
+  },
+  "unchanged_since_green": true,
+  "evidence_sha256": {
+    "task-1-baseline.json": "58971268ac6a3f9136f69cc6dd6cfb08e73ecadabb3d66d7acd01d7d93baa465",
+    "task-1-brief.md": "dc6761dade2aa4df895811c6328a32b94b146afbbd84e5c66863f5c76d22577d",
+    "task-1-green-before.json": "81e7858a5587b1081a5121873368a7ce57b810d9d73b42fd9d4ca9c9019b3ecf",
+    "task-1-green.json": "cc8815bca0795d9c661ddb3eddec6f88338c4483a6166f38f39be830a9b1e80e",
+    "task-1-green.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "task-1-green.stdout.txt": "30a849f215266b6261f14d8783f0b9dc91692d7eee67d0fb023459ba504fc798",
+    "task-1-historical-comparison.json": "034eb2319d1b35b243cf338c8e08c6a424e140192e306335809416722d18ceec",
+    "task-1-historical-source-after.json": "9ee90551de0add3121dfc26e09840a6ed45dc7a65660d20929786c98631a8744",
+    "task-1-red.json": "5cdb0d82948f43a08ad110c0b9004728c0ec790bc9bcb53c12d43336a5cc04bd",
+    "task-1-red.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "task-1-red.stdout.txt": "031633f65068acd5db1dfb5f8abcdb31d9f6640e944ed98a7475be7d9b7055cd",
+    "task-1-report.md": "8a5ecc7ac3ea0a36f9ca77ec875078fc38921189a6bdee4626a8c0b8c52f86ef",
+    "task-1-starting-diff.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

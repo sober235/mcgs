@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "scope": "historical_fixed_AF16_mask_explicitly_locked_by_task",
+  "generator": "ESPIRiT utils vdPoisMex (MATLAB, unseedable; raw draw kept as vdpoismex_raw.mat)",
+  "generator_version": "not_recorded",
+  "generator_command": "vdPoisMex(232, 176, 232, 176, accelx, 4, 24, 0, 1)",
+  "seed": null,
+  "seed_status": "vdPoisMex_unseedable_raw_draw_preserved",
+  "bart_command": null,
+  "bart_version": null,
+  "bart_used": false,
+  "phase_grid": [
+    232,
+    176
+  ],
+  "requested_af": 16.0,
+  "measured_af": 16.0,
+  "acs": [
+    24,
+    24
+  ],
+  "historical_raw_phase_samples": 2477,
+  "historical_added_acs_points": 75,
+  "historical_trimmed": 0,
+  "mask_sha256": "93a50c2a4bb299e110b3938f15761a0420434354b29f4894476f215f7abdd5f0",
+  "provenance": {
+    "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/mask/mask_af16.json",
+    "sha256": "c4b7957c5e668b811b2b0591fb3c0f500f2ea4180764ce0350c0b1a1cf085fc2"
+  },
+  "geometry_audit": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/verification/mask_geometry_audit_20261022.json",
+    "sha256": "4af87fdb856c9070afcf46394e9e20d0f6cd8e686e4e0eb9ef79fcd0e440adc8"
+  },
+  "current_mask_modified": false,
+  "new_mask_default": "BART bart_poisson_central24x24_ACS_with_recorded_command_version_seed_and_new_result_version"
+}

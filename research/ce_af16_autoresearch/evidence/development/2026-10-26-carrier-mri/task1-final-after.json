@@ -1,0 +1,11 @@
+{
+  "contract_sha256": "b0c87b6434d711e086143dd24c63821cc969e2c1c3ad9e31d038912b055ce32e",
+  "owned": {
+    "carrier_artifact.py": "21363ed04ba4d76c6b69c1e3e2cb35e56bac4b87509863c9e7f2c3a067102cb8",
+    "carrier_runtime.py": "c79ff85565f8d136536f5203e3e5a526caf3d5133f0424a69114c9a0dde87b65",
+    "tests/test_carrier_artifact.py": "fd56f11d99b558e3e87486eb09716831b762228a1aaf18b3590413cfaaaeae46",
+    "tests/test_carrier_runtime.py": "244bc30b125d3a6712667445a5671261989d2439109fcab2b25724580bfe7b7e"
+  },
+  "preserved_changed": [],
+  "preserved_count": 230
+}

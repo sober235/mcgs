@@ -1,0 +1,38 @@
+[JointTrainer] re-seed: seed=42, deterministic=False
+>>> loading PLAIN
+Loading data from /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/pre_kspace.h5
+Using H5 key: kspace
+Detected coil axis at dim 0: (42, 256, 232, 176)
+Loaded k-space data with shape: torch.Size([42, 256, 232, 176])
+Number of coils: 42
+Volume shape: (256, 232, 176)
+Readout axis: 0, Phase axes: (1, 2)
+Loading external mask from /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/mask/mask_af16_3d.h5
+MATLAB v7.3 / .h5 mask file detected, using h5py reader.
+Using H5 mask key: mask
+Using external mask with actual acceleration: 16.00x
+Loading external CSM from /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/pre_csm.h5
+MATLAB v7.3 / .h5 CSM file detected, using h5py reader.
+Using H5 CSM key: map
+[CSM] Loaded from: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/pre_csm.h5, key: map, shape: torch.Size([42, 256, 232, 176])
+>>> loading CONTRAST
+Loading data from /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/post_kspace.h5
+Using H5 key: kspace
+Detected coil axis at dim 0: (42, 256, 232, 176)
+Loaded k-space data with shape: torch.Size([42, 256, 232, 176])
+Number of coils: 42
+Volume shape: (256, 232, 176)
+Readout axis: 0, Phase axes: (1, 2)
+Loading external mask from /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/mask/mask_af16_3d.h5
+MATLAB v7.3 / .h5 mask file detected, using h5py reader.
+Using H5 mask key: mask
+Using external mask with actual acceleration: 16.00x
+Loading external CSM from /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/post_csm.h5
+MATLAB v7.3 / .h5 CSM file detected, using h5py reader.
+Using H5 CSM key: map
+[CSM] Loaded from: /data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/sim/gs/post_csm.h5, key: map, shape: torch.Size([42, 256, 232, 176])
+shared volume_shape = (256, 232, 176)
+|zf_p| max 0.9747, |zf_c| max 1.2948
+[TileVoxelizer] volume=(256, 232, 176), tile_size=8, max_radius=20 (accepted for config compatibility; the bbox is the exact mahal<=9 extent and is never clamped), backend=tile_cuda
+output dir: /home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_proxdc/outputs/g2_proxdc_candidate_v1/training/residual_amplitude
+[INF-05] TensorBoard writer disabled (output.use_tensorboard=False)

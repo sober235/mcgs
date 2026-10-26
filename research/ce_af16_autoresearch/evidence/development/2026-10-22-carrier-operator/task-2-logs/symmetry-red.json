@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_carrier_cuda.py",
+    "-k",
+    "symmetric"
+  ],
+  "exit_code": 1,
+  "source_sha256": {
+    "carrier_operator.py": "1802904517adedc3d0d404dd9ce3d10fc1d54b794c9b770604371c0e44fc5a33",
+    "tests/test_carrier_cuda.py": "c96582a91e20551e175749c7c41982b4f8d6ca4bb8d511744a9a1e2f983fd0d4"
+  }
+}

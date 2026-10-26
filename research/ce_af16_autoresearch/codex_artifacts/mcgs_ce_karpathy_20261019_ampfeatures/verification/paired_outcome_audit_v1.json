@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "status": "verified",
+  "quality_target_achieved": false,
+  "decision": "discard",
+  "objective": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/scores/paired_anchor_trial_v1/objective.json",
+    "sha256": "427a8fbdc73d185bde7d9dfc0e19634101ed8a8a4f0b41dac723eb0e4748c697"
+  },
+  "completed": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_trial_v1/completed.json",
+    "sha256": "8b0235f921656475e69384bbb4421f26b8cc25e8cebec0e5e5f72497abffd671"
+  },
+  "source_hashes_match_reviewed_completed": true,
+  "completed_artifact_hashes_match": true,
+  "objective_inputs_hashes_match_actual_files": true,
+  "raw_six_margin_arithmetic_verified": true,
+  "formal_updates": 500,
+  "whole_head_metrics": {
+    "pre": {
+      "psnr": 34.809881251867424,
+      "ssim": 0.9415382146835327,
+      "nmse": 0.009929668702162633
+    },
+    "post": {
+      "psnr": 37.1598222588918,
+      "ssim": 0.9541680812835693,
+      "nmse": 0.00959660119274981
+    }
+  },
+  "score": -0.1173436855439586,
+  "strict_success": false,
+  "lesion_planes": {
+    "score_six": -0.03394000890334853,
+    "passing_planes_both_scans": 0,
+    "passing_planes_by_scan": {
+      "pre": 0,
+      "post": 1
+    }
+  },
+  "scope": "root outcome audit; no full-volume metric recomputation or new GPU training"
+}

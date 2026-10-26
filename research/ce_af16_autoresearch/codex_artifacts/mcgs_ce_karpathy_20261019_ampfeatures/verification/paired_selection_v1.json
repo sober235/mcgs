@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "hypothesis": "frozen paired G2 coefficient moduli let the bounded shared field differentiate overlapping Gaussian amplitudes beyond coordinates alone",
+  "intervention": "128 zero-initialized first-layer projection weights at width64; same G2, phase, geometry, losses, optimizer, seed and 500-update budget",
+  "motivation": "Coordinate-only shared500 and matched explicit500 both discarded; neither improves global historical whole-head keeper. One additional paired-conditioned500 arm tests this input limitation without jointly changing geometry/bandwidth.",
+  "previous_outcomes": {
+    "family1_shared_trial_v1": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/scores/family1_shared_trial_v1/objective.json",
+      "sha256": "3ae656cb178ac18fefac4a57bd6442b1bf0a2ff901f567fb2faecdff51ca61a3"
+    },
+    "family1_explicit_trial_v1": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/scores/family1_explicit_trial_v1/objective.json",
+      "sha256": "c13016e5054261723de25ce4814282a68307b526750d7af1e19dad9b747b4e5f"
+    }
+  },
+  "prior_incumbent": {
+    "name": "lowreg_f075_solve_v1",
+    "score": -0.11118128532897047,
+    "metrics": {
+      "pre": {
+        "psnr": 34.83664421852701,
+        "ssim": 0.9412524700164795,
+        "nmse": 0.009868666263386654
+      },
+      "post": {
+        "psnr": 37.14367982759124,
+        "ssim": 0.9538549780845642,
+        "nmse": 0.009632337481701822
+      }
+    },
+    "source": {
+      "path": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_lowreg_mm/outputs/lowreg_f075_solve_v1/metrics.json",
+      "sha256": "8ceeeee1f0d44aff6c080f572714be9382fc7f4789c6f052510bc1f32bd26805"
+    },
+    "evidence_type": "parsed_completed_prior_trial_not_new_training"
+  },
+  "minimum_keep_improvement": 0.0001,
+  "success_rule": "all six frozen whole-head raw inequalities strictly exceed ten complete opponents; follow-up repeat and GS-single control before final claim",
+  "source_commit": "c8de9bdb0fd53ec56209c6ba59e896c388345a68",
+  "feature_mode": "paired_anchor",
+  "run_stages": [
+    "zero",
+    "smoke",
+    "trial"
+  ],
+  "formal_budget": 500,
+  "evidence_type": "selected_hypothesis_not_measured_quality"
+}

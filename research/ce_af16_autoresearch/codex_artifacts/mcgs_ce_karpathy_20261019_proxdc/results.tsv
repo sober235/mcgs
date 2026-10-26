@@ -1,0 +1,3 @@
+commit	whole_head_margin	memory_gb	status	description
+d33666cc8e25bcb6c49d86957ecb6ed6471d73a8	-0.11778703065863405		baseline	Existing scored G2 context; no new stage or training
+d33666cc8e25bcb6c49d86957ecb6ed6471d73a8	-0.1364181617003603	33.68958616256714	discard	g2_proxdc_candidate_v1; raw G2 proxDC; 0 optimizer updates; actual CG work in JSONL

@@ -1,0 +1,309 @@
+..............F....FFFFFFFFF.                                            [100%]
+=================================== FAILURES ===================================
+_ test_canonical_export_contains_reconstructed_saved_carrier_and_independent_states _
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4019/test_canonical_export_contains0')
+
+    def test_canonical_export_contains_reconstructed_saved_carrier_and_independent_states(tmp_path):
+        m=module(); trainer,_,result,_=run(tmp_path)
+>       saved=m._validate_carrier_checkpoint(result['carrier']['checkpoint']['path'],expected_iteration=4502,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            expected_policy=result['carrier']['policy'],expected_selection_sha256=result['carrier']['selection']['sha256'],
+            expected_binary_sha256=result['carrier']['extension']['binary_sha256'],_test_geometry=(5,2))
+E       AttributeError: module 'carrier_runtime' has no attribute '_validate_carrier_checkpoint'
+
+tests/test_carrier_runtime.py:111: AttributeError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+__________________ test_checkpoint_corruption_refused[schema] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4019/test_checkpoint_corruption_ref0')
+defect = 'schema'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+        m=module(); _,_,result,_=run(tmp_path)
+        c=result['carrier']; path=Path(c['checkpoint']['path'])
+        value=torch.load(path,weights_only=True)
+        if defect=='schema': value['schema']='wrong'
+        elif defect=='iteration': value['iteration']+=1
+        elif defect=='policy': value['policy']['lr']=9
+        elif defect=='ids': value['ids'][0]=value['ids'][1]
+        elif defect=='binary': value['binary_sha256']='0'*64
+        elif defect=='shape': value['eta']['pre']=torch.zeros(1)
+        elif defect=='clock': value['optimizer']['state'][0]['step'].fill_(0)
+        elif defect=='moment': value['optimizer']['state'][0]['exp_avg'].fill_(float('nan'))
+        else: Path(result['final_checkpoint']).unlink()
+        torch.save(value,path)
+        with pytest.raises((ValueError,FileNotFoundError)):
+>           m._validate_carrier_checkpoint(path,expected_iteration=4502,expected_policy=c['policy'],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                expected_selection_sha256=c['selection']['sha256'],expected_binary_sha256=c['extension']['binary_sha256'],
+                _test_geometry=(5,2))
+E           AttributeError: module 'carrier_runtime' has no attribute '_validate_carrier_checkpoint'
+
+tests/test_carrier_runtime.py:192: AttributeError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+________________ test_checkpoint_corruption_refused[iteration] _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4019/test_checkpoint_corruption_ref1')
+defect = 'iteration'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+        m=module(); _,_,result,_=run(tmp_path)
+        c=result['carrier']; path=Path(c['checkpoint']['path'])
+        value=torch.load(path,weights_only=True)
+        if defect=='schema': value['schema']='wrong'
+        elif defect=='iteration': value['iteration']+=1
+        elif defect=='policy': value['policy']['lr']=9
+        elif defect=='ids': value['ids'][0]=value['ids'][1]
+        elif defect=='binary': value['binary_sha256']='0'*64
+        elif defect=='shape': value['eta']['pre']=torch.zeros(1)
+        elif defect=='clock': value['optimizer']['state'][0]['step'].fill_(0)
+        elif defect=='moment': value['optimizer']['state'][0]['exp_avg'].fill_(float('nan'))
+        else: Path(result['final_checkpoint']).unlink()
+        torch.save(value,path)
+        with pytest.raises((ValueError,FileNotFoundError)):
+>           m._validate_carrier_checkpoint(path,expected_iteration=4502,expected_policy=c['policy'],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                expected_selection_sha256=c['selection']['sha256'],expected_binary_sha256=c['extension']['binary_sha256'],
+                _test_geometry=(5,2))
+E           AttributeError: module 'carrier_runtime' has no attribute '_validate_carrier_checkpoint'
+
+tests/test_carrier_runtime.py:192: AttributeError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+__________________ test_checkpoint_corruption_refused[policy] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4019/test_checkpoint_corruption_ref2')
+defect = 'policy'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+        m=module(); _,_,result,_=run(tmp_path)
+        c=result['carrier']; path=Path(c['checkpoint']['path'])
+        value=torch.load(path,weights_only=True)
+        if defect=='schema': value['schema']='wrong'
+        elif defect=='iteration': value['iteration']+=1
+        elif defect=='policy': value['policy']['lr']=9
+        elif defect=='ids': value['ids'][0]=value['ids'][1]
+        elif defect=='binary': value['binary_sha256']='0'*64
+        elif defect=='shape': value['eta']['pre']=torch.zeros(1)
+        elif defect=='clock': value['optimizer']['state'][0]['step'].fill_(0)
+        elif defect=='moment': value['optimizer']['state'][0]['exp_avg'].fill_(float('nan'))
+        else: Path(result['final_checkpoint']).unlink()
+        torch.save(value,path)
+        with pytest.raises((ValueError,FileNotFoundError)):
+>           m._validate_carrier_checkpoint(path,expected_iteration=4502,expected_policy=c['policy'],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                expected_selection_sha256=c['selection']['sha256'],expected_binary_sha256=c['extension']['binary_sha256'],
+                _test_geometry=(5,2))
+E           AttributeError: module 'carrier_runtime' has no attribute '_validate_carrier_checkpoint'
+
+tests/test_carrier_runtime.py:192: AttributeError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+___________________ test_checkpoint_corruption_refused[ids] ____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4019/test_checkpoint_corruption_ref3')
+defect = 'ids'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+        m=module(); _,_,result,_=run(tmp_path)
+        c=result['carrier']; path=Path(c['checkpoint']['path'])
+        value=torch.load(path,weights_only=True)
+        if defect=='schema': value['schema']='wrong'
+        elif defect=='iteration': value['iteration']+=1
+        elif defect=='policy': value['policy']['lr']=9
+        elif defect=='ids': value['ids'][0]=value['ids'][1]
+        elif defect=='binary': value['binary_sha256']='0'*64
+        elif defect=='shape': value['eta']['pre']=torch.zeros(1)
+        elif defect=='clock': value['optimizer']['state'][0]['step'].fill_(0)
+        elif defect=='moment': value['optimizer']['state'][0]['exp_avg'].fill_(float('nan'))
+        else: Path(result['final_checkpoint']).unlink()
+        torch.save(value,path)
+        with pytest.raises((ValueError,FileNotFoundError)):
+>           m._validate_carrier_checkpoint(path,expected_iteration=4502,expected_policy=c['policy'],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                expected_selection_sha256=c['selection']['sha256'],expected_binary_sha256=c['extension']['binary_sha256'],
+                _test_geometry=(5,2))
+E           AttributeError: module 'carrier_runtime' has no attribute '_validate_carrier_checkpoint'
+
+tests/test_carrier_runtime.py:192: AttributeError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+__________________ test_checkpoint_corruption_refused[binary] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4019/test_checkpoint_corruption_ref4')
+defect = 'binary'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+        m=module(); _,_,result,_=run(tmp_path)
+        c=result['carrier']; path=Path(c['checkpoint']['path'])
+        value=torch.load(path,weights_only=True)
+        if defect=='schema': value['schema']='wrong'
+        elif defect=='iteration': value['iteration']+=1
+        elif defect=='policy': value['policy']['lr']=9
+        elif defect=='ids': value['ids'][0]=value['ids'][1]
+        elif defect=='binary': value['binary_sha256']='0'*64
+        elif defect=='shape': value['eta']['pre']=torch.zeros(1)
+        elif defect=='clock': value['optimizer']['state'][0]['step'].fill_(0)
+        elif defect=='moment': value['optimizer']['state'][0]['exp_avg'].fill_(float('nan'))
+        else: Path(result['final_checkpoint']).unlink()
+        torch.save(value,path)
+        with pytest.raises((ValueError,FileNotFoundError)):
+>           m._validate_carrier_checkpoint(path,expected_iteration=4502,expected_policy=c['policy'],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                expected_selection_sha256=c['selection']['sha256'],expected_binary_sha256=c['extension']['binary_sha256'],
+                _test_geometry=(5,2))
+E           AttributeError: module 'carrier_runtime' has no attribute '_validate_carrier_checkpoint'
+
+tests/test_carrier_runtime.py:192: AttributeError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+__________________ test_checkpoint_corruption_refused[shape] ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4019/test_checkpoint_corruption_ref5')
+defect = 'shape'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+        m=module(); _,_,result,_=run(tmp_path)
+        c=result['carrier']; path=Path(c['checkpoint']['path'])
+        value=torch.load(path,weights_only=True)
+        if defect=='schema': value['schema']='wrong'
+        elif defect=='iteration': value['iteration']+=1
+        elif defect=='policy': value['policy']['lr']=9
+        elif defect=='ids': value['ids'][0]=value['ids'][1]
+        elif defect=='binary': value['binary_sha256']='0'*64
+        elif defect=='shape': value['eta']['pre']=torch.zeros(1)
+        elif defect=='clock': value['optimizer']['state'][0]['step'].fill_(0)
+        elif defect=='moment': value['optimizer']['state'][0]['exp_avg'].fill_(float('nan'))
+        else: Path(result['final_checkpoint']).unlink()
+        torch.save(value,path)
+        with pytest.raises((ValueError,FileNotFoundError)):
+>           m._validate_carrier_checkpoint(path,expected_iteration=4502,expected_policy=c['policy'],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                expected_selection_sha256=c['selection']['sha256'],expected_binary_sha256=c['extension']['binary_sha256'],
+                _test_geometry=(5,2))
+E           AttributeError: module 'carrier_runtime' has no attribute '_validate_carrier_checkpoint'
+
+tests/test_carrier_runtime.py:192: AttributeError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+__________________ test_checkpoint_corruption_refused[clock] ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4019/test_checkpoint_corruption_ref6')
+defect = 'clock'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+        m=module(); _,_,result,_=run(tmp_path)
+        c=result['carrier']; path=Path(c['checkpoint']['path'])
+        value=torch.load(path,weights_only=True)
+        if defect=='schema': value['schema']='wrong'
+        elif defect=='iteration': value['iteration']+=1
+        elif defect=='policy': value['policy']['lr']=9
+        elif defect=='ids': value['ids'][0]=value['ids'][1]
+        elif defect=='binary': value['binary_sha256']='0'*64
+        elif defect=='shape': value['eta']['pre']=torch.zeros(1)
+        elif defect=='clock': value['optimizer']['state'][0]['step'].fill_(0)
+        elif defect=='moment': value['optimizer']['state'][0]['exp_avg'].fill_(float('nan'))
+        else: Path(result['final_checkpoint']).unlink()
+        torch.save(value,path)
+        with pytest.raises((ValueError,FileNotFoundError)):
+>           m._validate_carrier_checkpoint(path,expected_iteration=4502,expected_policy=c['policy'],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                expected_selection_sha256=c['selection']['sha256'],expected_binary_sha256=c['extension']['binary_sha256'],
+                _test_geometry=(5,2))
+E           AttributeError: module 'carrier_runtime' has no attribute '_validate_carrier_checkpoint'
+
+tests/test_carrier_runtime.py:192: AttributeError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+__________________ test_checkpoint_corruption_refused[moment] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4019/test_checkpoint_corruption_ref7')
+defect = 'moment'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+        m=module(); _,_,result,_=run(tmp_path)
+        c=result['carrier']; path=Path(c['checkpoint']['path'])
+        value=torch.load(path,weights_only=True)
+        if defect=='schema': value['schema']='wrong'
+        elif defect=='iteration': value['iteration']+=1
+        elif defect=='policy': value['policy']['lr']=9
+        elif defect=='ids': value['ids'][0]=value['ids'][1]
+        elif defect=='binary': value['binary_sha256']='0'*64
+        elif defect=='shape': value['eta']['pre']=torch.zeros(1)
+        elif defect=='clock': value['optimizer']['state'][0]['step'].fill_(0)
+        elif defect=='moment': value['optimizer']['state'][0]['exp_avg'].fill_(float('nan'))
+        else: Path(result['final_checkpoint']).unlink()
+        torch.save(value,path)
+        with pytest.raises((ValueError,FileNotFoundError)):
+>           m._validate_carrier_checkpoint(path,expected_iteration=4502,expected_policy=c['policy'],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                expected_selection_sha256=c['selection']['sha256'],expected_binary_sha256=c['extension']['binary_sha256'],
+                _test_geometry=(5,2))
+E           AttributeError: module 'carrier_runtime' has no attribute '_validate_carrier_checkpoint'
+
+tests/test_carrier_runtime.py:192: AttributeError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+_______________ test_checkpoint_corruption_refused[missing_pair] _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-congcongliu/pytest-4019/test_checkpoint_corruption_ref8')
+defect = 'missing_pair'
+
+    @pytest.mark.parametrize('defect',['schema','iteration','policy','ids','binary','shape','clock','moment','missing_pair'])
+    def test_checkpoint_corruption_refused(tmp_path,defect):
+        m=module(); _,_,result,_=run(tmp_path)
+        c=result['carrier']; path=Path(c['checkpoint']['path'])
+        value=torch.load(path,weights_only=True)
+        if defect=='schema': value['schema']='wrong'
+        elif defect=='iteration': value['iteration']+=1
+        elif defect=='policy': value['policy']['lr']=9
+        elif defect=='ids': value['ids'][0]=value['ids'][1]
+        elif defect=='binary': value['binary_sha256']='0'*64
+        elif defect=='shape': value['eta']['pre']=torch.zeros(1)
+        elif defect=='clock': value['optimizer']['state'][0]['step'].fill_(0)
+        elif defect=='moment': value['optimizer']['state'][0]['exp_avg'].fill_(float('nan'))
+        else: Path(result['final_checkpoint']).unlink()
+        torch.save(value,path)
+        with pytest.raises((ValueError,FileNotFoundError)):
+>           m._validate_carrier_checkpoint(path,expected_iteration=4502,expected_policy=c['policy'],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                expected_selection_sha256=c['selection']['sha256'],expected_binary_sha256=c['extension']['binary_sha256'],
+                _test_geometry=(5,2))
+E           AttributeError: module 'carrier_runtime' has no attribute '_validate_carrier_checkpoint'
+
+tests/test_carrier_runtime.py:192: AttributeError
+----------------------------- Captured stdout call -----------------------------
+[iter  4501/4502] loss=4.3845e+01 dc_p=2.1922e+01 dc_c=2.1922e+01 R_geo=0.0000e+00 R_dtv=0.0000e+00 R_edge=0.0000e+00 R_vtv=0.0000e+00 R_wav=0.0000e+00 R_nl=0.0000e+00 balance_violation=False
+joint training done in 0.0s
+=========================== short test summary info ============================
+FAILED tests/test_carrier_runtime.py::test_canonical_export_contains_reconstructed_saved_carrier_and_independent_states
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[schema]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[iteration]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[policy]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[ids]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[binary]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[shape]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[clock]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[moment]
+FAILED tests/test_carrier_runtime.py::test_checkpoint_corruption_refused[missing_pair]
+10 failed, 19 passed in 4.58s

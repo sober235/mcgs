@@ -1,0 +1,3 @@
+[nl] iter=4501 contrast=pre sigma=0.0118463 crop=(255, 232, 176) denoiser=8.3s target_relative_norm=0.0217161
+[nl] iter=4501 contrast=post sigma=0.0108064 crop=(255, 232, 176) denoiser=8.1s target_relative_norm=0.019739
+[iter  4501/4502] loss=3.7727e-02 dc_p=1.6786e-02 dc_c=1.6548e-02 R_geo=5.0216e-03 R_dtv=0.0000e+00 R_edge=2.8620e-01 R_vtv=0.0000e+00 R_wav=2.8659e-02 R_nl=8.6232e-04 balance_violation=False

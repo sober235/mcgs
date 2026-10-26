@@ -1,0 +1,1 @@
+[TileVoxelizer] volume=(256, 232, 176), tile_size=8, max_radius=20 (accepted for config compatibility; the bbox is the exact mahal<=9 extent and is never clamped), backend=tile_cuda

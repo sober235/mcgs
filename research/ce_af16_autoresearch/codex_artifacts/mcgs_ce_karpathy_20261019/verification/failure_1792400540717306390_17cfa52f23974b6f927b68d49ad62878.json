@@ -1,0 +1,29 @@
+{
+  "status": "infrastructure_failure",
+  "passed": false,
+  "scientific_rejection": false,
+  "timestamp": 1792400540.7164147,
+  "request": {
+    "stage": "zero",
+    "mode": "baseline",
+    "steps": 0,
+    "exp": "g2_zero_v1",
+    "review_gate": "verification/review_gate_v1.json",
+    "recipe": "verification/zero_recipe_v1.json",
+    "zero_gate": null,
+    "smoke_gate": null,
+    "preferred_gpu": 0,
+    "bands": 4,
+    "width": 64,
+    "gain_bound": 0.25,
+    "lr": 0.001,
+    "timeout": 3600
+  },
+  "phase": "claim",
+  "error": "CalledProcessError(9, ['nvidia-smi', '--query-gpu=index,uuid,memory.used,memory.total,utilization.gpu', '--format=csv,noheader,nounits'])",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/run_gpu.py\", line 550, in main\n    completed = execute(args)\n  File \"/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/run_gpu.py\", line 504, in execute\n    raise error\n  File \"/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/run_gpu.py\", line 416, in execute\n    selected = select_gpu(campaign.gpu_snapshot(), args.preferred_gpu, os.environ, campaign)\n  File \"/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/autoresearch.py\", line 178, in gpu_snapshot\n    for line in query(\"--query-gpu=index,uuid,memory.used,memory.total,utilization.gpu\").splitlines():\n  File \"/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/autoresearch.py\", line 175, in query\n    return subprocess.run([\"nvidia-smi\", fields, \"--format=csv,noheader,nounits\"],\n  File \"/usr/lib/python3.10/subprocess.py\", line 526, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['nvidia-smi', '--query-gpu=index,uuid,memory.used,memory.total,utilization.gpu', '--format=csv,noheader,nounits']' returned non-zero exit status 9.\n",
+  "worker_pid": null,
+  "worker_returncode": null,
+  "signal": null,
+  "gpu_claim_policy": "common_lock_until_child_exit_serialized"
+}

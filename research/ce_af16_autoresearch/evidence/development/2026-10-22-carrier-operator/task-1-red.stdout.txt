@@ -1,0 +1,3044 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF [ 77%]
+FFFFFFFFFFFFFFFFFFFFF                                                    [100%]
+=================================== FAILURES ===================================
+____ test_correction_plus_gaussian_equals_independent_direct_gabor[False-0] ____
+
+zero = False, contrast = 0
+
+    @pytest.mark.parametrize("contrast", [0, 1])
+    @pytest.mark.parametrize("zero", [False, True])
+    def test_correction_plus_gaussian_equals_independent_direct_gabor(zero, contrast):
+        # Wrong sign, missing density, quaternion order, axis scale, or support fails.
+        values = fixture(zero, contrast)
+        ordinary, gabor, _ = independent_direct(values, SHAPE)
+>       correction = render(*values, SHAPE)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____ test_correction_plus_gaussian_equals_independent_direct_gabor[False-1] ____
+
+zero = False, contrast = 1
+
+    @pytest.mark.parametrize("contrast", [0, 1])
+    @pytest.mark.parametrize("zero", [False, True])
+    def test_correction_plus_gaussian_equals_independent_direct_gabor(zero, contrast):
+        # Wrong sign, missing density, quaternion order, axis scale, or support fails.
+        values = fixture(zero, contrast)
+        ordinary, gabor, _ = independent_direct(values, SHAPE)
+>       correction = render(*values, SHAPE)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____ test_correction_plus_gaussian_equals_independent_direct_gabor[True-0] _____
+
+zero = True, contrast = 0
+
+    @pytest.mark.parametrize("contrast", [0, 1])
+    @pytest.mark.parametrize("zero", [False, True])
+    def test_correction_plus_gaussian_equals_independent_direct_gabor(zero, contrast):
+        # Wrong sign, missing density, quaternion order, axis scale, or support fails.
+        values = fixture(zero, contrast)
+        ordinary, gabor, _ = independent_direct(values, SHAPE)
+>       correction = render(*values, SHAPE)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____ test_correction_plus_gaussian_equals_independent_direct_gabor[True-1] _____
+
+zero = True, contrast = 1
+
+    @pytest.mark.parametrize("contrast", [0, 1])
+    @pytest.mark.parametrize("zero", [False, True])
+    def test_correction_plus_gaussian_equals_independent_direct_gabor(zero, contrast):
+        # Wrong sign, missing density, quaternion order, axis scale, or support fails.
+        values = fixture(zero, contrast)
+        ordinary, gabor, _ = independent_direct(values, SHAPE)
+>       correction = render(*values, SHAPE)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_documented_local_vjps_include_phase_center_term[False] __________
+
+zero = False
+
+    @pytest.mark.parametrize("zero", [False, True])
+    def test_documented_local_vjps_include_phase_center_term(zero):
+        # Stopping phase-center gradients or using an unsymmetrized covariance fails.
+        values = fixture(zero)
+        c, m = independent_geometry(*values[:3], SHAPE)
+        c, m = c.detach().requires_grad_(), m.detach().requires_grad_()
+        local = (c, m, values[3], values[4])
+>       module = importlib.import_module("carrier_reference")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________ test_documented_local_vjps_include_phase_center_term[True] __________
+
+zero = True
+
+    @pytest.mark.parametrize("zero", [False, True])
+    def test_documented_local_vjps_include_phase_center_term(zero):
+        # Stopping phase-center gradients or using an unsymmetrized covariance fails.
+        values = fixture(zero)
+        c, m = independent_geometry(*values[:3], SHAPE)
+        c, m = c.detach().requires_grad_(), m.detach().requires_grad_()
+        local = (c, m, values[3], values[4])
+>       module = importlib.import_module("carrier_reference")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____ test_analytic_geometry_chain_matches_all_five_public_input_vjps[False] ____
+
+zero = False
+
+    @pytest.mark.parametrize("zero", [False, True])
+    def test_analytic_geometry_chain_matches_all_five_public_input_vjps(zero):
+        values = fixture(zero)
+>       actual = torch.autograd.grad(loss(render(*values, SHAPE), upstream(SHAPE)), values)
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:147: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____ test_analytic_geometry_chain_matches_all_five_public_input_vjps[True] _____
+
+zero = True
+
+    @pytest.mark.parametrize("zero", [False, True])
+    def test_analytic_geometry_chain_matches_all_five_public_input_vjps(zero):
+        values = fixture(zero)
+>       actual = torch.autograd.grad(loss(render(*values, SHAPE), upstream(SHAPE)), values)
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:147: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_ test_every_input_component_matches_central_difference_without_support_crossing[0-False] _
+
+zero = False, input_index = 0
+
+    @pytest.mark.parametrize("zero", [False, True])
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_every_input_component_matches_central_difference_without_support_crossing(zero, input_index):
+        # Tests both components of complex density and every geometry/frequency scalar.
+        values = fixture(zero)
+        grad = upstream(SHAPE)
+>       actual = torch.autograd.grad(loss(render(*values, SHAPE), grad), values)[input_index]
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_ test_every_input_component_matches_central_difference_without_support_crossing[0-True] _
+
+zero = True, input_index = 0
+
+    @pytest.mark.parametrize("zero", [False, True])
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_every_input_component_matches_central_difference_without_support_crossing(zero, input_index):
+        # Tests both components of complex density and every geometry/frequency scalar.
+        values = fixture(zero)
+        grad = upstream(SHAPE)
+>       actual = torch.autograd.grad(loss(render(*values, SHAPE), grad), values)[input_index]
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_ test_every_input_component_matches_central_difference_without_support_crossing[1-False] _
+
+zero = False, input_index = 1
+
+    @pytest.mark.parametrize("zero", [False, True])
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_every_input_component_matches_central_difference_without_support_crossing(zero, input_index):
+        # Tests both components of complex density and every geometry/frequency scalar.
+        values = fixture(zero)
+        grad = upstream(SHAPE)
+>       actual = torch.autograd.grad(loss(render(*values, SHAPE), grad), values)[input_index]
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_ test_every_input_component_matches_central_difference_without_support_crossing[1-True] _
+
+zero = True, input_index = 1
+
+    @pytest.mark.parametrize("zero", [False, True])
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_every_input_component_matches_central_difference_without_support_crossing(zero, input_index):
+        # Tests both components of complex density and every geometry/frequency scalar.
+        values = fixture(zero)
+        grad = upstream(SHAPE)
+>       actual = torch.autograd.grad(loss(render(*values, SHAPE), grad), values)[input_index]
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_ test_every_input_component_matches_central_difference_without_support_crossing[2-False] _
+
+zero = False, input_index = 2
+
+    @pytest.mark.parametrize("zero", [False, True])
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_every_input_component_matches_central_difference_without_support_crossing(zero, input_index):
+        # Tests both components of complex density and every geometry/frequency scalar.
+        values = fixture(zero)
+        grad = upstream(SHAPE)
+>       actual = torch.autograd.grad(loss(render(*values, SHAPE), grad), values)[input_index]
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_ test_every_input_component_matches_central_difference_without_support_crossing[2-True] _
+
+zero = True, input_index = 2
+
+    @pytest.mark.parametrize("zero", [False, True])
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_every_input_component_matches_central_difference_without_support_crossing(zero, input_index):
+        # Tests both components of complex density and every geometry/frequency scalar.
+        values = fixture(zero)
+        grad = upstream(SHAPE)
+>       actual = torch.autograd.grad(loss(render(*values, SHAPE), grad), values)[input_index]
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_ test_every_input_component_matches_central_difference_without_support_crossing[3-False] _
+
+zero = False, input_index = 3
+
+    @pytest.mark.parametrize("zero", [False, True])
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_every_input_component_matches_central_difference_without_support_crossing(zero, input_index):
+        # Tests both components of complex density and every geometry/frequency scalar.
+        values = fixture(zero)
+        grad = upstream(SHAPE)
+>       actual = torch.autograd.grad(loss(render(*values, SHAPE), grad), values)[input_index]
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_ test_every_input_component_matches_central_difference_without_support_crossing[3-True] _
+
+zero = True, input_index = 3
+
+    @pytest.mark.parametrize("zero", [False, True])
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_every_input_component_matches_central_difference_without_support_crossing(zero, input_index):
+        # Tests both components of complex density and every geometry/frequency scalar.
+        values = fixture(zero)
+        grad = upstream(SHAPE)
+>       actual = torch.autograd.grad(loss(render(*values, SHAPE), grad), values)[input_index]
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_ test_every_input_component_matches_central_difference_without_support_crossing[4-False] _
+
+zero = False, input_index = 4
+
+    @pytest.mark.parametrize("zero", [False, True])
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_every_input_component_matches_central_difference_without_support_crossing(zero, input_index):
+        # Tests both components of complex density and every geometry/frequency scalar.
+        values = fixture(zero)
+        grad = upstream(SHAPE)
+>       actual = torch.autograd.grad(loss(render(*values, SHAPE), grad), values)[input_index]
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_ test_every_input_component_matches_central_difference_without_support_crossing[4-True] _
+
+zero = True, input_index = 4
+
+    @pytest.mark.parametrize("zero", [False, True])
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_every_input_component_matches_central_difference_without_support_crossing(zero, input_index):
+        # Tests both components of complex density and every geometry/frequency scalar.
+        values = fixture(zero)
+        grad = upstream(SHAPE)
+>       actual = torch.autograd.grad(loss(render(*values, SHAPE), grad), values)[input_index]
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________ test_zero_frequency_is_exact_identity_with_learnable_frequency ________
+
+    def test_zero_frequency_is_exact_identity_with_learnable_frequency():
+        shape = (3, 4, 5)
+        values = fixture(zero=True)
+>       out = render(*values, shape)
+              ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:182: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_quarter_cycle_is_per_voxel_on_each_anisotropic_axis[0] __________
+
+axis = 0
+
+    @pytest.mark.parametrize("axis", range(3))
+    def test_quarter_cycle_is_per_voxel_on_each_anisotropic_axis(axis):
+        # Using normalized instead of voxel displacement produces axis-specific errors.
+        shape = (3, 4, 5)
+        half = torch.tensor(shape, dtype=torch.float64) / 2
+        center = torch.tensor([[1.0, 1.0, 2.0]], dtype=torch.float64)
+        p = (center + 0.5) / half - 1
+        logs = torch.zeros((1, 3), dtype=torch.float64)
+        q = torch.zeros((1, 4), dtype=torch.float64)
+        rho = torch.tensor([1 + 0j], dtype=torch.complex128)
+        f = torch.zeros((1, 3), dtype=torch.float64)
+        f[0, axis] = 0.25
+        voxel = [1, 1, 2]
+        voxel[axis] += 1
+        weight = math.exp(-0.5 / (half[axis].item() * (1 + 1e-8)) ** 2)
+>       torch.testing.assert_close(render(p, logs, q, rho, f, shape)[tuple(voxel)],
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                   torch.tensor(weight * (-1 + 1j), dtype=torch.complex128), **ALG)
+
+tests/test_carrier_reference.py:217: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_quarter_cycle_is_per_voxel_on_each_anisotropic_axis[1] __________
+
+axis = 1
+
+    @pytest.mark.parametrize("axis", range(3))
+    def test_quarter_cycle_is_per_voxel_on_each_anisotropic_axis(axis):
+        # Using normalized instead of voxel displacement produces axis-specific errors.
+        shape = (3, 4, 5)
+        half = torch.tensor(shape, dtype=torch.float64) / 2
+        center = torch.tensor([[1.0, 1.0, 2.0]], dtype=torch.float64)
+        p = (center + 0.5) / half - 1
+        logs = torch.zeros((1, 3), dtype=torch.float64)
+        q = torch.zeros((1, 4), dtype=torch.float64)
+        rho = torch.tensor([1 + 0j], dtype=torch.complex128)
+        f = torch.zeros((1, 3), dtype=torch.float64)
+        f[0, axis] = 0.25
+        voxel = [1, 1, 2]
+        voxel[axis] += 1
+        weight = math.exp(-0.5 / (half[axis].item() * (1 + 1e-8)) ** 2)
+>       torch.testing.assert_close(render(p, logs, q, rho, f, shape)[tuple(voxel)],
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                   torch.tensor(weight * (-1 + 1j), dtype=torch.complex128), **ALG)
+
+tests/test_carrier_reference.py:217: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_quarter_cycle_is_per_voxel_on_each_anisotropic_axis[2] __________
+
+axis = 2
+
+    @pytest.mark.parametrize("axis", range(3))
+    def test_quarter_cycle_is_per_voxel_on_each_anisotropic_axis(axis):
+        # Using normalized instead of voxel displacement produces axis-specific errors.
+        shape = (3, 4, 5)
+        half = torch.tensor(shape, dtype=torch.float64) / 2
+        center = torch.tensor([[1.0, 1.0, 2.0]], dtype=torch.float64)
+        p = (center + 0.5) / half - 1
+        logs = torch.zeros((1, 3), dtype=torch.float64)
+        q = torch.zeros((1, 4), dtype=torch.float64)
+        rho = torch.tensor([1 + 0j], dtype=torch.complex128)
+        f = torch.zeros((1, 3), dtype=torch.float64)
+        f[0, axis] = 0.25
+        voxel = [1, 1, 2]
+        voxel[axis] += 1
+        weight = math.exp(-0.5 / (half[axis].item() * (1 + 1e-8)) ** 2)
+>       torch.testing.assert_close(render(p, logs, q, rho, f, shape)[tuple(voxel)],
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                   torch.tensor(weight * (-1 + 1j), dtype=torch.complex128), **ALG)
+
+tests/test_carrier_reference.py:217: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________ test_stable_small_phase_retains_quadratic_real_correction ___________
+
+    def test_stable_small_phase_retains_quadratic_real_correction():
+        # Direct cos(theta)-1 rounds to zero for theta=2*pi*1e-12.
+        shape = (3, 4, 5)
+        half = torch.tensor(shape, dtype=torch.float64) / 2
+        p = (torch.tensor([[0.5, 1.5, 2.5]], dtype=torch.float64) / half - 1)
+        f = torch.tensor([[1e-12, 0, 0]], dtype=torch.float64)
+>       out = render(p, torch.zeros_like(p), torch.zeros((1, 4), dtype=torch.float64),
+                     torch.ones(1, dtype=torch.complex128), f, shape)
+
+tests/test_carrier_reference.py:230: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_empty_subset_returns_connected_zero_for_all_five_inputs _________
+
+    def test_empty_subset_returns_connected_zero_for_all_five_inputs():
+        values = [torch.empty((0, 3), dtype=torch.float64), torch.empty((0, 3), dtype=torch.float64),
+                  torch.empty((0, 4), dtype=torch.float64), torch.empty(0, dtype=torch.complex128),
+                  torch.empty((0, 3), dtype=torch.float64)]
+        values = [v.requires_grad_() for v in values]
+>       output = render(*values, (2, 3, 4))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:244: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+______ test_overlap_adds_and_far_outside_support_has_zero_output_and_vjps ______
+
+    def test_overlap_adds_and_far_outside_support_has_zero_output_and_vjps():
+        values = fixture()
+>       together = render(*values, SHAPE)
+                   ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:254: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_______ test_support_uses_full_ellipsoid_with_exact_mahal_nine_included ________
+
+    def test_support_uses_full_ellipsoid_with_exact_mahal_nine_included():
+        # A wrong cutoff or radius clamp loses the supported boundary voxel.
+>       module = importlib.import_module("carrier_reference")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:268: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________ test_noncontiguous_inputs_preserve_output_and_autograd ____________
+
+    def test_noncontiguous_inputs_preserve_output_and_autograd():
+        values = fixture()
+        strided = []
+        for value in values:
+            storage = torch.empty((*value.shape, 2), dtype=value.dtype)
+            storage[..., 0] = value.detach()
+            strided.append(storage[..., 0].requires_grad_())
+        assert all(not value.is_contiguous() for value in strided)
+>       output = render(*strided, SHAPE)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:285: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________________________ test_refuses_invalid_shapes[0] ________________________
+
+input_index = 0
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_invalid_shapes(input_index):
+        values = fixture()
+        values[input_index] = values[input_index][:-1]
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:298: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________________________ test_refuses_invalid_shapes[1] ________________________
+
+input_index = 1
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_invalid_shapes(input_index):
+        values = fixture()
+        values[input_index] = values[input_index][:-1]
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:298: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________________________ test_refuses_invalid_shapes[2] ________________________
+
+input_index = 2
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_invalid_shapes(input_index):
+        values = fixture()
+        values[input_index] = values[input_index][:-1]
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:298: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________________________ test_refuses_invalid_shapes[3] ________________________
+
+input_index = 3
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_invalid_shapes(input_index):
+        values = fixture()
+        values[input_index] = values[input_index][:-1]
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:298: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________________________ test_refuses_invalid_shapes[4] ________________________
+
+input_index = 4
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_invalid_shapes(input_index):
+        values = fixture()
+        values[input_index] = values[input_index][:-1]
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:298: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________________ test_refuses_wrong_rank[0] __________________________
+
+input_index = 0
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_wrong_rank(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].unsqueeze(0)
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:306: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________________ test_refuses_wrong_rank[1] __________________________
+
+input_index = 1
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_wrong_rank(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].unsqueeze(0)
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:306: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________________ test_refuses_wrong_rank[2] __________________________
+
+input_index = 2
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_wrong_rank(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].unsqueeze(0)
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:306: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________________ test_refuses_wrong_rank[3] __________________________
+
+input_index = 3
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_wrong_rank(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].unsqueeze(0)
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:306: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________________ test_refuses_wrong_rank[4] __________________________
+
+input_index = 4
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_wrong_rank(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].unsqueeze(0)
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:306: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________ test_refuses_wrong_coordinate_width[0] ____________________
+
+input_index = 0
+
+    @pytest.mark.parametrize("input_index", [0, 1, 2, 4])
+    def test_refuses_wrong_coordinate_width(input_index):
+        values = fixture()
+        values[input_index] = values[input_index][:, :-1]
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:314: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________ test_refuses_wrong_coordinate_width[1] ____________________
+
+input_index = 1
+
+    @pytest.mark.parametrize("input_index", [0, 1, 2, 4])
+    def test_refuses_wrong_coordinate_width(input_index):
+        values = fixture()
+        values[input_index] = values[input_index][:, :-1]
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:314: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________ test_refuses_wrong_coordinate_width[2] ____________________
+
+input_index = 2
+
+    @pytest.mark.parametrize("input_index", [0, 1, 2, 4])
+    def test_refuses_wrong_coordinate_width(input_index):
+        values = fixture()
+        values[input_index] = values[input_index][:, :-1]
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:314: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________ test_refuses_wrong_coordinate_width[4] ____________________
+
+input_index = 4
+
+    @pytest.mark.parametrize("input_index", [0, 1, 2, 4])
+    def test_refuses_wrong_coordinate_width(input_index):
+        values = fixture()
+        values[input_index] = values[input_index][:, :-1]
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:314: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________________________ test_refuses_wrong_dtype[0] __________________________
+
+input_index = 0
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_wrong_dtype(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].to(torch.complex64 if input_index == 3 else torch.float32)
+        with pytest.raises(TypeError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:322: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________________________ test_refuses_wrong_dtype[1] __________________________
+
+input_index = 1
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_wrong_dtype(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].to(torch.complex64 if input_index == 3 else torch.float32)
+        with pytest.raises(TypeError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:322: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________________________ test_refuses_wrong_dtype[2] __________________________
+
+input_index = 2
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_wrong_dtype(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].to(torch.complex64 if input_index == 3 else torch.float32)
+        with pytest.raises(TypeError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:322: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________________________ test_refuses_wrong_dtype[3] __________________________
+
+input_index = 3
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_wrong_dtype(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].to(torch.complex64 if input_index == 3 else torch.float32)
+        with pytest.raises(TypeError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:322: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________________________ test_refuses_wrong_dtype[4] __________________________
+
+input_index = 4
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_wrong_dtype(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].to(torch.complex64 if input_index == 3 else torch.float32)
+        with pytest.raises(TypeError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:322: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________________ test_refuses_non_tensor[0] __________________________
+
+input_index = 0
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_non_tensor(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].detach().tolist()
+        with pytest.raises(TypeError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:330: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________________ test_refuses_non_tensor[1] __________________________
+
+input_index = 1
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_non_tensor(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].detach().tolist()
+        with pytest.raises(TypeError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:330: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________________ test_refuses_non_tensor[2] __________________________
+
+input_index = 2
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_non_tensor(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].detach().tolist()
+        with pytest.raises(TypeError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:330: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________________ test_refuses_non_tensor[3] __________________________
+
+input_index = 3
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_non_tensor(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].detach().tolist()
+        with pytest.raises(TypeError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:330: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________________ test_refuses_non_tensor[4] __________________________
+
+input_index = 4
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_non_tensor(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].detach().tolist()
+        with pytest.raises(TypeError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:330: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+______________ test_refuses_non_cpu_device_before_any_numerics[0] ______________
+
+input_index = 0
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_non_cpu_device_before_any_numerics(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].detach().to("meta")
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:338: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+______________ test_refuses_non_cpu_device_before_any_numerics[1] ______________
+
+input_index = 1
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_non_cpu_device_before_any_numerics(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].detach().to("meta")
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:338: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+______________ test_refuses_non_cpu_device_before_any_numerics[2] ______________
+
+input_index = 2
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_non_cpu_device_before_any_numerics(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].detach().to("meta")
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:338: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+______________ test_refuses_non_cpu_device_before_any_numerics[3] ______________
+
+input_index = 3
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_non_cpu_device_before_any_numerics(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].detach().to("meta")
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:338: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+______________ test_refuses_non_cpu_device_before_any_numerics[4] ______________
+
+input_index = 4
+
+    @pytest.mark.parametrize("input_index", range(5))
+    def test_refuses_non_cpu_device_before_any_numerics(input_index):
+        values = fixture()
+        values[input_index] = values[input_index].detach().to("meta")
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:338: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________ test_refuses_nonfinite_inputs[nan-0] _____________________
+
+input_index = 0, bad = nan
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________ test_refuses_nonfinite_inputs[nan-1] _____________________
+
+input_index = 1, bad = nan
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________ test_refuses_nonfinite_inputs[nan-2] _____________________
+
+input_index = 2, bad = nan
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________ test_refuses_nonfinite_inputs[nan-3] _____________________
+
+input_index = 3, bad = nan
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________ test_refuses_nonfinite_inputs[nan-4] _____________________
+
+input_index = 4, bad = nan
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________ test_refuses_nonfinite_inputs[inf-0] _____________________
+
+input_index = 0, bad = inf
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________ test_refuses_nonfinite_inputs[inf-1] _____________________
+
+input_index = 1, bad = inf
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________ test_refuses_nonfinite_inputs[inf-2] _____________________
+
+input_index = 2, bad = inf
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________ test_refuses_nonfinite_inputs[inf-3] _____________________
+
+input_index = 3, bad = inf
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________ test_refuses_nonfinite_inputs[inf-4] _____________________
+
+input_index = 4, bad = inf
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________ test_refuses_nonfinite_inputs[-inf-0] _____________________
+
+input_index = 0, bad = -inf
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________ test_refuses_nonfinite_inputs[-inf-1] _____________________
+
+input_index = 1, bad = -inf
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________ test_refuses_nonfinite_inputs[-inf-2] _____________________
+
+input_index = 2, bad = -inf
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________ test_refuses_nonfinite_inputs[-inf-3] _____________________
+
+input_index = 3, bad = -inf
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________ test_refuses_nonfinite_inputs[-inf-4] _____________________
+
+input_index = 4, bad = -inf
+
+    @pytest.mark.parametrize("input_index", range(5))
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+    def test_refuses_nonfinite_inputs(input_index, bad):
+        values = [v.detach().clone() for v in fixture()]
+        values[input_index].reshape(-1)[0] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+___________________ test_refuses_nonfinite_imaginary_density ___________________
+
+    def test_refuses_nonfinite_imaginary_density():
+        values = [v.detach().clone() for v in fixture()]
+        values[3][0] = complex(1, float("nan"))
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:354: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_refuses_nyquist_endpoints_and_outside_each_axis[0--0.6] _________
+
+bad = -0.6, axis = 0
+
+    @pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+    @pytest.mark.parametrize("axis", range(3))
+    def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0, axis] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_refuses_nyquist_endpoints_and_outside_each_axis[0--0.5] _________
+
+bad = -0.5, axis = 0
+
+    @pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+    @pytest.mark.parametrize("axis", range(3))
+    def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0, axis] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_refuses_nyquist_endpoints_and_outside_each_axis[0-0.5] __________
+
+bad = 0.5, axis = 0
+
+    @pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+    @pytest.mark.parametrize("axis", range(3))
+    def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0, axis] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_refuses_nyquist_endpoints_and_outside_each_axis[0-0.6] __________
+
+bad = 0.6, axis = 0
+
+    @pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+    @pytest.mark.parametrize("axis", range(3))
+    def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0, axis] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_refuses_nyquist_endpoints_and_outside_each_axis[1--0.6] _________
+
+bad = -0.6, axis = 1
+
+    @pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+    @pytest.mark.parametrize("axis", range(3))
+    def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0, axis] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_refuses_nyquist_endpoints_and_outside_each_axis[1--0.5] _________
+
+bad = -0.5, axis = 1
+
+    @pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+    @pytest.mark.parametrize("axis", range(3))
+    def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0, axis] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_refuses_nyquist_endpoints_and_outside_each_axis[1-0.5] __________
+
+bad = 0.5, axis = 1
+
+    @pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+    @pytest.mark.parametrize("axis", range(3))
+    def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0, axis] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_refuses_nyquist_endpoints_and_outside_each_axis[1-0.6] __________
+
+bad = 0.6, axis = 1
+
+    @pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+    @pytest.mark.parametrize("axis", range(3))
+    def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0, axis] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_refuses_nyquist_endpoints_and_outside_each_axis[2--0.6] _________
+
+bad = -0.6, axis = 2
+
+    @pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+    @pytest.mark.parametrize("axis", range(3))
+    def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0, axis] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_refuses_nyquist_endpoints_and_outside_each_axis[2--0.5] _________
+
+bad = -0.5, axis = 2
+
+    @pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+    @pytest.mark.parametrize("axis", range(3))
+    def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0, axis] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_refuses_nyquist_endpoints_and_outside_each_axis[2-0.5] __________
+
+bad = 0.5, axis = 2
+
+    @pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+    @pytest.mark.parametrize("axis", range(3))
+    def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0, axis] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_refuses_nyquist_endpoints_and_outside_each_axis[2-0.6] __________
+
+bad = 0.6, axis = 2
+
+    @pytest.mark.parametrize("bad", [-0.6, -0.5, 0.5, 0.6])
+    @pytest.mark.parametrize("axis", range(3))
+    def test_refuses_nyquist_endpoints_and_outside_each_axis(bad, axis):
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0, axis] = bad
+        with pytest.raises(ValueError):
+>           render(*values, SHAPE)
+
+tests/test_carrier_reference.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_accepts_frequencies_arbitrarily_close_to_strict_nyquist _________
+
+    def test_accepts_frequencies_arbitrarily_close_to_strict_nyquist():
+        values = [v.detach().clone() for v in fixture()]
+        values[4][0] = torch.tensor([0.5 - 1e-12, -0.5 + 1e-12, 0.0], dtype=torch.float64)
+        ordinary, gabor, _ = independent_direct(values, SHAPE)
+>       torch.testing.assert_close(render(*values, SHAPE) + ordinary, gabor, **ALG)
+                                   ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_carrier_reference.py:370: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________ test_refuses_invalid_volume_shape[shape0] ___________________
+
+shape = (0, 2, 3)
+
+    @pytest.mark.parametrize("shape", [(0, 2, 3), (-1, 2, 3), (2, 3), (2, 3, 4, 5),
+                                       (True, 2, 3), (2.0, 3, 4), "234", None])
+    def test_refuses_invalid_volume_shape(shape):
+        with pytest.raises((TypeError, ValueError)):
+>           render(*fixture(), shape)
+
+tests/test_carrier_reference.py:377: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________ test_refuses_invalid_volume_shape[shape1] ___________________
+
+shape = (-1, 2, 3)
+
+    @pytest.mark.parametrize("shape", [(0, 2, 3), (-1, 2, 3), (2, 3), (2, 3, 4, 5),
+                                       (True, 2, 3), (2.0, 3, 4), "234", None])
+    def test_refuses_invalid_volume_shape(shape):
+        with pytest.raises((TypeError, ValueError)):
+>           render(*fixture(), shape)
+
+tests/test_carrier_reference.py:377: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________ test_refuses_invalid_volume_shape[shape2] ___________________
+
+shape = (2, 3)
+
+    @pytest.mark.parametrize("shape", [(0, 2, 3), (-1, 2, 3), (2, 3), (2, 3, 4, 5),
+                                       (True, 2, 3), (2.0, 3, 4), "234", None])
+    def test_refuses_invalid_volume_shape(shape):
+        with pytest.raises((TypeError, ValueError)):
+>           render(*fixture(), shape)
+
+tests/test_carrier_reference.py:377: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________ test_refuses_invalid_volume_shape[shape3] ___________________
+
+shape = (2, 3, 4, 5)
+
+    @pytest.mark.parametrize("shape", [(0, 2, 3), (-1, 2, 3), (2, 3), (2, 3, 4, 5),
+                                       (True, 2, 3), (2.0, 3, 4), "234", None])
+    def test_refuses_invalid_volume_shape(shape):
+        with pytest.raises((TypeError, ValueError)):
+>           render(*fixture(), shape)
+
+tests/test_carrier_reference.py:377: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________ test_refuses_invalid_volume_shape[shape4] ___________________
+
+shape = (True, 2, 3)
+
+    @pytest.mark.parametrize("shape", [(0, 2, 3), (-1, 2, 3), (2, 3), (2, 3, 4, 5),
+                                       (True, 2, 3), (2.0, 3, 4), "234", None])
+    def test_refuses_invalid_volume_shape(shape):
+        with pytest.raises((TypeError, ValueError)):
+>           render(*fixture(), shape)
+
+tests/test_carrier_reference.py:377: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________ test_refuses_invalid_volume_shape[shape5] ___________________
+
+shape = (2.0, 3, 4)
+
+    @pytest.mark.parametrize("shape", [(0, 2, 3), (-1, 2, 3), (2, 3), (2, 3, 4, 5),
+                                       (True, 2, 3), (2.0, 3, 4), "234", None])
+    def test_refuses_invalid_volume_shape(shape):
+        with pytest.raises((TypeError, ValueError)):
+>           render(*fixture(), shape)
+
+tests/test_carrier_reference.py:377: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________ test_refuses_invalid_volume_shape[234] ____________________
+
+shape = '234'
+
+    @pytest.mark.parametrize("shape", [(0, 2, 3), (-1, 2, 3), (2, 3), (2, 3, 4, 5),
+                                       (True, 2, 3), (2.0, 3, 4), "234", None])
+    def test_refuses_invalid_volume_shape(shape):
+        with pytest.raises((TypeError, ValueError)):
+>           render(*fixture(), shape)
+
+tests/test_carrier_reference.py:377: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+___________________ test_refuses_invalid_volume_shape[None] ____________________
+
+shape = None
+
+    @pytest.mark.parametrize("shape", [(0, 2, 3), (-1, 2, 3), (2, 3), (2, 3, 4, 5),
+                                       (True, 2, 3), (2.0, 3, 4), "234", None])
+    def test_refuses_invalid_volume_shape(shape):
+        with pytest.raises((TypeError, ValueError)):
+>           render(*fixture(), shape)
+
+tests/test_carrier_reference.py:377: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_carrier_reference.py:17: in render
+    return importlib.import_module("carrier_reference").carrier_correction_reference(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../anaconda3/envs/GSTMI/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'carrier_reference', import_ = <function _gcd_import at 0x7df7faed3d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'carrier_reference'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_carrier_reference.py::test_correction_plus_gaussian_equals_independent_direct_gabor[False-0]
+FAILED tests/test_carrier_reference.py::test_correction_plus_gaussian_equals_independent_direct_gabor[False-1]
+FAILED tests/test_carrier_reference.py::test_correction_plus_gaussian_equals_independent_direct_gabor[True-0]
+FAILED tests/test_carrier_reference.py::test_correction_plus_gaussian_equals_independent_direct_gabor[True-1]
+FAILED tests/test_carrier_reference.py::test_documented_local_vjps_include_phase_center_term[False]
+FAILED tests/test_carrier_reference.py::test_documented_local_vjps_include_phase_center_term[True]
+FAILED tests/test_carrier_reference.py::test_analytic_geometry_chain_matches_all_five_public_input_vjps[False]
+FAILED tests/test_carrier_reference.py::test_analytic_geometry_chain_matches_all_five_public_input_vjps[True]
+FAILED tests/test_carrier_reference.py::test_every_input_component_matches_central_difference_without_support_crossing[0-False]
+FAILED tests/test_carrier_reference.py::test_every_input_component_matches_central_difference_without_support_crossing[0-True]
+FAILED tests/test_carrier_reference.py::test_every_input_component_matches_central_difference_without_support_crossing[1-False]
+FAILED tests/test_carrier_reference.py::test_every_input_component_matches_central_difference_without_support_crossing[1-True]
+FAILED tests/test_carrier_reference.py::test_every_input_component_matches_central_difference_without_support_crossing[2-False]
+FAILED tests/test_carrier_reference.py::test_every_input_component_matches_central_difference_without_support_crossing[2-True]
+FAILED tests/test_carrier_reference.py::test_every_input_component_matches_central_difference_without_support_crossing[3-False]
+FAILED tests/test_carrier_reference.py::test_every_input_component_matches_central_difference_without_support_crossing[3-True]
+FAILED tests/test_carrier_reference.py::test_every_input_component_matches_central_difference_without_support_crossing[4-False]
+FAILED tests/test_carrier_reference.py::test_every_input_component_matches_central_difference_without_support_crossing[4-True]
+FAILED tests/test_carrier_reference.py::test_zero_frequency_is_exact_identity_with_learnable_frequency
+FAILED tests/test_carrier_reference.py::test_quarter_cycle_is_per_voxel_on_each_anisotropic_axis[0]
+FAILED tests/test_carrier_reference.py::test_quarter_cycle_is_per_voxel_on_each_anisotropic_axis[1]
+FAILED tests/test_carrier_reference.py::test_quarter_cycle_is_per_voxel_on_each_anisotropic_axis[2]
+FAILED tests/test_carrier_reference.py::test_stable_small_phase_retains_quadratic_real_correction
+FAILED tests/test_carrier_reference.py::test_empty_subset_returns_connected_zero_for_all_five_inputs
+FAILED tests/test_carrier_reference.py::test_overlap_adds_and_far_outside_support_has_zero_output_and_vjps
+FAILED tests/test_carrier_reference.py::test_support_uses_full_ellipsoid_with_exact_mahal_nine_included
+FAILED tests/test_carrier_reference.py::test_noncontiguous_inputs_preserve_output_and_autograd
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_shapes[0] - Modu...
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_shapes[1] - Modu...
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_shapes[2] - Modu...
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_shapes[3] - Modu...
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_shapes[4] - Modu...
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_rank[0] - ModuleNo...
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_rank[1] - ModuleNo...
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_rank[2] - ModuleNo...
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_rank[3] - ModuleNo...
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_rank[4] - ModuleNo...
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_coordinate_width[0]
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_coordinate_width[1]
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_coordinate_width[2]
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_coordinate_width[4]
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_dtype[0] - ModuleN...
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_dtype[1] - ModuleN...
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_dtype[2] - ModuleN...
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_dtype[3] - ModuleN...
+FAILED tests/test_carrier_reference.py::test_refuses_wrong_dtype[4] - ModuleN...
+FAILED tests/test_carrier_reference.py::test_refuses_non_tensor[0] - ModuleNo...
+FAILED tests/test_carrier_reference.py::test_refuses_non_tensor[1] - ModuleNo...
+FAILED tests/test_carrier_reference.py::test_refuses_non_tensor[2] - ModuleNo...
+FAILED tests/test_carrier_reference.py::test_refuses_non_tensor[3] - ModuleNo...
+FAILED tests/test_carrier_reference.py::test_refuses_non_tensor[4] - ModuleNo...
+FAILED tests/test_carrier_reference.py::test_refuses_non_cpu_device_before_any_numerics[0]
+FAILED tests/test_carrier_reference.py::test_refuses_non_cpu_device_before_any_numerics[1]
+FAILED tests/test_carrier_reference.py::test_refuses_non_cpu_device_before_any_numerics[2]
+FAILED tests/test_carrier_reference.py::test_refuses_non_cpu_device_before_any_numerics[3]
+FAILED tests/test_carrier_reference.py::test_refuses_non_cpu_device_before_any_numerics[4]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[nan-0]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[nan-1]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[nan-2]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[nan-3]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[nan-4]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[inf-0]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[inf-1]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[inf-2]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[inf-3]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[inf-4]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[-inf-0]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[-inf-1]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[-inf-2]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[-inf-3]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_inputs[-inf-4]
+FAILED tests/test_carrier_reference.py::test_refuses_nonfinite_imaginary_density
+FAILED tests/test_carrier_reference.py::test_refuses_nyquist_endpoints_and_outside_each_axis[0--0.6]
+FAILED tests/test_carrier_reference.py::test_refuses_nyquist_endpoints_and_outside_each_axis[0--0.5]
+FAILED tests/test_carrier_reference.py::test_refuses_nyquist_endpoints_and_outside_each_axis[0-0.5]
+FAILED tests/test_carrier_reference.py::test_refuses_nyquist_endpoints_and_outside_each_axis[0-0.6]
+FAILED tests/test_carrier_reference.py::test_refuses_nyquist_endpoints_and_outside_each_axis[1--0.6]
+FAILED tests/test_carrier_reference.py::test_refuses_nyquist_endpoints_and_outside_each_axis[1--0.5]
+FAILED tests/test_carrier_reference.py::test_refuses_nyquist_endpoints_and_outside_each_axis[1-0.5]
+FAILED tests/test_carrier_reference.py::test_refuses_nyquist_endpoints_and_outside_each_axis[1-0.6]
+FAILED tests/test_carrier_reference.py::test_refuses_nyquist_endpoints_and_outside_each_axis[2--0.6]
+FAILED tests/test_carrier_reference.py::test_refuses_nyquist_endpoints_and_outside_each_axis[2--0.5]
+FAILED tests/test_carrier_reference.py::test_refuses_nyquist_endpoints_and_outside_each_axis[2-0.5]
+FAILED tests/test_carrier_reference.py::test_refuses_nyquist_endpoints_and_outside_each_axis[2-0.6]
+FAILED tests/test_carrier_reference.py::test_accepts_frequencies_arbitrarily_close_to_strict_nyquist
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_volume_shape[shape0]
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_volume_shape[shape1]
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_volume_shape[shape2]
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_volume_shape[shape3]
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_volume_shape[shape4]
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_volume_shape[shape5]
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_volume_shape[234]
+FAILED tests/test_carrier_reference.py::test_refuses_invalid_volume_shape[None]
+93 failed in 3.32s

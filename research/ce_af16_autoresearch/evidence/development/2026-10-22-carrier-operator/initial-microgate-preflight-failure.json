@@ -1,0 +1,10 @@
+{
+  "observed_at_utc": "2026-10-23T01:14:35.848335+00:00",
+  "stage": "resource_query_before_build",
+  "exit_code": 1,
+  "nested_nvidia_smi_exit_code": 9,
+  "native_build_started": false,
+  "gpu_test_started": false,
+  "reason": "NVML unavailable in sandboxed GSTMI invocation",
+  "resolution": "same reviewed launch retried with required sandbox escalation; started successfully"
+}

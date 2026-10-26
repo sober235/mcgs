@@ -1,0 +1,780 @@
+# Review package: 198db2d..HEAD
+
+## Commits
+3775681 fix: guard carrier numerics toolchain and stream acceptance
+
+## Files changed
+ carrier_cuda/carrier.cpp          |   2 +-
+ carrier_cuda/carrier_kernel.cu    |  13 ++-
+ carrier_operator.py               |  89 ++++++++++++---
+ docs/carrier_operator_commands.md |  47 +++++++-
+ tests/test_carrier_cuda.py        | 225 +++++++++++++++++++++++++++++++++++++-
+ 5 files changed, 346 insertions(+), 30 deletions(-)
+
+## Diff
+diff --git a/carrier_cuda/carrier.cpp b/carrier_cuda/carrier.cpp
+index 812e460..a7bdfbd 100644
+--- a/carrier_cuda/carrier.cpp
++++ b/carrier_cuda/carrier.cpp
+@@ -15,21 +15,21 @@ void tensor_check(const Tensor& t, const Tensor& centers, at::ScalarType dtype,
+ 
+ void validate(Tensor centers, Tensor m, Tensor density, Tensor f, Tensor ranges, Tensor ids,
+               const std::vector<int64_t>& shape) {
+     TORCH_CHECK(centers.is_cuda(), "centers must be CUDA");
+     TORCH_CHECK(shape.size() == 3, "shape must have 3 axes");
+     int64_t voxels = 1, tiles = 1;
+     for (auto n : shape) {
+         TORCH_CHECK(n > 0 && n <= std::numeric_limits<int32_t>::max(), "invalid shape");
+         TORCH_CHECK(voxels <= std::numeric_limits<int32_t>::max()/n, "voxel count exceeds int32");
+         voxels *= n;
+-        tiles *= (n+7)/8;
++        tiles *= 1+(n-1)/8;
+     }
+     tensor_check(centers, centers, at::kFloat, "centers");
+     tensor_check(m, centers, at::kFloat, "M");
+     tensor_check(density, centers, at::kComplexFloat, "density");
+     tensor_check(f, centers, at::kFloat, "frequencies");
+     tensor_check(ranges, centers, at::kInt, "ranges");
+     tensor_check(ids, centers, at::kInt, "ids");
+     TORCH_CHECK(centers.dim() == 2 && centers.size(1) == 3, "centers must be [K,3]");
+     const auto k = centers.size(0);
+     TORCH_CHECK(k <= std::numeric_limits<int32_t>::max(), "K exceeds int32");
+diff --git a/carrier_cuda/carrier_kernel.cu b/carrier_cuda/carrier_kernel.cu
+index 505a1aa..4cef201 100644
+--- a/carrier_cuda/carrier_kernel.cu
++++ b/carrier_cuda/carrier_kernel.cu
+@@ -10,29 +10,30 @@ using Complex = c10::complex<float>;
+ constexpr int TILE = 8;
+ constexpr int THREADS = 256;
+ constexpr float TWO_PI = 6.2831853071795864769f;
+ 
+ // Each block owns a tile. Threads own disjoint voxels and loop only through
+ // that tile's selected atoms. No block barriers exist, including ragged tiles.
+ template <bool BACKWARD>
+ __global__ void carrier_kernel(const float* centers, const float* matrices, const Complex* density,
+     const float* frequency, const int* ranges, const int* ids, int D, int H, int W,
+     Complex* output, const Complex* grad_output, float* gc, float* gm, float* gd, float* gf) {
+-    const int nH = (H+7)/8, nW = (W+7)/8;
++    const int64_t nH = 1+(static_cast<int64_t>(H)-1)/8;
++    const int64_t nW = 1+(static_cast<int64_t>(W)-1)/8;
+     const int64_t tile = blockIdx.x;
+-    const int td = tile/(nH*nW), th = (tile/nW)%nH, tw = tile%nW;
++    const int64_t td = tile/(nH*nW), th = (tile/nW)%nH, tw = tile%nW;
+     for (int local = threadIdx.x; local < TILE*TILE*TILE; local += blockDim.x) {
+-        const int vd = td*TILE + local/64;
+-        const int vh = th*TILE + (local/8)%8;
+-        const int vw = tw*TILE + local%8;
++        const int64_t vd = td*TILE + local/64;
++        const int64_t vh = th*TILE + (local/8)%8;
++        const int64_t vw = tw*TILE + local%8;
+         if (vd >= D || vh >= H || vw >= W) continue;
+-        const int voxel = (vd*H+vh)*W+vw;
++        const int64_t voxel = (vd*H+vh)*W+vw;
+         float result_r = 0, result_i = 0;
+         float gr = 0, gi = 0;
+         if (BACKWARD) { gr = grad_output[voxel].real(); gi = grad_output[voxel].imag(); }
+         for (int pair = ranges[2*tile]; pair < ranges[2*tile+1]; ++pair) {
+             const int64_t k = ids[pair];
+             const float u[3] = {vd-centers[3*k], vh-centers[3*k+1], vw-centers[3*k+2]};
+             const float h[3] = {D*.5f, H*.5f, W*.5f};
+             const float d[3] = {u[0]/h[0], u[1]/h[1], u[2]/h[2]};
+             float md[3] = {0,0,0};
+             for (int a=0; a<3; ++a)
+diff --git a/carrier_operator.py b/carrier_operator.py
+index dff9ec0..29f6d36 100644
+--- a/carrier_operator.py
++++ b/carrier_operator.py
+@@ -5,106 +5,155 @@ Only first derivatives are supported. No historical renderer is imported.
+ """
+ import hashlib
+ import json
+ import math
+ import os
+ from numbers import Integral
+ from pathlib import Path
+ import subprocess
+ import shutil
+ import threading
++import sys
+ 
+ import torch
+ from torch.autograd.function import once_differentiable
+ 
+ _ROOT = Path(__file__).resolve().parent
+ _SOURCES = (_ROOT / 'carrier_cuda/carrier.cpp', _ROOT / 'carrier_cuda/carrier_kernel.cu')
+-_FLAGS = {'cxx': ['-O3'], 'cuda': ['-O3', '--fmad=false']}
++_FLAGS = {'cxx': ['-O3'], 'cuda': ['-O3', '--fmad=false', '-ccbin', '/usr/bin/gcc']}
++_BUILD_PATH = '/usr/local/cuda-11.8/bin:/usr/bin:/bin'
++_UNSUPPORTED_BUILD_ENV = (
++    'PYTORCH_NVCC', 'CC', 'NVCC_CCBIN', 'NVCC_PREPEND_FLAGS', 'NVCC_APPEND_FLAGS',
++    'CUDACXX', 'CUDAHOSTCXX', 'CUDA_PATH', 'CUDA_INC_PATH', 'CUDNN_HOME', 'CUDNN_PATH',
++    'ROCM_HOME', 'ROCM_PATH', 'CFLAGS', 'CXXFLAGS', 'CPPFLAGS', 'LDFLAGS',
++    'GCC_EXEC_PREFIX', 'COMPILER_PATH', 'CPATH', 'CPLUS_INCLUDE_PATH',
++    'C_INCLUDE_PATH', 'OBJC_INCLUDE_PATH', 'LIBRARY_PATH', 'LD_PRELOAD',
++    'LD_LIBRARY_PATH', 'TORCH_DONT_CHECK_COMPILER_ABI',
++    'TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES', 'TORCH_EXTENSIONS_DIR',
++)
+ _extension = None
+ _provenance = None
+ _load_lock = threading.Lock()
+ _TILE = 8
+ 
+ 
+ def _sha(path):
+     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+ 
+ 
++def _validated_build_environment():
++    """Reject effective tool/flag overrides before import, tools or cache reuse.
++
++    Torch JIT honors CC, PYTORCH_NVCC, CUDA include/CUDNN/ROCM paths and ABI /
++    dependency selectors; GCC/nvcc also honor implicit flag/search variables.
++    Keep the reviewed build process explicit rather than silently clearing any.
++    """
++    required = {'CUDA_HOME': '/usr/local/cuda-11.8', 'CXX': '/usr/bin/c++', 'PATH': _BUILD_PATH}
++    for name, value in required.items():
++        if os.environ.get(name) != value:
++            raise RuntimeError(f'set {name}={value} before explicit carrier loading')
++    for name in _UNSUPPORTED_BUILD_ENV:
++        if name in os.environ:
++            raise RuntimeError(f'unset unsupported carrier build override {name}')
++    if not os.environ.get('TORCH_CUDA_ARCH_LIST'):
++        raise RuntimeError('set explicit TORCH_CUDA_ARCH_LIST for provenance')
++    return {**required, 'TORCH_CUDA_ARCH_LIST': os.environ['TORCH_CUDA_ARCH_LIST'],
++            'MAX_JOBS': os.environ.get('MAX_JOBS'),
++            'SOURCE_DATE_EPOCH': os.environ.get('SOURCE_DATE_EPOCH'),
++            'cuda_host_compiler': '/usr/bin/gcc',
++            'refused_overrides': {name: None for name in _UNSUPPORTED_BUILD_ENV}}
++
++
+ def load_carrier_extension(build_directory):
+     """Build/load only a carrier-owned, content-addressed artifact.
+ 
+     build_directory must be a new or previously carrier-owned directory below
+     this component's carrier_builds/. Set CUDA_HOME=/usr/local/cuda-11.8 and an
+     explicit TORCH_CUDA_ARCH_LIST before calling. This is the only build entry.
+     """
+     global _extension, _provenance
+     destination = Path(build_directory).expanduser().resolve()
+     owned_root = (_ROOT / 'carrier_builds').resolve()
+     if owned_root != _ROOT / 'carrier_builds':
+         raise ValueError('carrier_builds must not be a symlink outside the component')
+     if destination == owned_root or owned_root not in destination.parents:
+         raise ValueError('build_directory must be strictly below component carrier_builds/')
+-    # Must happen before importing cpp_extension: its CUDA_HOME is import-cached.
+-    if os.environ.get('CUDA_HOME') != '/usr/local/cuda-11.8':
+-        raise RuntimeError('set CUDA_HOME=/usr/local/cuda-11.8 before explicit loading')
++    # Must happen before importing cpp_extension: toolkit/include configuration
++    # is import-cached. Also validate before the in-process artifact cache.
++    build_environment = _validated_build_environment()
+     if torch.version.cuda != '11.8':
+         raise RuntimeError('this reviewed toolchain requires Torch CUDA 11.8')
+-    architectures = os.environ.get('TORCH_CUDA_ARCH_LIST')
+-    if not architectures:
+-        raise RuntimeError('set explicit TORCH_CUDA_ARCH_LIST for provenance')
+-    cc = os.environ.get('CXX', '/usr/bin/c++')
+-    nvcc = Path(os.environ['CUDA_HOME']) / 'bin/nvcc'
++    architectures = build_environment['TORCH_CUDA_ARCH_LIST']
++    cc = build_environment['CXX']
++    host_cc = build_environment['cuda_host_compiler']
++    nvcc = Path(build_environment['CUDA_HOME']) / 'bin/nvcc'
++    builder_source = Path(torch.__file__).resolve().parent / 'utils/cpp_extension.py'
+     identity = {'sources': {str(p.relative_to(_ROOT)): _sha(p) for p in (*_SOURCES, Path(__file__))},
+                 'torch': torch.__version__, 'torch_cuda': torch.version.cuda,
+                 'cxx11_abi': torch._C._GLIBCXX_USE_CXX11_ABI,
+                 'torch_config': torch.__config__.show(), 'cuda_home': os.environ['CUDA_HOME'],
++                'build_environment': build_environment, 'builder_source_sha256': _sha(builder_source),
++                'python': sys.version, 'python_executable': sys.executable,
+                 'architectures': architectures, 'flags': _FLAGS,
+                 'compiler_executable': str(Path(shutil.which(cc) or cc).resolve()),
+                 'compiler_sha256': _sha(shutil.which(cc) or cc),
+                 'compiler': subprocess.check_output([cc, '--version'], text=True),
++                'cuda_host_compiler_executable': str(Path(host_cc).resolve()),
++                'cuda_host_compiler_sha256': _sha(host_cc),
++                'cuda_host_compiler': subprocess.check_output([host_cc, '--version'], text=True),
+                 'nvcc_executable': str(nvcc.resolve()), 'nvcc_sha256': _sha(nvcc),
+                 'nvcc': subprocess.check_output([str(nvcc), '--version'], text=True),
++                'nvcc_profile_sha256': _sha(nvcc.parent / 'nvcc.profile'),
++                'ninja_executable': str(Path(shutil.which('ninja')).resolve()),
++                'ninja_sha256': _sha(shutil.which('ninja')),
++                'ninja_version': subprocess.check_output(['/usr/bin/ninja', '--version'], text=True),
+                 'support_bounds': 'inverse(actual_M), historical floor/ceil/clamp/stable ordering'}
+     digest = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
+     name = 'carrier_cuda_' + digest[:24]
+     with _load_lock:
+         marker = destination / 'carrier-owner.json'
+         if destination.exists() and not marker.exists() and any(destination.iterdir()):
+             raise ValueError('carrier_builds destination is nonempty and not carrier-owned')
+         if marker.exists() and json.loads(marker.read_text()) != {'component': str(_ROOT)}:
+             raise ValueError('carrier_builds destination owner mismatch')
+         destination.mkdir(parents=True, exist_ok=True)
+         marker.write_text(json.dumps({'component': str(_ROOT)}))
+         artifact = destination / digest
+         artifact.mkdir(exist_ok=True)
+         manifest = artifact / 'provenance.json'
+         if manifest.exists():
+             previous = json.loads(manifest.read_text())
+             binary = Path(previous['binary'])
+-            if previous['identity'] != identity or binary.parent != artifact or _sha(binary) != previous['binary_sha256']:
++            if (previous['identity'] != identity or binary.parent != artifact
++                    or _sha(binary) != previous['binary_sha256']
++                    or _sha(artifact / 'build.ninja') != previous['build_ninja_sha256']):
+                 raise RuntimeError('carrier artifact identity/hash mismatch; refusing reuse')
+         elif any(artifact.iterdir()):
+             raise RuntimeError('unverified partial carrier build; use a new dedicated directory')
+         if _provenance is not None and _provenance['identity'] == identity:
+             if Path(_provenance['binary']).parent == artifact and _sha(_provenance['binary']) == _provenance['binary_sha256']:
+                 return _extension, json.loads(json.dumps(_provenance))
+         from torch.utils import cpp_extension
+         if Path(cpp_extension.CUDA_HOME).resolve() != Path(os.environ['CUDA_HOME']).resolve():
+             raise RuntimeError('cpp_extension was imported with a different CUDA_HOME')
++        if cpp_extension.CUDNN_HOME is not None or cpp_extension.ROCM_HOME is not None or cpp_extension.IS_HIP_EXTENSION:
++            raise RuntimeError('cpp_extension was imported with an unsupported CUDNN/ROCM override')
+         module = cpp_extension.load(name=name, sources=[str(p) for p in _SOURCES],
+                                     build_directory=str(artifact), extra_cflags=_FLAGS['cxx'],
+                                     extra_cuda_cflags=_FLAGS['cuda'], verbose=True)
+         binary = Path(module.__file__).resolve()
+         if binary.parent != artifact:
+             raise RuntimeError('loaded carrier binary escaped dedicated artifact directory')
+         provenance = {'module': module.__name__, 'identity_sha256': digest, 'identity': identity,
+-                      'binary': str(binary), 'binary_sha256': _sha(binary)}
++                      'binary': str(binary), 'binary_sha256': _sha(binary),
++                      'build_ninja_sha256': _sha(artifact / 'build.ninja'),
++                      'effective_build_ninja': (artifact / 'build.ninja').read_text()}
+         if manifest.exists() and json.loads(manifest.read_text()) != provenance:
+             raise RuntimeError('carrier artifact changed during load')
+         manifest.write_text(json.dumps(provenance, indent=2, sort_keys=True))
+         _extension, _provenance = module, provenance
+         return module, json.loads(json.dumps(provenance))
+ 
+ 
+ def _validate(values, volume_shape):
+     if not isinstance(volume_shape, (tuple, list, torch.Size)):
+         raise TypeError('volume_shape must contain three positive integers')
+@@ -132,47 +181,59 @@ def _validate(values, volume_shape):
+         if not torch.isfinite(value).all().item():
+             raise ValueError('inputs must be finite')
+     if not ((values[-1] > -.5) & (values[-1] < .5)).all().item():
+         raise ValueError('frequencies must be strictly inside (-0.5,0.5) cycles per voxel')
+     return tuple(int(n) for n in volume_shape)
+ 
+ 
+ def _geometry(positions, log_scales, rotations, shape):
+     half = positions.new_tensor(shape) / 2
+     centers = (positions + 1) * half - .5
+-    q = rotations / (rotations.norm(dim=-1, keepdim=True) + 1e-8)
++    scales = log_scales.exp()
++    rotation_norm = rotations.norm(dim=-1, keepdim=True)
++    # A finite final M can hide exp(scale)=inf or norm(q)=inf. Such
++    # intermediates can turn even a zero local VJP into NaN during the chain.
++    for name, value in (('centers', centers), ('scales', scales), ('rotation norm', rotation_norm)):
++        if not torch.isfinite(value).all().item():
++            raise ValueError(f'derived {name} must be finite')
++    q = rotations / (rotation_norm + 1e-8)
+     w, x, y, z = q.unbind(-1)
+     r = torch.stack((torch.stack((1-2*y*y-2*z*z, 2*x*y-2*z*w, 2*x*z+2*y*w), -1),
+                      torch.stack((2*x*y+2*z*w, 1-2*x*x-2*z*z, 2*y*z-2*x*w), -1),
+                      torch.stack((2*x*z-2*y*w, 2*y*z+2*x*w, 1-2*x*x-2*y*y), -1)), -2)
+-    m = (r * (log_scales.exp() + 1e-8).pow(-2).unsqueeze(1)) @ r.transpose(-1, -2)
++    m = (r * (scales + 1e-8).pow(-2).unsqueeze(1)) @ r.transpose(-1, -2)
+     # Float32 products need not be bitwise symmetric. The local center VJP
+     # assumes symmetry; averaging retains the quadratic form and its chain.
+     return centers, .5*(m + m.transpose(-1, -2))
+ 
+ 
++def _tile_shape(shape):
++    # Positive ceil-div avoids n+7 overflow in the matching native arithmetic.
++    return tuple(1+(n-1)//_TILE for n in shape)
++
++
+ @torch.no_grad()
+ def _tile_pairs(centers, m, shape):
+     # Conservative support of the actual M, since epsilon-normalized rotations
+     # need not be orthogonal. Never clamp a radius to historical max_radius.
+     if not torch.isfinite(centers).all() or not torch.isfinite(m).all():
+         raise ValueError('derived geometry must be finite')
+     eigenvalues = torch.linalg.eigvalsh(m.double())
+     reliable = (eigenvalues[:, 0] > 0) & (eigenvalues[:, 0] > eigenvalues[:, -1]*1e-8)
+     radius = torch.zeros_like(centers, dtype=torch.float64)
+     radius[reliable] = 3 * torch.linalg.inv(m[reliable].double()).diagonal(dim1=-2, dim2=-1).sqrt() * centers.new_tensor(shape).double() / 2
+     reliable &= torch.isfinite(radius).all(-1)
+     # Clamp in float64 before integer conversion to avoid overflow for far atoms.
+     limit = centers.new_tensor(shape, dtype=torch.float64) - 1
+     low = torch.minimum((centers.double()-radius).floor().clamp_min(0), limit).long() // _TILE
+     high = torch.minimum((centers.double()+radius).ceil().clamp_min(0), limit).long() // _TILE
+-    nt = tuple((n + _TILE-1)//_TILE for n in shape)
++    nt = _tile_shape(shape)
+     # Finite singular/poorly conditioned M can have unbounded support. Cover
+     # every tile for these atoms, with the same exact mahal test in the kernel.
+     low[~reliable] = 0
+     high[~reliable] = high.new_tensor(nt)-1
+     ranges = torch.zeros((math.prod(nt), 2), dtype=torch.int32, device=centers.device)
+     count = high-low+1
+     per = count.prod(-1)
+     total = int(per.sum().item())
+     if total > 2**31-1:
+         raise ValueError('tile pair count exceeds int32')
+diff --git a/docs/carrier_operator_commands.md b/docs/carrier_operator_commands.md
+index 7f3fe81..fa643cb 100644
+--- a/docs/carrier_operator_commands.md
++++ b/docs/carrier_operator_commands.md
+@@ -27,21 +27,28 @@ not a CUDA numerical pass. Compilation and GPU execution remain unverified until
+ independent source review and the subsequent authorized gate.
+ 
+ Tile pairs retain detached historical floor/ceil/clamp and stable atom ordering.
+ Bounds use the actual symmetric inverse covariance M: reliable positive definite
+ M gives axis radii `3*sqrt(diag(inv(M)))*shape/2`. Finite singular or poorly
+ conditioned M receives full-volume tile bounds; the kernel still applies exact
+ `mahal<=9` support. This conservative bound is necessary because epsilon-based
+ quaternion normalization can make R nonorthogonal. It does not promise bitwise
+ support parity with the historical approximate bbox for pathological inputs.
+ Derived nonfinite geometry is refused before bound conversion or pointer access.
++This includes intermediate exponential scales and quaternion norms: finite input
++values whose float32 conversion overflows are refused before the autograd
++boundary, even when a later inverse would conceal the overflow in a finite M.
+ There is no dense voxel-by-all-atoms production array or backend fallback.
++Positive tile ceil-division uses `1+(n-1)//8`; native tile coordinates and voxel
++offset products use int64. Shapes with a voxel product above INT32_MAX remain
++unsupported, while a single INT32_MAX axis is arithmetically supported without
++adding seven to a signed int32 dimension.
+ 
+ After independent source review, inspect available resources before selecting a
+ GPU. Respect scheduler allocation and CUDA visibility, leave existing workloads
+ running, and choose an idle compatible device with sufficient memory:
+ 
+ ```sh
+ nvidia-smi --query-gpu=index,uuid,name,utilization.gpu,memory.used,memory.total --format=csv
+ nvidia-smi --query-compute-apps=gpu_uuid,pid,process_name,used_gpu_memory --format=csv
+ ```
+ 
+@@ -55,35 +62,43 @@ record, and propagates test/report failure to its public exit status:
+ ```sh
+ export CUDA_VISIBLE_DEVICES='<inspected compatible allocation/device>'
+ export TORCH_CUDA_ARCH_LIST='<actual compute capability>'
+ export CUDA_HOME=/usr/local/cuda-11.8
+ export CXX=/usr/bin/c++
+ export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 MAX_JOBS=1
+ /home/congcongliu/anaconda3/envs/GSTMI/bin/python -B - <<'PY'
+ import hashlib, json, os, subprocess, sys, uuid
+ from datetime import datetime, timezone
+ from pathlib import Path
++from carrier_operator import _UNSUPPORTED_BUILD_ENV
+ root = Path.cwd().resolve()
+ run = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex[:12]
+ out = root / 'carrier_verification' / run
+ out.mkdir(parents=True, exist_ok=False)
+ env = dict(os.environ, CARRIER_RUN_GPU='1',
++           PATH='/usr/local/cuda-11.8/bin:/usr/bin:/bin', CXX='/usr/bin/c++',
++           CUDA_LAUNCH_BLOCKING='0',
+            CARRIER_BUILD_DIRECTORY=str(root / 'carrier_builds' / run),
+            CARRIER_REPORT_PATH=str(out / 'microgate.json'),
+            CARRIER_HISTORICAL_BINARY='/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/build/tile_voxelize_cuda_0141c525_7aedd3b0.so')
++# Sanitize only the child build/test process; record every removed selector.
++removed_overrides = sorted(k for k in _UNSUPPORTED_BUILD_ENV if k in env)
++for name in _UNSUPPORTED_BUILD_ENV:
++    env.pop(name, None)
+ assert env['CUDA_HOME'] == '/usr/local/cuda-11.8'
+ assert env['CUDA_VISIBLE_DEVICES'] and env['TORCH_CUDA_ARCH_LIST']
+ command = [sys.executable, '-B', '-m', 'pytest', '-q', '-s',
+            '-p', 'no:cacheprovider', 'tests/test_carrier_cuda.py', '-k', 'gpu']
+ record = {'command': command, 'cwd': str(root),
++          'removed_build_override_names': removed_overrides,
+           'environment': {k: env[k] for k in ['CUDA_VISIBLE_DEVICES', 'TORCH_CUDA_ARCH_LIST',
+-              'CUDA_HOME', 'CXX', 'MAX_JOBS', 'OMP_NUM_THREADS', 'MKL_NUM_THREADS',
++              'CUDA_HOME', 'CXX', 'PATH', 'CUDA_LAUNCH_BLOCKING', 'MAX_JOBS', 'OMP_NUM_THREADS', 'MKL_NUM_THREADS',
+               'CARRIER_RUN_GPU', 'CARRIER_BUILD_DIRECTORY', 'CARRIER_REPORT_PATH', 'CARRIER_HISTORICAL_BINARY']},
+           'sources_before': {p: hashlib.sha256((root/p).read_bytes()).hexdigest() for p in
+               ['carrier_operator.py', 'carrier_reference.py', 'carrier_cuda/carrier.cpp',
+                'carrier_cuda/carrier_kernel.cu', 'tests/test_carrier_cuda.py']}}
+ (out/'command.json').write_text(json.dumps(record, indent=2))
+ with (out/'stdout.log').open('w') as stdout, (out/'stderr.log').open('w') as stderr:
+     result = subprocess.run(command, env=env, stdout=stdout, stderr=stderr)
+ record['exit_code'] = result.returncode
+ record['sources_after'] = {p: hashlib.sha256((root/p).read_bytes()).hexdigest() for p in record['sources_before']}
+ (out/'command.json').write_text(json.dumps(record, indent=2))
+@@ -95,33 +110,57 @@ assert report['status'] == 'passed'
+ assert record['sources_before'] == record['sources_after']
+ assert report['historical_binary_sha256_before'] == report['historical_binary_sha256_after']
+ PY
+ ```
+ 
+ CUDA_HOME must be pinned before importing cpp_extension: the system default
+ CUDA 12.6 does not match GSTMI Torch 2.7.1+cu118. The loader refuses unowned or
+ historical destinations and requires a directory strictly below `carrier_builds/`.
+ It uses a source/toolchain/flags/Torch ABI/architecture identity for the module
+ and its artifact subdirectory. Its manifest binds source hashes, compiler and
+-nvcc paths/versions/hashes, flags, Torch configuration, ABI, architecture, and
+-loaded binary SHA256. Reusing a mismatched or partial artifact is refused; use a
++nvcc paths/versions/hashes, explicit CUDA host gcc, nvcc profile, builder source,
++Ninja executable, effective environment, flags, Torch configuration, ABI,
++architecture, loaded binary SHA256, and the generated Ninja commands/text/hash.
++Reusing a mismatched or partial artifact is refused; use a
+ new dedicated run directory after preserving any failed build evidence.
+ 
+-The microgate requires all declared fixtures plus invalid-input cases to run;
++The loader requires `CXX=/usr/bin/c++` and the exact child PATH shown above;
++nvcc's host compiler is explicitly `-ccbin /usr/bin/gcc`. It rejects inherited
++`CC`, `PYTORCH_NVCC`, CUDA/nvcc compiler selectors and appended/prepended flags,
++CUDA include/CUDNN/ROCM overrides, compiler/include/library search variables,
++implicit C/C++/link flags, dynamic-library overrides, and Torch's ABI/dependency
++check overrides before tool invocation or artifact reuse. The documented command
++explicitly removes these selectors only in its child process and records their
++names. It does not depend on inherited overrides being absent by accident.
++This policy was scoped against the installed Torch JIT build path and nvcc/GCC
++controls; the loader does not alter the parent process environment. Cached
++cpp_extension toolkit/CUDNN/ROCM configuration is also checked before building.
++
++The microgate requires all 14 declared fixtures plus invalid-input cases to run;
+ requesting it without GPU availability fails. Ordinary bounded fixtures compare
+ the output and all five public-input VJPs against the independent CPU double
+ oracle at frozen `rtol=2e-4, atol=2e-5`, with three backward repetitions recording
+ atomic variation. Zero frequency requires exactly zero correction and exactly
+ zero original-input correction gradients, plus a constructed nonzero frequency
+ gradient. Ragged, empty, overlap, outside-support, noncontiguous, axis quarter
+ cycles, near-bound and tiny-phase cases are included.
+ 
++The required `nondefault_stream` fixture runs a producer, operator forward/all
++VJPs, and consumer with explicit event dependencies. It copies output and
++gradient snapshots to pinned host memory on the consumer stream and synchronizes
++only the consumer event before comparison. A delayed default stream must still
++be blocked when capture completes; otherwise the test fails as unisolated.
++Initialization/warmup happens before that sequence, and final global sync is
++cleanup after snapshots. Missing this fixture makes the report fail. Its output
++and all public-input VJPs use the same frozen tolerances and report atomic
++variation, consumer output, and the observed default-stream delay state.
++
+ The additional nearly singular quaternion fixture checks public output/support
+ and local center/M/density/frequency VJPs using identical rounded float32 geometry
+ converted to double. Its report names this narrower scope: it makes no claim of
+ double-precision relative accuracy for the ill-conditioned quaternion chain.
+ It does not relax ordinary-fixture tolerances. The original binary SHA must remain
+ `3973daeef5f55ebfed931c38538a37d83921a9287b96b69a431da238057194b5`.
+ 
+ A passing report establishes tiny-fixture numerical consistency only. Full-scale
+ performance, reproducibility of MRI optimizer trajectories, real G2 zero/control
+ parity, checkpoints, and MRI quality remain separate future gates.
+diff --git a/tests/test_carrier_cuda.py b/tests/test_carrier_cuda.py
+index 028e011..82896ef 100644
+--- a/tests/test_carrier_cuda.py
++++ b/tests/test_carrier_cuda.py
+@@ -131,32 +131,153 @@ def test_empty_tile_membership_has_no_pairs():
+     assert ids.shape == (0,)
+ 
+ 
+ def test_geometry_is_symmetric_at_cuda_boundary():
+     values = inputs()
+     values[1][:] = torch.tensor([-.7, -1.1, -.9])
+     _, m = operator()._geometry(*values[:3], (3, 4, 5))
+     assert torch.equal(m, m.transpose(-1, -2))
+ 
+ 
++@pytest.mark.parametrize('bad_intermediate', ['exp_scale', 'rotation_norm', 'centers'])
++def test_nonfinite_geometry_intermediates_refused(bad_intermediate):
++    values = inputs()
++    if bad_intermediate == 'exp_scale':
++        values[1].fill_(100)
++    elif bad_intermediate == 'rotation_norm':
++        values[2].fill_(1e30)
++    else:
++        values[0].fill_(torch.finfo(torch.float32).max)
++    assert all(torch.isfinite(t).all() for t in values)
++    with pytest.raises(ValueError, match='derived'):
++        operator()._geometry(*values[:3], (3, 4, 5))
++
++
++def test_finite_geometry_zero_local_vjp_preserves_exact_zero_gradients():
++    values = inputs()
++    geometry_inputs = [v.requires_grad_() for v in values[:3]]
++    c, m = operator()._geometry(*geometry_inputs, (3, 4, 5))
++    gradients = torch.autograd.grad((c, m), geometry_inputs, (torch.zeros_like(c), torch.zeros_like(m)))
++    assert all(torch.isfinite(g).all() and torch.count_nonzero(g) == 0 for g in gradients)
++
++
+ def test_loader_requires_pinned_toolchain_before_importing_builder(monkeypatch):
+     monkeypatch.delenv('CUDA_HOME', raising=False)
+     with pytest.raises(RuntimeError, match='CUDA_HOME'):
+         operator().load_carrier_extension(ROOT / 'carrier_builds/contract-test-unused')
+     assert not (ROOT / 'carrier_builds/contract-test-unused').exists()
+ 
+ 
++# Reject selector/flag/include/linker overrides at the loader boundary before
++# invoking tools, importing the builder, creating directories, or cache reuse.
++BUILD_OVERRIDE_VARIABLES = [
++    'PYTORCH_NVCC', 'CC', 'NVCC_CCBIN', 'NVCC_PREPEND_FLAGS', 'NVCC_APPEND_FLAGS',
++    'CUDACXX', 'CUDAHOSTCXX', 'CUDA_PATH', 'CUDA_INC_PATH', 'CUDNN_HOME', 'CUDNN_PATH',
++    'ROCM_HOME', 'ROCM_PATH', 'CFLAGS', 'CXXFLAGS', 'CPPFLAGS', 'LDFLAGS',
++    'GCC_EXEC_PREFIX', 'COMPILER_PATH', 'CPATH', 'CPLUS_INCLUDE_PATH',
++    'C_INCLUDE_PATH', 'OBJC_INCLUDE_PATH', 'LIBRARY_PATH', 'LD_PRELOAD',
++    'LD_LIBRARY_PATH', 'TORCH_DONT_CHECK_COMPILER_ABI',
++    'TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES', 'TORCH_EXTENSIONS_DIR',
++]
++
++
++def build_environment(monkeypatch):
++    for variable in BUILD_OVERRIDE_VARIABLES:
++        monkeypatch.delenv(variable, raising=False)
++    monkeypatch.setenv('CUDA_HOME', '/usr/local/cuda-11.8')
++    monkeypatch.setenv('CXX', '/usr/bin/c++')
++    monkeypatch.setenv('PATH', '/usr/local/cuda-11.8/bin:/usr/bin:/bin')
++    monkeypatch.setenv('TORCH_CUDA_ARCH_LIST', '8.6')
++
++
++def refuse_tool_invocation(*args, **kwargs):
++    pytest.fail('invalid environment reached tool invocation instead of public loader refusal')
++
++
++@pytest.mark.parametrize('variable', BUILD_OVERRIDE_VARIABLES)
++def test_loader_refuses_unbound_toolchain_overrides(monkeypatch, variable):
++    build_environment(monkeypatch)
++    monkeypatch.setenv(variable, 'unreviewed-override')
++    op = operator()
++    # Guard the external tool boundary so a regressed refusal cannot accidentally
++    # proceed to compilation during a CPU-only contract run.
++    monkeypatch.setattr(op.subprocess, 'check_output', refuse_tool_invocation)
++    with pytest.raises(RuntimeError, match=variable):
++        op.load_carrier_extension(ROOT / 'carrier_builds/round1-refusal-unused')
++    assert not (ROOT / 'carrier_builds/round1-refusal-unused').exists()
++
++
++@pytest.mark.parametrize('variable,value', [('CXX', None), ('CXX', '/tmp/c++'), ('PATH', '/tmp:/usr/bin')])
++def test_loader_refuses_unpinned_effective_executables(monkeypatch, variable, value):
++    build_environment(monkeypatch)
++    if value is None:
++        monkeypatch.delenv(variable)
++    else:
++        monkeypatch.setenv(variable, value)
++    op = operator()
++    monkeypatch.setattr(op.subprocess, 'check_output', refuse_tool_invocation)
++    with pytest.raises(RuntimeError, match=variable):
++        op.load_carrier_extension(ROOT / 'carrier_builds/round1-refusal-unused')
++
++
++def test_loader_effective_toolchain_identity_changes_with_architecture(monkeypatch):
++    build_environment(monkeypatch)
++    validate_environment = getattr(operator(), '_validated_build_environment', None)
++    assert callable(validate_environment), 'loader must bind effective build environment'
++    first = validate_environment()
++    assert first['CXX'] == '/usr/bin/c++'
++    assert first['CUDA_HOME'] == '/usr/local/cuda-11.8'
++    assert first['cuda_host_compiler'] == '/usr/bin/gcc'
++    monkeypatch.setenv('TORCH_CUDA_ARCH_LIST', '8.9')
++    second = validate_environment()
++    assert first != second and first['TORCH_CUDA_ARCH_LIST'] == '8.6'
++
++
+ GPU_CASES = ['ragged', 'single', 'overlap', 'outside', 'empty', 'noncontiguous',
+-             'zero', 'quarter_d', 'quarter_h', 'quarter_w', 'tiny_phase', 'near_bound', 'degenerate']
++             'zero', 'quarter_d', 'quarter_h', 'quarter_w', 'tiny_phase', 'near_bound', 'degenerate', 'nondefault_stream']
+ GPU_ENABLED = os.environ.get('CARRIER_RUN_GPU') == '1'
+ 
+ 
++def test_gpu_report_refuses_missing_stream_case():
++    # A complete report of the original default-stream cases must not pass.
++    report = {'fixtures': {case: {'passed': True} for case in [
++        'ragged', 'single', 'overlap', 'outside', 'empty', 'noncontiguous',
++        'zero', 'quarter_d', 'quarter_h', 'quarter_w', 'tiny_phase', 'near_bound', 'degenerate']},
++        'invalid_inputs': True, 'historical_binary_sha256_before': 'unchanged',
++        'historical_binary_sha256_after': 'unchanged'}
++    complete = globals().get('_gpu_report_complete')
++    assert callable(complete), 'microgate needs a CPU-checkable completeness boundary'
++    assert not complete(report)
++    report['fixtures']['nondefault_stream'] = {'passed': True}
++    assert complete(report)
++
++
++@pytest.mark.parametrize('shape,expected', [((1, 1, 2147483647), (1, 1, 268435456)),
++                                         ((1, 2147483647, 1), (1, 268435456, 1)),
++                                         ((2147483647, 1, 1), (268435456, 1, 1)),
++                                         ((9, 5, 11), (2, 1, 2))])
++def test_accepted_shape_tile_arithmetic_without_volume_allocation(shape, expected):
++    op = operator()
++    assert op._validate(inputs(), shape) == shape
++    tile_shape = getattr(op, '_tile_shape', None)
++    assert callable(tile_shape), 'validated shape needs overflow-safe shared tile arithmetic'
++    assert tile_shape(shape) == expected
++    # Last tile may include a padded coordinate equal to INT32_MAX, never more.
++    assert all((n-1)*8+7 <= 2147483647 for n in expected)
++
++
++def _gpu_report_complete(report):
++    return (all(report['fixtures'].get(case, {}).get('passed') for case in GPU_CASES)
++            and report['invalid_inputs']
++            and report['historical_binary_sha256_before'] == report['historical_binary_sha256_after'])
++
++
+ @pytest.fixture(scope='module')
+ def gpu_gate():
+     if not GPU_ENABLED:
+         pytest.skip('CUDA numerical gate requires reviewed source and CARRIER_RUN_GPU=1')
+     assert torch.cuda.is_available(), 'GPU gate requested without an available GPU'
+     path = Path(os.environ['CARRIER_REPORT_PATH']).resolve()
+     assert not path.exists(), 'microgate report must have a unique unused path'
+     historical = Path(os.environ['CARRIER_HISTORICAL_BINARY']).resolve()
+     historical_hash = hashlib.sha256(historical.read_bytes()).hexdigest()
+     assert historical_hash == '3973daeef5f55ebfed931c38538a37d83921a9287b96b69a431da238057194b5'
+@@ -164,46 +285,48 @@ def gpu_gate():
+     report = {'provenance': provenance, 'fixtures': {}, 'invalid_inputs': False,
+               'historical_binary': str(historical), 'historical_binary_sha256_before': historical_hash,
+               'gpu': {'name': torch.cuda.get_device_name(), 'capability': torch.cuda.get_device_capability(),
+                       'visible_devices': os.environ.get('CUDA_VISIBLE_DEVICES')},
+               'test_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+               'tolerances': {'rtol': 2e-4, 'atol': 2e-5}, 'status': 'incomplete'}
+     try:
+         yield module, report
+     finally:
+         report['historical_binary_sha256_after'] = hashlib.sha256(historical.read_bytes()).hexdigest()
+-        report['status'] = 'passed' if (all(report['fixtures'].get(k, {}).get('passed') for k in GPU_CASES) and report['invalid_inputs'] and report['historical_binary_sha256_after'] == historical_hash) else 'failed'
++        report['status'] = 'passed' if _gpu_report_complete(report) else 'failed'
+         path.parent.mkdir(parents=True, exist_ok=True)
+         with path.open('x') as handle:
+             json.dump(report, handle, indent=2, allow_nan=False)
+         assert report['status'] == 'passed', f'incomplete/failed GPU gate; see {path}'
+ 
+ 
+ def error_stats(actual, expected):
+     diff = (actual - expected).abs()
+     return {'maxabs': diff.max().item() if diff.numel() else 0.,
+             'maxrelative': (diff / expected.abs().clamp_min(2e-5)).max().item() if diff.numel() else 0.}
+ 
+ 
+ @pytest.mark.parametrize('case', GPU_CASES)
+ def test_gpu_oracle_and_all_vjps(gpu_gate, case):
+     from carrier_reference import carrier_correction_reference
+     _, report = gpu_gate
+-    shape = (9, 5, 11) if case in ('ragged', 'noncontiguous') else ((17, 9, 11) if case == 'degenerate' else (3, 4, 5))
+-    values = inputs(0 if case == 'empty' else (2 if case == 'overlap' else 1), torch.float64)
++    shape = (9, 5, 11) if case in ('ragged', 'noncontiguous', 'nondefault_stream') else ((17, 9, 11) if case == 'degenerate' else (3, 4, 5))
++    values = inputs(0 if case == 'empty' else (2 if case in ('overlap', 'nondefault_stream') else 1), torch.float64)
+     if values[0].numel():
+         values[0][:] = torch.tensor([-.12, .17, -.23])
+         values[1][:] = torch.tensor([-.7, -1.1, -.9])
+         values[3][:] = complex(.8, -.35)
+-    if case == 'overlap':
++    if case in ('overlap', 'nondefault_stream'):
+         values[3][1] = complex(-.4, .6)
+         values[2][1] *= 2.7
++    if case == 'nondefault_stream':
++        return check_nondefault_stream(gpu_gate, values, shape)
+     if case == 'outside':
+         values[0][:] = 100
+     if case == 'zero':
+         values[-1].zero_()
+         values[3].fill_(1)
+     if case.startswith('quarter_'):
+         values[-1].zero_()
+         values[-1][:, {'d': 0, 'h': 1, 'w': 2}[case[-1]]] = .25
+     if case == 'tiny_phase':
+         values[-1].fill_(1e-7)
+@@ -243,20 +366,112 @@ def test_gpu_oracle_and_all_vjps(gpu_gate, case):
+         torch.testing.assert_close(g, ref, rtol=2e-4, atol=2e-5)
+     if case == 'zero':
+         assert torch.count_nonzero(actual) == 0
+         assert all(torch.count_nonzero(g) == 0 for g in observed[:4])
+         assert torch.isfinite(observed[-1]).all() and torch.count_nonzero(observed[-1]) > 0
+     if case == 'tiny_phase':
+         assert torch.count_nonzero(actual.real) > 0, 'stable cos(theta)-1 must retain the quadratic real term'
+     record['passed'] = True
+ 
+ 
++def check_nondefault_stream(gpu_gate, values, shape):
++    """Capture side-stream results on pinned host memory before global sync.
++
++    Producer fills leaf inputs; operator stream waits on that producer, runs
++    forward and all VJPs; consumer waits on operator completion and captures
++    outputs and VJPs. A delayed default stream makes accidental default-stream
++    launches observable. Only the consumer event is synchronized before reading
++    the host snapshots. Global synchronization is cleanup after capture only.
++    """
++    from carrier_reference import carrier_correction_reference
++    assert os.environ.get('CUDA_LAUNCH_BLOCKING', '0') == '0', 'stream gate requires CUDA_LAUNCH_BLOCKING=0'
++    _, report = gpu_gate
++    cpu = [v.requires_grad_() for v in values]
++    reference = carrier_correction_reference(*cpu, shape)
++    factor = complex(.75, -.25)
++    upstream = torch.complex(torch.linspace(-.6, .8, reference.numel()),
++                             torch.linspace(.9, -.2, reference.numel())).reshape(shape)
++    ref_grads = torch.autograd.grad(reference*factor, cpu, upstream.to(torch.complex128))
++    source = [v.detach().to('cuda', dtype=torch.complex64 if i == 3 else torch.float32) for i, v in enumerate(cpu)]
++    leaves = [torch.zeros_like(v).requires_grad_() for v in source]
++    upstream_cuda = upstream.cuda()
++    # Allocate pinned snapshots before queuing stream delays, so their eventual
++    # contents are fixed by the consumer's asynchronous copies.
++    host_output = torch.empty(shape, dtype=torch.complex64, pin_memory=True)
++    host_consumed = torch.empty_like(host_output, pin_memory=True)
++    host_grads = [[torch.empty(v.shape, dtype=v.dtype, pin_memory=True) for v in source] for _ in range(3)]
++    producer, operator_stream, consumer = (torch.cuda.Stream() for _ in range(3))
++    produced, operated, captured, default_delay_done = (torch.cuda.Event() for _ in range(4))
++    default = torch.cuda.default_stream()
++    # Initialize linalg/autograd and populate this stream's allocator cache
++    # before the tested sequence; cudaMalloc initialization must not drain the
++    # intentionally delayed default stream during the actual ordering check.
++    operator_stream.wait_stream(torch.cuda.current_stream())
++    with torch.cuda.stream(operator_stream):
++        warm_inputs = [v.detach().clone().requires_grad_() for v in source]
++        warm_output = operator().carrier_correction(*warm_inputs, shape)*factor
++        for _ in range(3):
++            warm_gradients = torch.autograd.grad(warm_output, warm_inputs, upstream_cuda, retain_graph=True)
++        del warm_gradients, warm_output, warm_inputs
++    torch.cuda.synchronize()
++    producer.wait_stream(torch.cuda.current_stream())
++    with torch.cuda.stream(producer), torch.no_grad():
++        torch.cuda._sleep(2_000_000)
++        for leaf, src in zip(leaves, source):
++            leaf.copy_(src)
++        produced.record()
++    # Do not synchronize this stream before captured.synchronize(). A wrongly
++    # launched kernel should remain behind this delay while consumer snapshots
++    # are taken, rather than be rescued by a later default-stream .cpu() copy.
++    with torch.cuda.stream(default):
++        torch.cuda._sleep(2_000_000_000)
++        default_delay_done.record()
++    actual = consumed = repetitions = None
++    try:
++        with torch.cuda.stream(operator_stream):
++            operator_stream.wait_event(produced)
++            actual = operator().carrier_correction(*leaves, shape)
++            consumed = actual*factor
++            repetitions = [torch.autograd.grad(consumed, leaves, upstream_cuda, retain_graph=True) for _ in range(3)]
++            operated.record()
++        with torch.cuda.stream(consumer), torch.no_grad():
++            consumer.wait_event(operated)
++            host_output.copy_(actual, non_blocking=True)
++            host_consumed.copy_(consumed, non_blocking=True)
++            for destination, gradients in zip(host_grads, repetitions):
++                for snapshot, gradient in zip(destination, gradients):
++                    snapshot.copy_(gradient, non_blocking=True)
++            captured.record()
++        captured.synchronize()
++        default_finished_at_capture = default_delay_done.query()
++        observed = [g.to(r.dtype) for g, r in zip(host_grads[0], ref_grads)]
++        record = {'output': error_stats(host_output.to(reference.dtype), reference),
++                  'consumer_output': error_stats(host_consumed.to(reference.dtype), reference*factor),
++                  'vjps': {name: error_stats(g, r) for name, g, r in zip(
++                      ['positions', 'log_scales', 'rotations', 'density', 'frequencies'], observed, ref_grads)},
++                  'atomic_vjp_maxvariation': max((a-b).abs().max().item() for repeat in host_grads[1:] for a, b in zip(host_grads[0], repeat)),
++                  'default_delay_completed_at_capture': default_finished_at_capture,
++                  'cuda_launch_blocking': os.environ.get('CUDA_LAUNCH_BLOCKING', '0'),
++                  'ordering': 'producer event -> operator forward/backward event -> consumer pinned-host snapshots; consumer event synchronized before any global sync',
++                  'passed': False}
++        report['fixtures']['nondefault_stream'] = record
++        assert not default_finished_at_capture, 'default-stream delay expired before consumer capture; stream ordering was not isolated'
++        torch.testing.assert_close(host_output.to(reference.dtype), reference, rtol=2e-4, atol=2e-5)
++        torch.testing.assert_close(host_consumed.to(reference.dtype), reference*factor, rtol=2e-4, atol=2e-5)
++        for gradient, expected in zip(observed, ref_grads):
++            torch.testing.assert_close(gradient, expected, rtol=2e-4, atol=2e-5)
++        record['passed'] = True
++    finally:
++        # Snapshots are already host values; cleanup cannot change them.
++        torch.cuda.synchronize()
++
++
+ def check_degenerate_geometry(gpu_gate, values, shape):
+     from carrier_reference import _correction_from_geometry, carrier_correction_reference
+     _, report = gpu_gate
+     op = operator()
+     cuda = [v.to('cuda', dtype=torch.complex64 if i == 3 else torch.float32) for i, v in enumerate(values)]
+     public_output = op.carrier_correction(*cuda, shape)
+     public_reference = carrier_correction_reference(*values, shape)
+     c, m = op._geometry(*cuda[:3], shape)
+     local = [t.detach().requires_grad_() for t in (c, m, cuda[3], cuda[4])]
+     oracle = [t.detach().cpu().to(torch.complex128 if i == 2 else torch.float64).requires_grad_() for i, t in enumerate(local)]

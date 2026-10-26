@@ -1,0 +1,7 @@
+ M docs/superpowers/plans/2026-10-22-carrier-operator.md
+ M docs/superpowers/specs/2026-10-22-carrier-operator-design.md
+?? carrier_cuda/
+?? carrier_operator.py
+?? carrier_state.json
+?? docs/carrier_operator_commands.md
+?? tests/test_carrier_cuda.py

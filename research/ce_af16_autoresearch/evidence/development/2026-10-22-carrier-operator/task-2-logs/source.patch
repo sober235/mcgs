@@ -1,0 +1,873 @@
+diff --git a/carrier_operator.py b/carrier_operator.py
+new file mode 100644
+index 0000000..dff9ec0
+--- /dev/null
++++ b/carrier_operator.py
+@@ -0,0 +1,225 @@
++"""Selected-row sparse CUDA carrier correction; explicit isolated build only.
++
++Import and argument validation do not import cpp_extension or initialize CUDA.
++Only first derivatives are supported. No historical renderer is imported.
++"""
++import hashlib
++import json
++import math
++import os
++from numbers import Integral
++from pathlib import Path
++import subprocess
++import shutil
++import threading
++
++import torch
++from torch.autograd.function import once_differentiable
++
++_ROOT = Path(__file__).resolve().parent
++_SOURCES = (_ROOT / 'carrier_cuda/carrier.cpp', _ROOT / 'carrier_cuda/carrier_kernel.cu')
++_FLAGS = {'cxx': ['-O3'], 'cuda': ['-O3', '--fmad=false']}
++_extension = None
++_provenance = None
++_load_lock = threading.Lock()
++_TILE = 8
++
++
++def _sha(path):
++    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
++
++
++def load_carrier_extension(build_directory):
++    """Build/load only a carrier-owned, content-addressed artifact.
++
++    build_directory must be a new or previously carrier-owned directory below
++    this component's carrier_builds/. Set CUDA_HOME=/usr/local/cuda-11.8 and an
++    explicit TORCH_CUDA_ARCH_LIST before calling. This is the only build entry.
++    """
++    global _extension, _provenance
++    destination = Path(build_directory).expanduser().resolve()
++    owned_root = (_ROOT / 'carrier_builds').resolve()
++    if owned_root != _ROOT / 'carrier_builds':
++        raise ValueError('carrier_builds must not be a symlink outside the component')
++    if destination == owned_root or owned_root not in destination.parents:
++        raise ValueError('build_directory must be strictly below component carrier_builds/')
++    # Must happen before importing cpp_extension: its CUDA_HOME is import-cached.
++    if os.environ.get('CUDA_HOME') != '/usr/local/cuda-11.8':
++        raise RuntimeError('set CUDA_HOME=/usr/local/cuda-11.8 before explicit loading')
++    if torch.version.cuda != '11.8':
++        raise RuntimeError('this reviewed toolchain requires Torch CUDA 11.8')
++    architectures = os.environ.get('TORCH_CUDA_ARCH_LIST')
++    if not architectures:
++        raise RuntimeError('set explicit TORCH_CUDA_ARCH_LIST for provenance')
++    cc = os.environ.get('CXX', '/usr/bin/c++')
++    nvcc = Path(os.environ['CUDA_HOME']) / 'bin/nvcc'
++    identity = {'sources': {str(p.relative_to(_ROOT)): _sha(p) for p in (*_SOURCES, Path(__file__))},
++                'torch': torch.__version__, 'torch_cuda': torch.version.cuda,
++                'cxx11_abi': torch._C._GLIBCXX_USE_CXX11_ABI,
++                'torch_config': torch.__config__.show(), 'cuda_home': os.environ['CUDA_HOME'],
++                'architectures': architectures, 'flags': _FLAGS,
++                'compiler_executable': str(Path(shutil.which(cc) or cc).resolve()),
++                'compiler_sha256': _sha(shutil.which(cc) or cc),
++                'compiler': subprocess.check_output([cc, '--version'], text=True),
++                'nvcc_executable': str(nvcc.resolve()), 'nvcc_sha256': _sha(nvcc),
++                'nvcc': subprocess.check_output([str(nvcc), '--version'], text=True),
++                'support_bounds': 'inverse(actual_M), historical floor/ceil/clamp/stable ordering'}
++    digest = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
++    name = 'carrier_cuda_' + digest[:24]
++    with _load_lock:
++        marker = destination / 'carrier-owner.json'
++        if destination.exists() and not marker.exists() and any(destination.iterdir()):
++            raise ValueError('carrier_builds destination is nonempty and not carrier-owned')
++        if marker.exists() and json.loads(marker.read_text()) != {'component': str(_ROOT)}:
++            raise ValueError('carrier_builds destination owner mismatch')
++        destination.mkdir(parents=True, exist_ok=True)
++        marker.write_text(json.dumps({'component': str(_ROOT)}))
++        artifact = destination / digest
++        artifact.mkdir(exist_ok=True)
++        manifest = artifact / 'provenance.json'
++        if manifest.exists():
++            previous = json.loads(manifest.read_text())
++            binary = Path(previous['binary'])
++            if previous['identity'] != identity or binary.parent != artifact or _sha(binary) != previous['binary_sha256']:
++                raise RuntimeError('carrier artifact identity/hash mismatch; refusing reuse')
++        elif any(artifact.iterdir()):
++            raise RuntimeError('unverified partial carrier build; use a new dedicated directory')
++        if _provenance is not None and _provenance['identity'] == identity:
++            if Path(_provenance['binary']).parent == artifact and _sha(_provenance['binary']) == _provenance['binary_sha256']:
++                return _extension, json.loads(json.dumps(_provenance))
++        from torch.utils import cpp_extension
++        if Path(cpp_extension.CUDA_HOME).resolve() != Path(os.environ['CUDA_HOME']).resolve():
++            raise RuntimeError('cpp_extension was imported with a different CUDA_HOME')
++        module = cpp_extension.load(name=name, sources=[str(p) for p in _SOURCES],
++                                    build_directory=str(artifact), extra_cflags=_FLAGS['cxx'],
++                                    extra_cuda_cflags=_FLAGS['cuda'], verbose=True)
++        binary = Path(module.__file__).resolve()
++        if binary.parent != artifact:
++            raise RuntimeError('loaded carrier binary escaped dedicated artifact directory')
++        provenance = {'module': module.__name__, 'identity_sha256': digest, 'identity': identity,
++                      'binary': str(binary), 'binary_sha256': _sha(binary)}
++        if manifest.exists() and json.loads(manifest.read_text()) != provenance:
++            raise RuntimeError('carrier artifact changed during load')
++        manifest.write_text(json.dumps(provenance, indent=2, sort_keys=True))
++        _extension, _provenance = module, provenance
++        return module, json.loads(json.dumps(provenance))
++
++
++def _validate(values, volume_shape):
++    if not isinstance(volume_shape, (tuple, list, torch.Size)):
++        raise TypeError('volume_shape must contain three positive integers')
++    if len(volume_shape) != 3:
++        raise ValueError('volume_shape must contain three positive integers')
++    if any(isinstance(n, bool) or not isinstance(n, Integral) for n in volume_shape):
++        raise TypeError('volume_shape must contain three positive integers')
++    if any(n <= 0 for n in volume_shape) or math.prod(volume_shape) > 2**31 - 1:
++        raise ValueError('volume_shape must be positive and fit int32 voxel indexing')
++    for i, value in enumerate(values):
++        if not isinstance(value, torch.Tensor):
++            raise TypeError('all inputs must be tensors')
++        if value.dtype != (torch.complex64 if i == 3 else torch.float32):
++            raise TypeError('inputs require float32 geometry/frequencies and complex64 density')
++    if values[0].ndim != 2 or values[0].shape[1] != 3:
++        raise ValueError('positions must have shape [K,3]')
++    k = values[0].shape[0]
++    if k > 2**31 - 1:
++        raise ValueError('K must fit int32 indexing')
++    for value, shape in zip(values, ((k, 3), (k, 3), (k, 4), (k,), (k, 3))):
++        if tuple(value.shape) != shape:
++            raise ValueError(f'input must have shape {shape}')
++        if value.device != values[0].device:
++            raise ValueError('inputs must share a CUDA device')
++        if not torch.isfinite(value).all().item():
++            raise ValueError('inputs must be finite')
++    if not ((values[-1] > -.5) & (values[-1] < .5)).all().item():
++        raise ValueError('frequencies must be strictly inside (-0.5,0.5) cycles per voxel')
++    return tuple(int(n) for n in volume_shape)
++
++
++def _geometry(positions, log_scales, rotations, shape):
++    half = positions.new_tensor(shape) / 2
++    centers = (positions + 1) * half - .5
++    q = rotations / (rotations.norm(dim=-1, keepdim=True) + 1e-8)
++    w, x, y, z = q.unbind(-1)
++    r = torch.stack((torch.stack((1-2*y*y-2*z*z, 2*x*y-2*z*w, 2*x*z+2*y*w), -1),
++                     torch.stack((2*x*y+2*z*w, 1-2*x*x-2*z*z, 2*y*z-2*x*w), -1),
++                     torch.stack((2*x*z-2*y*w, 2*y*z+2*x*w, 1-2*x*x-2*y*y), -1)), -2)
++    m = (r * (log_scales.exp() + 1e-8).pow(-2).unsqueeze(1)) @ r.transpose(-1, -2)
++    # Float32 products need not be bitwise symmetric. The local center VJP
++    # assumes symmetry; averaging retains the quadratic form and its chain.
++    return centers, .5*(m + m.transpose(-1, -2))
++
++
++@torch.no_grad()
++def _tile_pairs(centers, m, shape):
++    # Conservative support of the actual M, since epsilon-normalized rotations
++    # need not be orthogonal. Never clamp a radius to historical max_radius.
++    if not torch.isfinite(centers).all() or not torch.isfinite(m).all():
++        raise ValueError('derived geometry must be finite')
++    eigenvalues = torch.linalg.eigvalsh(m.double())
++    reliable = (eigenvalues[:, 0] > 0) & (eigenvalues[:, 0] > eigenvalues[:, -1]*1e-8)
++    radius = torch.zeros_like(centers, dtype=torch.float64)
++    radius[reliable] = 3 * torch.linalg.inv(m[reliable].double()).diagonal(dim1=-2, dim2=-1).sqrt() * centers.new_tensor(shape).double() / 2
++    reliable &= torch.isfinite(radius).all(-1)
++    # Clamp in float64 before integer conversion to avoid overflow for far atoms.
++    limit = centers.new_tensor(shape, dtype=torch.float64) - 1
++    low = torch.minimum((centers.double()-radius).floor().clamp_min(0), limit).long() // _TILE
++    high = torch.minimum((centers.double()+radius).ceil().clamp_min(0), limit).long() // _TILE
++    nt = tuple((n + _TILE-1)//_TILE for n in shape)
++    # Finite singular/poorly conditioned M can have unbounded support. Cover
++    # every tile for these atoms, with the same exact mahal test in the kernel.
++    low[~reliable] = 0
++    high[~reliable] = high.new_tensor(nt)-1
++    ranges = torch.zeros((math.prod(nt), 2), dtype=torch.int32, device=centers.device)
++    count = high-low+1
++    per = count.prod(-1)
++    total = int(per.sum().item())
++    if total > 2**31-1:
++        raise ValueError('tile pair count exceeds int32')
++    if total == 0:
++        return ranges, torch.empty(0, dtype=torch.int32, device=centers.device)
++    ids = torch.repeat_interleave(torch.arange(len(centers), device=centers.device, dtype=torch.int32), per)
++    starts = per.cumsum(0)-per
++    local = torch.arange(total, device=centers.device)-torch.repeat_interleave(starts, per)
++    dims = torch.repeat_interleave(count, per, dim=0)
++    origin = torch.repeat_interleave(low, per, dim=0)
++    td = origin[:, 0]+local//(dims[:, 1]*dims[:, 2])
++    th = origin[:, 1]+(local//dims[:, 2])%dims[:, 1]
++    tw = origin[:, 2]+local%dims[:, 2]
++    tiles = (td*nt[1]+th)*nt[2]+tw
++    order = tiles.argsort(stable=True)
++    tiles, ids = tiles[order], ids[order].contiguous()
++    starts = torch.cat((tiles.new_zeros(1), (tiles[1:] != tiles[:-1]).nonzero().flatten()+1))
++    ends = torch.cat((starts[1:], starts.new_tensor([total])))
++    ranges[tiles[starts], 0] = starts.int()
++    ranges[tiles[starts], 1] = ends.int()
++    return ranges, ids
++
++
++class _Carrier(torch.autograd.Function):
++    @staticmethod
++    def forward(ctx, centers, m, density, frequencies, ranges, ids, shape, extension):
++        ctx.save_for_backward(centers, m, density, frequencies, ranges, ids)
++        ctx.shape, ctx.extension = shape, extension
++        return extension.forward(centers, m, density, frequencies, ranges, ids, list(shape))
++
++    @staticmethod
++    @once_differentiable
++    def backward(ctx, grad_output):
++        gradients = ctx.extension.backward(grad_output.contiguous(), *ctx.saved_tensors, list(ctx.shape))
++        return (*gradients, None, None, None, None)
++
++
++def carrier_correction(positions, log_scales, rotations, density, frequencies, volume_shape):
++    """CUDA complex64 correction; selected K rows, frequencies cycles/voxel."""
++    values = (positions, log_scales, rotations, density, frequencies)
++    shape = _validate(values, volume_shape)
++    if _extension is None:
++        raise RuntimeError('call load_carrier_extension explicitly before carrier_correction')
++    if positions.device.type != 'cuda':
++        raise ValueError('all inputs must be CUDA tensors')
++    positions, log_scales, rotations, density, frequencies = (x.contiguous() for x in values)
++    centers, m = _geometry(positions, log_scales, rotations, shape)
++    ranges, ids = _tile_pairs(centers, m, shape)
++    # Even K=0 follows the derivative-capable custom boundary; no zero-f shortcut.
++    return _Carrier.apply(centers.contiguous(), m.contiguous(), density, frequencies, ranges, ids, shape, _extension)
+diff --git a/carrier_cuda/carrier.cpp b/carrier_cuda/carrier.cpp
+new file mode 100644
+index 0000000..812e460
+--- /dev/null
++++ b/carrier_cuda/carrier.cpp
+@@ -0,0 +1,90 @@
++#include <torch/extension.h>
++#include <c10/cuda/CUDAGuard.h>
++#include <vector>
++#include <limits>
++
++using torch::Tensor;
++Tensor carrier_forward_cuda(Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, std::vector<int64_t>);
++std::vector<Tensor> carrier_backward_cuda(Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, std::vector<int64_t>);
++
++namespace {
++void tensor_check(const Tensor& t, const Tensor& centers, at::ScalarType dtype, const char* name) {
++    TORCH_CHECK(t.is_cuda() && t.device() == centers.device(), name, " must share the CUDA device");
++    TORCH_CHECK(t.scalar_type() == dtype && t.is_contiguous(), name, " has wrong dtype or layout");
++}
++
++void validate(Tensor centers, Tensor m, Tensor density, Tensor f, Tensor ranges, Tensor ids,
++              const std::vector<int64_t>& shape) {
++    TORCH_CHECK(centers.is_cuda(), "centers must be CUDA");
++    TORCH_CHECK(shape.size() == 3, "shape must have 3 axes");
++    int64_t voxels = 1, tiles = 1;
++    for (auto n : shape) {
++        TORCH_CHECK(n > 0 && n <= std::numeric_limits<int32_t>::max(), "invalid shape");
++        TORCH_CHECK(voxels <= std::numeric_limits<int32_t>::max()/n, "voxel count exceeds int32");
++        voxels *= n;
++        tiles *= (n+7)/8;
++    }
++    tensor_check(centers, centers, at::kFloat, "centers");
++    tensor_check(m, centers, at::kFloat, "M");
++    tensor_check(density, centers, at::kComplexFloat, "density");
++    tensor_check(f, centers, at::kFloat, "frequencies");
++    tensor_check(ranges, centers, at::kInt, "ranges");
++    tensor_check(ids, centers, at::kInt, "ids");
++    TORCH_CHECK(centers.dim() == 2 && centers.size(1) == 3, "centers must be [K,3]");
++    const auto k = centers.size(0);
++    TORCH_CHECK(k <= std::numeric_limits<int32_t>::max(), "K exceeds int32");
++    TORCH_CHECK(m.sizes() == torch::IntArrayRef({k,3,3}), "M must be [K,3,3]");
++    TORCH_CHECK(density.sizes() == torch::IntArrayRef({k}), "density must be [K]");
++    TORCH_CHECK(f.sizes() == torch::IntArrayRef({k,3}), "frequencies must be [K,3]");
++    TORCH_CHECK(ranges.sizes() == torch::IntArrayRef({tiles,2}), "invalid tile range shape");
++    TORCH_CHECK(ids.dim() == 1 && ids.numel() <= std::numeric_limits<int32_t>::max(), "invalid ids shape/count");
++    for (const auto& t : {centers,m,density,f})
++        TORCH_CHECK(torch::isfinite(t).all().item<bool>(), "nonfinite geometry/density/frequency");
++    TORCH_CHECK(((f > -0.5) & (f < 0.5)).all().item<bool>(), "frequency out of bounds");
++    TORCH_CHECK(torch::equal(m, m.transpose(1,2)), "M must be symmetric");
++    const auto p = ids.numel();
++    auto starts = ranges.select(1,0).to(at::kLong);
++    auto ends = ranges.select(1,1).to(at::kLong);
++    TORCH_CHECK(((starts >= 0) & (ends >= starts) & (ends <= p)).all().item<bool>(), "unsafe tile ranges");
++    TORCH_CHECK(((ids >= 0) & (ids < k)).all().item<bool>(), "unsafe atom index");
++    auto active = ends > starts;
++    auto s = starts.masked_select(active), e = ends.masked_select(active);
++    if (p == 0) {
++        TORCH_CHECK(s.numel() == 0, "nonempty ranges without pairs");
++    } else {
++        TORCH_CHECK(s.numel() > 0 && s[0].item<int64_t>() == 0 && e[-1].item<int64_t>() == p,
++                    "tile ranges must cover exactly all pairs");
++        TORCH_CHECK(torch::equal(s.slice(0,1), e.slice(0,0,-1)), "tile ranges overlap or leave gaps");
++        // Stable construction assigns each atom at most once per tile. Enforce
++        // this even for direct bindings before any kernel pointer access.
++        auto boundary = torch::zeros({p}, ids.options().dtype(at::kBool));
++        boundary.index_fill_(0, s, true);
++        auto bad_order = ids.slice(0,1) <= ids.slice(0,0,-1);
++        TORCH_CHECK(!(bad_order & ~boundary.slice(0,1)).any().item<bool>(), "duplicate or unsorted tile atom IDs");
++    }
++}
++}
++
++Tensor forward(Tensor centers, Tensor m, Tensor density, Tensor f, Tensor ranges, Tensor ids,
++               std::vector<int64_t> shape) {
++    TORCH_CHECK(centers.is_cuda(), "centers must be CUDA");
++    const c10::cuda::CUDAGuard guard(centers.device());
++    validate(centers,m,density,f,ranges,ids,shape);
++    return carrier_forward_cuda(centers,m,density,f,ranges,ids,shape);
++}
++
++std::vector<Tensor> backward(Tensor grad, Tensor centers, Tensor m, Tensor density, Tensor f,
++                             Tensor ranges, Tensor ids, std::vector<int64_t> shape) {
++    TORCH_CHECK(centers.is_cuda(), "centers must be CUDA");
++    const c10::cuda::CUDAGuard guard(centers.device());
++    validate(centers,m,density,f,ranges,ids,shape);
++    tensor_check(grad,centers,at::kComplexFloat,"grad_output");
++    TORCH_CHECK(grad.sizes() == torch::IntArrayRef(shape), "invalid grad_output shape");
++    TORCH_CHECK(torch::isfinite(grad).all().item<bool>(), "nonfinite grad_output");
++    return carrier_backward_cuda(grad,centers,m,density,f,ranges,ids,shape);
++}
++
++PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
++    m.def("forward", &forward);
++    m.def("backward", &backward);
++}
+diff --git a/carrier_cuda/carrier_kernel.cu b/carrier_cuda/carrier_kernel.cu
+new file mode 100644
+index 0000000..505a1aa
+--- /dev/null
++++ b/carrier_cuda/carrier_kernel.cu
+@@ -0,0 +1,96 @@
++#include <torch/extension.h>
++#include <ATen/cuda/CUDAContext.h>
++#include <c10/cuda/CUDAException.h>
++#include <c10/cuda/CUDAGuard.h>
++#include <cuda_runtime.h>
++#include <vector>
++
++using torch::Tensor;
++using Complex = c10::complex<float>;
++constexpr int TILE = 8;
++constexpr int THREADS = 256;
++constexpr float TWO_PI = 6.2831853071795864769f;
++
++// Each block owns a tile. Threads own disjoint voxels and loop only through
++// that tile's selected atoms. No block barriers exist, including ragged tiles.
++template <bool BACKWARD>
++__global__ void carrier_kernel(const float* centers, const float* matrices, const Complex* density,
++    const float* frequency, const int* ranges, const int* ids, int D, int H, int W,
++    Complex* output, const Complex* grad_output, float* gc, float* gm, float* gd, float* gf) {
++    const int nH = (H+7)/8, nW = (W+7)/8;
++    const int64_t tile = blockIdx.x;
++    const int td = tile/(nH*nW), th = (tile/nW)%nH, tw = tile%nW;
++    for (int local = threadIdx.x; local < TILE*TILE*TILE; local += blockDim.x) {
++        const int vd = td*TILE + local/64;
++        const int vh = th*TILE + (local/8)%8;
++        const int vw = tw*TILE + local%8;
++        if (vd >= D || vh >= H || vw >= W) continue;
++        const int voxel = (vd*H+vh)*W+vw;
++        float result_r = 0, result_i = 0;
++        float gr = 0, gi = 0;
++        if (BACKWARD) { gr = grad_output[voxel].real(); gi = grad_output[voxel].imag(); }
++        for (int pair = ranges[2*tile]; pair < ranges[2*tile+1]; ++pair) {
++            const int64_t k = ids[pair];
++            const float u[3] = {vd-centers[3*k], vh-centers[3*k+1], vw-centers[3*k+2]};
++            const float h[3] = {D*.5f, H*.5f, W*.5f};
++            const float d[3] = {u[0]/h[0], u[1]/h[1], u[2]/h[2]};
++            float md[3] = {0,0,0};
++            for (int a=0; a<3; ++a)
++                for (int b=0; b<3; ++b) md[a] += matrices[9*k+3*a+b]*d[b];
++            const float mahal = d[0]*md[0]+d[1]*md[1]+d[2]*md[2];
++            if (mahal > 9.f) continue;
++            const float weight = expf(-.5f*mahal);
++            const float theta = TWO_PI*(frequency[3*k]*u[0]+frequency[3*k+1]*u[1]+frequency[3*k+2]*u[2]);
++            float sine, cosine;
++            sincosf(theta,&sine,&cosine);
++            const float sh = sinf(.5f*theta);
++            const float cm1 = -2.f*sh*sh;
++            const float a = density[k].real(), b = density[k].imag();
++            const float zr = a*cm1-b*sine, zi = a*sine+b*cm1;
++            if (!BACKWARD) { result_r += weight*zr; result_i += weight*zi; }
++            else {
++                const float Q = gr*zr+gi*zi;
++                const float T = -gr*(a*sine+b*cosine)+gi*(a*cosine-b*sine);
++                atomicAdd(gd+2*k, weight*(cm1*gr+sine*gi));
++                atomicAdd(gd+2*k+1, weight*(-sine*gr+cm1*gi));
++                for (int x=0; x<3; ++x) {
++                    atomicAdd(gc+3*k+x, weight*Q*md[x]/h[x]-TWO_PI*weight*T*frequency[3*k+x]);
++                    atomicAdd(gf+3*k+x, TWO_PI*weight*T*u[x]);
++                    for (int y=0; y<3; ++y)
++                        atomicAdd(gm+9*k+3*x+y, -.5f*weight*Q*d[x]*d[y]);
++                }
++            }
++        }
++        if (!BACKWARD) output[voxel] = Complex(result_r,result_i);
++    }
++}
++
++Tensor carrier_forward_cuda(Tensor c, Tensor m, Tensor density, Tensor f, Tensor ranges,
++                             Tensor ids, std::vector<int64_t> shape) {
++    const c10::cuda::CUDAGuard guard(c.device());
++    auto output = torch::zeros(shape,density.options());
++    if (c.size(0) == 0) return output;
++    auto stream = at::cuda::getCurrentCUDAStream(c.get_device());
++    carrier_kernel<false><<<ranges.size(0), THREADS, 0, stream>>>(
++        c.data_ptr<float>(),m.data_ptr<float>(),density.data_ptr<Complex>(),f.data_ptr<float>(),
++        ranges.data_ptr<int>(),ids.data_ptr<int>(),shape[0],shape[1],shape[2],output.data_ptr<Complex>(),
++        nullptr,nullptr,nullptr,nullptr,nullptr);
++    C10_CUDA_KERNEL_LAUNCH_CHECK();
++    return output;
++}
++
++std::vector<Tensor> carrier_backward_cuda(Tensor grad, Tensor c, Tensor m, Tensor density,
++    Tensor f, Tensor ranges, Tensor ids, std::vector<int64_t> shape) {
++    const c10::cuda::CUDAGuard guard(c.device());
++    auto gc = torch::zeros_like(c), gm = torch::zeros_like(m);
++    auto gd = torch::zeros_like(density), gf = torch::zeros_like(f);
++    if (c.size(0) == 0) return {gc,gm,gd,gf};
++    auto stream = at::cuda::getCurrentCUDAStream(c.get_device());
++    carrier_kernel<true><<<ranges.size(0), THREADS, 0, stream>>>(
++        c.data_ptr<float>(),m.data_ptr<float>(),density.data_ptr<Complex>(),f.data_ptr<float>(),
++        ranges.data_ptr<int>(),ids.data_ptr<int>(),shape[0],shape[1],shape[2],nullptr,
++        grad.data_ptr<Complex>(),gc.data_ptr<float>(),gm.data_ptr<float>(),
++        reinterpret_cast<float*>(gd.data_ptr<Complex>()),gf.data_ptr<float>());
++    C10_CUDA_KERNEL_LAUNCH_CHECK();
++    return {gc,gm,gd,gf};
++}
+diff --git a/tests/test_carrier_cuda.py b/tests/test_carrier_cuda.py
+new file mode 100644
+index 0000000..028e011
+--- /dev/null
++++ b/tests/test_carrier_cuda.py
+@@ -0,0 +1,305 @@
++"""CPU contract tests and opt-in, source-bound CUDA microgate (no MRI inputs)."""
++import importlib
++import hashlib
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++
++import pytest
++import torch
++
++ROOT = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(ROOT))
++
++
++def operator():
++    try:
++        return importlib.import_module('carrier_operator')
++    except ModuleNotFoundError:
++        pytest.fail('carrier_operator is not implemented')
++
++
++def inputs(k=1, dtype=torch.float32, device='cpu'):
++    return [torch.zeros(k, 3, dtype=dtype, device=device),
++            torch.full((k, 3), -1., dtype=dtype, device=device),
++            torch.tensor([[1., .2, -.1, .3]], dtype=dtype, device=device).repeat(k, 1),
++            torch.ones(k, dtype=torch.complex128 if dtype == torch.float64 else torch.complex64, device=device),
++            torch.full((k, 3), .08, dtype=dtype, device=device)]
++
++
++def test_import_has_no_cuda_or_build_side_effects():
++    code = 'import sys,torch; import carrier_operator; assert not torch.cuda.is_initialized(); assert "torch.utils.cpp_extension" not in sys.modules'
++    result = subprocess.run([sys.executable, '-B', '-c', code], cwd=ROOT, capture_output=True, text=True)
++    assert result.returncode == 0, result.stderr
++
++
++def test_explicit_load_required():
++    with pytest.raises(RuntimeError, match='load_carrier_extension'):
++        operator().carrier_correction(*inputs(), (3, 4, 5))
++
++
++@pytest.mark.parametrize('shape,exception', [((0, 2, 3), ValueError), ((True, 2, 3), TypeError), ((2, 3), ValueError), ((2., 3, 4), TypeError)])
++def test_invalid_volume_shape(shape, exception):
++    with pytest.raises(exception):
++        operator().carrier_correction(*inputs(), shape)
++
++
++@pytest.mark.parametrize('index', range(5))
++def test_rejects_wrong_dtype_before_loading(index):
++    values = inputs()
++    values[index] = values[index].to(torch.complex128 if index == 3 else torch.float64)
++    with pytest.raises(TypeError):
++        operator().carrier_correction(*values, (3, 4, 5))
++
++
++@pytest.mark.parametrize('index', range(5))
++def test_rejects_shape_and_nonfinite_before_loading(index):
++    values = inputs()
++    values[index] = values[index].repeat(2, *([1] * (values[index].ndim - 1)))
++    with pytest.raises(ValueError):
++        operator().carrier_correction(*values, (3, 4, 5))
++    values = inputs()
++    values[index].flatten()[0] = float('nan')
++    with pytest.raises(ValueError, match='finite'):
++        operator().carrier_correction(*values, (3, 4, 5))
++
++
++@pytest.mark.parametrize('frequency', [-.5, .5, float('inf')])
++def test_rejects_frequency_bounds_before_loading(frequency):
++    values = inputs()
++    values[-1][0, 0] = frequency
++    with pytest.raises(ValueError):
++        operator().carrier_correction(*values, (3, 4, 5))
++
++
++def test_loader_rejects_historical_and_unowned_destinations(tmp_path):
++    for path in (ROOT, ROOT / 'carrier_cuda', tmp_path / 'build'):
++        with pytest.raises(ValueError, match='carrier_builds'):
++            operator().load_carrier_extension(path)
++    assert not (tmp_path / 'build').exists()
++
++
++def test_geometry_and_tiles_cover_supported_voxels():
++    op = operator()
++    values = inputs(2)
++    values[0][1] = torch.tensor([.7, -.6, .2])
++    values[1][1] = torch.tensor([-2., -.5, -1.])
++    shape = (9, 5, 11)
++    c, m = op._geometry(*values[:3], shape)
++    ranges, ids = op._tile_pairs(c, m, shape)
++    assert ranges.dtype == ids.dtype == torch.int32
++    assert ranges.shape == (4, 2)
++    assert not ranges.requires_grad and not ids.requires_grad
++    for d in range(shape[0]):
++        for h in range(shape[1]):
++            for w in range(shape[2]):
++                delta = (torch.tensor([d, h, w]) - c) / (torch.tensor(shape) / 2)
++                supported = ((delta.unsqueeze(1) @ m @ delta.unsqueeze(-1)).flatten() <= 9).nonzero().flatten().tolist()
++                tile = (d // 8) * 2 + w // 8
++                start, end = ranges[tile].tolist()
++                assert set(supported).issubset(set(ids[start:end].tolist()))
++
++
++def test_degenerate_normalized_rotation_retains_exact_support():
++    # q/(norm+eps) can make R singular even for finite nonzero q. Historical
++    # R diag(s^2) R^T bounds would lose this supported distant voxel.
++    op = operator()
++    values = inputs()
++    shape = (17, 9, 11)
++    values[0][0] = (torch.tensor([4., 4., 4.])+.5)/(torch.tensor(shape)/2)-1
++    values[1].fill_(-4)
++    values[2][0] = torch.tensor([0., 1e-8/(2**.5-1), 0., 0.])
++    c, m = op._geometry(*values[:3], shape)
++    target = torch.tensor([4., 8., 10.])
++    d = (target-c[0])/(torch.tensor(shape)/2)
++    assert (d @ m[0] @ d).item() < 9
++    ranges, ids = op._tile_pairs(c, m, shape)
++    start, end = ranges[3].tolist()  # tile (0,1,1)
++    assert ids[start:end].tolist() == [0]
++    # Every tile contains the atom in this unbounded-support case.
++    assert torch.equal(ranges[:, 1]-ranges[:, 0], torch.ones(12, dtype=torch.int32))
++
++
++def test_empty_tile_membership_has_no_pairs():
++    op = operator()
++    values = inputs(0)
++    c, m = op._geometry(*values[:3], (9, 5, 11))
++    ranges, ids = op._tile_pairs(c, m, (9, 5, 11))
++    assert ranges.shape == (4, 2) and torch.count_nonzero(ranges) == 0
++    assert ids.shape == (0,)
++
++
++def test_geometry_is_symmetric_at_cuda_boundary():
++    values = inputs()
++    values[1][:] = torch.tensor([-.7, -1.1, -.9])
++    _, m = operator()._geometry(*values[:3], (3, 4, 5))
++    assert torch.equal(m, m.transpose(-1, -2))
++
++
++def test_loader_requires_pinned_toolchain_before_importing_builder(monkeypatch):
++    monkeypatch.delenv('CUDA_HOME', raising=False)
++    with pytest.raises(RuntimeError, match='CUDA_HOME'):
++        operator().load_carrier_extension(ROOT / 'carrier_builds/contract-test-unused')
++    assert not (ROOT / 'carrier_builds/contract-test-unused').exists()
++
++
++GPU_CASES = ['ragged', 'single', 'overlap', 'outside', 'empty', 'noncontiguous',
++             'zero', 'quarter_d', 'quarter_h', 'quarter_w', 'tiny_phase', 'near_bound', 'degenerate']
++GPU_ENABLED = os.environ.get('CARRIER_RUN_GPU') == '1'
++
++
++@pytest.fixture(scope='module')
++def gpu_gate():
++    if not GPU_ENABLED:
++        pytest.skip('CUDA numerical gate requires reviewed source and CARRIER_RUN_GPU=1')
++    assert torch.cuda.is_available(), 'GPU gate requested without an available GPU'
++    path = Path(os.environ['CARRIER_REPORT_PATH']).resolve()
++    assert not path.exists(), 'microgate report must have a unique unused path'
++    historical = Path(os.environ['CARRIER_HISTORICAL_BINARY']).resolve()
++    historical_hash = hashlib.sha256(historical.read_bytes()).hexdigest()
++    assert historical_hash == '3973daeef5f55ebfed931c38538a37d83921a9287b96b69a431da238057194b5'
++    module, provenance = operator().load_carrier_extension(os.environ['CARRIER_BUILD_DIRECTORY'])
++    report = {'provenance': provenance, 'fixtures': {}, 'invalid_inputs': False,
++              'historical_binary': str(historical), 'historical_binary_sha256_before': historical_hash,
++              'gpu': {'name': torch.cuda.get_device_name(), 'capability': torch.cuda.get_device_capability(),
++                      'visible_devices': os.environ.get('CUDA_VISIBLE_DEVICES')},
++              'test_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
++              'tolerances': {'rtol': 2e-4, 'atol': 2e-5}, 'status': 'incomplete'}
++    try:
++        yield module, report
++    finally:
++        report['historical_binary_sha256_after'] = hashlib.sha256(historical.read_bytes()).hexdigest()
++        report['status'] = 'passed' if (all(report['fixtures'].get(k, {}).get('passed') for k in GPU_CASES) and report['invalid_inputs'] and report['historical_binary_sha256_after'] == historical_hash) else 'failed'
++        path.parent.mkdir(parents=True, exist_ok=True)
++        with path.open('x') as handle:
++            json.dump(report, handle, indent=2, allow_nan=False)
++        assert report['status'] == 'passed', f'incomplete/failed GPU gate; see {path}'
++
++
++def error_stats(actual, expected):
++    diff = (actual - expected).abs()
++    return {'maxabs': diff.max().item() if diff.numel() else 0.,
++            'maxrelative': (diff / expected.abs().clamp_min(2e-5)).max().item() if diff.numel() else 0.}
++
++
++@pytest.mark.parametrize('case', GPU_CASES)
++def test_gpu_oracle_and_all_vjps(gpu_gate, case):
++    from carrier_reference import carrier_correction_reference
++    _, report = gpu_gate
++    shape = (9, 5, 11) if case in ('ragged', 'noncontiguous') else ((17, 9, 11) if case == 'degenerate' else (3, 4, 5))
++    values = inputs(0 if case == 'empty' else (2 if case == 'overlap' else 1), torch.float64)
++    if values[0].numel():
++        values[0][:] = torch.tensor([-.12, .17, -.23])
++        values[1][:] = torch.tensor([-.7, -1.1, -.9])
++        values[3][:] = complex(.8, -.35)
++    if case == 'overlap':
++        values[3][1] = complex(-.4, .6)
++        values[2][1] *= 2.7
++    if case == 'outside':
++        values[0][:] = 100
++    if case == 'zero':
++        values[-1].zero_()
++        values[3].fill_(1)
++    if case.startswith('quarter_'):
++        values[-1].zero_()
++        values[-1][:, {'d': 0, 'h': 1, 'w': 2}[case[-1]]] = .25
++    if case == 'tiny_phase':
++        values[-1].fill_(1e-7)
++        values[3].fill_(1)
++    if case == 'near_bound':
++        values[-1][:] = torch.tensor([.499, -.499, .49])
++    if case == 'degenerate':
++        values[0][0] = (torch.tensor([4., 4., 4.])+.5)/(torch.tensor(shape)/2)-1
++        values[1].fill_(-4)
++        values[2][0] = torch.tensor([0., 1e-8/(2**.5-1), 0., 0.])
++        # Pathological parameter conditioning is a support check, not a claim
++        # of float32/double parity for the nearly singular quaternion chain.
++        # Compare local CUDA VJPs against the same rounded float32 geometry.
++        return check_degenerate_geometry(gpu_gate, values, shape)
++    cpu = [x.requires_grad_() for x in values]
++    cuda = [x.detach().to(device='cuda', dtype=torch.complex64 if i == 3 else torch.float32) for i, x in enumerate(cpu)]
++    if case == 'noncontiguous':
++        cuda = [torch.stack((x, x), -1)[..., 0] for x in cuda]
++        assert all(not x.is_contiguous() for x in cuda)
++    cuda = [x.requires_grad_() for x in cuda]
++    expected = carrier_correction_reference(*cpu, shape)
++    actual = operator().carrier_correction(*cuda, shape)
++    n = expected.numel()
++    upstream = torch.complex(torch.linspace(-.6, .8, n), torch.linspace(.9, -.2, n)).reshape(shape)
++    if case == 'zero':
++        upstream.zero_()
++        upstream[1, 1, 2] = 1j
++    cpu_grads = torch.autograd.grad(expected, cpu, upstream.to(torch.complex128))
++    repeats = [torch.autograd.grad(actual, cuda, upstream.cuda(), retain_graph=True) for _ in range(3)]
++    observed = [g.cpu().to(r.dtype) for g, r in zip(repeats[0], cpu_grads)]
++    record = {'output': error_stats(actual.cpu().to(expected.dtype), expected),
++              'vjps': {name: error_stats(g, r) for name, g, r in zip(['positions', 'log_scales', 'rotations', 'density', 'frequencies'], observed, cpu_grads)},
++              'atomic_vjp_maxvariation': max(((a - b).abs().max().item() if a.numel() else 0.) for repeat in repeats[1:] for a, b in zip(repeats[0], repeat)), 'passed': False}
++    report['fixtures'][case] = record
++    torch.testing.assert_close(actual.cpu().to(expected.dtype), expected, rtol=2e-4, atol=2e-5)
++    for g, ref in zip(observed, cpu_grads):
++        torch.testing.assert_close(g, ref, rtol=2e-4, atol=2e-5)
++    if case == 'zero':
++        assert torch.count_nonzero(actual) == 0
++        assert all(torch.count_nonzero(g) == 0 for g in observed[:4])
++        assert torch.isfinite(observed[-1]).all() and torch.count_nonzero(observed[-1]) > 0
++    if case == 'tiny_phase':
++        assert torch.count_nonzero(actual.real) > 0, 'stable cos(theta)-1 must retain the quadratic real term'
++    record['passed'] = True
++
++
++def check_degenerate_geometry(gpu_gate, values, shape):
++    from carrier_reference import _correction_from_geometry, carrier_correction_reference
++    _, report = gpu_gate
++    op = operator()
++    cuda = [v.to('cuda', dtype=torch.complex64 if i == 3 else torch.float32) for i, v in enumerate(values)]
++    public_output = op.carrier_correction(*cuda, shape)
++    public_reference = carrier_correction_reference(*values, shape)
++    c, m = op._geometry(*cuda[:3], shape)
++    local = [t.detach().requires_grad_() for t in (c, m, cuda[3], cuda[4])]
++    oracle = [t.detach().cpu().to(torch.complex128 if i == 2 else torch.float64).requires_grad_() for i, t in enumerate(local)]
++    ranges, ids = op._tile_pairs(c, m, shape)
++    actual = op._Carrier.apply(*local, ranges, ids, shape, gpu_gate[0])
++    expected = _correction_from_geometry(*oracle, shape)
++    upstream = torch.complex(torch.linspace(-.6, .8, expected.numel()), torch.linspace(.9, -.2, expected.numel())).reshape(shape)
++    reference_grads = torch.autograd.grad(expected, oracle, upstream.to(torch.complex128))
++    repeats = [torch.autograd.grad(actual, local, upstream.cuda(), retain_graph=True) for _ in range(3)]
++    observed = [g.cpu().to(r.dtype) for g, r in zip(repeats[0], reference_grads)]
++    record = {'scope': 'public output/support and local VJPs with identical rounded M; ill-conditioned quaternion chain excluded',
++              'output': error_stats(public_output.cpu().to(torch.complex128), public_reference),
++              'vjps': {name: error_stats(g, r) for name, g, r in zip(['centers', 'M', 'density', 'frequencies'], observed, reference_grads)},
++              'atomic_vjp_maxvariation': max((a-b).abs().max().item() for repeat in repeats[1:] for a, b in zip(repeats[0], repeat)), 'passed': False}
++    report['fixtures']['degenerate'] = record
++    torch.testing.assert_close(public_output.cpu().to(torch.complex128), public_reference, rtol=2e-4, atol=2e-5)
++    torch.testing.assert_close(actual.cpu().to(torch.complex128), expected, rtol=2e-4, atol=2e-5)
++    for g, r in zip(observed, reference_grads):
++        torch.testing.assert_close(g, r, rtol=2e-4, atol=2e-5)
++    record['passed'] = True
++
++
++def test_gpu_invalid_inputs_and_raw_tile_indices(gpu_gate):
++    module, report = gpu_gate
++    values = inputs(device='cuda')
++    for i in range(5):
++        bad = [x.clone() for x in values]
++        bad[i].flatten()[0] = float('nan')
++        with pytest.raises(ValueError):
++            operator().carrier_correction(*bad, (3, 4, 5))
++    bad = list(values)
++    bad[0] = bad[0].cpu()
++    with pytest.raises(ValueError):
++        operator().carrier_correction(*bad, (3, 4, 5))
++    c, m = operator()._geometry(*values[:3], (3, 4, 5))
++    ranges, ids = operator()._tile_pairs(c, m, (3, 4, 5))
++    for corrupted_ranges, corrupted_ids in [(ranges, ids + 5), (ranges - 1, ids), (ranges + 10, ids), (ranges.flip(-1).contiguous(), ids), (ranges, torch.cat((ids, ids)))]:
++        with pytest.raises(RuntimeError):
++            module.forward(c, m, values[3], values[4], corrupted_ranges, corrupted_ids, [3, 4, 5])
++    for raw in [(c.double(), m, values[3], values[4], ranges, ids),
++                (c, m, values[3], values[4], ranges.long(), ids),
++                (c, m, values[3], values[4], ranges, ids.unsqueeze(0)),
++                (c, m[:, :2].contiguous(), values[3], values[4], ranges, ids)]:
++        with pytest.raises(RuntimeError):
++            module.forward(*raw, [3, 4, 5])
++    report['invalid_inputs'] = True
+diff --git a/docs/carrier_operator_commands.md b/docs/carrier_operator_commands.md
+new file mode 100644
+index 0000000..7f3fe81
+--- /dev/null
++++ b/docs/carrier_operator_commands.md
+@@ -0,0 +1,127 @@
++# Sparse carrier component commands
++
++Scope: selected-row numerical component only. This stage does not authorize MRI
++integration, optimizer changes, reconstruction, or metric claims. No historical
++renderer, source, build, mask, data or output is modified. Only first derivatives
++are supported. Frequencies use cycles per voxel in D,H,W order.
++
++The API is `carrier_operator.carrier_correction(positions, log_scales, rotations,
++density, frequencies, volume_shape)`; selected rows have float32 CUDA shapes
++`[K,3], [K,3], [K,4], complex64[K], [K,3]`. All tensors share one CUDA device.
++Import does not build or initialize CUDA. Forward requires a successful explicit
++`load_carrier_extension(build_directory)`, which returns `(module, provenance)`.
++Noncontiguous inputs retain autograd through contiguous copies. Empty K remains
++differentiable. Zero frequency follows the full derivative path.
++
++CPU checks (no build, no GPU):
++
++```sh
++cd /home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation
++env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
++  /home/congcongliu/anaconda3/envs/GSTMI/bin/python -B -m pytest -q \
++  -p no:cacheprovider tests/test_carrier_cuda.py tests/test_carrier_reference.py
++```
++
++GPU tests are explicitly skipped without `CARRIER_RUN_GPU=1`. Such a CPU run is
++not a CUDA numerical pass. Compilation and GPU execution remain unverified until
++independent source review and the subsequent authorized gate.
++
++Tile pairs retain detached historical floor/ceil/clamp and stable atom ordering.
++Bounds use the actual symmetric inverse covariance M: reliable positive definite
++M gives axis radii `3*sqrt(diag(inv(M)))*shape/2`. Finite singular or poorly
++conditioned M receives full-volume tile bounds; the kernel still applies exact
++`mahal<=9` support. This conservative bound is necessary because epsilon-based
++quaternion normalization can make R nonorthogonal. It does not promise bitwise
++support parity with the historical approximate bbox for pathological inputs.
++Derived nonfinite geometry is refused before bound conversion or pointer access.
++There is no dense voxel-by-all-atoms production array or backend fallback.
++
++After independent source review, inspect available resources before selecting a
++GPU. Respect scheduler allocation and CUDA visibility, leave existing workloads
++running, and choose an idle compatible device with sufficient memory:
++
++```sh
++nvidia-smi --query-gpu=index,uuid,name,utilization.gpu,memory.used,memory.total --format=csv
++nvidia-smi --query-compute-apps=gpu_uuid,pid,process_name,used_gpu_memory --format=csv
++```
++
++Set `CUDA_VISIBLE_DEVICES` to the chosen allocation/device and set
++`TORCH_CUDA_ARCH_LIST` to its actual compute capability (for example, `8.6` only
++for a device with capability 8.6). Do not blindly use the example capability.
++Use the following command only at that reviewed stage. It creates unique build
++and report directories, preserves separate stdout/stderr and an exact command
++record, and propagates test/report failure to its public exit status:
++
++```sh
++export CUDA_VISIBLE_DEVICES='<inspected compatible allocation/device>'
++export TORCH_CUDA_ARCH_LIST='<actual compute capability>'
++export CUDA_HOME=/usr/local/cuda-11.8
++export CXX=/usr/bin/c++
++export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 MAX_JOBS=1
++/home/congcongliu/anaconda3/envs/GSTMI/bin/python -B - <<'PY'
++import hashlib, json, os, subprocess, sys, uuid
++from datetime import datetime, timezone
++from pathlib import Path
++root = Path.cwd().resolve()
++run = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex[:12]
++out = root / 'carrier_verification' / run
++out.mkdir(parents=True, exist_ok=False)
++env = dict(os.environ, CARRIER_RUN_GPU='1',
++           CARRIER_BUILD_DIRECTORY=str(root / 'carrier_builds' / run),
++           CARRIER_REPORT_PATH=str(out / 'microgate.json'),
++           CARRIER_HISTORICAL_BINARY='/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/build/tile_voxelize_cuda_0141c525_7aedd3b0.so')
++assert env['CUDA_HOME'] == '/usr/local/cuda-11.8'
++assert env['CUDA_VISIBLE_DEVICES'] and env['TORCH_CUDA_ARCH_LIST']
++command = [sys.executable, '-B', '-m', 'pytest', '-q', '-s',
++           '-p', 'no:cacheprovider', 'tests/test_carrier_cuda.py', '-k', 'gpu']
++record = {'command': command, 'cwd': str(root),
++          'environment': {k: env[k] for k in ['CUDA_VISIBLE_DEVICES', 'TORCH_CUDA_ARCH_LIST',
++              'CUDA_HOME', 'CXX', 'MAX_JOBS', 'OMP_NUM_THREADS', 'MKL_NUM_THREADS',
++              'CARRIER_RUN_GPU', 'CARRIER_BUILD_DIRECTORY', 'CARRIER_REPORT_PATH', 'CARRIER_HISTORICAL_BINARY']},
++          'sources_before': {p: hashlib.sha256((root/p).read_bytes()).hexdigest() for p in
++              ['carrier_operator.py', 'carrier_reference.py', 'carrier_cuda/carrier.cpp',
++               'carrier_cuda/carrier_kernel.cu', 'tests/test_carrier_cuda.py']}}
++(out/'command.json').write_text(json.dumps(record, indent=2))
++with (out/'stdout.log').open('w') as stdout, (out/'stderr.log').open('w') as stderr:
++    result = subprocess.run(command, env=env, stdout=stdout, stderr=stderr)
++record['exit_code'] = result.returncode
++record['sources_after'] = {p: hashlib.sha256((root/p).read_bytes()).hexdigest() for p in record['sources_before']}
++(out/'command.json').write_text(json.dumps(record, indent=2))
++print(out)
++if result.returncode:
++    raise SystemExit(result.returncode)
++report = json.loads((out/'microgate.json').read_text())
++assert report['status'] == 'passed'
++assert record['sources_before'] == record['sources_after']
++assert report['historical_binary_sha256_before'] == report['historical_binary_sha256_after']
++PY
++```
++
++CUDA_HOME must be pinned before importing cpp_extension: the system default
++CUDA 12.6 does not match GSTMI Torch 2.7.1+cu118. The loader refuses unowned or
++historical destinations and requires a directory strictly below `carrier_builds/`.
++It uses a source/toolchain/flags/Torch ABI/architecture identity for the module
++and its artifact subdirectory. Its manifest binds source hashes, compiler and
++nvcc paths/versions/hashes, flags, Torch configuration, ABI, architecture, and
++loaded binary SHA256. Reusing a mismatched or partial artifact is refused; use a
++new dedicated run directory after preserving any failed build evidence.
++
++The microgate requires all declared fixtures plus invalid-input cases to run;
++requesting it without GPU availability fails. Ordinary bounded fixtures compare
++the output and all five public-input VJPs against the independent CPU double
++oracle at frozen `rtol=2e-4, atol=2e-5`, with three backward repetitions recording
++atomic variation. Zero frequency requires exactly zero correction and exactly
++zero original-input correction gradients, plus a constructed nonzero frequency
++gradient. Ragged, empty, overlap, outside-support, noncontiguous, axis quarter
++cycles, near-bound and tiny-phase cases are included.
++
++The additional nearly singular quaternion fixture checks public output/support
++and local center/M/density/frequency VJPs using identical rounded float32 geometry
++converted to double. Its report names this narrower scope: it makes no claim of
++double-precision relative accuracy for the ill-conditioned quaternion chain.
++It does not relax ordinary-fixture tolerances. The original binary SHA must remain
++`3973daeef5f55ebfed931c38538a37d83921a9287b96b69a431da238057194b5`.
++
++A passing report establishes tiny-fixture numerical consistency only. Full-scale
++performance, reproducibility of MRI optimizer trajectories, real G2 zero/control
++parity, checkpoints, and MRI quality remain separate future gates.

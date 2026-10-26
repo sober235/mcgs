@@ -1,0 +1,4 @@
+commit	run	stage	encoder	raw_relative_l2_pre	raw_relative_l2_post	peak_memory_gib	status	description
+131bb0d	g2_fullamp_raw_control_v1	render_control	none	0.0	0.0	3.1972551345825195	keep	G2 raw baseline anchor parity; zero MRI updates
+131bb0d	g2_fullamp_mlp_rep_v1	fit	mlp	0.3247297186805714	0.3593065686077883	3.4934444427490234	discard	Full amplitude representation; fixed2000/128; zero MRI updates
+131bb0d	g2_fullamp_grid_rep_v1	fit	grid	0.273462019725601	0.2974255657616767	3.5049543380737305	discard	Full amplitude representation; fixed2000/128; zero MRI updates

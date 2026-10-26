@@ -1,0 +1,22 @@
+{
+  "status": "retrospective_three_metric_incumbent_target_unmet",
+  "exp": "adamflat_g2_v1",
+  "score": -0.033818449923473944,
+  "strict_success": false,
+  "strict_planes": 0,
+  "eligible_planes": 59,
+  "metric_contract": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/reassessment_without_hfen_20261019/metric_contract_v1.json",
+    "sha256": "7404413f695bce3b59886de802815011615f7473a0a59626542ffd4dbe60cd13"
+  },
+  "validated_assessment": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/reassessment_without_hfen_20261019/summary.json",
+    "sha256": "854dc7aa0da4cee274df58f98631d2dbae1b1e4372f1c5903e230da12cebaf3b"
+  },
+  "source_objective": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/scoring/adamflat_g2_v1_v1/objective.json",
+    "sha256": "53d2cc234bf4f161e95b9ee555df160772af93d206e74c3945bc7b9a3506ebfd"
+  },
+  "legacy_four_metric_incumbent_preserved": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/development_incumbent.json",
+  "claim_boundary": "One case/one seed adaptive development; one enhanced plane wins all three, no plain plane and no paired plane wins. Existing checkpoint/recipe requires its normal validation before any future numerical continuation."
+}

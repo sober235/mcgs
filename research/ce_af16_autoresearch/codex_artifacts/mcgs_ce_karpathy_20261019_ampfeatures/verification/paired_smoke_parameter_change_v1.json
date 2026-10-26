@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "evidence_type": "CPU_inspection_of_actual_completed_GPU_checkpoints",
+  "zero_checkpoint": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_zero_v1/checkpoint.pth",
+  "smoke_checkpoint": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_ampfeatures/outputs/paired_anchor_smoke_v1/checkpoint.pth",
+  "parameters": {
+    "anchor_projection.weight": {
+      "max_abs_change": 0.0007232089410535991,
+      "nonzero_change_count": 128,
+      "finite": true
+    },
+    "network.4.weight": {
+      "max_abs_change": 0.0016956011531874537,
+      "nonzero_change_count": 128,
+      "finite": true
+    },
+    "phase_delta": {
+      "max_abs_change": 0.0015342026017606258,
+      "nonzero_change_count": 7199978,
+      "finite": true
+    }
+  },
+  "frozen_features_unchanged": true
+}

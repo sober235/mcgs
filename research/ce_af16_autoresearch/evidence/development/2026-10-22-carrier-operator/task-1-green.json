@@ -1,0 +1,26 @@
+{
+  "command": [
+    "env",
+    "CUDA_VISIBLE_DEVICES=",
+    "OMP_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_carrier_reference.py"
+  ],
+  "exit_code": 0,
+  "seconds": 3.0592510201968253,
+  "before_sha256": {
+    "carrier_reference.py": "4d7e0ec7ca32d50462dde583a1b573485b6971c82641145ef6a3726e9f376c78",
+    "tests/test_carrier_reference.py": "637082ab365cc18ded133f1e6a46cb4a6ed060cc4a30b95f0cdba5a82b4345ca"
+  },
+  "after_sha256": {
+    "carrier_reference.py": "4d7e0ec7ca32d50462dde583a1b573485b6971c82641145ef6a3726e9f376c78",
+    "tests/test_carrier_reference.py": "637082ab365cc18ded133f1e6a46cb4a6ed060cc4a30b95f0cdba5a82b4345ca"
+  }
+}

@@ -1,0 +1,13 @@
+__pycache__/
+.pytest_cache/
+outputs/
+verification/
+results.tsv
+autoresearch.jsonl
+campaign_state.json
+loop_state.json
+scores/
+recipes/
+*.lock
+*.log
+*.pid

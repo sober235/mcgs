@@ -1,0 +1,55 @@
+{
+  "status": "complete_discard",
+  "route": "g2_case_internal_magnitude_prior_fit512_v1",
+  "completed_formal_mri_experiments": 32,
+  "historical_rescorings": 65,
+  "active_gpu_run": null,
+  "whole_head_keeper": {
+    "name": "lowreg_f075_solve_v1",
+    "score": -0.11118128532897047
+  },
+  "prior128_result": "docs/caseprior_outcome.md",
+  "overall_strict_success": false,
+  "worker": null,
+  "implementation_base": "f336023",
+  "source_revision": "9118e94",
+  "cpu_tests": 606,
+  "cpu_seconds": 126.36,
+  "reviewer": null,
+  "review_report": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/docs/caseprior512_final_review_round1.md",
+  "actionable_findings": 0,
+  "preferred_gpu": 5,
+  "zero_gate": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/caseprior512_zero_v1/completed.json",
+    "sha256": "e5f9b71d7568d3cae399a55462131b4282648f2023669e7fc7b51be7252da26c"
+  },
+  "zero_parity": {
+    "pre": 0.0,
+    "post": 0.0
+  },
+  "control_smoke_gate": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/caseprior512_control_smoke_v1/completed.json",
+  "native_control_receipt": "verification/caseprior512_native_control_receipt_v1.json",
+  "native_control_reuse_verified": true,
+  "learned_smoke_gate": "outputs/caseprior512_learned_smoke_v1/completed.json",
+  "controls_audit": {
+    "path": "docs/caseprior512_controls_outcome_audit.md",
+    "actionable_findings_remaining": 0,
+    "verdict": "PASS"
+  },
+  "active_scoring_run": null,
+  "formal_completion": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/caseprior512_learned500_v1/completed.json",
+    "sha256": "b89ee3020b304038460a6af62a8bc7057d53fedc86d6eafadf4aaddf1e341f57"
+  },
+  "decision": "discard",
+  "objective": {
+    "path": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/scores/caseprior512_learned500_v1/objective.json",
+    "sha256": "d22555789f178a3fc486286a820269fb98c23c62160d9b4b57dfd91e6065f7a6"
+  },
+  "score": -0.11867860310970936,
+  "formal_outcome_audit": {
+    "path": "docs/caseprior512_formal_outcome_audit.md",
+    "verdict": "PASS",
+    "actionable_findings_remaining": 0
+  }
+}

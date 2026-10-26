@@ -1,0 +1,535 @@
+{
+  "provenance": {
+    "module": "carrier_cuda_7e4074ab699211d0b99e28f0",
+    "identity_sha256": "7e4074ab699211d0b99e28f0766c6c6b2f12ad9f3057105fe6993faa6d95e719",
+    "identity": {
+      "sources": {
+        "carrier_cuda/carrier.cpp": "36dbf4b5d7140ba91917823f26e2779bc1edfd0829f5b425413c386c8b7a521d",
+        "carrier_cuda/carrier_kernel.cu": "8a8e8097c63010b031c3b3826b4c5427a5fad0987f7b7c4e85d5c2a7a2752139",
+        "carrier_operator.py": "69e862bc6f07bab543af2f19d5c8bfc8bdb1ad96b67fcf6a5df257bd7ddd2824"
+      },
+      "torch": "2.7.1+cu118",
+      "torch_cuda": "11.8",
+      "cxx11_abi": true,
+      "torch_config": "PyTorch built with:\n  - GCC 11.2\n  - C++ Version: 201703\n  - Intel(R) oneAPI Math Kernel Library Version 2024.2-Product Build 20240605 for Intel(R) 64 architecture applications\n  - Intel(R) MKL-DNN v3.7.1 (Git Hash 8d263e693366ef8db40acc569cc7d8edf644556d)\n  - OpenMP 201511 (a.k.a. OpenMP 4.5)\n  - LAPACK is enabled (usually provided by MKL)\n  - NNPACK is enabled\n  - CPU capability usage: AVX512\n  - CUDA Runtime 11.8\n  - NVCC architecture flags: -gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86;-gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_90,code=sm_90\n  - CuDNN 90.1\n  - Magma 2.6.1\n  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, COMMIT_SHA=e2d141dbde55c2a4370fac5165b0561b6af4798b, CUDA_VERSION=11.8, CUDNN_VERSION=9.1.0, CXX_COMPILER=/opt/rh/gcc-toolset-11/root/usr/bin/c++, CXX_FLAGS= -D_GLIBCXX_USE_CXX11_ABI=1 -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOROCTRACER -DLIBKINETO_NOXPUPTI=ON -DUSE_FBGEMM -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=range-loop-construct -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-unknown-pragmas -Wno-unused-parameter -Wno-strict-overflow -Wno-strict-aliasing -Wno-stringop-overflow -Wsuggest-override -Wno-psabi -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, TORCH_VERSION=2.7.1, USE_CUDA=ON, USE_CUDNN=ON, USE_CUSPARSELT=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_GLOO=ON, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=1, USE_NNPACK=ON, USE_OPENMP=ON, USE_ROCM=OFF, USE_ROCM_KERNEL_ASSERT=OFF, \n",
+      "cuda_home": "/usr/local/cuda-11.8",
+      "build_environment": {
+        "CUDA_HOME": "/usr/local/cuda-11.8",
+        "CXX": "/usr/bin/c++",
+        "PATH": "/usr/local/cuda-11.8/bin:/usr/bin:/bin",
+        "TORCH_CUDA_ARCH_LIST": "8.0",
+        "MAX_JOBS": "1",
+        "SOURCE_DATE_EPOCH": null,
+        "cuda_host_compiler": "/usr/bin/gcc",
+        "refused_overrides": {
+          "PYTORCH_NVCC": null,
+          "CC": null,
+          "NVCC_CCBIN": null,
+          "NVCC_PREPEND_FLAGS": null,
+          "NVCC_APPEND_FLAGS": null,
+          "CUDACXX": null,
+          "CUDAHOSTCXX": null,
+          "CUDA_PATH": null,
+          "CUDA_INC_PATH": null,
+          "CUDNN_HOME": null,
+          "CUDNN_PATH": null,
+          "ROCM_HOME": null,
+          "ROCM_PATH": null,
+          "CFLAGS": null,
+          "CXXFLAGS": null,
+          "CPPFLAGS": null,
+          "LDFLAGS": null,
+          "GCC_EXEC_PREFIX": null,
+          "COMPILER_PATH": null,
+          "CPATH": null,
+          "CPLUS_INCLUDE_PATH": null,
+          "C_INCLUDE_PATH": null,
+          "OBJC_INCLUDE_PATH": null,
+          "LIBRARY_PATH": null,
+          "LD_PRELOAD": null,
+          "LD_LIBRARY_PATH": null,
+          "TORCH_DONT_CHECK_COMPILER_ABI": null,
+          "TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES": null,
+          "TORCH_EXTENSIONS_DIR": null
+        }
+      },
+      "builder_source_sha256": "8f1167e783ad49976e34174bad46e68fb27f5e73854e1f7cd16cc86b923f6c7a",
+      "python": "3.11.5 | packaged by conda-forge | (main, Aug 27 2023, 03:34:09) [GCC 12.3.0]",
+      "python_executable": "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+      "architectures": "8.0",
+      "flags": {
+        "cxx": [
+          "-O3"
+        ],
+        "cuda": [
+          "-O3",
+          "--fmad=false",
+          "-ccbin",
+          "/usr/bin/gcc"
+        ]
+      },
+      "compiler_executable": "/usr/bin/x86_64-linux-gnu-g++-10",
+      "compiler_sha256": "8e2a575470bba9ecbde72f6b2529f7d489f0b05c9cbe4f97b86f33129f55d5fa",
+      "compiler": "c++ (Ubuntu 10.5.0-1ubuntu1~22.04) 10.5.0\nCopyright (C) 2020 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "cuda_host_compiler_executable": "/usr/bin/x86_64-linux-gnu-gcc-10",
+      "cuda_host_compiler_sha256": "e4144ce66f35ad853ebfe1b038097f40975a26a3ee21cf25c8797c1ec78bdea1",
+      "cuda_host_compiler": "gcc (Ubuntu 10.5.0-1ubuntu1~22.04) 10.5.0\nCopyright (C) 2020 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "nvcc_executable": "/usr/local/cuda-11.8/bin/nvcc",
+      "nvcc_sha256": "e85eeb9af396e7aba7d92fd35539a94721ede321f5d2de27a6d1857507dfd1dc",
+      "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2022 NVIDIA Corporation\nBuilt on Wed_Sep_21_10:33:58_PDT_2022\nCuda compilation tools, release 11.8, V11.8.89\nBuild cuda_11.8.r11.8/compiler.31833905_0\n",
+      "nvcc_profile_sha256": "805f7b04259b526a16687a24468fe4cc815ac0705fcb12f38028a2f42aaa71f8",
+      "ninja_executable": "/usr/bin/ninja",
+      "ninja_sha256": "a9ddfbf7e365a2e5026ed44f9173e498e37d8b71ec5e259b2c2a684f16cfa862",
+      "ninja_version": "1.10.1\n",
+      "support_bounds": "inverse(actual_M), historical floor/ceil/clamp/stable ordering"
+    },
+    "binary": "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/carrier_builds/20261023T011403Z-bc86c383e901/7e4074ab699211d0b99e28f0766c6c6b2f12ad9f3057105fe6993faa6d95e719/carrier_cuda_7e4074ab699211d0b99e28f0.so",
+    "binary_sha256": "b8d08c0aeead3c4c6d2e9f0fd803929c4ea5252bdd6de692053da6ced4c4c95d",
+    "build_ninja_sha256": "5c1f3bc01edab3340bf045b68459713614406406ff04b2150203ce4a67eb4d1f",
+    "effective_build_ninja": "ninja_required_version = 1.3\ncxx = /usr/bin/c++\nnvcc = /usr/local/cuda-11.8/bin/nvcc\n\ncflags = -DTORCH_EXTENSION_NAME=carrier_cuda_7e4074ab699211d0b99e28f0 -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\\\"_gcc\\\" -DPYBIND11_STDLIB=\\\"_libstdcpp\\\" -DPYBIND11_BUILD_ABI=\\\"_cxxabi1016\\\" -isystem /home/congcongliu/anaconda3/envs/GSTMI/lib/python3.11/site-packages/torch/include -isystem /home/congcongliu/anaconda3/envs/GSTMI/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda-11.8/include -isystem /home/congcongliu/anaconda3/envs/GSTMI/include/python3.11 -D_GLIBCXX_USE_CXX11_ABI=1 -fPIC -std=c++17 -O3\npost_cflags = \ncuda_cflags = -DTORCH_EXTENSION_NAME=carrier_cuda_7e4074ab699211d0b99e28f0 -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\\\"_gcc\\\" -DPYBIND11_STDLIB=\\\"_libstdcpp\\\" -DPYBIND11_BUILD_ABI=\\\"_cxxabi1016\\\" -isystem /home/congcongliu/anaconda3/envs/GSTMI/lib/python3.11/site-packages/torch/include -isystem /home/congcongliu/anaconda3/envs/GSTMI/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda-11.8/include -isystem /home/congcongliu/anaconda3/envs/GSTMI/include/python3.11 -D_GLIBCXX_USE_CXX11_ABI=1 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_80,code=sm_80 --compiler-options '-fPIC' -O3 --fmad=false -ccbin /usr/bin/gcc -std=c++17\ncuda_post_cflags = \ncuda_dlink_post_cflags = \nsycl_dlink_post_cflags = \nldflags = -shared -L/home/congcongliu/anaconda3/envs/GSTMI/lib/python3.11/site-packages/torch/lib -lc10 -lc10_cuda -ltorch_cpu -ltorch_cuda -ltorch -ltorch_python -L/usr/local/cuda-11.8/lib64 -lcudart\n\nrule compile\n  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags\n  depfile = $out.d\n  deps = gcc\n\nrule cuda_compile\n  depfile = $out.d\n  deps = gcc\n  command = $nvcc --generate-dependencies-with-compile --dependency-output $out.d $cuda_cflags -c $in -o $out $cuda_post_cflags\n\n\n\n\n\nrule link\n  command = $cxx $in $ldflags -o $out\n\nbuild carrier.o: compile /home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/carrier_cuda/carrier.cpp\nbuild carrier_kernel.cuda.o: cuda_compile /home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/carrier_cuda/carrier_kernel.cu\n\n\n\n\n\nbuild carrier_cuda_7e4074ab699211d0b99e28f0.so: link carrier.o carrier_kernel.cuda.o\n\ndefault carrier_cuda_7e4074ab699211d0b99e28f0.so\n"
+  },
+  "fixtures": {
+    "ragged": {
+      "output": {
+        "maxabs": 2.1732548255600277e-07,
+        "maxrelative": 2.096277137644029e-06
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 1.1773086391997367e-05,
+          "maxrelative": 5.245273643429938e-07
+        },
+        "log_scales": {
+          "maxabs": 1.676923325977242e-06,
+          "maxrelative": 1.4482240227756455e-06
+        },
+        "rotations": {
+          "maxabs": 1.2466005696598614e-06,
+          "maxrelative": 1.4286714375879387e-06
+        },
+        "density": {
+          "maxabs": 1.5393176512024655e-05,
+          "maxrelative": 6.120183334507515e-07
+        },
+        "frequencies": {
+          "maxabs": 7.2361138734322594e-06,
+          "maxrelative": 5.208655782769294e-07
+        }
+      },
+      "atomic_vjp_maxvariation": 1.1444091796875e-05,
+      "passed": true
+    },
+    "single": {
+      "output": {
+        "maxabs": 8.053702210839163e-08,
+        "maxrelative": 2.9394638902562606e-06
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 7.064444801363479e-08,
+          "maxrelative": 2.1100701111138067e-07
+        },
+        "log_scales": {
+          "maxabs": 1.1376857622646952e-07,
+          "maxrelative": 3.520778927577803e-05
+        },
+        "rotations": {
+          "maxabs": 2.432210888803077e-07,
+          "maxrelative": 2.5270335068251836e-06
+        },
+        "density": {
+          "maxabs": 3.057621411793611e-07,
+          "maxrelative": 1.4935882211723529e-07
+        },
+        "frequencies": {
+          "maxabs": 2.027624588230026e-07,
+          "maxrelative": 2.0766391014554728e-07
+        }
+      },
+      "atomic_vjp_maxvariation": 3.5762786865234375e-07,
+      "passed": true
+    },
+    "overlap": {
+      "output": {
+        "maxabs": 4.406158167157859e-08,
+        "maxrelative": 2.8959527839058414e-06
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 2.2298173329993176e-07,
+          "maxrelative": 9.794014106941646e-07
+        },
+        "log_scales": {
+          "maxabs": 4.814182847923121e-07,
+          "maxrelative": 0.00013085723318439325
+        },
+        "rotations": {
+          "maxabs": 3.6243037843108894e-07,
+          "maxrelative": 6.575333483015106e-06
+        },
+        "density": {
+          "maxabs": 4.3114267776738157e-07,
+          "maxrelative": 2.1060476157796778e-07
+        },
+        "frequencies": {
+          "maxabs": 2.124919037171935e-06,
+          "maxrelative": 1.3256778304533995e-06
+        }
+      },
+      "atomic_vjp_maxvariation": 1.7881393432617188e-07,
+      "passed": true
+    },
+    "outside": {
+      "output": {
+        "maxabs": 0.0,
+        "maxrelative": 0.0
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        },
+        "log_scales": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        },
+        "rotations": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        },
+        "density": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        },
+        "frequencies": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        }
+      },
+      "atomic_vjp_maxvariation": 0.0,
+      "passed": true
+    },
+    "empty": {
+      "output": {
+        "maxabs": 0.0,
+        "maxrelative": 0.0
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        },
+        "log_scales": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        },
+        "rotations": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        },
+        "density": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        },
+        "frequencies": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        }
+      },
+      "atomic_vjp_maxvariation": 0.0,
+      "passed": true
+    },
+    "noncontiguous": {
+      "output": {
+        "maxabs": 4.3465096511200555e-07,
+        "maxrelative": 2.096277137644029e-06
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 9.207748568940133e-06,
+          "maxrelative": 5.351660016748813e-07
+        },
+        "log_scales": {
+          "maxabs": 2.3921790632819295e-06,
+          "maxrelative": 2.842377993127338e-06
+        },
+        "rotations": {
+          "maxabs": 2.082528407498785e-06,
+          "maxrelative": 1.701911978658478e-06
+        },
+        "density": {
+          "maxabs": 1.9138667082560088e-05,
+          "maxrelative": 7.609355433030469e-07
+        },
+        "frequencies": {
+          "maxabs": 1.9139048752947474e-05,
+          "maxrelative": 6.069844752995438e-07
+        }
+      },
+      "atomic_vjp_maxvariation": 3.4332275390625e-05,
+      "passed": true
+    },
+    "zero": {
+      "output": {
+        "maxabs": 0.0,
+        "maxrelative": 0.0
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        },
+        "log_scales": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        },
+        "rotations": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        },
+        "density": {
+          "maxabs": 0.0,
+          "maxrelative": 0.0
+        },
+        "frequencies": {
+          "maxabs": 2.769220761589253e-07,
+          "maxrelative": 5.488040489702896e-07
+        }
+      },
+      "atomic_vjp_maxvariation": 0.0,
+      "passed": true
+    },
+    "quarter_d": {
+      "output": {
+        "maxabs": 1.0653094300964041e-07,
+        "maxrelative": 1.0380880122363554e-06
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 1.3481363079215214e-06,
+          "maxrelative": 1.197254662846516e-06
+        },
+        "log_scales": {
+          "maxabs": 5.660386708239429e-07,
+          "maxrelative": 7.513189847351347e-07
+        },
+        "rotations": {
+          "maxabs": 4.0554442404250324e-07,
+          "maxrelative": 8.049066769901214e-07
+        },
+        "density": {
+          "maxabs": 4.271428242402816e-07,
+          "maxrelative": 1.4317960892671087e-07
+        },
+        "frequencies": {
+          "maxabs": 4.567793938647924e-07,
+          "maxrelative": 1.1839278368626933e-06
+        }
+      },
+      "atomic_vjp_maxvariation": 2.384185791015625e-07,
+      "passed": true
+    },
+    "quarter_h": {
+      "output": {
+        "maxabs": 1.0986802989281581e-07,
+        "maxrelative": 9.153936576320052e-07
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 5.05420974405979e-07,
+          "maxrelative": 9.748412668667721e-07
+        },
+        "log_scales": {
+          "maxabs": 3.0904496054959263e-07,
+          "maxrelative": 1.1607903998400106e-05
+        },
+        "rotations": {
+          "maxabs": 3.83435421857925e-07,
+          "maxrelative": 8.914110510650711e-07
+        },
+        "density": {
+          "maxabs": 5.966938404883598e-07,
+          "maxrelative": 2.4675492645513413e-07
+        },
+        "frequencies": {
+          "maxabs": 1.5329940907804485e-06,
+          "maxrelative": 2.392232270345628e-06
+        }
+      },
+      "atomic_vjp_maxvariation": 2.384185791015625e-07,
+      "passed": true
+    },
+    "quarter_w": {
+      "output": {
+        "maxabs": 1.0888686942598396e-07,
+        "maxrelative": 7.547383185081246e-07
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 8.409657574759422e-07,
+          "maxrelative": 5.116068292866213e-07
+        },
+        "log_scales": {
+          "maxabs": 5.845000892179542e-07,
+          "maxrelative": 1.4541889059957851e-06
+        },
+        "rotations": {
+          "maxabs": 1.4296748668263248e-07,
+          "maxrelative": 6.108149977495513e-06
+        },
+        "density": {
+          "maxabs": 3.7006733533201807e-07,
+          "maxrelative": 1.6275833224657396e-07
+        },
+        "frequencies": {
+          "maxabs": 1.2552744901306312e-06,
+          "maxrelative": 1.0969262243610885e-06
+        }
+      },
+      "atomic_vjp_maxvariation": 7.152557373046875e-07,
+      "passed": true
+    },
+    "tiny_phase": {
+      "output": {
+        "maxabs": 1.5144356777357836e-13,
+        "maxrelative": 7.572178388678917e-09
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 5.120827855635855e-13,
+          "maxrelative": 2.5604139278179272e-08
+        },
+        "log_scales": {
+          "maxabs": 6.271485596772884e-13,
+          "maxrelative": 3.135742798386442e-08
+        },
+        "rotations": {
+          "maxabs": 5.017721796043436e-13,
+          "maxrelative": 2.5088608980217177e-08
+        },
+        "density": {
+          "maxabs": 1.248232144111723e-13,
+          "maxrelative": 6.241160720558615e-09
+        },
+        "frequencies": {
+          "maxabs": 1.1494401812583988e-06,
+          "maxrelative": 7.141423974051081e-07
+        }
+      },
+      "atomic_vjp_maxvariation": 4.76837158203125e-07,
+      "passed": true
+    },
+    "near_bound": {
+      "output": {
+        "maxabs": 1.4506096265458333e-07,
+        "maxrelative": 8.2164384283802e-07
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 3.504770873519192e-07,
+          "maxrelative": 2.998706662784625e-07
+        },
+        "log_scales": {
+          "maxabs": 4.1977529219305865e-07,
+          "maxrelative": 7.624719682093186e-07
+        },
+        "rotations": {
+          "maxabs": 2.4997420294825545e-07,
+          "maxrelative": 3.5446641639135333e-06
+        },
+        "density": {
+          "maxabs": 3.223925328396395e-07,
+          "maxrelative": 1.1096656614878472e-07
+        },
+        "frequencies": {
+          "maxabs": 2.1107105432349726e-06,
+          "maxrelative": 5.909290293350168e-05
+        }
+      },
+      "atomic_vjp_maxvariation": 0.0,
+      "passed": true
+    },
+    "degenerate": {
+      "scope": "public output/support and local VJPs with identical rounded M; ill-conditioned quaternion chain excluded",
+      "output": {
+        "maxabs": 3.2068989180497117e-07,
+        "maxrelative": 0.004578338851834842
+      },
+      "vjps": {
+        "centers": {
+          "maxabs": 4.2118891618869725e-07,
+          "maxrelative": 3.6903629424833654e-07
+        },
+        "M": {
+          "maxabs": 3.4861419653253733e-06,
+          "maxrelative": 3.980348787274973e-07
+        },
+        "density": {
+          "maxabs": 9.688405242748181e-06,
+          "maxrelative": 1.5666667864517801e-07
+        },
+        "frequencies": {
+          "maxabs": 1.8024616309730845e-05,
+          "maxrelative": 6.711590383038665e-07
+        }
+      },
+      "atomic_vjp_maxvariation": 4.57763671875e-05,
+      "passed": true
+    },
+    "nondefault_stream": {
+      "output": {
+        "maxabs": 1.289312148919329e-07,
+        "maxrelative": 2.08070644623938e-06
+      },
+      "consumer_output": {
+        "maxabs": 9.932023062337858e-08,
+        "maxrelative": 2.0437863136347437e-06
+      },
+      "vjps": {
+        "positions": {
+          "maxabs": 1.342227350420444e-05,
+          "maxrelative": 9.851120364040378e-07
+        },
+        "log_scales": {
+          "maxabs": 5.847727083896359e-06,
+          "maxrelative": 9.095006612152083e-07
+        },
+        "rotations": {
+          "maxabs": 3.5534486431121337e-06,
+          "maxrelative": 4.98104071024709e-06
+        },
+        "density": {
+          "maxabs": 3.540267232511748e-06,
+          "maxrelative": 1.7804600012130711e-07
+        },
+        "frequencies": {
+          "maxabs": 3.010877257025868e-05,
+          "maxrelative": 8.210213087896997e-07
+        }
+      },
+      "atomic_vjp_maxvariation": 9.5367431640625e-06,
+      "default_delay_completed_at_capture": false,
+      "cuda_launch_blocking": "0",
+      "ordering": "producer event -> operator forward/backward event -> consumer pinned-host snapshots; consumer event synchronized before any global sync",
+      "passed": true
+    }
+  },
+  "invalid_inputs": true,
+  "historical_binary": "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/nonlocal_autoresearch/trainer/paired_gs/gaussian/cuda_ext/build/tile_voxelize_cuda_0141c525_7aedd3b0.so",
+  "historical_binary_sha256_before": "3973daeef5f55ebfed931c38538a37d83921a9287b96b69a431da238057194b5",
+  "gpu": {
+    "name": "NVIDIA A100 80GB PCIe",
+    "capability": [
+      8,
+      0
+    ],
+    "visible_devices": "GPU-a9b716ea-de2e-5d23-217d-db82a1d48efb"
+  },
+  "test_sha256": "4a936e9b6642e65b8abe008d640cbfceda4f8b316dc3acf4ee6b1951e7f9a0e8",
+  "tolerances": {
+    "rtol": 0.0002,
+    "atol": 2e-05
+  },
+  "status": "passed",
+  "historical_binary_sha256_after": "3973daeef5f55ebfed931c38538a37d83921a9287b96b69a431da238057194b5"
+}

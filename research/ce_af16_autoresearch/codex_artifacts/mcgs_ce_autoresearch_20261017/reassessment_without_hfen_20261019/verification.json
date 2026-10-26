@@ -1,0 +1,10 @@
+{
+  "independent_calculation": "Alternative projection of original stored margins and direct raw inequality checks, not a separate agent review",
+  "models_checked": 90,
+  "planes_per_model": 59,
+  "conditions_per_plane": 6,
+  "original_lesion_raw_post_witness_checks": 3,
+  "new_best": "adamflat_g2_v1",
+  "all_sources_unchanged": true,
+  "runtime_executable": "/home/congcongliu/anaconda3/envs/GSTMI/bin/python"
+}

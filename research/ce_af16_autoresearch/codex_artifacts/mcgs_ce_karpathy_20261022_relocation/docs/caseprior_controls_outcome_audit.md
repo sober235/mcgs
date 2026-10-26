@@ -1,0 +1,50 @@
+Actionable finding count: **0**. No actionable findings or unresolved blockers were found in the three completed controls or the native-control reuse receipt.
+
+**Integrity verdict: PASS.** The actual zero, ordinary smoke and learned smoke evidence supports their software-control decisions. The native500 reuse receipt is consistent with the actual old-route completion, its scored arrays and the observed new ordinary-smoke equivalence. This is an incremental actual-output audit. It does not review or judge the separately running learned500 trial and makes no MRI quality-improvement claim.
+
+Scope: `outputs/caseprior_zero_v1`, `outputs/caseprior_control_smoke_v1`, `outputs/caseprior_learned_smoke_v1`, the actual native receipt/validation evidence, their referenced old ordinary/native500 records and objective, and the corresponding ledger entries. Source revision `0aec561`, the prior zero-finding source review and the 577-pass CPU result were treated as established evidence; none was rerun. All existing sources, outputs, ledgers, state and concurrent work were preserved.
+
+| Observed control | Zero | Ordinary smoke | Learned smoke |
+| --- | ---: | ---: | ---: |
+| Gaussian updates | 0 | 2 | 2 |
+| Gaussian forwards / VJPs | 2 / 0 | 6 / 4 | 6 / 4 |
+| Relocation events | 0 | 0 | 0 |
+| Final seven Adam clocks | 4500 | 4502 | 4502 |
+| Scheduler epoch / count | 4500 / 4501 | 4502 / 4503 | 4502 / 4503 |
+| CNN fits / updates | 0 / 0 | 0 / 0 | 2 / 256 |
+| Training seconds | 0 | 4.654705 | 10.676192 |
+| Child stage seconds | 185.778470 | 187.521938 | 198.375843 |
+| Supervisor wall seconds | 352.505134 | 368.874207 | 381.380016 |
+| Peak allocated / reserved GiB | 34.065095 / 36.066406 | 35.849249 / 39.337891 | 36.014443 / 39.343750 |
+
+I independently hashed the actual completion files and matched the supplied and ledger descriptors:
+
+- Zero: `c5716234ce1fb33594ee2ed82ff63f65131d8d9fb608d409cf19787457717585`.
+- Ordinary smoke: `6a6308eb5ad3db2a680af955457afca43f7fab1967b83c260d16405dc4b26292`.
+- Learned smoke: `6fbbe0eca60fdd0a675588c1bb9a398c7d2c626fdc2ebe53fb052f542ad26919`.
+- Native receipt: `bc05a75133e77c27993fc02052c6c0126b6e374354c1fb4cdb5444f5fe170bdb`.
+- Native receipt validation: `b78e3c5ba799f7e9381fbe8d184080df0443243afa61ca74797275ada040d661`.
+
+For all three new controls, launch/completion/metrics/provenance agree on route, mode, budget, reviewed 221-source closure and frozen input snapshot. Selected recipes match those exact parameters and policies. Actual post-run proofs are verified, with equal before/after source-input maps and equal prerequisite bindings. Metrics and provenance agree exactly. I checked the actual small artifact bytes, recipe/proof descriptors and manifest-to-completion bindings; these are not checks of Boolean status alone.
+
+The started, ready, ACK and completed records agree on owned PIDs 989236, 1002485 and 1015729 respectively, their recorded parents and GPU UUID `GPU-d7cbc50e-d509-5e17-ff73-ba92660219a1`. Each completion records supervised exit 0 and the claim policy. The actual runtime reports CUDA0, the strict original tile renderer and no autocast. The reviewed supervisor's process ownership/reaping semantics and these completed observations support successful execution; I did not independently observe the processes live or test cancellation during this audit.
+
+Each original restore's returned `after` snapshot equals the continuation's initial state. All seven 3.6M-row Parameter identities/storage and Adam moment/step identities remain preserved through the run. Saved scheduler/config files match state evidence. The final Gaussian checkpoint descriptors are present in both artifact manifests and completion bindings; child live-versus-saved model/Adam hashes, groups and iteration agree with the final snapshots. The zero's complete before/after state is identical. Both smokes have two consecutive trace steps, all seven finite positive gradient norms on each step, the expected Adam/scheduler clocks, actual paired flat-t1 frequency calls and exact 42-coil FFT work. No event appears in records or the empty event files.
+
+I independently streamed and hashed all 18 new raw/canonical/candidate reconstruction files without loading numeric MRI volumes. Their bytes match the array descriptors and completion artifact sets. Candidate files equal their corresponding canonical files by SHA256, while the raw hashes differ, retaining the intended hard-DC export distinction. The observed canonical-work counters account for two original Gaussian exports. Zero candidate hashes are `57df744a30b690c5ac61ba87e268882f71501b2bad043fdb9452f99fce6bff42` (pre) and `e64a0f97d4bb4e27ef64024708c16373898bba11d4157fd9f8214d0a37da91dd` (post). They match the exact historical baseline objective arrays, so the ledger's baseline-score reuse is supported without rescoring. The bound zero-parity observations report exact G2 equality and relative L2 0 for both scans.
+
+The learned smoke exercises actual production settings: fresh seeds 42 and 1051; width32, patch32, batch4, tile32; Adam learning rate 0.001; and 128 updates per call. Both calls report finite nonzero gradients in all 128 updates, all ten parameter tensors changed and distinct initial/final digests. They are linked verbatim to the original pre/post RED histories at4501. The two actual weighted RED losses are `6.982866761973128e-05` and `6.91652821842581e-05`; trace/summary values, per-scan losses and refresh clocks agree. Relative target changes are 0.019782333 (pre) and 0.017472997 (post). Ordinary/zero runs contain no CNN calls or CNN RNG/readback evidence; zero truthfully has no RED summary and ordinary smoke has a disabled summary.
+
+To independently check the actual trained checkpoint linkage, I loaded only the two 343,429-byte CNN checkpoints with existing GSTMI Torch, `CUDA_VISIBLE_DEVICES=`, `weights_only=True` and `map_location='cpu'`. All ten tensors have the fixed shapes and finite float32 CPU values. Independently recomputed final parameter digests match the records and child readback evidence. Reconstructing only the specified initial CPU networks under each local seed reproduces both initial digests and verifies that exactly the ten reported tensors changed. No fitting or inference was performed. Checkpoint metadata, per-call manifest content, target file hashes and streamed target raw-byte hashes agree. This establishes saved-state/target provenance linkage; it does not independently reproduce full-volume target predictions.
+
+Both per-call RNG observations contain identical before/after CPU hashes and identical before/after CUDA0 hashes, with preserved flags and matching call indices. These are actual bound child observations around the fit/readback interval. They resolve the previously unexecuted CUDA-RNG smoke gate within the reviewed-child trust model, rather than being a new live measurement made by this auditor.
+
+For native reuse, the old 218-source closure is preserved as an exact subset of the new 221-source closure, whose additions are the three case-prior modules. Old route/policy stay old, and common frozen inputs match after excluding route/policy. The actual old control500 and old ordinary-smoke gates retain their own route, control mode, budgets, ACKs and verified proofs. Their checkpoint/clock/work records agree with those budgets. The new and old ordinary smokes have identical restored parameter/Adam bytes, group options, scheduler state, counters and physics work. The source-bound public validation records relative L2 `1.4450308813879792e-07` (pre) and `1.5060258239357403e-07` (post), both below1e-5. I checked their bound files and hashes but did not repeat the full-volume L2 calculation.
+
+The receipt validation's 136 bindings exactly equal the transitive union of the dereferenced completions, artifacts, prerequisite bindings, postproofs and objective. I independently hashed the actual old candidate arrays and checked their agreement across completion, native metrics and scored objective: pre `045a6e45ed0deef899fb3f6dee6d84a807cb6ccde330dbdcee6d206929cb4e19`, post `b6948fdb7860578d3a51174521110fee14ac6e8ff1bc0046aaa40009cff45695`. The objective descriptor, unchanged evaluator-source binding, six saved metrics and 59-plane count agree. Recomputing its six margins and strict comparisons from saved scalar metrics and ten opponents reproduces the native score `-0.11718558579803065` and strict-success false. No native scoring or image metric was rerun.
+
+Ledger accounting is consistent: each new control has one completion entry adding zero formal experiments; receipt reuse also adds zero. The completed formal MRI count remained30 at this audit's check. The TSV adds only the exactly reproduced zero baseline, with the baseline score rounded as displayed. Neither smoke is counted as a formal quality trial or promoted into a new keeper. The separate learned500 launch and any eventual outcome are outside this report.
+
+All focused audit commands exited0. The principal metadata/array check independently hashed79 selected files; the separate receipt check hashed90 selected files, with overlap between these sets. The CPU checkpoint check and saved-scalar arithmetic/physics check also passed. No full public validator or test suite was repeated; no acquisition/reference input was rehashed; no MRI volume was numerically loaded; no GPU, rerender, scoring run, package/network action, subagent, source/output mutation or index change occurred. Only this report was written.
+
+Remaining coverage boundaries are explicit: original large Gaussian checkpoint contents and MRI-input constancy rely on bound reviewed-child readback and existing before/after proofs; source-byte identity relies on the established source freeze; full target inference, MRI metric computation and ordinary-smoke L2 were not independently recomputed. The completed controls establish operation of the declared route at0/2 updates, including real production CNN fitting, but do not establish500-update completion, later refreshes, repeatability, all-six quality superiority, enhanced-region benefit or a scientific win.

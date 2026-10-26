@@ -73,3 +73,8 @@ checkpoints (`.pth`), and numpy dumps (`.npy`) are **not** tracked here — they
 are large binary data, not code. The scripts above regenerate the mask and the
 scores from those inputs. Training itself uses the full 3dgsVC engine
 (`train_joint.py`), which lives in the parent project.
+
+
+## 平扫／增强 AF16 研究归档
+
+[2026-10-26 MC-GS autoresearch 进展、代码与验证记录](research/ce_af16_autoresearch/README.md)。当前全面领先目标尚未实现，最新状态和实验边界见归档。

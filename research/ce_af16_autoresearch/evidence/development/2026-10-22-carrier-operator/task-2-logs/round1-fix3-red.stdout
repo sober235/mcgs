@@ -1,0 +1,21 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________________ test_gpu_report_refuses_missing_stream_case __________________
+
+    def test_gpu_report_refuses_missing_stream_case():
+        # A complete report of the original default-stream cases must not pass.
+        report = {'fixtures': {case: {'passed': True} for case in [
+            'ragged', 'single', 'overlap', 'outside', 'empty', 'noncontiguous',
+            'zero', 'quarter_d', 'quarter_h', 'quarter_w', 'tiny_phase', 'near_bound', 'degenerate']},
+            'invalid_inputs': True, 'historical_binary_sha256_before': 'unchanged',
+            'historical_binary_sha256_after': 'unchanged'}
+        complete = globals().get('_gpu_report_complete')
+>       assert callable(complete), 'microgate needs a CPU-checkable completeness boundary'
+E       AssertionError: microgate needs a CPU-checkable completeness boundary
+E       assert False
+E        +  where False = callable(None)
+
+tests/test_carrier_cuda.py:241: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_carrier_cuda.py::test_gpu_report_refuses_missing_stream_case
+1 failed, 76 deselected in 1.34s

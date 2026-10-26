@@ -1,0 +1,6056 @@
+{
+  "status": "complete",
+  "counters": {
+    "optimizer_steps": 500,
+    "scheduler_steps": 500,
+    "loss_calls": 1000,
+    "event_calls": 1,
+    "gaussian_forwards": 1004,
+    "gaussian_vjps": 1000,
+    "roles": {
+      "initialization": {
+        "forwards": 0,
+        "vjps": 0
+      },
+      "training": {
+        "forwards": 1000,
+        "vjps": 1000
+      },
+      "event": {
+        "forwards": 2,
+        "vjps": 0
+      },
+      "export": {
+        "forwards": 2,
+        "vjps": 0
+      }
+    },
+    "render_calls": [
+      {
+        "role": "training",
+        "iteration": 4501,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4501,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "event",
+        "iteration": 4501,
+        "channel": "plain",
+        "vjps": 0
+      },
+      {
+        "role": "event",
+        "iteration": 4501,
+        "channel": "contrast",
+        "vjps": 0
+      },
+      {
+        "role": "training",
+        "iteration": 4502,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4502,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4503,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4503,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4504,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4504,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4505,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4505,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4506,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4506,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4507,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4507,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4508,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4508,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4509,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4509,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4510,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4510,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4511,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4511,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4512,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4512,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4513,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4513,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4514,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4514,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4515,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4515,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4516,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4516,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4517,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4517,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4518,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4518,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4519,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4519,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4520,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4520,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4521,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4521,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4522,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4522,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4523,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4523,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4524,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4524,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4525,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4525,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4526,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4526,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4527,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4527,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4528,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4528,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4529,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4529,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4530,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4530,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4531,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4531,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4532,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4532,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4533,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4533,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4534,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4534,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4535,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4535,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4536,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4536,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4537,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4537,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4538,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4538,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4539,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4539,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4540,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4540,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4541,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4541,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4542,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4542,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4543,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4543,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4544,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4544,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4545,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4545,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4546,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4546,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4547,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4547,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4548,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4548,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4549,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4549,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4550,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4550,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4551,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4551,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4552,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4552,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4553,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4553,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4554,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4554,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4555,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4555,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4556,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4556,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4557,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4557,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4558,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4558,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4559,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4559,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4560,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4560,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4561,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4561,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4562,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4562,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4563,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4563,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4564,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4564,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4565,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4565,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4566,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4566,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4567,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4567,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4568,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4568,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4569,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4569,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4570,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4570,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4571,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4571,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4572,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4572,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4573,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4573,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4574,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4574,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4575,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4575,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4576,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4576,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4577,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4577,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4578,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4578,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4579,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4579,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4580,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4580,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4581,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4581,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4582,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4582,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4583,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4583,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4584,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4584,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4585,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4585,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4586,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4586,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4587,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4587,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4588,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4588,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4589,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4589,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4590,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4590,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4591,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4591,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4592,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4592,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4593,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4593,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4594,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4594,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4595,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4595,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4596,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4596,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4597,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4597,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4598,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4598,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4599,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4599,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4600,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4600,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4601,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4601,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4602,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4602,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4603,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4603,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4604,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4604,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4605,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4605,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4606,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4606,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4607,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4607,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4608,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4608,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4609,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4609,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4610,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4610,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4611,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4611,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4612,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4612,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4613,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4613,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4614,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4614,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4615,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4615,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4616,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4616,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4617,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4617,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4618,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4618,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4619,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4619,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4620,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4620,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4621,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4621,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4622,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4622,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4623,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4623,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4624,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4624,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4625,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4625,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4626,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4626,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4627,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4627,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4628,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4628,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4629,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4629,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4630,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4630,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4631,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4631,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4632,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4632,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4633,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4633,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4634,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4634,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4635,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4635,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4636,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4636,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4637,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4637,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4638,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4638,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4639,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4639,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4640,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4640,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4641,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4641,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4642,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4642,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4643,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4643,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4644,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4644,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4645,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4645,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4646,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4646,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4647,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4647,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4648,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4648,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4649,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4649,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4650,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4650,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4651,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4651,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4652,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4652,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4653,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4653,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4654,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4654,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4655,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4655,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4656,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4656,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4657,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4657,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4658,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4658,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4659,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4659,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4660,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4660,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4661,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4661,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4662,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4662,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4663,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4663,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4664,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4664,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4665,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4665,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4666,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4666,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4667,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4667,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4668,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4668,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4669,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4669,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4670,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4670,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4671,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4671,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4672,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4672,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4673,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4673,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4674,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4674,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4675,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4675,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4676,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4676,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4677,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4677,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4678,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4678,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4679,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4679,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4680,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4680,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4681,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4681,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4682,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4682,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4683,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4683,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4684,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4684,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4685,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4685,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4686,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4686,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4687,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4687,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4688,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4688,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4689,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4689,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4690,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4690,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4691,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4691,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4692,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4692,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4693,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4693,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4694,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4694,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4695,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4695,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4696,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4696,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4697,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4697,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4698,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4698,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4699,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4699,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4700,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4700,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4701,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4701,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4702,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4702,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4703,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4703,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4704,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4704,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4705,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4705,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4706,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4706,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4707,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4707,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4708,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4708,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4709,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4709,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4710,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4710,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4711,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4711,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4712,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4712,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4713,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4713,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4714,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4714,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4715,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4715,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4716,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4716,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4717,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4717,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4718,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4718,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4719,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4719,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4720,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4720,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4721,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4721,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4722,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4722,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4723,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4723,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4724,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4724,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4725,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4725,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4726,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4726,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4727,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4727,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4728,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4728,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4729,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4729,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4730,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4730,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4731,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4731,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4732,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4732,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4733,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4733,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4734,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4734,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4735,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4735,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4736,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4736,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4737,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4737,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4738,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4738,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4739,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4739,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4740,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4740,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4741,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4741,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4742,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4742,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4743,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4743,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4744,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4744,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4745,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4745,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4746,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4746,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4747,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4747,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4748,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4748,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4749,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4749,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4750,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4750,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4751,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4751,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4752,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4752,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4753,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4753,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4754,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4754,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4755,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4755,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4756,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4756,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4757,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4757,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4758,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4758,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4759,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4759,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4760,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4760,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4761,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4761,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4762,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4762,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4763,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4763,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4764,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4764,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4765,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4765,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4766,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4766,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4767,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4767,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4768,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4768,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4769,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4769,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4770,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4770,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4771,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4771,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4772,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4772,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4773,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4773,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4774,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4774,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4775,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4775,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4776,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4776,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4777,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4777,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4778,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4778,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4779,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4779,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4780,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4780,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4781,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4781,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4782,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4782,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4783,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4783,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4784,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4784,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4785,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4785,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4786,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4786,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4787,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4787,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4788,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4788,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4789,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4789,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4790,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4790,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4791,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4791,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4792,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4792,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4793,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4793,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4794,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4794,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4795,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4795,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4796,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4796,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4797,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4797,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4798,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4798,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4799,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4799,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4800,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4800,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4801,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4801,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4802,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4802,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4803,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4803,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4804,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4804,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4805,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4805,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4806,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4806,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4807,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4807,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4808,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4808,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4809,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4809,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4810,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4810,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4811,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4811,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4812,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4812,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4813,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4813,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4814,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4814,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4815,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4815,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4816,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4816,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4817,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4817,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4818,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4818,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4819,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4819,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4820,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4820,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4821,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4821,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4822,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4822,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4823,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4823,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4824,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4824,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4825,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4825,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4826,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4826,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4827,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4827,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4828,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4828,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4829,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4829,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4830,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4830,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4831,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4831,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4832,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4832,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4833,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4833,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4834,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4834,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4835,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4835,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4836,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4836,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4837,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4837,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4838,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4838,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4839,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4839,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4840,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4840,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4841,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4841,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4842,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4842,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4843,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4843,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4844,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4844,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4845,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4845,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4846,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4846,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4847,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4847,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4848,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4848,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4849,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4849,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4850,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4850,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4851,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4851,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4852,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4852,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4853,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4853,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4854,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4854,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4855,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4855,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4856,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4856,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4857,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4857,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4858,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4858,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4859,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4859,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4860,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4860,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4861,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4861,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4862,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4862,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4863,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4863,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4864,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4864,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4865,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4865,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4866,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4866,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4867,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4867,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4868,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4868,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4869,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4869,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4870,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4870,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4871,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4871,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4872,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4872,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4873,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4873,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4874,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4874,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4875,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4875,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4876,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4876,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4877,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4877,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4878,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4878,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4879,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4879,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4880,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4880,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4881,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4881,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4882,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4882,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4883,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4883,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4884,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4884,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4885,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4885,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4886,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4886,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4887,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4887,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4888,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4888,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4889,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4889,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4890,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4890,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4891,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4891,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4892,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4892,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4893,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4893,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4894,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4894,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4895,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4895,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4896,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4896,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4897,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4897,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4898,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4898,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4899,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4899,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4900,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4900,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4901,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4901,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4902,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4902,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4903,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4903,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4904,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4904,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4905,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4905,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4906,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4906,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4907,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4907,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4908,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4908,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4909,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4909,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4910,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4910,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4911,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4911,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4912,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4912,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4913,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4913,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4914,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4914,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4915,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4915,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4916,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4916,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4917,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4917,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4918,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4918,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4919,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4919,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4920,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4920,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4921,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4921,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4922,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4922,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4923,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4923,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4924,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4924,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4925,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4925,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4926,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4926,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4927,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4927,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4928,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4928,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4929,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4929,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4930,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4930,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4931,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4931,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4932,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4932,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4933,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4933,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4934,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4934,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4935,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4935,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4936,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4936,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4937,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4937,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4938,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4938,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4939,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4939,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4940,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4940,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4941,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4941,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4942,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4942,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4943,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4943,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4944,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4944,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4945,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4945,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4946,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4946,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4947,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4947,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4948,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4948,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4949,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4949,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4950,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4950,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4951,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4951,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4952,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4952,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4953,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4953,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4954,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4954,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4955,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4955,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4956,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4956,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4957,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4957,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4958,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4958,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4959,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4959,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4960,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4960,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4961,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4961,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4962,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4962,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4963,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4963,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4964,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4964,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4965,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4965,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4966,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4966,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4967,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4967,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4968,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4968,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4969,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4969,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4970,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4970,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4971,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4971,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4972,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4972,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4973,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4973,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4974,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4974,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4975,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4975,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4976,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4976,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4977,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4977,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4978,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4978,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4979,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4979,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4980,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4980,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4981,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4981,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4982,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4982,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4983,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4983,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4984,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4984,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4985,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4985,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4986,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4986,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4987,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4987,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4988,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4988,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4989,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4989,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4990,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4990,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4991,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4991,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4992,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4992,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4993,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4993,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4994,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4994,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4995,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4995,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4996,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4996,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4997,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4997,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4998,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4998,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4999,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 4999,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 5000,
+        "channel": "plain",
+        "vjps": 1
+      },
+      {
+        "role": "training",
+        "iteration": 5000,
+        "channel": "contrast",
+        "vjps": 1
+      },
+      {
+        "role": "export",
+        "iteration": 5000,
+        "channel": "plain",
+        "vjps": 0
+      },
+      {
+        "role": "export",
+        "iteration": 5000,
+        "channel": "contrast",
+        "vjps": 0
+      }
+    ]
+  },
+  "final_iteration": 5000
+}

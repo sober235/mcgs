@@ -1,0 +1,3 @@
+commit	whole_head_margin	memory_gb	status	description
+485dfefbc8619d80d0e4b37674c4b53b59bcf79b	-0.11778703065863405	33.603490352630615	baseline	paired_anchor_g2_baseline_v1; fixed geometry; shared; 0 updates
+485dfefbc8619d80d0e4b37674c4b53b59bcf79b	-0.1173436855439586	34.34823226928711	discard	paired_anchor_trial_v1; fixed geometry; shared; 500 updates

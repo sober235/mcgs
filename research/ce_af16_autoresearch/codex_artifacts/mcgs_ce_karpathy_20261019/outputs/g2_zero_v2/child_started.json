@@ -1,0 +1,15 @@
+{
+  "pid": 3654440,
+  "command": [
+    "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+    "-X",
+    "utf8",
+    "-B",
+    "-u",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/runner.py",
+    "--launch",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019/outputs/g2_zero_v2/launch.json"
+  ],
+  "gpu_uuid": "GPU-64b093fe-3c70-3b73-51f9-083bf88c8970",
+  "timestamp": 1792400668.7949164
+}

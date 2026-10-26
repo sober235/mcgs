@@ -1,0 +1,46 @@
+{
+  "created_utc": "2026-10-19T07:22:25.918342+00:00",
+  "status": "research_and_builder_check_complete_no_new_implementation_or_training",
+  "goal": "Improve MC-GS under unchangedAF16/mask/data using PSNR/SSIM/NMSE; no external dataset pretrained prior",
+  "source_receipts": {
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/history_audit_20261018.md": "c20efc1fefb8548262fa4c1e7810f5c50aac5f4f9dccc385a819ba1ecfb39f3e",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/diagnostics/joint_coupling_20261018/REPORT.md": "af9e8768167131fda5796095bf60938f17213f595fe54f135baaa23d62233e77",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/reassessment_without_hfen_20261019/summary.json": "854dc7aa0da4cee274df58f98631d2dbae1b1e4372f1c5903e230da12cebaf3b",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/diagnostics/zsssdu_strength_check_20261019/evidence.json": "433f1181411723f90aafab2fdad73a5605e89790a2975871fc6a9490b5ac5ee8",
+    "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/trainer/_trainer_e778bf2_ar/paired_gs/gaussian/joint_gaussian_model.py": "31eea44eb636113e29b1f99192f297e38ac0c7b937e8dc3b5daff11c349fd966",
+    "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois/trainer/_trainer_e778bf2_ar/paired_gs/trainers/joint_trainer.py": "f88f63847f7e8d5a628eedabbe1918e150635f5185f67a6a10f3aaf7051b384f",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_autoresearch_20261017/frequency_adam/outputs/adamflat_g2_v1/training/ar_i1_k30p90/config.yaml": "d99a5839e03d00f70dd1c8b7f85888d98755aaf56ef7a82e6e87164acad3e4b6"
+  },
+  "existing_frozen_score_inputs_revalidated": 94,
+  "documents_sha256": {
+    "BRIEF.md": "6a014e357f3a97c5ca943a4863c3dcdce894decaacc932a668ec927a610c5ae0",
+    "LITERATURE.md": "63db517a26b57e178bb1a69bb702e09133060d93bccc81216486f62928624023",
+    "BUILDER_CHECK.md": "46c91931f10ce6915da2ec70aad8992fce025bd374a53262291c4673e58cbbc4"
+  },
+  "searched_through": "2026-10-19",
+  "new_primary_papers": [
+    "2609.24468v1",
+    "2603.05681v1",
+    "2608.18055v1",
+    "2502.06510v1",
+    "2404.09591",
+    "PMC11790797"
+  ],
+  "primary_implementation_urls": [
+    "https://github.com/wenqihuang/FastGaborMRI",
+    "https://github.com/OSU-MR/reside",
+    "https://ubc-vision.github.io/3dgs-mcmc/"
+  ],
+  "recommended_direction": "Scan-specific implicit amplitude function, explicit independent phases, unchanged sharedGaussian geometry/renderer; conditional on model identity boundary",
+  "pure_explicit_alternatives": [
+    "Gabor carrier extension",
+    "Fixed-budget relocation preserving unchanged-row optimizer state"
+  ],
+  "deferred": [
+    "Scan-specific self-calibrated denoiser with Gaussian physical step",
+    "Existing proxDC pilot pending g2/3metric integration"
+  ],
+  "builder_check": "One consequential user choice remains: whether a scan-specific small network is allowed; other details are routine builder choices",
+  "memory_adapter": "No quest memory/artifact tools exposed; used existing project history and left this versioned local memory receipt",
+  "scientific_claim": "No candidate yet measured in current dataset; literature support only; no guarantee of superiority"
+}

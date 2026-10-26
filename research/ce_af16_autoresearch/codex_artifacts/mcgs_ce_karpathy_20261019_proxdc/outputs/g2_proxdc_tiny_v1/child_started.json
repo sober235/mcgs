@@ -1,0 +1,15 @@
+{
+  "pid": 3847558,
+  "command": [
+    "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+    "-X",
+    "utf8",
+    "-B",
+    "-u",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_proxdc/proxdc_runner.py",
+    "--launch",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261019_proxdc/outputs/g2_proxdc_tiny_v1/launch.json"
+  ],
+  "gpu_uuid": "GPU-05cb1334-b9c8-1afc-ec78-b0eef86e193d",
+  "timestamp": 1792407037.8969634
+}

@@ -1,0 +1,54 @@
+diff --git a/tests/test_carrier_cuda.py b/tests/test_carrier_cuda.py
+index 82896ef..b67ef41 100644
+--- a/tests/test_carrier_cuda.py
++++ b/tests/test_carrier_cuda.py
+@@ -29,6 +29,31 @@ def inputs(k=1, dtype=torch.float32, device='cpu'):
+             torch.full((k, 3), .08, dtype=dtype, device=device)]
+ 
+ 
++def fixture_inputs(case):
++    # A length-one density view is considered contiguous regardless of stride.
++    count = 0 if case == 'empty' else (2 if case in ('overlap', 'nondefault_stream', 'noncontiguous') else 1)
++    return inputs(count, torch.float64)
++
++
++def strided_inputs(values):
++    return [torch.stack((x, x), -1)[..., 0] for x in values]
++
++
++def test_noncontiguous_fixture_preserves_values_and_strides_for_all_inputs():
++    reference = fixture_inputs('noncontiguous')
++    values = [x.to(dtype=torch.complex64 if i == 3 else torch.float32) for i, x in enumerate(reference)]
++    views = strided_inputs(values)
++    assert all(not x.is_contiguous() for x in views)
++    for value, view in zip(values, views):
++        assert view.shape == value.shape
++        assert torch.equal(value, view)
++        # Strided leaf inputs must retain the same gradients through contiguous
++        # conversion used by the real wrapper, including complex density.
++        view.requires_grad_()
++        gradient, = torch.autograd.grad(view.contiguous().real.sum(), view)
++        assert torch.equal(gradient, torch.ones_like(view))
++
++
+ def test_import_has_no_cuda_or_build_side_effects():
+     code = 'import sys,torch; import carrier_operator; assert not torch.cuda.is_initialized(); assert "torch.utils.cpp_extension" not in sys.modules'
+     result = subprocess.run([sys.executable, '-B', '-c', code], cwd=ROOT, capture_output=True, text=True)
+@@ -310,7 +335,7 @@ def test_gpu_oracle_and_all_vjps(gpu_gate, case):
+     from carrier_reference import carrier_correction_reference
+     _, report = gpu_gate
+     shape = (9, 5, 11) if case in ('ragged', 'noncontiguous', 'nondefault_stream') else ((17, 9, 11) if case == 'degenerate' else (3, 4, 5))
+-    values = inputs(0 if case == 'empty' else (2 if case in ('overlap', 'nondefault_stream') else 1), torch.float64)
++    values = fixture_inputs(case)
+     if values[0].numel():
+         values[0][:] = torch.tensor([-.12, .17, -.23])
+         values[1][:] = torch.tensor([-.7, -1.1, -.9])
+@@ -344,7 +369,7 @@ def test_gpu_oracle_and_all_vjps(gpu_gate, case):
+     cpu = [x.requires_grad_() for x in values]
+     cuda = [x.detach().to(device='cuda', dtype=torch.complex64 if i == 3 else torch.float32) for i, x in enumerate(cpu)]
+     if case == 'noncontiguous':
+-        cuda = [torch.stack((x, x), -1)[..., 0] for x in cuda]
++        cuda = strided_inputs(cuda)
+         assert all(not x.is_contiguous() for x in cuda)
+     cuda = [x.requires_grad_() for x in cuda]
+     expected = carrier_correction_reference(*cpu, shape)

@@ -1,0 +1,15 @@
+{
+  "pid": 1163639,
+  "command": [
+    "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+    "-X",
+    "utf8",
+    "-B",
+    "-u",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/caseprior512_runner.py",
+    "--launch",
+    "/home/congcongliu/codex_artifacts/mcgs_ce_karpathy_20261022_relocation/outputs/caseprior512_zero_v1/launch.json"
+  ],
+  "gpu_uuid": "GPU-18b3d14a-7ef2-870d-d438-1d6d09755a2d",
+  "timestamp": 1792672349.0674584
+}
