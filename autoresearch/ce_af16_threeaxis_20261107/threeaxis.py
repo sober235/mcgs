@@ -19,6 +19,9 @@ leave every frozen file unchanged:
     made from the two current renders, (pre/sigma_pre + post/sigma_post) / 2. The trainer refreshes pre then
     post in the same iteration before either target is used, so the pre call stores its input, the post call
     denoises both, and a wrapped NonLocalRED.refresh replaces the pre target before the loss reads it.
+  * variant {'kind': 'profile', 'attrs': {...}}: bm4d_pos with BM4DProfile attributes overridden (PROFILE_ATTRS),
+    e.g. anisotropic blocks / search windows (transverse = phase-encode plane). joint_bm
+    accepts the same optional 'attrs'.
 No GT or ROI is read by any training path here; GT enters only through the frozen evaluator.
 
 Loop (Karpathy autoresearch; program.md is the human layer):
@@ -57,7 +60,12 @@ DEV_SEEDS = (42, 7)
 CONFIRM_SEEDS = (201, 207)
 KEEP_MARGIN = 1e-4
 EXTRA_LOSS_KEYS = frozenset({'nl_sharpen'})
-VARIANTS = ('none', 'joint_bm')
+VARIANTS = ('none', 'joint_bm', 'profile')
+# BM4DProfile attributes a variant may override (block / step / search sizes, stack sizes, matching thresholds).
+# Tuples are given as JSON lists, ordered like the crop axes (a0 readout, a1, a2). 'denoise_residual' is excluded:
+# bm4d 4.2.5's residual path fails with a scalar sigma (operands (2N..) vs (N..) broadcast error, tested 2026-11-07).
+PROFILE_ATTRS = frozenset({'bs_ht', 'bs_wiener', 'step_ht', 'step_wiener', 'search_window_ht', 'search_window_wiener',
+                           'max_stack_size_ht', 'max_stack_size_wiener', 'tau_match', 'tau_match_wiener', 'beta'})
 SCRUB = ('LD_LIBRARY_PATH', 'LD_PRELOAD', 'CUDA_LAUNCH_BLOCKING', 'PYTHONSTARTUP', 'PYTHONPATH',
          'PYTHONHOME', 'CUDA_VISIBLE_DEVICES', 'OMP_NUM_THREADS')
 NEED_FREE_GB = 50.
@@ -165,9 +173,71 @@ def check_recipe(recipe, variant, scratch):
     require(variant.get('kind', 'none') in VARIANTS, f'unknown variant {variant}')
     if variant.get('kind', 'none') != 'none':
         require(loaded['loss_edits'].get('nl_denoiser') == 'bm4d_pos', 'variants extend bm4d_pos only')
+        check_attrs(variant.get('attrs', {}))
+    if variant.get('kind') == 'profile':
+        require(variant.get('attrs'), 'a profile variant needs attrs')
+    if variant.get('attrs'):
+        preflight_attrs(variant['attrs'], float(loaded['loss_edits'].get('nl_sharpen', 1.0)))
     if 'nl_sharpen' in loaded['loss_edits']:
         require(0 < loaded['loss_edits']['nl_sharpen'] <= 4, 'nl_sharpen must be in (0, 4]')
     return loaded
+
+
+# ------------------------------------------------------------------ BM4D profile overrides
+def check_attrs(attrs):
+    require(isinstance(attrs, dict) and set(attrs) <= PROFILE_ATTRS, f'profile attrs must be within {sorted(PROFILE_ATTRS)}')
+    for key, value in attrs.items():
+        if isinstance(value, list):
+            require(len(value) == 3 and all(isinstance(v, int) and 1 <= v <= 32 for v in value), f'{key} must be 3 ints')
+        else:
+            require(type(value) in (int, float) and math.isfinite(value) and value > 0, f'invalid {key}')
+
+
+def preflight_attrs(attrs, sharpen=1.0):
+    """bm4d 4.2.5 returns NaN for some legal-looking profiles (e.g. a block size of 2 on any axis with the bior1.5
+    hard-threshold transform); the frozen refresh would then stop the GPU run. Check on a small synthetic volume."""
+    import numpy as np
+    import bm4d
+    g = np.random.default_rng(0)
+    base = np.zeros((40, 44, 36), np.float32)
+    base[6:34, 7:37, 5:31] = 1.0
+    base[15:25, 15:25, 12:20] = 1.8
+    z = np.abs(base + 0.05 * g.standard_normal(base.shape)).astype(np.float32)
+    pro = bm4d.BM4DProfile()
+    pro.num_threads = 8
+    if sharpen != 1.0:
+        pro.set_sharpen(sharpen)
+    apply_attrs(pro, attrs)
+    y = np.asarray(bm4d.bm4d(z, 0.05, pro))
+    require(y.shape == z.shape and np.isfinite(y).all(), f'BM4D profile {attrs} gives a nonfinite or misshaped output')
+    return float(np.sqrt(((y - base) ** 2).mean()))
+
+
+def apply_attrs(pro, attrs):
+    check_attrs(attrs)
+    for key, value in attrs.items():
+        setattr(pro, key, tuple(value) if isinstance(value, list) else value)
+    return {key: getattr(pro, key) for key in attrs}
+
+
+def install_profile(nlr, variant):
+    attrs = variant.get('attrs', {})
+    check_attrs(attrs)
+    base_make = nlr.make_denoiser               # long_chain's bm4d_pos wrapper, installed just before
+
+    def make_denoiser(name, profile='np', threads=32, sharpen=1.0, **kwargs):
+        require(name == 'bm4d_pos', f'profile variant wraps bm4d_pos only, got {name!r}')
+        inner = base_make(name, profile, threads, sharpen, **kwargs)
+        applied = apply_attrs(inner.profile, attrs)   # the same profile object the BM4D closure uses
+
+        def run(z, sigma):
+            out = inner(z, sigma)
+            run.last_stats = dict(getattr(inner, 'last_stats', {}), variant='profile', profile_overrides=applied)
+            return out
+        run.profile, run.last_stats = inner.profile, {}
+        return run
+    nlr.make_denoiser = make_denoiser
+    return nlr
 
 
 # ------------------------------------------------------------------ joint block-matching variant
@@ -186,6 +256,7 @@ def install_joint_bm(nlr, variant):
         pro.num_threads = int(threads)
         if float(sharpen) != 1.0:
             pro.set_sharpen(float(sharpen))
+        applied = apply_attrs(pro, variant.get('attrs', {}))
         state = {}
 
         def denoise(z, sigma, matches):
@@ -212,6 +283,7 @@ def install_joint_bm(nlr, variant):
                               'min_before_clip': float(y.min())}
             state.update(phase='contrast_done', plain_target=np.maximum(yp, np.float32(0)))
             run.last_stats = {'variant': 'joint_bm', 'guide_sigma': guide_sigma, 'seconds_all': time.time() - t0,
+                              'profile_overrides': applied,
                               'sigma_plain': sp, 'sigma_contrast': sc, 'kernel': stats}
             return np.maximum(yc, np.float32(0))
         run.profile, run.last_stats, run.state, run.joint = pro, {}, state, True
@@ -264,6 +336,8 @@ def install_variant(lc, variant):
         nlr = original()
         if kind == 'joint_bm':
             install_joint_bm(nlr, variant)
+        elif kind == 'profile':
+            install_profile(nlr, variant)
         return nlr
     lc.install_bm4d_pos = install
 
@@ -619,6 +693,25 @@ def cmd_selftest(args):
         f"{float((tc - 1.3 * truth).square().mean().sqrt()):.4f}; relnorm plain "
         f"{red.info['plain']['target_relative_norm']:.4f}, info keys ok={bool(info_p) and bool(info_c)}")
     require(err(tp) < err(placeholder), 'joint denoising did not reduce the plain error on the synthetic pair')
+
+    # profile variant: overrides reach the profile object the BM4D closure actually uses
+    nlr2 = load_module(NONLOCAL_RED, '_ta_nonlocal_red_test2')
+    base_make = nlr2.make_denoiser
+    nlr2.make_denoiser = lambda name, *a, **k: base_make('bm4d' if name == 'bm4d_pos' else name, *a, **k)
+    attrs = {'bs_ht': [4, 8, 8], 'search_window_ht': [7, 11, 11], 'max_stack_size_ht': 32}
+    try:
+        preflight_attrs({'bs_ht': [2, 4, 4]})
+        raise AssertionError('preflight accepted a NaN-producing profile')
+    except RuntimeError:
+        pass
+    log(f'  preflight ok, synthetic rms err {preflight_attrs(attrs):.4f}')
+    install_profile(nlr2, {'kind': 'profile', 'attrs': attrs})
+    den = nlr2.make_denoiser('bm4d_pos', 'np', 4, 1.0)
+    require(den.profile.bs_ht == (4, 8, 8) and den.profile.max_stack_size_ht == 32, 'profile overrides not applied')
+    y = den(zp.abs().numpy(), 0.05)
+    require(y.shape == tuple(zp.shape) and np.isfinite(y).all(), 'profile variant output invalid')
+    require(den.last_stats.get('profile_overrides', {}).get('search_window_ht') == (7, 11, 11), 'overrides not logged')
+    log(f"  profile variant: rms err {float(np.sqrt(((y - base) ** 2).mean())):.4f} with {den.last_stats['profile_overrides']}")
     log('SELFTEST OK')
 
 
