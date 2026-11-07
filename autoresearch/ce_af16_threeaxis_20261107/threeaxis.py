@@ -841,6 +841,42 @@ def cmd_enqueue(args):
     publish(root)
 
 
+def cmd_probe_relax(args):
+    """CPU probe of the export relaxation on a finished run: candidate = raw + alpha (canonical - raw) through the
+    frozen long_chain.relax, scored by the frozen evaluator (lc.score, CPU). Writes ROOT/probes/<run>/s<seed>_a<alpha>
+    and never touches the run directory. A positive probe is promoted by enqueueing the recipe edit (alpha)."""
+    require(os.environ.get('CUDA_VISIBLE_DEVICES') in ('-1', ''), 'probe-relax is CPU only')
+    lc = long_chain()
+    root = Path(args.root)
+    run = (root / 'runs' / args.run).resolve()
+    require(run.is_dir() and run.parent == (root / 'runs').resolve(), f'no run {args.run}')
+    out_root = root / 'probes' / run.name
+    result = {}
+    for seed in args.seeds:
+        stage = run / f's{seed}' / 'm0625'
+        base = axis_summary(run / 'scores' / f's{seed}_m0625')
+        log(f'{run.name} s{seed} alpha 1 (as run): {short(base)}')
+        result[str(seed)] = {'1': dict(m3=base['m3'], short=short(base))}
+        for alpha in args.alpha:
+            require(0 <= alpha <= 1, 'alpha in [0, 1]')
+            tag = f's{seed}_a{alpha:g}'
+            rdir = out_root / tag / f'relax_a{alpha:g}'
+            if not (rdir / 'relax.json').exists():
+                lc.relax(stage, float(alpha), rdir)
+            sdir = out_root / tag / 'score'
+            if not (sdir / 'objective.json').exists():
+                lc.score(rdir, sdir, f'{run.name}_{tag}', out_root / tag / f'score_{time.strftime("%H%M%S")}.log')
+            summ = axis_summary(sdir)
+            result[str(seed)][f'{alpha:g}'] = dict(m3=summ['m3'], short=short(summ))
+            log(f'{run.name} s{seed} alpha {alpha:g}: M3 {summ["m3"]:+.5f} ({summ["m3"] - base["m3"]:+.5f}) {short(summ)}')
+    for alpha in [1.0] + list(args.alpha):
+        vals = [result[str(s)][f'{alpha:g}']['m3'] for s in args.seeds]
+        log(f'alpha {alpha:g}: M3 over seeds {min(vals):+.5f}')
+    art = os.environ.get('MCGS_ARTIFACT_DIR')
+    if art:
+        write_json(Path(art) / f'probe_relax_{run.name}.json', result)
+
+
 def cmd_skip(args):
     """Mark queued, unclaimed items as skipped (ledger row); running workers then never claim them."""
     root = Path(args.root)
@@ -1020,10 +1056,12 @@ def main():
     e.add_argument('--front', action='store_true', help='run before the already queued batches')
     w.add_argument('--root', default=str(ROOT))
     m = sub.add_parser('summary'); m.add_argument('--root', default=str(ROOT))
+    pr = sub.add_parser('probe-relax'); pr.add_argument('--root', default=str(ROOT)); pr.add_argument('--run', required=True)
+    pr.add_argument('--alpha', type=float, nargs='+', required=True); pr.add_argument('--seeds', type=int, nargs='+', default=list(DEV_SEEDS))
     k = sub.add_parser('skip'); k.add_argument('--root', default=str(ROOT)); k.add_argument('--reason', required=True)
     k.add_argument('ids', nargs='+')
     args = ap.parse_args()
-    {'selftest': cmd_selftest, 'stage2': cmd_stage2, 'worker': cmd_worker, 'summary': cmd_summary,
+    {'probe-relax': cmd_probe_relax, 'selftest': cmd_selftest, 'stage2': cmd_stage2, 'worker': cmd_worker, 'summary': cmd_summary,
      'skip': cmd_skip, 'enqueue': cmd_enqueue}[args.cmd](args)
 
 
