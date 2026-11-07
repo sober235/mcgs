@@ -28,7 +28,7 @@ leave every frozen file unchanged:
     is the residual filtered by the Gaussian kernel, so with sigma ~ 0.7-1 voxel the 0.3-0.5 cycles/px residual
     that separates MC-GS from ZS-SSDU on transverse planes reaches the parameters attenuated ~10-25x. The
     modified copy is written next to the run (never over the base) and its SHA-256 recorded.
-  * variant {'kind': 'dc_target'}: each refresh denoises the data-consistent image of the current render instead
+  * variant {'kind': 'dc_target', 'gain': g (default 1)}: each refresh denoises the data-consistent image of the current render instead
     of the render itself, x_dc = sum_c conj(S_c) F^-1[ mf*y_dc + (1-mf)*F(S_c x) ] -- the frozen canonical export
     formula (nonlocal_autoresearch/runner.export_trainer_volume) on the trainer's own acquired data. The target thus
     carries the measured high frequencies, and block matching can spread them (one plug-and-play ISTA step per
@@ -228,6 +228,8 @@ def check_part(variant, loaded):
         require(variant.get('attrs'), 'a profile variant needs attrs')
     if variant.get('kind') == 'sigma':
         check_sigma_variant(variant)
+    if variant.get('kind') == 'dc_target':
+        check_dc_variant(variant)
     if variant.get('kind') == 'init_scale':
         require(type(variant.get('factor')) in (int, float) and 0.5 <= variant['factor'] <= 1.5, 'init_scale factor in [0.5, 1.5]')
     if variant.get('attrs'):
@@ -332,6 +334,17 @@ def frozen_known_zero():
     return kz
 
 
+def dc_blend(x, x_dc, gain):
+    """x + gain * (x_dc - x): gain 1 = the data-consistent image; > 1 over-relaxes toward the measured residual."""
+    return x_dc if gain == 1.0 else x + gain * (x_dc - x)
+
+
+def check_dc_variant(variant):
+    require(set(variant) <= {'kind', 'gain'}, f'dc_target takes only gain, got {sorted(variant)}')
+    gain = variant.get('gain', 1.0)
+    require(type(gain) in (int, float) and math.isfinite(gain) and 0 < gain <= 3, 'dc_target gain in (0, 3]')
+
+
 def install_dc_target(nlr, variant):
     import gc
     import torch
@@ -349,13 +362,15 @@ def install_dc_target(nlr, variant):
         with torch.no_grad():
             x_dc = kz.hard_dc_combine(x, getattr(trainer, f'csm_{tag}'), getattr(trainer, f'kspace_dc_{tag}'),
                                       getattr(trainer, f'mask_fit_{tag}'))
+            x_dc = dc_blend(x, x_dc, float(variant.get('gain', 1.0)))
             ok = tuple(x_dc.shape) == tuple(x.shape) and bool(torch.isfinite(torch.view_as_real(x_dc)).all())
             rel = float((x_dc - x).abs().norm() / x.abs().norm().clamp_min(1e-12))
         require(ok, 'dc_target image invalid')
         info = orig_refresh(self, name, x_dc, it)
         del x_dc
-        info['dc_target'] = dict(dc_minus_render_relative_norm=rel)
-        print(f"[nl] dc_target {name} iter={it}: |x_dc - x|/|x| = {rel:.5g}", flush=True)
+        info['dc_target'] = dict(dc_minus_render_relative_norm=rel, gain=float(variant.get('gain', 1.0)))
+        print(f"[nl] dc_target {name} iter={it} gain={float(variant.get('gain', 1.0)):g}: |x_t - x|/|x| = {rel:.5g}",
+              flush=True)
         return info
     nlr.NonLocalRED.refresh = refresh
     return nlr
@@ -754,11 +769,19 @@ def cmd_worker(args):
     if queue:
         init_root(root, read_json(queue))
     require((root / 'keeper.json').exists(), 'no keeper.json; start once with a --queue file that has keeper0')
-    failures, idle = 0, 0.
+    failures, idle, started, drain_seen = 0, 0., time.time(), False
     while True:
-        if (root / 'STOP').exists():
-            log('STOP file present:', (root / 'STOP').read_text().strip())
-            break
+        stop = root / 'STOP'
+        if stop.exists():
+            text = stop.read_text().strip()
+            # 'drain ...' retires the workers that were running when it was written (code update between items);
+            # workers started after it ignore it. Any other STOP (e.g. a success candidate) stops every worker.
+            if not (text.startswith('drain') and stop.stat().st_mtime < started):
+                log('STOP file present:', text)
+                break
+            if not drain_seen:
+                log('ignoring drain STOP written before this worker started:', text)
+                drain_seen = True
         item, keeper, margin = claim(root, queue, gpu)
         if item is None:
             if queue or idle >= args.idle_wait:
@@ -970,6 +993,17 @@ def cmd_selftest(args):
     require(torch.allclose(kz.hard_dc_combine(torch.zeros_like(xs), S, ydc, mfit),
                            (kz.ifft3c(ydc) * S.conj()).sum(0), atol=1e-6), 'dc target of zero must be the ZF image')
     log(f'  dc_target: frozen {Path(kz.__file__).name}.hard_dc_combine exact-data and zero-render identities hold')
+    xd = kz.hard_dc_combine(torch.zeros_like(xs), S, ydc, mfit)
+    require(dc_blend(xs, xd, 1.0) is xd and torch.allclose(dc_blend(xs, xd, 2.0), 2 * xd - xs), 'dc_blend wrong')
+    for bad in ({'kind': 'dc_target', 'gain': 0}, {'kind': 'dc_target', 'gain': 4}, {'kind': 'dc_target', 'beta': 1}):
+        try:
+            check_dc_variant(bad)
+        except SystemExit:
+            continue
+        except Exception:
+            continue
+        raise RuntimeError(f'check_dc_variant accepted {bad}')
+    log('  dc_target gain: blend and validation ok')
     log(f"  profile variant: rms err {float(np.sqrt(((y - base) ** 2).mean())):.4f} with {den.last_stats['profile_overrides']}")
     log('SELFTEST OK')
 

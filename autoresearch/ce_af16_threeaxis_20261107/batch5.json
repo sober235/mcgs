@@ -1,0 +1,67 @@
+{
+  "batch": "TA-B5 (2026-11-08): build on the dc_target keeper (TD01)",
+  "evidence": "Keepers: TB06 BM4D step 2 (M3 -0.12467, on TA02) and TD01 dc_target (M3 -0.12293, on TA02; does not contain step 2). TD02 (step 2 + dc + sigma 0.025) -0.130: the higher sigma hurt. TD03 (dc refresh every 125) -0.2765 and TB05 (render refresh, sigma x0.6) -0.1448: repeated refreshes over-smooth; one target at 4501 stays. At 4501 |x_dc - x|/|x| = 1.7% pre, 0.9% post: the measured residual is small, so a gain > 1 on it is the direct dose test.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.0
+      },
+      {
+        "kind": "dc_target"
+      }
+    ]
+  },
+  "note": "keeper0/assume_keeper_variant are for selftest only; enqueue validates against the live keeper. gain items need the worker code from this commit (old workers retired with a drain STOP first).",
+  "items": [
+    {
+      "id": "TE01_dc_bm4d_step2",
+      "variant": {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "hypothesis": "TB06's denser BM4D grid (+1.5e-3 on TA02) is independent of the target input, so it adds on top of dc_target"
+    },
+    {
+      "id": "TE02_dc_gain_1.5",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 1.5
+      },
+      "hypothesis": "dose: the measured residual helped at gain 1; over-relaxing it 1.5x puts more measured HF into the BM4D input"
+    },
+    {
+      "id": "TE03_dc_gain_2",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 2.0
+      },
+      "hypothesis": "upper bracket of the dose test (noise in the residual grows with the gain)"
+    }
+  ]
+}
