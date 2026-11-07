@@ -140,9 +140,12 @@ Two diagnostics settle where the gap is:
   mask2d), so neither contrast holds the other's missing samples.
 - **BM4D ceiling (`diag_target_ceiling.py`):** this probe is post-hoc and not admissible. BM4D of TE01's final
   export, blended at w 0.5/1 with σ_rel 0.01/0.02, never improves the transverse axis: the best a0 is −0.1213 vs
-  −0.1204 as exported. The missing transverse 0.5 dB is wrong or absent unsampled high frequency, not noise. A
-  BM4D-type prior cannot supply it, however the NL target is tuned. Closing it needs a prior that inpaints
-  unsampled (ky, kz) structure, such as a learned one. That is outside the current scope and needs the user's decision.
+  −0.1204 as exported. The missing transverse 0.5 dB is wrong or absent unsampled high frequency, not noise, so
+  denoising the result cannot supply it.
+- **Correction (03:50):** the dose of the data-consistency gain does move the transverse axis. TE03 (gain 2, on
+  TE01) is kept at M3 −0.11809 (+3.3e-3); s42 a0 −0.1180, s7 sagittal −0.0090. Over-relaxing the measured residual
+  into the BM4D input acts before the fit, unlike a post-hoc denoise. Batch 7 continues the dose (gain 3, gain 4).
+  The earlier reading, that the BM4D family sits near its transverse ceiling, was premature.
 
 ## Commands
 
