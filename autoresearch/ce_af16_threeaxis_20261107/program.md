@@ -109,6 +109,41 @@ the local dev branch before each launch. The source digest of every run is in it
 | E. Sigma per contrast | pre and post have different SNR and limiters | later |
 | F. Base retraining with the NL prior from stage 1 | the 4500-step base was trained without it; stage 2 may be too short to undo the smoothing | expensive, ask first |
 
+## Findings so far (2026-11-08 03:30 CST)
+
+Keeper chain (M3, min over seeds 42/7 of the worst axis's best-plane S6):
+
+| keeper | change | M3 |
+|---|---|---|
+| FV06 (keeper0) | — | −0.12704 |
+| TA02 | joint pre/post block matching | −0.12620 |
+| TB06 | BM4D step 3 → 2 | −0.12467 |
+| TD01 | dc_target: BM4D of the data-consistent image (frozen `hard_dc_combine`), on TA02 | −0.12293 |
+| TC02 | joint guide σ 1.5 | −0.12236 |
+| TE01 | + BM4D step 2 | −0.12137 |
+
+Coronal passes 6/6 on both seeds; sagittal plane 43 reaches 1/6. Transverse is the limiter. On plane 196 the keeper
+is 0.52 dB short of ZS-SSDU on PSNR, pre and post alike. The limiter metric is post NMSE.
+
+Negative results:
+- Sharpening the target hurts monotonically (TA01, TA03).
+- An abrupt Gaussian shrink breaks the fit (TB01).
+- Repeated NL refreshes over-smooth, both annealed (TB05, −0.1448) and with the DC target (TD03, −0.2765).
+- A higher NL weight changes nothing (TC03, TC04).
+- A higher σ_rel hurts (TD02).
+- The export relaxation alpha must stay 1 (`probe-relax`: alpha 0.95/0.85/0.7 all lower).
+- BM4D refilter (`denoise_residual`) is broken in bm4d 4.2.5.
+
+Two diagnostics settle where the gap is:
+- **k-space error (`diag_kspace.py`):** FV06 → TE01 reduces the transverse magnitude-error energy by only 0.4%. The
+  gap to ZS-SSDU is 13%, almost all at unsampled (ky, kz) in |f| 0.2–0.5. Pre and post share one mask (sim/gt.npz
+  mask2d), so neither contrast holds the other's missing samples.
+- **BM4D ceiling (`diag_target_ceiling.py`):** this probe is post-hoc and not admissible. BM4D of TE01's final
+  export, blended at w 0.5/1 with σ_rel 0.01/0.02, never improves the transverse axis: the best a0 is −0.1213 vs
+  −0.1204 as exported. The missing transverse 0.5 dB is wrong or absent unsampled high frequency, not noise. A
+  BM4D-type prior cannot supply it, however the NL target is tuned. Closing it needs a prior that inpaints
+  unsampled (ky, kz) structure, such as a learned one. That is outside the current scope and needs the user's decision.
+
 ## Commands
 
 ```sh
