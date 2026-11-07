@@ -146,6 +146,27 @@ Two diagnostics settle where the gap is:
   TE01) is kept at M3 −0.11809 (+3.3e-3); s42 a0 −0.1180, s7 sagittal −0.0090. Over-relaxing the measured residual
   into the BM4D input acts before the fit, unlike a post-hoc denoise. Batch 7 continues the dose (gain 3, gain 4).
   The earlier reading, that the BM4D family sits near its transverse ceiling, was premature.
+- **Gain ladder (06:45):** all runs at σ_rel 0.0225, which TC06 kept at gain 2 with M3 −0.11623.
+
+  | gain | M3 | notes |
+  |---|---|---|
+  | 4 (TF02) | −0.10968 | |
+  | 6 (TH01) | −0.10394 | |
+  | 8 (TH02) | **−0.10260** | coronal and sagittal pass 6/6 on both dev seeds |
+  | 12 (TI01) | s42 −0.1106 | screen discard |
+
+  On transverse plane 196, the PSNR gap to ZS-SSDU (pre/post, dB):
+
+  | gain | pre | post |
+  |---|---|---|
+  | 4 | −0.460 | −0.474 |
+  | 6 | −0.443 | −0.451 |
+  | 8 | −0.446 | −0.432 |
+  | 12 | −0.480 | −0.421 |
+
+  The gain is a gradient step x + g·Aᴴ(y − Ax) on the DC loss before BM4D. It compensates BM4D's shrinkage of the
+  missed high frequency. Transverse plateaus about 0.44 dB behind ZS-SSDU. σ_rel 0.025 at gain 2 (TG01) and the wide
+  in-plane search (TC07) hurt.
 
 ## Commands
 
