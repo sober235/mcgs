@@ -18,10 +18,10 @@ sys.path.insert(0, str(HERE.parent / 'autoresearch_sigma_y_20261106'))
 import make_viewer  # noqa: E402
 
 
-def main():
+def main(dpi=120, suffix='', viewer=True):
     manifest = json.loads((HERE / 'manifest.json').read_text())
     viewer_path = HERE / 'original_vs_best_viewer.html'
-    assert not viewer_path.exists(), 'refusing to overwrite ' + str(viewer_path)
+    assert not viewer or not viewer_path.exists(), 'refusing to overwrite ' + str(viewer_path)
     data = {}
     for rec in manifest['records']:
         case, scale, (r, c) = rec['case'], rec['input_p99_5_scale'], rec['roi_start']
@@ -29,7 +29,7 @@ def main():
         orig, best = np.abs(mat['cg_sense']) / scale, np.abs(mat['diff']) / scale
         m = rec['metrics_vs_previous_final']
         label = 'bg SNR x%.2f, in-band x%.2f (vs previous final)' % (m['bg_snr_gain'], m['inband_snr_gain'])
-        out = HERE / ('original_vs_best_' + case.replace('/', '_') + '.png')
+        out = HERE / ('original_vs_best_' + case.replace('/', '_') + suffix + '.png')
         assert not out.exists(), 'refusing to overwrite ' + str(out)
         fig, ax = plt.subplots(2, 2, figsize=(10, 10.6))
         for k, (title, img) in enumerate((('Original input', orig), ('Current best: Yuantian sharp', best))):
@@ -43,11 +43,14 @@ def main():
         ax[0, 1].add_patch(plt.Rectangle((c - .5, r - .5), 96, 96, fill=False, ec='#ffd166', lw=1))
         fig.suptitle(case + ' | same input p99.5 window | ' + label, fontsize=11)
         fig.tight_layout()
-        fig.savefig(out, dpi=120)
+        fig.savefig(out, dpi=dpi)
+        plt.close(fig)
         data[case] = dict(size=int(orig.shape[0]), panels=[
             dict(name='Original input', label='', ok=None, img=make_viewer.encode(orig)),
             dict(name='Current best: Yuantian sharp', label=label, ok=None, img=make_viewer.encode(best))])
         print('wrote', out)
+    if not viewer:
+        return
     html = (make_viewer.TEMPLATE.replace('__DATA__', json.dumps(data)).replace('__Q__', str(make_viewer.Q))
             .replace('repeat(6,1fr)', 'repeat(2,1fr)')
             .replace('.grid{', '.grid{max-width:1200px;')
@@ -57,4 +60,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if '--dpi' in sys.argv:
+        d = int(sys.argv[sys.argv.index('--dpi') + 1])
+        main(dpi=d, suffix='_%ddpi' % d, viewer=False)
+    else:
+        main()

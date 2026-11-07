@@ -4,3 +4,4 @@
 *.npy
 *.npz
 *viewer*.html
+!outputs/current_best_20261106/original_vs_best_*_600dpi.png

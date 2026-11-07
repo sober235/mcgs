@@ -28,3 +28,5 @@
 ## 未包含的文件
 
 MRI 数据（`.mat`）、图像（`.png`）和交互查看器（`*viewer*.html`）都包含图像像素，只保存在服务器或本地，不放进 git。
+
+例外：应用户要求，`outputs/current_best_20261106/` 中收录了两张 600 DPI 的"原始输入 vs 当前最优"对比图（`original_vs_best_*_600dpi.png`）。
