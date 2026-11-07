@@ -342,7 +342,7 @@ def dc_blend(x, x_dc, gain):
 def check_dc_variant(variant):
     require(set(variant) <= {'kind', 'gain'}, f'dc_target takes only gain, got {sorted(variant)}')
     gain = variant.get('gain', 1.0)
-    require(type(gain) in (int, float) and math.isfinite(gain) and 0 < gain <= 8, 'dc_target gain in (0, 8]')
+    require(type(gain) in (int, float) and math.isfinite(gain) and 0 < gain <= 16, 'dc_target gain in (0, 16]')
 
 
 def install_dc_target(nlr, variant):
@@ -1034,7 +1034,7 @@ def cmd_selftest(args):
     log(f'  dc_target: frozen {Path(kz.__file__).name}.hard_dc_combine exact-data and zero-render identities hold')
     xd = kz.hard_dc_combine(torch.zeros_like(xs), S, ydc, mfit)
     require(dc_blend(xs, xd, 1.0) is xd and torch.allclose(dc_blend(xs, xd, 2.0), 2 * xd - xs), 'dc_blend wrong')
-    for bad in ({'kind': 'dc_target', 'gain': 0}, {'kind': 'dc_target', 'gain': 9}, {'kind': 'dc_target', 'beta': 1}):
+    for bad in ({'kind': 'dc_target', 'gain': 0}, {'kind': 'dc_target', 'gain': 17}, {'kind': 'dc_target', 'beta': 1}):
         try:
             check_dc_variant(bad)
         except SystemExit:
