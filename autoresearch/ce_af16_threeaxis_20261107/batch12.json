@@ -1,0 +1,63 @@
+{
+  "batch": "TA-B12 (2026-11-08): re-tune the denoising strengths at high dc gain",
+  "evidence": "TH02 gain 8 kept (M3 -0.10260): coronal and sagittal now pass on both dev seeds; transverse -0.1026/-0.1000 is the only limiter. The gain multiplies the measured residual and its noise in the BM4D input and in the joint guide, while the guide sigma (1.5) and sigma_rel (0.0225) were tuned at gain 1-2.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 2.0
+      }
+    ]
+  },
+  "note": "Runs after batch 11 (gain 12/16); composes on whatever gain is keeper then.",
+  "items": [
+    {
+      "id": "TJ01_joint_guide_2.5",
+      "variant": {
+        "kind": "joint_bm",
+        "guide_sigma": 2.5
+      },
+      "hypothesis": "a noisier guide at high gain needs a stronger guide denoise for robust block matching"
+    },
+    {
+      "id": "TJ02_nl_sigma_0.025_high_gain",
+      "loss_edits": {
+        "nl_sigma_rel": 0.025
+      },
+      "hypothesis": "the BM4D sigma optimum moves up with the gain (0.025 hurt at gain 2, TG01)"
+    }
+  ]
+}
