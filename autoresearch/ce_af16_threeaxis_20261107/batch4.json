@@ -1,0 +1,51 @@
+{
+  "batch": "TA-B4 (2026-11-08): plug-and-play NL target -- BM4D of the data-consistent image, not of the render",
+  "evidence": "B1-B2: the transverse (phase-encode plane) deficit vs ZS-SSDU is all high frequency (|f| >= 0.2 cycles/px); sharpening the render target adds WRONG HF (TA01/03 monotone worse), an abrupt Gaussian shrink breaks the fit (TB01). The keeper's NL target BM4D(|render|) cannot contain HF the render lacks. The data-consistent image (trainer's frozen hard_dc_combine: measured k-space on mask_fit, model elsewhere) carries the measured HF; BM4D grouping can turn it into a coherent target (one PnP-ISTA step per refresh).",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "joint_bm",
+    "guide_sigma": 1.0
+  },
+  "note": "keeper0/assume_keeper_variant are for selftest only; enqueue validates against the live keeper (TA02 joint_bm at writing). Enqueued with --front so it runs before the batch-3 knob retunes (a target change moves their optimum).",
+  "items": [
+    {
+      "id": "TD01_dc_target",
+      "variant": {
+        "kind": "dc_target"
+      },
+      "hypothesis": "BM4D of the data-consistent image gives a target with correct measured HF, which joint grouping propagates to unsampled (ky,kz); the transverse PE-plane gap shrinks"
+    },
+    {
+      "id": "TD02_dc_target_sigma_0.025",
+      "variant": {
+        "kind": "dc_target"
+      },
+      "loss_edits": {
+        "nl_sigma_rel": 0.025
+      },
+      "hypothesis": "the DC image also carries measurement noise and incoherent aliasing of the residual; a 25% higher BM4D sigma removes it while keeping the coherent measured HF"
+    },
+    {
+      "id": "TD03_dc_target_refresh_125",
+      "variant": {
+        "kind": "dc_target"
+      },
+      "loss_edits": {
+        "nl_refresh": 125
+      },
+      "hypothesis": "iterated PnP: refreshing the DC target every 125 steps (5 refreshes) lets measured HF accumulate as the render improves"
+    }
+  ]
+}

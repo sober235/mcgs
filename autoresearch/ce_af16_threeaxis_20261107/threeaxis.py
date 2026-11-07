@@ -28,6 +28,12 @@ leave every frozen file unchanged:
     is the residual filtered by the Gaussian kernel, so with sigma ~ 0.7-1 voxel the 0.3-0.5 cycles/px residual
     that separates MC-GS from ZS-SSDU on transverse planes reaches the parameters attenuated ~10-25x. The
     modified copy is written next to the run (never over the base) and its SHA-256 recorded.
+  * variant {'kind': 'dc_target'}: each refresh denoises the data-consistent image of the current render instead
+    of the render itself, x_dc = sum_c conj(S_c) F^-1[ mf*y_dc + (1-mf)*F(S_c x) ] -- the frozen canonical export
+    formula (nonlocal_autoresearch/runner.export_trainer_volume) on the trainer's own acquired data. The target thus
+    carries the measured high frequencies, and block matching can spread them (one plug-and-play ISTA step per
+    refresh; with nl_refresh < steps and a sigma decay it iterates). Uses the trainer's frozen
+    data.known_zero.hard_dc_combine on its own acquired k-space (kspace_dc, mask_fit); no GT.
   * variant {'kind': 'profile', 'attrs': {...}}: bm4d_pos with BM4DProfile attributes overridden (PROFILE_ATTRS),
     e.g. anisotropic blocks / search windows (transverse = phase-encode plane). joint_bm
     accepts the same optional 'attrs'.
@@ -72,8 +78,8 @@ DEV_SEEDS = (42, 7)
 CONFIRM_SEEDS = (201, 207)
 KEEP_MARGIN = 1e-4
 EXTRA_LOSS_KEYS = frozenset({'nl_sharpen'})
-VARIANTS = ('none', 'joint_bm', 'profile', 'sigma', 'init_scale', 'stack')
-PART_ORDER = ('profile', 'joint_bm', 'sigma', 'init_scale')
+VARIANTS = ('none', 'joint_bm', 'profile', 'sigma', 'init_scale', 'dc_target', 'stack')
+PART_ORDER = ('profile', 'joint_bm', 'dc_target', 'sigma', 'init_scale')
 # BM4DProfile attributes a variant may override (block / step / search sizes, stack sizes, matching thresholds).
 # Tuples are given as JSON lists, ordered like the crop axes (a0 readout, a1, a2). 'denoise_residual' is excluded:
 # bm4d 4.2.5's residual path fails with a scalar sigma (operands (2N..) vs (N..) broadcast error, tested 2026-11-07).
@@ -314,6 +320,47 @@ def install_sigma(nlr, variant):
     return nlr
 
 
+# ------------------------------------------------------------------ data-consistent (plug-and-play) target
+def frozen_known_zero():
+    """The trainer's own data.known_zero (hard_dc_combine = the frozen canonical export formula)."""
+    import importlib
+    kz = sys.modules.get('data.known_zero')
+    if kz is None:
+        sys.path.insert(0, str(NONLOCAL_RED.parents[1]))
+        kz = importlib.import_module('data.known_zero')
+    require(Path(kz.__file__).resolve().parents[1] == NONLOCAL_RED.resolve().parents[1], 'foreign data.known_zero')
+    return kz
+
+
+def install_dc_target(nlr, variant):
+    import gc
+    import torch
+    jt = sys.modules['trainers.joint_trainer']
+    trainers = [o for o in gc.get_objects() if isinstance(o, jt.JointTrainer)]
+    require(len(trainers) == 1, f'dc_target needs exactly one live JointTrainer, found {len(trainers)}')
+    trainer = trainers[0]
+    kz = frozen_known_zero()
+    tags = {trainer.name_plain: 'p', trainer.name_contrast: 'c'}
+    orig_refresh = nlr.NonLocalRED.refresh
+
+    def refresh(self, name, vol, it):
+        tag = tags[name]
+        x = vol.detach()
+        with torch.no_grad():
+            x_dc = kz.hard_dc_combine(x, getattr(trainer, f'csm_{tag}'), getattr(trainer, f'kspace_dc_{tag}'),
+                                      getattr(trainer, f'mask_fit_{tag}'))
+            ok = tuple(x_dc.shape) == tuple(x.shape) and bool(torch.isfinite(torch.view_as_real(x_dc)).all())
+            rel = float((x_dc - x).abs().norm() / x.abs().norm().clamp_min(1e-12))
+        require(ok, 'dc_target image invalid')
+        info = orig_refresh(self, name, x_dc, it)
+        del x_dc
+        info['dc_target'] = dict(dc_minus_render_relative_norm=rel)
+        print(f"[nl] dc_target {name} iter={it}: |x_dc - x|/|x| = {rel:.5g}", flush=True)
+        return info
+    nlr.NonLocalRED.refresh = refresh
+    return nlr
+
+
 # ------------------------------------------------------------------ joint block-matching variant
 def install_joint_bm(nlr, variant):
     """Patch the frozen nonlocal_red module object in this process (see module docstring)."""
@@ -403,7 +450,7 @@ def install_variant(lc, variant):
     ps = {p['kind']: p for p in parts(variant)}
     if 'joint_bm' in ps and 'profile' in ps:          # joint_bm builds its own profile: merge the overrides
         ps['joint_bm'] = dict(ps['joint_bm'], attrs={**ps.pop('profile').get('attrs', {}), **ps['joint_bm'].get('attrs', {})})
-    nl = [ps[k] for k in ('profile', 'joint_bm', 'sigma') if k in ps]
+    nl = [ps[k] for k in ('profile', 'joint_bm', 'dc_target', 'sigma') if k in ps]
     if not nl:
         return
     original = lc.install_bm4d_pos
@@ -411,7 +458,8 @@ def install_variant(lc, variant):
     def install():
         nlr = original()
         for part in nl:
-            {'profile': install_profile, 'joint_bm': install_joint_bm, 'sigma': install_sigma}[part['kind']](nlr, part)
+            {'profile': install_profile, 'joint_bm': install_joint_bm, 'dc_target': install_dc_target,
+             'sigma': install_sigma}[part['kind']](nlr, part)
         return nlr
     lc.install_bm4d_pos = install
 
@@ -762,7 +810,8 @@ def cmd_enqueue(args):
             check_recipe(build_recipe(keeper['recipe'], item), variant, scratch)
             log(f"  ok {item['id']}: on keeper {keeper['id']} -> variant {variant}")
         n = len(list(qdir.glob('*.json')))
-        dst = qdir / f'{n:02d}_{src.stem}.json'
+        # workers take queue files in name order; '0-' sorts before every '00_'.. name, so --front runs first
+        dst = qdir / (f'0-{n:02d}_{src.stem}.json' if args.front else f'{n:02d}_{src.stem}.json')
         write_json(dst, dict(q, enqueued=time.strftime('%Y-%m-%d %H:%M:%S'), source=str(src),
                              source_digest=os.environ.get('MCGS_SOURCE_DIGEST'), keeper_at_enqueue=keeper['id']))
         log(f'enqueued {len(q["items"])} items as {dst}')
@@ -909,6 +958,18 @@ def cmd_selftest(args):
             and torch.equal(got['positions'], fake['model_state']['positions']), 'init_scale transform wrong')
     shutil.rmtree(tmp)
     log(f"  init_scale: scales +log(0.8), densities x{rec['density_factor']:.4f}; other tensors unchanged")
+    kz = frozen_known_zero()
+    g2 = torch.Generator().manual_seed(1)
+    xs = torch.randn(6, 7, 5, dtype=torch.complex64, generator=g2)
+    S = torch.randn(3, 6, 7, 5, dtype=torch.complex64, generator=g2)
+    S = S / S.abs().square().sum(0, keepdim=True).sqrt()
+    mfit = (torch.rand(1, 7, 5, generator=g2) > 0.5).expand(6, 7, 5).float()
+    ydc = kz.fft3c(S * xs.unsqueeze(0)) * mfit.unsqueeze(0)
+    require(torch.allclose(kz.hard_dc_combine(xs, S, ydc, mfit), xs, atol=1e-5),
+            'dc target must equal x when the data match it exactly')
+    require(torch.allclose(kz.hard_dc_combine(torch.zeros_like(xs), S, ydc, mfit),
+                           (kz.ifft3c(ydc) * S.conj()).sum(0), atol=1e-6), 'dc target of zero must be the ZF image')
+    log(f'  dc_target: frozen {Path(kz.__file__).name}.hard_dc_combine exact-data and zero-render identities hold')
     log(f"  profile variant: rms err {float(np.sqrt(((y - base) ** 2).mean())):.4f} with {den.last_stats['profile_overrides']}")
     log('SELFTEST OK')
 
@@ -922,6 +983,7 @@ def main():
     w = sub.add_parser('worker'); w.add_argument('--gpu', type=int, required=True); w.add_argument('--queue')
     w.add_argument('--idle-wait', type=float, default=2700.)
     e = sub.add_parser('enqueue'); e.add_argument('--root', default=str(ROOT)); e.add_argument('--queue', required=True)
+    e.add_argument('--front', action='store_true', help='run before the already queued batches')
     w.add_argument('--root', default=str(ROOT))
     m = sub.add_parser('summary'); m.add_argument('--root', default=str(ROOT))
     k = sub.add_parser('skip'); k.add_argument('--root', default=str(ROOT)); k.add_argument('--reason', required=True)
