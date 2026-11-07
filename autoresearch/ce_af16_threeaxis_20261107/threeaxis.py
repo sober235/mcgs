@@ -508,7 +508,20 @@ def init_root(root, queue):
         log(f"keeper0 {keeper['id']} M3 {keeper['m3']:+.5f}  s42 {short(per_seed['42'])}  s7 {short(per_seed['7'])}")
 
 
+def queue_items(root, queue_file=None):
+    """Items with their keep margin: from one queue file (legacy) or from every ROOT/queue/*.json in name order,
+    re-read at every claim so batches can be added (enqueue) while workers run."""
+    files = [Path(queue_file)] if queue_file else sorted((Path(root) / 'queue').glob('*.json'))
+    out = []
+    for f in files:
+        q = read_json(f)
+        margin = float(q.get('keep_margin', KEEP_MARGIN))
+        out += [(dict(item, queue_file=str(f)), margin) for item in q['items']]
+    return out
+
+
 def claim(root, queue, gpu):
+    """queue: a path (legacy single file) or None (queue directory). Returns (item, keeper, margin)."""
     with locked(root):
         claims_path = root / 'claims.json'
         claims = read_json(claims_path) if claims_path.exists() else {}
@@ -518,14 +531,14 @@ def claim(root, queue, gpu):
                 append_row(root, dict(id=eid, status='abandoned_dead_worker', m3=None, claim=c,
                                       hypothesis='(dead worker; attempt preserved, never resumed)'))
                 done.add(eid)
-        for item in queue['items']:
+        for item, margin in queue_items(root, queue):
             if item['id'] in done or item['id'] in claims:
                 continue
             claims[item['id']] = dict(gpu=gpu, pid=os.getpid(), job=os.environ.get('MCGS_JOB_DIR'),
                                       at=time.strftime('%Y-%m-%d %H:%M:%S'))
             write_json(claims_path, claims)
-            return copy.deepcopy(item), read_json(root / 'keeper.json')
-    return None, None
+            return copy.deepcopy(item), read_json(root / 'keeper.json'), margin
+    return None, None, None
 
 
 def status(root, gpu, **kw):
@@ -689,19 +702,28 @@ def cmd_worker(args):
             f"launcher exposed CUDA_VISIBLE_DEVICES={os.environ.get('CUDA_VISIBLE_DEVICES')}, expected --gpu {gpu}")
     require(Path(sys.executable).resolve() == PY.resolve(), 'run the worker with the GSTMI interpreter (@python)')
     root = Path(args.root)
-    queue = read_json(Path(args.queue).resolve())
-    init_root(root, queue)
-    failures = 0
+    queue = str(Path(args.queue).resolve()) if args.queue else None
+    if queue:
+        init_root(root, read_json(queue))
+    require((root / 'keeper.json').exists(), 'no keeper.json; start once with a --queue file that has keeper0')
+    failures, idle = 0, 0.
     while True:
         if (root / 'STOP').exists():
             log('STOP file present:', (root / 'STOP').read_text().strip())
             break
-        item, keeper = claim(root, queue, gpu)
+        item, keeper, margin = claim(root, queue, gpu)
         if item is None:
-            log('queue exhausted')
-            break
+            if queue or idle >= args.idle_wait:
+                log('queue exhausted' + ('' if queue else f' (idle {idle:.0f}s)'))
+                break
+            if idle == 0:
+                status(root, gpu, item=None, phase=f'idle, waiting up to {args.idle_wait:.0f}s for ROOT/queue')
+            time.sleep(60.)
+            idle += 60.
+            continue
+        idle = 0.
         try:
-            run_experiment(root, item, keeper, gpu, float(queue.get('keep_margin', KEEP_MARGIN)))
+            run_experiment(root, item, keeper, gpu, margin)
             failures = 0
         except Exception as exc:          # preserved attempt; recorded, never resumed
             failures += 1
@@ -715,6 +737,35 @@ def cmd_worker(args):
         finally:
             publish(root)
     status(root, gpu, item=None, phase='worker exited')
+    publish(root)
+
+
+def cmd_enqueue(args):
+    """Validate a batch file against the current keeper and copy it into ROOT/queue (CPU)."""
+    root = Path(args.root)
+    src = Path(args.queue).resolve()
+    q = read_json(src)
+    scratch = Path(os.environ.get('MCGS_ARTIFACT_DIR') or '/tmp')
+    with locked(root):
+        keeper = read_json(root / 'keeper.json')
+        qdir = root / 'queue'
+        qdir.mkdir(exist_ok=True)
+        known = {r['id'] for r in ledger_rows(root)} | {i['id'] for i, _ in queue_items(root)}
+        for name in ('claims.json',):
+            if (root / name).exists():
+                known |= set(read_json(root / name))
+        for item in q['items']:
+            require(item['id'] not in known, f"id {item['id']} already used")
+            known.add(item['id'])
+            relative = not ('recipe_path' in item or 'recipe' in item)
+            variant = compose(keeper.get('variant'), item.get('variant')) if relative else item.get('variant', {'kind': 'none'})
+            check_recipe(build_recipe(keeper['recipe'], item), variant, scratch)
+            log(f"  ok {item['id']}: on keeper {keeper['id']} -> variant {variant}")
+        n = len(list(qdir.glob('*.json')))
+        dst = qdir / f'{n:02d}_{src.stem}.json'
+        write_json(dst, dict(q, enqueued=time.strftime('%Y-%m-%d %H:%M:%S'), source=str(src),
+                             source_digest=os.environ.get('MCGS_SOURCE_DIGEST'), keeper_at_enqueue=keeper['id']))
+        log(f'enqueued {len(q["items"])} items as {dst}')
     publish(root)
 
 
@@ -868,14 +919,16 @@ def main():
     s = sub.add_parser('selftest'); s.add_argument('--queue', required=True)
     c = sub.add_parser('stage2'); c.add_argument('--ckpt', required=True); c.add_argument('--out', required=True)
     c.add_argument('--recipe', required=True); c.add_argument('--variant', required=True)
-    w = sub.add_parser('worker'); w.add_argument('--gpu', type=int, required=True); w.add_argument('--queue', required=True)
+    w = sub.add_parser('worker'); w.add_argument('--gpu', type=int, required=True); w.add_argument('--queue')
+    w.add_argument('--idle-wait', type=float, default=2700.)
+    e = sub.add_parser('enqueue'); e.add_argument('--root', default=str(ROOT)); e.add_argument('--queue', required=True)
     w.add_argument('--root', default=str(ROOT))
     m = sub.add_parser('summary'); m.add_argument('--root', default=str(ROOT))
     k = sub.add_parser('skip'); k.add_argument('--root', default=str(ROOT)); k.add_argument('--reason', required=True)
     k.add_argument('ids', nargs='+')
     args = ap.parse_args()
     {'selftest': cmd_selftest, 'stage2': cmd_stage2, 'worker': cmd_worker, 'summary': cmd_summary,
-     'skip': cmd_skip}[args.cmd](args)
+     'skip': cmd_skip, 'enqueue': cmd_enqueue}[args.cmd](args)
 
 
 if __name__ == '__main__':
