@@ -1,0 +1,70 @@
+{
+  "batch": "TA-B14 (2026-11-08): joint sigma x gain ladder",
+  "evidence": "TJ02 sigma_rel 0.025 at gain 8: s42 M3 -0.09651 (+6.1e-3 over TH02; transverse -0.0965 with 1/6 wins, sagittal -0.0028). At gain 2 sigma 0.025 hurt (TG01); the gain raises the residual noise in the BM4D input, so the sigma optimum rises with it, and a higher sigma may in turn allow a higher gain (gain 12 at sigma 0.0225 hurt, TI01).",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 2.0
+      }
+    ]
+  },
+  "note": "Each item changes one thing relative to the keeper at claim (expected TJ02: gain 8, sigma 0.025).",
+  "items": [
+    {
+      "id": "TL01_nl_sigma_0.0275",
+      "loss_edits": {
+        "nl_sigma_rel": 0.0275
+      },
+      "hypothesis": "sigma ladder at gain 8: 0.0275 > 0.025"
+    },
+    {
+      "id": "TL02_dc_gain_10",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 10.0
+      },
+      "hypothesis": "with sigma 0.025 the gain optimum moves above 8"
+    },
+    {
+      "id": "TL03_nl_sigma_0.03",
+      "loss_edits": {
+        "nl_sigma_rel": 0.03
+      },
+      "hypothesis": "sigma ladder upper bracket"
+    }
+  ]
+}
