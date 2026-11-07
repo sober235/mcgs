@@ -19,6 +19,15 @@ leave every frozen file unchanged:
     made from the two current renders, (pre/sigma_pre + post/sigma_post) / 2. The trainer refreshes pre then
     post in the same iteration before either target is used, so the pre call stores its input, the post call
     denoises both, and a wrapped NonLocalRED.refresh replaces the pre target before the loss reads it.
+  * variant {'kind': 'sigma', 'scale': {'pre': a, 'post': b}, 'decay': d}: the BM4D sigma of refresh k of a
+    contrast is nl_sigma_rel * scale[contrast] * d**k (k = 0 at nl_start); with nl_refresh < steps this is an
+    annealed plug-and-play-style schedule instead of the constant-sigma refreshes that failed (FV16/FV17).
+  * variant {'kind': 'init_scale', 'factor': c}: the stage-2 start state is the seed's iteration-4500 base with every
+    Gaussian scale multiplied by c and all four densities by c**-3 (the voxelizer kernel is peak-normalised,
+    exp(-mahal/2), so this keeps each Gaussian's mass, i.e. the low frequencies). Rationale: the density gradient
+    is the residual filtered by the Gaussian kernel, so with sigma ~ 0.7-1 voxel the 0.3-0.5 cycles/px residual
+    that separates MC-GS from ZS-SSDU on transverse planes reaches the parameters attenuated ~10-25x. The
+    modified copy is written next to the run (never over the base) and its SHA-256 recorded.
   * variant {'kind': 'profile', 'attrs': {...}}: bm4d_pos with BM4DProfile attributes overridden (PROFILE_ATTRS),
     e.g. anisotropic blocks / search windows (transverse = phase-encode plane). joint_bm
     accepts the same optional 'attrs'.
@@ -60,7 +69,7 @@ DEV_SEEDS = (42, 7)
 CONFIRM_SEEDS = (201, 207)
 KEEP_MARGIN = 1e-4
 EXTRA_LOSS_KEYS = frozenset({'nl_sharpen'})
-VARIANTS = ('none', 'joint_bm', 'profile')
+VARIANTS = ('none', 'joint_bm', 'profile', 'sigma', 'init_scale')
 # BM4DProfile attributes a variant may override (block / step / search sizes, stack sizes, matching thresholds).
 # Tuples are given as JSON lists, ordered like the crop axes (a0 readout, a1, a2). 'denoise_residual' is excluded:
 # bm4d 4.2.5's residual path fails with a scalar sigma (operands (2N..) vs (N..) broadcast error, tested 2026-11-07).
@@ -171,11 +180,15 @@ def check_recipe(recipe, variant, scratch):
     loaded = lc.load_recipe(path)
     path.unlink()
     require(variant.get('kind', 'none') in VARIANTS, f'unknown variant {variant}')
-    if variant.get('kind', 'none') != 'none':
-        require(loaded['loss_edits'].get('nl_denoiser') == 'bm4d_pos', 'variants extend bm4d_pos only')
+    if variant.get('kind', 'none') not in ('none', 'init_scale'):
+        require(loaded['loss_edits'].get('nl_denoiser') == 'bm4d_pos', 'NL variants extend bm4d_pos only')
         check_attrs(variant.get('attrs', {}))
     if variant.get('kind') == 'profile':
         require(variant.get('attrs'), 'a profile variant needs attrs')
+    if variant.get('kind') == 'sigma':
+        check_sigma_variant(variant)
+    if variant.get('kind') == 'init_scale':
+        require(type(variant.get('factor')) in (int, float) and 0.5 <= variant['factor'] <= 1.5, 'init_scale factor in [0.5, 1.5]')
     if variant.get('attrs'):
         preflight_attrs(variant['attrs'], float(loaded['loss_edits'].get('nl_sharpen', 1.0)))
     if 'nl_sharpen' in loaded['loss_edits']:
@@ -237,6 +250,35 @@ def install_profile(nlr, variant):
         run.profile, run.last_stats = inner.profile, {}
         return run
     nlr.make_denoiser = make_denoiser
+    return nlr
+
+
+# ------------------------------------------------------------------ per-contrast / annealed sigma variant
+def check_sigma_variant(variant):
+    scale, decay = variant.get('scale', {}), variant.get('decay', 1.0)
+    require(isinstance(scale, dict) and set(scale) <= {'pre', 'post'}
+            and all(type(v) in (int, float) and 0.25 <= v <= 4 for v in scale.values()), 'sigma scale must be in [0.25, 4]')
+    require(type(decay) in (int, float) and 0 < decay <= 1, 'sigma decay must be in (0, 1]')
+    return {k: float(v) for k, v in scale.items()}, float(decay)
+
+
+def install_sigma(nlr, variant):
+    scale, decay = check_sigma_variant(variant)
+    orig_refresh = nlr.NonLocalRED.refresh
+
+    def refresh(self, name, vol, it):
+        base = self.sigma_rel
+        k = len(self.history.get(name, []))
+        factor = scale.get(name, 1.0) * decay ** k
+        self.sigma_rel = base * factor
+        try:
+            info = orig_refresh(self, name, vol, it)
+        finally:
+            self.sigma_rel = base
+        info['sigma_variant'] = dict(refresh_index=k, factor=factor, sigma_rel=base * factor)
+        print(f"[nl] sigma variant {name} refresh {k}: sigma_rel {base:.5g} x {factor:.4g}", flush=True)
+        return info
+    nlr.NonLocalRED.refresh = refresh
     return nlr
 
 
@@ -328,7 +370,7 @@ def install_joint_bm(nlr, variant):
 def install_variant(lc, variant):
     kind = variant.get('kind', 'none')
     require(kind in VARIANTS, f'unknown variant {kind}')
-    if kind == 'none':
+    if kind in ('none', 'init_scale'):
         return
     original = lc.install_bm4d_pos
 
@@ -338,19 +380,41 @@ def install_variant(lc, variant):
             install_joint_bm(nlr, variant)
         elif kind == 'profile':
             install_profile(nlr, variant)
+        elif kind == 'sigma':
+            install_sigma(nlr, variant)
         return nlr
     lc.install_bm4d_pos = install
 
 
 # ------------------------------------------------------------------ stage2 child (one GPU)
+def scaled_checkpoint(src, dst, factor):
+    import torch
+    require(0.5 <= factor <= 1.5 and not Path(dst).exists(), f'init_scale factor {factor} / target {dst}')
+    ck = torch.load(src, map_location='cpu', weights_only=True)
+    st = ck['model_state']
+    before = {k: float(v.float().abs().mean()) for k, v in st.items()}
+    st['scales'] = (st['scales'] + math.log(factor)).contiguous()
+    for key in ('density_real', 'density_imag', 'density_real_contrast', 'density_imag_contrast'):
+        st[key] = (st[key] * factor ** -3).contiguous()
+    torch.save(ck, dst)
+    return dict(source=str(src), source_sha256=sha256(src), path=str(dst), sha256=sha256(dst), factor=factor,
+                density_factor=factor ** -3, mean_abs_before=before,
+                mean_abs_after={k: float(v.float().abs().mean()) for k, v in st.items()})
+
+
 def cmd_stage2(args):
     variant = read_json(args.variant)
     lc = long_chain()
     install_variant(lc, variant)
     out = Path(args.out).resolve()
-    lc.stage2(argparse.Namespace(ckpt=Path(args.ckpt), out=out, recipe=Path(args.recipe)))
+    ckpt, init = Path(args.ckpt), None
+    if variant.get('kind') == 'init_scale':
+        ckpt = out.parent / f'{out.name}_init_scale.pth'
+        init = scaled_checkpoint(Path(args.ckpt), ckpt, float(variant['factor']))
+        print('[init_scale]', json.dumps(init), flush=True)
+    lc.stage2(argparse.Namespace(ckpt=ckpt, out=out, recipe=Path(args.recipe)))
     write_json(out / 'threeaxis_extensions.json',
-               dict(variant=variant, extra_loss_keys=sorted(EXTRA_LOSS_KEYS), long_chain_sha256=sha256(LONG_CHAIN),
+               dict(variant=variant, init_scale=init, extra_loss_keys=sorted(EXTRA_LOSS_KEYS), long_chain_sha256=sha256(LONG_CHAIN),
                     nonlocal_red_sha256=sha256(NONLOCAL_RED), driver_sha256=sha256(HERE),
                     source_digest=os.environ.get('MCGS_SOURCE_DIGEST')))
 
@@ -497,7 +561,7 @@ def publish(root):
             shutil.copy2(root / name, Path(art) / name)
 
 
-def run_experiment(root, item, keeper, gpu):
+def run_experiment(root, item, keeper, gpu, margin=KEEP_MARGIN):
     eid = item['id']
     exp_dir = root / 'runs' / eid
     exp_dir.mkdir(parents=True, exist_ok=False)
@@ -511,7 +575,7 @@ def run_experiment(root, item, keeper, gpu):
                 started=time.strftime('%Y-%m-%d %H:%M:%S'))
     write_json(exp_dir / 'spec.json', spec)
     row = dict(id=eid, hypothesis=item.get('hypothesis', ''), keeper_before=keeper['id'], recipe=recipe,
-               variant=variant, gpu=gpu, per_seed={}, started=spec['started'])
+               variant=variant, gpu=gpu, per_seed={}, started=spec['started'], keep_margin=margin)
     t0 = time.time()
     seeds = item.get('seeds', list(DEV_SEEDS))
     for seed in seeds:
@@ -524,9 +588,9 @@ def run_experiment(root, item, keeper, gpu):
             continue
         if seed == 42 and len(seeds) > 1:
             ref = keeper['per_seed']['42']['m3']
-            if s['m3'] <= ref + KEEP_MARGIN:
+            if s['m3'] <= ref + margin:
                 row.update(status='screen_discard', m3=None, m3_s42=s['m3'],
-                           note=f"s42 M3 {s['m3']:+.5f} <= keeper s42 {ref:+.5f} + {KEEP_MARGIN}")
+                           note=f"s42 M3 {s['m3']:+.5f} <= keeper s42 {ref:+.5f} + {margin}")
                 break
     row['seconds'] = time.time() - t0
     row['finished'] = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -535,8 +599,10 @@ def run_experiment(root, item, keeper, gpu):
         want = read_json(item['reference_relax'])['scans']
         same_hash = all(got[s]['sha256'] == want[s]['sha256'] for s in ('pre', 'post'))
         same_m3 = abs(row['per_seed']['42']['m3'] - axis_summary(item['reference_score'])['m3']) < 1e-9
+        ref_m3 = axis_summary(item['reference_score'])['m3']
         row.update(status='control_identical' if same_hash else ('control_same_score' if same_m3 else 'control_differs'),
-                   m3=row['per_seed']['42']['m3'], same_hash=same_hash, same_m3=same_m3)
+                   m3=row['per_seed']['42']['m3'], same_hash=same_hash, same_m3=same_m3,
+                   reference_m3=ref_m3, deviation=row['per_seed']['42']['m3'] - ref_m3)
         with locked(root):
             append_row(root, row)
         return row
@@ -545,7 +611,7 @@ def run_experiment(root, item, keeper, gpu):
         row['m3'] = m3
         with locked(root):
             current = read_json(root / 'keeper.json')       # another worker may have moved the keeper
-            if m3 > current['m3'] + KEEP_MARGIN:
+            if m3 > current['m3'] + margin:
                 row['status'] = 'keep'
                 new = dict(id=eid, recipe=recipe, variant=variant, m3=m3, per_seed=row['per_seed'],
                            source='threeaxis', set_at=row['finished'], replaced=current['id'])
@@ -603,7 +669,7 @@ def cmd_worker(args):
             log('queue exhausted')
             break
         try:
-            run_experiment(root, item, keeper, gpu)
+            run_experiment(root, item, keeper, gpu, float(queue.get('keep_margin', KEEP_MARGIN)))
             failures = 0
         except Exception as exc:          # preserved attempt; recorded, never resumed
             failures += 1
@@ -617,6 +683,21 @@ def cmd_worker(args):
         finally:
             publish(root)
     status(root, gpu, item=None, phase='worker exited')
+    publish(root)
+
+
+def cmd_skip(args):
+    """Mark queued, unclaimed items as skipped (ledger row); running workers then never claim them."""
+    root = Path(args.root)
+    with locked(root):
+        claims_path = root / 'claims.json'
+        claims = read_json(claims_path) if claims_path.exists() else {}
+        done = {r['id'] for r in ledger_rows(root)}
+        for eid in args.ids:
+            require(eid not in claims and eid not in done, f'{eid} is already claimed or recorded; cannot skip')
+            append_row(root, dict(id=eid, status='skipped', m3=None, hypothesis=args.reason,
+                                  at=time.strftime('%Y-%m-%d %H:%M:%S')))
+            log(f'skipped {eid}: {args.reason}')
     publish(root)
 
 
@@ -711,6 +792,33 @@ def cmd_selftest(args):
     y = den(zp.abs().numpy(), 0.05)
     require(y.shape == tuple(zp.shape) and np.isfinite(y).all(), 'profile variant output invalid')
     require(den.last_stats.get('profile_overrides', {}).get('search_window_ht') == (7, 11, 11), 'overrides not logged')
+    nlr3 = load_module(NONLOCAL_RED, '_ta_nonlocal_red_test3')
+    install_sigma(nlr3, {'kind': 'sigma', 'scale': {'post': 2.0}, 'decay': 0.5})
+    seen = []
+    red3 = nlr3.NonLocalRED(support, lambda z, sigma: (seen.append(sigma), np.maximum(z, 0))[1], sigma_rel=0.03,
+                            start=1, refresh=2, dilate=2)
+    for it in (1, 3):
+        red3.refresh('pre', zp, it)
+        red3.refresh('post', zc, it)
+    ratios = [seen[2] / seen[0], seen[1] / seen[0] * float(np.quantile(zp.abs().numpy()[red3.bbox][red3.head_crop.numpy()], .99))
+              / float(np.quantile(zc.abs().numpy()[red3.bbox][red3.head_crop.numpy()], .99)), seen[3] / seen[1]]
+    log(f'  sigma variant: pre k1/k0 {ratios[0]:.3f} (want 0.5), post/pre at k0 {ratios[1]:.3f} (want 2), '
+        f'post k1/k0 {ratios[2]:.3f} (want 0.5); sigma_rel restored {red3.sigma_rel}')
+    require(abs(ratios[0] - 0.5) < 1e-6 and abs(ratios[2] - 0.5) < 1e-6 and abs(ratios[1] - 2) < 0.02
+            and red3.sigma_rel == 0.03, 'sigma variant schedule wrong')
+    tmp = scratch / f'selftest_init_scale_{os.getpid()}'
+    tmp.mkdir()
+    fake = {'iter': 4500, 'model_state': {'positions': torch.zeros(5, 3), 'scales': torch.full((5, 3), -4.8),
+            'rotations': torch.ones(5, 4), 'density_real': torch.ones(5), 'density_imag': torch.full((5,), -2.),
+            'density_real_contrast': torch.ones(5), 'density_imag_contrast': torch.zeros(5)}, 'optim_state': {}}
+    torch.save(fake, tmp / 'src.pth')
+    rec = scaled_checkpoint(tmp / 'src.pth', tmp / 'dst.pth', 0.8)
+    got = torch.load(tmp / 'dst.pth', map_location='cpu', weights_only=True)['model_state']
+    require(torch.allclose(got['scales'], torch.full((5, 3), -4.8 + math.log(0.8)))
+            and torch.allclose(got['density_imag'], torch.full((5,), -2. / 0.512))
+            and torch.equal(got['positions'], fake['model_state']['positions']), 'init_scale transform wrong')
+    shutil.rmtree(tmp)
+    log(f"  init_scale: scales +log(0.8), densities x{rec['density_factor']:.4f}; other tensors unchanged")
     log(f"  profile variant: rms err {float(np.sqrt(((y - base) ** 2).mean())):.4f} with {den.last_stats['profile_overrides']}")
     log('SELFTEST OK')
 
@@ -724,8 +832,11 @@ def main():
     w = sub.add_parser('worker'); w.add_argument('--gpu', type=int, required=True); w.add_argument('--queue', required=True)
     w.add_argument('--root', default=str(ROOT))
     m = sub.add_parser('summary'); m.add_argument('--root', default=str(ROOT))
+    k = sub.add_parser('skip'); k.add_argument('--root', default=str(ROOT)); k.add_argument('--reason', required=True)
+    k.add_argument('ids', nargs='+')
     args = ap.parse_args()
-    {'selftest': cmd_selftest, 'stage2': cmd_stage2, 'worker': cmd_worker, 'summary': cmd_summary}[args.cmd](args)
+    {'selftest': cmd_selftest, 'stage2': cmd_stage2, 'worker': cmd_worker, 'summary': cmd_summary,
+     'skip': cmd_skip}[args.cmd](args)
 
 
 if __name__ == '__main__':
