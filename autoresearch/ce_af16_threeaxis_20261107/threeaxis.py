@@ -31,6 +31,9 @@ leave every frozen file unchanged:
   * variant {'kind': 'profile', 'attrs': {...}}: bm4d_pos with BM4DProfile attributes overridden (PROFILE_ATTRS),
     e.g. anisotropic blocks / search windows (transverse = phase-encode plane). joint_bm
     accepts the same optional 'attrs'.
+Variants compose: an item relative to the keeper runs the keeper's variant parts plus its own, a part of the same
+kind replacing the keeper's ({'kind': 'stack', 'parts': [...]}); install order profile -> joint_bm -> sigma, with
+profile attrs merged into joint_bm's when both are present; init_scale acts on the start checkpoint.
 No GT or ROI is read by any training path here; GT enters only through the frozen evaluator.
 
 Loop (Karpathy autoresearch; program.md is the human layer):
@@ -69,7 +72,8 @@ DEV_SEEDS = (42, 7)
 CONFIRM_SEEDS = (201, 207)
 KEEP_MARGIN = 1e-4
 EXTRA_LOSS_KEYS = frozenset({'nl_sharpen'})
-VARIANTS = ('none', 'joint_bm', 'profile', 'sigma', 'init_scale')
+VARIANTS = ('none', 'joint_bm', 'profile', 'sigma', 'init_scale', 'stack')
+PART_ORDER = ('profile', 'joint_bm', 'sigma', 'init_scale')
 # BM4DProfile attributes a variant may override (block / step / search sizes, stack sizes, matching thresholds).
 # Tuples are given as JSON lists, ordered like the crop axes (a0 readout, a1, a2). 'denoise_residual' is excluded:
 # bm4d 4.2.5's residual path fails with a scalar sigma (operands (2N..) vs (N..) broadcast error, tested 2026-11-07).
@@ -180,6 +184,37 @@ def check_recipe(recipe, variant, scratch):
     loaded = lc.load_recipe(path)
     path.unlink()
     require(variant.get('kind', 'none') in VARIANTS, f'unknown variant {variant}')
+    for part in parts(variant):
+        check_part(part, loaded)
+    if 'nl_sharpen' in loaded['loss_edits']:
+        require(0 < loaded['loss_edits']['nl_sharpen'] <= 4, 'nl_sharpen must be in (0, 4]')
+    return loaded
+
+
+def parts(variant):
+    """Normalised list of variant parts (no 'none'), at most one per kind, in install order."""
+    kind = variant.get('kind', 'none')
+    items = variant['parts'] if kind == 'stack' else ([] if kind == 'none' else [variant])
+    out = {}
+    for part in items:
+        require(part.get('kind') in PART_ORDER, f'unknown variant part {part}')
+        require(part['kind'] not in out, f'duplicate variant part {part["kind"]}')
+        out[part['kind']] = copy.deepcopy(part)
+    return [out[k] for k in PART_ORDER if k in out]
+
+
+def compose(keeper_variant, item_variant):
+    merged = {p['kind']: p for p in parts(keeper_variant or {'kind': 'none'})}
+    for part in parts(item_variant or {'kind': 'none'}):
+        if part.get('remove'):
+            merged.pop(part['kind'], None)
+        else:
+            merged[part['kind']] = part
+    out = [merged[k] for k in PART_ORDER if k in merged]
+    return {'kind': 'none'} if not out else out[0] if len(out) == 1 else {'kind': 'stack', 'parts': out}
+
+
+def check_part(variant, loaded):
     if variant.get('kind', 'none') not in ('none', 'init_scale'):
         require(loaded['loss_edits'].get('nl_denoiser') == 'bm4d_pos', 'NL variants extend bm4d_pos only')
         check_attrs(variant.get('attrs', {}))
@@ -191,9 +226,6 @@ def check_recipe(recipe, variant, scratch):
         require(type(variant.get('factor')) in (int, float) and 0.5 <= variant['factor'] <= 1.5, 'init_scale factor in [0.5, 1.5]')
     if variant.get('attrs'):
         preflight_attrs(variant['attrs'], float(loaded['loss_edits'].get('nl_sharpen', 1.0)))
-    if 'nl_sharpen' in loaded['loss_edits']:
-        require(0 < loaded['loss_edits']['nl_sharpen'] <= 4, 'nl_sharpen must be in (0, 4]')
-    return loaded
 
 
 # ------------------------------------------------------------------ BM4D profile overrides
@@ -368,20 +400,18 @@ def install_joint_bm(nlr, variant):
 
 
 def install_variant(lc, variant):
-    kind = variant.get('kind', 'none')
-    require(kind in VARIANTS, f'unknown variant {kind}')
-    if kind in ('none', 'init_scale'):
+    ps = {p['kind']: p for p in parts(variant)}
+    if 'joint_bm' in ps and 'profile' in ps:          # joint_bm builds its own profile: merge the overrides
+        ps['joint_bm'] = dict(ps['joint_bm'], attrs={**ps.pop('profile').get('attrs', {}), **ps['joint_bm'].get('attrs', {})})
+    nl = [ps[k] for k in ('profile', 'joint_bm', 'sigma') if k in ps]
+    if not nl:
         return
     original = lc.install_bm4d_pos
 
     def install():
         nlr = original()
-        if kind == 'joint_bm':
-            install_joint_bm(nlr, variant)
-        elif kind == 'profile':
-            install_profile(nlr, variant)
-        elif kind == 'sigma':
-            install_sigma(nlr, variant)
+        for part in nl:
+            {'profile': install_profile, 'joint_bm': install_joint_bm, 'sigma': install_sigma}[part['kind']](nlr, part)
         return nlr
     lc.install_bm4d_pos = install
 
@@ -408,9 +438,10 @@ def cmd_stage2(args):
     install_variant(lc, variant)
     out = Path(args.out).resolve()
     ckpt, init = Path(args.ckpt), None
-    if variant.get('kind') == 'init_scale':
+    scale_part = [p for p in parts(variant) if p['kind'] == 'init_scale']
+    if scale_part:
         ckpt = out.parent / f'{out.name}_init_scale.pth'
-        init = scaled_checkpoint(Path(args.ckpt), ckpt, float(variant['factor']))
+        init = scaled_checkpoint(Path(args.ckpt), ckpt, float(scale_part[0]['factor']))
         print('[init_scale]', json.dumps(init), flush=True)
     lc.stage2(argparse.Namespace(ckpt=ckpt, out=out, recipe=Path(args.recipe)))
     write_json(out / 'threeaxis_extensions.json',
@@ -565,7 +596,8 @@ def run_experiment(root, item, keeper, gpu, margin=KEEP_MARGIN):
     eid = item['id']
     exp_dir = root / 'runs' / eid
     exp_dir.mkdir(parents=True, exist_ok=False)
-    variant = item.get('variant', {'kind': 'none'})
+    relative = not ('recipe_path' in item or 'recipe' in item)
+    variant = compose(keeper.get('variant'), item.get('variant')) if relative else item.get('variant', {'kind': 'none'})
     recipe = build_recipe(keeper['recipe'], item)
     check_recipe(recipe, variant, exp_dir)
     write_json(exp_dir / 'recipe.json', recipe)
@@ -736,11 +768,18 @@ def cmd_selftest(args):
     for item in queue['items']:
         require(item['id'] not in ids, f"duplicate id {item['id']}")
         ids.add(item['id'])
-        recipe = check_recipe(build_recipe(keeper_recipe, item), item.get('variant', {'kind': 'none'}), scratch)
+        recipe = check_recipe(build_recipe(keeper_recipe, item), compose(queue.get('assume_keeper_variant'),
+                                                                          item.get('variant')), scratch)
         diff = {k: v for k, v in recipe['loss_edits'].items() if keeper_recipe['loss_edits'].get(k) != v}
         diff.update({k: v for k, v in recipe.items() if k != 'loss_edits' and keeper_recipe.get(k) != v})
         log(f"  {item['id']:28s} variant={item.get('variant', {}).get('kind', 'none'):9s} change={diff}")
     require(read_json(k0['candidate_relax']['42'])['scans']['pre']['sha256'], 'keeper candidate hashes missing')
+    jb, sg = {'kind': 'joint_bm', 'guide_sigma': 1.0}, {'kind': 'sigma', 'decay': 0.6}
+    require(compose(None, None) == {'kind': 'none'} and compose(jb, None) == jb
+            and compose(jb, sg) == {'kind': 'stack', 'parts': [jb, sg]}
+            and compose({'kind': 'stack', 'parts': [jb, sg]}, {'kind': 'sigma', 'decay': 0.8})['parts'][1]['decay'] == 0.8
+            and compose(jb, {'kind': 'joint_bm', 'remove': True}) == {'kind': 'none'}, 'variant composition wrong')
+    log('  variant composition ok (keeper parts + item parts, same kind replaces)')
 
     # real bm4d + the frozen nonlocal_red module on a small synthetic pair (CPU)
     nlr = load_module(NONLOCAL_RED, '_ta_nonlocal_red_test')
