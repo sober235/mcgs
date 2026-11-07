@@ -1,0 +1,78 @@
+{
+  "name": "Single-run sigma_y SNR autoresearch on registered final Tuned",
+  "user_decisions": {
+    "date": "2026-11-06",
+    "output_form": "single run only (no seed averaging)",
+    "first_hypothesis": "raise sigma_y",
+    "gpu_budget_runs": 24
+  },
+  "fixed_params_source": "base_protocol.params; each run changes exactly one entry of variables",
+  "base_protocol": "/data0/zhuoxu/code/DualSync/outputs/autoresearch_normal_tuned_20261106/protocol.json",
+  "base_protocol_sha256": "ab4cd53ccf1b7c127781579aa46be1164ed3ffebcdefe08d52bc79c314fa6508",
+  "evaluator": "/data0/zhuoxu/code/DualSync/outputs/autoresearch_snr_tuned_20261105/prepare.py",
+  "evaluator_sha256": "341de41b2e4325ff16d7d9864fa8c40cddbab1c483ee76c5c41932731772ed4b",
+  "anchor_root": "/data0/zhuoxu/code/DualSync/outputs/full38_fourth_20261105/results/tuned",
+  "source_sha256": {
+    "functions/denoising_tianyuan.py": "8e2db2cc0ccf3b15e4257d2b8e4e654cc22fe2ddaaec1a27b286442caa0c2d4c",
+    "runners/diffusion.py": "1a231057c5b6c4cdfd10258d2a0a339e6148f733eba24b0f5da100f185c1e091",
+    "runners/diffusion_gate.py": "325c189146c6a0f9ada00ba5a26816003898a11e3b0257c12616c7ca0d36a033",
+    "utils.py": "184dc88cfbf6f242edb60a5f9945a9c1c4f86f2976f8743e833c0274559f8e37",
+    "configs/fastMRI_tianyuan.yml": "22b00342ebf9710cb6b7a5dd7a9786e4e9b8371bd334e375119aaea8c9b6b49a"
+  },
+  "base_seed": 1234,
+  "null_case": "DYF-FSE-T/slice_01",
+  "null_max_relative_l2": 1e-06,
+  "tune_cases": [
+    "DYF-FSE-T/slice_01",
+    "DYF-FSE-T/slice_06",
+    "MSP-FSE-T/slice_01",
+    "MSP-FSE-T/slice_06"
+  ],
+  "confirmation_cases": [
+    "DYF-FSE-T/slice_02",
+    "DYF-FSE-T/slice_10",
+    "MSP-FSE-T/slice_02",
+    "MSP-FSE-T/slice_10"
+  ],
+  "max_runs": 24,
+  "min_useful_score": 1.05,
+  "stop_after_consecutive_degradations": 3,
+  "rules": [
+    "Exactly one approved variable (see variables) changes per run; sampler source, checkpoint, inputs, seeds and evaluator are SHA-pinned.",
+    "Every run is reserved in ledger.jsonl before inference; failed runs still count; no automatic retries.",
+    "Never overwrite an existing output; old experiment directories are read-only.",
+    "Hard structure gates and score come unchanged from the frozen evaluator and base protocol guards.",
+    "Confirmation cases are evaluated only after a tuning value is frozen; they never select a setting.",
+    "No default/config/registered-result change; adoption requires explicit user approval."
+  ],
+  "claim_boundary": "Same two previously studied scans; proxy SNR and structure-preservation only, no clean truth or external validation.",
+  "variables": {
+    "sigma_y": {
+      "accepted": 0.3,
+      "range": [
+        0.3,
+        2.0
+      ],
+      "meaning": "DC measurement-noise level in closed_form_prox"
+    },
+    "eta": {
+      "accepted": 1.0,
+      "range": [
+        0.0,
+        1.0
+      ],
+      "sampler": "eta_sampler.py",
+      "sampler_sha256": "bc79cf17957bb6c103341d4db5decf2ce6b9aa70973f235c27a213847b4066d5",
+      "meaning": "reverse-SDE transition-noise scale; drift (1+eta^2)/2, noise eta; 1 = original, 0 = probability-flow"
+    }
+  },
+  "amendments": [
+    {
+      "date": "2026-11-06",
+      "after_reserved_runs": 9,
+      "evidence": "sigma_y 0.5 (score 1.319) and 0.35 (score 1.093) both infeasible; 0.35 fails only input-coarse-SSIM drop (.007-.013 > .001); passing sigma_y extrapolates to ~0.303, ~+0.7% SNR",
+      "user_decision": "Keep gates, try eta",
+      "change": "Add eta variable via eta_sampler.py (one-line derived patch of SHA-pinned sampler). Gates, metric, cases, seeds, budget unchanged."
+    }
+  ]
+}

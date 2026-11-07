@@ -1,0 +1,144 @@
+{
+  "status": "user_selected_current_best",
+  "user_instruction": "Record the \"yuantian sharp\" as the CURRENT optimal result",
+  "decision_date": "2026-11-06",
+  "method": "Yuantian port, profile sharp (main_yuantian.py --profile sharp --seed 1234)",
+  "selection_basis": "User choice after viewing outputs/yuantian_repro_20261106 comparison figures; not a numerical optimum under the frozen gates.",
+  "frozen_gate_note": "Fails the frozen structure gates on both slices: input coarse SSIM (.934/.952 vs final .986/.988, limit drop .001) and coarse SSIM to the previous final (.977/.987, limit .99). Recorded as the user decision; gates not changed.",
+  "yuantian_cfg": {
+    "gate_mode": "adaptive",
+    "lambda_parallel": 0.25,
+    "lambda_perp": 0.1,
+    "tau_m": 0.3,
+    "tau_a": 0.1,
+    "a0": 0.7,
+    "max_change_ratio": 0.04,
+    "t_jac": 150,
+    "mu": 10.0,
+    "sigma_y": 0.3,
+    "lambda_z": 0.0001,
+    "scalar_alpha": 0.25,
+    "n_steps": 50,
+    "fd_check": true
+  },
+  "timesteps": 100,
+  "checkpoint": "/data0/zhuoxu/code/Huiren_heatdiff/weight/logs/doc/heat/ckpt_671000.pth",
+  "source_code_sha256": {
+    "functions/denoising_yuantian.py": "7a4e4c4bb62cabb9bcaf8e3aff3343b0938691dd38391f6719278f2c09fd2b8b",
+    "yuantian_options.py": "3880e5cdf67d460da3ab48aeffeb647210f7052bb24daddab94a80dc7f588977",
+    "Tianyuan/paper_gate.py": "5b4f824a7c3e40565b3c03cd5bf404f0e42e6425fb980e5293641d3436ee4cc8",
+    "runners/diffusion_yuantian.py": "f012da07d1a75c3946cc9dceba15e39dac4f31f7d7464f20c6d6e872e344103e",
+    "main_yuantian.py": "16eb279d56ac59c17ad14178b6e313edfe9b0ef2a81194d83585f90203fba5d1"
+  },
+  "run_fingerprint": "da0e1ac4a4479db0714b7fbdbfcff354ff5c03eedb2c209d0c13ce77ffaa2334",
+  "scope": "Two slices only (MSP06, DYF01), single reconstruction, seed 1234. No full-38 run of this profile exists yet.",
+  "supersedes": {
+    "path": "/data0/zhuoxu/code/DualSync/outputs/final_best_20261106",
+    "manifest_sha256": "3967ecc2fee5046e51707df663a767a17b41a082ae8fb4d46ac3f8ef7957c5a1",
+    "note": "Previous registration kept unchanged as history."
+  },
+  "records": [
+    {
+      "case": "MSP-FSE-T/slice_06",
+      "base_seed": 1234,
+      "source_result": "/data0/zhuoxu/code/DualSync/outputs/yuantian_repro_20261106/sharp_seed1234/MSP-FSE-T/slice_06.mat",
+      "source_sha256": "6f0aab3c3030620266ed3f22954754ac01cdc8ee930ed7efc9ab18f7c1cc438e",
+      "registered_mat": "/data0/zhuoxu/code/DualSync/outputs/current_best_20261106/MSP-FSE-T/slice_06.mat",
+      "registered_mat_sha256": "6f0aab3c3030620266ed3f22954754ac01cdc8ee930ed7efc9ab18f7c1cc438e",
+      "input_p99_5_scale": 0.8976963004469872,
+      "roi_start": [
+        106,
+        123
+      ],
+      "images": {
+        "full": {
+          "path": "/data0/zhuoxu/code/DualSync/outputs/current_best_20261106/MSP-FSE-T/slice_06_full.png",
+          "sha256": "9508141ab5e53fdd0155f3e9aa749fb06402d2284fd0aeb15e0e0947ebf659bc",
+          "shape": [
+            320,
+            320
+          ]
+        },
+        "roi": {
+          "path": "/data0/zhuoxu/code/DualSync/outputs/current_best_20261106/MSP-FSE-T/slice_06_roi.png",
+          "sha256": "cfd99951e6e954fc7f29a91f67bca7ce1cc86c858d756ec2a8d29310fed06c0f",
+          "shape": [
+            96,
+            96
+          ]
+        }
+      },
+      "metrics_vs_previous_final": {
+        "bg_snr_gain": 1.6897992853162642,
+        "inband_snr_gain": 1.8968508350289746,
+        "tuned_coarse_ssim": 0.9774331085840908,
+        "input_coarse_ssim": 0.9338922907948962,
+        "tuned_input_coarse_ssim": 0.9864110678944888,
+        "strong_edge_amplitude_ratio": 0.9882457398538635,
+        "symmetric_edge_p95_pixels": 1.0,
+        "fg_mean_ratio": 0.9978633375929951,
+        "raw_gradient_retention": 0.8780681761236682,
+        "dc_rel": 0.1952817685411347
+      },
+      "frozen_gates_failed": [
+        "input coarse ssim",
+        "tuned coarse ssim"
+      ]
+    },
+    {
+      "case": "DYF-FSE-T/slice_01",
+      "base_seed": 1234,
+      "source_result": "/data0/zhuoxu/code/DualSync/outputs/yuantian_repro_20261106/sharp_seed1234/DYF-FSE-T/slice_01.mat",
+      "source_sha256": "84c44bd690eb96002785060016ae06e84dabc8303eb01ecf3cfce52dade4d569",
+      "registered_mat": "/data0/zhuoxu/code/DualSync/outputs/current_best_20261106/DYF-FSE-T/slice_01.mat",
+      "registered_mat_sha256": "84c44bd690eb96002785060016ae06e84dabc8303eb01ecf3cfce52dade4d569",
+      "input_p99_5_scale": 0.7503008553385743,
+      "roi_start": [
+        130,
+        104
+      ],
+      "images": {
+        "full": {
+          "path": "/data0/zhuoxu/code/DualSync/outputs/current_best_20261106/DYF-FSE-T/slice_01_full.png",
+          "sha256": "2b6d2384972e86b0b149fa97de764b59f4fa53bc6fb947bb1432865a4d96ba70",
+          "shape": [
+            320,
+            320
+          ]
+        },
+        "roi": {
+          "path": "/data0/zhuoxu/code/DualSync/outputs/current_best_20261106/DYF-FSE-T/slice_01_roi.png",
+          "sha256": "1ddd0140770f30d731d157a415fded36927c4138b960feb165df9dd89531a53a",
+          "shape": [
+            96,
+            96
+          ]
+        }
+      },
+      "metrics_vs_previous_final": {
+        "bg_snr_gain": 1.5931907594758128,
+        "inband_snr_gain": 1.6494738409464869,
+        "tuned_coarse_ssim": 0.9867266665025498,
+        "input_coarse_ssim": 0.9517910247688152,
+        "tuned_input_coarse_ssim": 0.9877270158539759,
+        "strong_edge_amplitude_ratio": 0.9894087709372752,
+        "symmetric_edge_p95_pixels": 1.0,
+        "fg_mean_ratio": 0.9964934280248481,
+        "raw_gradient_retention": 0.9240776975393868,
+        "dc_rel": 0.24982915051024876
+      },
+      "frozen_gates_failed": [
+        "input coarse ssim",
+        "tuned coarse ssim"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "/data0/zhuoxu/code/DualSync/outputs/yuantian_repro_20261106/sharp_seed1234/yuantian_cfg.json": "fb7d07450bfd7b7de7a79896a099f2830286c7fbbb1b8b26011b8a17abee16b2",
+    "/data0/zhuoxu/code/DualSync/outputs/yuantian_repro_20261106/metrics.json": "b11bade9f6ecba8607d004891ce494df4b807a28a98d4afac3d97950f8c75a3a",
+    "/data0/zhuoxu/code/DualSync/outputs/final_best_20261106/manifest.json": "3967ecc2fee5046e51707df663a767a17b41a082ae8fb4d46ac3f8ef7957c5a1",
+    "/data0/zhuoxu/code/DualSync/outputs/yuantian_repro_20261106/sharp_seed1234/MSP-FSE-T/slice_06.mat": "6f0aab3c3030620266ed3f22954754ac01cdc8ee930ed7efc9ab18f7c1cc438e",
+    "/data0/zhuoxu/code/DualSync/outputs/yuantian_repro_20261106/sharp_seed1234/DYF-FSE-T/slice_01.mat": "84c44bd690eb96002785060016ae06e84dabc8303eb01ecf3cfce52dade4d569"
+  },
+  "registration_source_sha256": "a7b675a91af5d26e5b71d139c7923776582a2ba709f96d066b0c9ec42feeeb9b"
+}

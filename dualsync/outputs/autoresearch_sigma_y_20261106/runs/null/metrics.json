@@ -1,0 +1,15 @@
+{
+ "cases": [
+  "DYF-FSE-T/slice_01"
+ ],
+ "kind": "null",
+ "passed": true,
+ "per_case": {
+  "DYF-FSE-T/slice_01": {
+   "exact": true,
+   "passed": true,
+   "relative_l2": 0.0
+  }
+ },
+ "sigma_y": 0.3
+}

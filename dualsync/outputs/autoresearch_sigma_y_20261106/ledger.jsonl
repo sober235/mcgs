@@ -1,0 +1,26 @@
+{"case": "DYF-FSE-T/slice_01", "event": "reserve", "gpu": "4", "sigma_y": 0.3, "tag": "null", "utc": 1793978563.6135411}
+{"case": "DYF-FSE-T/slice_01", "event": "complete", "peak_vram_gb": 10.28, "seconds": 74.3, "sha256": "bd66f71d7401afda5024d74ed4c67668a799f26dd75103a8bf26ef72d049ec5d", "tag": "null", "utc": 1793978637.958226}
+{"case": "DYF-FSE-T/slice_01", "event": "reserve", "gpu": "4", "sigma_y": 0.5, "tag": "sy0.5", "utc": 1793978684.9337626}
+{"case": "DYF-FSE-T/slice_01", "event": "complete", "peak_vram_gb": 10.28, "seconds": 74.5, "sha256": "eed3b1b41e782babf90d0c71cfaff437a08475cf8f056802a68f89459056f1f6", "tag": "sy0.5", "utc": 1793978759.4605427}
+{"case": "DYF-FSE-T/slice_06", "event": "reserve", "gpu": "4", "sigma_y": 0.5, "tag": "sy0.5", "utc": 1793978759.4613807}
+{"case": "DYF-FSE-T/slice_06", "event": "complete", "peak_vram_gb": 10.28, "seconds": 71.8, "sha256": "3cfdbe660cbf9587043a1c55b3952929e826632ea8c2e6ec2424e28034a5b2e5", "tag": "sy0.5", "utc": 1793978831.2801838}
+{"case": "MSP-FSE-T/slice_01", "event": "reserve", "gpu": "4", "sigma_y": 0.5, "tag": "sy0.5", "utc": 1793978831.280954}
+{"case": "MSP-FSE-T/slice_01", "event": "complete", "peak_vram_gb": 10.28, "seconds": 71.8, "sha256": "b70e45eca5b4f30bd7887ea97e7d6cb86e25c0e74da6b6b076aef78872ab584f", "tag": "sy0.5", "utc": 1793978903.0995364}
+{"case": "MSP-FSE-T/slice_06", "event": "reserve", "gpu": "4", "sigma_y": 0.5, "tag": "sy0.5", "utc": 1793978903.1004422}
+{"case": "MSP-FSE-T/slice_06", "event": "complete", "peak_vram_gb": 10.28, "seconds": 71.8, "sha256": "8462454e253f249fff16d59fadf9e82514d78fea7a951f46314ce9cef85082a0", "tag": "sy0.5", "utc": 1793978974.8913097}
+{"case": "DYF-FSE-T/slice_01", "event": "reserve", "gpu": "4", "sigma_y": 0.35, "tag": "sy0.35", "utc": 1793979046.936231}
+{"case": "DYF-FSE-T/slice_01", "event": "complete", "peak_vram_gb": 10.28, "seconds": 74.4, "sha256": "4fb2d5517814c4f5aef82a421ec6182aaccdc5694282f0609e85ef33cdbd64a2", "tag": "sy0.35", "utc": 1793979121.297028}
+{"case": "DYF-FSE-T/slice_06", "event": "reserve", "gpu": "4", "sigma_y": 0.35, "tag": "sy0.35", "utc": 1793979121.2979414}
+{"case": "DYF-FSE-T/slice_06", "event": "complete", "peak_vram_gb": 10.28, "seconds": 71.8, "sha256": "5673cfd37938e163e63133d1b530861a5ac746882c024b3584b5680640049ed0", "tag": "sy0.35", "utc": 1793979193.068858}
+{"case": "MSP-FSE-T/slice_01", "event": "reserve", "gpu": "4", "sigma_y": 0.35, "tag": "sy0.35", "utc": 1793979193.0696313}
+{"case": "MSP-FSE-T/slice_01", "event": "complete", "peak_vram_gb": 10.28, "seconds": 71.8, "sha256": "1a710e43f6627e4f4de30b945bfd6fd3eb32ad9374b1fefe6c26d750eda509bb", "tag": "sy0.35", "utc": 1793979264.8209398}
+{"case": "MSP-FSE-T/slice_06", "event": "reserve", "gpu": "4", "sigma_y": 0.35, "tag": "sy0.35", "utc": 1793979264.8217165}
+{"case": "MSP-FSE-T/slice_06", "event": "complete", "peak_vram_gb": 10.28, "seconds": 71.8, "sha256": "212c9730ebedf36eaefe38251f31ec6cd3d48e78c8d4297622fafaea840c1e8d", "tag": "sy0.35", "utc": 1793979336.5974464}
+{"case": "DYF-FSE-T/slice_01", "event": "reserve", "gpu": "4", "sampler_sha256": "bc79cf17957bb6c103341d4db5decf2ce6b9aa70973f235c27a213847b4066d5", "sigma_y": 0.3, "tag": "eta0.5", "utc": 1794014358.3796914, "value": 0.5, "variable": "eta"}
+{"case": "DYF-FSE-T/slice_01", "event": "complete", "peak_vram_gb": 10.28, "seconds": 74.4, "sha256": "7c5c337a7c749ca4331a8385eb0e96176deae42fc7eadcce37fd264a128dfc64", "tag": "eta0.5", "utc": 1794014432.7793705}
+{"case": "DYF-FSE-T/slice_06", "event": "reserve", "gpu": "4", "sampler_sha256": "bc79cf17957bb6c103341d4db5decf2ce6b9aa70973f235c27a213847b4066d5", "sigma_y": 0.3, "tag": "eta0.5", "utc": 1794014432.7801497, "value": 0.5, "variable": "eta"}
+{"case": "DYF-FSE-T/slice_06", "event": "complete", "peak_vram_gb": 10.28, "seconds": 71.9, "sha256": "155eb0ca9869196383e9c98474754cb4e3671f0d697a06403a336f56fa3da070", "tag": "eta0.5", "utc": 1794014504.6325402}
+{"case": "MSP-FSE-T/slice_01", "event": "reserve", "gpu": "4", "sampler_sha256": "bc79cf17957bb6c103341d4db5decf2ce6b9aa70973f235c27a213847b4066d5", "sigma_y": 0.3, "tag": "eta0.5", "utc": 1794014504.6336718, "value": 0.5, "variable": "eta"}
+{"case": "MSP-FSE-T/slice_01", "event": "complete", "peak_vram_gb": 10.28, "seconds": 71.9, "sha256": "b989aa09a1d4d4674d9b6c2ed5f2a515b7766c8bde71b7760e1ee428911ca3d7", "tag": "eta0.5", "utc": 1794014576.5577135}
+{"case": "MSP-FSE-T/slice_06", "event": "reserve", "gpu": "4", "sampler_sha256": "bc79cf17957bb6c103341d4db5decf2ce6b9aa70973f235c27a213847b4066d5", "sigma_y": 0.3, "tag": "eta0.5", "utc": 1794014576.5588114, "value": 0.5, "variable": "eta"}
+{"case": "MSP-FSE-T/slice_06", "event": "complete", "peak_vram_gb": 10.28, "seconds": 71.8, "sha256": "7872b17c36cecdea21eb81d044c4b734bd228226601cd45c98b23c7b1778aa1c", "tag": "eta0.5", "utc": 1794014648.3390338}

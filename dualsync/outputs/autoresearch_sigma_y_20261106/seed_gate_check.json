@@ -1,0 +1,115 @@
+{
+ "DYF-FSE-T/slice_01|b6234": {
+  "bg": 1.058016886116919,
+  "failed": [
+   "tuned_coarse_ssim"
+  ],
+  "feasible": false,
+  "inband": 1.0144181382535158,
+  "input_ssim_drop": 0.0003219474066223915,
+  "score": 1.0359881851910797,
+  "sha256": "872dae3f91378493464fddd2cb9f94ae4b4f7b3821da80b9ec8ebc281740ac36",
+  "source": "/data0/zhuoxu/code/DualSync/outputs/autoresearch_snr_tuned_20261105/pool/DYF-FSE-T/slice_01/b6234.mat",
+  "tuned_coarse_ssim": 0.9814390145759918
+ },
+ "DYF-FSE-T/slice_06|b2234": {
+  "bg": 0.9948065097560882,
+  "failed": [
+   "bg_snr_gain",
+   "tuned_coarse_ssim"
+  ],
+  "feasible": false,
+  "inband": 1.0239892930932633,
+  "input_ssim_drop": -0.0006081982834700295,
+  "score": 1.0092924326921873,
+  "sha256": "d8b73ebc4a97d2092e7ed15ff177022ce23a38517ba4fe7691262ee7f4b21aa4",
+  "source": "/data0/zhuoxu/code/DualSync/outputs/autoresearch_snr_tuned_20261105/pool/DYF-FSE-T/slice_06/b2234.mat",
+  "tuned_coarse_ssim": 0.9747695113015715
+ },
+ "DYF-FSE-T/slice_06|b3234": {
+  "bg": 0.9304461301630692,
+  "failed": [
+   "bg_snr_gain",
+   "inband_snr_gain",
+   "tuned_coarse_ssim"
+  ],
+  "feasible": false,
+  "inband": 0.9751090800105285,
+  "input_ssim_drop": -0.0013007614506109766,
+  "score": 0.9525158633758637,
+  "sha256": "216f3e0987103f5a44512157b4bed1a50aa2ca5ec2a0c8506267667bc21ef34b",
+  "source": "/data0/zhuoxu/code/DualSync/outputs/autoresearch_snr_tuned_20261105/pool/DYF-FSE-T/slice_06/b3234.mat",
+  "tuned_coarse_ssim": 0.9736541609595042
+ },
+ "DYF-FSE-T/slice_06|b4234": {
+  "bg": 0.9608846266875675,
+  "failed": [
+   "bg_snr_gain",
+   "tuned_coarse_ssim"
+  ],
+  "feasible": false,
+  "inband": 1.0133759887000877,
+  "input_ssim_drop": -0.0009577703396332904,
+  "score": 0.9867813377827068,
+  "sha256": "e340867cfd432132e3b5206fbc2b8be0beb310708dec2d019e07e71462628b87",
+  "source": "/data0/zhuoxu/code/DualSync/outputs/autoresearch_snr_tuned_20261105/pool/DYF-FSE-T/slice_06/b4234.mat",
+  "tuned_coarse_ssim": 0.9739669596528177
+ },
+ "MSP-FSE-T/slice_01|b6234": {
+  "bg": 1.0547691852840582,
+  "failed": [
+   "tuned_coarse_ssim"
+  ],
+  "feasible": false,
+  "inband": 1.0276005171736509,
+  "input_ssim_drop": 1.921476602595451e-05,
+  "score": 1.041096230084774,
+  "sha256": "71bb8a4bc16794a967f6530db8c6d015655538ce702a27a4bd48b0e50fb9d3d7",
+  "source": "/data0/zhuoxu/code/DualSync/outputs/autoresearch_snr_tuned_20261105/pool/MSP-FSE-T/slice_01/b6234.mat",
+  "tuned_coarse_ssim": 0.9873118857390023
+ },
+ "MSP-FSE-T/slice_06|b2234": {
+  "bg": 0.9994707262960717,
+  "failed": [
+   "bg_snr_gain",
+   "inband_snr_gain",
+   "tuned_coarse_ssim"
+  ],
+  "feasible": false,
+  "inband": 0.9802923552546557,
+  "input_ssim_drop": 0.0003860189241144951,
+  "score": 0.9898350934821707,
+  "sha256": "b704f21271ba6d385ac506fa289676ed590ca8a27e6cc84fa67a9d543fca7c9b",
+  "source": "/data0/zhuoxu/code/DualSync/outputs/autoresearch_snr_tuned_20261105/pool/MSP-FSE-T/slice_06/b2234.mat",
+  "tuned_coarse_ssim": 0.9823936163133079
+ },
+ "MSP-FSE-T/slice_06|b3234": {
+  "bg": 1.0039746782565218,
+  "failed": [
+   "inband_snr_gain",
+   "tuned_coarse_ssim"
+  ],
+  "feasible": false,
+  "inband": 0.9878760597486247,
+  "input_ssim_drop": 0.0008207835155933374,
+  "score": 0.9958928402410804,
+  "sha256": "da25ff200459299474ce16be8373be031d3b82f7f581a88832f09c711672673f",
+  "source": "/data0/zhuoxu/code/DualSync/outputs/autoresearch_snr_tuned_20261105/pool/MSP-FSE-T/slice_06/b3234.mat",
+  "tuned_coarse_ssim": 0.9820650486983512
+ },
+ "MSP-FSE-T/slice_06|b4234": {
+  "bg": 0.9775706194262445,
+  "failed": [
+   "bg_snr_gain",
+   "inband_snr_gain",
+   "tuned_coarse_ssim"
+  ],
+  "feasible": false,
+  "inband": 0.9622159574500019,
+  "input_ssim_drop": 0.000474035047058341,
+  "score": 0.9698629024486993,
+  "sha256": "2de5f861bfa9aef899bd4e9df4e27340a21175780b52d765a958cdab35aa7e10",
+  "source": "/data0/zhuoxu/code/DualSync/outputs/autoresearch_snr_tuned_20261105/pool/MSP-FSE-T/slice_06/b4234.mat",
+  "tuned_coarse_ssim": 0.982081548027532
+ }
+}

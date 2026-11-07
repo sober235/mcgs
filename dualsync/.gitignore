@@ -1,0 +1,6 @@
+# Image data stays local/server-only
+*.mat
+*.png
+*.npy
+*.npz
+*viewer*.html
