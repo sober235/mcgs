@@ -1,0 +1,64 @@
+{
+  "batch": "TA-B7 (2026-11-08): dose of the data-consistency gain",
+  "evidence": "dc gain dose so far: gain 1 -> 1.5 on TC02 +1.06e-3 (TE02); gain 1 -> 2 on TE01 +3.3e-3 (TE03, keeper, M3 -0.11809; s7 sagittal -0.0090). |x_t - x|/|x| at 4501 with gain 2 = 3.4% pre / 1.8% post. The response has not saturated.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 2.0
+      }
+    ]
+  },
+  "note": "keeper0/assume_keeper_variant for selftest only. Gain > 3 needs worker code from this commit (old workers drained first).",
+  "items": [
+    {
+      "id": "TF01_dc_gain_3",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 3.0
+      },
+      "hypothesis": "the gain response (1 -> 2: +3.3e-3) continues to 3"
+    },
+    {
+      "id": "TF02_dc_gain_4",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 4.0
+      },
+      "hypothesis": "upper bracket; residual noise grows linearly with the gain while BM4D sigma stays fixed"
+    }
+  ]
+}

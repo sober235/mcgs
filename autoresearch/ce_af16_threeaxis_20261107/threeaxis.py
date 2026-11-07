@@ -342,7 +342,7 @@ def dc_blend(x, x_dc, gain):
 def check_dc_variant(variant):
     require(set(variant) <= {'kind', 'gain'}, f'dc_target takes only gain, got {sorted(variant)}')
     gain = variant.get('gain', 1.0)
-    require(type(gain) in (int, float) and math.isfinite(gain) and 0 < gain <= 3, 'dc_target gain in (0, 3]')
+    require(type(gain) in (int, float) and math.isfinite(gain) and 0 < gain <= 8, 'dc_target gain in (0, 8]')
 
 
 def install_dc_target(nlr, variant):
@@ -695,10 +695,13 @@ def run_experiment(root, item, keeper, gpu, margin=KEEP_MARGIN):
         if item.get('control'):
             continue
         if seed == 42 and len(seeds) > 1:
-            ref = keeper['per_seed']['42']['m3']
+            with locked(root):                # screen against the keeper this item must beat now, not at claim
+                current = read_json(root / 'keeper.json')
+            ref = max(keeper['per_seed']['42']['m3'], current['per_seed']['42']['m3'])
             if s['m3'] <= ref + margin:
                 row.update(status='screen_discard', m3=None, m3_s42=s['m3'],
-                           note=f"s42 M3 {s['m3']:+.5f} <= keeper s42 {ref:+.5f} + {margin}")
+                           note=f"s42 M3 {s['m3']:+.5f} <= keeper s42 {ref:+.5f} + {margin} "
+                                f"(claim keeper {keeper['id']}, current keeper {current['id']})")
                 break
     row['seconds'] = time.time() - t0
     row['finished'] = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -1031,7 +1034,7 @@ def cmd_selftest(args):
     log(f'  dc_target: frozen {Path(kz.__file__).name}.hard_dc_combine exact-data and zero-render identities hold')
     xd = kz.hard_dc_combine(torch.zeros_like(xs), S, ydc, mfit)
     require(dc_blend(xs, xd, 1.0) is xd and torch.allclose(dc_blend(xs, xd, 2.0), 2 * xd - xs), 'dc_blend wrong')
-    for bad in ({'kind': 'dc_target', 'gain': 0}, {'kind': 'dc_target', 'gain': 4}, {'kind': 'dc_target', 'beta': 1}):
+    for bad in ({'kind': 'dc_target', 'gain': 0}, {'kind': 'dc_target', 'gain': 9}, {'kind': 'dc_target', 'beta': 1}):
         try:
             check_dc_variant(bad)
         except SystemExit:
