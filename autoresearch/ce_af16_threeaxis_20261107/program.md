@@ -189,8 +189,8 @@ transverse does not. No confirmation run on seeds 201/207 was triggered, because
 
 | seed | transverse (plane 196) | coronal | sagittal | whole head |
 |---|---|---|---|---|
-| 42 | −0.0817 (0/6) | +0.0152 (plane 112) | +0.0005 (plane 44) | −0.052 |
-| 7 | −0.0807 (0/6) | +0.0134 (plane 112) | +0.0048 (plane 43) | −0.050 |
+| 42 | −0.0817 (1/6) | +0.0152 (plane 112) | +0.0005 (plane 44) | −0.052 |
+| 7 | −0.0807 (1/6) | +0.0134 (plane 112) | +0.0048 (plane 43) | −0.050 |
 
 On transverse plane 196 the PSNR gap to ZS-SSDU narrowed from −0.52 to −0.33 dB (pre) and −0.35 dB (post); the
 limiter is post NMSE/PSNR. Coronal margins shrink as gain rises (+0.03 → +0.015), and sagittal passes only narrowly.
