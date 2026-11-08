@@ -1,126 +1,121 @@
-# CE AF16 pre (平扫) + post (增强): three-axis autoresearch results (2026-11-07 – 11-08)
+# CE AF16 平扫 + 增强：三轴面 autoresearch 结果（2026-11-07 ~ 11-08）
 
-**Status: goal not met. The loop is stopped.**
+**状态：目标未达成，循环已停止。**
 
-The final keeper is `TN15_gain_14_sigma_0.0275`, with **M3 = −0.08173**. The run started from FV06 at −0.12704, a gain of
-+0.0453.
+最终 keeper 为 `TN15_gain_14_sigma_0.0275`，**M3 = −0.08173**。起点 FV06 为 −0.12704，共提升 +0.0453。
 
-- **Pass:** coronal and sagittal win 6/6 on both development seeds.
-- **Fail:** transverse does not; it wins 1/6 at best.
-- **Not run:** the confirmation on seeds 201/207 and the visual check, because M3 never became positive.
+- **通过：** 冠状面和矢状面在两个开发种子上都是 6/6 全胜。
+- **未通过：** 横断面最好只赢 1/6。
+- **未执行：** 种子 201/207 的确认和观察图检查。M3 始终没有转正，所以没有触发。
 
-`program.md` in this folder has the loop design, and `threeaxis.py` is the driver. The ledger and run directories are on
-the server under `ROOT = /data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_threeaxis_20261107`.
+循环设计见本目录的 `program.md`，驱动脚本是 `threeaxis.py`。账本和各次运行目录在服务器的
+`ROOT = /data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_threeaxis_20261107` 下。
 
-## Goal and metric
+## 目标与指标
 
-**Question:** does MC-GS strictly beat all ten opponents on all three anatomical axes, for both the pre-contrast and the
-post-contrast scan?
+**研究问题：** MC-GS 能否在三个解剖轴面上，同时在平扫和增强上，严格胜过全部 10 个对比方法？
 
-The ten opponents are ZF, CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT, ZS-SSDU, 3D-DIP, 3D-INR, MC-INR and GS-single.
+10 个对比方法：ZF、CG-SENSE、CS-SENSE、Joint SENSE、L1-SPIRiT、ZS-SSDU、3D-DIP、3D-INR、MC-INR、GS-single。
 
-**Success criterion (set by the user):**
+**成功标准（用户设定）：**
 
-- Each axis must have at least one frozen lesion-core plane where MC-GS strictly wins all six conditions: pre/post ×
-  PSNR/SSIM/NMSE. A tie is not a win.
-- This must hold on both dev seeds, 42 and 7.
-- The planes come from the evaluator's `lesion_planes` block: 59 planes, 17/24/18 per axis, each with ≥ 150 px of lesion
-  core. Metrics use the head mask of the whole plane.
+- 每个轴面至少有一个冻结的病灶核心平面，在全部 6 项上严格胜出：平扫/增强 × PSNR/SSIM/NMSE。打平不算赢。
+- 两个开发种子 42 和 7 都要满足。
+- 平面取自评估器的 `lesion_planes`：共 59 个平面，三个轴面分别为 17/24/18 个，每个平面至少含 150 px 病灶核心。
+  指标在整个平面的头部掩膜上计算。
 
-**Metric (one number, higher is better):**
+**指标（单一数值，越高越好）：**
 
 ```
-score_six(plane) = smallest relative margin over the six conditions against the best opponent (evaluator's number)
-M3(seed)         = min over axes of ( max over that axis's lesion planes of score_six )
-M3               = min(M3(42), M3(7))        success: M3 > 0, then confirm on seeds 201/207 + visual check
+score_six(plane) = 6 项条件中相对最佳对比方法的最小相对余量（评估器自带的数值）
+M3(seed)         = 各轴面上 ( 该轴所有病灶平面 score_six 的最大值 ) 的最小值
+M3               = min(M3(42), M3(7))        成功：M3 > 0，再经种子 201/207 确认和观察图检查
 ```
 
-**Scope (set by the user):**
+**范围（用户设定）：**
 
-- **Allowed:** method changes and knobs. Non-local (NL) target variants are registered at runtime, in the same process.
-- **Unchanged:** the frozen trainer, evaluator, masks, CSMs, references and opponents; normalisation; the 625-step stage-2
-  budget from the iteration-4500 bases; relax α = 1.
-- **Not allowed:** GT or ROI as training input, post-hoc denoising, ensembles, and plane cherry-picking.
+- **允许：** 方法改动和调参。非局部（NL）目标变体在同一进程内于运行时注册。
+- **不变：** 冻结的 trainer、评估器、掩膜、CSM、参考图和对比方法；归一化；从 iteration-4500 底模出发的 625 步 stage-2
+  预算；relax α = 1。
+- **禁止：** 用 GT 或 ROI 作为训练输入、事后去噪、集成、挑选平面。
 
-## Answer: final keeper TN15
+## 结论：最终 keeper TN15
 
-| axis | seed 42 | seed 7 | criterion |
+| 轴面 | seed 42 | seed 7 | 是否达标 |
 |---|---|---|---|
-| transverse (a0) | −0.0817, plane 196, 1/6 | −0.0807, plane 196, 1/6 | ✗ |
-| coronal (a1) | +0.0152, plane 112, 6/6 | +0.0134, plane 112, 6/6 | ✓ |
-| sagittal (a2) | +0.0005, plane 44, 6/6 | +0.0048, plane 43, 6/6 | ✓ (thin margin) |
-| whole head S6 (not part of the criterion) | −0.052 | −0.050 | — |
+| 横断面 (a0) | −0.0817，plane 196，1/6 | −0.0807，plane 196，1/6 | ✗ |
+| 冠状面 (a1) | +0.0152，plane 112，6/6 | +0.0134，plane 112，6/6 | ✓ |
+| 矢状面 (a2) | +0.0005，plane 44，6/6 | +0.0048，plane 43，6/6 | ✓（余量很小） |
+| 全头 S6（不属于判据） | −0.052 | −0.050 | — |
 
-**What blocks transverse:** on transverse plane 196, MC-GS still trails ZS-SSDU in PSNR, by about 0.33 dB (pre) and 0.35 dB
-(post). At the start of the loop the gap was 0.52 dB. The binding condition is post NMSE/PSNR.
+**横断面卡在哪里：** 在横断面 plane 196 上，MC-GS 的 PSNR 仍比 ZS-SSDU 低约 0.33 dB（平扫）和 0.35 dB（增强）。循环开始时
+差距为 0.52 dB。最紧的约束是增强的 NMSE/PSNR。
 
-**TN15 recipe:** FV06 plus the changes below; every other value is unchanged from FV06.
+**TN15 配方：** 在 FV06 基础上做了下表的改动，其余参数与 FV06 相同。
 
-| component | setting |
+| 组件 | 设置 |
 |---|---|
-| NL denoiser | `bm4d_pos` with BM4D profile step 2 (`step_ht`, `step_wiener` = 2,2,2) |
-| block matching | joint pre/post block matching, guide σ 1.5 |
-| NL target | `dc_target`, gain 14: target = BM4D(\|x + 14·Aᴴ(y − Ax)\|), formed once at iteration 4501 |
-| NL knobs | `nl_sigma_rel` 0.0275, `nl_refresh` 1000 (a single target), `lambda_nl_plain` 0.5, `lambda_nl_contrast` 4 |
+| NL 去噪器 | `bm4d_pos`，BM4D profile 步长 2（`step_ht`、`step_wiener` = 2,2,2） |
+| 块匹配 | 平扫/增强联合块匹配，guide σ 1.5 |
+| NL 目标 | `dc_target`，gain 14：目标 = BM4D(\|x + 14·Aᴴ(y − Ax)\|)，只在 iteration 4501 生成一次 |
+| NL 参数 | `nl_sigma_rel` 0.0275，`nl_refresh` 1000（只有一个目标），`lambda_nl_plain` 0.5，`lambda_nl_contrast` 4 |
 
-In the `dc_target` formula:
+`dc_target` 公式中：
 
-- `x` is the current render.
-- `x + Aᴴ(y − Ax)` is the frozen `data.known_zero.hard_dc_combine`: measured k-space is put back into the sampled
-  locations, and the image is coil-combined with the frozen CSMs.
-- The gain over-relaxes this data-consistency step before BM4D.
+- `x` 是当前渲染结果。
+- `x + Aᴴ(y − Ax)` 就是冻结的 `data.known_zero.hard_dc_combine`：把实测 k 空间放回已采样位置，再用冻结的 CSM 做线圈合并。
+- gain 在 BM4D 之前对这一步数据一致性做过松弛。
 
-## Keeper chain
+## Keeper 演进链
 
-| # | keeper | change (one per step) | M3 | Δ vs previous keeper |
+| # | keeper | 改动（每步一项） | M3 | 相对上一个 keeper |
 |---|---|---|---|---|
-| 0 | `FV06_lambda_nl_plain_0.5` | starting point, mined from 875 scored outputs | −0.12704 | — |
-| 1 | `TA02_joint_bm` | joint pre/post block matching | −0.12620 | +0.00084 |
-| 2 | `TB06_bm4d_step2` | BM4D step 3 → 2 | −0.12467 | +0.00153 |
-| 3 | `TD01_dc_target` | NL target = BM4D of the data-consistent image (built on TA02) | −0.12293 | +0.00174 |
-| 4 | `TC02_joint_guide_1.5` | joint guide σ 1.5 | −0.12236 | +0.00057 |
-| 5 | `TE01_dc_bm4d_step2` | + BM4D step 2 | −0.12137 | +0.00099 |
+| 0 | `FV06_lambda_nl_plain_0.5` | 起点，从 875 个已评分输出中挑出 | −0.12704 | — |
+| 1 | `TA02_joint_bm` | 平扫/增强联合块匹配 | −0.12620 | +0.00084 |
+| 2 | `TB06_bm4d_step2` | BM4D 步长 3 → 2 | −0.12467 | +0.00153 |
+| 3 | `TD01_dc_target` | NL 目标改为数据一致图像的 BM4D（基于 TA02） | −0.12293 | +0.00174 |
+| 4 | `TC02_joint_guide_1.5` | 联合 guide σ 1.5 | −0.12236 | +0.00057 |
+| 5 | `TE01_dc_bm4d_step2` | 再加 BM4D 步长 2 | −0.12137 | +0.00099 |
 | 6 | `TE03_dc_gain_2` | DC gain 2 | −0.11809 | +0.00328 |
 | 7 | `TC06_nl_sigma_0.0225` | σ_rel 0.02 → 0.0225 | −0.11623 | +0.00186 |
 | 8 | `TF02_dc_gain_4` | gain 4 | −0.10968 | +0.00655 |
 | 9 | `TH01_dc_gain_6` | gain 6 | −0.10394 | +0.00574 |
 | 10 | `TH02_dc_gain_8` | gain 8 | −0.10260 | +0.00134 |
-| 11 | `TJ02_nl_sigma_0.025_high_gain` | σ_rel 0.025 at gain 8 | −0.09651 | +0.00609 |
+| 11 | `TJ02_nl_sigma_0.025_high_gain` | gain 8 下 σ_rel 0.025 | −0.09651 | +0.00609 |
 | 12 | `TL02_dc_gain_10` | gain 10 | −0.09176 | +0.00475 |
 | 13 | `TN11_gain_12_sigma_0.025` | gain 12 | −0.09068 | +0.00108 |
-| 14 | `TN13_gain_12_sigma_0.0275` | σ_rel 0.0275 at gain 12 | −0.08657 | +0.00411 |
-| 15 | **`TN15_gain_14_sigma_0.0275`** | gain 14 at σ_rel 0.0275 | **−0.08173** | +0.00484 |
+| 14 | `TN13_gain_12_sigma_0.0275` | gain 12 下 σ_rel 0.0275 | −0.08657 | +0.00411 |
+| 15 | **`TN15_gain_14_sigma_0.0275`** | σ_rel 0.0275 下 gain 14 | **−0.08173** | +0.00484 |
 
-**Transverse plane 196, PSNR gap to ZS-SSDU (dB):**
+**横断面 plane 196 上与 ZS-SSDU 的 PSNR 差距（dB）：**
 
-| keeper | pre | post |
+| keeper | 平扫 | 增强 |
 |---|---|---|
-| FV06 (start) | ≈ −0.55 | ≈ −0.55 |
+| FV06（起点） | ≈ −0.55 | ≈ −0.55 |
 | TE01 | −0.52 | −0.52 |
-| TF02 (gain 4) | −0.460 | −0.474 |
-| TH01 (gain 6) | −0.443 | −0.451 |
-| TH02 (gain 8) | −0.446 | −0.432 |
-| TN15 (gain 14, σ 0.0275) | ≈ −0.33 | ≈ −0.35 |
+| TF02（gain 4） | −0.460 | −0.474 |
+| TH01（gain 6） | −0.443 | −0.451 |
+| TH02（gain 8） | −0.446 | −0.432 |
+| TN15（gain 14，σ 0.0275） | ≈ −0.33 | ≈ −0.35 |
 
-## What worked
+## 有效的改动
 
-- **The gain on the data-consistency step, together with σ_rel.**
-  - This was the only lever that moved transverse materially. The NL target is BM4D of a single over-relaxed
-    data-consistency step, x + g·Aᴴ(y − Ax). It is formed once, before the fit, and compensates BM4D's shrinkage of
-    the missed high frequency.
-  - The best σ_rel rises with the gain, so the gain and σ_rel trace a ridge:
+- **数据一致性步的 gain 与 σ_rel 联动。**
+  - 这是唯一明显推动横断面的手段。NL 目标是对一次过松弛的数据一致性步 x + g·Aᴴ(y − Ax) 做 BM4D。目标在拟合之前只生成
+    一次，用来补偿 BM4D 对缺失高频的收缩。
+  - 最优 σ_rel 随 gain 增大而增大，所以 gain 和 σ_rel 构成一条脊线：
 
-    | gain | best σ_rel | M3 |
+    | gain | 最优 σ_rel | M3 |
     |---|---|---|
     | 8 | 0.025 | −0.0965 |
     | 12 | 0.0275 | −0.0866 |
     | 14 | 0.0275 | −0.0817 |
 
-- **Smaller structural gains:**
-  - joint pre/post block matching, best at guide σ 1.5 (2.5 is neutral);
-  - BM4D step 2.
+- **较小的结构性提升：**
+  - 平扫/增强联合块匹配，guide σ 1.5 最好（2.5 无变化）；
+  - BM4D 步长 2。
 
-**Gain × σ_rel ridge.** Each cell gives the M3, or the seed-42 screen value marked "(s42)". A blank cell was not run.
+**gain × σ_rel 脊线。** 每格是 M3；只跑了 seed 42 筛选的标为“(s42)”。空格表示没有跑。
 
 | gain \ σ_rel | 0.0225 | 0.025 | 0.0275 | 0.03 |
 |---|---|---|---|---|
@@ -130,66 +125,63 @@ In the `dc_target` formula:
 | 14 | | −0.0958 (s42) | **−0.0817** | −0.0908 (s42) |
 | 16 | −0.1357 (s42) | | | |
 
-## What did not work
+## 无效的改动
 
-| idea | runs | result |
+| 思路 | 实验 | 结果 |
 |---|---|---|
-| sharpen the NL target (`nl_sharpen`) | TA01, TA03 | hurts monotonically (−0.145, −0.162) |
-| abrupt Gaussian shrink (`init_scale` 0.85) | TB01 | breaks the fit (−1.31) |
-| repeated NL refreshes, annealed or with the DC target | TB05, TD03 | over-smooth (−0.145, −0.277) |
-| a second DC target at gain 8 | TK01 | diverges, \|x_t − x\|/\|x\| 0.135 → 0.82 → 3.8; transverse improves, but coronal and sagittal collapse |
-| a second DC target at a stable `later_gain` of 1 or 2 | TM01, TM02 | over-smooths (−0.148, −0.139) |
-| higher NL weight (`lambda_nl_contrast` 8, `lambda_nl_plain` 1) | TC03, TC04, TK02 | neutral on transverse |
-| σ_rel away from the ridge | TC05, TD02, TG01, TL01 | lower |
-| wide in-plane BM4D search | TC07 | lower |
-| export relax α < 1 (`probe-relax`: 0.95 / 0.85 / 0.7) | probe | all lower; α = 1 (hard DC) is best |
-| BM4D refilter (`denoise_residual`) | — | broken in bm4d 4.2.5 (NaN at block size 2) |
+| 锐化 NL 目标（`nl_sharpen`） | TA01、TA03 | 单调变差（−0.145、−0.162） |
+| 骤然缩小高斯（`init_scale` 0.85） | TB01 | 拟合崩溃（−1.31） |
+| 重复刷新 NL 目标（退火或 DC 目标） | TB05、TD03 | 过度平滑（−0.145、−0.277） |
+| gain 8 下第二次生成 DC 目标 | TK01 | 发散，\|x_t − x\|/\|x\| 从 0.135 → 0.82 → 3.8；横断面变好，但冠状面和矢状面崩溃 |
+| 第二次目标改用稳定的 `later_gain` 1 或 2 | TM01、TM02 | 过度平滑（−0.148、−0.139） |
+| 加大 NL 权重（`lambda_nl_contrast` 8、`lambda_nl_plain` 1） | TC03、TC04、TK02 | 横断面无变化 |
+| σ_rel 偏离脊线 | TC05、TD02、TG01、TL01 | 变差 |
+| 扩大 BM4D 面内搜索范围 | TC07 | 变差 |
+| 导出时 relax α < 1（`probe-relax`：0.95 / 0.85 / 0.7） | 探针 | 全部变差；α = 1（硬 DC）最好 |
+| BM4D refilter（`denoise_residual`） | — | bm4d 4.2.5 中不可用（块大小 2 时出现 NaN） |
 
-TK02 (`lambda_nl_plain` 1) is neutral on transverse but lifts sagittal to +0.0019 and coronal to +0.040. It is worth
-re-testing once transverse is no longer the limiter.
+TK02（`lambda_nl_plain` 1）对横断面无影响，但把矢状面提到 +0.0019，冠状面提到 +0.040。等横断面不再是瓶颈时值得再试。
 
-## Diagnostics: where the transverse gap is
+## 诊断：横断面差距在哪里
 
-- **k-space error (`diag_kspace.py`):**
-  - From FV06 to TE01, the transverse magnitude-error energy falls by only 0.4 %.
-  - The gap to ZS-SSDU is about 13 %, almost all at unsampled (ky, kz) with |f| 0.2–0.5.
-  - Readout is array axis 0, so a transverse plane is the phase-encode plane and carries the full 2-D AF16 aliasing.
-  - Pre and post share one mask (`sim/gt.npz` `mask2d`), so neither contrast holds the samples the other is missing.
-- **BM4D ceiling (`diag_target_ceiling.py`):**
-  - This probe is post-hoc and inadmissible as a method output.
-  - BM4D of TE01's final export (σ_rel 0.01 or 0.02, blend weight 0.5 or 1) never improves transverse. The best was
-    −0.1213, against −0.1204 for the export itself.
-  - So denoising the result cannot supply the missing detail.
-  - The gain result above shows that over-relaxing the measured residual before the fit does help. The earlier reading
-    that the BM4D family was at its ceiling was premature.
+- **k 空间误差（`diag_kspace.py`）：**
+  - 从 FV06 到 TE01，横断面幅值误差能量只下降了 0.4 %。
+  - 与 ZS-SSDU 的差距约 13 %，几乎全部位于 |f| 0.2–0.5 的未采样 (ky, kz)。
+  - 读出方向是数组轴 0，所以横断面就是相位编码平面，承受完整的二维 AF16 混叠。
+  - 平扫和增强共用一个掩膜（`sim/gt.npz` 的 `mask2d`），任何一个对比度都补不上另一个缺失的采样。
+- **BM4D 上限（`diag_target_ceiling.py`）：**
+  - 这个探针是事后处理，不能作为方法输出。
+  - 对 TE01 最终导出做 BM4D（σ_rel 0.01 或 0.02，混合权重 0.5 或 1），横断面从未变好：最好是 −0.1213，导出本身是 −0.1204。
+  - 所以对结果去噪补不回缺失的细节。
+  - 上面的 gain 结果说明，在拟合之前对实测残差做过松弛是有用的。早先“BM4D 这一路已到上限”的判断下得太早。
 
-## Reading and next options
+## 解读与后续方向
 
-- The DC gain × σ_rel ridge is still rising, but each step now adds only about 4e-3, while M3 needs about +0.08.
-- The coronal margin erodes as the gain rises, from about +0.03 to +0.015, and sagittal passes only narrowly.
-- The remaining ~0.33 dB transverse deficit is unsampled phase-encode high frequency.
+- DC gain × σ_rel 脊线仍在上升，但每步只涨约 4e-3，而 M3 要转正还差约 +0.08。
+- gain 越大，冠状面余量越小（从约 +0.03 降到 +0.015），矢状面也只是勉强通过。
+- 横断面剩下约 0.33 dB 的差距来自未采样的相位编码高频。
 
-There are two ways forward:
+后续有两个方向：
 
-1. **Continue the ridge**, for example gain 16 at σ_rel 0.03. This is cheap, but unlikely to reach M3 > 0 on its own.
-2. **Add a prior that can inpaint unsampled (ky, kz)**, for example a learned one. This is outside the agreed scope and
-   needs the user's decision. The same applies to family F: retraining the base with the NL prior from stage 1.
+1. **继续沿脊线搜索**，例如 σ_rel 0.03 下 gain 16。成本低，但单靠它不太可能让 M3 转正。
+2. **引入能补全未采样 (ky, kz) 的先验**，例如学习型先验。这超出了这次约定的范围，需要用户决定。F 方向（在 stage 1 就加入
+   NL 先验重训底模）同样需要用户决定。
 
-## Ledger (all 52 rows)
+## 实验账本（全部 52 条）
 
-Status counts: 15 keep, 2 discard (seed 7 ran, but the M3 margin was not met), 24 screen_discard (seed 42 only),
-10 skipped, 1 control.
+状态统计：15 keep；2 discard（跑了 seed 7，但未达到 M3 余量）；24 screen_discard（只跑了 seed 42）；10 skipped；
+1 control。
 
-How to read the table:
+表格读法：
 
-- Each cell shows the best-plane S6, the plane index and the number of the six conditions won.
-- For a screen discard, the M3 column shows the seed-42 minimum, marked "(s42)".
-- A skipped item was withdrawn before running. Some of these were superseded. Others were unsafe compositions: for
-  example, TN01/TN02 would have inherited an iterated high gain, and were re-issued as TN11/TN12.
-- The control TA00 reruns FV06 under the new driver. It differs by about 2e-4, within the nondeterminism.
-- Keep margin: 1e-4 for batch 1 and 5e-4 from batch 2 on.
+- 每格为最佳平面的 S6、平面编号，以及 6 项中赢了几项。
+- screen_discard 的 M3 列是 seed 42 的最小值，标为“(s42)”。
+- skipped 是运行前撤下的条目。有的已被后续条目取代；有的是不安全的组合，例如 TN01/TN02 会继承迭代的高 gain，
+  已改为 TN11/TN12 重新提交。
+- 对照 TA00 在新驱动下重跑 FV06，差异约 2e-4，在非确定性范围内。
+- keep 余量：batch 1 为 1e-4，batch 2 起为 5e-4。
 
-| # | id | status | M3 | s42 transverse | s42 coronal | s42 sagittal | s7 transverse | s7 coronal | s7 sagittal |
+| # | 实验 id | 状态 | M3 | s42 横断面 | s42 冠状面 | s42 矢状面 | s7 横断面 | s7 冠状面 | s7 矢状面 |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | `TA00_ctrl_fv06` | control_differs | -0.12724 | -0.1272 @196 (0/6) | +0.0192 @130 (6/6) | -0.0196 @43 (0/6) | — | — | — |
 | 2 | `TA01_nl_sharpen_1.25` | screen_discard | -0.1447 (s42) | -0.1447 @196 (0/6) | +0.0165 @130 (6/6) | -0.0285 @43 (0/6) | — | — | — |
@@ -244,25 +236,25 @@ How to read the table:
 | 51 | `TN16_gain_14_sigma_0.03` | screen_discard | -0.0908 (s42) | -0.0908 @202 (1/6) | +0.0052 @121 (6/6) | -0.0001 @41 (5/6) | — | — | — |
 | 52 | `TN15_gain_14_sigma_0.0275` | keep | **-0.08173** | -0.0817 @196 (1/6) | +0.0152 @112 (6/6) | +0.0005 @44 (6/6) | -0.0807 @196 (1/6) | +0.0134 @112 (6/6) | +0.0048 @43 (6/6) |
 
-## Files
+## 文件
 
-| file | role |
+| 文件 | 作用 |
 |---|---|
-| `program.md` | loop design: question, metric, scope, rules, hypothesis families, dated findings |
-| `threeaxis.py` | driver: `selftest`, `worker`, `enqueue [--front]`, `summary` and `probe-relax`, plus the runtime NL variants `profile`, `joint_bm`, `dc_target`, `sigma`, `init_scale` and `stack` |
-| `batch1.json` … `batch18.json`, `batch2b.json`, `batch16b.json` | hypothesis queues; each item is the current keeper plus one change |
-| `diag_kspace.py` | per-band k-space error energy (CPU) |
-| `diag_target_ceiling.py` | post-hoc BM4D ceiling probe (CPU, diagnostic only) |
+| `program.md` | 循环设计：研究问题、指标、范围、规则、假设方向、按时间记录的发现 |
+| `threeaxis.py` | 驱动脚本：`selftest`、`worker`、`enqueue [--front]`、`summary`、`probe-relax`，以及运行时 NL 变体 `profile`、`joint_bm`、`dc_target`、`sigma`、`init_scale`、`stack` |
+| `batch1.json` … `batch18.json`、`batch2b.json`、`batch16b.json` | 假设队列；每条都是当前 keeper 加一项改动 |
+| `diag_kspace.py` | 按频带统计 k 空间误差能量（CPU） |
+| `diag_target_ceiling.py` | 事后 BM4D 上限探针（CPU，仅作诊断） |
 
-**Files on the server (ROOT):**
+**服务器上的文件（ROOT）：**
 
-- the ledger: `experiments.jsonl`, `results.tsv`;
-- the keeper state: `keeper.json`, `keeper_history.json`;
-- `runs/<id>/` with `spec.json` (which holds the source digest) and the scores;
-- `probes/`;
-- `STOP` (the loop finished at the user's request).
+- 账本：`experiments.jsonl`、`results.tsv`；
+- keeper 状态：`keeper.json`、`keeper_history.json`；
+- `runs/<id>/`，含 `spec.json`（记录源码摘要）和评分结果；
+- `probes/`；
+- `STOP`（按用户要求跑完队列后停止）。
 
-Commands, run from `mcgs/`:
+命令（在 `mcgs/` 下运行）：
 
 ```sh
 /usr/bin/python3 ../gpu-tools/gpu.py run --cpu -- @python autoresearch/ce_af16_threeaxis_20261107/threeaxis.py selftest --queue autoresearch/ce_af16_threeaxis_20261107/batch1.json
@@ -270,9 +262,8 @@ Commands, run from `mcgs/`:
 /usr/bin/python3 ../gpu-tools/gpu.py run --cpu -- @python autoresearch/ce_af16_threeaxis_20261107/threeaxis.py summary
 ```
 
-## Disclosure
+## 说明
 
-- **Single case, scored against GT.** This is adaptive development on one case, tuned against the GT evaluator.
-  ZS-SSDU used no GT.
-- **Inverse crime.** The AF16 GT is a CS-SENSE (TV) reconstruction of real AF5.33 data, re-simulated with the same CSM.
-- **Limited claim.** A pass, had it occurred, would be evidence on this case only.
+- **单病例、以 GT 评分。** 这是在单个病例上、以 GT 评估器为准的自适应开发；ZS-SSDU 没有用 GT。
+- **逆犯罪。** AF16 的 GT 是真实 AF5.33 数据的 CS-SENSE (TV) 重建，并用同一 CSM 重新模拟。
+- **结论有限。** 即使达标，也只是这一个病例上的证据。
