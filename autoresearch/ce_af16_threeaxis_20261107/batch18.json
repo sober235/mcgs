@@ -1,0 +1,72 @@
+{
+  "batch": "TA-B18 (2026-11-08): ridge at gain 14",
+  "evidence": "Ridge (single refresh, s42 M3): gain 10: sigma .025 -0.0918, .0275 -0.0943 (TN12); gain 12: sigma .025 -0.0907 (TN11 keeper), .0275 -0.08657 (TN13, s7 running). The sigma optimum rises with the gain above 10.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 8.0
+      }
+    ]
+  },
+  "note": "Absolute settings (gain, sigma, nl_refresh 1000).",
+  "items": [
+    {
+      "id": "TN15_gain_14_sigma_0.0275",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 14.0
+      },
+      "loss_edits": {
+        "nl_sigma_rel": 0.0275,
+        "nl_refresh": 1000
+      },
+      "hypothesis": "ridge: gain 14 at the gain-12 sigma optimum"
+    },
+    {
+      "id": "TN16_gain_14_sigma_0.03",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 14.0
+      },
+      "loss_edits": {
+        "nl_sigma_rel": 0.03,
+        "nl_refresh": 1000
+      },
+      "hypothesis": "ridge: gain 14 with the next sigma step"
+    }
+  ]
+}
