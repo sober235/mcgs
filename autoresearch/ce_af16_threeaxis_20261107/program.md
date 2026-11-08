@@ -260,8 +260,12 @@ The sagittal margin rises from +0.0005 to +0.0098, about 40× the noise. On tran
 ZS-SSDU narrows to about −0.27 dB, but the limiter (post NMSE, ZS-SSDU, about −0.35 dB) does not move.
 
 **Reading:** λ_nl_plain 1 gives the same M3 as TN15 with robust coronal and sagittal passes and a better whole head. Under
-the user's keep rule (M3 > keeper + 5e-4) it is not kept. Making TO02 the keeper on a tie needs the user's decision.
-The keeper stays TN15. The ledger holds 54 rows: 15 keep, 27 discard, 10 skipped, 2 control.
+the user's keep rule (M3 > keeper + 5e-4) it is not kept.
+
+**User decision (2026-11-08): TO02 is the keeper**, and further work starts from it. The new `promote` command rewrote
+keeper.json under the lock, appended keeper_history.json and logged `TO02_lambda_nl_plain_1_on_tn15_promote`
+(status `promoted`, with the reason). The keep rule for queued items is unchanged. The ledger holds 55 rows: 15 keep,
+27 discard, 10 skipped, 2 control, 1 promoted.
 
 ## Commands
 

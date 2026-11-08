@@ -51,7 +51,8 @@ Loop (Karpathy autoresearch; program.md is the human layer):
   A kept item with M3 > 0 is re-run on confirmation seeds 201/207; success requires both > 0 and a visual check.
   Dead or failed attempts are preserved and never resumed; a retry needs a new id.
 
-Commands: selftest (CPU), stage2 (GPU child), worker (driver on ONE launcher-exposed GPU), summary.
+Commands: selftest (CPU), stage2 (GPU child), worker (driver on ONE launcher-exposed GPU), summary, enqueue, skip,
+probe-relax, promote (user-decided keeper change, recorded in the ledger).
 """
 from __future__ import annotations
 
@@ -913,6 +914,31 @@ def cmd_skip(args):
     publish(root)
 
 
+def cmd_promote(args):
+    """Make a finished run the keeper by user decision (e.g. an M3 tie with better secondary axes). The keep rule
+    stays as it is for queued items; the promotion is recorded in the ledger and in keeper_history (CPU)."""
+    root = Path(args.root)
+    with locked(root):
+        rows = {r['id']: r for r in ledger_rows(root)}
+        require(args.id in rows, f'{args.id} is not in the ledger')
+        run = rows[args.id]
+        require(run['status'] in ('keep', 'discard'), f"{args.id} has status {run['status']}; only fully run items")
+        require(all(str(s) in run.get('per_seed', {}) for s in DEV_SEEDS), f'{args.id} lacks a dev seed')
+        require(f'{args.id}_promote' not in rows, f'{args.id} was already promoted once')
+        current = read_json(root / 'keeper.json')
+        require(current['id'] != args.id, f'{args.id} is already the keeper')
+        m3 = min(run['per_seed'][str(s)]['m3'] for s in DEV_SEEDS)
+        now = time.strftime('%Y-%m-%d %H:%M:%S')
+        new = dict(id=args.id, recipe=run['recipe'], variant=run['variant'], m3=m3, per_seed=run['per_seed'],
+                   source='user promotion', reason=args.reason, set_at=now, replaced=current['id'])
+        write_json(root / 'keeper.json', new)
+        write_json(root / 'keeper_history.json', read_json(root / 'keeper_history.json') + [new])
+        append_row(root, dict(id=f'{args.id}_promote', status='promoted', m3=m3, keeper_before=current['id'],
+                              keeper_before_m3=current['m3'], hypothesis=args.reason, at=now))
+    log(f"keeper {current['id']} ({current['m3']:+.5f}) -> {args.id} ({m3:+.5f}): {args.reason}")
+    publish(root)
+
+
 def cmd_summary(args):
     root = Path(args.root)
     keeper = read_json(root / 'keeper.json')
@@ -1083,9 +1109,11 @@ def main():
     pr.add_argument('--alpha', type=float, nargs='+', required=True); pr.add_argument('--seeds', type=int, nargs='+', default=list(DEV_SEEDS))
     k = sub.add_parser('skip'); k.add_argument('--root', default=str(ROOT)); k.add_argument('--reason', required=True)
     k.add_argument('ids', nargs='+')
+    po = sub.add_parser('promote'); po.add_argument('--root', default=str(ROOT)); po.add_argument('--reason', required=True)
+    po.add_argument('id')
     args = ap.parse_args()
     {'probe-relax': cmd_probe_relax, 'selftest': cmd_selftest, 'stage2': cmd_stage2, 'worker': cmd_worker, 'summary': cmd_summary,
-     'skip': cmd_skip, 'enqueue': cmd_enqueue}[args.cmd](args)
+     'skip': cmd_skip, 'enqueue': cmd_enqueue, 'promote': cmd_promote}[args.cmd](args)
 
 
 if __name__ == '__main__':
