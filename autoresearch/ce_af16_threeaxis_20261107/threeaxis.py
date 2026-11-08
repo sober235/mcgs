@@ -40,6 +40,8 @@ leave every frozen file unchanged:
 Variants compose: an item relative to the keeper runs the keeper's variant parts plus its own, a part of the same
 kind replacing the keeper's ({'kind': 'stack', 'parts': [...]}); install order profile -> joint_bm -> sigma, with
 profile attrs merged into joint_bm's when both are present; init_scale acts on the start checkpoint.
+  * variant {'kind': 'scale_lr', 'factor': k}: the stage-2 Adam rate of the Gaussian scales only is multiplied by k
+    (kernel widths otherwise stay at their initialisation; add-on round 2026-11-08).
 No GT or ROI is read by any training path here; GT enters only through the frozen evaluator.
 
 Loop (Karpathy autoresearch; program.md is the human layer):
@@ -82,8 +84,8 @@ DEV_SEEDS = (42, 7)
 CONFIRM_SEEDS = (201, 207)
 KEEP_MARGIN = 1e-4
 EXTRA_LOSS_KEYS = frozenset({'nl_sharpen'})
-VARIANTS = ('none', 'joint_bm', 'profile', 'sigma', 'init_scale', 'dc_target', 'stack')
-PART_ORDER = ('profile', 'joint_bm', 'dc_target', 'sigma', 'init_scale')
+VARIANTS = ('none', 'joint_bm', 'profile', 'sigma', 'init_scale', 'dc_target', 'scale_lr', 'stack')
+PART_ORDER = ('profile', 'joint_bm', 'dc_target', 'sigma', 'init_scale', 'scale_lr')
 # BM4DProfile attributes a variant may override (block / step / search sizes, stack sizes, matching thresholds).
 # Tuples are given as JSON lists, ordered like the crop axes (a0 readout, a1, a2). 'denoise_residual' is excluded:
 # bm4d 4.2.5's residual path fails with a scalar sigma (operands (2N..) vs (N..) broadcast error, tested 2026-11-07).
@@ -225,7 +227,7 @@ def compose(keeper_variant, item_variant):
 
 
 def check_part(variant, loaded):
-    if variant.get('kind', 'none') not in ('none', 'init_scale'):
+    if variant.get('kind', 'none') not in ('none', 'init_scale', 'scale_lr'):
         require(loaded['loss_edits'].get('nl_denoiser') == 'bm4d_pos', 'NL variants extend bm4d_pos only')
         check_attrs(variant.get('attrs', {}))
     if variant.get('kind') == 'profile':
@@ -234,6 +236,9 @@ def check_part(variant, loaded):
         check_sigma_variant(variant)
     if variant.get('kind') == 'dc_target':
         check_dc_variant(variant)
+    if variant.get('kind') == 'scale_lr':
+        require(set(variant) == {'kind', 'factor'} and type(variant['factor']) in (int, float)
+                and 0.25 <= variant['factor'] <= 50, 'scale_lr takes only factor in [0.25, 50]')
     if variant.get('kind') == 'init_scale':
         require(type(variant.get('factor')) in (int, float) and 0.5 <= variant['factor'] <= 1.5, 'init_scale factor in [0.5, 1.5]')
     if variant.get('attrs'):
@@ -475,8 +480,37 @@ def install_joint_bm(nlr, variant):
     return nlr
 
 
+def install_scale_lr(lc, variant):
+    """Multiply the stage-2 learning rate of the Gaussian scales (Adam group 1) only, right after the frozen
+    relocation restore and before long_chain applies lr_scale (multiplicative, so the order does not matter). The
+    exponential scheduler then decays it like every other group. Motivation: the scale rate after lr_scale is
+    ~1e-4, so 625 Adam steps can move log-scales by at most ~0.07 and the kernel widths stay at their
+    normalised-isotropic initialisation (diag_gauss_width.py)."""
+    factor = float(variant['factor'])
+    base_load = lc.load_module
+
+    def load(path, name):
+        module = base_load(path, name)
+        if name == '_long_relocation_runtime':
+            orig = module.restore_training_state
+
+            def restore(trainer, checkpoint):
+                out = orig(trainer, checkpoint)
+                require(list(out.get('group_names', []))[1:2] == ['scales'], f"Adam group 1 is not the scales: {out.get('group_names')}")
+                group = trainer.optimizer.param_groups[1]
+                before = group['lr']
+                group['lr'] = before * factor
+                print(f'[scale_lr] scales lr {before:.6g} -> {group["lr"]:.6g} (x{factor:g}) before lr_scale', flush=True)
+                return out
+            module.restore_training_state = restore
+        return module
+    lc.load_module = load
+
+
 def install_variant(lc, variant):
     ps = {p['kind']: p for p in parts(variant)}
+    if 'scale_lr' in ps:
+        install_scale_lr(lc, ps.pop('scale_lr'))
     if 'joint_bm' in ps and 'profile' in ps:          # joint_bm builds its own profile: merge the overrides
         ps['joint_bm'] = dict(ps['joint_bm'], attrs={**ps.pop('profile').get('attrs', {}), **ps['joint_bm'].get('attrs', {})})
     nl = [ps[k] for k in ('profile', 'joint_bm', 'dc_target', 'sigma') if k in ps]
