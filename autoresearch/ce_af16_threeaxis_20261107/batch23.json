@@ -1,0 +1,71 @@
+{
+  "batch": "TA-B23 (2026-11-09, add-on H2 on both dev seeds, H3 width dose)",
+  "evidence": "Batch 22 (s42 probes, keeper TQ01 stage 2): voxel-isotropic 0.71-vox base -0.07375 vs retrained original-init control -0.07771 (+0.0040; control vs keeper s42 +0.0006 = retrain noise). Transverse PSNR gap pre/post -0.20/-0.31 dB (keeper -0.24/-0.34).",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 14.0
+      },
+      {
+        "kind": "scale_lr",
+        "factor": 50
+      }
+    ]
+  },
+  "note": "TS01 is a normal item (keep rule, both dev seeds from voxel-isotropic bases). TS02 is a probe.",
+  "items": [
+    {
+      "id": "TS01_h2_voxel_iso_bases",
+      "bases": {
+        "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_addon_20261108/h2_voxel_iso_s42/stage1/training/ar_i1_k30p90/checkpoints/latest.pth",
+        "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_addon_20261108/h2_voxel_iso_s7/stage1/training/ar_i1_k30p90/checkpoints/latest.pth"
+      },
+      "hypothesis": "H2 on both dev seeds: keeper stage 2 on voxel-isotropic (0.71 vox) retrained bases"
+    },
+    {
+      "id": "TS02_h3_width_050_s42",
+      "probe": true,
+      "seeds": [
+        42
+      ],
+      "bases": {
+        "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_addon_20261108/h3_voxel_iso_w070_s42/stage1/training/ar_i1_k30p90/checkpoints/latest.pth"
+      },
+      "hypothesis": "H3 dose: voxel-isotropic init at 0.50 vox (width_scale 0.7) on seed 42"
+    }
+  ]
+}
