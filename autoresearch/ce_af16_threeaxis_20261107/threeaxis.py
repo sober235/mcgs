@@ -50,6 +50,7 @@ Loop (Karpathy autoresearch; program.md is the human layer):
   An item with "screen": false runs every seed before the same keep rule (axis margins measured on both seeds even
   when the limiting axis does not move). A control item may give "reference_scores" {seed: score dir} to record
   per-seed deviations from a reference run.
+  An item with "probe": true is scored and logged (status probe) but never compared with or written to the keeper.
   An item may give "bases" {seed: iteration-4500 checkpoint} to start stage 2 from a retrained base (add-on H2).
   A kept item with M3 > 0 is re-run on confirmation seeds 201/207; success requires both > 0 and a visual check.
   Dead or failed attempts are preserved and never resumed; a retry needs a new id.
@@ -774,6 +775,12 @@ def run_experiment(root, item, keeper, gpu, margin=KEEP_MARGIN):
                              for s, r in refs.items()}
         with locked(root):
             append_row(root, row)
+        return row
+    if item.get('probe'):              # measured only; never moves the keeper (e.g. a single-seed retrained base)
+        row.update(status='probe', m3=min(v['m3'] for v in row['per_seed'].values()))
+        with locked(root):
+            append_row(root, row)
+        log(f"[{eid}] probe M3 {row['m3']:+.5f} in {row['seconds']:.0f}s")
         return row
     if 'status' not in row:
         m3 = min(v['m3'] for v in row['per_seed'].values())
