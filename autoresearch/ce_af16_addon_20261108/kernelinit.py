@@ -7,6 +7,9 @@ in NORMALISED coordinates (mean 3-NN distance, positions in [-1, 1] per axis). O
 fully sampled readout (axis 0) gets the widest kernel; diag_direction.py shows MC-GS keeps only 0.72-0.83 of the
 true power along it at |f| 0.2-0.5 (ZS-SSDU 0.94).
 
+--seed 7 replays b1_i1_seed7 (identical config except training.seed; its densify trainer copy differs only in
+adaptive-control code that this config disables). --width-scale c multiplies the voxel-isotropic width (H3 dose).
+
 H2: in THIS process only, scales_3nn is wrapped so that axis i's normalised scale is multiplied by N_min / N_i,
 i.e. every axis gets the voxel width the shortest axis already has (~0.70 voxel). Nothing else changes: the frozen
 e778bf2 trainer, its config snapshot (ar_i1_k30p90: official mask, 3.6 M points, seed 42, 4000 iterations), the
@@ -86,9 +89,10 @@ def voxel_std(scales, shape=SHAPE):
     return scales * torch.tensor([s / 2 for s in shape], dtype=scales.dtype, device=scales.device)
 
 
-def install_width(init_cloud, mode, record):
+def install_width(init_cloud, mode, record, width_scale=1.0):
     """Wrap init_cloud.scales_3nn (the trainer imports it from the module at construction time)."""
     require(mode in MODES, f'width mode {mode}')
+    require(0.3 <= width_scale <= 1.5 and (mode == 'voxel_iso' or width_scale == 1.0), f'width_scale {width_scale}')
     orig = init_cloud.scales_3nn
 
     def scales_3nn(positions, shape, scale_mult=1.0, **kw):
@@ -97,9 +101,9 @@ def install_width(init_cloud, mode, record):
         require(tuple(shape) == SHAPE and base.shape[1] == 3 and torch.equal(base[:, 0], base[:, 1])
                 and torch.equal(base[:, 0], base[:, 2]), 'frozen scales_3nn is no longer isotropic per point')
         out = base if mode == 'normalised' else base * torch.tensor(axis_factors(shape), dtype=base.dtype,
-                                                                    device=base.device)
+                                                                    device=base.device) * width_scale
         vs = voxel_std(out, shape)
-        record.update(mode=mode, factors=axis_factors(shape) if mode == 'voxel_iso' else (1., 1., 1.),
+        record.update(mode=mode, width_scale=width_scale, factors=axis_factors(shape) if mode == 'voxel_iso' else (1., 1., 1.),
                       points=int(out.shape[0]), median_voxel_std=[float(vs[:, i].median()) for i in range(3)],
                       median_voxel_std_original=[float(voxel_std(base, shape)[:, i].median()) for i in range(3)])
         log(f'[kernelinit] {mode}: median voxel std {record["median_voxel_std"]} '
@@ -134,21 +138,23 @@ def cmd_base(args):
     require(Path(init_cloud.__file__).resolve() == (BASE_TRAINER / 'paired_gs/gaussian/init_cloud.py').resolve(),
             'foreign init_cloud module')
     record = {}
-    install_width(init_cloud, args.width_mode, record)
+    install_width(init_cloud, args.width_mode, record, args.width_scale)
     from seed import set_seed
     import trainers.joint_trainer as jt
     require(Path(jt.__file__).resolve() == (BASE_TRAINER / 'paired_gs/trainers/joint_trainer.py').resolve(),
             'foreign joint trainer module')
     cfg = yaml.safe_load(BASE_CFG.read_text())
+    require(args.seed in (42, 7), 'seeds 42 (ar_i1_k30p90) and 7 (b1_i1_seed7: same config, seed 7) only')
     require(cfg['gaussian'].get('init_scale_mode') == '3nn' and cfg['training']['seed'] == 42
             and all(cfg['data'][c]['mask_path'] == str(MASK) for c in ('plain', 'contrast')),
             'base config snapshot differs from the seed-42 base (3nn init, seed 42, official mask)')
     cfg['output']['output_dir'] = str(out / 'training')
+    cfg['training']['seed'] = args.seed      # the seed-7 base config differs from seed 42's only in seed and output
     cfg['training']['max_iterations'] = args.iters
     if args.iters != 4000:  # smoke only: the trainer requires warmup < iters / 2 (the real run keeps 500)
         cfg['training']['shared_warmup_iters'] = max(1, args.iters // 4)
     (out / 'config.yaml').write_text(yaml.safe_dump(cfg, sort_keys=False))
-    set_seed(42, deterministic=False)
+    set_seed(args.seed, deterministic=False)
     trainer = jt.JointTrainer(cfg, device=torch.device('cuda', 0))
     require(record.get('mode') == args.width_mode, 'the wrapped scales_3nn was not used by the trainer')
     t0 = time.time()
@@ -181,7 +187,8 @@ def cmd_chain(args):
                PYTHONPATH='', PYTHONDONTWRITEBYTECODE='1', CUDA_CACHE_DISABLE='1')
     me = [str(PY), '-X', 'utf8', '-B', '-u', str(Path(__file__).resolve())]
     iters, steps = (20, 2) if args.smoke else (4000, 500)
-    write_json(run_root / 'spec.json', dict(name=args.name, width_mode=args.width_mode, gpu=args.gpu, smoke=args.smoke,
+    write_json(run_root / 'spec.json', dict(name=args.name, width_mode=args.width_mode, seed=args.seed,
+                                            width_scale=args.width_scale, gpu=args.gpu, smoke=args.smoke,
                                             source_digest=os.environ.get('MCGS_SOURCE_DIGEST'),
                                             driver_sha256=sha256(__file__), started=time.strftime('%Y-%m-%d %H:%M:%S')))
 
@@ -193,7 +200,8 @@ def cmd_chain(args):
         log(f'[{name}] exit {code} after {time.time() - t:.0f}s (log {run_root}/{name}.log)')
         require(code == 0, f'{name} failed')
 
-    child('base', me + ['base', '--out', run_root / 'base', '--iters', iters, '--width-mode', args.width_mode],
+    child('base', me + ['base', '--out', run_root / 'base', '--iters', iters, '--width-mode', args.width_mode,
+                        '--seed', args.seed, '--width-scale', args.width_scale],
           cwd=Path(__file__).resolve().parent)
     base_ckpt = run_root / 'base/training' / EXP / 'checkpoints/latest.pth'
     if args.smoke:      # stage1 needs an iteration-4000 checkpoint; plumbing of the init and base is what is checked
@@ -235,10 +243,12 @@ def main():
     sub = ap.add_subparsers(dest='cmd', required=True)
     b = sub.add_parser('base'); b.add_argument('--out', required=True); b.add_argument('--iters', type=int, default=4000)
     b.add_argument('--width-mode', choices=MODES, required=True)
+    b.add_argument('--seed', type=int, default=42); b.add_argument('--width-scale', type=float, default=1.0)
     s = sub.add_parser('stage1'); s.add_argument('--ckpt', required=True); s.add_argument('--out', required=True)
     s.add_argument('--steps', type=int, default=500)
     c = sub.add_parser('chain'); c.add_argument('--gpu', type=int, required=True); c.add_argument('--name', required=True)
     c.add_argument('--width-mode', choices=MODES, required=True); c.add_argument('--smoke', action='store_true')
+    c.add_argument('--seed', type=int, default=42); c.add_argument('--width-scale', type=float, default=1.0)
     sub.add_parser('check-init')
     args = ap.parse_args()
     {'base': cmd_base, 'stage1': cmd_stage1, 'chain': cmd_chain, 'check-init': cmd_check_init}[args.cmd](args)
