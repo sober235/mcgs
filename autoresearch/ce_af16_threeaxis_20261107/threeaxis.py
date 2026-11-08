@@ -50,6 +50,7 @@ Loop (Karpathy autoresearch; program.md is the human layer):
   An item with "screen": false runs every seed before the same keep rule (axis margins measured on both seeds even
   when the limiting axis does not move). A control item may give "reference_scores" {seed: score dir} to record
   per-seed deviations from a reference run.
+  An item may give "bases" {seed: iteration-4500 checkpoint} to start stage 2 from a retrained base (add-on H2).
   A kept item with M3 > 0 is re-run on confirmation seeds 201/207; success requires both > 0 and a visual check.
   Dead or failed attempts are preserved and never resumed; a retry needs a new id.
 
@@ -682,12 +683,14 @@ def child_env(gpu):
     return env
 
 
-def run_seed(root, exp_dir, seed, gpu, recipe):
+def run_seed(root, exp_dir, seed, gpu, recipe, base=None):
     lc = long_chain()
     out = exp_dir / f's{seed}'
     require(not out.exists(), f'{out} exists; attempts are never resumed')
+    ckpt = Path(base) if base else lc.BASES[seed]
+    require(ckpt.is_file(), f'iteration-4500 base for seed {seed} missing: {ckpt}')
     wait_gpu_free(gpu)
-    argv = [str(PY), '-X', 'utf8', '-B', '-u', str(HERE), 'stage2', '--ckpt', str(lc.BASES[seed]), '--out', str(out),
+    argv = [str(PY), '-X', 'utf8', '-B', '-u', str(HERE), 'stage2', '--ckpt', str(ckpt), '--out', str(out),
             '--recipe', str(exp_dir / 'recipe.json'), '--variant', str(exp_dir / 'variant.json')]
     t0 = time.time()
     with open(exp_dir / f's{seed}.log', 'x') as stream:
@@ -737,7 +740,9 @@ def run_experiment(root, item, keeper, gpu, margin=KEEP_MARGIN):
     for seed in seeds:
         status(root, gpu, item=eid, phase=f'seed {seed}')
         log(f'[{eid}] seed {seed} start on GPU {gpu}')
-        s = run_seed(root, exp_dir, seed, gpu, recipe)
+        if 'bases' in item:
+            require(str(seed) in item['bases'], f"item {eid} gives bases but none for seed {seed}")
+        s = run_seed(root, exp_dir, seed, gpu, recipe, item.get('bases', {}).get(str(seed)))
         row['per_seed'][str(seed)] = s
         log(f"[{eid}] seed {seed}: M3 {s['m3']:+.5f} {short(s)} wh {s['whole_head']:+.5f}")
         if item.get('control'):
