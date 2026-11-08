@@ -239,7 +239,7 @@ def check_part(variant, loaded):
         check_dc_variant(variant)
     if variant.get('kind') == 'scale_lr':
         require(set(variant) == {'kind', 'factor'} and type(variant['factor']) in (int, float)
-                and 0.25 <= variant['factor'] <= 50, 'scale_lr takes only factor in [0.25, 50]')
+                and 0.25 <= variant['factor'] <= 200, 'scale_lr takes only factor in [0.25, 200]')
     if variant.get('kind') == 'init_scale':
         require(type(variant.get('factor')) in (int, float) and 0.5 <= variant['factor'] <= 1.5, 'init_scale factor in [0.5, 1.5]')
     if variant.get('attrs'):

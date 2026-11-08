@@ -1,0 +1,68 @@
+{
+  "batch": "TA-B21 (2026-11-08, add-on H1 dose): scales' stage-2 Adam rate x50, x100 on keeper TP02 (x30)",
+  "evidence": "TP01 x10 M3 -0.08049 (transverse -0.0805/-0.0792, coronal +0.037, whole head -0.030); TP02 x30 KEPT M3 -0.07918 (transverse -0.0792/-0.0783, coronal +0.053/+0.051, sagittal +0.0135/+0.0128, whole head -0.030). Monotone in the dose.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 14.0
+      },
+      {
+        "kind": "scale_lr",
+        "factor": 30
+      }
+    ]
+  },
+  "note": "Absolute factors; each item replaces the keeper's scale_lr part.",
+  "items": [
+    {
+      "id": "TQ01_scale_lr_50",
+      "variant": {
+        "kind": "scale_lr",
+        "factor": 50
+      },
+      "hypothesis": "dose: scales' lr x50"
+    },
+    {
+      "id": "TQ02_scale_lr_100",
+      "variant": {
+        "kind": "scale_lr",
+        "factor": 100
+      },
+      "hypothesis": "dose: scales' lr x100 (log-scale can move ~6.6 over 625 steps)"
+    }
+  ]
+}
