@@ -233,6 +233,36 @@ The ledger holds 52 rows: 15 keep, 26 discard, 10 skipped, 1 control.
   would need either many more ridge points (gain 16+/σ 0.03, untested at the joint optimum) or a prior that can
   inpaint unsampled (ky, kz), such as a learned one. That second option needs the user's decision.
 
+## Robustness follow-up (batch 19, 2026-11-08 14:25–15:21 CST)
+
+After the branch review the user asked to run the two suggested checks. Driver change (commit f8569d0): an item with
+`"screen": false` runs both dev seeds before the unchanged keep rule, and a control item may give `reference_scores`
+to record per-seed and per-axis deviations. ROOT/STOP was set aside for the batch and rewritten afterwards.
+
+**TO01_repeat_tn15** (control, GPU 7 = TN15's GPU). Not bit-identical, but every axis reproduces within 2.5e-4:
+
+| seed | M3 | Δ vs TN15 | transverse | coronal | sagittal |
+|---|---|---|---|---|---|
+| 42 | −0.08148 | +2.5e-4 | −0.0815 @196 | +0.0151 @112 | +0.0005 @42 |
+| 7 | −0.08063 | +4.9e-5 | −0.0806 @196 | +0.0135 @112 | +0.0046 @43 |
+
+The s42 sagittal pass survives one rerun, but its margin is still only about twice the run-to-run noise.
+
+**TO02_lambda_nl_plain_1_on_tn15** (TK02 on TN15, unscreened). Status `discard`: M3 −0.08174 (Δ −8e-6, a tie within
+noise; transverse limits M3). Every other axis improves on both seeds:
+
+| seed | transverse | coronal (passing planes) | sagittal (passing planes) | whole head |
+|---|---|---|---|---|
+| 42 | −0.0817 @196 | +0.0162 @121 (13, was 8) | +0.0098 @45 (7, was 2) | −0.0409 (was −0.052) |
+| 7 | −0.0805 @196 | +0.0158 @112 (12, was 5) | +0.0098 @45 (7, was 4) | −0.0395 (was −0.050) |
+
+The sagittal margin rises from +0.0005 to +0.0098, about 40× the noise. On transverse plane 196 the pre PSNR gap to
+ZS-SSDU narrows to about −0.27 dB, but the limiter (post NMSE, ZS-SSDU, about −0.35 dB) does not move.
+
+**Reading:** λ_nl_plain 1 gives the same M3 as TN15 with robust coronal and sagittal passes and a better whole head. Under
+the user's keep rule (M3 > keeper + 5e-4) it is not kept. Making TO02 the keeper on a tie needs the user's decision.
+The keeper stays TN15. The ledger holds 54 rows: 15 keep, 27 discard, 10 skipped, 2 control.
+
 ## Commands
 
 ```sh
