@@ -45,6 +45,9 @@ No GT or ROI is read by any training path here; GT enters only through the froze
 Loop (Karpathy autoresearch; program.md is the human layer):
   claim next queued item -> build recipe = current keeper + one change -> seed 42 (screen) -> if M3(42) beats the
   keeper's M3(42) by > KEEP_MARGIN, seed 7 -> keep iff M3 > keeper M3 + KEEP_MARGIN -> ledger -> next.
+  An item with "screen": false runs every seed before the same keep rule (axis margins measured on both seeds even
+  when the limiting axis does not move). A control item may give "reference_scores" {seed: score dir} to record
+  per-seed deviations from a reference run.
   A kept item with M3 > 0 is re-run on confirmation seeds 201/207; success requires both > 0 and a visual check.
   Dead or failed attempts are preserved and never resumed; a retry needs a new id.
 
@@ -704,7 +707,7 @@ def run_experiment(root, item, keeper, gpu, margin=KEEP_MARGIN):
         log(f"[{eid}] seed {seed}: M3 {s['m3']:+.5f} {short(s)} wh {s['whole_head']:+.5f}")
         if item.get('control'):
             continue
-        if seed == 42 and len(seeds) > 1:
+        if seed == 42 and len(seeds) > 1 and item.get('screen', True):
             with locked(root):                # screen against the keeper this item must beat now, not at claim
                 current = read_json(root / 'keeper.json')
             ref = max(keeper['per_seed']['42']['m3'], current['per_seed']['42']['m3'])
@@ -724,6 +727,11 @@ def run_experiment(root, item, keeper, gpu, margin=KEEP_MARGIN):
         row.update(status='control_identical' if same_hash else ('control_same_score' if same_m3 else 'control_differs'),
                    m3=row['per_seed']['42']['m3'], same_hash=same_hash, same_m3=same_m3,
                    reference_m3=ref_m3, deviation=row['per_seed']['42']['m3'] - ref_m3)
+        refs = {s: axis_summary(p) for s, p in item.get('reference_scores', {}).items() if s in row['per_seed']}
+        row['deviations'] = {s: dict(m3=row['per_seed'][s]['m3'] - r['m3'],
+                                     axes={a: row['per_seed'][s]['axes'][a]['best']['s6'] - v['best']['s6']
+                                           for a, v in r['axes'].items()})
+                             for s, r in refs.items()}
         with locked(root):
             append_row(root, row)
         return row
