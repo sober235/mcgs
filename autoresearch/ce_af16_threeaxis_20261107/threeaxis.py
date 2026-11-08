@@ -339,10 +339,17 @@ def dc_blend(x, x_dc, gain):
     return x_dc if gain == 1.0 else x + gain * (x_dc - x)
 
 
+def dc_gain(variant, k):
+    """gain of refresh k (0 = the first target). 'later_gain' applies from the second refresh on: a gain > 2 iterated
+    over refreshes diverges (TK01: |x_t - x|/|x| 0.13 -> 0.82 -> 3.8), a gain <= 2 is a stable PnP step."""
+    return float(variant.get('gain', 1.0) if k == 0 else variant.get('later_gain', variant.get('gain', 1.0)))
+
+
 def check_dc_variant(variant):
-    require(set(variant) <= {'kind', 'gain'}, f'dc_target takes only gain, got {sorted(variant)}')
-    gain = variant.get('gain', 1.0)
-    require(type(gain) in (int, float) and math.isfinite(gain) and 0 < gain <= 16, 'dc_target gain in (0, 16]')
+    require(set(variant) <= {'kind', 'gain', 'later_gain'}, f'dc_target takes gain, later_gain; got {sorted(variant)}')
+    for key in ('gain', 'later_gain'):
+        gain = variant.get(key, 1.0)
+        require(type(gain) in (int, float) and math.isfinite(gain) and 0 < gain <= 16, f'dc_target {key} in (0, 16]')
 
 
 def install_dc_target(nlr, variant):
@@ -356,21 +363,24 @@ def install_dc_target(nlr, variant):
     tags = {trainer.name_plain: 'p', trainer.name_contrast: 'c'}
     orig_refresh = nlr.NonLocalRED.refresh
 
+    count = {}
+
     def refresh(self, name, vol, it):
         tag = tags[name]
+        k = count[name] = count.get(name, -1) + 1
+        gain = dc_gain(variant, k)
         x = vol.detach()
         with torch.no_grad():
             x_dc = kz.hard_dc_combine(x, getattr(trainer, f'csm_{tag}'), getattr(trainer, f'kspace_dc_{tag}'),
                                       getattr(trainer, f'mask_fit_{tag}'))
-            x_dc = dc_blend(x, x_dc, float(variant.get('gain', 1.0)))
+            x_dc = dc_blend(x, x_dc, gain)
             ok = tuple(x_dc.shape) == tuple(x.shape) and bool(torch.isfinite(torch.view_as_real(x_dc)).all())
             rel = float((x_dc - x).abs().norm() / x.abs().norm().clamp_min(1e-12))
         require(ok, 'dc_target image invalid')
         info = orig_refresh(self, name, x_dc, it)
         del x_dc
-        info['dc_target'] = dict(dc_minus_render_relative_norm=rel, gain=float(variant.get('gain', 1.0)))
-        print(f"[nl] dc_target {name} iter={it} gain={float(variant.get('gain', 1.0)):g}: |x_t - x|/|x| = {rel:.5g}",
-              flush=True)
+        info['dc_target'] = dict(dc_minus_render_relative_norm=rel, gain=gain, refresh_index=k)
+        print(f"[nl] dc_target {name} iter={it} refresh={k} gain={gain:g}: |x_t - x|/|x| = {rel:.5g}", flush=True)
         return info
     nlr.NonLocalRED.refresh = refresh
     return nlr
@@ -1042,7 +1052,9 @@ def cmd_selftest(args):
         except Exception:
             continue
         raise RuntimeError(f'check_dc_variant accepted {bad}')
-    log('  dc_target gain: blend and validation ok')
+    require(dc_gain({'gain': 8}, 0) == 8 and dc_gain({'gain': 8}, 1) == 8 and dc_gain({'gain': 8, 'later_gain': 1}, 0) == 8
+            and dc_gain({'gain': 8, 'later_gain': 1}, 2) == 1, 'dc_gain schedule wrong')
+    log('  dc_target gain: blend, later_gain schedule and validation ok')
     log(f"  profile variant: rms err {float(np.sqrt(((y - base) ** 2).mean())):.4f} with {den.last_stats['profile_overrides']}")
     log('SELFTEST OK')
 
