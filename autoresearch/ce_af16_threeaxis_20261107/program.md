@@ -176,6 +176,63 @@ Two diagnostics settle where the gap is:
   - **TK02, re-test when transverse nears 0.** `lambda_nl_plain` 1 on TJ02 is neutral on transverse (s42 −0.0968 vs
     −0.0965, discarded by the M3 rule). It lifts sagittal to +0.0019 and coronal to +0.040.
 
+## Final state (2026-11-08 11:35 CST, loop stopped at the user's request after the queue)
+
+The goal is **not met**. M3 went from −0.12704 to **−0.08173**. Coronal and sagittal pass 6/6 on both dev seeds;
+transverse does not. No confirmation run on seeds 201/207 was triggered, because M3 never reached > 0.
+
+**Final keeper TN15:**
+- **BM4D:** step 2, joint pre/post block matching with guide σ 1.5.
+- **NL target:** dc_target with gain 14, i.e. BM4D(|x + 14·Aᴴ(y − Ax)|), formed once at 4501.
+- **NL settings:** nl_sigma_rel 0.0275, nl_refresh 1000; λ_nl_plain 0.5, λ_nl_contrast 4.
+- **Unchanged:** every other recipe value (FV06).
+
+| seed | transverse (plane 196) | coronal | sagittal | whole head |
+|---|---|---|---|---|
+| 42 | −0.0817 (0/6) | +0.0152 (plane 112) | +0.0005 (plane 44) | −0.052 |
+| 7 | −0.0807 (0/6) | +0.0134 (plane 112) | +0.0048 (plane 43) | −0.050 |
+
+On transverse plane 196 the PSNR gap to ZS-SSDU narrowed from −0.52 to −0.33 dB (pre) and −0.35 dB (post); the
+limiter is post NMSE/PSNR. Coronal margins shrink as gain rises (+0.03 → +0.015), and sagittal passes only narrowly.
+
+Rest of the keeper chain after TE01:
+
+| keeper | M3 |
+|---|---|
+| TE03 gain 2 | −0.11809 |
+| TC06 σ 0.0225 | −0.11623 |
+| TF02 gain 4 | −0.10968 |
+| TH01 gain 6 | −0.10394 |
+| TH02 gain 8 | −0.10260 |
+| TJ02 σ 0.025 | −0.09651 |
+| TL02 gain 10 | −0.09176 |
+| TN11 gain 12 | −0.09068 |
+| TN13 σ 0.0275 | −0.08657 |
+| **TN15 gain 14** | **−0.08173** |
+
+Ridge discards:
+
+| item | gain | σ_rel | M3 |
+|---|---|---|---|
+| TI01 | 12 | 0.0225 | −0.1106 |
+| TI02 | 16 | 0.0225 | −0.1357 |
+| TL01 | 8 | 0.0275 | −0.1042 |
+| TN12 | 10 | 0.0275 | −0.0943 |
+| TN14 | 14 | 0.025 | −0.0958 |
+| TN16 | 14 | 0.03 | −0.0908 |
+
+Any second target hurts: TK01 −0.0994 at gain 8 (transverse only; the other axes collapse), TM01 −0.148 at
+later_gain 1, TM02 −0.139 at later_gain 2. The guide σ of 2.5 (TJ01) and λ_nl_plain 1 (TK02) are neutral on transverse.
+
+The ledger holds 52 rows: 15 keep, 26 discard, 10 skipped, 1 control.
+
+**Reading:**
+- The single over-relaxed data-consistency step before BM4D is the only lever that moved transverse materially.
+- It climbs a gain × σ ridge whose steps have shrunk to about 4e-3 per point, while coronal margins erode.
+- The remaining ~0.33 dB transverse deficit is unsampled phase-encode high frequency. Closing it within this case
+  would need either many more ridge points (gain 16+/σ 0.03, untested at the joint optimum) or a prior that can
+  inpaint unsampled (ky, kz), such as a learned one. That second option needs the user's decision.
+
 ## Commands
 
 ```sh
