@@ -167,6 +167,14 @@ Two diagnostics settle where the gap is:
   The gain is a gradient step x + g·Aᴴ(y − Ax) on the DC loss before BM4D. It compensates BM4D's shrinkage of the
   missed high frequency. Transverse plateaus about 0.44 dB behind ZS-SSDU. σ_rel 0.025 at gain 2 (TG01) and the wide
   in-plane search (TC07) hurt.
+- **High-gain follow-ups (08:15):**
+  - **TJ02 kept.** σ_rel 0.025 at gain 8 gives M3 −0.09651; transverse is −0.0965 with 1/6 wins. Sagittal falls back
+    to −0.003.
+  - **TK01 discarded.** A second gain-8 refresh diverges: pre |x_t − x|/|x| goes 0.135 → 0.82 → 3.8, because
+    over-relaxation above 2 is unstable when iterated. Transverse still improved (−0.0994 vs −0.1026), while coronal
+    and sagittal collapsed. `later_gain` (TM01/TM02) makes later refreshes a stable PnP step.
+  - **TK02, re-test when transverse nears 0.** `lambda_nl_plain` 1 on TJ02 is neutral on transverse (s42 −0.0968 vs
+    −0.0965, discarded by the M3 rule). It lifts sagittal to +0.0019 and coronal to +0.040.
 
 ## Commands
 
