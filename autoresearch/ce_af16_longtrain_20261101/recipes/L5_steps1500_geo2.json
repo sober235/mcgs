@@ -1,0 +1,16 @@
+{
+  "steps": 1500,
+  "milestones": [
+    250,
+    500,
+    750,
+    1000,
+    1250,
+    1500
+  ],
+  "gamma": 0.9995,
+  "lr_scale": 1,
+  "geo_lr_scale": 2,
+  "profile": "tv1125_wav075",
+  "alpha": 0.5
+}

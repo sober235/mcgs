@@ -1,0 +1,62 @@
+{
+  "batch": "TA-B13 (2026-11-08): transverse after the gain plateau",
+  "evidence": "Gain ladder at sigma 0.0225 (s42, plane 196 PSNR gap pre/post dB): 4 -0.460/-0.474, 6 -0.443/-0.451, 8 -0.446/-0.432 (keeper TH02, M3 -0.10260), 12 -0.480/-0.421 (TI01 discarded, -0.1106). Pre peaks near gain 6, post still improves at 12; transverse is flat at ~0.44 dB behind ZS-SSDU, limiter now pre PSNR. Coronal and sagittal pass on both dev seeds.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 2.0
+      }
+    ]
+  },
+  "note": "Compose on the gain-8 keeper (or whatever is keeper at claim).",
+  "items": [
+    {
+      "id": "TK01_dc_two_refreshes",
+      "loss_edits": {
+        "nl_refresh": 312
+      },
+      "hypothesis": "with gain 8 each refresh re-injects 8x the fresh measured residual, so a second target at 4813 (PnP step 2) adds HF instead of over-smoothing as at gain 1 (TD03, every 125)"
+    },
+    {
+      "id": "TK02_lambda_nl_plain_1_high_gain",
+      "loss_edits": {
+        "lambda_nl_plain": 1
+      },
+      "hypothesis": "pre is the transverse limiter now; the gain-8 pre target is better than the gain-1 one where lambda_nl_plain 1 was neutral (TC04)"
+    }
+  ]
+}

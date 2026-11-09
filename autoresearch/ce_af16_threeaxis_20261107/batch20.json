@@ -1,0 +1,64 @@
+{
+  "batch": "TA-B20 (2026-11-08, add-on round H1): let the kernel widths move in stage 2",
+  "evidence": "diag_gauss_width.py on TO02 s42: |density|^2-weighted median voxel std 0.86/0.83/0.66 (axes 0/1/2), unweighted 0.99/0.91/0.70 = the normalised-isotropic init (1.02/0.93/0.70); single-kernel power transfer at 0.35 cyc/vox 0.07/0.06/0.14. diag_direction.py: TO02 keeps 0.72-0.83 of GT power along the fully sampled readout at |f| 0.2-0.5 vs ZS-SSDU 0.94. Stage-2 scale lr after lr_scale = 1.05e-4, so 625 Adam steps move log-scale by <= ~0.07.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 14.0
+      }
+    ]
+  },
+  "note": "Keeper at enqueue: TO02 (user promotion). One variable: the scales' Adam rate only.",
+  "items": [
+    {
+      "id": "TP01_scale_lr_10",
+      "variant": {
+        "kind": "scale_lr",
+        "factor": 10
+      },
+      "hypothesis": "scales' lr x10 (1.05e-4 -> 1.05e-3): with the gain-14 HF target the widths can shrink where detail needs it"
+    },
+    {
+      "id": "TP02_scale_lr_30",
+      "variant": {
+        "kind": "scale_lr",
+        "factor": 30
+      },
+      "hypothesis": "dose step: scales' lr x30 (max log-scale change ~2 over 625 steps)"
+    }
+  ]
+}

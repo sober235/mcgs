@@ -1,0 +1,55 @@
+{
+  "batch": "TA-B8 (2026-11-08): BM4D sigma re-bracket at dc gain 2",
+  "evidence": "TC06 sigma_rel 0.0225 on TE03 (gain 2) kept: M3 -0.11623 (+1.9e-3). At gain 1, 0.0175 (TC05) and 0.025 (TD02) both hurt, but gain 2 doubles the measured residual (and its noise) in the BM4D input, so the sigma optimum moved up.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 2.0
+      }
+    ]
+  },
+  "note": "keeper0/assume_keeper_variant for selftest only.",
+  "items": [
+    {
+      "id": "TG01_nl_sigma_0.025",
+      "loss_edits": {
+        "nl_sigma_rel": 0.025
+      },
+      "hypothesis": "the sigma optimum at gain 2 lies above 0.0225"
+    }
+  ]
+}

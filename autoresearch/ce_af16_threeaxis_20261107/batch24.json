@@ -1,0 +1,63 @@
+{
+  "batch": "TA-B24 (2026-11-09, add-on H4): point count at a fixed 0.5-vox voxel-isotropic init",
+  "evidence": "TS01 (0.71 vox, 3.6 M) KEPT M3 -0.07383; TS02 probe (0.50 vox, 3.6 M, s42) -0.07362 = flat. Hypothesis: narrow kernels need denser points; densify study (1.2-4.0 M flat) used wide kernels.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 14.0
+      },
+      {
+        "kind": "scale_lr",
+        "factor": 50
+      }
+    ]
+  },
+  "note": "Probe, seed 42 only. Compare with TS02 (same 0.5-vox width, 3.6 M points): one variable = points.",
+  "items": [
+    {
+      "id": "TT01_h4_7p2m_w050_s42",
+      "probe": true,
+      "seeds": [
+        42
+      ],
+      "bases": {
+        "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_addon_20261108/h4_7p2m_w050_s42/stage1/training/ar_i1_k30p90/checkpoints/latest.pth"
+      },
+      "hypothesis": "H4: 7.2 M points at 0.5-vox voxel-isotropic init (TS02 had 3.6 M)"
+    }
+  ]
+}

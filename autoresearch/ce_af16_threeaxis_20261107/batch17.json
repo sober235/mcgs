@@ -1,0 +1,72 @@
+{
+  "batch": "TA-B17 (2026-11-08): next points on the sigma x gain ridge",
+  "evidence": "Ridge (single refresh): gain 8/sigma .025 -0.09651, gain 10/.025 -0.09176 (TL02), gain 12/.025 -0.09068 (TN11 keeper; coronal +0.018, sagittal +0.002). Gains are shrinking (+1.1e-3 per step) and coronal falls with gain. Second refreshes at any gain hurt (TM01 -0.148, TM02 -0.139).",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 8.0
+      }
+    ]
+  },
+  "note": "Absolute settings (gain, sigma, nl_refresh 1000).",
+  "items": [
+    {
+      "id": "TN13_gain_12_sigma_0.0275",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 12.0
+      },
+      "loss_edits": {
+        "nl_sigma_rel": 0.0275,
+        "nl_refresh": 1000
+      },
+      "hypothesis": "ridge: at gain 12 the sigma optimum is above 0.025"
+    },
+    {
+      "id": "TN14_gain_14_sigma_0.025",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 14.0
+      },
+      "loss_edits": {
+        "nl_sigma_rel": 0.025,
+        "nl_refresh": 1000
+      },
+      "hypothesis": "ridge: at sigma 0.025 the gain optimum is above 12"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "batch": "TA-B1 (2026-11-07): non-local target that keeps more high frequency",
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "why": "best M3 among all scored dev-seed (42/7) single runs of the losstune workspace (mined 2026-11-07)",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "items": [
+    {
+      "id": "TA00_ctrl_fv06",
+      "control": true,
+      "seeds": [42],
+      "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+      "reference_relax": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json",
+      "reference_score": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "hypothesis": "control: this driver reproduces the keeper FV06 on seed 42 (candidate hash or at least score)"
+    },
+    {
+      "id": "TA01_nl_sharpen_1.25",
+      "loss_edits": {"nl_sharpen": 1.25},
+      "hypothesis": "MC-GS keeps 59-66% of GT high-frequency energy (ZS-SSDU 91-97%); a BM4D target with transform-domain sharpening (alpha 1.25) pulls the render toward more detail and closes part of the transverse gap"
+    },
+    {
+      "id": "TA02_joint_bm",
+      "variant": {"kind": "joint_bm", "guide_sigma": 1.0},
+      "hypothesis": "pre and post share anatomy; grouping blocks once on the averaged pre/post guide gives better matches (less noise-driven grouping) than per-contrast matching, so both BM4D targets are sharper and more faithful"
+    },
+    {
+      "id": "TA03_nl_sharpen_1.5",
+      "loss_edits": {"nl_sharpen": 1.5},
+      "hypothesis": "stronger sharpening than TA01 (alpha 1.5)"
+    },
+    {
+      "id": "TA04_nl_sharpen_1.1",
+      "loss_edits": {"nl_sharpen": 1.1},
+      "hypothesis": "mild sharpening (alpha 1.1), in case 1.25 already overshoots into noise"
+    },
+    {
+      "id": "TA05_nl_sharpen_2",
+      "loss_edits": {"nl_sharpen": 2.0},
+      "hypothesis": "upper bracket of the sharpening sweep (alpha 2)"
+    }
+  ]
+}

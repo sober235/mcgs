@@ -1,0 +1,21 @@
+{
+  "batch": "TA-B3 (2026-11-07): retune around the joint block-matching keeper (TA02)",
+  "evidence": "TA02 joint_bm kept: M3 -0.12620 (s42 a0 -0.1262 a1 +0.0226 a2 -0.0194; s7 a0 -0.1259 a1 +0.0254 a2 -0.0170). A better NL target can shift the optimum of the NL weight, the BM4D sigma and the guide strength, all tuned for per-contrast matching so far. Sharpening (TA01/TA03) and an abrupt Gaussian shrink (TB01) hurt.",
+  "keep_margin": 0.0005,
+  "items": [
+    {"id": "TC01_joint_guide_0.7", "variant": {"kind": "joint_bm", "guide_sigma": 0.7},
+     "hypothesis": "a weaker guide denoise keeps finer structure in the grouping (matches follow smaller details)"},
+    {"id": "TC02_joint_guide_1.5", "variant": {"kind": "joint_bm", "guide_sigma": 1.5},
+     "hypothesis": "a stronger guide denoise makes matching more robust to aliasing in the phase-encode plane"},
+    {"id": "TC03_lambda_nl_contrast_8", "loss_edits": {"lambda_nl_contrast": 8},
+     "hypothesis": "with a better post target, pulling harder toward it pays (post is the transverse limiter)"},
+    {"id": "TC04_lambda_nl_plain_1", "loss_edits": {"lambda_nl_plain": 1},
+     "hypothesis": "with a better pre target, pulling harder toward it pays"},
+    {"id": "TC05_nl_sigma_0.0175", "loss_edits": {"nl_sigma_rel": 0.0175},
+     "hypothesis": "joint grouping removes noise more efficiently, so a lower sigma keeps more detail without more aliasing"},
+    {"id": "TC06_nl_sigma_0.0225", "loss_edits": {"nl_sigma_rel": 0.0225},
+     "hypothesis": "the upper bracket of the sigma retune"},
+    {"id": "TC07_wide_inplane_search", "variant": {"kind": "profile", "attrs": {"search_window_ht": [5, 13, 13], "search_window_wiener": [5, 13, 13]}},
+     "hypothesis": "aliasing is incoherent within the phase-encode (transverse) plane, so a wider in-plane search window finds more true matches there"}
+  ]
+}

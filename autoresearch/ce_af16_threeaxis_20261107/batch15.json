@@ -1,0 +1,72 @@
+{
+  "batch": "TA-B15 (2026-11-08): stable second PnP step after the gain-8 target",
+  "evidence": "TK01 (two refreshes, both gain 8): transverse -0.0994 vs -0.1026 for its base TH02, but coronal -0.1154 and sagittal -0.0396. The gain-8 target overshoots the measured k-space by 7x the residual; the render drifts (pre |x_t - x|/|x| 0.135 at 4501, 0.82 at 4813, 3.8 at 5125), and the next gain-8 refresh amplifies it (over-relaxation > 2 diverges). A later refresh at gain <= 2 is a stable PnP step from the drifted render.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 8.0
+      }
+    ]
+  },
+  "note": "Needs worker code from this commit (later_gain); old workers drained first. Keeper at writing: TJ02 (gain 8, sigma 0.025).",
+  "items": [
+    {
+      "id": "TM01_second_refresh_gain_1",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 8.0,
+        "later_gain": 1.0
+      },
+      "loss_edits": {
+        "nl_refresh": 312
+      },
+      "hypothesis": "a second target at 4813 from the data-consistent image (gain 1) keeps TK01's transverse gain without the divergence"
+    },
+    {
+      "id": "TM02_second_refresh_gain_2",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 8.0,
+        "later_gain": 2.0
+      },
+      "loss_edits": {
+        "nl_refresh": 312
+      },
+      "hypothesis": "gain 2 is the largest stable over-relaxation for the second step"
+    }
+  ]
+}

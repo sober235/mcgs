@@ -1,0 +1,65 @@
+{
+  "batch": "TA-B2b (2026-11-07): batch 2 hypotheses composed on top of the current keeper variant",
+  "evidence": "B1: sharpening the BM4D target hurt (TA01 alpha 1.25: M3(42) -0.1447 vs -0.1272). diag_kspace: on the 17 transverse lesion planes MC-GS beats ZS-SSDU below |f| 0.15 and loses everything at |f| >= 0.2 cycles/px, mostly at unsampled (ky,kz); Gaussians have sigma ~0.7-1 voxel, so that band reaches the densities attenuated ~10-25x. Control TA00 vs FV06: run-to-run noise ~2.3e-4 in M3 -> keep margin 5e-4.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "items": [
+    {
+      "id": "TB05_sigma_anneal_r125_d0.6",
+      "loss_edits": {
+        "nl_refresh": 125
+      },
+      "variant": {
+        "kind": "sigma",
+        "decay": 0.6
+      },
+      "hypothesis": "plug-and-play style: re-denoising every 125 steps with sigma x0.6 per refresh lets block matching propagate data-consistent high frequency, unlike the constant-sigma refreshes FV16/FV17 that over-smoothed",
+      "reissue_of": "TB02_sigma_anneal_r125_d0.6"
+    },
+    {
+      "id": "TB06_bm4d_step2",
+      "variant": {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "hypothesis": "denser BM4D block grid (step 3 -> 2) gives a better denoised target at the same sigma (less blocking, more detail kept)",
+      "reissue_of": "TB03_bm4d_step2"
+    },
+    {
+      "id": "TB07_init_scale_0.7",
+      "variant": {
+        "kind": "init_scale",
+        "factor": 0.7
+      },
+      "hypothesis": "stronger version of TB01 (sigma x0.7, densities x2.92)",
+      "reissue_of": "TB04_init_scale_0.7"
+    }
+  ],
+  "assume_keeper_variant": {
+    "kind": "joint_bm",
+    "guide_sigma": 1.0
+  },
+  "note": "TB02-TB04 were skipped and re-issued here as TB05-TB07: items now run keeper variant + their own part. assume_keeper_variant is used by selftest only (validates the stacks a joint_bm keeper would produce)."
+}

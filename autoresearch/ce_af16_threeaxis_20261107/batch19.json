@@ -1,0 +1,100 @@
+{
+  "batch": "TA-B19 (2026-11-08, after the stop): robustness of the two passing axes on keeper TN15",
+  "evidence": "TN15 M3 -0.08173; coronal +0.0152/+0.0134 (plane 112), sagittal +0.0005 (s42 plane 44) / +0.0048 (s7 plane 43); transverse plane 196 -0.0817/-0.0807. Run-to-run nondeterminism ~2e-4 (TA00). The s42 sagittal pass is ~2x that noise. TK02 (lambda_nl_plain 1 on TJ02, s42 only) left transverse unchanged but raised sagittal to +0.0019 and coronal to +0.040.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 14.0
+      }
+    ]
+  },
+  "note": "TO01 on GPU 7 (TN15's GPU). TO02 has screen false so s7 runs even if transverse ties; the keep rule is unchanged.",
+  "items": [
+    {
+      "id": "TO01_repeat_tn15",
+      "control": true,
+      "seeds": [
+        42,
+        7
+      ],
+      "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_threeaxis_20261107/runs/TN15_gain_14_sigma_0.0275/recipe.json",
+      "variant": {
+        "kind": "stack",
+        "parts": [
+          {
+            "kind": "profile",
+            "attrs": {
+              "step_ht": [
+                2,
+                2,
+                2
+              ],
+              "step_wiener": [
+                2,
+                2,
+                2
+              ]
+            }
+          },
+          {
+            "kind": "joint_bm",
+            "guide_sigma": 1.5
+          },
+          {
+            "kind": "dc_target",
+            "gain": 14.0
+          }
+        ]
+      },
+      "reference_relax": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_threeaxis_20261107/runs/TN15_gain_14_sigma_0.0275/s42/m0625/relax_a1/relax.json",
+      "reference_score": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_threeaxis_20261107/runs/TN15_gain_14_sigma_0.0275/scores/s42_m0625",
+      "reference_scores": {
+        "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_threeaxis_20261107/runs/TN15_gain_14_sigma_0.0275/scores/s42_m0625",
+        "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_threeaxis_20261107/runs/TN15_gain_14_sigma_0.0275/scores/s7_m0625"
+      },
+      "hypothesis": "control: rerun keeper TN15 on both dev seeds; does the s42 sagittal +0.0005 pass survive run-to-run noise?"
+    },
+    {
+      "id": "TO02_lambda_nl_plain_1_on_tn15",
+      "loss_edits": {
+        "lambda_nl_plain": 1
+      },
+      "screen": false,
+      "hypothesis": "TK02 on the gain-14 keeper: raise the pre NL weight to widen the coronal/sagittal margins on both seeds without costing transverse"
+    }
+  ]
+}

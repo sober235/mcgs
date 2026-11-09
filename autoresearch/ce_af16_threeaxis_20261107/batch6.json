@@ -1,0 +1,55 @@
+{
+  "batch": "TA-B6 (2026-11-08): re-issue the dc gain 1.5 on the step-2 keeper",
+  "evidence": "TE02 (gain 1.5, claimed on TC02 without step 2) M3 -0.12130 vs its base TC02 -0.12236 (+1.06e-3) but only +7e-5 over TE01 (step 2, -0.12137), so it was discarded by the margin. Step 2 and gain act on different parts (BM4D grid vs BM4D input), so they should add.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target"
+      }
+    ]
+  },
+  "note": "keeper0/assume_keeper_variant for selftest only. If TE03 (gain 2) becomes keeper first, this item is the back-off bracket of the dose.",
+  "items": [
+    {
+      "id": "TE04_dc_gain_1.5_step2",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 1.5
+      },
+      "hypothesis": "gain 1.5 (+1.06e-3 on TC02) adds to TE01's BM4D step 2 (+1.0e-3)"
+    }
+  ]
+}

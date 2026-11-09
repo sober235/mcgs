@@ -1,0 +1,64 @@
+{
+  "batch": "TA-B11 (2026-11-08): dc gain ladder beyond 8",
+  "evidence": "Gain dose at sigma 0.0225 (M3): 2 -0.11623, 4 -0.10968 (TF02), 6 -0.10394 (TH01 keeper; s7 sagittal +0.0009 passes). TH02 gain 8 passed its s42 screen. Still rising roughly linearly (~+2.9e-3 per gain unit).",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 2.0
+      }
+    ]
+  },
+  "note": "Gain > 8 needs worker code 2a8fa6b (cap 16); old workers drained first. Items compose identically on any gain keeper.",
+  "items": [
+    {
+      "id": "TI01_dc_gain_12",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 12.0
+      },
+      "hypothesis": "gain ladder: 12 > 8"
+    },
+    {
+      "id": "TI02_dc_gain_16",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 16.0
+      },
+      "hypothesis": "gain ladder: 16 > 12"
+    }
+  ]
+}

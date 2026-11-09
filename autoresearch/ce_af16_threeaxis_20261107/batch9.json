@@ -1,0 +1,56 @@
+{
+  "batch": "TA-B9 (2026-11-08): dc gain 3 at the keeper's sigma 0.0225",
+  "evidence": "TF01 (gain 3, sigma 0.02, claimed on TE03) s42 M3 -0.1161 = keeper TC06 (gain 2, sigma 0.0225) s42 -0.1161: gain 2->3 and sigma 0.02->0.0225 each gave +1.9e-3 on transverse. Gain 3 also lifted sagittal (s42 a2 -0.0099 vs TC06 -0.0176). The two act on different things (residual dose, denoising strength), so they may add.",
+  "keep_margin": 0.0005,
+  "keeper0": {
+    "id": "FV06_lambda_nl_plain_0.5",
+    "recipe_path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/fixed_views_20261104/recipes/FV06_lambda_nl_plain_0.5.json",
+    "scores": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s42_m0625",
+      "7": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/scores/s7_m0625"
+    },
+    "candidate_relax": {
+      "42": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_losstune_20261101/runs/FV06_lambda_nl_plain_0.5/s42/m0625/relax_a1/relax.json"
+    },
+    "expected_m3": -0.12703651859525963
+  },
+  "assume_keeper_variant": {
+    "kind": "stack",
+    "parts": [
+      {
+        "kind": "profile",
+        "attrs": {
+          "step_ht": [
+            2,
+            2,
+            2
+          ],
+          "step_wiener": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      {
+        "kind": "joint_bm",
+        "guide_sigma": 1.5
+      },
+      {
+        "kind": "dc_target",
+        "gain": 2.0
+      }
+    ]
+  },
+  "note": "keeper0/assume_keeper_variant for selftest only.",
+  "items": [
+    {
+      "id": "TG02_dc_gain_3_sigma_0.0225",
+      "variant": {
+        "kind": "dc_target",
+        "gain": 3.0
+      },
+      "hypothesis": "gain 3 on TC06 (sigma 0.0225): the dose and sigma gains add"
+    }
+  ]
+}
