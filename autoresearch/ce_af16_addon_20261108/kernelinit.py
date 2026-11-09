@@ -89,10 +89,14 @@ def voxel_std(scales, shape=SHAPE):
     return scales * torch.tensor([s / 2 for s in shape], dtype=scales.dtype, device=scales.device)
 
 
-def install_width(init_cloud, mode, record, width_scale=1.0):
-    """Wrap init_cloud.scales_3nn (the trainer imports it from the module at construction time)."""
+def install_width(init_cloud, mode, record, width_scale=1.0, target_vox=None):
+    """Wrap init_cloud.scales_3nn (the trainer imports it from the module at construction time).
+    target_vox (voxel_iso only) rescales so the median voxel std is exactly that value: with more points the 3-NN
+    distance shrinks by itself, and this keeps the width fixed when only the point count is the variable (H4)."""
     require(mode in MODES, f'width mode {mode}')
     require(0.3 <= width_scale <= 1.5 and (mode == 'voxel_iso' or width_scale == 1.0), f'width_scale {width_scale}')
+    require(target_vox is None or (mode == 'voxel_iso' and width_scale == 1.0 and 0.3 <= target_vox <= 1.2),
+            f'target_vox {target_vox} needs voxel_iso and width_scale 1')
     orig = init_cloud.scales_3nn
 
     def scales_3nn(positions, shape, scale_mult=1.0, **kw):
@@ -102,8 +106,10 @@ def install_width(init_cloud, mode, record, width_scale=1.0):
                 and torch.equal(base[:, 0], base[:, 2]), 'frozen scales_3nn is no longer isotropic per point')
         out = base if mode == 'normalised' else base * torch.tensor(axis_factors(shape), dtype=base.dtype,
                                                                     device=base.device) * width_scale
+        if target_vox is not None:
+            out = out * (target_vox / float(voxel_std(out, shape)[:, 2].median()))
         vs = voxel_std(out, shape)
-        record.update(mode=mode, width_scale=width_scale, factors=axis_factors(shape) if mode == 'voxel_iso' else (1., 1., 1.),
+        record.update(mode=mode, target_vox=target_vox, width_scale=width_scale, factors=axis_factors(shape) if mode == 'voxel_iso' else (1., 1., 1.),
                       points=int(out.shape[0]), median_voxel_std=[float(vs[:, i].median()) for i in range(3)],
                       median_voxel_std_original=[float(voxel_std(base, shape)[:, i].median()) for i in range(3)])
         log(f'[kernelinit] {mode}: median voxel std {record["median_voxel_std"]} '
@@ -138,7 +144,7 @@ def cmd_base(args):
     require(Path(init_cloud.__file__).resolve() == (BASE_TRAINER / 'paired_gs/gaussian/init_cloud.py').resolve(),
             'foreign init_cloud module')
     record = {}
-    install_width(init_cloud, args.width_mode, record, args.width_scale)
+    install_width(init_cloud, args.width_mode, record, args.width_scale, args.target_vox)
     from seed import set_seed
     import trainers.joint_trainer as jt
     require(Path(jt.__file__).resolve() == (BASE_TRAINER / 'paired_gs/trainers/joint_trainer.py').resolve(),
@@ -150,6 +156,9 @@ def cmd_base(args):
             'base config snapshot differs from the seed-42 base (3nn init, seed 42, official mask)')
     cfg['output']['output_dir'] = str(out / 'training')
     cfg['training']['seed'] = args.seed      # the seed-7 base config differs from seed 42's only in seed and output
+    require(cfg['gaussian']['initial_num_points'] == 3600000 and 1000000 <= args.points <= 10000000,
+            f'points {args.points} (snapshot has {cfg["gaussian"]["initial_num_points"]})')
+    cfg['gaussian']['initial_num_points'] = args.points   # H4; stage1/stage2 take the count from the checkpoint
     cfg['training']['max_iterations'] = args.iters
     if args.iters != 4000:  # smoke only: the trainer requires warmup < iters / 2 (the real run keeps 500)
         cfg['training']['shared_warmup_iters'] = max(1, args.iters // 4)
@@ -188,7 +197,8 @@ def cmd_chain(args):
     me = [str(PY), '-X', 'utf8', '-B', '-u', str(Path(__file__).resolve())]
     iters, steps = (20, 2) if args.smoke else (4000, 500)
     write_json(run_root / 'spec.json', dict(name=args.name, width_mode=args.width_mode, seed=args.seed,
-                                            width_scale=args.width_scale, gpu=args.gpu, smoke=args.smoke,
+                                            width_scale=args.width_scale, target_vox=args.target_vox,
+                                            points=args.points, gpu=args.gpu, smoke=args.smoke,
                                             source_digest=os.environ.get('MCGS_SOURCE_DIGEST'),
                                             driver_sha256=sha256(__file__), started=time.strftime('%Y-%m-%d %H:%M:%S')))
 
@@ -201,7 +211,8 @@ def cmd_chain(args):
         require(code == 0, f'{name} failed')
 
     child('base', me + ['base', '--out', run_root / 'base', '--iters', iters, '--width-mode', args.width_mode,
-                        '--seed', args.seed, '--width-scale', args.width_scale],
+                        '--seed', args.seed, '--width-scale', args.width_scale, '--points', args.points]
+          + (['--target-vox', args.target_vox] if args.target_vox is not None else []),
           cwd=Path(__file__).resolve().parent)
     base_ckpt = run_root / 'base/training' / EXP / 'checkpoints/latest.pth'
     if args.smoke:      # stage1 needs an iteration-4000 checkpoint; plumbing of the init and base is what is checked
@@ -244,11 +255,13 @@ def main():
     b = sub.add_parser('base'); b.add_argument('--out', required=True); b.add_argument('--iters', type=int, default=4000)
     b.add_argument('--width-mode', choices=MODES, required=True)
     b.add_argument('--seed', type=int, default=42); b.add_argument('--width-scale', type=float, default=1.0)
+    b.add_argument('--points', type=int, default=3600000); b.add_argument('--target-vox', type=float, default=None)
     s = sub.add_parser('stage1'); s.add_argument('--ckpt', required=True); s.add_argument('--out', required=True)
     s.add_argument('--steps', type=int, default=500)
     c = sub.add_parser('chain'); c.add_argument('--gpu', type=int, required=True); c.add_argument('--name', required=True)
     c.add_argument('--width-mode', choices=MODES, required=True); c.add_argument('--smoke', action='store_true')
     c.add_argument('--seed', type=int, default=42); c.add_argument('--width-scale', type=float, default=1.0)
+    c.add_argument('--points', type=int, default=3600000); c.add_argument('--target-vox', type=float, default=None)
     sub.add_parser('check-init')
     args = ap.parse_args()
     {'base': cmd_base, 'stage1': cmd_stage1, 'chain': cmd_chain, 'check-init': cmd_check_init}[args.cmd](args)
