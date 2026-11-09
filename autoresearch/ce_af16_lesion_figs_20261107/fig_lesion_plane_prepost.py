@@ -38,6 +38,9 @@ from pathlib import Path
 ap = argparse.ArgumentParser()
 ap.add_argument("--score-dir", type=Path, default=None, help="evaluator output dir (objective.json, lesion_planes.json, input_hashes.json)")
 ap.add_argument("--topic", type=Path, default=None, help="CE retro topic without an evaluator (see the docstring); needs --three or --planes")
+ap.add_argument("--arm", action="append", default=[], metavar="LABEL=PATH",
+                help="topic mode only: replace one arm's volume, PATH may contain {s} for the scan (pre/post), e.g. "
+                     "'3D-DIP=/x/recon/dip_sup_b96_tv0.03_{s}_complex.npy'; repeatable; recorded in the JSON")
 ap.add_argument("--label", required=True, help="what the MC-GS column is, for the title, e.g. 'C77 seed 42 (m625)'")
 ap.add_argument("--out", type=Path, required=True)
 ap.add_argument("--planes", nargs="*", default=None, metavar="AXIS:INDEX",
@@ -64,6 +67,7 @@ ap.add_argument("--tra_rot", type=int, default=1, choices=[0, 1, 2, 3], help="qu
 args = ap.parse_args()
 assert (args.score_dir is None) != (args.topic is None), "give exactly one of --score-dir / --topic"
 assert args.score_dir or args.three or args.planes, "--topic needs --three or --planes"
+assert not (args.arm and args.score_dir), "--arm is for --topic mode (an evaluator's scored volumes are fixed)"
 
 import h5py  # noqa: E402
 import matplotlib  # noqa: E402
@@ -145,6 +149,10 @@ else:                      # topic mode: the topic's registered arms (its script
                     "ZS-SSDU": R_ / f"zsssdu_{s}_complex.npy", "3D-DIP": R_ / f"dip_{s}_complex.npy",
                     "3D-INR": R_ / f"inr_{s}_complex.npy", "MC-INR": R_ / f"mcinr_{s}_complex.npy",
                     "GS-single": R_ / f"gs_single_{s}_mag.npy", MC: R_ / f"gs_joint_{s}_mag.npy"}
+        for spec in args.arm:
+            lab, _, pth = spec.partition("=")
+            assert lab in paths[s] and lab != MC, f"--arm {spec}: unknown or not replaceable arm {lab!r}"
+            paths[s][lab] = Path(pth.format(s=s))
         missing = [str(p) for p in paths[s].values() if not p.exists()]
         assert not missing, f"missing volumes: {missing}"
     log(f"topic mode: {TOPIC}; panel numbers computed from the volumes")
@@ -207,7 +215,7 @@ if sd is not None:
               "lesion_planes_sha256": sha(sd / "lesion_planes.json"),
               "volumes": {s: {lab: str(p) for lab, p in paths[s].items()} for s in SCANS}, "figures": []}
 else:
-    record = {"topic": str(TOPIC), "label": args.label,
+    record = {"topic": str(TOPIC), "label": args.label, "arm_overrides": args.arm,
               "numbers": "computed by this script (topic mode), not by a frozen evaluator",
               "volumes": {s: {lab: {"path": str(p), "sha256": sha(p)} for lab, p in paths[s].items()} for s in SCANS},
               "gt_sha256": {s: sha(TOPIC / f"recon/gt_{s}_complex.npy") for s in SCANS}, "figures": []}

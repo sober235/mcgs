@@ -144,3 +144,39 @@ New options of `fig_lesion_plane_prepost.py`. The defaults keep the previous beh
 - **Local copy:** `../results/hist_ce_retro_af16_201_131_48/sept_prepost_201_131_48_zoomerr.png`; the symlink
   `../results/sept_prepost_zoomerr.png` points to it. The full-error-map version is `sept_prepost.png`.
 - Figures are not committed.
+
+## September data: 3D-DIP / 3D-INR rerun with output support (2026-11-09, in progress)
+
+In the September figure, 3D-DIP (and, less so, 3D-INR) shows bright signal outside the head. A read-only check
+(coil coverage sum|S|² > 0.25) found that this signal lies outside the coil coverage, where the k-space data do not
+constrain the output:
+
+| arm | mean \|x\| outside coverage, pre | share of error energy outside coverage |
+|---|---|---|
+| 3D-DIP | 0.187 (head 0.216) | 97 % |
+| 3D-INR | 0.074 | 63 % |
+| ZS-SSDU | 0.009 | 7 % |
+| CG-SENSE / MC-GS | 0.000 | 0 % |
+
+- **Effect on metrics:** none on the head-masked numbers (the head is 99.99 % inside the coverage), but the figure is
+  misleading.
+- **Fix (user's choice 1):** rerun both arms with the October comparison-arm audit winners. These were picked by each
+  arm's pre-registered held-out k-space rule, with no GT:
+  - DIP `--support 6 --dip_base 96 --tv 0.03`, 12000 iterations;
+  - INR `--support 6 --inr_nmax 512 --tv 0.03`, 1500 iterations.
+- **Support:** the zero-filled head support dilated by 6 voxels, computed from acquired data only.
+
+`sept_cmp_support.py` wraps the audited `recon_dip_inr.py` (mcgs_ce_mask_wt @ b01fadf) unchanged:
+
+- **Inputs and outputs:** it writes a new topic `codex_artifacts/mcgs_ce_sept_cmp_20261109/`, with `sim/` symlinked
+  to the September `sim/`. The September topic is never written, and existing outputs are refused.
+- **GPU:** it passes the gpu.py-granted physical id through as `--gpu`.
+
+Runs so far:
+
+- **GPU smoke:** j-20261109T095257-80f9016e passed. It showed a peak of about 70 GB on the card.
+- **Pre-contrast:** j-20261109T100902-c9266335 on GPU 2.
+- **Post-contrast:** waits for a card with at least 72 GiB free.
+
+`fig_lesion_plane_prepost.py --arm LABEL=PATH` (topic mode) swaps an arm's volume for the redraw. `{s}` in PATH is
+replaced by the scan.
