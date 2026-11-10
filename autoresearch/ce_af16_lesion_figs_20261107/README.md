@@ -145,7 +145,7 @@ New options of `fig_lesion_plane_prepost.py`. The defaults keep the previous beh
   `../results/sept_prepost_zoomerr.png` points to it. The full-error-map version is `sept_prepost.png`.
 - Figures are not committed.
 
-## September data: 3D-DIP / 3D-INR rerun with output support (2026-11-09, in progress)
+## September data: 3D-DIP / 3D-INR rerun with output support (2026-11-09/10, done)
 
 In the September figure, 3D-DIP (and, less so, 3D-INR) shows bright signal outside the head. A read-only check
 (coil coverage sum|S|² > 0.25) found that this signal lies outside the coil coverage, where the k-space data do not
@@ -172,11 +172,30 @@ constrain the output:
   to the September `sim/`. The September topic is never written, and existing outputs are refused.
 - **GPU:** it passes the gpu.py-granted physical id through as `--gpu`.
 
-Runs so far:
+Runs:
 
 - **GPU smoke:** j-20261109T095257-80f9016e passed. It showed a peak of about 70 GB on the card.
-- **Pre-contrast:** j-20261109T100902-c9266335 on GPU 2.
-- **Post-contrast:** waits for a card with at least 72 GiB free.
+- **Pre-contrast:** j-20261109T100902-c9266335 on GPU 2. DIP took 13 336 s; INR took 2 180 s.
+- **Post-contrast:** run on GPU 2 from 22:58 CST by a parallel session, using the same wrapper, arguments and script
+  revision (logs `run_post*.log` in the topic dir). A later duplicate launch, j-20261110T014653-faca26c1, was refused
+  by the no-overwrite guard and changed nothing.
+
+Results, head-masked PSNR / SSIM / NMSE:
+
+| | outside-coverage mean \|x\|, pre | head PSNR, pre / post |
+|---|---|---|
+| DIP, registered | 0.187 | 29.32 / 30.24 |
+| DIP, with support | 0.0004 | 30.76 / 32.07 (post: the new run's own score) |
+| INR, registered | 0.074 | 28.08 / 30.61 |
+| INR, with support | 0.0006 | 32.39 / (see record) |
+
+- **Background:** with the support, the background is gone; GT outside coverage is 0.0002.
+- **Stronger opponents:** both arms got stronger. INR with support now beats ZS-SSDU on transverse 201 PSNR/NMSE.
+- **MC-GS still wins:** MC-GS still wins all six pre/post panels on slices 201/131/48 against all ten arms. The
+  runner-up stays GS-single, with unchanged margins (PSNR +0.19 to +0.43 dB).
+- **Figure:** j-20261110T015143-54201809 (`--arm` for 3D-DIP and 3D-INR). The output is
+  `codex_artifacts/mcgs_ce_lesionfigs_20261107/sept_bart_three_supfix/`; the local copy is
+  `../results/sept_prepost_supfix.png`.
 
 `fig_lesion_plane_prepost.py --arm LABEL=PATH` (topic mode) swaps an arm's volume for the redraw. `{s}` in PATH is
 replaced by the scan.
