@@ -199,3 +199,22 @@ Results, head-masked PSNR / SSIM / NMSE:
 
 `fig_lesion_plane_prepost.py --arm LABEL=PATH` (topic mode) swaps an arm's volume for the redraw. `{s}` in PATH is
 replaced by the scan.
+
+## Record for plain-scan / enhanced reconstruction (user decision, 2026-11-11)
+
+The user designated the September three-plane result above as the record of the best plain-scan (pre) and enhanced
+(post) joint reconstruction. When the best CE pre/post result is asked for, cite this one, not the vdpois TS01 figure.
+
+- **Data and method:** topic `Results_20260908/CE_retro_cssense_af16` (BART Poisson-disc AF16, CS-SENSE truth);
+  MC-GS = the untuned September recipe (trainer e778bf2, 4000 iterations).
+- **Slices:** transverse 201, coronal 131, sagittal 48, all with lesion core.
+- **Result:** MC-GS first on PSNR, SSIM and NMSE in all six panels against all ten arms. PSNR margins over the
+  runner-up (GS-single in every panel), pre / post: transverse +0.25 / +0.43 dB, coronal +0.19 / +0.30 dB,
+  sagittal +0.21 / +0.38 dB.
+- **Figure of record:** the support-fixed redraw (3D-DIP / 3D-INR rerun with support, zoom error layout):
+  - PNG: `codex_artifacts/mcgs_ce_lesionfigs_20261107/sept_bart_three_supfix/` (SHA-256 `fed2f5d1…adc36`);
+  - 600-dpi PDF: `codex_artifacts/mcgs_completed_report_20261110/figs_rerender/sept_supfix/`;
+  - local: `../results/ce_prepost_record.png` and `.pdf` (symlinks into `../results/hist_ce_retro_af16_201_131_48/`).
+- **Limits that go with the record:** ZS-SSDU here is the 5-block version; GS-single is the registered arm, and
+  against the independently trained single-contrast GS of the framework ablation MC-GS wins 5 of these 18
+  conditions (`../ce_af16_ablation_20261110/RESULTS.md`); one subject.
