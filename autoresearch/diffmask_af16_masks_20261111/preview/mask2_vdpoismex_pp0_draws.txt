@@ -1,0 +1,45 @@
+draw 001 stage A accelx 3.9000 nnz 3154 AF_T1 14.285
+draw 002 stage A accelx 4.0000 nnz 3093 AF_T1 14.567
+draw 003 stage A accelx 4.1000 nnz 3049 AF_T1 14.777
+draw 004 stage A accelx 4.2000 nnz 2966 AF_T1 15.191
+draw 005 stage A accelx 4.3000 nnz 2897 AF_T1 15.553
+draw 006 stage A accelx 4.4000 nnz 2840 AF_T1 15.865
+draw 007 stage A accelx 4.5000 nnz 2776 AF_T1 16.231
+draw 008 stage A accelx 4.6000 nnz 2719 AF_T1 16.571
+draw 009 stage A accelx 4.7000 nnz 2705 AF_T1 16.657
+draw 010 stage A accelx 4.8000 nnz 2639 AF_T1 17.073
+stage A fit: n = 353.1 + 10960.3 / accelx  ->  accelx* = 4.1979 for 2964 points
+draw 011 stage B accelx 4.1679 nnz 2959 AF_T1 15.227
+draw 012 stage B accelx 4.1729 nnz 2990 AF_T1 15.069
+draw 013 stage B accelx 4.1779 nnz 2973 AF_T1 15.155
+draw 014 stage B accelx 4.1829 nnz 2972 AF_T1 15.160
+draw 015 stage B accelx 4.1879 nnz 2939 AF_T1 15.330
+draw 016 stage B accelx 4.1929 nnz 2980 AF_T1 15.119
+draw 017 stage B accelx 4.1979 nnz 2961 AF_T1 15.216
+draw 018 stage B accelx 4.2029 nnz 2956 AF_T1 15.242
+draw 019 stage B accelx 4.2079 nnz 2959 AF_T1 15.227
+draw 020 stage B accelx 4.2129 nnz 2939 AF_T1 15.330
+draw 021 stage B accelx 4.2179 nnz 2956 AF_T1 15.242
+draw 022 stage B accelx 4.2229 nnz 2938 AF_T1 15.336
+draw 023 stage B accelx 4.2279 nnz 2909 AF_T1 15.488
+draw 024 stage B accelx 4.1679 nnz 2970 AF_T1 15.170
+draw 025 stage B accelx 4.1729 nnz 2972 AF_T1 15.160
+draw 026 stage B accelx 4.1779 nnz 2996 AF_T1 15.039
+draw 027 stage B accelx 4.1829 nnz 2961 AF_T1 15.216
+draw 028 stage B accelx 4.1879 nnz 2971 AF_T1 15.165
+draw 029 stage B accelx 4.1929 nnz 2961 AF_T1 15.216
+draw 030 stage B accelx 4.1979 nnz 2957 AF_T1 15.237
+draw 031 stage B accelx 4.2029 nnz 2947 AF_T1 15.289
+draw 032 stage B accelx 4.2079 nnz 2948 AF_T1 15.284
+draw 033 stage B accelx 4.2129 nnz 2952 AF_T1 15.263
+draw 034 stage B accelx 4.2179 nnz 2962 AF_T1 15.211
+draw 035 stage B accelx 4.2229 nnz 2914 AF_T1 15.462
+draw 036 stage B accelx 4.2279 nnz 2936 AF_T1 15.346
+draw 037 stage B accelx 4.1679 nnz 2967 AF_T1 15.186
+draw 038 stage B accelx 4.1729 nnz 2976 AF_T1 15.140
+draw 039 stage B accelx 4.1779 nnz 2974 AF_T1 15.150
+draw 040 stage B accelx 4.1829 nnz 2967 AF_T1 15.186
+draw 041 stage B accelx 4.1879 nnz 2973 AF_T1 15.155
+draw 042 stage B accelx 4.1929 nnz 2961 AF_T1 15.216
+draw 043 stage B accelx 4.1979 nnz 2964 AF_T1 15.201  <- exactly the target
+MASK2_DONE draw 043 of 43, accelx 4.1979, nnz 2964, exact 1

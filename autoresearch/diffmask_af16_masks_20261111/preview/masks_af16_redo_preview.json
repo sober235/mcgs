@@ -1,0 +1,108 @@
+{
+ "vdpois": {
+  "points": 2966,
+  "T1_AF": 15.190829399865137,
+  "FLAIR_points_with_data": 2733,
+  "FLAIR_points_outside_shutter": 233,
+  "FLAIR_AF": 16.485912916209294,
+  "largest_full_centred_rect_ky_kz": [
+   24,
+   16
+  ],
+  "median_rn": 0.4001829751560836,
+  "conjugate_pair_fraction": 0.24915711395819284,
+  "source": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_vdpois_256x176_af16.mat",
+  "md5": "2d7ed0001214aec2af8f6dce5d52ce70"
+ },
+ "updisc": {
+  "points": 2964,
+  "T1_AF": 15.201079622132253,
+  "FLAIR_points_with_data": 2313,
+  "FLAIR_points_outside_shutter": 651,
+  "FLAIR_AF": 19.47946389969736,
+  "largest_full_centred_rect_ky_kz": [
+   24,
+   16
+  ],
+  "median_rn": 0.742455736454769,
+  "conjugate_pair_fraction": 0.16970310391363022,
+  "vdpoismex": {
+   "generator": "/data0/congcong/code/ESPIRiT/utils/vdPoisMex (mex)",
+   "call": "vdPoisMex(256,176,256,176, accelx, 4, 24, 0, 0)",
+   "accelx": 4.197933337601033,
+   "accely": 4,
+   "calib": 24,
+   "ellipse": 0,
+   "pp": 0,
+   "draw": 43,
+   "n_draws": 43,
+   "exact_hit": true,
+   "accelx_fit": 4.197933337601033
+  },
+  "md5": "d0796ac1a198ae2aba8983146b3830fc"
+ },
+ "radial": {
+  "points": 2964,
+  "T1_AF": 15.201079622132253,
+  "FLAIR_points_with_data": 2916,
+  "FLAIR_points_outside_shutter": 48,
+  "FLAIR_AF": 15.451303155006858,
+  "largest_full_centred_rect_ky_kz": [
+   14,
+   6
+  ],
+  "median_rn": 0.4916989121890894,
+  "conjugate_pair_fraction": 0.9996626180836707,
+  "radial": {
+   "spokes": 16,
+   "angle_step_deg": 11.25,
+   "acs_block": false,
+   "points_before_trim": 3107,
+   "trimmed_at_tips": 143,
+   "rn_max_kept": 0.9565429924390736,
+   "points_previous_spoke_count": 2928
+  },
+  "md5": "a18824d8448161b687ccfd8ae06e3321"
+ },
+ "radial_acs": {
+  "points": 2964,
+  "T1_AF": 15.201079622132253,
+  "FLAIR_points_with_data": 2915,
+  "FLAIR_points_outside_shutter": 49,
+  "FLAIR_AF": 15.456603773584906,
+  "largest_full_centred_rect_ky_kz": [
+   24,
+   16
+  ],
+  "median_rn": 0.4714732362773379,
+  "conjugate_pair_fraction": 0.9922402159244265,
+  "radial": {
+   "spokes": 15,
+   "angle_step_deg": 12.0,
+   "acs_block": true,
+   "points_before_trim": 3074,
+   "trimmed_at_tips": 110,
+   "rn_max_kept": 0.9682690192437866,
+   "points_previous_spoke_count": 2892
+  },
+  "md5": "25de9fa0b6aee01a3d179f5fb77b2e97"
+ },
+ "_common": {
+  "plane": [
+   256,
+   176
+  ],
+  "dc": [
+   128,
+   88
+  ],
+  "target_points": 2964,
+  "acs_block_ky_kz": [
+   24,
+   16
+  ],
+  "seed": 0,
+  "flair_shutter_points": 34139,
+  "status": "preview only; nothing registered or reconstructed"
+ }
+}
