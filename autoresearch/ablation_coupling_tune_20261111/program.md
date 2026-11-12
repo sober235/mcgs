@@ -94,7 +94,7 @@ gpu.py run --gpu 2 -- @python autoresearch/ablation_coupling_tune_20261111/tune.
 
 当前保留配置：
 
-- CE：P3 + `--lambda_edge 0 --set loss.edge_tv_guide_alpha=0.5 --set loss.ptv_guide_alpha=0.5`（`m = +0.203`，种子 42；种子 7 复核未做）。**CE 调参到此结束**，用了 6 次训练。
+- CE：P3 + `--lambda_edge 0 --set loss.edge_tv_guide_alpha=0.5 --set loss.ptv_guide_alpha=0.5`（`m = +0.203`，种子 42；种子 7 复核未做）。**CE 调参到此结束**，用了 6 次训练。**收尾在第 1 步之后暂停**（2026-11-12 04:47 PST，见下面的记录），所以这个配置只有种子 42 的结果，「去掉各向异性」「去掉对比内先验」也没有用它重跑。
 - T1+T2：V32 + `--set loss.edge_tv_guide_alpha=0.5`（T2 仍比独立模型低 0.021 dB，目标未达到；**第一阶段在 T1+T2 上到此结束**）。
 
 记录：
@@ -117,6 +117,7 @@ gpu.py run --gpu 2 -- @python autoresearch/ablation_coupling_tune_20261111/tune.
 - 02:49 PST，收尾第 1 步跑完（账本 #12，`tn_ce_s7_nojoint_pre`）：种子 7 的平扫独立模型 33.601 dB，比种子 42 的登记值低 0.002 dB。日志里有 `[JointTrainer] re-seed: seed=7`。
 - **这一步与别的任务共用了 GPU 2。** 同账号另一个项目（FoundationModel 的 replay 和 evaluate，共约 10 GB）在我启动前不久已经启动；我 02:03 PST 启动前查卡时它还没有分配显存，`nvidia-smi` 显示为空。共卡不影响评分数值，但这次训练比平时慢。对方任务有墙钟上限，我已通知那个会话；它答复两个任务预计在 05:00–06:02 PST 之间结束，结束后会通知我。之后的启动改为：GPU 2 连续两次（间隔 75 秒）没有进程才启动，启动 3 分钟后再核对卡上只有本任务。
 - **时间口径（2026-11-12 起，按全局规则）**：本节的时间都是本机（Mac）时钟。任务的开始是本机发出启动命令的时刻，结束是本机轮询看到任务结束的时刻（轮询间隔 4–5 分钟），都是本机墙钟。不读取、不记录服务器上的任何时间。本地 `experiments.jsonl` 相对服务器账本去掉了 `utc` 和 `seconds` 两个字段（服务器时钟和程序自己量的耗时），加了 `branch`、`baseline_m`、`decision`、`notes`，其余逐字相同。服务器账本未改动，12 行时的 sha256 是 `fc0c9364716465827bcc68f1ee0ff9fc723c6854a467b3f715e90b5588944ea8`。
+- **2026-11-12 04:47 PST，CE AF16 收尾暂停。** 同账号的 mcgs-bb 会话转达了用户约 04:44 PST 在那个会话里下的指令：「First, pause the sequential experiments of plain scan and enhancement with af = 16, and then change af to 12 and re-execute all the experiments.」这条指令不是用户直接对本会话说的，我按它停手，因为不启动是可以随时恢复的一侧。收尾第 2–6 步（`s7_nojoint_post`、`s7_full_keeper`、`fin_iso`、`fin_noprior`、`fin_full_vol`）没有启动，也没有在排队；C1–C6 和第 1 步的结果、账本、提交都保留。消融 `RESULTS.md` 的新增一节也不写。AF12 的重做由 mcgs-bb 会话在新目录里进行（服务器 `codex_artifacts/mcgs_ce_af12_20261112/`，仓库 `autoresearch/ce_af12_rerun_20261112/`），不改本目录。AF12 的完整模型用 P3 原样还是用这里的耦合保留配置，没有人替用户定。T1+T2 第二阶段不在这条指令范围内，继续。
 
 ## 10. 第二阶段：T1+T2（用户 2026-11-12 03:07 PST 前后确认「enter the second phase」）
 
@@ -181,3 +182,4 @@ gpu.py run --gpu 2 -- @python autoresearch/ablation_coupling_tune_20261111/tune.
 
 - 2026-11-12 03:07 PST 前后用户确认进入第二阶段。当时 GPU 2 被 FoundationModel 会话的任务占用，GPU 7 是另一个会话的重建队列，训练要等卡空出来。`tune.py` 加了 `--sym`、`m_strict` 和对比对象的先验核对，并且不再往账本和日志里写时钟值和耗时。
 - 顺序：GPU 2 空出后先跑第二阶段的冒烟，再跑 S1；CE 的收尾（第 2–6 步）排在后面，或者等 GPU 7 空出来并行。
+- 2026-11-12 04:47 PST：CE 的收尾已暂停（第 9 节的记录），所以第二阶段之后不再接 CE 的收尾。显卡分工（已发给 mcgs-bb 会话，等它确认）：GPU 2 归第二阶段，直到本会话通知释放；GPU 7 留给 AF12 的重做，本会话不用。原因是两边都用「间隔 75 秒两次查到空卡就启动」，而链式脚本在两次训练之间会让卡空至少 75 秒，不分工就可能同时启动。
