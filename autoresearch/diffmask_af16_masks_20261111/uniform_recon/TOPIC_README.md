@@ -121,6 +121,7 @@ each plane in bold; error maps are `|recon - GT| / max(GT)`, jet, fixed [0, 0.1]
 | `t1flair_v3_af16_masks_stack_T1_tra126_inset32_headerr_p3_caps_nongsmax_sel7.png` (+ `.pdf`) | **the three-pattern figure with the new row 2**, seven-method cut of 2026-09-18 (CS-SENSE, Joint SENSE, ZS-SSDU, 3D-INR, MC-INR, GS-single, MC-GS), T1, transverse 126, 32x32 box at (146, 29); served in `~/figs/t1flair_v3_af16_diffmask_redo/` |
 | `t1flair_v3_af16_masks_stack_FLAIR_tra205_inset32_headerr_p3_caps_nongsmax_sel7.png` (+ `.pdf`) | the same for FLAIR, transverse 205, 32x32 box at (148, 146) |
 | `t1flair_v3_af16_masks_stack_{T1_tra126,FLAIR_tra205}_inset32_headerr_p3_zf_caps_nongsmax.png` (+ `.pdf`) | the same two figures with all twelve columns |
+| `t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra168_zoomrows64_headerr_p3_zf_caps_butterfly.png` | **the butterfly slice** (user request, 2026-11-12): transverse 168, the whole slice, all twelve columns (GT, ZF, the nine comparison methods, MC-GS), three patterns, with the 64 x 64 box on the lateral ventricles at (128, 88) magnified under every image row and error row |
 
 `finalize_diffmask.sh`'s own figure step stops because it asks for the retired L1-ESPIRiT column (it did in September
 too); the three-plane figures were drawn with `--l1_arm spirit --with_mcinr --with_zf`, the September layout.
@@ -140,6 +141,14 @@ with the Gaussian row). With the new row 2 they were only checked (`scripts/eval
 - Whole-slice gauge: MC-GS is first over every column in all six rows (three patterns x two contrasts) on 44 of the
   178 eligible transverse slices; slices 126 and 205 are among them. **Quote the whole-volume numbers, not the
   slice or box numbers**: slices and boxes were selected on these data.
+- **Butterfly slice (transverse 168, box 64 at (128, 88)).** The slice is the house butterfly slice of this subject
+  (`fig_butterfly_final.py`, `fig_row_final.py`); the box is the bounding box of the lateral ventricles read from the
+  ground truth (`butterfly_probe.py` in the GitHub folder), not chosen by any score. Inside the box MC-GS is first on
+  PSNR and SSIM in all six rows (leads T1 +0.306 / +0.829 / +0.403 dB, FLAIR +0.079 / +0.237 / +0.298 dB for
+  vd-Poisson / uniform density / pseudo-radial). On the whole slice it is first on PSNR, SSIM and NMSE on the
+  vd-Poisson and uniform-density rows of both contrasts; **on the pseudo-radial row ZS-SSDU has the better slice PSNR
+  and NMSE** (T1 32.17 against 31.96 dB, FLAIR 32.12 against 32.07 dB) and MC-GS the better SSIM. The figure shows
+  that as it is (bold = best of the row).
 - The seven-method cut drops L1-SPIRiT, which is the strongest non-Gaussian arm on T1 on this mask (32.73 dB); it
   is in the twelve-column figures and in every table.
 

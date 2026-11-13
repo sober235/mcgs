@@ -150,6 +150,22 @@ lead +0.225 dB on T1, +0.142 dB on FLAIR), and first over every column on the wh
 selected on these data, so the whole-volume numbers are the ones to quote. The seven-method cut drops L1-SPIRiT, the
 strongest non-Gaussian arm on T1 on this mask (32.73 dB); it is in the twelve-column figures and in the tables.
 
+**Butterfly slice, all nine comparison methods (user request, 2026-11-12 18:45 PST).** Transverse 168, the house
+butterfly slice of this subject, whole slice, twelve columns (GT, ZF, CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT,
+ZS-SSDU, 3D-DIP, 3D-INR, MC-INR, GS-single, MC-GS), three patterns; the 64 x 64 box on the lateral ventricles at
+(J, K) = (128, 88) is magnified under every image row and error row. The box is the bounding box of the ventricles
+read from the ground truth (`butterfly_probe.py`, `uniform_recon/butterfly_probe.json`), not chosen by a score.
+Inside the box MC-GS is first on PSNR and SSIM in all six rows (T1 +0.306 / +0.829 / +0.403 dB, FLAIR +0.079 /
++0.237 / +0.298 dB over the best other arm). On the whole slice it is first on the vd-Poisson and uniform-density
+rows; **on the September pseudo-radial row ZS-SSDU has the better slice PSNR and NMSE** (T1 32.17 against 31.96 dB,
+FLAIR 32.12 against 32.07 dB), MC-GS the better SSIM.
+
+![T1, butterfly slice](uniform_recon/preview/t1flair_v3_af16_masks_stack_T1_tra168_zoomrows64_headerr_p3_zf_caps_butterfly.jpg)
+
+![FLAIR, butterfly slice](uniform_recon/preview/t1flair_v3_af16_masks_stack_FLAIR_tra168_zoomrows64_headerr_p3_zf_caps_butterfly.jpg)
+
+The seven-method figures of 2026-09-18 with the new row 2:
+
 ![T1, three patterns](uniform_recon/preview/t1flair_v3_af16_masks_stack_T1_tra126_inset32_headerr_p3_caps_nongsmax_sel7.jpg)
 
 ![FLAIR, three patterns](uniform_recon/preview/t1flair_v3_af16_masks_stack_FLAIR_tra205_inset32_headerr_p3_caps_nongsmax_sel7.jpg)
@@ -182,6 +198,7 @@ those two names used to hold are kept beside them as `masks_{T1,FLAIR}_af16_sept
 | `uniform_recon/summary.tsv` | the topic's summary as `summarize.py` wrote it (24 rows) |
 | `uniform_recon/compare_masks_head_{psnr,ssim,hfen}.md` | every arm on the three patterns with the new row 2 |
 | `uniform_recon/TOPIC_README.md` | the README installed in the server topic |
+| `butterfly_probe.py`, `uniform_recon/butterfly_probe.json` | ground-truth slices with (J, K) grid lines and the ventricles' bounding boxes, used to place the butterfly box |
 | `uniform_recon/preview/*.jpg` | reduced copies of the three-pattern figures (seven-method cut) and of the topic's three-plane figures |
 | `preview/masks_af16_redo_preview.png` | the figure the user approved |
 | `preview/masks_af16_redo_preview.json` | every number quoted above, with md5 sums |
