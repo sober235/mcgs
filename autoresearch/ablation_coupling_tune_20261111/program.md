@@ -265,8 +265,8 @@ gpu.py run --gpu 2 -- @python autoresearch/ablation_coupling_tune_20261111/tune.
 ### 11.7 GPU
 
 - 两次间隔约 75 秒的检查都为空的卡才用，一卡一个任务。
-- 不用 GPU 0（别的用户）和 GPU 1（foundationmodel 会话要求保留）。
-- 用 scratchpad 的 `queue_tb.sh` 排队启动。
+- 用户 2026-11-13 07:10 PST 前后：「Not limited to GPU 1. Any remaining ones can be used.」所以任何一张两次检查都为空的卡都可以用。foundationmodel 会话已确认它在 amax 上没有任务。
+- 用 scratchpad 的 `queue_tb2.sh` 排队启动（不排除任何卡）。
 
 ### 11.8 进展
 
