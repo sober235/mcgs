@@ -677,6 +677,10 @@ def finalize():
 STUDY = ("compare_masks.py", "fig_masks_transverse_stack.py", "find_slice_all_masks.py", "find_slice_nongs_gap.py",
          "find_zoom_box_visible.py", "find_zoom_box_all_masks.py", "eval_zoom_box.py")
 SERVED = "/home/congcongliu/figs/t1flair_v3_af16_diffmask_redo"
+# per-topic figure scripts (ported at --setup) that --study may run as well. finalize_diffmask.sh's own figure step
+# asks for the retired L1-ESPIRiT column and stops (it did in September too); the figures are drawn from here with
+# --l1_arm spirit --with_mcinr --with_zf, the September twelve-column layout.
+TOPIC_FIGS = ("fig_three_planes_compact.py",)
 
 
 def port_study(name, text):
@@ -717,7 +721,7 @@ def study(cmds):
     rc = 0
     for i, cmd in enumerate(cmds):
         argv = shlex.split(cmd)
-        assert argv[0] in STUDY, f"{argv[0]} is not a study script"
+        assert argv[0] in STUDY + TOPIC_FIGS, f"{argv[0]} is not a study script"
         lp = T / "logs" / f"study_{Path(argv[0]).stem}.log"
         env = dict(ENV, CUDA_VISIBLE_DEVICES="")
         with open(lp, "a") as lf:

@@ -1,0 +1,4 @@
+# full-resolution figure copies stay local (12-23 MB each): they would exceed the gpu.py snapshot limits and bloat git.
+# The originals are on the server in the topic figures/ folder; previews are in ../preview/.
+*.png
+*.pdf

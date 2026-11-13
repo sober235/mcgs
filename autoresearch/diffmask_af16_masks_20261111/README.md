@@ -1,13 +1,12 @@
 # Diff-mask study on jiangyizhou T1 + FLAIR, nominal AF 16: the three sampling patterns, redone (2026-11-11)
 
-**Status (2026-11-12 17:50 PST).** The three masks were approved by the user on 2026-11-11 (about 21:00 PST) from
-`preview/masks_af16_redo_preview.png`. **Row 2 (uniform density) is reconstructed**: every arm of the September study,
-both contrasts, in the new topic `Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou`; MC-GS on the frozen recipe is
-first on head PSNR, head SSIM and head HFEN on T1 and on FLAIR (section "Row 2 reconstructed" below). Still open at
-this commit: the topic's three-plane figures (its summary and README tables are written; the figure step of
-`finalize_diffmask.sh` stopped because it asks for the retired L1-ESPIRiT column, so the figures have to be drawn with
-`--l1_arm spirit` as in September) and the study-level three-row figures and table with the new row 2. Row 1 is the house mask and is not re-run
-(`T1FLAIR_AF16_v3_jiangyizhou`); row 3 (conventional radial) has not been reconstructed.
+**Status (2026-11-12 18:40 PST).** The three masks were approved by the user on 2026-11-11 (about 21:00 PST) from
+`preview/masks_af16_redo_preview.png`. **Row 2 (uniform density) is complete**: every arm of the September study, both
+contrasts, in the new topic `Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou`; MC-GS on the frozen recipe is
+first on head PSNR, head SSIM and head HFEN on T1 and on FLAIR, and the study's table and three-pattern figures are
+redrawn with it as row 2 (sections "Row 2 reconstructed" and "The study with the new row 2"). Row 1 is the house
+mask and is not re-run (`T1FLAIR_AF16_v3_jiangyizhou`); row 3 (conventional radial) has not been reconstructed, so the
+third row of the redrawn figures is still the September pseudo-radial topic.
 
 ## Why
 
@@ -119,6 +118,49 @@ on the CUDA voxelizer, and the September `build.ninja` names `/usr/local/cuda-12
 private copy of the build directory changes no file. Every file in the build directory still carries its
 2026-09-15 timestamp (checked after the last run).
 
+### The study with the new row 2
+
+The seven cross-pattern scripts of the September study were ported into the new topic (`run_uniform.py --study`):
+row 2 reads the uniform-density topic, output goes to that topic and to `~/figs/t1flair_v3_af16_diffmask_redo/`.
+**No file of the September topics was changed or deleted** (checked: no file in the Gaussian or pseudo-radial topic is
+newer than 2026-11-11). The "old" row 2 is read here as the September Gaussian variable-density row; that reading is
+not yet confirmed by the user.
+
+Head PSNR, MC-GS against the strongest other arm (`uniform_recon/compare_masks_head_psnr.md`; SSIM and HFEN beside it):
+
+| contrast | pattern | MC-GS | strongest comparison arm | margin |
+|---|---|---|---|---|
+| T1 | vd-Poisson (house) | 35.706 | GS-single 35.558 | +0.148 |
+| T1 | **uniform density (new row 2)** | **34.903** | GS-single 34.396 | **+0.507** |
+| T1 | pseudo-radial (September) | 31.113 | GS-single 30.913 | +0.200 |
+| FLAIR | vd-Poisson (house) | 34.928 | GS-single 34.886 | +0.042 |
+| FLAIR | **uniform density (new row 2)** | **34.984** | GS-single 34.842 | **+0.142** |
+| FLAIR | pseudo-radial (September) | 31.729 | ZS-SSDU 31.635 | +0.093 |
+
+The row it replaces (September, Gaussian variable density): T1 34.909, +0.138; FLAIR 34.317, +0.023.
+
+Against the house mask the uniform density costs the regularised SENSE arms 2.0 to 4.1 dB (converged TV -4.02 on T1,
+-2.23 on FLAIR) and the Gaussian models almost nothing on FLAIR and about 1 dB on T1 (MC-GS -0.80 / +0.06, GS-single
+-1.16 / -0.04).
+
+**Three-pattern figures.** The September slices and boxes were kept, not re-selected: T1 transverse 126 with the
+32 x 32 box at (146, 29), FLAIR transverse 205 with the box at (148, 146), seven-method cut of 2026-09-18. With the new
+row 2 they were checked only: MC-GS is first on box PSNR and box SSIM in all three rows of each figure (smallest box
+lead +0.225 dB on T1, +0.142 dB on FLAIR), and first over every column on the whole slice. Slices and boxes were
+selected on these data, so the whole-volume numbers are the ones to quote. The seven-method cut drops L1-SPIRiT, the
+strongest non-Gaussian arm on T1 on this mask (32.73 dB); it is in the twelve-column figures and in the tables.
+
+![T1, three patterns](uniform_recon/preview/t1flair_v3_af16_masks_stack_T1_tra126_inset32_headerr_p3_caps_nongsmax_sel7.jpg)
+
+![FLAIR, three patterns](uniform_recon/preview/t1flair_v3_af16_masks_stack_FLAIR_tra205_inset32_headerr_p3_caps_nongsmax_sel7.jpg)
+
+Where the full-resolution files are: on the server in the topic's `figures/` (PNG and PDF; served copies in
+`~/figs/t1flair_v3_af16_diffmask_redo/` and `~/figs/t1flair_v3_af16_diffmask_uniform/`); on the Mac in
+`uniform_recon/figures/` (git-ignored: 12 to 23 MB each, they would also break the `gpu.py` snapshot limits) and as
+`../results/masks_{T1,FLAIR}_af16.png` (twelve columns) and `masks_{T1,FLAIR}_af16_sel7.png`; the September figures
+those two names used to hold are kept beside them as `masks_{T1,FLAIR}_af16_sept_gauss.png`. The topic's own README
+(`uniform_recon/TOPIC_README.md`, installed with `--readme`) has the per-topic tables and every check.
+
 ## Open points for whoever runs the reconstructions
 
 - **Row 3, ACS block or not.** The user approved the preview, which shows row 3 without an ACS block and the variant
@@ -137,6 +179,10 @@ private copy of the build directory changes no file. Every file in the build dir
 | `gen_mask2_vdpoismex_pp0.m` | row 2: the `vdPoisMex` draws (output directory from `MASK2_OUT`) |
 | `run_uniform.py` | row 2: setup of the topic, the reconstruction queue, standings, finalize, study-level port (section "Row 2 reconstructed") |
 | `uniform_recon/standings.txt`, `.json` | every arm on the uniform-density mask, both contrasts (job `j-20261113T014134-062d8b41`) |
+| `uniform_recon/summary.tsv` | the topic's summary as `summarize.py` wrote it (24 rows) |
+| `uniform_recon/compare_masks_head_{psnr,ssim,hfen}.md` | every arm on the three patterns with the new row 2 |
+| `uniform_recon/TOPIC_README.md` | the README installed in the server topic |
+| `uniform_recon/preview/*.jpg` | reduced copies of the three-pattern figures (seven-method cut) and of the topic's three-plane figures |
 | `preview/masks_af16_redo_preview.png` | the figure the user approved |
 | `preview/masks_af16_redo_preview.json` | every number quoted above, with md5 sums |
 | `preview/mask2_vdpoismex_pp0_draws.txt` | all 43 draws of row 2 with their point counts |
