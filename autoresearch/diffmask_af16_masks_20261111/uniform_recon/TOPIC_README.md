@@ -11,8 +11,9 @@ three masks of the September study were not the intended ones and approved three
 `diffmask-af16-masks-20261111`, folder `autoresearch/diffmask_af16_masks_20261111`). This topic is the new **row 2**:
 a mask whose centre block is fully sampled and whose other points have a uniform density. User request of 2026-11-11
 22:05 PST: reconstruct on it, "the core objective is for MCGS to outperform all the comparison methods", and afterwards
-"the old uniform density experimental results should be replaced". That is read here as: this topic replaces the
-September row 2 (`../T1FLAIR_AF16_gauss_v3_jiangyizhou`, Gaussian variable density) in the study's figures and tables.
+"the old uniform density experimental results should be replaced". The old result is the September row 2
+(`../T1FLAIR_AF16_gauss_v3_jiangyizhou`, Gaussian variable density; confirmed by the user on 2026-11-12 20:48 PST):
+this topic replaces it in the study's figures and tables.
 **The September topics are not changed and not deleted**; every study-level file made here lives in this topic and in
 `~/figs/t1flair_v3_af16_diffmask_redo/`.
 
@@ -84,8 +85,8 @@ scored below their optimum. Points were added until every winner sat inside its 
 ## The study with the new row 2
 
 `scripts/compare_masks.py` (ported: row 2 = this topic), full tables in `logs/compare_masks_head_{psnr,ssim,hfen}.md`.
-Row 3 is still the September pseudo-radial topic (with its ACS block); the conventional-radial mask approved on
-2026-11-11 has not been reconstructed.
+**Row 3 is the September pseudo-radial topic (with its ACS block) and stays so** (user, 2026-11-12 20:48 PST: "the
+radial direction still uses the old result"); the conventional-radial masks drawn on 2026-11-11 are not used.
 
 | contrast | pattern | MC-GS head PSNR | strongest comparison arm | margin |
 |---|---|---|---|---|
@@ -159,7 +160,9 @@ with the Gaussian row). With the new row 2 they were only checked (`scripts/eval
   head PSNR against the ground truth (the September rule), which favours the classical arms.
 - FLAIR's acceleration is 19.48x here against 16.49x on the house mask, so the FLAIR column mixes pattern and
   acceleration.
-- Row 3 of the redone study (conventional radial, and whether it carries an ACS block) is open.
+- Row 3 is the September pseudo-radial result by the user's decision, so the study mixes one row reconstructed in
+  November with two reconstructed in September (same data, gauge, scorer and frozen recipe; the classical lambda
+  grids of the uniform row reach higher than the September ones because its optimum lies higher).
 - Everything the AF16 topic's README lists as a limitation applies unchanged: the recipe was selected on this
   subject, and the numbers are on the magnitude gauge.
 
@@ -186,5 +189,5 @@ start runs ninja on the CUDA voxelizer of the September worktree; the driver put
 
 2026-11-12: complete. Twelve arms x two contrasts reconstructed and scored (65 jobs on one GPU, 2026-11-11 22:49 to
 2026-11-12 11:58 PST, no failure; queue log `logs/run_uniform.log`), registered, summarised and figured; the
-study-level table and three-pattern figures are redrawn with this topic as row 2. Open: the user's confirmation that
-the row this replaces is the September Gaussian one, and row 3.
+study-level table and three-pattern figures are redrawn with this topic as row 2. 2026-11-12 20:48 PST, user: the
+replaced row is the September Gaussian one, and row 3 keeps the September pseudo-radial result. Nothing is open.

@@ -1,12 +1,14 @@
 # Diff-mask study on jiangyizhou T1 + FLAIR, nominal AF 16: the three sampling patterns, redone (2026-11-11)
 
-**Status (2026-11-12 18:40 PST).** The three masks were approved by the user on 2026-11-11 (about 21:00 PST) from
+**Status (2026-11-12 20:50 PST): the redone study is final.** The three masks were approved by the user on 2026-11-11 (about 21:00 PST) from
 `preview/masks_af16_redo_preview.png`. **Row 2 (uniform density) is complete**: every arm of the September study, both
 contrasts, in the new topic `Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou`; MC-GS on the frozen recipe is
 first on head PSNR, head SSIM and head HFEN on T1 and on FLAIR, and the study's table and three-pattern figures are
 redrawn with it as row 2 (sections "Row 2 reconstructed" and "The study with the new row 2"). Row 1 is the house
-mask and is not re-run (`T1FLAIR_AF16_v3_jiangyizhou`); row 3 (conventional radial) has not been reconstructed, so the
-third row of the redrawn figures is still the September pseudo-radial topic.
+mask and is not re-run (`T1FLAIR_AF16_v3_jiangyizhou`). **Row 3 keeps the September pseudo-radial result** (user,
+2026-11-12 20:48 PST: "the radial direction still uses the old result"): the two radial masks drawn on 2026-11-11
+are not reconstructed and not used. So the study is vd-Poisson (house) / uniform density (new) / pseudo-radial
+(September, `T1FLAIR_AF16_radial_v3_jiangyizhou`).
 
 ## Why
 
@@ -54,8 +56,8 @@ user replaced it with the ESPIRiT-toolbox mask above; it is not kept.
 
 User request, 2026-11-11 22:05 PST: reconstruct on the uniform-density mask; "the core objective is for MCGS to
 outperform all the comparison methods"; afterwards "the old uniform density experimental results should be replaced".
-Read here as: the new row replaces the September row 2 (the Gaussian variable-density topic) in the study's figures and
-tables; the September topic stays on disk.
+The row it replaces is the September row 2, the Gaussian variable-density topic (confirmed by the user on 2026-11-12
+20:48 PST); the replacement is made in the study's figures and tables, and the September topic stays on disk.
 
 **Design: one variable.** Exactly as in September, the only thing that differs from `T1FLAIR_AF16_v3_jiangyizhou` is
 the mask pattern: same k-space, ESPIRiT maps, ground truth, gauge (scale = P99.9 of |GT|, 99.25055 on T1), scorer
@@ -123,8 +125,8 @@ private copy of the build directory changes no file. Every file in the build dir
 The seven cross-pattern scripts of the September study were ported into the new topic (`run_uniform.py --study`):
 row 2 reads the uniform-density topic, output goes to that topic and to `~/figs/t1flair_v3_af16_diffmask_redo/`.
 **No file of the September topics was changed or deleted** (checked: no file in the Gaussian or pseudo-radial topic is
-newer than 2026-11-11). The "old" row 2 is read here as the September Gaussian variable-density row; that reading is
-not yet confirmed by the user.
+newer than 2026-11-11). The "old" row 2 is the September Gaussian variable-density row (confirmed by the user,
+2026-11-12 20:48 PST).
 
 Head PSNR, MC-GS against the strongest other arm (`uniform_recon/compare_masks_head_psnr.md`; SSIM and HFEN beside it):
 
@@ -177,12 +179,13 @@ Where the full-resolution files are: on the server in the topic's `figures/` (PN
 those two names used to hold are kept beside them as `masks_{T1,FLAIR}_af16_sept_gauss.png`. The topic's own README
 (`uniform_recon/TOPIC_README.md`, installed with `--readme`) has the per-topic tables and every check.
 
-## Open points for whoever runs the reconstructions
+## Notes on the masks
 
-- **Row 3, ACS block or not.** The user approved the preview, which shows row 3 without an ACS block and the variant
-  with one beside it; they did not say which of the two the study uses. Pure spokes leave a 14 x 6 fully sampled
+- **Row 3: closed, the old result stays** (user, 2026-11-12 20:48 PST). The conventional-radial mask and its ACS
+  variant in the table above were approved as drawings on 2026-11-11 but are not part of the study; the question
+  "ACS block or not" no longer needs an answer. Should they ever be run: pure spokes leave a 14 x 6 fully sampled
   centre, and L1-SPIRiT calibrates its kernel from the mask's fully sampled centre block (`recon_spirit.py`,
-  `acs_box()`), which was 24 x 16 in every earlier topic. Ask before running that arm.
+  `acs_box()`), which was 24 x 16 in every earlier topic.
 - **FLAIR sits at 19.48x on row 2**, against 16.49x on row 1: a uniform density spends 651 points in the corners FLAIR
   never acquires. Reported, not tuned, as in the September study.
 - A full-diameter spoke is point-symmetric: every sampled point of row 3 has its conjugate partner sampled too.
