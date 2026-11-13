@@ -1,0 +1,38 @@
+
+=== T1  (uniform-density mask, nominal AF 16; sorted by head PSNR)
+method                      headPSNR  headSSIM  headHFEN    PSNR    SSIM  note
+MC-GS                         34.903    0.9151    0.2178  38.398  0.9034  
+GS-single                     34.396    0.9042    0.2443  37.889  0.9009  
+L1-SPIRiT                     32.732    0.8667    0.2897  36.238  0.8926  lam 0.001 ks 5 of [0.0, 0.0005, 0.001, 0.002, 0.004, 0.008]
+ZS-SSDU                       32.274    0.8794    0.3245  36.189  0.9278  
+CS-SENSE (TV, converged)      30.924    0.8470    0.3989  34.529  0.8665  lam 0.0014 of [0.00035, 0.0005, 0.0007, 0.001, 0.0014, 0.002, 0.0028, 0.004, 0.0056]
+joint CS-SENSE (JTV)          30.755    0.8456    0.3976  34.446  0.8690  lam 0.002 of [0.00035, 0.0005, 0.0007, 0.001, 0.0014, 0.002, 0.0028, 0.004, 0.0056]
+CS-SENSE                      30.361    0.8352    0.4252  33.708  0.8346  
+3D-DIP                        29.894    0.7902    0.4563  33.779  0.8373  
+3D-INR                        29.491    0.7555    0.4716  31.359  0.6320  
+CG-SENSE                      28.561    0.7709    0.5105  30.888  0.6273  
+MC-INR                        27.671    0.6715    0.5774  26.664  0.3992  
+ZF                            24.408    0.5654    0.8697  28.462  0.7615  
+  MC-GS head_psnr: 34.9028, best other GS-single 34.3963, margin +0.5065 (FIRST)
+  MC-GS head_ssim: 0.9151, best other GS-single 0.9042, margin +0.0109 (FIRST)
+  MC-GS head_hfen: 0.2178, best other GS-single 0.2443, margin +0.0264 (FIRST)
+  MC-GS minus the single arm on the same recipe: +0.5065 dB
+
+=== FLAIR  (uniform-density mask, nominal AF 16; sorted by head PSNR)
+method                      headPSNR  headSSIM  headHFEN    PSNR    SSIM  note
+MC-GS                         34.984    0.9166    0.2079  38.485  0.9077  
+GS-single                     34.842    0.9134    0.2196  38.326  0.8925  
+ZS-SSDU                       34.221    0.9161    0.2404  38.087  0.9477  
+L1-SPIRiT                     33.823    0.8859    0.2444  37.318  0.9078  lam 0.001 ks 5 of [0.0, 0.0005, 0.001, 0.002, 0.004, 0.008]
+joint CS-SENSE (JTV)          32.075    0.8652    0.3602  35.701  0.8909  lam 0.002 of [0.00035, 0.0005, 0.0007, 0.001, 0.0014, 0.002, 0.0028, 0.004, 0.0056]
+CS-SENSE (TV, converged)      32.072    0.8659    0.3602  35.649  0.8849  lam 0.0014 of [0.00025, 0.00035, 0.0005, 0.0007, 0.001, 0.0014, 0.002, 0.0028, 0.004, 0.0056, 0.008]
+CS-SENSE                      31.929    0.8648    0.3673  35.327  0.8838  
+CG-SENSE                      30.781    0.8221    0.4529  32.971  0.7062  
+3D-DIP                        30.046    0.7930    0.3761  34.022  0.8232  
+MC-INR                        29.642    0.7519    0.5047  29.505  0.5042  
+3D-INR                        29.312    0.7354    0.4923  31.735  0.6586  
+ZF                            26.264    0.6155    0.8447  30.132  0.7933  
+  MC-GS head_psnr: 34.9840, best other GS-single 34.8423, margin +0.1417 (FIRST)
+  MC-GS head_ssim: 0.9166, best other ZS-SSDU 0.9161, margin +0.0005 (FIRST)
+  MC-GS head_hfen: 0.2079, best other GS-single 0.2196, margin +0.0117 (FIRST)
+  MC-GS minus the single arm on the same recipe: +0.1417 dB
