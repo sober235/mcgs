@@ -53,10 +53,17 @@ ABL = Path(__file__).resolve().parent.parent / "ce_af16_ablation_20261110" / "ab
 SRC = Path("/data0/congcong/code/GS/mcgs_sg2x2_wt")
 OUT = Path("/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110")
 SEPT = Path("/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16")
+TB = Path("/data0/congcong/code/GS/Results_20260908/T1T2_AF12_v4_tangbing")
+GUIDE = ("loss.edge_tv_guide_alpha=",)
 TASKS = {
     "ce": dict(cfg=SEPT / "configs/ce_retro_af16.yaml", recipe="P3"),
     "t1flair": dict(cfg=SRC / "configs/sg2x2/af16_jyz_joint.yaml", recipe="P3"),
     "t1t2": dict(cfg=SRC / "configs/t1t2_af12_hyw.yaml", recipe="V32"),
+    # stage three (user 2026-11-13): the aligned tangbing pair, base = V32. Registered rows: full = the V32 reference
+    # fw_t1t2tbv32_full; iso / noprior were run with V32 + edge-TV guide 0.5, so that pair is dropped from their argv
+    # before the base check; the independents were run with V32 (abl_framework drops joint-only arguments).
+    "t1t2tb": dict(cfg=TB / "configs/t1t2_af12_tangbing.yaml", recipe="V32", reg={"full": "fw_t1t2tbv32_full"},
+                   reg_drop={"iso": GUIDE, "noprior": GUIDE}),
 }
 KINDS = ("full", "iso", "noprior", "nojoint_p", "nojoint_c")
 KEYS = ("head_psnr", "head_ssim", "head_hfen", "nmse")
@@ -65,7 +72,13 @@ ALLOWED_FLAGS = ("--lambda_edge", "--lambda_dtv", "--dtv_eta_scale", "--edge_p",
 ALLOWED_SETS = ("loss.edge_tv_guide_alpha", "loss.ptv_guide_alpha", "loss.dtv_w_floor")
 # stage 2: within-contrast priors, changed symmetrically (full, iso and both independent models alike)
 SYM_FLAGS = ("--lambda_ptv",)
-SYM_TASKS = ("t1t2",)
+SYM_TASKS = ("t1t2", "t1t2tb")
+# stage 3 (t1t2tb only): any setting every MC-GS configuration has, changed the same way in all of them. Keys of
+# one contrast only are translated for that contrast's independent model and dropped for the other one.
+SYM3_FLAGS = ("--lambda_ptv", "--lambda_geo", "--tv_eps", "--edge_tv_kappa_q", "--edge_tv_wfloor", "--kspace_high",
+              "--kspace_high_plain", "--kspace_center", "--kspace_mid", "--max_radius")
+SYM3_SETS = ("loss.lambda_wav", "loss.lambda_wav_plain", "gaussian.initial_num_points", "gaussian.position_lr",
+             "gaussian.scale_lr", "gaussian.rotation_lr", "gaussian.density_lr", "gaussian.init_scale")
 log = lambda *a: print(*a, flush=True)
 
 
@@ -97,6 +110,7 @@ ap.add_argument("--ref_p", default=None)
 ap.add_argument("--ref_c", default=None)
 ap.add_argument("--volumes", action="store_true")
 ap.add_argument("--smoke", action="store_true")
+ap.add_argument("--dry", action="store_true", help="build and check the command only (CPU), train nothing")
 args = ap.parse_args()
 assert re.fullmatch(r"[a-z0-9_]+", args.name), "--name: lower-case letters, digits, underscore"
 root = OUT / "smoke" if args.smoke else OUT
@@ -118,14 +132,43 @@ def parse_overrides(text):
 
 
 def parse_sym(text):
-    """Split --sym and refuse anything that is not a stage-2 within-contrast prior of a stage-2 task."""
+    """Split --sym and refuse anything that is not a symmetric setting allowed for this task."""
     tok = shlex.split(text)
     assert len(tok) % 2 == 0, f"symmetric overrides must be flag/value pairs: {tok}"
-    assert not tok or args.task in SYM_TASKS, f"stage 2 is confirmed for {SYM_TASKS} only"
+    assert not tok or args.task in SYM_TASKS, f"symmetric changes are confirmed for {SYM_TASKS} only"
     for flag, val in zip(tok[0::2], tok[1::2]):
+        if args.task == "t1t2tb":
+            if flag == "--set":
+                assert "=" in val and val.split("=", 1)[0] in SYM3_SETS, f"stage 3 does not tune {val}; allowed: {SYM3_SETS}"
+                float(val.split("=", 1)[1])
+            else:
+                assert flag in SYM3_FLAGS, f"stage 3 does not tune {flag}; allowed: {SYM3_FLAGS}"
+                assert float(val) > 0, f"{flag} {val}: a symmetric setting is changed, not switched off"
+            continue
         assert flag in SYM_FLAGS, f"stage 2 does not tune {flag}; allowed: {SYM_FLAGS}"
         assert float(val) > 0, f"{flag} {val}: a symmetric prior is switched on, not off"
     return tok
+
+
+def sym_for(tok, kind):
+    """The symmetric settings as one configuration receives them. An independent model gets the keys of its own
+    contrast as its single-channel keys and never the other contrast's keys; the no-prior row gets every setting and
+    then the no-prior overrides again, so its priors stay at zero."""
+    if not kind.startswith("nojoint"):
+        return list(tok) + (list(C["NOPRIOR"]) if kind == "noprior" and tok else [])
+    plain = kind == "nojoint_p"
+    out = []
+    for flag, val in zip(tok[0::2], tok[1::2]):
+        if flag == "--set" and val.split("=", 1)[0] in ("loss.lambda_wav", "loss.lambda_wav_plain"):
+            if (val.startswith("loss.lambda_wav_plain=")) == plain:          # this contrast's own wavelet weight
+                w = val.split("=", 1)[1]
+                out += ["--set", f"loss.lambda_wav={w}", "--set", f"loss.lambda_wav_plain={w}"]
+        elif flag == "--kspace_high_plain":
+            if plain:
+                out += ["--kspace_high", val]
+        else:
+            out += [flag, val]
+    return out
 
 
 def last_value(argv, flag):
@@ -161,7 +204,21 @@ def names(task):
 
 def registered(task, kind):
     pn, cn = names(task)
+    if kind in TASKS[task].get("reg", {}):
+        return TASKS[task]["reg"][kind]
     return f"fw_{task}_{kind}".replace("nojoint_p", f"nojoint_{pn}").replace("nojoint_c", f"nojoint_{cn}")
+
+
+def drop_sets(argv, prefixes):
+    """argv without the "--set key=value" pairs whose value starts with one of the prefixes."""
+    out, i = [], 0
+    while i < len(argv):
+        if argv[i] == "--set" and i + 1 < len(argv) and argv[i + 1].startswith(tuple(prefixes)):
+            i += 2
+            continue
+        out.append(argv[i])
+        i += 1
+    return out
 
 
 def base_args(task, kind):
@@ -209,15 +266,19 @@ def metrics(block):
 ov = parse_overrides(args.ov)
 assert not (ov and args.kind.startswith("nojoint")), "an independent model has no coupling parameter"
 sym = parse_sym(args.sym)
-sym_applied = [] if args.kind == "noprior" else sym               # the no-prior row has every such prior at zero
-if sym and args.kind == "full" and not args.smoke:
+if args.task == "t1t2tb":
+    sym_applied = sym_for(sym, args.kind)
+else:
+    sym_applied = [] if args.kind == "noprior" else sym           # the no-prior row has every such prior at zero
+if sym and args.kind == "full" and not args.smoke and args.task == "t1t2":
     assert args.ref_p and args.ref_c, "a full run with --sym needs --ref_p / --ref_c (independents with the same --sym)"
 vis = os.environ.get("CUDA_VISIBLE_DEVICES", "")
-assert vis.isdigit(), f"needs exactly one GPU from gpu.py --gpu, got CUDA_VISIBLE_DEVICES={vis!r}"
+assert args.dry or vis.isdigit(), f"needs exactly one GPU from gpu.py --gpu, got CUDA_VISIBLE_DEVICES={vis!r}"
 n = verify_trainer()
 base = base_args(args.task, args.kind)
 reg = load(registered(args.task, args.kind))
-assert strip(reg["argv"]) == base, f"not the registered command of {registered(args.task, args.kind)}:\n{strip(reg['argv'])}\n{base}"
+reg_argv = drop_sets(strip(reg["argv"]), TASKS[args.task].get("reg_drop", {}).get(args.kind, ()))
+assert reg_argv == base, f"not the registered command of {registered(args.task, args.kind)}:\n{reg_argv}\n{base}"
 cyc = [a for a in base if a != "--save_volumes" or args.volumes] + sym_applied + ov
 if args.seed != 42:
     cyc += ["--set", f"training.seed={args.seed}"]
@@ -227,6 +288,11 @@ if args.kind == "iso":
     cmd = [sys.executable, "-u", str(ABL), "--child", "iso", "--", *head, *cyc]
 else:
     cmd = [sys.executable, "-u", "arc/cycle.py", *head, *cyc]
+if args.dry:
+    assert not (TUNE / "claims" / exp).exists() and not (RES / f"{exp}.log").exists(), f"{exp} is taken"
+    log(f"DRY {exp}: registered base {registered(args.task, args.kind)} matches; symmetric {sym_applied or 'none'}; "
+        f"overrides {ov or 'none'}\n{' '.join(cmd)}")
+    sys.exit(0)
 (TUNE / "claims").mkdir(parents=True, exist_ok=True)
 (TUNE / "claims" / exp).mkdir()                                   # an existing name stops here
 outs = [RES / f"{exp}.log", RES / f"{exp}_score.json", RES / exp, RES / f"{exp}_volumes.npz"]
@@ -242,13 +308,16 @@ with open(outs[0], "w") as lf:
     rc = subprocess.run(cmd, cwd=TR, env=env, stdout=lf, stderr=subprocess.STDOUT).returncode
 text = open(outs[0]).read()
 entry = dict(task=args.task, name=args.name, exp=exp, kind=args.kind, seed=args.seed, smoke=args.smoke,
-             stage=2 if sym else 1, hypothesis=args.hyp, sym=sym_applied, overrides=ov, gpu=vis, rc=rc,
+             stage=3 if args.task == "t1t2tb" else (2 if sym else 1), hypothesis=args.hyp, sym=sym_applied,
+             sym_spec=sym, overrides=ov, gpu=vis, rc=rc,
              job=os.environ.get("MCGS_JOB_ID"), ok=False)
 ok = rc == 0 and outs[1].exists() and (args.kind != "iso" or "[iso] verified" in text)
 if ok:
     s = json.load(open(outs[1]))
     pn, cn = names(args.task)
-    checks = dict(npts_as_registered=s["npts"] == reg["npts"], beat_zf=bool(s["both_beat"]),
+    n_want = int(float([a.split("=", 1)[1] for a in sym_applied if a.startswith("gaussian.initial_num_points=")][-1])) \
+        if any(a.startswith("gaussian.initial_num_points=") for a in sym_applied) else reg["npts"]
+    checks = dict(npts_as_registered=s["npts"] == n_want, beat_zf=bool(s["both_beat"]),
                   argv_as_sent=strip(s["argv"]) == cyc)
     if any(a.startswith("loss.edge_tv_guide_alpha=") and float(a.split("=")[1]) > 0 for a in ov) and args.kind != "noprior":
         checks["edge_guide_on"] = "[edge_tv] cross-contrast guide alpha=" in text
@@ -260,8 +329,8 @@ if ok:
     if s["contrast"]:                                              # a joint model: margins against the independents
         rp, rc_ = args.ref_p or registered(args.task, "nojoint_p"), args.ref_c or registered(args.task, "nojoint_c")
         ip, ic = load(rp)["plain"], load(rc_)["plain"]
-        for ref in (rp, rc_):                                      # comparators carry the same symmetric prior
-            for flag in SYM_FLAGS:
+        for ref in ((rp, rc_) if args.task != "t1t2tb" else ()):  # stage 2: comparators carry the same prior
+            for flag in ("--lambda_ptv",):
                 same = last_value(strip(load(ref)["argv"]), flag) == last_value(cyc, flag)
                 checks[f"ref_same_{flag.lstrip('-')}"] = checks.get(f"ref_same_{flag.lstrip('-')}", True) and (
                     same or args.kind == "noprior")
