@@ -36,7 +36,6 @@ import os
 import shutil
 import subprocess
 import sys
-import time
 from pathlib import Path
 
 SRC = Path("/data0/congcong/code/GS/mcgs_sg2x2_wt")
@@ -59,16 +58,27 @@ V32 = ["--iters", "4000", "--lambda_geo", "0.07", "--warmup", "500", "--max_radi
        "--set", "gaussian.init_mode=head", "--set", "gaussian.init_scale_mode=3nn",
        "--set", "loss.edge_tv_kappa_source=zf", "--set", "gaussian.initial_num_points=2400000",
        "--set", "loss.lambda_wav=0.05", "--set", "loss.lambda_wav_plain=0.06"]
+# V32 + the cross-contrast edge-TV guide: the stage-one keeper of ablation_coupling_tune_20261111 (tuned on huangyuwei,
+# frozen). The guide is a joint-only parameter (SingleContrastTrainer refuses it), so the nojoint rows drop it.
+V32G = [*V32, "--set", "loss.edge_tv_guide_alpha=0.5"]
+JOINT_ONLY = ("loss.edge_tv_guide_alpha=", "loss.ptv_guide_alpha=")
+TB = Path("/data0/congcong/code/GS/Results_20260908/T1T2_AF12_v4_tangbing")
 TASKS = {
     "ce": dict(cfg=SEPT / "configs/ce_retro_af16.yaml", recipe=P3, label="pre/post contrast, AF16"),
     "t1flair": dict(cfg=SRC / "configs/sg2x2/af16_jyz_joint.yaml", recipe=P3, label="T1+FLAIR, AF16"),
     "t1t2": dict(cfg=SRC / "configs/t1t2_af12_hyw.yaml", recipe=V32, label="T1+T2, AF12"),
+    # user 2026-11-13: a T1W/T2W pair without a voxel offset -> vol4_tangbing, T2 rolled by one voxel (A-P) when
+    # the data set was built (autoresearch/t1t2_aligned_subject_20261113/prep_tangbing.py). Recipes frozen.
+    "t1t2tb": dict(cfg=TB / "configs/t1t2_af12_tangbing.yaml", recipe=V32G,
+                   label="T1+T2, AF12, tangbing (V32 + edge-TV guide 0.5)"),
+    "t1t2tbv32": dict(cfg=TB / "configs/t1t2_af12_tangbing.yaml", recipe=V32, kinds=("full",),
+                      label="T1+T2, AF12, tangbing (V32 reference; full row only)"),
 }
 NOPRIOR = ["--lambda_geo", "0", "--lambda_ptv", "0", "--set", "loss.edge_tv=false",
            "--set", "loss.lambda_wav=0", "--set", "loss.lambda_wav_plain=0"]
 CROSS_OFF = ["--lambda_edge", "0", "--lambda_dtv", "0", "--lambda_vtv", "0"]
 KINDS = ("full", "iso", "nojoint_p", "nojoint_c", "noprior")
-ALL_ROWS = [f"{t}:{k}" for t in TASKS for k in KINDS]
+ALL_ROWS = [f"{t}:{k}" for t, v in TASKS.items() for k in v.get("kinds", KINDS)]
 KEYS = ("head_psnr", "head_ssim", "head_hfen", "nmse")
 log = lambda *a: print(*a, flush=True)
 
@@ -214,6 +224,8 @@ def row_cmd(row, gpu):
     slot = "plain" if kind == "nojoint_p" else "contrast"
     w = wav(recipe, "lambda_wav_plain" if slot == "plain" else "lambda_wav")    # this contrast's own weight
     assert w is not None
+    drop = {i for i, a in enumerate(recipe) if a.startswith(JOINT_ONLY)}           # joint-only "--set k=v" pairs
+    recipe = [a for i, a in enumerate(recipe) if i not in drop and i + 1 not in drop]
     return exp, [*cyc, *head, *recipe, "--base_cfg", str(single_cfg(task, slot)), *vol, "--trainer", "single",
                  *CROSS_OFF, "--set", f"loss.lambda_wav={w}", "--set", f"loss.lambda_wav_plain={w}"]
 
@@ -248,10 +260,13 @@ def table():
                 ("w/o joint modelling", (sp and sc) and (sp["plain"], sc["plain"]), None),
                 ("w/o intra-contrast priors", s["noprior"] and (s["noprior"]["plain"], s["noprior"]["contrast"]), s["noprior"])]
         lines += [f"\n### {task}: {t['label']} ({pn} / {cn})\n",
-                  f"| configuration | {pn} PSNR | d | SSIM | HFEN | NMSE | {cn} PSNR | d | SSIM | HFEN | NMSE | Gaussians | min | GB |",
-                  "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+                  f"| configuration | {pn} PSNR | d | SSIM | HFEN | NMSE | {cn} PSNR | d | SSIM | HFEN | NMSE | Gaussians | GB |",
+                  "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
         ref = rows[0][1]
-        for name, pc, meta in rows:
+        kinds = t.get("kinds", KINDS)
+        for (name, pc, meta), kind in zip(rows, ("full", "iso", "nojoint_p", "noprior")):
+            if kind not in kinds:
+                continue
             if not pc:
                 lines.append(f"| {name} | (not finished) |")
                 continue
@@ -260,11 +275,10 @@ def table():
                 d = f"{pc[i]['head_psnr'] - ref[i]['head_psnr']:+.3f}" if ref and name != "Full MC-GS" else ""
                 cells += [f"{pc[i]['head_psnr']:.3f}", d, f"{pc[i]['head_ssim']:.4f}", f"{pc[i]['head_hfen']:.4f}",
                           f"{pc[i]['nmse']:.5f}"]
-            if meta:
-                res = [f"{meta['npts'] / 1e6:.1f}M", f"{meta['elapsed_s'] / 60:.0f}", f"{meta['vram_gb']:.1f}"]
+            if meta:            # no run-time column: durations are measured on the local machine (time rule)
+                res = [f"{meta['npts'] / 1e6:.1f}M", f"{meta['vram_gb']:.1f}"]
             else:
-                res = [f"2 x {sp['npts'] / 1e6:.1f}M", f"{(sp['elapsed_s'] + sc['elapsed_s']) / 60:.0f}",
-                       f"{max(sp['vram_gb'], sc['vram_gb']):.1f}"]
+                res = [f"2 x {sp['npts'] / 1e6:.1f}M", f"{max(sp['vram_gb'], sc['vram_gb']):.1f}"]
             lines.append("| " + " | ".join([name, *cells, *res]) + " |")
     text = "\n".join(lines)
     log(text)
@@ -299,12 +313,10 @@ for row in args.rows:
     outs = [RES / f"{exp}.log", RES / f"{exp}_score.json", RES / exp, RES / f"{exp}_volumes.npz"]
     assert not any(p.exists() for p in outs), f"refusing to overwrite outputs of {exp}"
     env = dict(os.environ, PYTHONNOUSERSITE="1", PYTHONPATH="", CUDA_DEVICE_ORDER="PCI_BUS_ID")
-    log(f"\n===== {time.strftime('%F %T')} {exp}\n{' '.join(cmd)}")
-    t0 = time.time()
+    log(f"\n===== {exp}\n{' '.join(cmd)}")             # no server clock or durations in logs (time rule)
     with open(outs[0], "w") as lf:
         rc = subprocess.run(cmd, cwd=TR, env=env, stdout=lf, stderr=subprocess.STDOUT).returncode
-    dt = time.time() - t0
-    run = dict(row=row, exp=exp, cmd=cmd, rc=rc, seconds=dt)
+    run = dict(row=row, exp=exp, cmd=cmd, rc=rc)
     text = open(outs[0]).read()
     if rc == 0 and outs[1].exists() and ("[iso] verified" in text or ":iso" not in row):
         s = json.load(open(outs[1]))
@@ -312,10 +324,10 @@ for row in args.rows:
                    contrast=s["contrast"] and {k: s["contrast"][k] for k in KEYS})
         shutil.copy2(outs[1], art / outs[1].name)
         c = f" / {s['contrast']['head_psnr']:.3f}" if s["contrast"] else ""
-        log(f"===== {exp} done in {dt:.0f} s: head PSNR {s['plain']['head_psnr']:.3f}{c}, N={s['npts']}, {s['vram_gb']:.1f} GB")
+        log(f"===== {exp} done: head PSNR {s['plain']['head_psnr']:.3f}{c}, N={s['npts']}, {s['vram_gb']:.1f} GB")
     else:
         failed.append(exp)
-        log(f"===== {exp} FAILED rc={rc} after {dt:.0f} s; log tail:\n{''.join(text.splitlines(True)[-20:])}")
+        log(f"===== {exp} FAILED rc={rc}; log tail:\n{''.join(text.splitlines(True)[-20:])}")
     record["runs"].append(run)
     (art / f"record_gpu{vis}{'_smoke' if args.smoke else ''}.json").write_text(json.dumps(record, indent=2))
 log("\n")

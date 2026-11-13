@@ -1,0 +1,91 @@
+# ============================================================================
+# t1t2_af12_tangbing.yaml — 3D T1 + T2, subject vol4_tangbing, retrospective AF=12.
+# Installed as /data0/congcong/code/GS/Results_20260908/T1T2_AF12_v4_tangbing/configs/t1t2_af12_tangbing.yaml
+# (source: mcgs autoresearch/t1t2_aligned_subject_20261113/).
+# ----------------------------------------------------------------------------
+# Why this subject (user 2026-11-13: "a new T1W / T2W pair, no voxel offset"): screen_t1t2.py measured the
+#   T2-vs-T1 offset of all seven MC_Jia subjects. Five are about one voxel off along the readout; tangbing is the
+#   only one aligned on the readout and left-right (<= 0.1 voxel), with an exact one-voxel anterior-posterior
+#   (axis 1) offset. prep_tangbing.py removed that voxel when the data set was built: T2 k-space multiplied by the
+#   linear phase of an integer roll (+1 on axis 1), before any undersampling; measured zeros stay zero; the coil
+#   maps were estimated from the shifted k-space. After the shift every axis is within 0.25 voxel
+#   (logs/prep_tangbing.json). In the paper: "T2 co-registered to T1 by an integer-voxel shift".
+#
+# Everything else is the T1T2_AF12_retro (huangyuwei) configuration unchanged: same grid (256,256,176), 26 coils,
+#   readout_axis 0, phase_axes [1,2], the same AF12 vd-Poisson mask file (byte copy, sha256 in the prep log), the
+#   same house ESPIRiT recipe, presampled false (ground truth from the full k-space with this CSM, then the mask),
+#   known_zero on T2 only (elliptical vendor shutter; T1 support is the full PE plane -- checked in the prep log).
+#   Recipes (V32, V32 + edge-TV guide 0.5) come from abl_framework.py and were tuned on huangyuwei, not here.
+# ============================================================================
+data:
+  plain:
+    name: T1
+    acceleration_factor: 12
+    data_path: /data0/congcong/code/GS/Results_20260908/T1T2_AF12_v4_tangbing/data/ksp_T1.h5
+    csm_path:  /data0/congcong/code/GS/Results_20260908/T1T2_AF12_v4_tangbing/data/csm_espirit_T1.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/T1T2_AF12_v4_tangbing/data/mask_af12_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [1, 2]
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false
+  contrast:
+    name: T2
+    acceleration_factor: 12
+    data_path: /data0/congcong/code/GS/Results_20260908/T1T2_AF12_v4_tangbing/data/ksp_T2.h5
+    csm_path:  /data0/congcong/code/GS/Results_20260908/T1T2_AF12_v4_tangbing/data/csm_espirit_T2.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/T1T2_AF12_v4_tangbing/data/mask_af12_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes: [1, 2]
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false
+    known_zero: true                 # elliptical vendor shutter = measured zeros (T2 only)
+gaussian:
+  density_lr: 0.015
+  init_scale: 0.008
+  initial_num_points: 600000
+  position_lr: 0.0003
+  rotation_lr: 0.0003
+  scale_lr: 0.002
+hardware:
+  device: cuda:0
+loss:
+  loss_type: l2
+  tv_weight: 0.10
+  tv_eps: 0.04
+  kspace_freq_adaptive: true
+  kspace_center_fraction: 0.05
+  kspace_center_weight: 0.3
+  kspace_mid_weight: 1.0
+  kspace_high_weight: 2.2
+  lambda_diff: 0.01                  # ignored by the v2 trainer
+  lambda_enh: 0                      # ignored by the v2 trainer
+  edge_tv: true
+  edge_tv_kappa_q: 0.85
+  edge_tv_wfloor: 0.1
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+output:
+  exp_name: t1t2_af12_tangbing_joint
+  output_dir: results_arc/t1t2_af12_tangbing_joint
+training:
+  max_iterations: 4000
+  shared_warmup_iters: 500
+  eval_every: 1000
+  log_every: 50
+  save_every: 1000
+  seed: 42
+  max_grad_norm: 1.0
+  lr_scheduler:
+    type: exponential
+    gamma: 0.9995
+voxelizer:
+  max_radius: 20
+  tile_size: 8

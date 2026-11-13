@@ -1,0 +1,63 @@
+{
+  "source": "/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol4_tangbing",
+  "files": {
+    "T1": "t1_fsp_train_tangbing_cc",
+    "T2": "t2_train_tangbing_cc"
+  },
+  "shift": {
+    "T2": [
+      1,
+      1
+    ]
+  },
+  "contrasts": {
+    "T1": {
+      "dims": [
+        256,
+        256,
+        176,
+        26
+      ],
+      "support_frac": 1.0,
+      "sampled_frac_of_plane": 0.08538263494318182,
+      "AF_vs_full_rect": 11.711983363659995,
+      "AF_vs_own_support": 11.711983363659995,
+      "csm_sos_within_5pct_of_1": 1.0
+    },
+    "T2": {
+      "wrapped_rows_energy_frac": 0.00043652543833179165,
+      "roll_check_max_rel_err": 6.778159626553653e-09,
+      "dims": [
+        256,
+        256,
+        176,
+        26
+      ],
+      "support_frac": 0.7771218039772727,
+      "sampled_frac_of_plane": 0.07859108664772728,
+      "AF_vs_full_rect": 12.72408924032759,
+      "AF_vs_own_support": 9.888167184411182,
+      "csm_sos_within_5pct_of_1": 1.0
+    }
+  },
+  "offset_after_shift_T1_T2": {
+    "ax0": {
+      "nmi": -0.0,
+      "ngf": 0.1
+    },
+    "ax1": {
+      "nmi": -0.0,
+      "ngf": 0.05
+    },
+    "ax2": {
+      "nmi": 0.05,
+      "ngf": 0.1
+    }
+  },
+  "sha256_mask_af12_3d.h5": "68dfdf86aaff0ad8de530c0b02afbbfe5d57b013d85ad91115f5865eb9f0ba3a",
+  "sha256_mask_vdpois_256x176_af12.mat": "a350a03f5b500c96b9a9b07795f2f3119d97f378ccaecbf93ba3f528db100d0b",
+  "sha256_ksp_T1.h5": "d6e5f0b5809a1dfedc8cf21fddd9fa4de013ae23588565313d7e1f3b81d31d50",
+  "sha256_csm_espirit_T1.h5": "fad81a698fed077ccedceaddab4985c8a0343905c7f4295c3674c251a56017d8",
+  "sha256_ksp_T2.h5": "4857692d252df4ea9c8e12de8349c510a880b58bfced4ede5c8e609420f0f032",
+  "sha256_csm_espirit_T2.h5": "3c278d844d18fd0130dbd8f37b1a9d3b9583212a1a441fa9ef60183d1c19162f"
+}
