@@ -10,6 +10,31 @@ mask and is not re-run (`T1FLAIR_AF16_v3_jiangyizhou`). **Row 3 keeps the Septem
 are not reconstructed and not used. So the study is vd-Poisson (house) / uniform density (new) / pseudo-radial
 (September, `T1FLAIR_AF16_radial_v3_jiangyizhou`).
 
+## Record result (designated by the user, 2026-11-13)
+
+**The record of the different-mask experiments -- the result with the best generalisation across masks -- is
+transverse 205 in the plain-scan / enhanced record format** (user, 2026-11-13, about 00:14 PST). MC-GS is first on
+head-masked slice PSNR, SSIM and NMSE in all six rows (three masks x T1 / FLAIR) against all ten other columns,
+18 of 18 conditions. Full note, table and limits: [`RECORD.md`](RECORD.md); preview:
+
+![record](uniform_recon/preview/t1flair_v3_af16_masks_record_format_tra205_box64.jpg)
+
+| row | MC-GS slice PSNR | lead | box (64 at (128, 88)) PSNR lead |
+|---|---|---|---|
+| vd-Poisson T1 / FLAIR | 35.737 / 33.355 dB | +0.131 / +0.050 dB | +0.274 / +0.186 dB |
+| uniform density T1 / FLAIR | 35.326 / 34.742 dB | +0.730 / +0.163 dB | +1.282 / +0.513 dB |
+| pseudo-radial T1 / FLAIR | 30.528 / 29.553 dB | +0.140 / +0.197 dB | +0.729 / +0.650 dB |
+
+- Found by scoring every transverse slice (`fig_masks_record_format.py --scan 0 255`, 243 slices): only 203, 204,
+  205, 206 and 213 pass all 18 conditions (PSNR alone: 60 slices). 205 is the house FLAIR slice of the September
+  figures. The slice is selected on these data; the volume-level margins below remain the study's main numbers.
+- 600-dpi PNG / PDF with MANIFEST and `RECORD.md`: GPU server
+  `/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_masks_record_tra205_20261112/`.
+- The same format at the butterfly slice (transverse 168; MC-GS first on all three metrics in the vd-Poisson and
+  uniform rows, but ZS-SSDU has the better slice PSNR / NMSE on both pseudo-radial rows):
+  `.../codex_artifacts/mcgs_diffmask_masks_record_20261112/` (600 dpi), preview
+  `uniform_recon/preview/t1flair_v3_af16_masks_record_format_tra168_box64.jpg`.
+
 ## Why
 
 The September diff-mask study (server worktree `/data0/congcong/code/GS/mcgs_diffmask_wt`, topics
@@ -202,7 +227,12 @@ those two names used to hold are kept beside them as `masks_{T1,FLAIR}_af16_sept
 | `uniform_recon/compare_masks_head_{psnr,ssim,hfen}.md` | every arm on the three patterns with the new row 2 |
 | `uniform_recon/TOPIC_README.md` | the README installed in the server topic |
 | `butterfly_probe.py`, `uniform_recon/butterfly_probe.json` | ground-truth slices with (J, K) grid lines and the ventricles' bounding boxes, used to place the butterfly box |
-| `uniform_recon/preview/*.jpg` | reduced copies of the three-pattern figures (seven-method cut) and of the topic's three-plane figures |
+| `RECORD.md` | the user's record designation (2026-11-13): transverse 205, MC-GS first on 18 of 18 conditions; installed next to the 600-dpi figure on the server |
+| `fig_masks_record_format.py` | the three masks x T1 / FLAIR at one transverse slice in the plain-scan / enhanced record format; `--scan LO HI` scores every slice; `--png_dpi 600 --pdf --out_dir` writes a high-resolution copy with MANIFEST.json |
+| `mark_record.py` | writes `RECORD.md` into the server record folder (after re-hashing its MANIFEST) and installs the topic README |
+| `uniform_recon/record_t1flair_v3_af16_masks_record_format_tra{205,168}_box64.json` | every panel's numbers of the two record-format figures, with each volume's SHA-256 |
+| `uniform_recon/record_t1flair_v3_af16_masks_record_format_tra168_box64_scanall.json` | the all-slice scan (243 transverse slices, MC-GS's lead per row and metric) |
+| `uniform_recon/preview/*.jpg` | reduced copies of the three-pattern figures (seven-method cut, butterfly, record format) and of the topic's three-plane figures |
 | `preview/masks_af16_redo_preview.png` | the figure the user approved |
 | `preview/masks_af16_redo_preview.json` | every number quoted above, with md5 sums |
 | `preview/mask2_vdpoismex_pp0_draws.txt` | all 43 draws of row 2 with their point counts |

@@ -123,6 +123,8 @@ each plane in bold; error maps are `|recon - GT| / max(GT)`, jet, fixed [0, 0.1]
 | `t1flair_v3_af16_masks_stack_FLAIR_tra205_inset32_headerr_p3_caps_nongsmax_sel7.png` (+ `.pdf`) | the same for FLAIR, transverse 205, 32x32 box at (148, 146) |
 | `t1flair_v3_af16_masks_stack_{T1_tra126,FLAIR_tra205}_inset32_headerr_p3_zf_caps_nongsmax.png` (+ `.pdf`) | the same two figures with all twelve columns |
 | `t1flair_v3_af16_masks_stack_{T1,FLAIR}_tra168_zoomrows64_headerr_p3_zf_caps_butterfly.png` | **the butterfly slice** (user request, 2026-11-12): transverse 168, the whole slice, all twelve columns (GT, ZF, the nine comparison methods, MC-GS), three patterns, with the 64 x 64 box on the lateral ventricles at (128, 88) magnified under every image row and error row |
+| `t1flair_v3_af16_masks_record_format_tra205_box64.png` (+ `record_*.json`) | **THE RECORD of the different-mask experiments** (user, 2026-11-13): transverse 205 in the plain-scan / enhanced record format, three masks x T1 / FLAIR in one figure, zoom rows, single bars; MC-GS first on PSNR, SSIM and NMSE in all six rows (18 of 18). 600-dpi PNG / PDF and `RECORD.md` in `/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_masks_record_tra205_20261112/` |
+| `t1flair_v3_af16_masks_record_format_tra168_box64.png` (+ `record_*.json`) | the same format at the butterfly slice 168 (600 dpi in `.../codex_artifacts/mcgs_diffmask_masks_record_20261112/`) |
 
 `finalize_diffmask.sh`'s own figure step stops because it asks for the retired L1-ESPIRiT column (it did in September
 too); the three-plane figures were drawn with `--l1_arm spirit --with_mcinr --with_zf`, the September layout.
@@ -152,6 +154,12 @@ with the Gaussian row). With the new row 2 they were only checked (`scripts/eval
   that as it is (bold = best of the row).
 - The seven-method cut drops L1-SPIRiT, which is the strongest non-Gaussian arm on T1 on this mask (32.73 dB); it
   is in the twelve-column figures and in every table.
+- **Record slice (user designation, 2026-11-13).** Scoring every transverse slice with more than 2000 head pixels
+  (243 slices; `fig_masks_record_format.py --scan 0 255`), MC-GS is first on slice PSNR, SSIM and NMSE in all six
+  rows on only five slices: 203, 204, 205, 206, 213 (on PSNR alone on 60; the count of 44 of 178 above used the
+  September script's eligibility rule). Transverse 205 is the record: leads PSNR +0.131 / +0.050 (vd-Poisson T1 /
+  FLAIR), +0.730 / +0.163 (uniform density), +0.140 / +0.197 dB (pseudo-radial); smallest SSIM lead +0.0019. A
+  slice chosen on these data; quote it as the figure, and the whole-volume margins as the result.
 
 ## Known limitations
 
@@ -190,4 +198,6 @@ start runs ninja on the CUDA voxelizer of the September worktree; the driver put
 2026-11-12: complete. Twelve arms x two contrasts reconstructed and scored (65 jobs on one GPU, 2026-11-11 22:49 to
 2026-11-12 11:58 PST, no failure; queue log `logs/run_uniform.log`), registered, summarised and figured; the
 study-level table and three-pattern figures are redrawn with this topic as row 2. 2026-11-12 20:48 PST, user: the
-replaced row is the September Gaussian one, and row 3 keeps the September pseudo-radial result. Nothing is open.
+replaced row is the September Gaussian one, and row 3 keeps the September pseudo-radial result. 2026-11-13, user:
+the transverse-205 record-format figure (`figures/t1flair_v3_af16_masks_record_format_tra205_box64.png`) is the
+record of the different-mask experiments. Nothing is open.
