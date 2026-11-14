@@ -11,12 +11,15 @@ Rules it implements (project CLAUDE.md, GPU use):
   - all times are this Mac's clock: start = when the launch was issued, end = when a poll here saw the job finished.
     Nothing about time is read from the server; a finished job contributes its ledger row (no clock fields) only.
 
-State: .claude/gpu/queue_state.json (running jobs, so a restarted queue re-attaches instead of launching twice).
+State: .claude/gpu/queue_state_<name>.json per queue (running jobs, so a restarted queue re-attaches instead of
+launching twice) and .claude/gpu/claims.json shared by all queues (card -> experiment, under a file lock), because a
+card still looks empty for a minute after a launch.
 Results: experiments.jsonl (one line per finished training: ledger row + local_start_pst, local_end_pst, job, gpu,
 code_sha256). A job id embeds the server's clock, so only its random suffix (job) is printed or recorded; the full id
 stays in the local state file. The training code is hashed when the queue starts and before every launch; a change stops the queue.
 """
 import argparse
+import fcntl
 import hashlib
 import importlib.util
 import json
@@ -31,7 +34,8 @@ WORKTREE = HERE.parents[3]
 WORKSPACE = WORKTREE.parents[3]
 REL = "autoresearch/motion_adapter_sim_20261113"
 ROOT = "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_motion_adapter_20261113"
-STATE = WORKTREE / ".claude/gpu/queue_state.json"
+CLAIMS = WORKTREE / ".claude/gpu/claims.json"
+AVOID = WORKTREE / ".claude/gpu/avoid.json"      # [card, ...] promised to another session; re-read at every check
 RESULTS = E / "experiments.jsonl"
 CODE = ("adapter.py", "common.py", "geom.py", "patch.py", "run.py", "schedule.py", "warp.py")
 SSH = ["ssh", "-p", "2222", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=yes", "-o", "ConnectTimeout=25", "alias"]
@@ -48,6 +52,21 @@ spec.loader.exec_module(gpu)
 
 def tag(job_id):
     return job_id.rsplit("-", 1)[-1]
+
+
+def claim(card, exp):
+    """exp=None releases the card. Returns False if another queue holds it."""
+    with open(str(CLAIMS) + ".lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        c = json.loads(CLAIMS.read_text()) if CLAIMS.exists() else {}
+        if exp is None:
+            c.pop(str(card), None)
+        elif str(card) in c:
+            return False
+        else:
+            c[str(card)] = exp
+        CLAIMS.write_text(json.dumps(c))
+        return True
 
 
 def now():
@@ -83,8 +102,8 @@ def free_cards():
 
 def job_state(client, job_id):
     """(state, exit_code) of a job; only these two fields of the job record are read."""
-    r = client.rpc("logs", job_id=job_id, offset=1 << 60)
-    return r["job"]["state"], r["job"].get("exit_code")
+    j = client.rpc("job", job_id=job_id)
+    return j["state"], j.get("exit_code")
 
 
 def ledger_row(exp):
@@ -108,6 +127,7 @@ def main():
     ap.add_argument("--tag", default="", help="development round (run.py --tag)")
     ap.add_argument("--max-cards", type=int, default=8)
     ap.add_argument("--poll", type=int, default=75)
+    ap.add_argument("--name", help="queue name (state file); default: tag, part or 'main'")
     args = ap.parse_args()
     rows = [tuple(r.split(":")) for r in args.rows]
     if args.part:
@@ -117,6 +137,7 @@ def main():
         af = "af16" if args.part == "af16" else "af12"
         rows += [(af, c, a) for c, a in common.MATRIX[args.part]]
     assert rows, "no rows"
+    STATE = WORKTREE / f".claude/gpu/queue_state_{args.name or args.tag or args.part or 'main'}.json"
     client = gpu.Client(WORKTREE / ".claude/gpu/config.json")
     assert client.repo == WORKTREE
     sha0 = code_sha(args.settings)
@@ -154,10 +175,12 @@ def main():
                 p, c = row.get("plain") or {}, row.get("contrast") or {}
                 say(f"DONE {exp} gpu {j['gpu']} plain head_psnr={p.get('head_psnr')} "
                     f"contrast head_psnr={c.get('head_psnr')}")
+            claim(j["gpu"], None)
             del state[exp]
             STATE.write_text(json.dumps(state, indent=1))
         if pending and len(state) < args.max_cards:
             free = free_cards() - {j["gpu"] for j in state.values()}
+            free -= set(json.loads(AVOID.read_text())) if AVOID.exists() else set()
             t = time.time()
             ready = sorted(c for c in free if c in seen and t - seen[c] >= 70)
             seen = {c: seen.get(c, t) for c in free}         # a card that was busy in between starts over
@@ -165,8 +188,11 @@ def main():
                 if not pending or len(state) >= args.max_cards:
                     break
                 assert code_sha(args.settings) == sha0, "training code changed while the queue runs"
-                af, cond, arm = pending.pop(0)
+                af, cond, arm = pending[0]
                 exp = exp_name(af, cond, arm, args.seed, args.tag)
+                if not claim(card, exp):
+                    continue
+                pending.pop(0)
                 argv = ["@python", f"{REL}/run.py", "--af", af, "--cond", cond, "--arm", arm, "--gpu", str(card),
                         "--seed", str(args.seed)] + (["--settings", args.settings] if args.settings else []) \
                     + (["--tag", args.tag] if args.tag else [])
@@ -176,6 +202,7 @@ def main():
                 except Exception as e:
                     say(f"launch of {exp} failed ({type(e).__name__}: {e}); back in the queue")
                     pending.insert(0, (af, cond, arm))
+                    claim(card, None)
                     break
                 state[exp] = dict(job_id=job["id"], gpu=card, local_start=start, code_sha256=sha0)
                 STATE.write_text(json.dumps(state, indent=1))
