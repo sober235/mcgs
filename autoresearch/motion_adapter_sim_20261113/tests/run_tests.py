@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Run pytest on the server and print its output with every measured duration removed (time rule: no server
-clock value or duration leaves the server). Usage: run_tests.py [pytest args]; default = all tests, no GPU tests."""
+clock value or duration leaves the server). Usage: run_tests.py [pytest args]; default = all tests; GPU-marked tests only with --gpu."""
 import pathlib
 import re
 import subprocess
 import sys
 
 here = pathlib.Path(__file__).resolve().parent
-args = sys.argv[1:] or [str(here), "-m", "not gpu"]
+args = sys.argv[1:]
+gpu = "--gpu" in args                                   # run_tests.py --gpu [files]: only the GPU-marked tests
+args = [a for a in args if a != "--gpu"] or [str(here)]
+args += ["-m", "gpu" if gpu else "not gpu", "--tb=short"]
 r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "--color=no", *args],
                    capture_output=True, text=True, cwd=str(here.parent))
 out = r.stdout + r.stderr
