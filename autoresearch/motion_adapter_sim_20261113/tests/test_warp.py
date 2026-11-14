@@ -64,3 +64,51 @@ def test_nonrigid_zero_field_equals_rigid():
     a = warp.nonrigid_then_rigid(v, np.zeros((*v.shape, 3)), g)
     m = np.abs(v) > 0.2 * np.abs(v).max()
     assert np.abs(a - warp.rigid(v, g))[m].max() < 0.005 * np.abs(v).max()
+
+
+def _noisy(shape=(64, 64, 48), seed=3, ball=True):
+    """Like real data: object plus noise up to Nyquist, fading to zero near the array border. ball=True keeps the
+    noise inside the inscribed k-space ball (what a rotation can carry without loss); ball=False is white noise on
+    the whole k-space cube, whose corners leave the cube when the image is rotated."""
+    import scipy.ndimage as ndi
+    rng = np.random.default_rng(seed)
+    noise = rng.normal(size=shape) + 1j * rng.normal(size=shape)
+    if ball:
+        f2 = sum(np.fft.fftfreq(n).reshape([-1 if a == i else 1 for a in range(3)]) ** 2 for i, n in enumerate(shape))
+        noise = np.fft.ifftn(np.fft.fftn(noise) * (f2 < 0.47 ** 2))
+    w = np.zeros(shape)
+    w[10:-10, 10:-10, 10:-10] = 1.0
+    return (phantom(shape) + 0.05 * noise) * ndi.gaussian_filter(w, 2.0)
+
+
+def _hf_fraction(v):
+    k = np.fft.fftn(v)
+    f = np.sqrt(sum(np.fft.fftfreq(n).reshape([-1 if a == i else 1 for a in range(3)]) ** 2 for i, n in enumerate(v.shape)))
+    return float((np.abs(k[f > 0.25]) ** 2).sum() / (np.abs(k) ** 2).sum())
+
+
+def test_rigid_roundtrip_is_exact_for_noisy_data():
+    v = _noisy()
+    g = geom.rigid_from_pivot((0.5, 0.5, 1.5), (0.8, -0.5, 0.3), pivot_offset_mm=(15, 5, 0))
+    back = warp.rigid(warp.rigid(v, g), g.inverse())
+    inner = (slice(12, -12),) * 3
+    assert np.sqrt((np.abs(back - v)[inner] ** 2).mean()) < 0.005 * np.sqrt((np.abs(v)[inner] ** 2).mean())
+    assert _hf_fraction(warp.rigid(v, g)) > 0.97 * _hf_fraction(v)        # the noise floor is not smoothed away
+
+
+def test_rigid_roundtrip_loses_only_the_cube_corners_of_white_noise():
+    v, clean = _noisy(ball=False), _noisy(ball=False, seed=3) - _noisy(ball=False, seed=4)
+    g = geom.rigid_from_pivot((0.5, 0.5, 1.5), (0.8, -0.5, 0.3), pivot_offset_mm=(15, 5, 0))
+    back = warp.rigid(warp.rigid(v, g), g.inverse())
+    inner = (slice(14, -14),) * 3
+    noise_rms = np.sqrt((np.abs(clean)[inner] ** 2).mean() / 2)           # rms of one noise realisation
+    assert np.sqrt((np.abs(back - v)[inner] ** 2).mean()) < 0.15 * noise_rms
+
+
+def test_nonrigid_keeps_high_frequencies_of_noisy_data():
+    v = _noisy()
+    brain = ball_mask()
+    u = warp.rbf_field(7, 1.5, brain, 0.8, shape=v.shape, sigma_mm=(8.0, 14.0))
+    g = geom.rigid_from_pivot((0.5, 0.5, 1.5), (0.8, -0.5, 0.3), pivot_offset_mm=(15, 5, 0))
+    out = warp.nonrigid_then_rigid(v, u, g)
+    assert _hf_fraction(out) > 0.97 * _hf_fraction(v)

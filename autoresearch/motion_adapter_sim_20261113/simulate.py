@@ -58,6 +58,14 @@ def _is_identity(g):
     return bool(np.array_equal(g.R, np.eye(3)) and not np.any(g.t))
 
 
+def _hf_fraction(v):
+    """Share of the image energy above half the Nyquist frequency (QC: the warp must not smooth the data)."""
+    k = sfft.fftn(v, workers=16)
+    f2 = sum(np.fft.fftfreq(n).reshape([-1 if a == i else 1 for a in range(3)]) ** 2 for i, n in enumerate(v.shape))
+    e = np.abs(k) ** 2
+    return float(e[f2 > 0.0625].sum() / e.sum())
+
+
 _G = {}                                    # read-only state shared with forked workers
 
 
@@ -119,6 +127,7 @@ def build_custom(src, inter=None, u=None, intra_events=None, lesion_sites=None, 
         ss = (np.abs(S2) ** 2).sum(0)
         e = np.abs(d_ref) ** 2
         qc["delta_energy_fraction_outside_csm_support"] = float(e[ss < 0.5].sum() / max(e.sum(), 1e-30))
+        qc["hf_fraction_moved_over_original"] = _hf_fraction(d_ref + m) / _hf_fraction(m_les)
     truth = dict(convention="T maps a material point r (mm, FOV-centre origin, axes S-I/A-P/L-R) of the canonical "
                             "(T1) frame to its position in the T2W image: r' = R (r + u(r)) + t; image = m o T^-1",
                  inter=g.to_json() if inter is not None else None, pivot_offset_mm=list(PIVOT_OFFSET_MM),
@@ -141,6 +150,7 @@ def build_custom(src, inter=None, u=None, intra_events=None, lesion_sites=None, 
         _G.update(train_of=sch["train_of"])
         jobs = [(k, geom.Rigid.from_json(json.loads(k)).compose(g).to_json(), tr) for k, tr in groups.items()]
         if opts["procs"] > 1 and len(jobs) > 4:
+            _G["opts"] = dict(opts, fft_workers=2)             # the pool already uses the cores
             with multiprocessing.get_context("fork").Pool(opts["procs"]) as pool:
                 it = pool.imap_unordered(_pose_job, jobs)
                 for i, (key, lines) in enumerate(it):

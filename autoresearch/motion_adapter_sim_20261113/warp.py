@@ -8,7 +8,7 @@ import geom
 from common import N
 
 PAD = 16
-ORDER = 5            # quintic B-spline: the lowest blur scipy offers
+ORDER = 5            # quintic B-spline on a 2x oversampled grid (non-rigid part only)
 
 
 def fourier_shift(vol, shift_mm):
@@ -24,26 +24,58 @@ def fourier_shift(vol, shift_mm):
     return np.fft.ifftn(k)
 
 
+def _upsample2(vol):
+    """Exact (Fourier zero-padding) 2x upsampling of a complex volume; sample j of the result sits at j/2."""
+    n = np.asarray(vol.shape)
+    k = np.fft.fftshift(np.fft.fftn(vol))
+    big = np.zeros(tuple(2 * n), dtype=np.complex128)
+    lo = n - n // 2
+    big[lo[0]:lo[0] + n[0], lo[1]:lo[1] + n[1], lo[2]:lo[2] + n[2]] = k
+    return np.fft.ifftn(np.fft.ifftshift(big)) * 8.0
+
+
 def _resample(vol, coords_mm):
-    """vol sampled at positions r (mm, centre origin), given as an array (*shape, 3)."""
+    """vol sampled at positions r (mm, centre origin), given as an array (*shape, 3). The volume is first upsampled
+    2x exactly, so the spline's roll-off falls above the data's own band and the noise floor is kept."""
     shape = vol.shape
     c = (np.asarray(shape) - 1) / 2.0
-    padded = np.pad(vol, PAD)
-    idx = np.moveaxis(coords_mm + c + PAD, -1, 0)
-    out = ndi.map_coordinates(padded.real, idx, order=ORDER, mode="constant", cval=0.0).astype(np.complex128)
+    fine = _upsample2(np.pad(vol, PAD))
+    idx = np.moveaxis(2.0 * (coords_mm + c + PAD), -1, 0)
+    out = ndi.map_coordinates(fine.real, idx, order=ORDER, mode="constant", cval=0.0).astype(np.complex128)
     if np.iscomplexobj(vol):
-        out += 1j * ndi.map_coordinates(padded.imag, idx, order=ORDER, mode="constant", cval=0.0)
+        out += 1j * ndi.map_coordinates(fine.imag, idx, order=ORDER, mode="constant", cval=0.0)
     return out
 
 
+def _shear(v, axis, other, k):
+    """Shift every line along `axis` by k * (x_other - centre): an exact, invertible Fourier shear."""
+    f = np.fft.fftfreq(v.shape[axis]).reshape([-1 if a == axis else 1 for a in range(3)])
+    x = (np.arange(v.shape[other]) - (v.shape[other] - 1) / 2.0).reshape([-1 if a == other else 1 for a in range(3)])
+    return np.fft.ifft(np.fft.fft(v, axis=axis) * np.exp(-2j * np.pi * f * k * x), axis=axis)
+
+
+def _rotate_plane(v, i, j, angle):
+    """Rotate the content by `angle`, axis i towards axis j, as three shears (Paeth): R = Sx Sy Sx."""
+    if angle == 0.0:
+        return v
+    k1, k2 = -np.tan(angle / 2.0), np.sin(angle)
+    return _shear(_shear(_shear(v, i, j, k1), j, i, k2), i, j, k1)
+
+
 def rigid(vol, g):
-    """vol o g^-1. Rotation by spline resampling, translation by an exact Fourier shift."""
+    """vol o g^-1, exactly invertible: the rotation is R = R_axis2 R_axis1 R_axis0, each a three-shear Fourier
+    rotation about the array centre (band-limited interpolation, no smoothing), the translation a Fourier shift."""
+    from scipy.spatial.transform import Rotation
     vol = np.asarray(vol)
-    if np.allclose(g.R, np.eye(3), atol=1e-14):
-        rot = vol.astype(np.complex128)
-    else:
-        rot = _resample(vol, geom.grid_mm(vol.shape) @ g.R)          # rot(r) = vol(R^T r); row-vector form r @ R
-    return fourier_shift(rot, g.t)
+    out = vol.astype(np.complex128)
+    if not np.allclose(g.R, np.eye(3), atol=1e-14):
+        a0, a1, a2 = Rotation.from_matrix(g.R).as_euler("xyz")          # R = R2(a2) R1(a1) R0(a0)
+        out = np.pad(out, PAD)
+        out = _rotate_plane(out, 1, 2, a0)                               # about axis 0: axis 1 -> axis 2
+        out = _rotate_plane(out, 2, 0, a1)                               # about axis 1: axis 2 -> axis 0
+        out = _rotate_plane(out, 0, 1, a2)                               # about axis 2: axis 0 -> axis 1
+        out = out[PAD:-PAD, PAD:-PAD, PAD:-PAD]
+    return fourier_shift(out, g.t)
 
 
 def rbf_field(seed, peak_mm, brain, brain_max_mm, shape=N, sigma_mm=(30.0, 50.0)):
@@ -95,14 +127,16 @@ def _interp_field(u, coords_mm):
 
 
 def nonrigid_then_rigid(vol, u, g, iters=8):
-    """vol o T^-1 for T(r) = g(r + u(r)): invert g exactly, invert r -> r + u(r) by fixed-point iteration, then one
-    spline resampling."""
+    """vol o T^-1 for T(r) = g(r + u(r)): the small non-rigid part by fixed-point inversion and one (oversampled)
+    spline resampling, then the rigid part exactly."""
     vol = np.asarray(vol)
-    s = g.inverse().apply(geom.grid_mm(vol.shape))
-    r = s.copy()
+    if not np.any(u):
+        return rigid(vol, g)
+    s0 = geom.grid_mm(vol.shape)
+    r = s0.copy()
     for _ in range(iters):
-        r = s - _interp_field(u, r)
-    return _resample(vol, r)
+        r = s0 - _interp_field(u, r)
+    return rigid(_resample(vol, r), g)
 
 
 def displacement(u, g, shape=N):
