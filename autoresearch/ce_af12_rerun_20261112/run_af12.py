@@ -28,6 +28,7 @@ One mode per call, through ../gpu-tools/gpu.py:
   --table        (CPU) standings from whatever has finished, next to the September AF16 numbers.
   --finalize     (CPU) summarize.py, the gauge cross-check of the converted arms, then the table.
   --script CMD   (CPU) run one ported topic script, e.g. --script "find_best_slice.py".
+  --extract ARM  (GPU) convert + score finished MC-GS / GS-single runs again (the step after training).
 
 Internal: --gs_chain ARM GPU (train, then convert + score; called by the worker).
 No clock value and no measured duration is printed by this program (the project's time rule).
@@ -302,9 +303,19 @@ def gs_chain(arm, gpu):
             sys.exit(rc or 5)
         s = json.load(open(outs[1]))
         assert strip(s["argv"]) == P3 + ["--save_volumes"] and s["argv"][s["argv"].index("--base_cfg") + 1] == str(T / "configs" / g["cfg"])
-    cmd = [PY, "-u", str(T / "scripts/extract_gs_volumes.py"), "--exp", exp, "--key", g["key"], "--map", g["map"], "--gpu", str(gpu)]
+    sys.exit(extract(arm))
+
+
+def extract(arm):
+    """Convert a finished run to the topic's gauge and score it. extract_gs_volumes.py addresses the card as
+    cuda:<--gpu> without restricting the visible cards itself; here exactly one card is visible (gpu.py --gpu), so
+    the index it must be given is 0. (2026-11-12: the first three runs trained, then failed here with the physical
+    index 7, 'invalid device ordinal'; the trainings were kept and only this step was repeated.)"""
+    assert os.environ.get("CUDA_VISIBLE_DEVICES", "").isdigit(), "needs exactly one card from gpu.py --gpu"
+    g, exp = GS[arm], f"ce_retro_af12_{arm}"
+    cmd = [PY, "-u", str(T / "scripts/extract_gs_volumes.py"), "--exp", exp, "--key", g["key"], "--map", g["map"], "--gpu", "0"]
     log(" ".join(cmd))
-    sys.exit(subprocess.run(cmd, cwd=T, env=ENV).returncode)
+    return subprocess.run(cmd, cwd=T, env=ENV).returncode
 
 
 def build_queue():
@@ -639,6 +650,7 @@ if __name__ == "__main__":
     g.add_argument("--finalize", action="store_true")
     g.add_argument("--script")
     g.add_argument("--gs_chain", nargs=2, metavar=("ARM", "GPU"))
+    g.add_argument("--extract", nargs="+", choices=list(GS), help="(GPU) convert + score finished MC-GS / GS-single runs")
     ap.add_argument("--only", default="", help="--worker: comma-separated job-name prefixes (no grid extensions then)")
     ap.add_argument("--after", default="", help="--worker: the first job waits until no process of this user matches this pattern")
     ap.add_argument("--first_settle_s", type=int, default=600, help="with --after: the card must then stay empty this long")
@@ -657,5 +669,9 @@ if __name__ == "__main__":
         finalize()
     elif a.script:
         sys.exit(run_script(a.script))
+    elif a.extract:
+        rcs = {arm: extract(arm) for arm in a.extract}
+        log(f"EXTRACT {rcs}")
+        sys.exit(1 if any(rcs.values()) else 0)
     else:
         gs_chain(a.gs_chain[0], int(a.gs_chain[1]))
