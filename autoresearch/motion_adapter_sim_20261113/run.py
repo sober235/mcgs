@@ -191,7 +191,8 @@ def ledger_row(score, meta):
                 config_sha256=meta["config_sha256"], source_digest=meta["source_digest"],
                 plain=half(score.get("plain")), contrast=half(score.get("contrast")),
                 plain_name=score.get("plain_name"), contrast_name=score.get("contrast_name"),
-                npts=score.get("npts"), vram_gb=score.get("vram_gb"), motion_file=meta["motion_file"])
+                npts=score.get("npts"), vram_gb=score.get("vram_gb"), motion_file=meta["motion_file"],
+                argv=meta.get("argv"))
 
 
 # ------------------------------------------------------------------------------------------- execution
@@ -239,6 +240,7 @@ def run_one(af, cond, arm, gpu, seed, smoke, settings):
     assert rc == 0 and score_file.exists(), f"{exp} failed (exit {rc})"
     row = ledger_row(json.loads(score_file.read_text()),
                      dict(exp=exp, af=af, cond=cond, arm=arm, seed=seed, config_sha256=sha(cfg), source_digest=digest,
+                          argv=cmd[2:],
                           motion_file=str(RES / f"{exp}_motion.json") if mfile else None))
     if not smoke:
         with open(LEDGER, "a") as f:
@@ -256,6 +258,7 @@ def run_one(af, cond, arm, gpu, seed, smoke, settings):
 
 
 def dry_all():
+    ensure_c0_side_files()
     bad = 0
     for part in ("af12_core", "af12_rest", "af16", "dev"):
         af = "af16" if part == "af16" else "af12"
@@ -264,7 +267,6 @@ def dry_all():
             need = [MASKS[af], HYW / "ksp_T1.h5", HYW / "ksp_T2.h5"]
             if cond != "C0":
                 need += [DATA / cond / "ksp_T2.h5", DATA / cond / "manifest.json", DATA / cond / "motion_truth.json"]
-                man = json.loads((DATA / cond / "manifest.json").read_text()) if (DATA / cond / "manifest.json").exists() else None
                 if CONDITIONS[cond]["lesions"]:
                     need.append(DATA / cond / "ksp_T1.h5")
             missing = [str(p) for p in need if not Path(p).exists()]
