@@ -3,6 +3,7 @@
 
     figures.py --af af12 [--pdf] [--only threeplane_E2 threeplane_E4b lesions motion delta]
 
+  fig_<af>_C0_T2_threeplane    GT, A0, A1, A2, A3, I-T2       no simulated motion: the adapters must not change the image
   fig_<af>_E2_T2_threeplane    GT, A0, A2, O, I-T2            three planes, zoom rows, one grey bar, one error bar
   fig_<af>_E4b_T2_threeplane   GT, A0, A3, O, I-T2            (record format of the plain-scan / enhanced figure)
   fig_<af>_E3_lesions          every inserted lesion, a T1 row and a T2 row, GT / A0 / A2 / O / independent
@@ -324,7 +325,8 @@ def main():
     ap.add_argument("--pdf", action="store_true")
     ap.add_argument("--only", nargs="*", default=None)
     args = ap.parse_args()
-    jobs = dict(threeplane_E2=lambda: threeplane(args.af, "E2", ["A0", "A2", "O", "I-T2"], args.pdf),
+    jobs = dict(threeplane_C0=lambda: threeplane(args.af, "C0", ["A0", "A1", "A2", "A3", "I-T2"], args.pdf),
+                threeplane_E2=lambda: threeplane(args.af, "E2", ["A0", "A2", "O", "I-T2"], args.pdf),
                 threeplane_E4b=lambda: threeplane(args.af, "E4b", ["A0", "A3", "O", "I-T2"], args.pdf),
                 lesions=lambda: lesions(args.af, args.pdf), motion=lambda: motion(args.af, args.pdf),
                 delta=lambda: delta(args.af, args.pdf))

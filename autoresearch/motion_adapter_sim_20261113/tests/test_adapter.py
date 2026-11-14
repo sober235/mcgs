@@ -190,7 +190,7 @@ def test_nonrigid_has_zero_mean_and_is_bounded():
 
 def test_set_truth_reproduces_a_simulated_field():
     brain = np.zeros(SHAPE, bool)
-    brain[6:16, 10:22, 8:16] = True
+    brain[-16:-6, 10:22, 8:16] = True                      # superior side; the large displacements sit inferior
     u = warp.rbf_field(7, 1.0, brain, 0.8, shape=SHAPE, sigma_mm=(14.0, 20.0))
     g = geom.rigid_from_pivot((0.5, 0.5, 1.5), (0.8, -0.5, 0.3), pivot_offset_mm=(8, 3, 0))
     ad = MotionAdapter(SHAPE, True, True, 2, 0)

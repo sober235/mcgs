@@ -16,7 +16,24 @@ def test_brain_mask_is_inside_the_head_and_cut_below():
     t1 = wm_phantom()
     brain = lesions.brain_mask(t1, erode=8, cut_below=30)
     assert brain.sum() > 20000 and not brain[t1 < 0.05].any()
-    assert not brain[int(round(ndi.center_of_mass(t1 > 0.1)[0])) + 30:].any()
+    assert not brain[:int(round(ndi.center_of_mass(lesions.head_mask(t1))[0])) - 30].any()
+
+
+def test_brain_mask_keeps_the_superior_part_and_drops_the_neck():
+    """Axis 0 of the data runs inferior -> superior: the neck reaches index 0, the vertex is at the high end."""
+    t1 = wm_phantom(neck=True)
+    brain = lesions.brain_mask(t1, erode=8, cut_below=30)
+    c0 = int(round(ndi.center_of_mass(lesions.head_mask(t1))[0]))
+    assert not brain[:c0 - 30].any()                       # nothing in the neck
+    assert brain[c0 + 25:].sum() > 5000                    # the upper half of the brain is there
+    assert np.argwhere(brain)[:, 0].mean() > c0
+
+
+def test_fourth_site_is_posterior_inferior():
+    t1, brain, sites = _setup()
+    idx = np.argwhere(brain)
+    cen = sites[3]["center_vox"]
+    assert cen[0] <= np.quantile(idx[:, 0], 0.30) and cen[1] >= np.median(idx[:, 1])
 
 
 def test_sites_layout():

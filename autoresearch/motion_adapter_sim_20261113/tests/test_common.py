@@ -33,3 +33,8 @@ def test_matrix_counts_and_names():
     assert c.CONDITIONS["E1b"]["inter"]["t_sim_mm"] == (1.6, -1.0, 0.6)
     assert c.CONDITIONS["E4c"]["inter"] == c.CONDITIONS["E1a"]["inter"]
     assert c.CONDITIONS["E4c"]["intra"] == c.CONDITIONS["E4b"]["intra"]
+
+
+def test_pivot_is_inferior_and_posterior_of_the_fov_centre():
+    """Axis 0 index grows towards the vertex, axis 1 towards posterior: 70 mm inferior = -70 on axis 0."""
+    assert c.PIVOT_OFFSET_MM == (-70.0, 20.0, 0.0)

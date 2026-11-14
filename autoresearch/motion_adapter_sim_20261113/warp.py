@@ -87,7 +87,7 @@ def rbf_field(seed, peak_mm, brain, brain_max_mm, shape=N, sigma_mm=(30.0, 50.0)
     u = np.zeros((*shape, 3))
     for k in range(4):
         if k < 3:
-            cen = np.array([rng.uniform(0.40, 0.85) * half[0], rng.uniform(-0.5, 0.5) * half[1],
+            cen = np.array([-rng.uniform(0.40, 0.85) * half[0], rng.uniform(-0.5, 0.5) * half[1],   # low index = inferior
                             rng.uniform(-0.5, 0.5) * half[2]])
             amp = rng.uniform(0.7, 1.0)
         else:

@@ -22,12 +22,12 @@ def head_mask(v):
 
 
 def brain_mask(mag, erode=12, cut_below=35):
-    """Head mask eroded by `erode` voxels, cut `cut_below` voxels below the head's centre of mass (axis 0 runs
-    superior -> inferior), largest component. Same rule as the alignment probe."""
+    """Head mask eroded by `erode` voxels, cut `cut_below` voxels below the head's centre of mass, largest
+    component. Axis 0 runs inferior -> superior (index 0 = neck), so "below" is the low-index side."""
     head = head_mask(mag)
     b = ndi.binary_erosion(head, iterations=erode)
     c0 = int(round(ndi.center_of_mass(head)[0]))
-    b[c0 + cut_below:] = False
+    b[:max(c0 - cut_below, 0)] = False
     lab, n = ndi.label(b)
     if n > 1:
         b = lab == (np.argmax(np.bincount(lab.ravel())[1:]) + 1)
@@ -48,7 +48,7 @@ def pick_sites(t1_mag, brain, rng_seed=3, min_sep=MIN_SEP):
         ("T2", DIAMETERS_T2[0], GAINS_T2[0], depth >= dq(0.85)),
         ("T2", DIAMETERS_T2[1], GAINS_T2[1], (depth >= dq(0.55)) & (depth <= dq(0.80))),
         ("T2", DIAMETERS_T2[2], GAINS_T2[2], depth <= DIAMETERS_T2[2] / 2 + 7),
-        ("T2", DIAMETERS_T2[3], GAINS_T2[3], (ax0 >= np.quantile(b0, 0.70)) & (ax1 >= np.median(b1))),
+        ("T2", DIAMETERS_T2[3], GAINS_T2[3], (ax0 <= np.quantile(b0, 0.30)) & (ax1 >= np.median(b1))),
         ("T1", T1_DIAMETER, T1_GAIN, depth >= dq(0.40)),
     ]
     sites, centres = [], []

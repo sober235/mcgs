@@ -1,6 +1,6 @@
 """Geometry conventions of the motion study (numpy).
 
-Voxel index i on axes 0/1/2 = S-I / A-P / L-R, 1 mm. FOV centre c = (N-1)/2. Position in mm relative to the centre:
+Voxel index i on axes 0/1/2 = S-I (index 0 inferior) / A-P (index 0 anterior) / L-R, 1 mm. FOV centre c = (N-1)/2. Position in mm relative to the centre:
 r = i - c. The trainer's normalised coordinate is p = r / (N/2).
 
 A transform T sends a material point at r in the canonical (T1) frame to its place in the T2W image,

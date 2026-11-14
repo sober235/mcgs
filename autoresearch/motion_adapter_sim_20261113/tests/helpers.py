@@ -32,13 +32,17 @@ def ball_mask(shape=(64, 64, 48), radius=14.0, offset=(-6.0, 0.0, 0.0)):
     return ((_grid(shape) - c) ** 2).sum(-1) <= radius ** 2
 
 
-def wm_phantom(shape=(112, 112, 88)):
-    """T1-like magnitude: scalp shell, darker rim (grey matter / CSF), bright interior (white matter), with texture."""
+def wm_phantom(shape=(112, 112, 88), neck=False):
+    """T1-like magnitude: scalp shell, darker rim (grey matter / CSF), bright interior (white matter), with texture.
+    neck=True adds a column of tissue from the head down to index 0 of axis 0 (the data's inferior end)."""
     g = _grid(shape)
     c = (np.asarray(shape) - 1) / 2.0
     rad = np.asarray(shape) * np.array([0.44, 0.44, 0.44])
     rho = np.sqrt((((g - c) / rad) ** 2).sum(-1))
     v = np.zeros(shape)
+    if neck:
+        col = np.hypot(g[..., 1] - c[1], g[..., 2] - c[2]) <= 0.2 * shape[1]
+        v[col & (g[..., 0] <= c[0])] = 0.9
     v[rho <= 1.0] = 0.9            # scalp
     v[rho <= 0.93] = 0.15          # skull / CSF gap
     v[rho <= 0.86] = 0.55          # grey matter

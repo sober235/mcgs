@@ -28,9 +28,14 @@ JOINT_ONLY = ("loss.edge_tv_guide_alpha=", "loss.ptv_guide_alpha=")
 CROSS_OFF = ["--lambda_edge", "0", "--lambda_dtv", "0", "--lambda_vtv", "0"]
 
 # ---- geometry and protocol
-N = (256, 256, 176)                       # axis 0 S-I (readout), axis 1 A-P (ky), axis 2 L-R (kz); 1 mm
-PIVOT_OFFSET_MM = (70.0, 20.0, 0.0)       # simulated rotation pivot relative to the FOV centre: 70 inferior, 20 posterior
-NATIVE_SHIFT_MM = (0.59, 0.12, -0.13)     # hyw's own canonical(T1) -> T2 displacement, image-based (NGF) estimate
+# axis 0 = S-I (readout): index 0 is the INFERIOR end (the neck leaves the FOV there), the vertex is near index 229
+# (measured on the topic's T1, 2026-11-14); axis 1 = A-P (ky), index 0 anterior; axis 2 = L-R (kz); 1 mm
+N = (256, 256, 176)
+PIVOT_OFFSET_MM = (-70.0, 20.0, 0.0)      # simulated rotation pivot relative to the FOV centre: 70 inferior, 20 posterior
+# hyw's own canonical(T1) -> T2 displacement, image-based: NGF peak inside the brain mask in the trainer's frame
+# (probe_native.py, 2026-11-14; NMI gives (0.23, 0.10, -0.06)). The T2 anatomy sits about 0.5 mm towards the vertex.
+# The value used before the axis-0 correction was (0.59, 0.12, -0.13), measured on the neck and lower head.
+NATIVE_SHIFT_MM = (0.50, 0.10, -0.14)
 TR_S = 2.5
 ETL = 320
 K_SEG = 8

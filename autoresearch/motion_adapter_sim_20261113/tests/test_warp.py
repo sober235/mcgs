@@ -41,7 +41,7 @@ def test_rbf_field_limits_and_zero_mean():
     assert u.shape == (64, 64, 48, 3)
     assert n.max() == pytest.approx(1.5, rel=0.15) and n[brain].max() <= 0.8 + 1e-6
     assert np.abs(u.reshape(-1, 3).mean(0)).max() < 1e-6
-    assert np.argmax(n.max(axis=(1, 2))) > 64 * 0.55                    # the peak sits in the lower part
+    assert np.argmax(n.max(axis=(1, 2))) < 64 * 0.45                    # the peak sits in the lower part (low index)
     assert not np.array_equal(u, warp.rbf_field(101, 1.5, brain, 0.8, shape=(64, 64, 48), sigma_mm=(8.0, 14.0)))
 
 

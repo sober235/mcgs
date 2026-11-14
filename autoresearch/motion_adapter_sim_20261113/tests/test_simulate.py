@@ -103,3 +103,14 @@ def test_truth_json_has_no_clock_fields():
     text = json.dumps(out["truth"]).lower()
     assert not any(k in text for k in ("utc", "timestamp", "elapsed", "date", "seconds"))
     assert out["truth"]["inter"] is None and len(out["truth"]["train_poses"]) == out["schedule"]["n_trains"]
+
+
+def test_qc_figures_show_the_brain_mask_and_every_lesion_site(tmp_path):
+    src = small_src()
+    out = simulate.build("E3", src, small=True)
+    simulate._qc_png(tmp_path / "qc_E3.png", "E3", out, src)
+    assert (tmp_path / "qc_E3.png").stat().st_size > 20000
+    assert (tmp_path / "qc_E3_lesions.png").stat().st_size > 20000
+    out = simulate.build("E1a", src, small=True)
+    simulate._qc_png(tmp_path / "qc_E1a.png", "E1a", out, src)
+    assert (tmp_path / "qc_E1a.png").exists() and not (tmp_path / "qc_E1a_lesions.png").exists()

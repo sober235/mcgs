@@ -3,6 +3,7 @@ import pytest
 
 import evaluate
 import geom
+from common import NATIVE_SHIFT_MM
 from helpers import ball_mask
 
 SHAPE = (64, 64, 48)
@@ -36,7 +37,7 @@ def test_normalised_delta_t1_is_unnormalised_without_i_t1():
 
 def test_tre_zero_for_exact_estimate_and_differential():
     truth = geom.rigid_from_pivot((0.5, 0.5, 1.5), (0.8, -0.5, 0.3))
-    native = geom.Rigid(np.eye(3), np.array([0.6, 0.1, -0.1]))
+    native = geom.Rigid(np.eye(3), np.asarray(NATIVE_SHIFT_MM) + np.array([0.01, -0.02, 0.03]))
     est = truth.compose(native)
     r = evaluate.rigid_motion_errors(est, truth, c0_est=native, brain=ball_mask())
     assert r["tre_mean_mm_differential"] < 1e-6 and r["rot_err_deg"] < 1e-6

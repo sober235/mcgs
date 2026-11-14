@@ -128,7 +128,7 @@ def build_custom(src, inter=None, u=None, intra_events=None, lesion_sites=None, 
         e = np.abs(d_ref) ** 2
         qc["delta_energy_fraction_outside_csm_support"] = float(e[ss < 0.5].sum() / max(e.sum(), 1e-30))
         qc["hf_fraction_moved_over_original"] = _hf_fraction(d_ref + m) / _hf_fraction(m_les)
-    truth = dict(convention="T maps a material point r (mm, FOV-centre origin, axes S-I/A-P/L-R) of the canonical "
+    truth = dict(convention="T maps a material point r (mm, FOV-centre origin, axis 0 inferior->superior, axis 1 anterior->posterior, axis 2 L-R) of the canonical "
                             "(T1) frame to its position in the T2W image: r' = R (r + u(r)) + t; image = m o T^-1",
                  inter=g.to_json() if inter is not None else None, pivot_offset_mm=list(PIVOT_OFFSET_MM),
                  nonrigid=(meta or {}).get("nonrigid"), intra=intra_events, native_shift_mm=list(NATIVE_SHIFT_MM),
@@ -261,18 +261,42 @@ def _qc_png(path, cond, out, src):
     w = FULL["fft_workers"]
     a = np.abs(combine(src["ksp_T2"], src["csm_T2"], w))
     b = np.abs(combine(out["ksp_T2"], src["csm_T2"], w))
-    c = [n // 2 for n in a.shape]
+    brain = out.get("brain")
+    c = [int(round(x)) for x in np.argwhere(brain).mean(0)] if brain is not None else \
+        [int(a.shape[0] * 0.56), a.shape[1] // 2, a.shape[2] // 2]
     vmax = float(np.quantile(a, 0.999))
     fig, axs = plt.subplots(3, 3, figsize=(12, 11))
     for row, (vol, title, kw) in enumerate(((a, "original T2", dict(cmap="gray", vmin=0, vmax=vmax)),
                                             (b, f"{cond} T2", dict(cmap="gray", vmin=0, vmax=vmax)),
                                             (b - a, "difference", dict(cmap="RdBu_r", vmin=-0.2 * vmax, vmax=0.2 * vmax)))):
-        for col, sl in enumerate((vol[:, :, c[2]], vol[:, c[1], :], vol[c[0], :, :])):
-            axs[row, col].imshow(sl, **kw)
-            axs[row, col].set_title(f"{title}, plane through axis {2 - col} centre", fontsize=9)
+        for col, pick in enumerate((lambda v: v[:, :, c[2]][::-1], lambda v: v[:, c[1], :][::-1], lambda v: v[c[0], :, :])):
+            axs[row, col].imshow(pick(vol), **kw)                        # sagittal and coronal: vertex up
+            if row == 0 and brain is not None:                           # the brain mask of the canonical frame
+                axs[row, col].contour(pick(brain).astype(float), levels=[0.5], colors=["#ffd400"], linewidths=0.7)
+            axs[row, col].set_title(f"{title}, axis {2 - col} index {c[2 - col]}", fontsize=9)
             axs[row, col].axis("off")
     fig.tight_layout()
     fig.savefig(path, dpi=110)
+    plt.close(fig)
+    if "lesion_mask_T2" not in out:
+        return
+    t1a = np.abs(combine(src["ksp_T1"], src["csm_T1"], w))
+    t1b = np.abs(combine(out["ksp_T1"], src["csm_T1"], w))
+    sites, h = out["truth"]["lesion_sites"], 32
+    fig, axs = plt.subplots(len(sites), 4, figsize=(11, 2.75 * len(sites)), facecolor="black")
+    for k, s in enumerate(sites, start=1):
+        cols = ((t1a, out["lesion_mask_canon"], "T1 original"), (t1b, out["lesion_mask_canon"], "T1 simulated"),
+                (a, out["lesion_mask_T2"], "T2 original"), (b, out["lesion_mask_T2"], f"T2 {cond}"))
+        for ax, (vol, lab, name) in zip(axs[k - 1], cols):
+            cen = [int(round(x)) for x in np.argwhere(lab == k).mean(0)]
+            win = (cen[0], slice(max(cen[1] - h, 0), cen[1] + h), slice(max(cen[2] - h, 0), cen[2] + h))
+            ax.imshow(vol[win], cmap="gray", vmin=0, vmax=float(np.quantile(vol, 0.999)))
+            ax.contour((lab[win] == k).astype(float), levels=[0.5], colors=["#ffd400"], linewidths=0.7)
+            ax.set_title(f"L{k} {s['contrast']}-only {s['diameter_mm']:.0f} mm: {name}, axis-0 index {cen[0]}",
+                         color="white", fontsize=7)
+            ax.axis("off")
+    fig.tight_layout()
+    fig.savefig(path.with_name(path.stem + "_lesions.png"), dpi=110, facecolor="black")
     plt.close(fig)
 
 
@@ -324,8 +348,9 @@ def main():
     tmp.rename(out_dir)
     art = os.environ.get("MCGS_ARTIFACT_DIR")
     if art:
-        for f in (f"qc_{args.cond}.png", "qc.json", "motion_truth.json", "manifest.json"):
-            shutil.copy(out_dir / f, Path(art) / (f if f.startswith("qc_") else f"{args.cond}_{f}"))
+        for f in (f"qc_{args.cond}.png", f"qc_{args.cond}_lesions.png", "qc.json", "motion_truth.json", "manifest.json"):
+            if (out_dir / f).exists():
+                shutil.copy(out_dir / f, Path(art) / (f if f.startswith("qc_") else f"{args.cond}_{f}"))
     log(f"[simulate {args.cond}] wrote {sorted(man['files'])}")
     log(json.dumps(out["qc"], indent=1))
 
