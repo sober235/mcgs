@@ -45,7 +45,8 @@ def image_table(ledger):
     """One row per run with the metrics of T1 and T2. Joint runs: plain = T1, contrast = T2; single runs have one."""
     out = []
     for r in ledger:
-        row = dict(af=r["af"], cond=r["cond"], arm=r["arm"], seed=r["seed"], exp=r["exp"], T1=None, T2=None)
+        row = dict(af=r["af"], cond=r["cond"], arm=r["arm"], seed=r["seed"], exp=r["exp"], tag=r.get("tag", ""),
+                   T1=None, T2=None)
         if ARMS[r["arm"]]["trainer"] == "single":
             row["T1" if ARMS[r["arm"]]["slot"] == "plain" else "T2"] = dict(r["plain"])
         else:
@@ -85,9 +86,9 @@ def attach_alt_scores(table):
     return table
 
 
-def _val(table, af, cond, arm, c, key="head_psnr_eval", seed=42):
+def _val(table, af, cond, arm, c, key="head_psnr_eval", seed=42, tag=""):
     for r in table:
-        if (r["af"], r["cond"], r["arm"], r["seed"]) == (af, cond, arm, seed) and r.get(c):
+        if (r["af"], r["cond"], r["arm"], r["seed"], r.get("tag", "")) == (af, cond, arm, seed, tag) and r.get(c):
             return r[c].get(key)
     return None
 
@@ -241,11 +242,12 @@ def motion_errors(exp, cond, c0_exp=None):
     return out
 
 
-def zero_motion_checks(af, table):
+def zero_motion_checks(af, table, tag=""):
     """C0: every adapter arm against A0, the estimated pose against the image-based native shift."""
     out = {}
     for row in table:
-        if row["af"] != af or row["cond"] != "C0" or row["seed"] != 42 or row["arm"] in ("A0", "O"):
+        if (row["af"] != af or row["cond"] != "C0" or row["seed"] != 42 or row["arm"] in ("A0", "O")
+                or row.get("tag", "") != tag):
             continue
         st = _state(row["exp"])
         if st is None:
@@ -254,7 +256,8 @@ def zero_motion_checks(af, table):
         d = dict(dpsnr_T1=None, dpsnr_T2=None, t_minus_native_mm=None, rot_deg=None, nonrigid_brain_max_mm=None,
                  seg_max_deg=None, seg_max_mm=None)
         for c in ("T1", "T2"):
-            a, b = _val(table, af, "C0", row["arm"], c, "head_psnr"), _val(table, af, "C0", "A0", c, "head_psnr")
+            a = _val(table, af, "C0", row["arm"], c, "head_psnr", tag=tag)
+            b = _val(table, af, "C0", "A0", c, "head_psnr")
             if a is not None and b is not None:
                 d[f"dpsnr_{c}"] = float(a - b)
         if st.get("theta_deg") is not None:
@@ -414,16 +417,17 @@ def criteria(summary, af="af12"):
 
 
 # ------------------------------------------------------------------------------------------------ CLI
-def _c0_reference(af, arm, exps):
+def _c0_reference(af, arm, exps, tag=""):
     """The C0 run whose estimate stands for the native offset in the differential error: same arm, else A2, A1."""
+    sfx = f"_{tag}" if tag else ""
     for a in (arm, "A2", "A1"):
-        if exp_name(af, "C0", a) in exps and ARMS[a]["rigid"]:
-            return exp_name(af, "C0", a)
+        if exp_name(af, "C0", a) + sfx in exps and ARMS[a]["rigid"]:
+            return exp_name(af, "C0", a) + sfx
     return None
 
 
 def build_summary():
-    table = attach_alt_scores(image_table(load_ledger()))
+    table = [r for r in attach_alt_scores(image_table(load_ledger())) if not r["tag"]]
     exps = {r["exp"] for r in table}
     summary = {}
     for af in sorted(MASKS):
@@ -446,23 +450,27 @@ def build_summary():
     return summary
 
 
-def dev_report():
+def dev_report(tag):
+    """One development round: motion errors on D1-D3 and the zero-motion check of the round's C0 runs."""
     table = image_table(load_ledger())
     exps = {r["exp"] for r in table}
-    out = dict(zero=zero_motion_checks("af12", table), motion={})
+    out = dict(tag=tag, zero=zero_motion_checks("af12", table, tag), motion={}, images={})
     for r in table:
+        if r["tag"] != tag:
+            continue
+        out["images"][r["exp"]] = {c: r[c]["head_psnr"] for c in ("T1", "T2") if r[c]}
         if r["cond"].startswith("D"):
-            out["motion"][r["exp"]] = motion_errors(r["exp"], r["cond"], _c0_reference("af12", r["arm"], exps))
+            out["motion"][r["exp"]] = motion_errors(r["exp"], r["cond"], _c0_reference("af12", r["arm"], exps, tag))
     return out
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--all", action="store_true")
-    ap.add_argument("--dev", action="store_true")
+    ap.add_argument("--dev", metavar="TAG", help="development round, e.g. r1")
     args = ap.parse_args()
-    assert args.all != args.dev, "choose --all or --dev"
-    res, name = (build_summary(), "summary.json") if args.all else (dev_report(), "dev.json")
+    assert args.all != bool(args.dev), "choose --all or --dev TAG"
+    res, name = (build_summary(), "summary.json") if args.all else (dev_report(args.dev), f"dev_{args.dev}.json")
     out = ROOT / "eval"
     out.mkdir(exist_ok=True)
     tmp = out / f"{name}.tmp{os.getpid()}"

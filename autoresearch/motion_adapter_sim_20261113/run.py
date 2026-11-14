@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Launcher of the motion study (runs on amax, inside a gpu.py job).
 
-    run.py --af af12 --cond E2 --arm A2 --gpu 3 [--seed 42] [--settings settings_frozen.json] [--smoke]
+    run.py --af af12 --cond E2 --arm A2 --gpu 3 [--seed 42] [--settings settings_frozen.json] [--smoke] [--tag r1]
     run.py --dry --all            every row of common.MATRIX: experiment name, command, data files present
     run.py --selftest --gpu 3     30-iteration checks of the patched trainer on real data
 
@@ -136,7 +136,12 @@ def write_config(af, cond, arm):
     return p
 
 
-def motion_config(af, cond, arm, seed, settings, ref_seg=None, smoke=False):
+def run_name(af, cond, arm, seed, smoke=False, tag=""):
+    """tag: a development round (Task 8); its runs keep their own names and never collide with the matrix."""
+    return ("smoke_" if smoke else "") + exp_name(af, cond, arm, seed) + (f"_{tag}" if tag else "")
+
+
+def motion_config(af, cond, arm, seed, settings, ref_seg=None, smoke=False, tag=""):
     a, c = ARMS[arm], CONDITIONS[cond]
     if a["oracle"]:
         rigid, nonrigid, segments = True, bool(c["nonrigid"]), bool(c["intra"])
@@ -153,16 +158,16 @@ def motion_config(af, cond, arm, seed, settings, ref_seg=None, smoke=False):
                 disp_path=str(cdir / "disp_T2.npy") if (c["inter"] or c["nonrigid"]) else None,
                 brain_path=str(brain), native_shift_mm=list(NATIVE_SHIFT_MM), oracle=bool(a["oracle"]),
                 lrs=settings["lrs"], reg=settings["reg"], stage_iters=list(settings["stage_iters"]),
-                out_dir=str(RES), exp=("smoke_" if smoke else "") + exp_name(af, cond, arm, seed), seed=int(seed))
+                out_dir=str(RES), exp=run_name(af, cond, arm, seed, smoke, tag), seed=int(seed))
 
 
 def motion_path(exp):
     return CFG / "motion" / f"{exp}.json"
 
 
-def command(af, cond, arm, gpu, seed, smoke):
+def command(af, cond, arm, gpu, seed, smoke, tag=""):
     """(experiment name, command). Pure: only names paths, reads nothing."""
-    exp = ("smoke_" if smoke else "") + exp_name(af, cond, arm, seed)
+    exp = run_name(af, cond, arm, seed, smoke, tag)
     recipe = list(V32 if is_single(arm) else V32G)
     if smoke:
         recipe[recipe.index("--iters") + 1] = "30"
@@ -188,11 +193,12 @@ def ledger_row(score, meta):
     def half(s):
         return None if s is None else {k: s[k] for k in METRICS if k in s}
     return dict(exp=meta["exp"], af=meta["af"], cond=meta["cond"], arm=meta["arm"], seed=meta["seed"],
+                tag=meta.get("tag", ""),
                 config_sha256=meta["config_sha256"], source_digest=meta["source_digest"],
                 plain=half(score.get("plain")), contrast=half(score.get("contrast")),
                 plain_name=score.get("plain_name"), contrast_name=score.get("contrast_name"),
                 npts=score.get("npts"), vram_gb=score.get("vram_gb"), motion_file=meta["motion_file"],
-                argv=meta.get("argv"))
+                argv=meta.get("argv"), settings=meta.get("settings"))
 
 
 # ------------------------------------------------------------------------------------------- execution
@@ -217,10 +223,10 @@ def _source_digest():
     return json.loads(p.read_text()).get("source_digest") if p.exists() else None
 
 
-def run_one(af, cond, arm, gpu, seed, smoke, settings):
+def run_one(af, cond, arm, gpu, seed, smoke, settings, tag=""):
     ensure_c0_side_files()
     digest = _source_digest()                                # cwd is still the job's code directory here
-    exp, cmd = command(af, cond, arm, gpu, seed, smoke)
+    exp, cmd = command(af, cond, arm, gpu, seed, smoke, tag)
     score_file = RES / f"{exp}_score.json"
     if score_file.exists():
         assert smoke, f"{score_file} exists; finished experiments are not overwritten"
@@ -230,7 +236,7 @@ def run_one(af, cond, arm, gpu, seed, smoke, settings):
     if via_patch(cond, arm):
         mfile = motion_path(exp)
         mfile.parent.mkdir(parents=True, exist_ok=True)
-        mfile.write_text(json.dumps(motion_config(af, cond, arm, seed, settings, smoke=smoke), indent=1))
+        mfile.write_text(json.dumps(motion_config(af, cond, arm, seed, settings, smoke=smoke, tag=tag), indent=1))
     log(f"===== {exp}\n" + " ".join(cmd))
     p = subprocess.Popen(cmd, cwd=str(TR), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
     for line in p.stdout:
@@ -239,7 +245,8 @@ def run_one(af, cond, arm, gpu, seed, smoke, settings):
     rc = p.wait()
     assert rc == 0 and score_file.exists(), f"{exp} failed (exit {rc})"
     row = ledger_row(json.loads(score_file.read_text()),
-                     dict(exp=exp, af=af, cond=cond, arm=arm, seed=seed, config_sha256=sha(cfg), source_digest=digest,
+                     dict(exp=exp, af=af, cond=cond, arm=arm, seed=seed, tag=tag, config_sha256=sha(cfg), source_digest=digest,
+                          settings=settings if via_patch(cond, arm) else None,
                           argv=cmd[2:],
                           motion_file=str(RES / f"{exp}_motion.json") if mfile else None))
     if not smoke:
@@ -306,6 +313,7 @@ def main():
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--settings", help="JSON file with lrs / reg / stage_iters / n_extra / K (relative to this folder)")
     ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--tag", default="", help="development round; appended to the experiment name")
     ap.add_argument("--dry", action="store_true")
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--selftest", action="store_true")
@@ -322,7 +330,7 @@ def main():
     settings = DEFAULT_SETTINGS
     if args.settings:
         settings = json.loads((HERE / args.settings).read_text())
-    run_one(args.af, args.cond, args.arm, args.gpu, args.seed, args.smoke, settings)
+    run_one(args.af, args.cond, args.arm, args.gpu, args.seed, args.smoke, settings, args.tag)
 
 
 if __name__ == "__main__":

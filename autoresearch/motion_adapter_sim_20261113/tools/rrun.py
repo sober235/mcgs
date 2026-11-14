@@ -22,16 +22,19 @@ ap = argparse.ArgumentParser()
 g = ap.add_mutually_exclusive_group(required=True)
 g.add_argument("--cpu", action="store_true")
 g.add_argument("--gpu", type=int)
-ap.add_argument("--detach", action="store_true", help="print the job id and return without following the log")
+ap.add_argument("--detach", action="store_true", help="print the job's suffix and return without following the log")
 ap.add_argument("argv", nargs=argparse.REMAINDER)
 a = ap.parse_args()
 argv = a.argv[1:] if a.argv[:1] == ["--"] else a.argv
 client = gpu.Client(WORKTREE / ".claude/gpu/config.json")
 assert client.repo == WORKTREE, f"private config points at {client.repo}"
 job = client.run(argv, cpu=a.cpu, gpu_ids=None if a.cpu else [a.gpu])
-print(f"[rrun] job {job['id']} source {job.get('source_digest', '')[:12]}", file=sys.stderr, flush=True)
+# the job id embeds the server's clock, so only its random suffix is shown; the full id stays in a local file
+tag = job["id"].rsplit("-", 1)[-1]
+print(f"[rrun] job {tag} source {job.get('source_digest', '')[:12]}", file=sys.stderr, flush=True)
 if a.detach:
-    print(job["id"])
+    (WORKTREE / ".claude/gpu" / f"job_{tag}").write_text(job["id"])
+    print(tag)
     sys.exit(0)
 out = client.logs(job["id"], follow=True)
 print(f"[rrun] state={out['state']} exit_code={out['exit_code']}", file=sys.stderr, flush=True)

@@ -128,3 +128,14 @@ def test_criteria_s4_recovered_fraction():
 def test_criteria_report_missing_inputs_instead_of_passing():
     c = evaluate.criteria(fake_summary())
     assert c["S2"]["E2"]["tre"]["pass"] is None and c["S3"]["pass"] is None
+
+
+def test_tagged_development_rows_stay_out_of_the_main_table_values():
+    half = dict(head_psnr=36.0, head_ssim=0.9)
+    led = [dict(exp="ma_af12_C0_A2", af="af12", cond="C0", arm="A2", seed=42, plain=half, contrast=half),
+           dict(exp="ma_af12_C0_A2_r1", af="af12", cond="C0", arm="A2", seed=42, tag="r1", plain=half,
+                contrast=dict(half, head_psnr=30.0))]
+    t = evaluate.image_table(led)
+    assert [r["tag"] for r in t] == ["", "r1"]
+    assert evaluate._val(t, "af12", "C0", "A2", "T2") == 36.0
+    assert evaluate._val(t, "af12", "C0", "A2", "T2", tag="r1") == 30.0

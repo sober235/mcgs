@@ -102,3 +102,18 @@ def test_matrix_rows_all_have_commands():
             assert exp.startswith(f"ma_{af}_{cond}_") and "--base_cfg" in cmd
             n += 1
     assert n == 40 + 21 + 3
+
+
+def test_tag_names_a_development_round():
+    exp, cmd = run.command("af12", "D2", "A2", "3", 42, False, tag="r1")
+    assert exp == "ma_af12_D2_A2_r1" and cmd[cmd.index("--exp") + 1] == exp
+    assert cmd[cmd.index("--motion") + 1].endswith("ma_af12_D2_A2_r1.json")
+    cfg = run.motion_config("af12", "D2", "A2", 42, run.DEFAULT_SETTINGS, ref_seg=3, tag="r1")
+    assert cfg["exp"] == exp
+    row = run.ledger_row(dict(plain=None, contrast=None),
+                         dict(exp=exp, af="af12", cond="D2", arm="A2", seed=42, tag="r1", config_sha256="c",
+                              source_digest="d", motion_file=None))
+    assert row["tag"] == "r1"
+    assert run.ledger_row(dict(plain=None, contrast=None),
+                          dict(exp="e", af="af12", cond="C0", arm="A0", seed=42, config_sha256="c", source_digest="d",
+                               motion_file=None))["tag"] == ""
