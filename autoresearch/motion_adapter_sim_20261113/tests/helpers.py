@@ -46,3 +46,31 @@ def wm_phantom(shape=(112, 112, 88)):
     rng = np.random.default_rng(1)
     v *= 1.0 + 0.03 * ndi.gaussian_filter(rng.normal(size=shape), 2.0) / 0.05
     return ndi.gaussian_filter(v, 0.7)
+
+
+def fft3c_np(x):
+    return np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(x, axes=(-3, -2, -1)), axes=(-3, -2, -1), norm="ortho"),
+                           axes=(-3, -2, -1))
+
+
+def small_src(shape=(64, 64, 48), coils=6, shutter=True, noise=0.002, seed=0):
+    """Synthetic multi-coil T1 / T2 k-space with unit-norm coil maps and (optionally) an elliptical T2 shutter."""
+    rng = np.random.default_rng(seed)
+    g = _grid(shape) / np.asarray(shape) - 0.5
+    maps = []
+    for k in range(coils):
+        cen = rng.uniform(-0.6, 0.6, 3)
+        maps.append(np.exp(-((g - cen) ** 2).sum(-1) / 0.5) * np.exp(1j * (g @ rng.uniform(-2, 2, 3))))
+    S = np.stack(maps)
+    S = (S / np.sqrt((np.abs(S) ** 2).sum(0))).astype(np.complex64)
+    head = wm_phantom(shape)
+    out = {"csm_T1": S, "csm_T2": S.copy()}
+    for name, sd in (("T1", 11), ("T2", 12)):
+        m = head * (1.0 + 0.4 * np.abs(phantom(shape, seed=sd))) * np.exp(0.2j * np.real(phantom(shape, seed=sd + 5)))
+        x = S * m + noise * (rng.normal(size=S.shape) + 1j * rng.normal(size=S.shape))
+        out[f"ksp_{name}"] = fft3c_np(x).astype(np.complex64)
+    if shutter:
+        ky, kz = np.meshgrid(np.arange(shape[1]) - shape[1] // 2, np.arange(shape[2]) - shape[2] // 2, indexing="ij")
+        ell = (ky / (shape[1] / 2)) ** 2 + (kz / (shape[2] / 2)) ** 2 <= 1.0
+        out["ksp_T2"] = out["ksp_T2"] * ell[None, None]
+    return out

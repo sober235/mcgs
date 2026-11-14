@@ -34,10 +34,10 @@ def brain_mask(mag, erode=12, cut_below=35):
     return b
 
 
-def pick_sites(t1_mag, brain, rng_seed=3):
+def pick_sites(t1_mag, brain, rng_seed=3, min_sep=MIN_SEP):
     """Five lesion sites in white matter (brain voxels brighter than the brain's 60th percentile on T1): four T2-only
     (periventricular = deepest, deep white matter, juxtacortical, posterior-inferior) and one T1-only. Every centre is
-    at least radius + 3 mm from the brain boundary and the centres are at least MIN_SEP mm apart."""
+    at least radius + 3 mm from the brain boundary and the centres are at least min_sep mm apart."""
     rng = np.random.default_rng(rng_seed)
     depth = ndi.distance_transform_edt(brain)
     wm = brain & (t1_mag > np.quantile(t1_mag[brain], 0.60))
@@ -58,7 +58,7 @@ def pick_sites(t1_mag, brain, rng_seed=3):
             pts = np.argwhere(cand)
             if centres and len(pts):
                 d = np.linalg.norm(pts[:, None, :] - np.asarray(centres)[None], axis=-1).min(1)
-                pts = pts[d >= MIN_SEP]
+                pts = pts[d >= min_sep]
             if len(pts):
                 break
         assert len(pts), f"no admissible site for the {diam} mm {contrast} lesion"
@@ -69,7 +69,7 @@ def pick_sites(t1_mag, brain, rng_seed=3):
     return sites
 
 
-def _weight(shape, site):
+def weight(shape, site):
     g = np.stack(np.meshgrid(*[np.arange(n, dtype=np.float64) for n in shape], indexing="ij"), axis=-1)
     d = np.linalg.norm(g - np.asarray(site["center_vox"], dtype=np.float64), axis=-1)
     return 0.5 * erfc((d - site["diameter_mm"] / 2.0) / (np.sqrt(2.0) * EDGE_SIGMA))
@@ -81,7 +81,7 @@ def insert(vol, sites, contrast):
     out = np.array(vol, dtype=np.complex128, copy=True)
     mask = np.zeros(vol.shape, dtype=np.uint8)
     for k, s in enumerate(sites, start=1):
-        w = _weight(vol.shape, s)
+        w = weight(vol.shape, s)
         mask[w > 0.5] = k
         if s["contrast"] == contrast:
             out *= 1.0 + s["gain"] * np.where(w > 1e-9, w, 0.0)
