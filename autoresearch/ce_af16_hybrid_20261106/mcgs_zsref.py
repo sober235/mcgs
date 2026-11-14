@@ -53,6 +53,15 @@ ap.add_argument("--theta-frac", type=float, default=0.80)
 ap.add_argument("--no-prior-input", action="store_true", help="ablation: start from MC-GS but do not feed it as channels")
 ap.add_argument("--separate", action="store_true", help="ablation: two independent 2-ch networks (not joint)")
 ap.add_argument("--no-residual", action="store_true", help="ablation: opponent-style direct output instead of identity-initialised residual")
+ap.add_argument("--split-file", type=Path, default=None,
+                help="leak-free mode: npz with fixed 2-D theta/lam/gamma masks (theta_prior.py split). The --init-dir "
+                     "prior must have been fitted on theta only; DC uses theta, loss lam, early stop gamma")
+ap.add_argument("--lam-dc-frac", type=float, default=None,
+                help="with --split-file: every step move a fresh random fraction of Lambda into DC "
+                     "(DC = theta + that part, loss = rest of Lambda); the prior never saw Lambda, so it stays "
+                     "leak-free while the loss set changes every step like the opponent's")
+ap.add_argument("--infer-init-dir", type=Path, default=None,
+                help="optional second prior for inference only (e.g. the full-data MC-GS); written to OUT/infer_alt/")
 ap.add_argument("--smoke", action="store_true", help="CPU smoke: few slices, 2 epochs x 2 steps, no volumes")
 ap.add_argument("--smoke-slices", default="197,199,201,203,205,207,209,211")
 args = ap.parse_args()
@@ -117,6 +126,15 @@ sl_all = [int(s) for s in args.smoke_slices.split(",")] if args.smoke else list(
 with np.load(T / "sim/gt.npz") as g:          # gauge scalars only; GT volumes are never read
     scale = {s: float(g[f"scale_{s}"]) for s in SCANS}
 
+def load_prior(d):
+    out = {}
+    for s in SCANS:
+        v = np.load(d / f"candidate_{s}_complex.npy", mmap_mode="r")
+        assert v.shape == m3.shape and np.iscomplexobj(v)
+        out[s] = torch.from_numpy(np.ascontiguousarray(v[sl_all])).to(torch.complex64).to(dev)
+    return out
+
+
 YH, S, X0 = {}, {}, {}
 for s in SCANS:
     with h5py.File(T / f"sim/gs/{s}_kspace.h5", "r") as f:
@@ -126,10 +144,8 @@ for s in SCANS:
     YH[s] = y.to(dev)
     with h5py.File(T / f"sim/gs/{s}_csm.h5", "r") as f:
         S[s] = torch.from_numpy(f["map"][:, sl_all] if args.smoke else f["map"][:]).to(torch.complex64).to(dev)
-    v = np.load(args.init_dir / f"candidate_{s}_complex.npy", mmap_mode="r")
-    assert v.shape == m3.shape and np.iscomplexobj(v)
-    X0[s] = torch.from_numpy(np.ascontiguousarray(v[sl_all])).to(torch.complex64).to(dev)
     del y
+X0.update(load_prior(args.init_dir))
 NC = YH["pre"].shape[0]
 NS = len(sl_all)
 log(f"coils={NC} slices={NS} grid={m3.shape} acquired={m2.float().mean():.4f} scale={scale} "
@@ -245,13 +261,44 @@ def mk_mask(sel):
 
 
 m_val, m_tr = mk_mask(val_idx), mk_mask(tr_pool)
+FIXED = None
+if args.split_file is not None:          # leak-free mode: one fixed split shared with the prior fit
+    with np.load(args.split_file) as z:
+        FIXED = {k: torch.from_numpy(z[k]).to(dev) for k in ("theta", "lam", "gamma")}
+    th, la, ga = FIXED["theta"], FIXED["lam"], FIXED["gamma"]
+    assert not (th & la).any() and not (th & ga).any() and not (la & ga).any(), "split overlaps"
+    assert torch.equal(th | la | ga, m2), "split is not a partition of the acquired mask"
+    m_val, m_tr = ga, th | la
+    log(f"fixed split {args.split_file}: theta {int(th.sum())} lam {int(la.sum())} gamma {int(ga.sum())} "
+        f"(--rho-val/--theta-frac ignored)")
+    LAM_IDX = torch.nonzero(la, as_tuple=False)
+    if args.lam_dc_frac is not None:
+        assert 0.0 < args.lam_dc_frac < 1.0, "--lam-dc-frac must be in (0, 1)"
+        log(f"Lambda resampled every step: {args.lam_dc_frac:.2f} of it joins DC, the rest is the loss")
+elif args.lam_dc_frac is not None:
+    sys.exit("--lam-dc-frac needs --split-file")
 
 
 def split(step):
+    if FIXED is not None:
+        if args.lam_dc_frac is None:
+            return FIXED["theta"], FIXED["lam"]
+        q = torch.randperm(LAM_IDX.shape[0], generator=torch.Generator(device="cpu").manual_seed(1234 + step))
+        sel = LAM_IDX[q[:int(round(args.lam_dc_frac * q.numel()))].to(LAM_IDX.device)]
+        a = torch.zeros_like(m2); a[sel[:, 0], sel[:, 1]] = True
+        return FIXED["theta"] | a, FIXED["lam"] & ~a
     p = torch.randperm(tr_pool.numel(), generator=torch.Generator(device="cpu").manual_seed(1234 + step))
     cut = int(args.theta_frac * p.numel())
     return mk_mask(tr_pool[p[:cut]]), mk_mask(tr_pool[p[cut:]])
 
+
+if FIXED is not None and args.lam_dc_frac is not None:   # one-off check of the resampled split
+    (d0, l0), (d1, l1) = split(0), split(1)
+    for d, l in ((d0, l0), (d1, l1)):
+        assert not (d & l).any() and torch.equal(d | l, FIXED["theta"] | FIXED["lam"]), "resampled split broken"
+        assert not (l & FIXED["theta"]).any() and not ((d | l) & FIXED["gamma"]).any(), "loss/val leak"
+    assert not torch.equal(l0, l1), "loss set does not change between steps"
+    log(f"resample check: DC {int(d0.sum())} loss {int(l0.sum())} per step; loss overlap step0/step1 {int((l0 & l1).sum())}")
 
 def val_loss():
     with torch.no_grad():
@@ -301,24 +348,33 @@ if best_state is not None:
             p.copy_(b)
 
 # ---------------- inference with the full acquired mask ----------------
-set_mode(False)
-res = {s: torch.zeros((NS,) + tuple(m2.shape), dtype=torch.complex64, device=dev) for s in SCANS}
-with torch.no_grad():
-    for s0 in range(0, NS, 16):
-        sl = torch.arange(s0, min(s0 + 16, NS))
-        x, _, _ = unrolled(sl, m2)
-        for s in SCANS:
-            res[s][sl] = x[s]
-for s in SCANS:
-    r = res[s].cpu().numpy()
-    assert np.isfinite(r).all()
-    d = np.abs(r) - np.abs(X0[s].cpu().numpy())
-    log(f"  {s}: |out|-|MC-GS| rms {np.sqrt((d**2).mean()):.4g}, max |out| {np.abs(r).max():.4g}")
-    if not args.smoke:
-        np.save(OUT / f"candidate_{s}_complex.npy", r.astype(np.complex64))
+def infer(out_dir, tag):
+    set_mode(False)
+    res = {s: torch.zeros((NS,) + tuple(m2.shape), dtype=torch.complex64, device=dev) for s in SCANS}
+    with torch.no_grad():
+        for s0 in range(0, NS, 16):
+            sl = torch.arange(s0, min(s0 + 16, NS))
+            x, _, _ = unrolled(sl, m2)
+            for s in SCANS:
+                res[s][sl] = x[s]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for s in SCANS:
+        r = res[s].cpu().numpy()
+        assert np.isfinite(r).all()
+        d = np.abs(r) - np.abs(X0[s].cpu().numpy())
+        log(f"  [{tag}] {s}: |out|-|prior| rms {np.sqrt((d**2).mean()):.4g}, max |out| {np.abs(r).max():.4g}")
+        if not args.smoke:
+            np.save(out_dir / f"candidate_{s}_complex.npy", r.astype(np.complex64))
+
+
+infer(OUT, "prior=init-dir")
+if args.infer_init_dir is not None:      # same trained network, unroll started from / fed with another prior
+    X0.update(load_prior(args.infer_init_dir))
+    infer(OUT / "infer_alt", f"prior={args.infer_init_dir}")
 meta = dict(args={k: str(v) for k, v in vars(args).items()}, coils=NC, slices=NS, val_before=v0, best_val=best,
             history=hist, seconds=time.time() - t0,
             init_sha256={s: sha(args.init_dir / f"candidate_{s}_complex.npy") for s in SCANS} if not args.smoke else None,
+            split_sha256=sha(args.split_file) if args.split_file else None,
             note="no GT/ROI used; selection by Gamma k-space loss only")
 (OUT / "fit_log.json").write_text(json.dumps(meta, indent=2))
 log("DONE", f"{time.time()-t0:.0f}s")
