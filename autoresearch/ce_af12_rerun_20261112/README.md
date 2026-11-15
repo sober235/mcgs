@@ -131,7 +131,21 @@ Done so that the AF12 figure uses the same 3D-DIP / 3D-INR versions as the AF16 
 Launched 2026-11-13 04:51 PST, one card each after two empty checks 75 s apart (any free GPU, user rule of that day):
 DIP pre GPU 2 (j-20261113T125204-bae5f3f3), DIP post GPU 3 (j-20261113T125251-1b5b7b1b), INR pre GPU 4
 (j-20261113T125344-67cb90ea), INR post GPU 5 (j-20261113T125425-d0f02f5d). Support covers 0.628 (pre) / 0.643
-(post) of the grid. Next: redraw the figure with `--arm 3D-DIP=... --arm 3D-INR=...`.
+(post) of the grid.
+
+### Figure with the support versions (2026-11-14, user: "Draw the supporting version with af equal to 12")
+
+`figures/ce_af12_prepost_201_131_48_supfix.png` (PNG sha256 `69aaade8…3efd9e`, 16 MB; preview JPEG and record JSON
+beside it; server: `CE_retro_cssense_af12/figures/prepost_three_201_131_48_supfix/`). Same script, slices and
+layout as the figure above (CPU job j-20261114T145926-1fba1f4b); the only change is the source of two arms:
+`--arm "3D-DIP=<O>/recon/dip_sup_b96_tv0.03_{s}_complex.npy" --arm "3D-INR=<O>/recon/inr_i10_n512_sup6_tv0.03_{s}_complex.npy"`
+with `<O>` = `codex_artifacts/mcgs_ce_af12_cmp_20261113`. The other nine arms and the truth are the same files
+(hashes in the record JSON).
+
+MC-GS stays strictly first on PSNR, SSIM and NMSE in all six panels. The runner-up is GS-single in every panel, so
+the PSNR margins are those of the figure above: transverse 201 +0.25 / +0.36 dB, coronal 131 +0.19 / +0.28 dB,
+sagittal 48 +0.19 / +0.29 dB (pre / post). 3D-DIP no longer shows signal outside the head. This figure now matches
+the AF16 figure of record in which versions of 3D-DIP / 3D-INR it shows.
 
 ## Limits to state with any AF12 number
 
