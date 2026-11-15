@@ -110,6 +110,18 @@ class GradStats:
         return out
 
 
+def attach_grad_stats(adapter, stats):
+    """Tensor hooks that feed GradStats. A hook can only be registered while the tensor requires a gradient, and the
+    stage switch may already have frozen a group, so the flag is raised for the registration and put back."""
+    for name, attr in adapter.GROUPS:
+        if hasattr(adapter, attr):
+            p = getattr(adapter, attr)
+            was = p.requires_grad
+            p.requires_grad_(True)
+            p.register_hook(lambda g, name=name: stats.add(name, g))
+            p.requires_grad_(was)
+
+
 def apply_stage(adapter, it, stage_iters):
     """Stage 1 (it < stage_iters[0]): only the inter-scan rigid pose learns. Afterwards everything learns; the decay
     of stage 3 is the trainer's exponential learning-rate schedule, which covers every group."""
@@ -216,9 +228,7 @@ def install(cfg):
         self.motion, self._ma_it, self._ma_last, self._ma_traj = ad, 0, {}, []
         self._ma_grad = GradStats()
         if ad is not None and not cfg["oracle"]:
-            for name, attr in ad.GROUPS:
-                if hasattr(ad, attr):
-                    getattr(ad, attr).register_hook(lambda g, name=name: self._ma_grad.add(name, g))
+            attach_grad_stats(ad, self._ma_grad)
         _ACTIVE["tr"] = self
         orig["setup"](self)
 

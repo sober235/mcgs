@@ -170,3 +170,21 @@ def test_grad_stats_report_size_and_sign_consistency_per_window():
     assert t["consistency"] == pytest.approx((1e-10 + 4e-10) / 6e-10, rel=1e-6)     # |mean| / mean |g|, 1 = one sign
     assert "mean" not in out["nonrigid"] and out["nonrigid"]["consistency"] == pytest.approx(1.0)
     assert gs.flush() == {}                                                          # the window starts over
+
+
+def test_grad_stats_hooks_survive_the_stage_switch():
+    """Stage 1 freezes the non-rigid grid and the segment poses before the hooks exist (r2: three runs died with
+    'cannot register a hook on a tensor that doesn't require gradient')."""
+    ad = MotionAdapter((32, 32, 24), True, True, 2, 0)
+    patch.apply_stage(ad, 0, [5, 10])
+    gs = patch.GradStats()
+    patch.attach_grad_stats(ad, gs)
+    assert not ad.ctrl.requires_grad and ad.t_mm.requires_grad            # the stage is left as it was
+    loss = lambda: 2.0 * ad.t_mm.sum() + 3.0 * ad.ctrl.sum() + ad.seg_t_mm.sum()
+    loss().backward()
+    patch.apply_stage(ad, 5, [5, 10])
+    loss().backward()
+    out = gs.flush()
+    assert out["rigid_t"]["n"] == 2 and out["rigid_t"]["abs_mean"] == pytest.approx(2.0)
+    assert out["nonrigid"]["n"] == 1 and out["nonrigid"]["abs_mean"] == pytest.approx(3.0)
+    assert out["seg_t"]["n"] == 1 and "rigid_theta" not in out
