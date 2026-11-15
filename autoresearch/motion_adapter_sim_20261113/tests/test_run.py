@@ -117,3 +117,9 @@ def test_tag_names_a_development_round():
     assert run.ledger_row(dict(plain=None, contrast=None),
                           dict(exp="e", af="af12", cond="C0", arm="A0", seed=42, config_sha256="c", source_digest="d",
                                motion_file=None))["tag"] == ""
+
+
+def test_motion_config_carries_the_optional_adam_eps():
+    assert run.motion_config("af12", "D1", "A1", 42, run.DEFAULT_SETTINGS, ref_seg=3)["adam_eps"] is None
+    s = dict(run.DEFAULT_SETTINGS, adam_eps=1e-12)
+    assert run.motion_config("af12", "D1", "A1", 42, s, ref_seg=3)["adam_eps"] == 1e-12

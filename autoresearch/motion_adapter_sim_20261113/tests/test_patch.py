@@ -149,3 +149,24 @@ def test_motion_config_validation():
         patch.validate(dict(ok, oracle=True))               # the oracle needs the truth
     with pytest.raises(AssertionError):
         patch.validate(dict(ok, channel="flair"))
+
+
+def test_append_groups_passes_the_adam_eps():
+    ad = MotionAdapter((32, 32, 24), True, False, 0, 0)
+    lrs = dict(rigid_theta=1e-3, rigid_t=2e-2)
+    assert all(g["eps"] == 1e-12 for g in patch.append_groups([], ad, lrs, eps=1e-12))
+    assert all("eps" not in g for g in patch.append_groups([], ad, lrs))
+
+
+def test_grad_stats_report_size_and_sign_consistency_per_window():
+    gs = patch.GradStats()
+    for sign in (1.0, 1.0, -1.0, 1.0):
+        gs.add("rigid_t", torch.tensor([2e-10 * sign, 0.0, 4e-10]))
+    gs.add("nonrigid", torch.full((5, 5, 5, 3), -1e-12))
+    out = gs.flush()
+    t = out["rigid_t"]
+    assert t["n"] == 4 and t["abs_mean"] == pytest.approx(2e-10, rel=1e-6)          # mean |g| over elements, steps
+    assert t["mean"] == pytest.approx([1e-10, 0.0, 4e-10], rel=1e-6)                # mean over the window
+    assert t["consistency"] == pytest.approx((1e-10 + 4e-10) / 6e-10, rel=1e-6)     # |mean| / mean |g|, 1 = one sign
+    assert "mean" not in out["nonrigid"] and out["nonrigid"]["consistency"] == pytest.approx(1.0)
+    assert gs.flush() == {}                                                          # the window starts over

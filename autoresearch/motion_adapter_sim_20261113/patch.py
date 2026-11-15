@@ -73,12 +73,41 @@ def segmented_dc(loss_fn, render_seg, vol_ref, masks, ref, n_extra, gen):
     return loss
 
 
-def append_groups(base_groups, adapter, lrs):
+def append_groups(base_groups, adapter, lrs, eps=None):
     """Optimiser groups of the trainer followed by the adapter's (nothing for a frozen = oracle adapter)."""
     groups = list(base_groups)
     if adapter is not None and adapter.trainable():
-        groups += adapter.param_groups(lrs)
+        groups += adapter.param_groups(lrs, eps=eps)
     return groups
+
+
+class GradStats:
+    """Per adapter parameter group and per window of iterations: how large the gradient is (abs_mean, to compare with
+    Adam's eps) and how consistent its sign is (consistency = mean_i |mean_t g| / mean_i,t |g|; 1 = always one sign,
+    about 1/sqrt(n) = noise). Groups of at most 3 elements also report the mean gradient. Fed by tensor hooks; it
+    only records."""
+
+    def __init__(self):
+        self._sum, self._abs, self._n = {}, {}, {}
+
+    def add(self, name, g):
+        g = g.detach().double().reshape(-1).cpu()
+        if name not in self._n:
+            self._sum[name], self._abs[name], self._n[name] = g.clone(), g.abs(), 1
+        else:
+            self._sum[name] += g
+            self._abs[name] += g.abs()
+            self._n[name] += 1
+
+    def flush(self):
+        out = {}
+        for name, n in self._n.items():
+            mean, a = self._sum[name] / n, float((self._abs[name] / n).mean())
+            out[name] = dict(n=n, abs_mean=a, consistency=float(mean.abs().mean()) / a if a > 0 else 0.0)
+            if mean.numel() <= 3:
+                out[name]["mean"] = mean.tolist()
+        self.__init__()
+        return out
 
 
 def apply_stage(adapter, it, stage_iters):
@@ -185,11 +214,16 @@ def install(cfg):
             print(f"[motion] adapter arm={cfg['arm']} channel={ch} rigid={ad.has_rigid} nonrigid={ad.has_nonrigid} "
                   f"segments={K} ref={ref} oracle={cfg['oracle']}", flush=True)
         self.motion, self._ma_it, self._ma_last, self._ma_traj = ad, 0, {}, []
+        self._ma_grad = GradStats()
+        if ad is not None and not cfg["oracle"]:
+            for name, attr in ad.GROUPS:
+                if hasattr(ad, attr):
+                    getattr(ad, attr).register_hook(lambda g, name=name: self._ma_grad.add(name, g))
         _ACTIVE["tr"] = self
         orig["setup"](self)
 
     def groups(self):
-        return append_groups(orig["groups"](self), getattr(self, "motion", None), cfg["lrs"])
+        return append_groups(orig["groups"](self), getattr(self, "motion", None), cfg["lrs"], cfg.get("adam_eps"))
 
     def render(self, channel):
         ad = getattr(self, "motion", None)
@@ -213,7 +247,7 @@ def install(cfg):
         if self._ma_it == 1 or self._ma_it % 200 == 0:
             st = ad.state()
             st.pop("ctrl_mm", None)
-            self._ma_traj.append(dict(it=self._ma_it, **st))
+            self._ma_traj.append(dict(it=self._ma_it, grad=self._ma_grad.flush(), **st))
         if not cfg["oracle"]:
             apply_stage(ad, self._ma_it, cfg["stage_iters"])
         return loss
@@ -236,8 +270,9 @@ def install(cfg):
         out = Path(cfg["out_dir"])
         ad = getattr(self, "motion", None)
         rec = dict(exp=cfg["exp"], arm=cfg["arm"], channel=ch, iterations=getattr(self, "_ma_it", 0),
-                   config={k: cfg[k] for k in ("rigid", "nonrigid", "segments", "n_extra", "oracle", "lrs", "reg",
-                                               "stage_iters", "native_shift_mm", "seed")},
+                   config=dict({k: cfg[k] for k in ("rigid", "nonrigid", "segments", "n_extra", "oracle", "lrs", "reg",
+                                                    "stage_iters", "native_shift_mm", "seed")},
+                               adam_eps=cfg.get("adam_eps")),
                    final=ad.state() if ad is not None else None, trajectory=getattr(self, "_ma_traj", []))
         (out / f"{cfg['exp']}_motion.json").write_text(json.dumps(rec, indent=1))
         c64 = lambda t: t.detach().cpu().numpy().astype("complex64")

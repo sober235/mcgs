@@ -222,3 +222,20 @@ def test_param_groups_regulariser_and_state():
     only_rigid = MotionAdapter(SHAPE, True, False, 0, 0)
     assert [g["name"] for g in only_rigid.param_groups(dict(rigid_theta=1, rigid_t=1))] == ["rigid_theta", "rigid_t"]
     assert only_rigid.regulariser(w).item() == 0.0
+
+
+def test_adam_eps_of_the_adapter_groups_decides_whether_a_tiny_gradient_moves_the_pose():
+    """The trainer's Adam uses eps 1e-8. The pose gradients of the r1 runs were far below that, so the pose moved by
+    a small fraction of its learning rate. A group-level eps restores steps of about one learning rate."""
+    lrs = dict(rigid_theta=1e-3, rigid_t=2e-2)
+    moved = {}
+    for eps in (None, 1e-15):
+        ad = MotionAdapter(SHAPE, True, False, 0, 0)
+        groups = ad.param_groups(lrs, eps=eps)
+        assert all(("eps" in g) == (eps is not None) for g in groups)
+        opt = torch.optim.Adam([dict(params=[torch.nn.Parameter(torch.zeros(1))], lr=1.0), *groups])
+        ad.t_mm.grad = torch.full((3,), 1e-11)
+        ad.theta.grad = torch.zeros(3)
+        opt.step()
+        moved[eps] = float(ad.t_mm.detach().abs().max())
+    assert moved[None] < 2e-2 * 2e-3 and moved[1e-15] == pytest.approx(2e-2, rel=1e-3)

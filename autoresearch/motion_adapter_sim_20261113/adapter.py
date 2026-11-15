@@ -81,11 +81,15 @@ class MotionAdapter(nn.Module):
         return any(p.requires_grad for p in self.parameters())
 
     # ---- optimiser, regulariser, record
-    def param_groups(self, lrs):
-        named = (("rigid_theta", "theta"), ("rigid_t", "t_mm"), ("nonrigid", "ctrl"),
-                 ("seg_theta", "seg_theta"), ("seg_t", "seg_t_mm"))
-        return [dict(params=[getattr(self, attr)], lr=float(lrs[name]), name=name)
-                for name, attr in named if hasattr(self, attr)]
+    GROUPS = (("rigid_theta", "theta"), ("rigid_t", "t_mm"), ("nonrigid", "ctrl"),
+              ("seg_theta", "seg_theta"), ("seg_t", "seg_t_mm"))
+
+    def param_groups(self, lrs, eps=None):
+        """eps: Adam's eps for these groups only (None = the optimiser's default). The pose gradients are orders of
+        magnitude below the default 1e-8, which turns Adam into plain gradient descent with a vanishing step."""
+        extra = {} if eps is None else dict(eps=float(eps))
+        return [dict(params=[getattr(self, attr)], lr=float(lrs[name]), name=name, **extra)
+                for name, attr in self.GROUPS if hasattr(self, attr)]
 
     def regulariser(self, w):
         out = torch.zeros((), device=self.half_mm.device)

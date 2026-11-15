@@ -158,6 +158,7 @@ def motion_config(af, cond, arm, seed, settings, ref_seg=None, smoke=False, tag=
                 disp_path=str(cdir / "disp_T2.npy") if (c["inter"] or c["nonrigid"]) else None,
                 brain_path=str(brain), native_shift_mm=list(NATIVE_SHIFT_MM), oracle=bool(a["oracle"]),
                 lrs=settings["lrs"], reg=settings["reg"], stage_iters=list(settings["stage_iters"]),
+                adam_eps=settings.get("adam_eps"),
                 out_dir=str(RES), exp=run_name(af, cond, arm, seed, smoke, tag), seed=int(seed))
 
 
@@ -311,7 +312,7 @@ def main():
     ap.add_argument("--arm", choices=sorted(ARMS))
     ap.add_argument("--gpu")
     ap.add_argument("--seed", type=int, default=42)
-    ap.add_argument("--settings", help="JSON file with lrs / reg / stage_iters / n_extra / K (relative to this folder)")
+    ap.add_argument("--settings", help="JSON file with lrs / reg / stage_iters / n_extra / K [/ adam_eps] (relative to this folder)")
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--tag", default="", help="development round; appended to the experiment name")
     ap.add_argument("--dry", action="store_true")
