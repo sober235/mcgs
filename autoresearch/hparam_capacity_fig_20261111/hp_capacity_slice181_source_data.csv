@@ -55,15 +55,11 @@ b,hp_n72,FLAIR,7.2,0.0342,dB vs 3.6M
 c,hp_n72,FLAIR,7.2,0.1083,% SSIM change vs 3.6M
 d,hp_n72,FLAIR,7.2,0.784,% NMSE reduction vs 3.6M
 a,hp_n72,FLAIR,7.2,33.980,"48-box PSNR dB, display row 68 col 5"
-e,hp_n09,joint,0.9,47.12,wall-clock minutes
 e,hp_n09,joint,0.9,32.31,peak GPU memory GB
 e,hp_n09,joint,0.9,900000,shared Gaussians
-e,hp_n18,joint,1.8,53.38,wall-clock minutes
 e,hp_n18,joint,1.8,32.52,peak GPU memory GB
 e,hp_n18,joint,1.8,1800000,shared Gaussians
-e,hp_n36,joint,3.6,65.38,wall-clock minutes
 e,hp_n36,joint,3.6,32.95,peak GPU memory GB
 e,hp_n36,joint,3.6,3600000,shared Gaussians
-e,hp_n72,joint,7.2,81.20,wall-clock minutes
 e,hp_n72,joint,7.2,33.80,peak GPU memory GB
 e,hp_n72,joint,7.2,7200000,shared Gaussians

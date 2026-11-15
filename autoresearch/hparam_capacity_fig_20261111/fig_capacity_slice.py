@@ -18,7 +18,11 @@ a monotone transform of that slice's PSNR, so the NMSE panel repeats the PSNR pa
 Display conventions and the zoom-box rule are those of fig_capacity_full.py (this file was derived
 from it). Error scale: [0, 0.1] x max|GT|, the house scale (user 2026-11-11; the first render used 0.05). The saved volumes are still checked against logs/hp_summary.csv (whole-head PSNR to
 0.01 dB) before anything is drawn. The script stops if the chosen slice does not show the pattern.
-One run per setting (seed 42). Writes to MCGS_ARTIFACT_DIR only. CPU only.
+One run per setting (seed 42). Writes to MCGS_ARTIFACT_DIR, and to --keep DIR if given. CPU only.
+
+2026-11-15 (user: "Remove"): panel e no longer shows the training time, and the run's elapsed time is not read
+any more (rule since 2026-11-12: no time information of the GPU server is obtained or displayed). Panel e keeps
+the number of Gaussians and the peak GPU memory; panels a to d are unchanged.
 """
 import argparse
 import csv
@@ -39,6 +43,7 @@ from skimage.metrics import structural_similarity
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--slice", type=int, default=181, help="transverse slice (axis 0) every metric is computed on")
+ap.add_argument("--keep", type=Path, default=None, help="directory that also receives the PDF, PNG and source-data CSV")
 args = ap.parse_args()
 
 T = Path("/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_hparam_v3_jiangyizhou")
@@ -103,10 +108,9 @@ nm_gain = {c: np.array([(val(REF, f"{c}_head_nmse") - val(e, f"{c}_head_nmse")) 
 for c in C:
     via = np.array([-10 * np.log10(val(e, f"{c}_head_nmse") / val(REF, f"{c}_head_nmse")) for e in CAP])
     assert np.max(np.abs(via - d_psnr[c])) < 1e-3, (c, via, d_psnr[c])
-minutes = np.array([val(e, "elapsed_h") * 60 for e in CAP])
 vram = np.array([val(e, "vram_gb") for e in CAP])
 count = np.array([val(e, "n_shared") for e in CAP])
-for arr in (minutes, vram, count):
+for arr in (vram, count):
     assert np.all(np.isfinite(arr)) and not np.any(arr <= 0)
 assert d_psnr["T1"][0] < -0.02 and d_psnr["FLAIR"][0] < -0.02, "0.9M is not below 3.6M on both contrasts"
 assert d_psnr["T1"][3] < 0 < d_psnr["FLAIR"][3], "7.2M is not a T1-down / FLAIR-up trade-off"
@@ -381,12 +385,8 @@ def render(err_vmax, stem, zy, zx, nmse=False):
     ax.plot(x, count / count[0], color=LIGHT, lw=LW, zorder=2)
     ax.plot(x, vram / vram[0], color=MID, lw=LW, zorder=3)
     ax.plot(x, vram / vram[0], ls="none", marker="D", ms=MS - 0.6, mfc=MID, mec="white", mew=RING, zorder=4)
-    ax.plot(x, minutes / minutes[0], color=INK, lw=LW, zorder=3)
-    ax.plot(x, minutes / minutes[0], ls="none", marker="^", ms=MS + 0.4, mfc=INK, mec="white", mew=RING, zorder=4)
     ax.text(3.2, count[-1] / count[0], f"×{count[-1] / count[0]:.0f} Gaussians", fontsize=6, ha="left",
             va="center", color=MID)
-    ax.text(3.2, minutes[-1] / minutes[0], f"×{minutes[-1] / minutes[0]:.2f} time\n"
-            f"({minutes[0]:.0f} → {minutes[-1]:.0f} min)", fontsize=6, ha="left", va="bottom", linespacing=1.25)
     ax.text(3.2, vram[-1] / vram[0], f"×{vram[-1] / vram[0]:.2f} peak" + ("\n" if nmse else " ") + "GPU memory\n"
             f"({vram[0]:.1f} → {vram[-1]:.1f} GB)", fontsize=6, ha="left", va="top", linespacing=1.25, color=MID,
             clip_on=False)
@@ -417,7 +417,7 @@ def render(err_vmax, stem, zy, zx, nmse=False):
     fig.legend(handles=handles, loc="upper left", bbox_to_anchor=(0.25 / FW, 1 - 0.02 / FH), ncol=4,
                handlelength=1.8, columnspacing=1.8, handletextpad=0.5, borderaxespad=0.0)
 
-    fig.savefig(f"{stem}.pdf", dpi=600)
+    fig.savefig(f"{stem}.pdf", dpi=600, metadata={"CreationDate": None})   # no clock value in the file
     fig.savefig(f"{stem}.png", dpi=600)
     plt.close(fig)
     print("wrote", stem, f"({FW:.2f} x {FH:.2f} in = {FW * 25.4:.0f} x {FH * 25.4:.0f} mm; error scale [0, {err_vmax:g}])")
@@ -442,8 +442,17 @@ with open(f"{STEM}_source_data.csv", "w", newline="") as fh:
             w.writerow(["d", e, c, m, f"{nm_gain[c][n_]:.3f}", "% NMSE reduction vs 3.6M"])
             w.writerow(["a", e, c, m, f"{box_psnr(c, e, *SENS_BOX):.3f}",
                         f"48-box PSNR dB, display row {SENS_BOX[0]} col {SENS_BOX[1]}"])
-    for e, m, t, v, n in zip(CAP, millions, minutes, vram, count):
-        w.writerow(["e", e, "joint", m, f"{t:.2f}", "wall-clock minutes"])
+    for e, m, v, n in zip(CAP, millions, vram, count):
         w.writerow(["e", e, "joint", m, f"{v:.2f}", "peak GPU memory GB"])
         w.writerow(["e", e, "joint", m, f"{n:.0f}", "shared Gaussians"])
+if args.keep is not None:
+    import shutil
+    args.keep.mkdir(parents=True, exist_ok=True)
+    for suf in (".pdf", ".png", "_source_data.csv"):
+        shutil.copyfile(f"{STEM}{suf}", args.keep / f"{STEM.name}{suf}")
+        print("kept", args.keep / f"{STEM.name}{suf}")
+    readme = Path(__file__).resolve().parent / "README.md"   # the folder's note travels with the figure
+    if readme.is_file():
+        shutil.copyfile(readme, args.keep / "README.md")
+        print("kept", args.keep / "README.md")
 print("done")
