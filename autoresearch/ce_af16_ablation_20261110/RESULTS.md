@@ -230,3 +230,8 @@ MC-GS 减单对比模型的逐层 PSNR 差（dB）：
 - huangyuwei 的 T1+T2、CE、T1+FLAIR 三个表没有用这套设置重跑，第 2 节的结论不变。
 
 逐次训练的记录在 `autoresearch/ablation_coupling_tune_20261111/experiments.jsonl` 第 16–41 行。
+
+**图。**
+- 三平面消融图：`figures/ablation_t1t2tb_three_planes_150_113_77.png`（3373 × 6160 像素，sha256 `daa23c1a…cb6245`；预览 JPEG 和 `record_t1t2tb.json` 在旁边；服务器 `mcgs_framework_ablation_20261110/fig_ablation/`）。横断 150（过侧脑室）、冠状 113、矢状 77，格式与第 2 节的图相同。画图用的完整模型和两个独立模型是带 `--volumes` 的同设置、同种子重跑（台账第 42–44 行），全头 PSNR 与原训练差 ≤ 0.0011 dB；脚本逐个核对了所画体数据的全头 PSNR 与各自评分文件一致。
+- 这三个切面上，完整模型在 T1、T2 的 PSNR、SSIM、NMSE 上对三行消融全部更好（54 / 54）。切面 PSNR 对最好一行消融的余量：横断 +0.228 / +0.165，冠状 +0.100 / +0.065，矢状 +0.186 / +0.046 dB（T1 / T2）。切面是看了真值的缩略图后按解剖位置选的，没有按分数挑。
+- 调参过程图：`../ablation_coupling_tune_20261111/figures/t1t2tb_tuning_process.png`。

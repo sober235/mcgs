@@ -1,0 +1,279 @@
+{
+  "root": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110",
+  "out": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/fig_ablation",
+  "tasks": {
+    "t1t2tb": {
+      "tasks": {},
+      "files": {
+        "full": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/tn_t1t2tb_fin_full_vol_volumes.npz",
+          "sha256": "d4f3b4aa17199f69d8398a6c7bd780ee95cfdc50b0700298fbfe0158627214b2"
+        },
+        "iso": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/tn_t1t2tb_fin_iso_volumes.npz",
+          "sha256": "4d17bc5b72c78b3363be5321bbb133a1f70b78e2b4d1f4cf93446dd97d7932f5"
+        },
+        "noprior": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/tn_t1t2tb_fin_noprior_volumes.npz",
+          "sha256": "a27fd9a82ed37f323baeeab162a4f29bcfbf5a946c296709654f87bdb3396316"
+        },
+        "nojoint_T1": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/tn_t1t2tb_fin_rot008_t1_vol_volumes.npz",
+          "sha256": "6878b34fafaaa7604dca5e2b635cc865215f771a9b6e4c70db0c70fee1e37457"
+        },
+        "nojoint_T2": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/tn_t1t2tb_fin_scl004_t2_vol_volumes.npz",
+          "sha256": "64f2a40b03cede3dee9c10d6e4bc989d991da7451b0984a72bad4f57fb812d50"
+        }
+      },
+      "mask": "/data0/congcong/code/GS/Results_20260908/T1T2_AF12_v4_tangbing/data/mask_af12_3d.h5",
+      "af_actual": 11.711983363659995,
+      "planes": [
+        150,
+        113,
+        77
+      ],
+      "contrasts": {
+        "T1": {
+          "whole_head_psnr": {
+            "ZF": 23.283688143343646,
+            "Full MC-GS": 33.95960835469762,
+            "w/o anisotropy": 33.612252634004825,
+            "w/o joint modelling": 33.83499598483465,
+            "w/o intra-contrast priors": 25.795134341739598
+          },
+          "gmax": 1.7448335886001587
+        },
+        "T2": {
+          "whole_head_psnr": {
+            "ZF": 26.30026354795347,
+            "Full MC-GS": 35.09562811237432,
+            "w/o anisotropy": 34.491295403148534,
+            "w/o joint modelling": 35.06015127157265,
+            "w/o intra-contrast priors": 28.973186649613318
+          },
+          "gmax": 1.9706904888153076
+        }
+      },
+      "slice_numbers": [
+        {
+          "plane": "Transverse 150",
+          "contrast": "T1",
+          "zoom_centre": [
+            113,
+            77
+          ],
+          "ZF": {
+            "psnr": 23.658921563462215,
+            "ssim": 0.6784525631308556,
+            "nmse": 0.08989951216138814
+          },
+          "Full MC-GS": {
+            "psnr": 34.65950875290718,
+            "ssim": 0.9370803077017036,
+            "nmse": 0.007140006647294646
+          },
+          "w/o anisotropy": {
+            "psnr": 34.43140134281962,
+            "ssim": 0.934290310292629,
+            "nmse": 0.0075250494312603545
+          },
+          "w/o joint modelling": {
+            "psnr": 34.42206723066991,
+            "ssim": 0.933635392277494,
+            "nmse": 0.0075412401023270915
+          },
+          "w/o intra-contrast priors": {
+            "psnr": 25.91961933097336,
+            "ssim": 0.624212347800495,
+            "nmse": 0.05341799194783718
+          }
+        },
+        {
+          "plane": "Transverse 150",
+          "contrast": "T2",
+          "zoom_centre": [
+            113,
+            77
+          ],
+          "ZF": {
+            "psnr": 24.441711402840262,
+            "ssim": 0.6302524918153478,
+            "nmse": 0.12495130770886384
+          },
+          "Full MC-GS": {
+            "psnr": 34.556993051935734,
+            "ssim": 0.9365133127338259,
+            "nmse": 0.012167816197203194
+          },
+          "w/o anisotropy": {
+            "psnr": 33.89130247657381,
+            "ssim": 0.9291244933638261,
+            "nmse": 0.01418344400071731
+          },
+          "w/o joint modelling": {
+            "psnr": 34.39203636231731,
+            "ssim": 0.9319123934905545,
+            "nmse": 0.012638871831137
+          },
+          "w/o intra-contrast priors": {
+            "psnr": 28.35891126333957,
+            "ssim": 0.7333535117769951,
+            "nmse": 0.050701501349610004
+          }
+        },
+        {
+          "plane": "Coronal 113",
+          "contrast": "T1",
+          "zoom_centre": [
+            150,
+            77
+          ],
+          "ZF": {
+            "psnr": 26.943519055793907,
+            "ssim": 0.714304327839696,
+            "nmse": 0.09229966226336923
+          },
+          "Full MC-GS": {
+            "psnr": 35.41928777469729,
+            "ssim": 0.9144952320261885,
+            "nmse": 0.013110620304188643
+          },
+          "w/o anisotropy": {
+            "psnr": 35.23160662830635,
+            "ssim": 0.9116605127012198,
+            "nmse": 0.013689618789374334
+          },
+          "w/o joint modelling": {
+            "psnr": 35.31881904912064,
+            "ssim": 0.9130574900036496,
+            "nmse": 0.013417453923258568
+          },
+          "w/o intra-contrast priors": {
+            "psnr": 25.516688856152648,
+            "ssim": 0.5302631079425967,
+            "nmse": 0.12819855553898074
+          }
+        },
+        {
+          "plane": "Coronal 113",
+          "contrast": "T2",
+          "zoom_centre": [
+            150,
+            77
+          ],
+          "ZF": {
+            "psnr": 29.154256314074914,
+            "ssim": 0.7496291397663856,
+            "nmse": 0.091486105478133
+          },
+          "Full MC-GS": {
+            "psnr": 36.73626822827266,
+            "ssim": 0.9335581016874235,
+            "nmse": 0.015964449552772465
+          },
+          "w/o anisotropy": {
+            "psnr": 36.38522571152736,
+            "ssim": 0.9300622993243501,
+            "nmse": 0.017308450904249366
+          },
+          "w/o joint modelling": {
+            "psnr": 36.67168991878357,
+            "ssim": 0.9320293287055103,
+            "nmse": 0.01620360992798705
+          },
+          "w/o intra-contrast priors": {
+            "psnr": 28.768749538845825,
+            "ssim": 0.6579416579547936,
+            "nmse": 0.09997831609666494
+          }
+        },
+        {
+          "plane": "Sagittal 77",
+          "contrast": "T1",
+          "zoom_centre": [
+            150,
+            113
+          ],
+          "ZF": {
+            "psnr": 25.07074285748954,
+            "ssim": 0.7142306576948985,
+            "nmse": 0.10601417849259571
+          },
+          "Full MC-GS": {
+            "psnr": 35.01165280722401,
+            "ssim": 0.9151183152065826,
+            "nmse": 0.010746646349633194
+          },
+          "w/o anisotropy": {
+            "psnr": 34.641330731826834,
+            "ssim": 0.9098753976613915,
+            "nmse": 0.011703214497764512
+          },
+          "w/o joint modelling": {
+            "psnr": 34.82530178808122,
+            "ssim": 0.912322761526333,
+            "nmse": 0.01121780946628664
+          },
+          "w/o intra-contrast priors": {
+            "psnr": 25.214709175314326,
+            "ssim": 0.5366011754426058,
+            "nmse": 0.10255747517076151
+          }
+        },
+        {
+          "plane": "Sagittal 77",
+          "contrast": "T2",
+          "zoom_centre": [
+            150,
+            113
+          ],
+          "ZF": {
+            "psnr": 27.045945797826356,
+            "ssim": 0.7233650548739734,
+            "nmse": 0.11481190274402268
+          },
+          "Full MC-GS": {
+            "psnr": 35.42973832923309,
+            "ssim": 0.9257977048582328,
+            "nmse": 0.0166574171281156
+          },
+          "w/o anisotropy": {
+            "psnr": 34.86543465546293,
+            "ssim": 0.9189166842802786,
+            "nmse": 0.018968720121350712
+          },
+          "w/o joint modelling": {
+            "psnr": 35.38385048679837,
+            "ssim": 0.9241701293202568,
+            "nmse": 0.01683435361530806
+          },
+          "w/o intra-contrast priors": {
+            "psnr": 28.40620015504087,
+            "ssim": 0.6735663122696521,
+            "nmse": 0.08393855309540747
+          }
+        }
+      ]
+    }
+  },
+  "figures": [
+    {
+      "stem": "ablation_t1t2tb_three_planes_150_113_77",
+      "png": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/fig_ablation/ablation_t1t2tb_three_planes_150_113_77.png",
+      "pdf": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/fig_ablation/ablation_t1t2tb_three_planes_150_113_77.pdf",
+      "png_px": [
+        3373,
+        6160
+      ],
+      "rows": [
+        "t1t2tb T1 Transverse 150",
+        "t1t2tb T2 Transverse 150",
+        "t1t2tb T1 Coronal 113",
+        "t1t2tb T2 Coronal 113",
+        "t1t2tb T1 Sagittal 77",
+        "t1t2tb T2 Sagittal 77"
+      ]
+    }
+  ]
+}

@@ -33,7 +33,9 @@ import shutil
 from pathlib import Path
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--tasks", nargs="+", default=["ce", "t1flair", "t1t2"], choices=["ce", "t1flair", "t1t2"])
+ap.add_argument("--tasks", nargs="+", default=["ce", "t1flair", "t1t2"], choices=["ce", "t1flair", "t1t2", "t1t2tb"])
+ap.add_argument("--planes", type=int, nargs=3, default=None, metavar=("TRA", "COR", "SAG"),
+                help="planes of a single task (default: the task's own)")
 ap.add_argument("--inset", type=int, default=48)
 ap.add_argument("--err_vmax", type=float, default=0.1)
 ap.add_argument("--brightness", type=float, default=1.5)
@@ -71,7 +73,18 @@ TASKS = {
     "t1t2": dict(names=("T1", "T2"), show=("T1", "T2"), short="T1+T2, AF12",
                  title="T1+T2, AF12", planes=(150, 113, 77), box="meet",
                  mask=R0 / "T1T2_AF12_retro/data/mask_af12_3d.h5"),
+    # tangbing (T2 shifted one voxel at data-set build), the configuration tuned in stage three of
+    # ablation_coupling_tune_20261111 (RESULTS.md section 7.1). Not in the default task list. The volumes are the
+    # seed-42 runs that saved them: the full model and the two best independents were run again with --volumes.
+    "t1t2tb": dict(names=("T1", "T2"), show=("T1", "T2"), short="T1+T2, AF12 (tangbing)",
+                   title="T1+T2, AF12 (tangbing, tuned configuration)", planes=(150, 113, 77), box="meet",
+                   mask=R0 / "T1T2_AF12_v4_tangbing/data/mask_af12_3d.h5",
+                   files={"full": "tn_t1t2tb_fin_full_vol", "iso": "tn_t1t2tb_fin_iso", "noprior": "tn_t1t2tb_fin_noprior",
+                          "nojoint_T1": "tn_t1t2tb_fin_rot008_t1_vol", "nojoint_T2": "tn_t1t2tb_fin_scl004_t2_vol"}),
 }
+if args.planes is not None:
+    assert len(args.tasks) == 1, "--planes needs exactly one task"
+    TASKS[args.tasks[0]]["planes"] = tuple(args.planes)
 FULL, ISO, NOJ, NOP = "Full MC-GS", "w/o anisotropy", "w/o joint modelling", "w/o intra-contrast priors"
 LABELS = ["ZF", FULL, ISO, NOJ, NOP]
 HEADER = {"ZF": "ZF", FULL: "Full MC-GS", ISO: "w/o anisotropy", NOJ: "w/o joint\nmodelling", NOP: "w/o intra-contrast\npriors"}
@@ -118,6 +131,9 @@ def task_rows(task):
     pn, cn = T["names"]
     files = {k: RES / f"fw_{task}_{k}_volumes.npz" for k in ("full", "iso", "noprior")}
     files.update({f"nojoint_{n}": RES / f"fw_{task}_nojoint_{n}_volumes.npz" for n in (pn, cn)})
+    if "files" in T:
+        assert set(T["files"]) == set(files), f"{task}: files must name {sorted(files)}"
+        files = {k: RES / f"{e}_volumes.npz" for k, e in T["files"].items()}
     score = {k: json.load(open(str(p).replace("_volumes.npz", "_score.json"))) for k, p in files.items()}
     z = {k: np.load(p) for k, p in files.items()}
     with h5py.File(T["mask"], "r") as f:
@@ -341,11 +357,13 @@ if len(args.tasks) > 1:
     render(rows, "MC-GS framework ablation   --   transverse plane of each task:   "
                  + ";   ".join(f"{TASKS[t]['short']} (slice {TASKS[t]['planes'][0]})" for t in args.tasks),
            "ablation_overview_transverse")
-(OUT / "record.json").write_text(json.dumps(record, indent=2, ensure_ascii=False))
+DEFAULT = args.tasks == ["ce", "t1flair", "t1t2"] and args.planes is None
+REC = OUT / ("record.json" if DEFAULT else f"record_{'_'.join(args.tasks)}.json")   # a partial run keeps record.json
+REC.write_text(json.dumps(record, indent=2, ensure_ascii=False))
 
 art = Path(os.environ.get("MCGS_ARTIFACT_DIR", OUT / "artifacts"))
 art.mkdir(parents=True, exist_ok=True)
-shutil.copy2(OUT / "record.json", art / "record.json")
+shutil.copy2(REC, art / REC.name)
 budget = 44 << 20                                # gpu.py fetch takes at most 50 MiB
 for f in record["figures"]:                      # previews first, then the full PNGs while they fit
     p = OUT / f"{f['stem']}_preview.jpg"
