@@ -140,3 +140,16 @@ def test_tagged_development_rows_stay_out_of_the_main_table_values():
     assert [r["tag"] for r in t] == ["", "r1"]
     assert evaluate._val(t, "af12", "C0", "A2", "T2") == 36.0
     assert evaluate._val(t, "af12", "C0", "A2", "T2", tag="r1") == 30.0
+
+
+def test_trajectory_rows_keep_pose_and_gradient_statistics():
+    rec = dict(trajectory=[
+        dict(it=1, theta_deg=[0.0, 0.0, 0.0], t_mm=[0.0, 0.0, 0.0], grad={}, segments=[], ctrl_mm=None),
+        dict(it=200, theta_deg=[0.1, 0.2, 0.3], t_mm=[1.0, 2.0, 3.0], segments=[dict(theta_deg=[0, 0, 0.5], t_mm=[0.2, 0, 0])],
+             grad=dict(rigid_t=dict(n=200, abs_mean=2e-10, consistency=0.9, mean=[1e-10, 0, 0]),
+                       nonrigid=dict(n=100, abs_mean=1e-13, consistency=0.1)))])
+    rows = evaluate.trajectory_rows(rec)
+    assert rows[0] == dict(it=1, theta_deg=[0.0, 0.0, 0.0], t_mm=[0.0, 0.0, 0.0], grad={})
+    assert rows[1]["grad"] == dict(rigid_t=[2e-10, 0.9], nonrigid=[1e-13, 0.1]) and rows[1]["t_mm"] == [1.0, 2.0, 3.0]
+    assert evaluate.trajectory_rows(dict(trajectory=[dict(it=1, theta_deg=None, t_mm=None)])) == \
+        [dict(it=1, theta_deg=None, t_mm=None, grad={})]                # runs made before the statistics existed

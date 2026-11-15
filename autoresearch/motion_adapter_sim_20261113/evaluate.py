@@ -206,6 +206,14 @@ def _state(exp):
     return json.loads(p.read_text())["final"]
 
 
+def trajectory_rows(rec):
+    """Pose and gradient statistics along the training of one run: per record the iteration, the inter-scan pose and,
+    per adapter group, [mean |gradient|, sign consistency] of the window that ended there (patch.GradStats)."""
+    return [dict(it=t["it"], theta_deg=t.get("theta_deg"), t_mm=t.get("t_mm"),
+                 grad={k: [v["abs_mean"], v["consistency"]] for k, v in (t.get("grad") or {}).items()})
+            for t in rec.get("trajectory", [])]
+
+
 def motion_errors(exp, cond, c0_exp=None):
     """Errors of the estimated transform of one run against the simulated truth (None if the run has no adapter)."""
     st = _state(exp)
@@ -454,11 +462,14 @@ def dev_report(tag):
     """One development round: motion errors on D1-D3 and the zero-motion check of the round's C0 runs."""
     table = image_table(load_ledger())
     exps = {r["exp"] for r in table}
-    out = dict(tag=tag, zero=zero_motion_checks("af12", table, tag), motion={}, images={})
+    out = dict(tag=tag, zero=zero_motion_checks("af12", table, tag), motion={}, images={}, trajectory={})
     for r in table:
         if r["tag"] != tag:
             continue
         out["images"][r["exp"]] = {c: r[c]["head_psnr"] for c in ("T1", "T2") if r[c]}
+        mfile = RES / f"{r['exp']}_motion.json"
+        if mfile.exists():
+            out["trajectory"][r["exp"]] = trajectory_rows(json.loads(mfile.read_text()))
         if r["cond"].startswith("D"):
             out["motion"][r["exp"]] = motion_errors(r["exp"], r["cond"], _c0_reference("af12", r["arm"], exps, tag))
     return out
