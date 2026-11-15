@@ -153,3 +153,15 @@ def test_trajectory_rows_keep_pose_and_gradient_statistics():
     assert rows[1]["grad"] == dict(rigid_t=[2e-10, 0.9], nonrigid=[1e-13, 0.1]) and rows[1]["t_mm"] == [1.0, 2.0, 3.0]
     assert evaluate.trajectory_rows(dict(trajectory=[dict(it=1, theta_deg=None, t_mm=None)])) == \
         [dict(it=1, theta_deg=None, t_mm=None, grad={})]                # runs made before the statistics existed
+
+
+def test_reference_segment_counts_as_identity_whatever_its_stored_parameters():
+    """The forward model ignores the reference segment's parameters; the regulariser lets them drift (D3/A3 r3:
+    0.04 deg, 0.06 mm). They are not an estimate and must not enter the errors or the zero-motion check."""
+    est = [dict(theta_deg=[0.0, 0.0, 0.0], t_mm=[0.0, 0.0, 0.0]), dict(theta_deg=[0.0, 0.0, 0.3], t_mm=[0.5, 0.0, 0.0])]
+    true_mean = [geom.Rigid.identity(), geom.Rigid.identity()]
+    e = evaluate.segment_errors(est, true_mean, ref_seg=1, brain=ball_mask())
+    assert e["seg_rot_err_deg_max"] < 1e-9 and e["seg_t_err_mm_max"] < 1e-9
+    assert evaluate.segment_extent(est, ref_seg=1) == (0.0, 0.0)
+    deg, mm = evaluate.segment_extent(est, ref_seg=0)
+    assert deg == pytest.approx(0.3) and mm == pytest.approx(0.5)

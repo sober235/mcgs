@@ -181,17 +181,27 @@ def rigid_motion_errors(est, truth, c0_est, brain):
 
 def segment_errors(est_segments, true_mean, ref_seg, brain):
     """Per-segment pose errors. est_segments: [{theta_deg, t_mm}] relative to the reference segment;
-    true_mean: geom.Rigid mean pose of every segment (relative to the reference echo train)."""
+    true_mean: geom.Rigid mean pose of every segment (relative to the reference echo train). The reference segment
+    is the identity in the forward model; its stored parameters are not an estimate and are not read."""
     r = geom.grid_mm(brain.shape)[brain][::7]
     ref_inv = true_mean[ref_seg].inverse()
     rot, tr, tre = [], [], []
     for k, e in enumerate(est_segments):
-        want, got = true_mean[k].compose(ref_inv), rigid_of(e)
+        want, got = true_mean[k].compose(ref_inv), (geom.Rigid.identity() if k == ref_seg else rigid_of(e))
         rot.append(_angle_deg(got.R @ want.R.T))
         tr.append(float(np.linalg.norm(got.t - want.t)))
         tre.append(float(np.linalg.norm(got.apply(r) - want.apply(r), axis=-1).mean()))
     return dict(seg_rot_err_deg=rot, seg_t_err_mm=tr, seg_tre_mean_mm=tre, seg_rot_err_deg_max=max(rot),
                 seg_t_err_mm_max=max(tr), seg_tre_mean_mm_max=max(tre))
+
+
+def segment_extent(est_segments, ref_seg):
+    """(largest rotation in degrees, largest translation in mm) over the segments other than the reference."""
+    rest = [s for k, s in enumerate(est_segments) if k != ref_seg]
+    if not rest:
+        return 0.0, 0.0
+    return (float(max(np.linalg.norm(s["theta_deg"]) for s in rest)),
+            float(max(np.linalg.norm(s["t_mm"]) for s in rest)))
 
 
 def _brain(cond):
@@ -275,8 +285,7 @@ def zero_motion_checks(af, table, tag=""):
         if st.get("ctrl_mm") is not None:
             d["nonrigid_brain_max_mm"] = float(np.linalg.norm(est_field(st, N, part="nonrigid"), axis=-1)[brain].max())
         if st.get("segments"):
-            d["seg_max_deg"] = float(max(np.linalg.norm(s["theta_deg"]) for s in st["segments"]))
-            d["seg_max_mm"] = float(max(np.linalg.norm(s["t_mm"]) for s in st["segments"]))
+            d["seg_max_deg"], d["seg_max_mm"] = segment_extent(st["segments"], int(st["ref_segment"]))
         out[row["arm"]] = d
     return out
 
