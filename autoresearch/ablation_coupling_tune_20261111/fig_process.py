@@ -7,10 +7,11 @@ lines is the margin printed under each round. Numbers are read from experiments.
 task t1t2tb, seed 42); the two registered starting points (V32 full, V32 independents) are the values of
 RESULTS.md section 7. CPU only, reads no server file.
 
-    gpu.py run --cpu -- @python autoresearch/ablation_coupling_tune_20261111/fig_process.py
+    gpu.py run --cpu -- @python autoresearch/ablation_coupling_tune_20261111/fig_process.py [KEEP_DIR]
 """
 import json
 import os
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -93,6 +94,12 @@ fig.text(0.02, 0.02, "Each round adds one change to the kept configuration.  * =
          fontsize=9.5, color=INK2, ha="left", va="bottom")
 out = Path(os.environ.get("MCGS_ARTIFACT_DIR", HERE))
 fig.savefig(out / "t1t2tb_tuning_process.png", dpi=200, facecolor=SURF)
+if len(sys.argv) > 1:                                    # optional: a directory that also gets the PNG and a vector PDF
+    keep = Path(sys.argv[1])
+    keep.mkdir(parents=True, exist_ok=True)
+    fig.savefig(keep / "t1t2tb_tuning_process.png", dpi=200, facecolor=SURF)
+    fig.savefig(keep / "t1t2tb_tuning_process.pdf", facecolor=SURF)
+    print("kept", keep)
 print("T1 full", [round(v, 3) for v in full["T1"]], "best", [round(v, 3) for v in best["T1"]])
 print("T2 full", [round(v, 3) for v in full["T2"]], "best", [round(v, 3) for v in best["T2"]])
 print("wrote", out / "t1t2tb_tuning_process.png")
