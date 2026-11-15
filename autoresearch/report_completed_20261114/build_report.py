@@ -79,7 +79,7 @@ FIGS = [
     ("hp_sens", R + "/T1FLAIR_AF16_hparam_v3_jiangyizhou/figures/hp_sensitivity_psnr_ssim.pdf", "S",
      "超参数敏感性：高斯个数与私有点比例对头部 PSNR、SSIM 的影响（AF16）。"),
     ("cap_slice181", A + "/mcgs_hparam_capacity_fig_20261111/hp_capacity_slice181.pdf", "M",
-     "高斯容量消融的记录图（用户 2026-11-11 指定）：横断 181 层，真值与 90 万 / 180 万 / 360 万 / 720 万个高斯的重建、48 × 48 放大框和误差图；下方为该层的 PSNR、SSIM、NMSE 和计算开销。"),
+     "高斯容量消融的记录图（用户 2026-11-11 指定）：横断 181 层，真值与 90 万 / 180 万 / 360 万 / 720 万个高斯的重建、48 × 48 放大框和误差图；下方为该层的 PSNR、SSIM、NMSE，以及高斯个数和峰值显存。"),
     ("noise_T1", R + "/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/figures/t1flair_v3_af16n05_T1_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit_zf_caps.pdf", "L",
      "外加噪声 0.5σ0 时的 T1 三平面对比（AF16）。"),
     ("noise_FLAIR", R + "/T1FLAIR_AF16_noise0p5x_v3_jiangyizhou/figures/t1flair_v3_af16n05_FLAIR_row3planes_compact_180_124_76_inset48_headerr_p3_mcinr_spirit_zf_caps.pdf", "L",

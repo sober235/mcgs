@@ -4,16 +4,23 @@
 (0.9M / 1.8M / 3.6M / 7.2M shared Gaussians) is the single-slice figure
 
 - `hp_capacity_slice181.png` (600 dpi, 4320 x 3379 px = 183 x 143 mm) and `hp_capacity_slice181.pdf`
-- PNG sha256 `7acfa24fafed15c9ebc7fa59045699e53ebe4cd49791bbba1e921415c625afd3`
+- PNG sha256 `83ce3077ec561b079726a1ac3e0d3cd9c7c41457d0fdaf8d20fe1c85b150c655` (version of 2026-11-15, see the note below; the version of
+  2026-11-11 was `7acfa24f…c625afd3`)
 - server copy: `/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_hparam_capacity_fig_20261111/`
 
 Use this figure and the numbers below when the capacity ablation is shown or quoted, until the user
 names a newer one.
 
+**Changed 2026-11-15 (user: "Remove").** Panel e no longer shows the training time, and the script no longer
+reads the runs' elapsed time (rule since 2026-11-12: no time information of the GPU server is obtained or
+displayed). Panel e keeps the number of Gaussians and the peak GPU memory. Panels a to d, the slice, the zoom box
+and every image metric are unchanged. The time row of the table below and the time rows of the source-data CSV
+were removed with it. The earlier whole-head versions listed under Files were not redrawn.
+
 ## What it shows
 
 Statement supported: too little capacity lowers both contrasts; doubling beyond 3.6M trades T1 for FLAIR
-without a consistent gain, at extra time and memory.
+without a consistent gain, at extra memory.
 
 Data: jiangyizhou T1 + FLAIR, AF16 (house vd-Poisson mask), frozen phase-3 recipe, 4000 iterations,
 seed 42, one run per setting; runs `hp_n09 / hp_n18 / hp_n36 / hp_n72` of
@@ -28,14 +35,13 @@ changes. All image metrics are computed on transverse slice 181, head pixels onl
 | FLAIR SSIM | 0.92610 | 0.92969 | 0.93320 | 0.93421 |
 | T1 NMSE | 0.00759 | 0.00711 | 0.00698 | 0.00708 |
 | FLAIR NMSE | 0.01023 | 0.00926 | 0.00879 | 0.00872 |
-| Training time (min) | 47 | 53 | 65 | 81 |
 | Peak GPU memory (GB) | 32.3 | 32.5 | 32.9 | 33.8 |
 
 Against 3.6M: 0.9M is -0.36 dB (T1) and -0.66 dB (FLAIR); 7.2M is -0.06 dB (T1) and +0.03 dB (FLAIR),
-with SSIM moving the same way. Time and memory are per run on one A100 80 GB.
+with SSIM moving the same way. Memory is per run on one A100 80 GB.
 
 Panels: a, slice 181 for GT and the four capacities, a 48 x 48 zoom and its error map
-(|recon - GT| / max GT, jet [0, 0.1]); b, slice PSNR; c, slice SSIM; d, slice NMSE; e, compute cost.
+(|recon - GT| / max GT, jet [0, 0.1]); b, slice PSNR; c, slice SSIM; d, slice NMSE; e, number of Gaussians and peak GPU memory relative to 0.9M.
 
 ## What must be said with it
 
