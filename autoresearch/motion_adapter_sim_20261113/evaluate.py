@@ -471,11 +471,13 @@ def dev_report(tag):
     """One development round: motion errors on D1-D3 and the zero-motion check of the round's C0 runs."""
     table = image_table(load_ledger())
     exps = {r["exp"] for r in table}
+    attach_alt_scores([r for r in table if r["tag"] == tag])
     out = dict(tag=tag, zero=zero_motion_checks("af12", table, tag), motion={}, images={}, trajectory={})
+    keys = ("head_psnr", "head_psnr_raw", "head_psnr_refdc", "head_psnr_eval")
     for r in table:
         if r["tag"] != tag:
             continue
-        out["images"][r["exp"]] = {c: r[c]["head_psnr"] for c in ("T1", "T2") if r[c]}
+        out["images"][r["exp"]] = {c: {k: r[c][k] for k in keys if k in r[c]} for c in ("T1", "T2") if r[c]}
         mfile = RES / f"{r['exp']}_motion.json"
         if mfile.exists():
             out["trajectory"][r["exp"]] = trajectory_rows(json.loads(mfile.read_text()))
