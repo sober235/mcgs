@@ -1,0 +1,21 @@
+{
+ "lrs": {
+  "rigid_theta": 0.001,
+  "rigid_t": 0.02,
+  "nonrigid": 0.005,
+  "seg_theta": 0.0005,
+  "seg_t": 0.01
+ },
+ "reg": {
+  "ctrl_l2": 0.001,
+  "ctrl_smooth": 0.01,
+  "seg_l2": 0.001,
+  "seg_smooth": 0.01
+ },
+ "stage_iters": [
+  0,
+  0
+ ],
+ "n_extra": 7,
+ "K": 8
+}
