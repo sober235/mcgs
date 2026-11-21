@@ -235,8 +235,8 @@ def test_pulses_are_not_states():            # 两段各 5 条链的尖峰：返
   - 运动配置（`CFG2/motion/<exp>.json`）的键：`exp, arm, cond, order, af, seed, channel, out_dir, schedule_path, truth_path, brain_path, m1, m2, m3, reg, native_shift_mm`。`m2 = {"mode", z0, z1, cap, warmup, every, n_shells}`；`m1`、`m3` 在本任务为 `None`。
   - `mpatch.validate(cfg)`；`mpatch.weight_map(w, train_of) -> (ky, kz) float`（支撑外为 1）；`mpatch.weighted_mask(mask_fit, wmap) -> mask_fit * sqrt(wmap)`（`wmap` 全 1 时返回 `mask_fit` 本身，同一对象）；`mpatch.install(cfg)`；`mpatch.main()`：`mpatch.py --motion FILE -- <cycle.py 参数>`。
   - 挂钩：数据集加载（`load_with_reference_gt`）；`_kspace_loss`（识别 T2 调用的条件与第一版相同：`ksp_meas is self.kspace_fit_<tag>`）；`train` 结束后保存。`monitor`：到 `warmup` 后每 `every` 次在 `no_grad` 下算 `rho`、`z` 并记入历史，损失不变。`truth`：从第 1 次迭代起用 `1 − contaminated`。
-  - 保存：`RES2/<exp>_mm.json` = `{exp, arm, order, n_trains, m2: {mode, rho, z, w, history: [{it, n_down, w_sum}]}, m3: null, reg: null}`；`RES2/<exp>_canon.npz` = `rec_raw`，加权组另有 `rec_w_dc`（用评分器 `arc/cycle.py score_contrast` 的同一个硬数据一致性函数，只插回参考状态中 `w >= 0.5` 的采样线）。
-  - `mrun.py --af af12 --order il --cond DTa --arm Ow --gpu N [--settings F] [--seed 42] [--tag T] [--smoke]`；`--dry --all`；`--selftest --gpu N`。账本行 = `ledger_row(...)` 加 `order`。扫描内条件：`data_path = gt_ksp_T2.h5`，`motion_ksp_path = ksp_T2.h5`。
+  - 保存：`RES2/<exp>_mm.json` = `{exp, arm, order, n_trains, m2: {mode, rho, z, w, history: [{it, n_down, w_sum, z}]}, m3: null, reg: null}`（`history` 每条带当次的 `z`，可行性验证用它算各次的 AUC）；`RES2/<exp>_canon.npz` = `rec_raw`，加权组另有 `rec_w_dc`（用评分器 `arc/cycle.py score_contrast` 的同一个硬数据一致性函数，只插回参考状态中 `w >= 0.5` 的采样线）。
+  - `mrun.py --af af12 --order il --cond DTa --arm Ow --gpu N [--settings F] [--seed 42] [--tag T] [--smoke]`；`--dry --all`；`--selftest --gpu N`。账本行 = `ledger_row(...)` 加 `order`。扫描内条件：`data_path = gt_ksp_T2.h5`，`motion_ksp_path = ksp_T2.h5`；有病灶的条件 T1 用该条件的 `ksp_T1.h5`；带 `v1_data` 的条件用第一版根目录里的文件。
   - `queue.py --study mild`：行格式 `af:order:cond:arm`，调用 `M/mrun.py`，读 `ROOT2/ledger.jsonl`，写 `M/experiments.jsonl`，代码哈希覆盖 `M/*.py` 和 `E1` 的库文件；不带 `--study` 时行为不变。
 
 - [ ] **Step 1: 写失败的测试**
@@ -257,7 +257,7 @@ def test_queue_default_study_unchanged():       # 不带 --study 时解析出的
 - [ ] **Step 2: 运行，确认失败** — `PYTEST2 test_mpatch.py test_mrun.py`。
 - [ ] **Step 3: 实现**。
 - [ ] **Step 4: 运行，确认通过** — `PYTEST2`、`PYTEST1`。
-- [ ] **Step 5: GPU 自检** — 查空卡两次后 `rrun.py --gpu N -- @python M/mrun.py --selftest --gpu N`（30 次迭代，真实数据）。自检内容：(a) `il:C0:B0`（monitor，`warmup=10, every=10`）每次迭代打印的损失与不经补丁直接跑 `arc/cycle.py` 的逐字符相同；(b) 同一次运行里 `rec_w_dc` 的头部 PSNR 与评分器的 `head_psnr` 相差 < 1e-4 dB；(c) `il:DTa:Ow` 跑完并写出两个文件。
+- [ ] **Step 5: GPU 自检** — 查空卡两次后 `rrun.py --gpu N -- @python M/mrun.py --selftest --gpu N`（30 次迭代，真实数据）。自检内容：(a) `il:C0:B0`（monitor，`warmup=10, every=10`）每次迭代打印的损失与不经补丁直接跑 `arc/cycle.py` 的逐字符相同；(b) `il:C0:Ow`（没有受污染的链，权重全 1）的 `rec_w_dc` 头部 PSNR 与评分器的 `head_psnr` 相差 < 1e-4 dB；(c) `il:DTa:Ow` 跑完并写出两个文件。
 Expected: 三行 `SELFTEST ok`。
 - [ ] **Step 6: 提交** — `feat(motion-mild): patch with monitored and truth weights in the T2 data term; launcher and queue profile`
 
@@ -349,7 +349,7 @@ def test_adapter_frozen_after_end():        # it >= end：ctrl 不再变化
 ```
 
 - [ ] **Step 2–4:** 确认失败；实现；`PYTEST2`、`PYTEST1`（含 `E1/tests/run_tests.py --gpu` 的 2 个 GPU 测试，因为动了 `adapter.py`）通过。
-- [ ] **Step 5: 配准** — `rrun.py --cpu -- @python M/reg.py --af af12 --order il --conds C0 D2 --check-truth`。
+- [ ] **Step 5: 配准** — 先 `msim.py --cond D2 --order il`（只写清单和 `schedule.npz`）；然后 `rrun.py --cpu -- @python M/reg.py --af af12 --order il --conds C0 D2 --check-truth`。
 Expected: C0 的平移与 `NATIVE_SHIFT_MM` 相差 ≤ 0.3 mm、旋转 ≤ 0.2°；D2 的差分配准误差 ≤ 0.2 mm（探针里是 0.08）。不满足时按 systematic-debugging 查，不放宽阈值。
 - [ ] **Step 6: GPU 冒烟** — `mrun.py ... --cond D2 --arm B1 --gpu N --smoke`。Expected: 日志有 `[mm] M1: pose from registration ...` 和 T2 密度初值换帧的一行；跑完。
 - [ ] **Step 7: 提交** — `feat(motion-mild): registration-driven inter-scan alignment (M1)`
@@ -364,7 +364,7 @@ Expected: C0 的平移与 `NATIVE_SHIFT_MM` 相差 ≤ 0.3 mm、旋转 ≤ 0.2°
   - `detect`：迭代数 == `at` 时，用当时的 `rho`（按时间顺序）调 `weights.changepoints`。无变化点 → M3 之后不起作用，记 `states.n = 1`。有 → `state_of_train`；含参考链的状态编号 0、位姿固定为恒等；其余状态取初值（`init="reg"`：`reg.register_states(und_ksp, csm, mask, train_of, state_of_train, brain_mask) -> list[geom.Rigid]`，两个状态各自零填充后配准；`"zero"`：恒等），`set_segment_pose`，打开 `requires_grad`。之后数据项 = `Σ_s loss_fn(render_s, mask_s)`，`mask_s = segment_masks(mask_fit, state2d, 0, n) × sqrt(w)`，每次迭代渲染全部已启用的状态，不抽样；`robust_z` 按状态分组。
   - `truth`：从第 1 次迭代起用真值的 `state_of_train` 和 `state_poses`，位姿冻结；M2 的真值权重只把「相对本状态位姿仍受污染」的链置 0。
   - `_mm.json` 的 `m3 = {mode, n, detected_at, boundaries, state_of_train, init_poses, final_poses}`。
-  - `mevaluate.state_errors(mm, truth, brain) -> dict(n_states, n_true, boundary_err_trains, rot_err_deg_max, t_err_mm_max)`（位姿误差用 `E1/evaluate.segment_errors`）。
+  - `mevaluate.state_errors(mm, truth, brain) -> dict(n_states, n_true, boundary_err_trains, rot_err_deg_max, t_err_mm_max)`（位姿误差用 `E1/evaluate.segment_errors`）。`weight_detection` 对带 M3 的组改为：被分到非参考状态的链算「已处理」（受污染的计入检出，干净的计入误降）。
 
 - [ ] **Step 1: 写失败的测试**
 
@@ -376,6 +376,7 @@ def test_all_states_rendered_every_iteration():  # 两个状态：每次迭代 r
 def test_truth_mode_uses_truth_states():
 def test_seg_groups_are_last_and_present_from_start():
 def test_state_errors():                     # 边界差 2 条链、位姿差 0.1°/0.2 mm 的合成例子
+def test_detection_counts_state_members_as_handled():   # Tc 式真值：40 % 的链在状态 1、w == 1 → recall == 1.0
 ```
 
 - [ ] **Step 2–4:** 确认失败；实现；`PYTEST2`、`PYTEST1` 通过。
@@ -386,14 +387,14 @@ def test_state_errors():                     # 边界差 2 条链、位姿差 0.
 
 **Files:** Create: `M/settings_frozen.json`；Modify: `M/experiments.jsonl`、`M/README.md`（「开发记录」）
 
-- [ ] **Step 1: 基础开发运行**（标签 `d1`）— 先 `reg.py --af af12 --order il --conds DTa`；然后队列跑 `dev` 的 6 行（「对齐项关」那行用 `settings_dev_noalign.json`，只把 `m1.align` 设为 `null`，标签 `d1r`）。
+- [ ] **Step 1: 基础开发运行**（标签 `d1`）— 队列跑 `dev` 的 6 行（「对齐项关」那行用 `settings_dev_noalign.json`，只把 `m1.align` 设为 `null`，标签 `d1r`）。
 - [ ] **Step 2: 读开发报告** — `mevaluate.py --dev d1`。逐项记录到 README：DTa/B2 的收回比例、检出率、误降率；DTc/B123 的状态数、边界误差、位姿误差、收回比例，对照 DTc/Op；D2/B1 两种设置的差分配准误差（刚体 / 含非刚体）和 T1、T2 PSNR。
 - [ ] **Step 3: 定设置** — 规则（都只看开发条件）：
   - 对齐项：D2 上含非刚体的配准误差不比只用刚体小，或 T2 PSNR 低 0.02 dB 以上 → `m1.align = null`（设计稿的退路），写明。
   - `z0/z1/cap/warmup/every`：DTa 上检出率 < 0.9 或误降率 > 0.02 时调整。
   - `m3.init`：DTc 上若 `"reg"` 的初值误差大于恒等初值的误差，改 `"zero"`。
   - 每次调整重跑相关的开发行，新标签 `d2`、`d3`…；开发条件上的训练（含基础 6 次）合计不超过 10 次。到 10 次仍不达标就按现状冻结并如实写明。
-- [ ] **Step 4: 零运动关卡** — 先 `msim.py --cond C0 --order kz`、`reg.py` 补齐 C0；队列跑 `gate` 的 7 行（候选设置）。`mevaluate.py --dev gate` 打印每个组相对 `il:C0:B0` 的 T1、T2 差、`frac_w1`、状态数。
+- [ ] **Step 4: 零运动关卡** — 先 `msim.py --cond C0 --order kz`、`reg.py --af af12 --order kz --conds C0`；队列跑 `gate` 的 7 行（候选设置）。`mevaluate.py --dev gate` 打印每个组相对 `il:C0:B0` 的 T1、T2 差、`frac_w1`、状态数。
 Expected: 每个组 T1、T2 差 ≥ −0.05 dB；`frac_w1 >= 0.99`；状态数 1。任一不满足 → 回到 Step 3（重跑计入 10 次），不带着已知的零运动损失往下走。
 - [ ] **Step 5: 冻结** — 把通过关卡的设置写成 `M/settings_frozen.json`；关卡各行若就是用这份设置跑的，即为正式行。
 - [ ] **Step 6: 提交** — `results(motion-mild): development rounds, zero-motion gate for every arm, settings frozen`
