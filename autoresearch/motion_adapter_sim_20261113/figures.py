@@ -280,7 +280,8 @@ def motion(af, pdf):
                 ax.step(trains, est[:, d], where="mid", color=f"C{d}", lw=1.6, ls="--", label=f"{names[d]} estimate")
             ax.axvspan(*np.flatnonzero(seg == tr["ref_seg"])[[0, -1]], color="0.85", zorder=0)
             ax.set_xlabel("echo train (acquisition order)"); ax.set_ylabel(unit)
-            ax.set_title(f"{c} {a}: pose within the T2W scan, relative to the reference segment (grey)")
+            ax.set_title(f"{c} {a}, {'rotation' if half == 0 else 'translation'} within the T2W scan\n"
+                         f"relative to the reference segment (grey band)", fontsize=10)
             if i == 0:
                 ax.legend(fontsize=7, ncol=3)
     fig.suptitle(f"Recovered motion, {af.upper()} (truth = simulated motion; translation truth includes the native "
@@ -311,11 +312,12 @@ def delta(af, pdf):
         ax.axhline(-0.1 if c_ == "T2" else -0.05, color="red", lw=0.8, ls=":")
         ax.set_xticks(range(len(conds))); ax.set_xticklabels(conds)
         ax.set_ylabel("dB")
-        ax.set_title(f"{c_}: PSNR(arm, condition) - PSNR(arm, C0)"
-                     + (", minus the same difference of GS-single" if c_ == "T2" else " (T1 data unchanged except E3)"))
+        ax.set_title(f"{c_}: PSNR(arm, condition) - PSNR(arm, C0)\n"
+                     + ("minus the same difference of GS-single" if c_ == "T2" else "(T1 data unchanged except E3)"),
+                     fontsize=10)
     axs[0].legend(fontsize=7)
     fig.suptitle(f"Head PSNR change caused by the simulated motion, {af.upper()} (dotted: criterion S2)", fontsize=10)
-    fig.tight_layout(rect=(0, 0, 1, 0.95))
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
     save(fig, f"fig_{af}_delta_psnr", pdf)
 
 
