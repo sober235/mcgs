@@ -198,3 +198,18 @@ def test_validate_m3():
             mpatch.validate(_cfg("adaptive") | bad)
     with pytest.raises(AssertionError):                                    # truth states need truth weights
         mpatch.validate(_cfg("adaptive") | dict(m1=m1, m3=dict(m3, mode="truth")))
+
+
+def test_validate_checks_the_statistic_names():
+    m1 = dict(reg_path="r.json", align=None)
+    m3 = dict(mode="detect", at=1000, min_frac=0.1, cp_t=8.0, max_states=3, init="reg", lrs=dict(seg_theta=5e-4, seg_t=1e-2))
+    for kind in ("sum", "median"):
+        c = _cfg("adaptive")
+        mpatch.validate(c | dict(m2=dict(c["m2"], stat=kind)))
+    for kind in ("energy", "shift"):
+        mpatch.validate(_cfg("adaptive") | dict(m1=m1, m3=dict(m3, stat=kind)))
+    c = _cfg("adaptive")
+    with pytest.raises(AssertionError):
+        mpatch.validate(c | dict(m2=dict(c["m2"], stat="mean")))
+    with pytest.raises(AssertionError):
+        mpatch.validate(_cfg("adaptive") | dict(m1=m1, m3=dict(m3, stat="rho")))

@@ -12,6 +12,7 @@ No clock value or duration is read, printed or written.
 """
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -32,6 +33,21 @@ def weighted(arm):
     return ARMS2[arm]["m2"] in ("adaptive", "truth")
 
 
+def cached_scores(cache, key, size, compute):
+    """Scores of one array of a result file, computed once: kept in the JSON file `cache` together with the size of
+    the result file they were computed from; another size (a rerun) discards everything kept. compute(key) -> dict."""
+    cache = Path(cache)
+    kept = json.loads(cache.read_text()) if cache.exists() else {}
+    if kept.get("canon_bytes") != int(size):
+        kept = dict(canon_bytes=int(size), scores={})
+    if key not in kept["scores"]:
+        kept["scores"][key] = compute(key)
+        tmp = cache.with_suffix(f".{os.getpid()}.tmp")
+        tmp.write_text(json.dumps(kept))
+        os.replace(tmp, cache)
+    return kept["scores"][key]
+
+
 def _file_scores(exp, key, single=False):
     """Head metrics of one array of <exp>_canon.npz; None when the file or the array is missing."""
     canon, vols = RES2 / f"{exp}_canon.npz", RES2 / f"{exp}_volumes.npz"
@@ -41,7 +57,23 @@ def _file_scores(exp, key, single=False):
         if key not in z.files:
             return None
     import mrun
-    return mrun.head_scores(exp, key, single=single)
+    return cached_scores(RES2 / f"{exp}_evalscores.json", key, canon.stat().st_size,
+                         lambda k: mrun.head_scores(exp, k, single=single))
+
+
+def _score_job(args):
+    exp, single = args
+    return exp, {k: _file_scores(exp, k, single) for k in ("rec_raw", "rec_w_dc")}
+
+
+def fill_scores(ledger, workers=8):
+    """Score the result files of all ledger rows in parallel processes (each file once, see cached_scores)."""
+    from concurrent.futures import ProcessPoolExecutor
+    jobs = sorted({(r["exp"], ARMS2[r["arm"]]["trainer"] == "single") for r in ledger})
+    if not jobs:
+        return {}
+    with ProcessPoolExecutor(max_workers=min(int(workers), len(jobs))) as pool:
+        return dict(pool.map(_score_job, jobs))
 
 
 def table(ledger, scores=None):
@@ -489,8 +521,13 @@ def main():
     ap.add_argument("--feas", action="store_true")
     ap.add_argument("--dev", metavar="TAG", help="development round, e.g. d1; '' = the untagged rows")
     ap.add_argument("--all", action="store_true", help="formal matrix -> <root>/eval/summary.json")
+    ap.add_argument("--workers", type=int, default=8, help="processes that score result files")
     args = ap.parse_args()
-    tab = table(load_ledger())
+    ledger = load_ledger()
+    if args.dev is not None:                # a development report scores its own rows and the baselines only
+        ledger = [r for r in ledger if r.get("tag", "") in (args.dev, "")]
+    fill_scores(ledger, args.workers)
+    tab = table(ledger)
     if args.feas:
         f = feasibility(tab)
         for name in ("mm_af12_il_C0_B0", "mm_af12_il_DTa_B0", "mm_af12_il_DTa_Ow"):

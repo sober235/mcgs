@@ -206,3 +206,75 @@ def test_seg_groups_are_last_and_present_from_start():
     assert not ad.seg_theta.requires_grad                          # in the optimiser from the start, switched on later
     torch.optim.Adam(groups)                                       # the optimiser accepts the frozen groups
     assert mpatch.state_groups(base, None, {}) == base
+
+
+# ---- the statistic of M2 and the detection statistic of M3 are settings
+def _fftc(x):
+    d = (-3, -2, -1)
+    return torch.fft.fftshift(torch.fft.fftn(torch.fft.ifftshift(x, dim=d), dim=d), dim=d)
+
+
+def _between(t, first, d=(0.0, 0.06, -0.04)):
+    """Measured data of an object that moves by d voxels at train `first` and stays there, seen by a model that sits
+    half-way between the two positions (what the training converges to): the residual energy of the two parts is
+    then the same, only the direction of the misfit differs."""
+    base = _fftc(t["vol"].unsqueeze(0) * t["csm"])
+    k = [((torch.arange(n) - n // 2) / n).double() for n in (N0, KY, KZ)]
+    kd = d[0] * k[0][:, None, None] + d[1] * k[1][None, :, None] + d[2] * k[2][None, None, :]
+    late = torch.from_numpy(t["train_of"] >= first)
+    g = torch.Generator().manual_seed(5)
+    noise = 0.05 * torch.complex(torch.randn(2, N0, KY, KZ, generator=g, dtype=torch.float64),
+                                 torch.randn(2, N0, KY, KZ, generator=g, dtype=torch.float64))
+    return torch.where(late, base * torch.exp(-1j * np.pi * kd), base * torch.exp(1j * np.pi * kd)) + noise
+
+
+def _run_c(t, ksp, cfg, iters=8):
+    st = mpatch.MMState(cfg, t["train_of"], NT, None, ref_train=13)
+    found = []
+    hook = mpatch.make_kloss(_loss, "c", _fftc, render_state=lambda tr, s: t["vol"],
+                             on_detect=lambda tr, state, new: found.append((state.it, list(new))))
+    tr = _Tr(st, ksp)
+    for _ in range(iters):
+        hook(tr, t["vol"], t["csm"], ksp, t["mask"], None, norm=1.0)
+    return st, found
+
+
+def test_energy_statistic_is_blind_to_a_shift_the_model_sits_between():
+    t = _toy(6)
+    st, found = _run_c(t, _between(t, 60), _cfg())
+    assert st.n_states == 1 and st.boundaries == [] and found == []
+    assert st.record_m3()["settings"]["stat"] == "energy"                 # the default, as the runs before had it
+
+
+def test_shift_statistic_finds_that_shift():
+    t = _toy(6)
+    st, found = _run_c(t, _between(t, 60), _cfg(dict(M3, stat="shift")))
+    assert st.n_states == 2 and st.boundaries == [60] and found == [(6, [1])]
+    rec = st.record_m3()
+    assert rec["settings"]["stat"] == "shift" and np.shape(rec["shift"]) == (NT, 3)
+    d = np.array(rec["shift"], dtype=float)
+    step = np.nanmedian(d[60:], 0) - np.nanmedian(d[:60], 0)
+    assert np.allclose(step, [0.0, 0.06, -0.04], atol=0.01), step
+
+
+def test_shift_statistic_opens_nothing_without_motion():
+    t = _toy(7)
+    clean = _fftc(t["vol"].unsqueeze(0) * t["csm"]) + (t["ksp"] - _fft(t["vol"].unsqueeze(0) * t["csm"]))
+    st, found = _run_c(t, clean, _cfg(dict(M3, stat="shift")))
+    assert st.n_states == 1 and st.detected_at == 6 and found == [] and np.shape(st.record_m3()["shift"]) == (NT, 3)
+
+
+def test_m2_statistic_kind_is_a_setting():
+    t = _toy(8)
+    out = {}
+    for kind in (None, "sum", "median"):
+        cfg = _cfg(None)
+        if kind:
+            cfg["m2"]["stat"] = kind
+        st, _ = _run_c(t, _shifted(t, 60), cfg, iters=2)
+        out[kind] = st
+        assert st.record()["settings"]["stat"] == (kind or "sum")
+    e2d, sampled = mpatch.residual_energy(t["vol"], t["csm"], _shifted(t, 60), t["mask"], _fftc)
+    want = lambda kind: mpatch.weights.train_stat(e2d, sampled, t["train_of"], NT, out[None].shells, kind=kind)
+    assert np.allclose(out[None].rho, want("sum")) and np.allclose(out["sum"].rho, want("sum"))
+    assert np.allclose(out["median"].rho, want("median")) and not np.allclose(out["median"].rho, out["sum"].rho)

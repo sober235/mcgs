@@ -17,15 +17,19 @@ from pathlib import Path
 import numpy as np
 
 import mcommon  # noqa: F401  (puts the first version's directory on sys.path)
+import shiftstat
 import weights
 
 REQUIRED = ("exp", "arm", "cond", "order", "af", "seed", "channel", "out_dir", "schedule_path", "truth_path",
             "brain_path", "m1", "m2", "m3", "reg", "native_shift_mm")
 M2_MODES = ("monitor", "adaptive", "truth")
 M2_KEYS = ("mode", "z0", "z1", "cap", "warmup", "every", "n_shells")
+M2_STAT = "sum"                  # m2["stat"] when the settings do not name it: the statistic of the first runs
 ALIGN_KEYS = ("start", "end", "lr", "weight")
 M3_MODES = ("detect", "truth")
 M3_KEYS = ("mode", "at", "min_frac", "cp_t", "max_states", "init", "lrs")
+M3_STATS = ("energy", "shift")
+M3_STAT = "energy"               # m3["stat"] when the settings do not name it
 _ACTIVE = {}
 
 
@@ -39,6 +43,7 @@ def validate(cfg):
     assert cfg["schedule_path"], "the per-echo-train statistic needs the schedule"
     assert m2["mode"] != "truth" or cfg["truth_path"], "truth weights need the motion truth"
     assert int(m2["every"]) >= 1 and int(m2["warmup"]) >= 1 and float(m2["z1"]) > float(m2["z0"])
+    assert m2.get("stat", M2_STAT) in weights.STAT_KINDS, m2.get("stat")
     m1 = cfg["m1"]
     if m1 is not None:
         assert cfg["channel"] == "contrast", "M1 moves the T2W channel of the joint model"
@@ -54,6 +59,7 @@ def validate(cfg):
         assert not [k for k in M3_KEYS if k not in m3], f"m3 needs {M3_KEYS}"
         assert m3["mode"] in M3_MODES and m3["init"] in ("reg", "zero"), (m3["mode"], m3["init"])
         assert int(m3["max_states"]) >= 2 and int(m3["at"]) >= 1
+        assert m3.get("stat", M3_STAT) in M3_STATS, m3.get("stat")
         assert not [k for k in ("seg_theta", "seg_t") if k not in m3["lrs"]], "m3.lrs needs seg_theta and seg_t"
         assert m3["mode"] != "truth" or (cfg["truth_path"] and m2["mode"] == "truth"), \
             "truth states come with truth weights and need the motion truth"
@@ -147,6 +153,7 @@ class MMState:
         self.ref_train = None if ref_train is None else int(ref_train)
         self.n_states, self.detected_at, self.boundaries = 1, None, []
         self.truth_poses, self.init_poses, self._rho_it, self._smasks, self._version = None, None, 0, None, 0
+        self.shift = None                                   # per-train linearised shift at the detection (M3)
         self.mode = self.m2["mode"]
         assert self.mode in M2_MODES, self.mode
         self.train_of = np.asarray(train_of)
@@ -198,7 +205,8 @@ class MMState:
 
     def _statistic(self, e2d_fn):
         e2d, sampled = e2d_fn()
-        self.rho = weights.train_stat(e2d, sampled, self.train_of, self.n, self.shells)
+        self.rho = weights.train_stat(e2d, sampled, self.train_of, self.n, self.shells,
+                                      kind=self.m2.get("stat", M2_STAT))
         self.z = weights.robust_z(self.rho, self.state_of_train)       # within each state
         self._rho_it = self.it
 
@@ -207,15 +215,25 @@ class MMState:
         return (self.m3 is not None and self.m3["mode"] == "detect" and self.detected_at is None
                 and self.it == int(self.m3["at"]))
 
-    def detect(self, e2d_fn):
+    def detect(self, e2d_fn, shift_fn=None):
         """At iteration m3.at: lasting changes of level of the statistic over acquisition time open states.
         Returns the numbers of the new states ([] when the statistic is level: M3 then stays out of the model).
         When states open, the weights start again at 1: the level change is now explained by a pose, and the next
-        computation of the statistic is taken within each state."""
+        computation of the statistic is taken within each state.
+        m3.stat "energy": the statistic is M2's residual energy per train. It is level when the model sits between
+        the two positions, which is where a training on shifted data converges. m3.stat "shift": shift_fn() ->
+        d[n, 3], the linearised translation of every train against the current model (shiftstat); a lasting shift
+        moves it by one vector for all later trains wherever the model sits."""
         if self._rho_it != self.it:
             self._statistic(e2d_fn)
-        rho = np.where(np.isfinite(self.rho), self.rho, np.nanmedian(self.rho))
-        cps = weights.changepoints(rho, float(self.m3["min_frac"]), float(self.m3["cp_t"]), int(self.m3["max_states"]))
+        args = float(self.m3["min_frac"]), float(self.m3["cp_t"]), int(self.m3["max_states"])
+        if self.m3.get("stat", M3_STAT) == "shift":
+            self.shift = np.asarray(shift_fn(), dtype=np.float64)
+            cps = shiftstat.changepoints_vec(np.where(np.isfinite(self.shift), self.shift,
+                                                      np.nanmedian(self.shift, axis=0)), *args)
+        else:
+            rho = np.where(np.isfinite(self.rho), self.rho, np.nanmedian(self.rho))
+            cps = weights.changepoints(rho, *args)
         self.detected_at, self.boundaries = self.it, [int(c) for c in cps]
         if not self.boundaries:
             return []
@@ -237,8 +255,11 @@ class MMState:
     def record_m3(self, final_poses=None):
         if self.m3 is None:
             return None
-        return dict(mode=self.m3["mode"], settings={k: self.m3[k] for k in M3_KEYS if k in self.m3}, n=self.n_states,
-                    detected_at=self.detected_at, boundaries=self.boundaries,
+        shift = None if self.shift is None else [[None if not np.isfinite(v) else round(float(v), 4) for v in row]
+                                                 for row in self.shift]
+        return dict(mode=self.m3["mode"],
+                    settings=dict({k: self.m3[k] for k in M3_KEYS if k in self.m3}, stat=self.m3.get("stat", M3_STAT)),
+                    n=self.n_states, detected_at=self.detected_at, boundaries=self.boundaries, shift=shift,
                     state_of_train=[int(x) for x in self.state_of_train], init_poses=self.init_poses,
                     truth_poses=self.truth_poses, final_poses=final_poses)
 
@@ -255,7 +276,8 @@ class MMState:
 
     def record(self):
         lst = lambda a: None if a is None else [None if not np.isfinite(v) else float(v) for v in a]
-        return dict(mode=self.mode, settings={k: self.m2[k] for k in M2_KEYS}, rho=lst(self.rho), z=lst(self.z),
+        return dict(mode=self.mode, settings=dict({k: self.m2[k] for k in M2_KEYS}, stat=self.m2.get("stat", M2_STAT)),
+                    rho=lst(self.rho), z=lst(self.z),
                     w=lst(self.w), history=self.history)
 
 
@@ -288,8 +310,9 @@ def make_kloss(orig, tag, fft, render_state=None, on_detect=None):
             for v, m in zip(vols, masks):
                 part = orig(self, v, csm, ksp_meas, weighted_mask(m, wm), freq_weight, norm)
                 loss = part if loss is None else loss + part
-        if st.detect_due():
-            new = st.detect(e2d_fn)
+        if st.detect_due():                                 # only while there is one state: `mask` is the fit mask
+            new = st.detect(e2d_fn, lambda: shiftstat.train_shift(
+                shiftstat.line_sums(vol, csm, ksp_meas, mask, fft), st.train_of, st.n))
             if new and on_detect is not None:
                 on_detect(self, st, new)
         return loss

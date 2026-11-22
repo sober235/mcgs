@@ -236,3 +236,23 @@ def test_detection_without_intra_scan_truth_counts_every_train_as_clean():
     mm = dict(m2=dict(mode="adaptive", w=[1.0] * 108 + [0.2, 0.3], z=None, history=[]), m3=None)
     d = ev.weight_detection(mm, dict(inter=dict(R=[], t=[])))
     assert d["recall"] is None and abs(d["false_rate"] - 2 / 110) < 1e-12 and d["n_contaminated"] == 0
+
+
+def test_scores_are_computed_once_per_result_file(tmp_path):
+    """Scoring one volume takes minutes on the server; a result file is scored once and the scores are kept beside
+    it. A result file of another size (a rerun) is scored again."""
+    calls = []
+
+    def compute(key):
+        calls.append(key)
+        return dict(head_psnr=30.0 + len(calls), head_ssim=0.9)
+    cache = tmp_path / "x_evalscores.json"
+    a = ev.cached_scores(cache, "rec_raw", 1000, compute)
+    b = ev.cached_scores(cache, "rec_raw", 1000, compute)
+    assert a == b == dict(head_psnr=31.0, head_ssim=0.9) and calls == ["rec_raw"]
+    c = ev.cached_scores(cache, "rec_w_dc", 1000, compute)                 # another array of the same file
+    assert c["head_psnr"] == 32.0 and ev.cached_scores(cache, "rec_raw", 1000, compute) == a
+    d = ev.cached_scores(cache, "rec_raw", 1200, compute)                  # the result file changed
+    assert d["head_psnr"] == 33.0 and calls == ["rec_raw", "rec_w_dc", "rec_raw"]
+    assert ev.cached_scores(cache, "rec_w_dc", 1200, compute)["head_psnr"] == 34.0   # the old array went with it
+    assert ev.clock_keys(__import__("json").loads(cache.read_text())) == []

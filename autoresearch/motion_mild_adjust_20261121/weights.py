@@ -20,10 +20,18 @@ def shell_index(shape2d, n_shells):
     return np.minimum((r / r.max() * n_shells).astype(np.int64), n_shells - 1)
 
 
-def train_stat(e2d, sampled2d, train_of, n_trains, shells):
-    """rho_n = (residual energy of train n) / (energy its sampled points normally show). The normal energy of a
-    point is the median over the sampled points of its shell, interpolated in log-energy over the radius so that a
-    train lying on one side of a shell is not biased. Trains without a sampled point: NaN."""
+STAT_KINDS = ("sum", "median")
+
+
+def train_stat(e2d, sampled2d, train_of, n_trains, shells, kind="sum"):
+    """rho_n: the residual energy of train n against the energy its sampled points normally show. The normal energy
+    of a point is the median over the sampled points of its shell, interpolated in log-energy over the radius so that
+    a train lying on one side of a shell is not biased. Trains without a sampled point: NaN.
+    kind "sum": (energy of the train) / (normal energy of its points) -- a few strong lines carry it;
+    kind "median": the median over the train's lines of energy / normal energy -- it moves only when most lines of
+    the train are raised, which is what motion during a train does."""
+    if kind not in STAT_KINDS:
+        raise ValueError(f"unknown statistic {kind!r}; known: {STAT_KINDS}")
     e2d = np.asarray(e2d, dtype=np.float64)
     ok = np.asarray(sampled2d, dtype=bool) & (train_of >= 0)
     r = _radius(e2d.shape)
@@ -38,6 +46,14 @@ def train_stat(e2d, sampled2d, train_of, n_trains, shells):
     if not centres:
         return rho
     expected = np.exp(np.interp(r[ok], centres, logs))
+    if kind == "median":
+        ratio, tr = e2d[ok] / expected, train_of[ok]
+        order = np.argsort(tr, kind="stable")
+        starts = np.searchsorted(tr[order], np.arange(int(n_trains) + 1))
+        for t in range(int(n_trains)):
+            if starts[t + 1] > starts[t]:
+                rho[t] = np.median(ratio[order[starts[t]:starts[t + 1]]])
+        return rho
     num = np.bincount(train_of[ok], weights=e2d[ok], minlength=int(n_trains))
     den = np.bincount(train_of[ok], weights=expected, minlength=int(n_trains))
     has = den > 0.0

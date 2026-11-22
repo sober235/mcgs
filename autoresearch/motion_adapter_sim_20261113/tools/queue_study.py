@@ -15,7 +15,7 @@ STUDIES = {
     "mild": dict(rel=MILD, launcher=f"{MILD}/mrun.py", root=f"{BASE}/mcgs_motion_mild_adjust_20261121", prefix="mm",
                  fields=4,
                  code=tuple(f"{MILD}/{f}" for f in ("mcommon.py", "mpatch.py", "mrun.py", "weights.py", "align.py",
-                                                    "reg.py"))
+                                                    "reg.py", "shiftstat.py"))
                  + tuple(f"{V1}/{f}" for f in ("adapter.py", "common.py", "geom.py", "patch.py", "run.py",
                                                "schedule.py", "warp.py", "probe_reginit.py"))),
 }

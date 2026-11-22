@@ -144,3 +144,30 @@ def test_auc():
     assert W.auc(np.array([0.9, 0.8, 0.1, 0.2]), np.array([False, False, True, True])) == 0.0
     assert W.auc(np.array([1.0, 1.0, 1.0, 1.0]), np.array([False, False, True, True])) == 0.5
     assert np.isnan(W.auc(np.array([1.0, 2.0]), np.array([False, False])))
+
+
+def test_median_statistic_ignores_a_few_strong_lines():
+    """In real data the residual near the k-space centre differs strongly from line to line, so a clean train can
+    hold a few lines far above their shell's level (measured: such trains reach z = 11 with the sum, without any
+    motion). The median over the lines of energy / expected energy does not react to them and still finds a train
+    whose lines are all raised."""
+    sch, e, sampled = _kspace("interleaved")
+    tr, n, shells = sch["train_of"], sch["n_trains"], W.shell_index(e.shape, 24)
+    odd, bad = 9, [5, 6]
+    e2 = e.copy()
+    for y, z in np.argwhere(sampled & (tr == odd))[:2]:
+        e2[y, z] *= 40.0
+    e2[np.isin(tr, bad)] *= 2.0
+    w_sum = _w(W.train_stat(e2, sampled, tr, n, shells))
+    assert w_sum[odd] == 0.0                                              # the sum is carried by the two lines
+    rho = W.train_stat(e2, sampled, tr, n, shells, kind="median")
+    w = _w(rho)
+    assert rho.shape == (n,) and w[odd] == 1.0 and (w[bad] == 0.0).all() and (np.delete(w, bad) == 1.0).all()
+    assert np.array_equal(W.train_stat(e2, sampled, tr, n, shells, kind="sum"), W.train_stat(e2, sampled, tr, n, shells))
+    gone = sampled & (tr != 4)
+    assert np.isnan(W.train_stat(e2, gone, tr, n, shells, kind="median")[4])
+    try:
+        W.train_stat(e2, sampled, tr, n, shells, kind="mean")
+        assert False, "an unknown kind must be refused"
+    except ValueError:
+        pass
