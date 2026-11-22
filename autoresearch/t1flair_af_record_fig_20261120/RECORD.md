@@ -107,13 +107,14 @@
 
 | 作用 | 加速因子 | 图 |
 |---|---|---|
-| 可行性验证 | 16 | `figures/article_af16_feasibility.{png,pdf}`（PNG sha256 `2b2bb499…`） |
-| 加速性能测试 | 20 | `figures/article_af20_acceleration.{png,pdf}`（PNG sha256 `43b26df4…`） |
+| 可行性验证 | 16 | `figures/article_af16_feasibility.{png,pdf}`（PNG sha256 `47a828ca…`） |
+| 加速性能测试 | 20 | `figures/article_af20_acceleration.{png,pdf}`（PNG sha256 `335a3907…`） |
 
-- **与展示版的差别：** 框、层面、色图、每格数字都不变。标题写作用和加速因子；箭头选点限制在框内 GT 梯度最陡的五分之一像素上（`--arrow_mode edge`），所以落在组织边界。
-- **命令：** 展示版的参数再加 `--arrow_mode edge --role "<作用>"`。
-- **服务器：** `codex_artifacts/mcgs_t1flair_af_zoomsel_20261121/article_nature_edge_af/{af16_feasibility,af20_acceleration}/`（PNG、600 dpi PDF、预览、记录 JSON、数据 npz、脚本副本）。
-  同级的 `article_nature_edge/` 和 `article_nature_edge_nominal/` 是标题带净加速字样的旧版，已被取代。
+- **误差范围（用户 2026-11-22）：** 这两张图的误差色条改为 0–0.1（展示版是 0–0.05），色图仍是 inferno。
+- **与展示版的差别：** 框、层面、每格数字都不变。标题写作用和加速因子；箭头选点限制在框内 GT 梯度最陡的五分之一像素上（`--arrow_mode edge`），所以落在组织边界。
+- **命令：** 展示版的参数把 `--err_vmax` 改为 0.1，再加 `--arrow_mode edge --role "<作用>"`。
+- **服务器：** `codex_artifacts/mcgs_t1flair_af_zoomsel_20261121/article_nature_edge_af_err0.1/{af16_feasibility,af20_acceleration}/`（PNG、600 dpi PDF、预览、记录 JSON、数据 npz、脚本副本）。
+  同级的 `article_nature_edge/`、`article_nature_edge_nominal/`（标题带净加速字样）和 `article_nature_edge_af/`（误差范围 0–0.05）是旧版，已被取代。
 - **结果：** 两张图 MC-GS 都是 18 项全部第一。箭头和框是对照 GT 挑的，只用于展示。
 - **没有采用的一步：** 曾为「净 20×」新抽了一张 2253 点的掩膜（`autoresearch/t1flair_net20_20261121/`，服务器课题 `T1FLAIR_AF20net_v3_jiangyizhou`），
   用户看过后决定不补跑，没有在它上面做任何重建。
