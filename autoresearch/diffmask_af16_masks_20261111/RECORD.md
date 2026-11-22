@@ -61,3 +61,80 @@ gpu.py run --cpu -- @python autoresearch/diffmask_af16_masks_20261111/fig_masks_
     --center 128 88 --what "MC-GS first on PSNR, SSIM and NMSE in all six rows" --png_dpi 600 --pdf --pdf_dpi 600 \
     --out_dir <new folder>
 ```
+
+## Article edition drawn the way of the AF 20 figure (user, 2026-11-22)
+
+User: "You need to first understand how the figure with af = 20 was plotted. Then redraw this graph again."
+The AF 20 article figure (`t1flair_af_record_fig_20261120`, `article_af20_acceleration`) was drawn in two steps:
+`find_zoom_box.py` places one 48-voxel box per plane (the same for T1 and FLAIR) where MC-GS's box-mean error is
+furthest below the best other method's; `fig_t1flair_af_record_format.py --box_centres ... --err_cmap inferno
+--err_vmax 0.1 --arrow --arrow_mode edge --arrow_on main --role ...` then draws it, the window at the slice P99.9 and
+the red arrow on each slice. The same here, with the three sampling masks in place of the three planes:
+
+    fig_masks_record_format.py --tra 205 --box 48 --box_select --what "" --err_cmap inferno --arrow --arrow_mode edge
+        --arrow_on main --brightness 1 --role "Sampling-mask generalization" --save_data --pdf --tag _article_boxsel
+
+- Figure: `uniform_recon/figures/t1flair_v3_af16_masks_record_format_tra205_box48_article_boxsel.png` (PNG sha256
+  `b63f3c20fdff…`), 600-dpi PDF and `_data.npz` beside it, record JSON in `uniform_recon/`.
+- Boxes (J, K): vd-Poisson (147, 69), uniform density (167, 75), pseudo-radial (163, 58). In the box MC-GS's mean
+  error is 4.7 / 2.2 % (vd-Poisson T1 / FLAIR), 14.1 / 5.0 % (uniform density) and 6.6 / 4.6 % (pseudo-radial) below
+  the best other column. Boxes and arrows are chosen against GT, for display only.
+- Slice 205 and every panel number are those of the record figure; MC-GS is first on all 18 conditions.
+- The script's defaults are unchanged: the earlier article edition (64 x 64 box at (128, 88), arrows in the magnified
+  boxes) was redrawn with its old options after the change and is byte-identical (sha256 `4fab5779…`).
+
+**Arrows corrected (user, 2026-11-22):** "The arrows are only marked on the zoom-in weighted graph in the area with
+the largest error map." The figure above (arrows on the slices) is superseded by
+
+    fig_masks_record_format.py --tra 205 --box 48 --box_select --what "" --err_cmap inferno --arrow --arrow_mode gap
+        --arrow_on zoom --brightness 1 --role "Sampling-mask generalization" --save_data --pdf --tag _article_boxsel_zoomarrow
+
+- Figure: `uniform_recon/figures/t1flair_v3_af16_masks_record_format_tra205_box48_article_boxsel_zoomarrow.png` (PNG
+  sha256 `2122a1c2f90f…`), 600-dpi PDF and `_data.npz` beside it. Boxes and panel numbers as above.
+- The arrow sits in the magnified weighted-image box only, at the point of the box where the error of the other
+  methods (median of the nine reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's most.
+- `..._zoomarrow_edge.png` is the same figure with that point restricted to tissue boundaries (`--arrow_mode edge`).
+
+## Optimal result of the different-mask stage (user, 2026-11-22, local clock PST)
+
+On 2026-11-22 the user asked for the result figure of the different masks as a 600-dpi PDF with vector graphics, for
+the reconstructed data to be saved on the GPU server, and for the current result to be recorded as the optimal result
+of the different-mask stage. The current figure is the last one of the section above:
+`t1flair_v3_af16_masks_record_format_tra205_box48_article_boxsel_zoomarrow` (transverse 205; one 48-voxel box per
+mask, placed where MC-GS's error is furthest below the best other method; inferno error [0, 0.1]; red arrow only in
+the magnified weighted-image box, at the largest error gap; title "Sampling-mask generalization: T1 + FLAIR,
+acceleration factor 16"). The panel numbers are those of the record of 2026-11-13: MC-GS first on 18 of 18 conditions.
+The user's message did not name the arrow variant; the largest-error-gap one (`gap`) is taken, the `_edge` spare is not.
+
+| mask | T1 slice PSNR (lead) | FLAIR slice PSNR (lead) | box PSNR lead T1 / FLAIR | volume head PSNR lead T1 / FLAIR |
+|---|---|---|---|---|
+| vd-Poisson | 35.737 dB (+0.131, GS-single) | 33.355 dB (+0.050, GS-single) | +0.363 / +0.212 dB | +0.148 / +0.042 dB |
+| uniform density | 35.326 dB (+0.730, GS-single) | 34.742 dB (+0.163, GS-single) | +1.379 / +0.406 dB | +0.507 / +0.142 dB |
+| pseudo-radial | 30.528 dB (+0.140, ZS-SSDU) | 29.553 dB (+0.197, GS-single) | +0.480 / +0.413 dB | +0.200 / +0.093 dB |
+
+GPU server folder `/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_masks_article_tra205_20261122/`:
+
+| file | content | sha256 (first 12) |
+|---|---|---|
+| `optimal_boxsel_zoomarrow/..._article_boxsel_zoomarrow_600dpi.pdf` | THE FIGURE: text, frames and bars vector (embedded TrueType), all 218 image panels embedded at 600 dpi | 7a4b44e49edc |
+| `optimal_boxsel_zoomarrow/..._600dpi.png` | 600-dpi raster | f0389beb1ed8 |
+| `optimal_boxsel_zoomarrow/..._600dpi_data.npz` | every slice the figure draws (each method, GT, head mask, error region, sampling masks) | dbc3a2cbb065 |
+| `optimal_boxsel_zoomarrow/` record JSON, `MANIFEST.json`, preview, script | numbers of every panel, source files and SHA-256 | |
+| `recon_data/{vd-Poisson,Uniform_density,Pseudo-radial}/` | the reconstructed volumes: 11 columns x T1 / FLAIR per mask, the GT volumes and the 3-D sampling mask (75 files, 5.67 GiB), each copy re-hashed against the source and the figure record | list in `DATA_MANIFEST.json` (8260ccdd19cb) |
+| top level `..._box64_article_600dpi.*` | superseded edition (one 64 x 64 box at (128, 88), arrows at tissue boundaries), drawn earlier the same day | |
+
+The reconstructed images are raster data, so "vector" applies to the text and line work of the PDF; the image panels
+are embedded at 600 dpi.
+
+Regenerate (CPU; refuses a non-empty output folder), then save the volumes:
+
+```sh
+gpu.py run --cpu -- @python autoresearch/diffmask_af16_masks_20261111/fig_masks_record_format.py --tra 205 --box 48 \
+    --box_select --what "" --err_cmap inferno --arrow --arrow_mode gap --arrow_on zoom --brightness 1 \
+    --role "Sampling-mask generalization" --save_data --tag _article_boxsel_zoomarrow --png_dpi 600 --pdf --pdf_dpi 600 \
+    --out_dir <new folder>
+gpu.py run --cpu -- @python autoresearch/diffmask_af16_masks_20261111/save_recon_data.py --folder <folder with the record JSON>
+```
+
+The cautions of "Read it with" above apply unchanged (slice selected on these data, one subject, one draw per mask,
+one seed); boxes and arrows are chosen against GT, for display only.

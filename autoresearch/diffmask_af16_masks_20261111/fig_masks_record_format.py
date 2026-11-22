@@ -59,6 +59,33 @@ ap.add_argument("--pdf", action="store_true", help="also write a PDF (vector tex
 ap.add_argument("--pdf_dpi", type=int, default=600)
 ap.add_argument("--note", default="", help="free text for MANIFEST.json (who asked, local date)")
 ap.add_argument("--tag", default="", help="suffix of the output file name")
+# article look (user, 2026-11-22), the same options as fig_t1flair_af_record_format.py / fig_lesion_plane_prepost.py;
+# the defaults keep the record figure of 2026-11-13 unchanged
+ap.add_argument("--err_cmap", default="jet", help="colour map of the error maps (jet = the record format; article: inferno)")
+ap.add_argument("--arrow", action="store_true",
+                help="one arrow per row, at the same place in every panel of the row: where the error of the other methods "
+                     "(median over the nine reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's most")
+ap.add_argument("--arrow_color", default="#FF1A1A")
+ap.add_argument("--arrow_mode", choices=["gap", "edge"], default="edge",
+                help="gap: the largest error gap anywhere in the box; edge: the same, restricted to tissue boundaries "
+                     "(the fifth of the box with the steepest GT gradient)")
+ap.add_argument("--arrow_on", choices=["zoom", "main"], default="zoom",
+                help="zoom: only in the magnified weighted-image box (not in the error map, not on the slice; user rule "
+                     "2026-11-22); main: on the slice images")
+ap.add_argument("--role", default="", help="what the figure stands for in the article: head of the title; the subject "
+                                           "name and the point-count / net-acceleration wording are then left out")
+ap.add_argument("--save_data", action="store_true", help="also write <stem>_data.npz: every slice the figure draws")
+# the way the article figure of the acceleration study was drawn (t1flair_af_record_fig_20261120: find_zoom_box.py, then
+# fig_t1flair_af_record_format.py --box_centres ... --arrow_on main; user, 2026-11-22: "understand how the figure with
+# af = 20 was plotted, then redraw this graph"). There one box per plane; here one box per sampling pattern.
+ap.add_argument("--box_select", action="store_true",
+                help="one zoom box per sampling pattern (the same for T1 and FLAIR), placed where MC-GS's box-mean error "
+                     "is furthest below the best other method's (the criterion of find_zoom_box.py: boxes with >= "
+                     "--head_frac of their pixels in the head; score summed over the two contrasts). Chosen against "
+                     "GT, for display only")
+ap.add_argument("--box_centres", type=int, nargs=6, default=None, metavar="V",
+                help="one zoom box per sampling pattern, given: J K of vd-Poisson, uniform density, pseudo-radial")
+ap.add_argument("--head_frac", type=float, default=0.95)
 args = ap.parse_args()
 
 import h5py  # noqa: E402
@@ -70,7 +97,7 @@ import numpy as np  # noqa: E402
 from matplotlib.cm import ScalarMappable  # noqa: E402
 from matplotlib.colors import Normalize  # noqa: E402
 from matplotlib.patches import Rectangle  # noqa: E402
-from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening  # noqa: E402
+from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening, gaussian_filter, uniform_filter  # noqa: E402
 from skimage.metrics import structural_similarity  # noqa: E402
 
 os.nice(10)
@@ -204,11 +231,51 @@ log(f"largest |difference| to the logged head PSNR: {worst:.4f} dB"
 SHAPE = GT["T1"].shape
 
 hw, (J, K) = args.box // 2, args.center
-BM = np.zeros(SHAPE[1:], bool)
-BM[J - hw:J + hw, K - hw:K + hw] = True
-assert BM.sum() == args.box ** 2, "the zoom box leaves the slice"
-rr, cc = np.nonzero(D(BM))
-ZOOM = dict(x0=int(cc.min()), y0=int(rr.min()), w=int(cc.max() - cc.min() + 1), h=int(rr.max() - rr.min() + 1))
+assert not (args.box_select and args.box_centres), "--box_select and --box_centres exclude each other"
+CENTRES = {name: (J, K) for name, _ in TOPICS}
+if args.box_centres:
+    CENTRES = {name: tuple(args.box_centres[2 * i:2 * i + 2]) for i, (name, _) in enumerate(TOPICS)}
+if args.box_select:
+    # find_zoom_box.py on this slice: per method the box mean of the figure's error map; score = (lowest box mean
+    # among the ten other columns) - (MC-GS box mean), summed over T1 and FLAIR; only boxes inside the head count
+    record["box_select"] = dict(criterion="find_zoom_box.py (t1flair_af_record_fig_20261120): MC-GS box-mean error furthest "
+                                          "below the best other column, T1 + FLAIR", head_frac=args.head_frac, rows=[])
+    log(f"\nbox selection on transverse {args.tra}, {args.box}-voxel box, per sampling pattern (T1 + FLAIR):")
+    for name, _ in TOPICS:
+        score, ok, bmean = 0.0, None, {}
+        for c in CONTRASTS:
+            m = HEAD[c][args.tra]
+            g = GT[c][args.tra].astype(np.float64)
+            bmean[c] = {lab: uniform_filter(np.abs(SL[(name, c)][lab][args.tra] - g) / GMAX[c] * m, size=args.box, mode="constant")
+                        for lab in LABELS}
+            valid = uniform_filter(m.astype(np.float32), size=args.box, mode="constant") >= args.head_frac
+            valid[:hw] = valid[-hw:] = False
+            valid[:, :hw] = valid[:, -hw:] = False
+            ok = valid if ok is None else ok & valid
+            score = score + np.minimum.reduce([bmean[c][lab] for lab in LABELS if lab != MC]) - bmean[c][MC]
+        assert ok.any(), f"{name}: no {args.box}-voxel box with {args.head_frac:g} of its pixels in the head"
+        pos = tuple(int(v) for v in np.unravel_index(np.argmax(np.where(ok, score, -np.inf)), score.shape))
+        CENTRES[name] = pos
+        for c in CONTRASTS:
+            means = {lab: float(bmean[c][lab][pos]) for lab in LABELS}
+            best = min((lab for lab in LABELS if lab != MC), key=means.get)
+            record["box_select"]["rows"].append(dict(pattern=name, contrast=c, centre_JK=list(pos), box_mean_error=means,
+                                                     best_other=best, mcgs_over_best_other=means[MC] / means[best]))
+            log(f"  {name:<16} {c:<5} centre (J, K) = {pos}  MC-GS {means[MC]:.5f}  best other {best} {means[best]:.5f} "
+                f"({100 * (1 - means[MC] / means[best]):+.1f}% lower)")
+PER_PATTERN = len(set(CENTRES.values())) > 1
+BMS, ZOOMS = {}, {}
+for name, _ in TOPICS:
+    j0, k0 = CENTRES[name]
+    BMS[name] = np.zeros(SHAPE[1:], bool)
+    BMS[name][j0 - hw:j0 + hw, k0 - hw:k0 + hw] = True
+    assert BMS[name].sum() == args.box ** 2, f"{name}: the zoom box leaves the slice"
+    rr, cc = np.nonzero(D(BMS[name]))
+    ZOOMS[name] = dict(x0=int(cc.min()), y0=int(rr.min()), w=int(cc.max() - cc.min() + 1), h=int(rr.max() - rr.min() + 1))
+record["zoom_box"] = dict(edge_voxels=args.box, per_pattern_centres_JK={n: list(v) for n, v in CENTRES.items()},
+                          note=("chosen with the find_zoom_box.py criterion against GT, for display only" if args.box_select
+                                else "given" if args.box_centres else "one box for all rows"))
+BM, ZOOM = BMS[TOPICS[0][0]], ZOOMS[TOPICS[0][0]]        # geometry (every box has the same size); --scan uses the first
 
 
 def plane_metrics(rec, truth, mask, gm):
@@ -230,13 +297,13 @@ def stats(z):
             best = {m: (min if m == "nmse" else max)(LABELS, key=lambda lab: num[lab][m]) for m in METRICS}
             other = {m: (min if m == "nmse" else max)((lab for lab in LABELS if lab != MC), key=lambda lab: num[lab][m]) for m in METRICS}
             lead = {m: (num[other[m]][m] - num[MC][m]) if m == "nmse" else (num[MC][m] - num[other[m]][m]) for m in METRICS}
-            bz = BM & m2
+            bz = BMS[name] & m2
             g64 = g2.astype(np.float64)
             bp = {lab: float(20 * np.log10(GMAX[c]) - 10 * np.log10(float(((SL[(name, c)][lab][z][bz].astype(np.float64) - g64[bz]) ** 2).mean())))
                   for lab in LABELS} if bz.any() else {}
             bo = max((lab for lab in LABELS if lab != MC), key=bp.get) if bp else None
             out.append(dict(name=name, c=c, z=z, g2=g2, m2=m2, num=num, best=best, other=other, lead=lead, box_psnr=bp,
-                            box_other=bo, box_lead=(bp[MC] - bp[bo]) if bp else None, box_head_frac=float(bz.sum() / BM.sum())))
+                            box_other=bo, box_lead=(bp[MC] - bp[bo]) if bp else None, box_head_frac=float(bz.sum() / BMS[name].sum())))
     return out
 
 
@@ -308,15 +375,29 @@ fw = ncol * pw + (ncol - 1) * gap + cbpad + cbw + cbroom
 TITLE = (f"jiangyizhou T1 + FLAIR, nominal AF 16   --   three sampling patterns: vd-Poisson / uniform density / pseudo-radial"
          f"   --   Transverse {args.tra}" + (f" ({args.what})" if args.what else "")
          + "   --   one frozen MC-GS recipe, classical lambdas re-selected per pattern")
+if args.role:
+    TITLE = (f"{args.role}: T1 + FLAIR, acceleration factor 16   --   three sampling masks: vd-Poisson / uniform density / "
+             f"pseudo-radial   --   Transverse {args.tra}")
 win = "slice P99.9" + (f" / {args.brightness:g}" if args.brightness != 1 else "")
 CAP = ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the best of each row in bold",
-       f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}], inside the head only",
+       f"error |recon - GT| / max(GT), {args.err_cmap} [0, {args.err_vmax:g}], inside the head only",
        "row under each image row: left = the magnified box of the image, right = the same box of the error map; "
        "GT column: GT box | that pattern's (ky, kz) sampling mask",
        "AF in the GT panel = PE-plane points / sampled points carrying that contrast's data ("
        + ", ".join(f"{n} {NSAMP[n]} points" for n, _ in TOPICS) + ")",
-       f"the {args.box}x{args.box} box, the same in every row, is outlined on every slice; "
-       f"grey bar: intensity as a fraction of each row's own window ({win})"]
+       (f"one {args.box}-voxel box per sampling mask (the same for T1 and FLAIR), placed where MC-GS's error is furthest "
+        f"below the best other method (chosen against GT, for display only); " if args.box_select else
+        f"one {args.box}-voxel box per sampling mask (the same for T1 and FLAIR), outlined on every slice; " if PER_PATTERN else
+        f"the {args.box}x{args.box} box, the same in every row, is outlined on every slice; ")
+       + f"grey bar: intensity as a fraction of each row's own window ({win})"]
+if args.role:        # article figures carry the acceleration factor only (user, 2026-11-22): no point-count line
+    CAP = [x for x in CAP if not x.startswith("AF in the GT panel")]
+if args.arrow:
+    CAP.append(("red arrow in the magnified image box" if args.arrow_on == "zoom" else "arrow on each slice")
+               + " (same place along a row): where the error of the other methods (median of the nine reconstructions "
+               "other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's most"
+               + (", among the tissue boundaries of the box (steepest fifth of the GT gradient)" if args.arrow_mode == "edge" else "")
+               + ("; chosen against GT, for display only" if args.box_select else ""))
 
 
 def wrap(parts, width_in, fs):
@@ -340,8 +421,9 @@ fh = top_in + len(rows) * (h + eh) + (2 * len(rows) - 1) * gap + 0.16
 fig = plt.figure(figsize=(fw, fh))
 
 
-def crop(img):
-    return img[ZOOM["y0"]:ZOOM["y0"] + ZOOM["h"], ZOOM["x0"]:ZOOM["x0"] + ZOOM["w"]]
+def crop(img, z=None):
+    z = z or ZOOM
+    return img[z["y0"]:z["y0"] + z["h"], z["x0"]:z["x0"] + z["w"]]
 
 
 def zframe(a):
@@ -364,27 +446,68 @@ def label(a, text, bold=False, line=0, fs=12, hh=None, color="white"):
     t.set_path_effects([pe.withStroke(linewidth=2.5, foreground="black")])
 
 
-def outline(a):
-    a.add_patch(Rectangle((ZOOM["x0"] - 0.5, ZOOM["y0"] - 0.5), ZOOM["w"], ZOOM["h"], fill=False, ec=ZC, lw=ZLW))
+def outline(a, z=None):
+    z = z or ZOOM
+    a.add_patch(Rectangle((z["x0"] - 0.5, z["y0"] - 0.5), z["w"], z["h"], fill=False, ec=ZC, lw=ZLW))
 
 
 IMKW = dict(origin="lower", aspect="auto")
+
+
+def arrow_at(a, pt, main=False, shape=None, z=None):
+    """an arrow whose head sits at pt (crop pixel x, y); zoom panel: tail towards the centre of the box;
+    slice image (main): head at the same anatomical point, tail towards the centre of the image"""
+    z = z or ZOOM
+    x, y = pt
+    if main:
+        x, y = x + z["x0"], y + z["y0"]
+        v, L = np.array([shape[1] / 2 - x, shape[0] / 2 - y], float), 0.11 * shape[1]
+    else:
+        v, L = np.array([z["w"] / 2 - x, z["h"] / 2 - y], float), 13.0 * args.box / 48
+    n = float(np.hypot(*v))
+    v = v / n * L if n > 4 else np.array([L, L]) / 1.4
+    a.annotate("", xy=(x, y), xytext=(x + v[0], y + v[1]),
+               arrowprops=dict(arrowstyle="-|>", color=args.arrow_color, lw=2.2 if main else 1.8,
+                               mutation_scale=15 if main else 13, shrinkA=0, shrinkB=1))
+
+
+if args.arrow:
+    for r in rows:
+        sm = {lab: uniform_filter(np.abs(SL[(r["name"], r["c"])][lab][args.tra] - r["g2"]) / GMAX[r["c"]] * r["emask"],
+                                  size=7, mode="nearest") for lab in LABELS if lab != "ZF"}
+        sc = crop(D(np.median([sm[lab] for lab in sm if lab != MC], axis=0) - sm[MC]), ZOOMS[r["name"]]).copy()
+        m = 7
+        sc[:m] = sc[-m:] = -np.inf; sc[:, :m] = sc[:, -m:] = -np.inf
+        if args.arrow_mode == "edge":
+            gy, gx = np.gradient(gaussian_filter(r["g2"] / GMAX[r["c"]], 1.0))
+            gmag = crop(D(np.hypot(gx, gy)), ZOOMS[r["name"]])
+            sc[gmag < np.percentile(gmag, 80)] = -np.inf
+        yy, xx = np.unravel_index(np.argmax(sc), sc.shape)
+        r["arrow"], r["arrow_gap"] = (int(xx), int(yy)), float(sc[yy, xx])
+        log(f"  arrow {r['name']:<16} {r['c']:<5} crop (x, y) = {r['arrow']}, error gap {r['arrow_gap']:.4f}")
+    record["arrows"] = [dict(pattern=r["name"], contrast=r["c"], crop_xy=r["arrow"], gap=r["arrow_gap"]) for r in rows]
+    record["arrow_mode"], record["arrow_on"] = args.arrow_mode, args.arrow_on
+record["error_display"] = dict(vmax=args.err_vmax, cmap=args.err_cmap)
 y, im = top_in, None
 for k, r in enumerate(rows):
     name, c = r["name"], r["c"]
     gkw = dict(cmap="gray", vmin=0, vmax=r["vmax"], **IMKW)
+    Z = ZOOMS[name]
     for j in range(ncol):
         x = j * (pw + gap)
         a = axes_at(x, y, pw, h)
         bL = axes_at(x, y + h + gap, half, eh)
         if j == 0:
             a.imshow(D(r["g2"]), **gkw)
-            outline(a)
+            outline(a, Z)
             label(a, name, bold=True, fs=13)
             label(a, c, bold=True, line=1, fs=13, hh=h)
-            label(a, f"AF {AF[(name, c)]:.2f}x", bold=True, line=2, fs=13, hh=h)
-            bL.imshow(crop(D(r["g2"])), **gkw)
+            if not args.role:
+                label(a, f"AF {AF[(name, c)]:.2f}x", bold=True, line=2, fs=13, hh=h)
+            bL.imshow(crop(D(r["g2"]), Z), **gkw)
             zframe(bL)
+            if args.arrow:
+                arrow_at(bL, r["arrow"], z=Z) if args.arrow_on == "zoom" else arrow_at(a, r["arrow"], True, D(r["g2"]).shape, Z)
             # the pattern's sampling mask at its true aspect, on black, in the right half of the cell
             axes_at(x + half + zgap, y + h + gap, half, eh).set_facecolor("black")
             mw = eh * W / H
@@ -397,15 +520,17 @@ for k, r in enumerate(rows):
         lab = LABELS[j - 1]
         v = SL[(name, c)][lab][args.tra]
         a.imshow(D(v), **gkw)
-        outline(a)
+        outline(a, Z)
         n = r["num"][lab]
         for i, (txt, met) in enumerate(((f"{n['psnr']:.2f} dB", "psnr"), (f"SSIM {n['ssim']:.4f}", "ssim"),
                                          (f"NMSE {n['nmse']:.5f}", "nmse"))):
             label(a, txt, bold=lab == r["best"][met], line=i, fs=10.5, hh=h, color=METRIC_COLOR)
         emap = D(np.abs(v - r["g2"]) / GMAX[c] * r["emask"])
-        bL.imshow(crop(D(v)), **gkw)
-        im = bR.imshow(crop(emap), cmap="jet", vmin=0.0, vmax=args.err_vmax, **IMKW)
+        bL.imshow(crop(D(v), Z), **gkw)
+        im = bR.imshow(crop(emap, Z), cmap=args.err_cmap, vmin=0.0, vmax=args.err_vmax, **IMKW)
         zframe(bL); zframe(bR)
+        if args.arrow:
+            arrow_at(bL, r["arrow"], z=Z) if args.arrow_on == "zoom" else arrow_at(a, r["arrow"], True, D(v).shape, Z)
         if k == 0:
             a.set_title(lab if "SPIRiT" in lab else lab.upper(), fontsize=args.title_fs, pad=4)
     if k == 0:           # one grey bar in units of each row's own window, one error bar (same scale in every row)
@@ -449,6 +574,22 @@ record["figure"] = f"{stem}.png"
 record["figure_sha256"] = sha(dest / f"{stem}.png")
 record["figure_px"], record["figure_dpi"] = list(png_px), args.png_dpi
 (dest / f"record_{stem}.json").write_text(json.dumps(record, indent=2))
+if args.save_data:
+    dat = {}
+    for r in rows:
+        k = f"{r['name'].replace(' ', '_')}_{r['c']}"
+        dat[f"{k}__GT"], dat[f"{k}__head_mask"], dat[f"{k}__error_region"] = r["g2"], r["m2"], r["emask"]
+        for lab in LABELS:
+            dat[f"{k}__{lab.replace(' ', '_')}"] = SL[(r["name"], r["c"])][lab][args.tra]
+    for n_, _ in TOPICS:
+        dat[f"{n_.replace(' ', '_')}__sampling_mask_plane"] = KMASK[n_]
+    dat["meta_json"] = np.array(json.dumps(dict(
+        note="magnitude slices in volume orientation (display: rot90(x.T), origin lower); error = |recon - GT| / gt_max "
+             "inside error_region; metrics inside head_mask with PSNR peak gt_max",
+        slice=args.tra, gt_max=GMAX, zoom_box=record["zoom_box"], zoom_display_px=ZOOMS, arrows=record.get("arrows"),
+        error_display=record["error_display"], volumes=record["volumes"])))
+    np.savez_compressed(dest / f"{stem}_data.npz", **dat)
+    log("wrote", dest / f"{stem}_data.npz")
 if args.out_dir:
     shutil.copyfile(Path(__file__).resolve(), dest / Path(__file__).name)
     files = {}
@@ -468,7 +609,9 @@ if args.out_dir:
                per_row=rows6, mcgs_first_on_every_row_and_metric=record["mcgs_first_on_every_row_and_metric"],
                volumes="every column's file and SHA-256: record_" + stem + ".json",
                regenerate=f"gpu.py run --cpu -- @python autoresearch/diffmask_af16_masks_20261111/{Path(__file__).name} "
-                          f"--tra {args.tra} --box {args.box} --center {J} {K} --png_dpi {args.png_dpi}"
+                          f"--tra {args.tra} --box {args.box} "
+                          + ("--box_select" if args.box_select else "--box_centres " + " ".join(str(v) for n, _ in TOPICS for v in CENTRES[n])
+                             if args.box_centres else f"--center {J} {K}") + f" --png_dpi {args.png_dpi}"
                           + (f" --pdf --pdf_dpi {args.pdf_dpi}" if args.pdf else "") + " --out_dir <new folder>",
                files=files)
     (dest / "MANIFEST.json").write_text(json.dumps(man, indent=2))

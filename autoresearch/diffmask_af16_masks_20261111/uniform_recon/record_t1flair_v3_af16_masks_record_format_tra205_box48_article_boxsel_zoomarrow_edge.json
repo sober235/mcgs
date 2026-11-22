@@ -1,0 +1,1456 @@
+{
+  "format": "fig_lesion_plane_prepost.py --three --err_layout zoom --cbar single (three planes -> three sampling patterns)",
+  "slice": 205,
+  "zoom_box": {
+    "edge_voxels": 48,
+    "per_pattern_centres_JK": {
+      "vd-Poisson": [
+        147,
+        69
+      ],
+      "Uniform density": [
+        167,
+        75
+      ],
+      "Pseudo-radial": [
+        163,
+        58
+      ]
+    },
+    "note": "chosen with the find_zoom_box.py criterion against GT, for display only"
+  },
+  "topics": {
+    "vd-Poisson": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou",
+    "Uniform density": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou",
+    "Pseudo-radial": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou"
+  },
+  "gt_sha256": {
+    "T1": "3defa369c9e0bdcb4e92d38236525036c60b78263be7f9b3b70fd8068c3c6271",
+    "FLAIR": "c636c1b5f3884a9da6708c3b823a573814b468b3fe5e3309f8a7399002d29f2a"
+  },
+  "volumes": {
+    "vd-Poisson": {
+      "T1": {
+        "ZF": {
+          "key": "zf",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/zf_T1_complex.npy",
+          "sha256": "b5f53cf2ae5bb43f8ef0277f2d8789cbf83ac273199b559ff0856fe5a579a301",
+          "volume_head_psnr": 25.84053644442773,
+          "logged_head_psnr": 25.84053644127854,
+          "lam": null,
+          "ksize": null
+        },
+        "CG-SENSE": {
+          "key": "cgsense",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/cgsense_T1_complex.npy",
+          "sha256": "0f4b7730535933b4cb11d0aa1bfa62efef08a21f6474b443ce98b099e0d55634",
+          "volume_head_psnr": 32.353834565503846,
+          "logged_head_psnr": 32.353834562450174,
+          "lam": null,
+          "ksize": null
+        },
+        "CS-SENSE": {
+          "key": "cssense_o200",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/cssense_o200_lam0.0007_T1_complex.npy",
+          "sha256": "ddb46a74273a966872986dddab75704b5e230fc11674b329ea7709dea428fc09",
+          "volume_head_psnr": 34.94509151168015,
+          "logged_head_psnr": 34.94509150760806,
+          "lam": 0.0007,
+          "ksize": null
+        },
+        "Joint SENSE": {
+          "key": "jcssense",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/jcssense_o200_lam0.001_T1_complex.npy",
+          "sha256": "3b65615f334863033bd0890764217f3499b2efe1f7fe0f74c8624ca4fa55c763",
+          "volume_head_psnr": 34.83143443401975,
+          "logged_head_psnr": 34.831434430489765,
+          "lam": 0.001,
+          "ksize": null
+        },
+        "L1-SPIRiT": {
+          "key": "spirit",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/spirit_ks5_lam0.001_T1_complex.npy",
+          "sha256": "20cce27ebb117bc44f0dfae419150aea90e8dcfcaeebb540f45249613e635257",
+          "volume_head_psnr": 33.78777151599665,
+          "logged_head_psnr": 33.787771512530526,
+          "lam": 0.001,
+          "ksize": 5
+        },
+        "ZS-SSDU": {
+          "key": "zsssdu",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/zsssdu_T1_complex.npy",
+          "sha256": "19157c798e61e45970fc6ae530a3fa259d26c3def8becd73a40f96b9562345cb",
+          "volume_head_psnr": 34.15002103469452,
+          "logged_head_psnr": 34.15002103045025,
+          "lam": null,
+          "ksize": null
+        },
+        "3D-DIP": {
+          "key": "dip",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/dip_T1_complex.npy",
+          "sha256": "3f4dedf6d992bcb1015872f59a6309346e68b10c3533c4bad4008e51b8507a75",
+          "volume_head_psnr": 30.9942086112141,
+          "logged_head_psnr": 30.99420860624679,
+          "lam": null,
+          "ksize": null
+        },
+        "3D-INR": {
+          "key": "inr",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/inr_T1_complex.npy",
+          "sha256": "4a5ed5d39ef1b46c54ecc128e3f3fcea1443a49aee24ff6b85cc009a33c3c716",
+          "volume_head_psnr": 30.374659139648813,
+          "logged_head_psnr": 30.374659134077703,
+          "lam": null,
+          "ksize": null
+        },
+        "MC-INR": {
+          "key": "mcinr",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/mcinr_T1_complex.npy",
+          "sha256": "74c9a786fb969dc8e1aa12168411802b7c665420b228f5bd3164327c8123de39",
+          "volume_head_psnr": 31.589620872045405,
+          "logged_head_psnr": 31.58962087069446,
+          "lam": null,
+          "ksize": null
+        },
+        "GS-single": {
+          "key": "gs_single_p3",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/gs_single_p3_T1_mag.npy",
+          "sha256": "bbb4e781b70aed93d5315ba4844715598226106a0c39483e1b80341de22258f7",
+          "volume_head_psnr": 35.55800625539817,
+          "logged_head_psnr": 35.55803672336093,
+          "lam": null,
+          "ksize": null
+        },
+        "MC-GS": {
+          "key": "gs_joint_p3",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/gs_joint_p3_T1_mag.npy",
+          "sha256": "e7e5b081b8250b7e78c3a79e023fe1744b155f013b60520320c1e17a17860a84",
+          "volume_head_psnr": 35.70614639668903,
+          "logged_head_psnr": 35.706177499446326,
+          "lam": null,
+          "ksize": null
+        }
+      },
+      "FLAIR": {
+        "ZF": {
+          "key": "zf",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/zf_FLAIR_complex.npy",
+          "sha256": "b375aaffdbfce783c10e2fa4bc2e3a84c5226d49f1150c78fa95efbf7e4e8c1e",
+          "volume_head_psnr": 27.878825579996054,
+          "logged_head_psnr": 27.87882466501773,
+          "lam": null,
+          "ksize": null
+        },
+        "CG-SENSE": {
+          "key": "cgsense",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/cgsense_FLAIR_complex.npy",
+          "sha256": "183b7000f3052a94cee2dbf88d00ebaf19b099aeec3f83c4104fcd613dfd90a9",
+          "volume_head_psnr": 32.82645611073863,
+          "logged_head_psnr": 32.826455192788984,
+          "lam": null,
+          "ksize": null
+        },
+        "CS-SENSE": {
+          "key": "cssense_o200",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/cssense_o200_lam0.0005_FLAIR_complex.npy",
+          "sha256": "f48cc28fc39329a8f8e6bd19d5c90c6d9ad402cef673fa813caf87d19db4ca91",
+          "volume_head_psnr": 34.30177001328576,
+          "logged_head_psnr": 34.30176910044489,
+          "lam": 0.0005,
+          "ksize": null
+        },
+        "Joint SENSE": {
+          "key": "jcssense",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/jcssense_o200_lam0.0007_FLAIR_complex.npy",
+          "sha256": "76be85ac588e4f554283735bd8e226876d3be3de7b2e84acacd286e9e4585b64",
+          "volume_head_psnr": 34.354899675856096,
+          "logged_head_psnr": 34.35489875964352,
+          "lam": 0.0007,
+          "ksize": null
+        },
+        "L1-SPIRiT": {
+          "key": "spirit",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/spirit_ks5_lam0.001_FLAIR_complex.npy",
+          "sha256": "6edd8e39d7777ecc305b0295edd8bdab9e1808fc1a8f0e102abc8d031c5460d8",
+          "volume_head_psnr": 33.7201030289854,
+          "logged_head_psnr": 33.720102111623625,
+          "lam": 0.001,
+          "ksize": 5
+        },
+        "ZS-SSDU": {
+          "key": "zsssdu",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/zsssdu_FLAIR_complex.npy",
+          "sha256": "2914080006f5008eef7430324ce740013de7c93ffedb8499e0b22a2daa9b9cf0",
+          "volume_head_psnr": 34.00463679771002,
+          "logged_head_psnr": 34.00463588306303,
+          "lam": null,
+          "ksize": null
+        },
+        "3D-DIP": {
+          "key": "dip",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/dip_FLAIR_complex.npy",
+          "sha256": "587cb241bcae693cc1e323a643c1d441b3643fd0f35826c23e664775752dac4d",
+          "volume_head_psnr": 30.649573500124355,
+          "logged_head_psnr": 30.64957258358553,
+          "lam": null,
+          "ksize": null
+        },
+        "3D-INR": {
+          "key": "inr",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/inr_FLAIR_complex.npy",
+          "sha256": "f84a4dbd43b872ab0972663025591a025d3f090904ab6c45d1fb85c829f64ede",
+          "volume_head_psnr": 30.25663188500986,
+          "logged_head_psnr": 30.256630966999715,
+          "lam": null,
+          "ksize": null
+        },
+        "MC-INR": {
+          "key": "mcinr",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/mcinr_FLAIR_complex.npy",
+          "sha256": "3c5842a0a86bd1025140d108477aaa2c865176ebd42d80ffea7e85df522137f1",
+          "volume_head_psnr": 32.242682959348166,
+          "logged_head_psnr": 32.242682045225294,
+          "lam": null,
+          "ksize": null
+        },
+        "GS-single": {
+          "key": "gs_single_p3",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/gs_single_p3_FLAIR_mag.npy",
+          "sha256": "e8b6474b5d4ce9a09ad272c638d57dea68aef486d441a5c21d04f58b233db235",
+          "volume_head_psnr": 34.88626827161136,
+          "logged_head_psnr": 34.8862772705439,
+          "lam": null,
+          "ksize": null
+        },
+        "MC-GS": {
+          "key": "gs_joint_p3",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/recon/gs_joint_p3_FLAIR_mag.npy",
+          "sha256": "3c83a0dbf52d9bd6e1e1cfba735352ff1837a591ab553b7fb720d594b97e8dd1",
+          "volume_head_psnr": 34.927932115944394,
+          "logged_head_psnr": 34.92794073527127,
+          "lam": null,
+          "ksize": null
+        }
+      }
+    },
+    "Uniform density": {
+      "T1": {
+        "ZF": {
+          "key": "zf",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/zf_T1_complex.npy",
+          "sha256": "96c771ec00e48dd74c2f76a5d3ccf4bfa7dbcea04f1b4cf187535ac21a08b1cf",
+          "volume_head_psnr": 24.407988946170406,
+          "logged_head_psnr": 24.407988942671164,
+          "lam": null,
+          "ksize": null
+        },
+        "CG-SENSE": {
+          "key": "cgsense",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/cgsense_T1_complex.npy",
+          "sha256": "0563d5f843aaf4b3c2d325c088017744d8c4c9bd3ad63a7edc7583e229d6be93",
+          "volume_head_psnr": 28.560577739212913,
+          "logged_head_psnr": 28.56057773488491,
+          "lam": null,
+          "ksize": null
+        },
+        "CS-SENSE": {
+          "key": "cssense_o200",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/cssense_o200_lam0.0014_T1_complex.npy",
+          "sha256": "31e58025ce5239b0a6da478f2d22d10fa27c3d71d81aa87ea0fa9db7e7f685c2",
+          "volume_head_psnr": 30.923982420376262,
+          "logged_head_psnr": 30.923982417041778,
+          "lam": 0.0014,
+          "ksize": null
+        },
+        "Joint SENSE": {
+          "key": "jcssense",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/jcssense_o200_lam0.002_T1_complex.npy",
+          "sha256": "cd4452c09d13f7c22b8e7091d8d90373ddcd9eedc1d0c19419f09c8ecd88f874",
+          "volume_head_psnr": 30.755439456114345,
+          "logged_head_psnr": 30.75543945275163,
+          "lam": 0.002,
+          "ksize": null
+        },
+        "L1-SPIRiT": {
+          "key": "spirit",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/spirit_ks5_lam0.001_T1_complex.npy",
+          "sha256": "2ae86fe99f1f25e1bea3306eb634f7fc278bb03385e1317a239a69d94e47ba6e",
+          "volume_head_psnr": 32.73200648829805,
+          "logged_head_psnr": 32.73200648289625,
+          "lam": 0.001,
+          "ksize": 5
+        },
+        "ZS-SSDU": {
+          "key": "zsssdu",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/zsssdu_T1_complex.npy",
+          "sha256": "5706cec466b7daab7bd02eac82efc9c1f22bcbabeda3ea73f182b87f3939d098",
+          "volume_head_psnr": 32.273744908774404,
+          "logged_head_psnr": 32.27374490464606,
+          "lam": null,
+          "ksize": null
+        },
+        "3D-DIP": {
+          "key": "dip",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/dip_T1_complex.npy",
+          "sha256": "9d1d5de39863c2b2d3661609557b0416a98cb070830d740f517300d8beee4092",
+          "volume_head_psnr": 29.89372642035675,
+          "logged_head_psnr": 29.89372641711919,
+          "lam": null,
+          "ksize": null
+        },
+        "3D-INR": {
+          "key": "inr",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/inr_T1_complex.npy",
+          "sha256": "99105e48732a502aabf4051fda2ff9b52e46e6ff6c4e2a6ee5362c4cb11ece39",
+          "volume_head_psnr": 29.491381239010526,
+          "logged_head_psnr": 29.49138123289527,
+          "lam": null,
+          "ksize": null
+        },
+        "MC-INR": {
+          "key": "mcinr",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/mcinr_T1_complex.npy",
+          "sha256": "47564d1cb9e0f0454f554a3d74c73a947bfa7cadc0517103ab059976993a3fa9",
+          "volume_head_psnr": 27.670898415439204,
+          "logged_head_psnr": 27.670898411512617,
+          "lam": null,
+          "ksize": null
+        },
+        "GS-single": {
+          "key": "gs_single_p3",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/gs_single_p3_T1_mag.npy",
+          "sha256": "073a848fff3c767a83b78227272ca3a2bf1e5ef4d307c551dcd711190f4a22ef",
+          "volume_head_psnr": 34.39624355408692,
+          "logged_head_psnr": 34.39628209477063,
+          "lam": null,
+          "ksize": null
+        },
+        "MC-GS": {
+          "key": "gs_joint_p3",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/gs_joint_p3_T1_mag.npy",
+          "sha256": "51d5a78b25f90d135f5ca617dc1a8f6b7f00b0ffb94ed9e151d1a3a4ba4a41ad",
+          "volume_head_psnr": 34.90275625083315,
+          "logged_head_psnr": 34.90279614891374,
+          "lam": null,
+          "ksize": null
+        }
+      },
+      "FLAIR": {
+        "ZF": {
+          "key": "zf",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/zf_FLAIR_complex.npy",
+          "sha256": "9a8cd81e07d673fa7b60d0afd2d5dbcbc6c4a413385bbf446c8a8ba897ead30e",
+          "volume_head_psnr": 26.26353132635723,
+          "logged_head_psnr": 26.26353041101506,
+          "lam": null,
+          "ksize": null
+        },
+        "CG-SENSE": {
+          "key": "cgsense",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/cgsense_FLAIR_complex.npy",
+          "sha256": "a42fbb8f61968c7684d61f2513ece80e519ff55444eb065ab2d323d35c6c8c50",
+          "volume_head_psnr": 30.781489934218882,
+          "logged_head_psnr": 30.781489024088764,
+          "lam": null,
+          "ksize": null
+        },
+        "CS-SENSE": {
+          "key": "cssense_o200",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/cssense_o200_lam0.0014_FLAIR_complex.npy",
+          "sha256": "dad3028b8e0c4f98e1d5a4b0ea834b8b573c619090887f466965f8aa6f7e88df",
+          "volume_head_psnr": 32.07181488678867,
+          "logged_head_psnr": 32.0718139694666,
+          "lam": 0.0014,
+          "ksize": null
+        },
+        "Joint SENSE": {
+          "key": "jcssense",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/jcssense_o200_lam0.002_FLAIR_complex.npy",
+          "sha256": "f1ce819035ee10389b847e2fdaa23cb4584b3da4c6fe6be5587ec66c5a41585f",
+          "volume_head_psnr": 32.07486995988725,
+          "logged_head_psnr": 32.0748690435968,
+          "lam": 0.002,
+          "ksize": null
+        },
+        "L1-SPIRiT": {
+          "key": "spirit",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/spirit_ks5_lam0.001_FLAIR_complex.npy",
+          "sha256": "cd82373bbbfa7a8dc09e4cbe53e3354789f2f7ec591eda899dc1e3c9998acdd2",
+          "volume_head_psnr": 33.8226172864536,
+          "logged_head_psnr": 33.822616372423255,
+          "lam": 0.001,
+          "ksize": 5
+        },
+        "ZS-SSDU": {
+          "key": "zsssdu",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/zsssdu_FLAIR_complex.npy",
+          "sha256": "c2889bc12b2b7b4a164c699bfc1c49e04a0e3c554897c33acf6d0c4333bea4cb",
+          "volume_head_psnr": 34.221354069214186,
+          "logged_head_psnr": 34.22135315507272,
+          "lam": null,
+          "ksize": null
+        },
+        "3D-DIP": {
+          "key": "dip",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/dip_FLAIR_complex.npy",
+          "sha256": "682ad9ca7dd13e884ff0fe2ade0ecb1cef8a848c34eb9d73f8d10a3ae21c3637",
+          "volume_head_psnr": 30.045916942682723,
+          "logged_head_psnr": 30.04591602626069,
+          "lam": null,
+          "ksize": null
+        },
+        "3D-INR": {
+          "key": "inr",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/inr_FLAIR_complex.npy",
+          "sha256": "a8069a82f0bdb0bf8169c4720090793b20da899442b92c5f5643a8980cb2b0f5",
+          "volume_head_psnr": 29.3123311059936,
+          "logged_head_psnr": 29.31233018845535,
+          "lam": null,
+          "ksize": null
+        },
+        "MC-INR": {
+          "key": "mcinr",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/mcinr_FLAIR_complex.npy",
+          "sha256": "6b3b69b2f10f101433df675788634cbfb2b6e3a457bfe811c6b18c2aea08790e",
+          "volume_head_psnr": 29.641637982676485,
+          "logged_head_psnr": 29.64163706709298,
+          "lam": null,
+          "ksize": null
+        },
+        "GS-single": {
+          "key": "gs_single_p3",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/gs_single_p3_FLAIR_mag.npy",
+          "sha256": "5ec40a44fae6fb7ad59227b82bb655b6da5b3d52d0ba17aea1c8ec3c8d199d8b",
+          "volume_head_psnr": 34.842334218339275,
+          "logged_head_psnr": 34.84233804563501,
+          "lam": null,
+          "ksize": null
+        },
+        "MC-GS": {
+          "key": "gs_joint_p3",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_uniform_v3_jiangyizhou/recon/gs_joint_p3_FLAIR_mag.npy",
+          "sha256": "c0f42fd9a6c69fcdcf16e2c96c4c90683d5b3e7ec6a033fa4297cbd60907e2d6",
+          "volume_head_psnr": 34.984035526622435,
+          "logged_head_psnr": 34.98403886414139,
+          "lam": null,
+          "ksize": null
+        }
+      }
+    },
+    "Pseudo-radial": {
+      "T1": {
+        "ZF": {
+          "key": "zf",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/zf_T1_complex.npy",
+          "sha256": "14d1c54444dca90fbb84ff8dc1bfd21e46170ac0406f75fe246a06748d3aa573",
+          "volume_head_psnr": 25.40621564437208,
+          "logged_head_psnr": 25.406215640396578,
+          "lam": null,
+          "ksize": null
+        },
+        "CG-SENSE": {
+          "key": "cgsense",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/cgsense_T1_complex.npy",
+          "sha256": "b4050b15ead26cc328811be3280d5e8b89eca5bd605d4cd8cf9d920f209bf4ba",
+          "volume_head_psnr": 29.109156028430306,
+          "logged_head_psnr": 29.109156025914654,
+          "lam": null,
+          "ksize": null
+        },
+        "CS-SENSE": {
+          "key": "cssense_o200",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/cssense_o200_lam0.0014_T1_complex.npy",
+          "sha256": "7fe0c79ae1547298e09fc12d353b91df6c05916e926ddf46c53329dea44f5e13",
+          "volume_head_psnr": 29.955255583319374,
+          "logged_head_psnr": 29.955255576335993,
+          "lam": 0.0014,
+          "ksize": null
+        },
+        "Joint SENSE": {
+          "key": "jcssense",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/jcssense_o200_lam0.0014_T1_complex.npy",
+          "sha256": "fd431810dd68944ee3fa959dd1ea017e1b0b5729d373c09ef43c8a60efc4ddaf",
+          "volume_head_psnr": 29.862421099281026,
+          "logged_head_psnr": 29.862421091699215,
+          "lam": 0.0014,
+          "ksize": null
+        },
+        "L1-SPIRiT": {
+          "key": "spirit",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/spirit_ks5_lam0.0005_T1_complex.npy",
+          "sha256": "a40954c27b24f5222d8d0a084ded5c240a374a25756965e0e5c2533bb497d129",
+          "volume_head_psnr": 30.00385975966068,
+          "logged_head_psnr": 30.003859755039382,
+          "lam": 0.0005,
+          "ksize": 5
+        },
+        "ZS-SSDU": {
+          "key": "zsssdu",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/zsssdu_T1_complex.npy",
+          "sha256": "fa734a7ce5b7a75a9be9c464f018add84ecde86b474358b8c5d69f4078f0830b",
+          "volume_head_psnr": 30.85439432491524,
+          "logged_head_psnr": 30.854394321805337,
+          "lam": null,
+          "ksize": null
+        },
+        "3D-DIP": {
+          "key": "dip",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/dip_T1_complex.npy",
+          "sha256": "085895d16920b6871b5c2bfe01329983d0df56360936ee8ab013e43957d03493",
+          "volume_head_psnr": 29.855439209210644,
+          "logged_head_psnr": 29.855439205868084,
+          "lam": null,
+          "ksize": null
+        },
+        "3D-INR": {
+          "key": "inr",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/inr_T1_complex.npy",
+          "sha256": "367fa6f792ead2f08deda568b20687804a60379fb4e98dde332d75223368d5da",
+          "volume_head_psnr": 27.868005613465403,
+          "logged_head_psnr": 27.86800560938716,
+          "lam": null,
+          "ksize": null
+        },
+        "MC-INR": {
+          "key": "mcinr",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/mcinr_T1_complex.npy",
+          "sha256": "90b7582cec3d7ab36405b70957cb5044761ac772a13384c6bc0115006054a11d",
+          "volume_head_psnr": 28.951929006058492,
+          "logged_head_psnr": 28.951929003347235,
+          "lam": null,
+          "ksize": null
+        },
+        "GS-single": {
+          "key": "gs_single_p3",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/gs_single_p3_T1_mag.npy",
+          "sha256": "dfbf5555a292f79132f91f2591f7a7fc68a220923f682707b5c7886d9fd02458",
+          "volume_head_psnr": 30.91293031848646,
+          "logged_head_psnr": 30.912968215824826,
+          "lam": null,
+          "ksize": null
+        },
+        "MC-GS": {
+          "key": "gs_joint_p3",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/gs_joint_p3_T1_mag.npy",
+          "sha256": "4ac972a9af2b40446249f666bedaefbd815b58b5ad944c826999f021bed341e7",
+          "volume_head_psnr": 31.112659580527176,
+          "logged_head_psnr": 31.112698595529825,
+          "lam": null,
+          "ksize": null
+        }
+      },
+      "FLAIR": {
+        "ZF": {
+          "key": "zf",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/zf_FLAIR_complex.npy",
+          "sha256": "fceadbd0ed0d7e22b5585ba8f6eb20fab871d07d94466e3418777dcd188fec02",
+          "volume_head_psnr": 27.376752781788625,
+          "logged_head_psnr": 27.376751866098147,
+          "lam": null,
+          "ksize": null
+        },
+        "CG-SENSE": {
+          "key": "cgsense",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/cgsense_FLAIR_complex.npy",
+          "sha256": "83ecf7976baef561599640d4cb13d10b0512393e959f39fc54d5466c0c76a4f6",
+          "volume_head_psnr": 30.300596156250222,
+          "logged_head_psnr": 30.30059524138931,
+          "lam": null,
+          "ksize": null
+        },
+        "CS-SENSE": {
+          "key": "cssense_o200",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/cssense_o200_lam0.001_FLAIR_complex.npy",
+          "sha256": "9b9617562ce968368351509b16ae322097217d30045ff6099ce93b59ec5fb0ee",
+          "volume_head_psnr": 30.77701298734899,
+          "logged_head_psnr": 30.7770120711361,
+          "lam": 0.001,
+          "ksize": null
+        },
+        "Joint SENSE": {
+          "key": "jcssense",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/jcssense_o200_lam0.0014_FLAIR_complex.npy",
+          "sha256": "2746b967239583c2dcb6d8f0502718a8732a3f6d6a391b8f10c6ba33759402cb",
+          "volume_head_psnr": 30.609438544222137,
+          "logged_head_psnr": 30.60943762918319,
+          "lam": 0.0014,
+          "ksize": null
+        },
+        "L1-SPIRiT": {
+          "key": "spirit",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/spirit_ks5_lam0.0005_FLAIR_complex.npy",
+          "sha256": "cb1f50eafaae7f09709bc3ef8244e2f38e2374462bcc726e111c816c67cbf101",
+          "volume_head_psnr": 30.432335255093214,
+          "logged_head_psnr": 30.432334340441763,
+          "lam": 0.0005,
+          "ksize": 5
+        },
+        "ZS-SSDU": {
+          "key": "zsssdu",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/zsssdu_FLAIR_complex.npy",
+          "sha256": "43cfd9a092940ff0c27d1d683e1cc37167a093578be916cc21d0727359b0d018",
+          "volume_head_psnr": 31.635449987743577,
+          "logged_head_psnr": 31.635449071595552,
+          "lam": null,
+          "ksize": null
+        },
+        "3D-DIP": {
+          "key": "dip",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/dip_FLAIR_complex.npy",
+          "sha256": "074867526f8bd2b37b25f0bcfcb5e1ce969583bd09e0c2f72ba010661757229c",
+          "volume_head_psnr": 30.289687259268895,
+          "logged_head_psnr": 30.289686345156767,
+          "lam": null,
+          "ksize": null
+        },
+        "3D-INR": {
+          "key": "inr",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/inr_FLAIR_complex.npy",
+          "sha256": "6b0663d97c40cbfaaf4491f588a72affd2474ada08ec27b3ade2044222771627",
+          "volume_head_psnr": 28.247023413110384,
+          "logged_head_psnr": 28.247022494633576,
+          "lam": null,
+          "ksize": null
+        },
+        "MC-INR": {
+          "key": "mcinr",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/mcinr_FLAIR_complex.npy",
+          "sha256": "b8ab6ac8298bc776a023850edbf6b633be4d9e1633201948bc61586288ba7c14",
+          "volume_head_psnr": 29.96622099609624,
+          "logged_head_psnr": 29.966220081498435,
+          "lam": null,
+          "ksize": null
+        },
+        "GS-single": {
+          "key": "gs_single_p3",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/gs_single_p3_FLAIR_mag.npy",
+          "sha256": "bac7fc377b159bf1fbd8ad2b386b44c5f05994355f13eb099a34538154614df7",
+          "volume_head_psnr": 31.5791656824767,
+          "logged_head_psnr": 31.57917359738077,
+          "lam": null,
+          "ksize": null
+        },
+        "MC-GS": {
+          "key": "gs_joint_p3",
+          "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_radial_v3_jiangyizhou/recon/gs_joint_p3_FLAIR_mag.npy",
+          "sha256": "dc5c7b2ae87a016defabe83d70d5dba0d741e3a6f0639d3c292595008dce16a0",
+          "volume_head_psnr": 31.728918156669828,
+          "logged_head_psnr": 31.72892632216224,
+          "lam": null,
+          "ksize": null
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "pattern": "vd-Poisson",
+      "contrast": "T1",
+      "af": 15.19082939986514,
+      "numbers": {
+        "ZF": {
+          "psnr": 24.997884262190603,
+          "ssim": 0.6372591547205843,
+          "nmse": 0.10098021567910666
+        },
+        "CG-SENSE": {
+          "psnr": 32.476716982944446,
+          "ssim": 0.919645479093709,
+          "nmse": 0.0180448394293208
+        },
+        "CS-SENSE": {
+          "psnr": 35.027091334860955,
+          "ssim": 0.9542067721696017,
+          "nmse": 0.010030338431010373
+        },
+        "Joint SENSE": {
+          "psnr": 34.973927421667945,
+          "ssim": 0.9545665771613802,
+          "nmse": 0.01015387886507799
+        },
+        "L1-SPIRiT": {
+          "psnr": 34.258443545201565,
+          "ssim": 0.9404484220725398,
+          "nmse": 0.011972376495543264
+        },
+        "ZS-SSDU": {
+          "psnr": 34.07697279911604,
+          "ssim": 0.9442475652335591,
+          "nmse": 0.012483243449702808
+        },
+        "3D-DIP": {
+          "psnr": 30.74529555274195,
+          "ssim": 0.8871887385340333,
+          "nmse": 0.026884079122080524
+        },
+        "3D-INR": {
+          "psnr": 30.57337753464651,
+          "ssim": 0.8537936276015439,
+          "nmse": 0.02796964580553795
+        },
+        "MC-INR": {
+          "psnr": 31.64887550393386,
+          "ssim": 0.8943312671214689,
+          "nmse": 0.021834194252347602
+        },
+        "GS-single": {
+          "psnr": 35.60555045326912,
+          "ssim": 0.9571267290494699,
+          "nmse": 0.008779497810107218
+        },
+        "MC-GS": {
+          "psnr": 35.73671333822229,
+          "ssim": 0.9592947235894509,
+          "nmse": 0.008518308928921168
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_lead": {
+        "psnr": 0.13116288495317008,
+        "ssim": 0.0021679945399809553,
+        "nmse": 0.0002611888811860502
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "box_psnr": {
+        "ZF": 31.478497556761646,
+        "CG-SENSE": 36.27566957302357,
+        "CS-SENSE": 38.99565131847954,
+        "Joint SENSE": 39.0991463567909,
+        "L1-SPIRiT": 37.348041520514435,
+        "ZS-SSDU": 36.96234556681575,
+        "3D-DIP": 36.33683893909174,
+        "3D-INR": 32.15412050741746,
+        "MC-INR": 34.60685854962862,
+        "GS-single": 39.192950420589185,
+        "MC-GS": 39.55610917361366
+      },
+      "box_lead": 0.36315875302447864,
+      "box_best_other": "GS-single",
+      "box_head_frac": 0.9986979166666666,
+      "window": 1.0930652362108226
+    },
+    {
+      "pattern": "vd-Poisson",
+      "contrast": "FLAIR",
+      "af": 16.485912916209294,
+      "numbers": {
+        "ZF": {
+          "psnr": 24.885320347263225,
+          "ssim": 0.5774454535297269,
+          "nmse": 0.079106164854364
+        },
+        "CG-SENSE": {
+          "psnr": 30.696997939166003,
+          "ssim": 0.8747930187127022,
+          "nmse": 0.02075116916462515
+        },
+        "CS-SENSE": {
+          "psnr": 32.59604069889188,
+          "ssim": 0.9101736860496327,
+          "nmse": 0.0134010335612935
+        },
+        "Joint SENSE": {
+          "psnr": 32.653340233996644,
+          "ssim": 0.9104786642213678,
+          "nmse": 0.013225385542685297
+        },
+        "L1-SPIRiT": {
+          "psnr": 32.22423292080622,
+          "ssim": 0.9023250145442485,
+          "nmse": 0.014598864331134862
+        },
+        "ZS-SSDU": {
+          "psnr": 32.30916933943832,
+          "ssim": 0.9157437849410541,
+          "nmse": 0.014316123320085448
+        },
+        "3D-DIP": {
+          "psnr": 28.31599638614793,
+          "ssim": 0.7785296659794756,
+          "nmse": 0.03590399097767737
+        },
+        "3D-INR": {
+          "psnr": 28.8777065808641,
+          "ssim": 0.8029052308271006,
+          "nmse": 0.031547990882018956
+        },
+        "MC-INR": {
+          "psnr": 30.08340872408946,
+          "ssim": 0.848881116615501,
+          "nmse": 0.023900197639973402
+        },
+        "GS-single": {
+          "psnr": 33.30448509941025,
+          "ssim": 0.9200763577403857,
+          "nmse": 0.011383972940830876
+        },
+        "MC-GS": {
+          "psnr": 33.35451642165696,
+          "ssim": 0.9219912781917763,
+          "nmse": 0.011253580516627424
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_lead": {
+        "psnr": 0.05003132224670992,
+        "ssim": 0.0019149204513906337,
+        "nmse": 0.0001303924242034519
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "box_psnr": {
+        "ZF": 27.507907755870292,
+        "CG-SENSE": 32.59110753676316,
+        "CS-SENSE": 34.62186054559547,
+        "Joint SENSE": 34.55487560988347,
+        "L1-SPIRiT": 33.37580671103677,
+        "ZS-SSDU": 33.71525205866664,
+        "3D-DIP": 30.6389290214411,
+        "3D-INR": 29.050459527473528,
+        "MC-INR": 31.530339550841468,
+        "GS-single": 34.891144973351395,
+        "MC-GS": 35.10273867306277
+      },
+      "box_lead": 0.2115936997113721,
+      "box_best_other": "GS-single",
+      "box_head_frac": 0.9917534722222222,
+      "window": 1.1405998438596725
+    },
+    {
+      "pattern": "Uniform density",
+      "contrast": "T1",
+      "af": 15.201079622132253,
+      "numbers": {
+        "ZF": {
+          "psnr": 23.355897201099644,
+          "ssim": 0.4743172151589153,
+          "nmse": 0.14737879457285497
+        },
+        "CG-SENSE": {
+          "psnr": 28.364314804946893,
+          "ssim": 0.8049362665605742,
+          "nmse": 0.04651502296132422
+        },
+        "CS-SENSE": {
+          "psnr": 30.917938098485266,
+          "ssim": 0.8700373989415685,
+          "nmse": 0.025836335193283416
+        },
+        "Joint SENSE": {
+          "psnr": 30.88403346899279,
+          "ssim": 0.8746068832227067,
+          "nmse": 0.026038824426665455
+        },
+        "L1-SPIRiT": {
+          "psnr": 33.654065350413276,
+          "ssim": 0.9116992534835323,
+          "nmse": 0.013759992118041485
+        },
+        "ZS-SSDU": {
+          "psnr": 32.35764089725654,
+          "ssim": 0.9123441465620322,
+          "nmse": 0.01854644305649868
+        },
+        "3D-DIP": {
+          "psnr": 29.450806490097996,
+          "ssim": 0.7967426579939307,
+          "nmse": 0.03621963514360563
+        },
+        "3D-INR": {
+          "psnr": 29.29605134038028,
+          "ssim": 0.8059456763080679,
+          "nmse": 0.037533545101010396
+        },
+        "MC-INR": {
+          "psnr": 26.648941747603875,
+          "ssim": 0.702962900708458,
+          "nmse": 0.06904473155300489
+        },
+        "GS-single": {
+          "psnr": 34.59597847744076,
+          "ssim": 0.9275820388240753,
+          "nmse": 0.011077120303902694
+        },
+        "MC-GS": {
+          "psnr": 35.32580141079886,
+          "ssim": 0.9418537823842035,
+          "nmse": 0.009363637216200838
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_lead": {
+        "psnr": 0.7298229333581006,
+        "ssim": 0.01427174356012817,
+        "nmse": 0.0017134830877018562
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "box_psnr": {
+        "ZF": 27.441395550084945,
+        "CG-SENSE": 30.806416366920725,
+        "CS-SENSE": 31.524991672003708,
+        "Joint SENSE": 31.754269822238953,
+        "L1-SPIRiT": 33.61780851049553,
+        "ZS-SSDU": 33.683900685482875,
+        "3D-DIP": 29.57623472705039,
+        "3D-INR": 30.4927552277912,
+        "MC-INR": 29.33866015339378,
+        "GS-single": 34.48854724741696,
+        "MC-GS": 35.8670973518933
+      },
+      "box_lead": 1.3785501044763393,
+      "box_best_other": "GS-single",
+      "box_head_frac": 1.0,
+      "window": 1.0930652362108226
+    },
+    {
+      "pattern": "Uniform density",
+      "contrast": "FLAIR",
+      "af": 19.47946389969736,
+      "numbers": {
+        "ZF": {
+          "psnr": 23.223361818678676,
+          "ssim": 0.4555851432743467,
+          "nmse": 0.11598616334952
+        },
+        "CG-SENSE": {
+          "psnr": 28.637657685838995,
+          "ssim": 0.815411597608711,
+          "nmse": 0.0333408445102684
+        },
+        "CS-SENSE": {
+          "psnr": 30.29600699471449,
+          "ssim": 0.8669973864449633,
+          "nmse": 0.022758396801698368
+        },
+        "Joint SENSE": {
+          "psnr": 30.331538117600253,
+          "ssim": 0.8639800718380112,
+          "nmse": 0.022572962129165777
+        },
+        "L1-SPIRiT": {
+          "psnr": 33.50812140596172,
+          "ssim": 0.9164430177027044,
+          "nmse": 0.01086251087184768
+        },
+        "ZS-SSDU": {
+          "psnr": 33.17781420528139,
+          "ssim": 0.9321172984452861,
+          "nmse": 0.011720899555563002
+        },
+        "3D-DIP": {
+          "psnr": 27.68041661652805,
+          "ssim": 0.7268008973629181,
+          "nmse": 0.04156240816723732
+        },
+        "3D-INR": {
+          "psnr": 27.6418419706495,
+          "ssim": 0.7464093749807592,
+          "nmse": 0.04193321565858789
+        },
+        "MC-INR": {
+          "psnr": 27.135359526259947,
+          "ssim": 0.730801629387762,
+          "nmse": 0.047120122636953386
+        },
+        "GS-single": {
+          "psnr": 34.57898298307035,
+          "ssim": 0.9352336160982948,
+          "nmse": 0.00848875631219142
+        },
+        "MC-GS": {
+          "psnr": 34.74162114824509,
+          "ssim": 0.9391592856351633,
+          "nmse": 0.008176741156193169
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_lead": {
+        "psnr": 0.16263816517474083,
+        "ssim": 0.003925669536868459,
+        "nmse": 0.00031201515599825133
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "box_psnr": {
+        "ZF": 23.36120870089634,
+        "CG-SENSE": 28.121639016450303,
+        "CS-SENSE": 29.818423309320224,
+        "Joint SENSE": 29.67909139416954,
+        "L1-SPIRiT": 32.41722780194584,
+        "ZS-SSDU": 32.68617690573147,
+        "3D-DIP": 26.928095259761562,
+        "3D-INR": 27.378604175062456,
+        "MC-INR": 26.895260341355232,
+        "GS-single": 33.62698384266109,
+        "MC-GS": 34.03260793933216
+      },
+      "box_lead": 0.4056240966710689,
+      "box_best_other": "GS-single",
+      "box_head_frac": 0.9895833333333334,
+      "window": 1.1405998438596725
+    },
+    {
+      "pattern": "Pseudo-radial",
+      "contrast": "T1",
+      "af": 15.201079622132255,
+      "numbers": {
+        "ZF": {
+          "psnr": 24.463611458581845,
+          "ssim": 0.5946580463074874,
+          "nmse": 0.11419933483083419
+        },
+        "CG-SENSE": {
+          "psnr": 28.505831414529375,
+          "ssim": 0.844183041952817,
+          "nmse": 0.04502374112884188
+        },
+        "CS-SENSE": {
+          "psnr": 29.769006537954805,
+          "ssim": 0.8697014367591392,
+          "nmse": 0.03366077155066677
+        },
+        "Joint SENSE": {
+          "psnr": 29.74155132103555,
+          "ssim": 0.8739900527597869,
+          "nmse": 0.03387424217411552
+        },
+        "L1-SPIRiT": {
+          "psnr": 29.676725324627814,
+          "ssim": 0.8583519258567958,
+          "nmse": 0.03438366665225483
+        },
+        "ZS-SSDU": {
+          "psnr": 30.387879434342008,
+          "ssim": 0.8873299653938496,
+          "nmse": 0.029190180247391898
+        },
+        "3D-DIP": {
+          "psnr": 29.825482501893646,
+          "ssim": 0.8499484007646366,
+          "nmse": 0.03322587829848148
+        },
+        "3D-INR": {
+          "psnr": 27.45692912322427,
+          "ssim": 0.7528099670369139,
+          "nmse": 0.05732338234240579
+        },
+        "MC-INR": {
+          "psnr": 27.948604906125862,
+          "ssim": 0.8156323941810117,
+          "nmse": 0.05118753659105609
+        },
+        "GS-single": {
+          "psnr": 30.292779310018425,
+          "ssim": 0.8810551438421761,
+          "nmse": 0.029836425302846623
+        },
+        "MC-GS": {
+          "psnr": 30.528112019780608,
+          "ssim": 0.8902843820329797,
+          "nmse": 0.028262691511169367
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_lead": {
+        "psnr": 0.14023258543859995,
+        "ssim": 0.0029544166391300974,
+        "nmse": 0.0009274887362225315
+      },
+      "best_other": {
+        "psnr": "ZS-SSDU",
+        "ssim": "ZS-SSDU",
+        "nmse": "ZS-SSDU"
+      },
+      "box_psnr": {
+        "ZF": 27.168632335947475,
+        "CG-SENSE": 31.85350820748278,
+        "CS-SENSE": 31.847358709429134,
+        "Joint SENSE": 31.81637002511859,
+        "L1-SPIRiT": 31.547422022895898,
+        "ZS-SSDU": 32.71936178355698,
+        "3D-DIP": 31.19032675182604,
+        "3D-INR": 28.46841210786157,
+        "MC-INR": 31.011124797538464,
+        "GS-single": 32.752926884492666,
+        "MC-GS": 33.23288626259015
+      },
+      "box_lead": 0.4799593780974831,
+      "box_best_other": "GS-single",
+      "box_head_frac": 0.9969618055555556,
+      "window": 1.0930652362108226
+    },
+    {
+      "pattern": "Pseudo-radial",
+      "contrast": "FLAIR",
+      "af": 15.340823970037453,
+      "numbers": {
+        "ZF": {
+          "psnr": 24.406618435310556,
+          "ssim": 0.5503566791340498,
+          "nmse": 0.08832436446969304
+        },
+        "CG-SENSE": {
+          "psnr": 27.654092103706347,
+          "ssim": 0.7589339070287718,
+          "nmse": 0.04181510140778786
+        },
+        "CS-SENSE": {
+          "psnr": 27.956940398051437,
+          "ssim": 0.7887991437295626,
+          "nmse": 0.03899853788053365
+        },
+        "Joint SENSE": {
+          "psnr": 28.100731324432395,
+          "ssim": 0.785890726283975,
+          "nmse": 0.03772847335618672
+        },
+        "L1-SPIRiT": {
+          "psnr": 27.977360348007238,
+          "ssim": 0.7770887896526184,
+          "nmse": 0.03881560233932559
+        },
+        "ZS-SSDU": {
+          "psnr": 29.266139300045317,
+          "ssim": 0.8225247373195955,
+          "nmse": 0.02884884529264152
+        },
+        "3D-DIP": {
+          "psnr": 28.217538157484626,
+          "ssim": 0.7747593792988041,
+          "nmse": 0.03672726165060485
+        },
+        "3D-INR": {
+          "psnr": 26.302596696037618,
+          "ssim": 0.6743093082551916,
+          "nmse": 0.0570798331708193
+        },
+        "MC-INR": {
+          "psnr": 27.378181628444075,
+          "ssim": 0.7314324894603895,
+          "nmse": 0.04455784740736041
+        },
+        "GS-single": {
+          "psnr": 29.35623321836669,
+          "ssim": 0.826454886656972,
+          "nmse": 0.02825654398645494
+        },
+        "MC-GS": {
+          "psnr": 29.552990698084194,
+          "ssim": 0.8388390778694065,
+          "nmse": 0.027004944863593446
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_lead": {
+        "psnr": 0.19675747971750468,
+        "ssim": 0.012384191212434503,
+        "nmse": 0.0012515991228614944
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "box_psnr": {
+        "ZF": 23.91794167341063,
+        "CG-SENSE": 26.688197882104106,
+        "CS-SENSE": 26.418611142972175,
+        "Joint SENSE": 27.469099678587632,
+        "L1-SPIRiT": 26.92872935594506,
+        "ZS-SSDU": 28.77532081457352,
+        "3D-DIP": 28.318845737953943,
+        "3D-INR": 24.992294566451115,
+        "MC-INR": 26.356423065155475,
+        "GS-single": 28.885494856201426,
+        "MC-GS": 29.298377586344373
+      },
+      "box_lead": 0.41288273014294674,
+      "box_best_other": "GS-single",
+      "box_head_frac": 0.9913194444444444,
+      "window": 1.1405998438596725
+    }
+  ],
+  "max_abs_diff_vs_logged_head_psnr": 3.989808058690869e-05,
+  "box_select": {
+    "criterion": "find_zoom_box.py (t1flair_af_record_fig_20261120): MC-GS box-mean error furthest below the best other column, T1 + FLAIR",
+    "head_frac": 0.95,
+    "rows": [
+      {
+        "pattern": "vd-Poisson",
+        "contrast": "T1",
+        "centre_JK": [
+          147,
+          69
+        ],
+        "box_mean_error": {
+          "ZF": 0.020324646641450252,
+          "CG-SENSE": 0.012178663429634145,
+          "CS-SENSE": 0.008751893643551077,
+          "Joint SENSE": 0.008630910920735821,
+          "L1-SPIRiT": 0.010479860466664076,
+          "ZS-SSDU": 0.011164563274099112,
+          "3D-DIP": 0.011559184593943677,
+          "3D-INR": 0.019299057414170723,
+          "MC-INR": 0.014636551022302817,
+          "GS-single": 0.008631005364359895,
+          "MC-GS": 0.008226458514026962
+        },
+        "best_other": "Joint SENSE",
+        "mcgs_over_best_other": 0.9531390822564094
+      },
+      {
+        "pattern": "vd-Poisson",
+        "contrast": "FLAIR",
+        "centre_JK": [
+          147,
+          69
+        ],
+        "box_mean_error": {
+          "ZF": 0.030167312207393757,
+          "CG-SENSE": 0.017736071843696827,
+          "CS-SENSE": 0.013914332208536766,
+          "Joint SENSE": 0.013976531514337108,
+          "L1-SPIRiT": 0.016284762441468387,
+          "ZS-SSDU": 0.015672436388230005,
+          "3D-DIP": 0.020834377381270846,
+          "3D-INR": 0.027706759493971042,
+          "MC-INR": 0.020370732002781635,
+          "GS-single": 0.013469484740917902,
+          "MC-GS": 0.013171119644602597
+        },
+        "best_other": "GS-single",
+        "mcgs_over_best_other": 0.9778488114390208
+      },
+      {
+        "pattern": "Uniform density",
+        "contrast": "T1",
+        "centre_JK": [
+          167,
+          75
+        ],
+        "box_mean_error": {
+          "ZF": 0.033534314209524727,
+          "CG-SENSE": 0.022829759817418995,
+          "CS-SENSE": 0.02056592928507037,
+          "Joint SENSE": 0.02008453801286086,
+          "L1-SPIRiT": 0.01637957634558936,
+          "ZS-SSDU": 0.015934834253087577,
+          "3D-DIP": 0.025474591189615953,
+          "3D-INR": 0.023361264134540292,
+          "MC-INR": 0.026871396778462647,
+          "GS-single": 0.014833343979480324,
+          "MC-GS": 0.012743952790172972
+        },
+        "best_other": "GS-single",
+        "mcgs_over_best_other": 0.8591422681090853
+      },
+      {
+        "pattern": "Uniform density",
+        "contrast": "FLAIR",
+        "centre_JK": [
+          167,
+          75
+        ],
+        "box_mean_error": {
+          "ZF": 0.0495079423557761,
+          "CG-SENSE": 0.029603078086326225,
+          "CS-SENSE": 0.02442255601973008,
+          "Joint SENSE": 0.02506997885120456,
+          "L1-SPIRiT": 0.018710621931307434,
+          "ZS-SSDU": 0.017816732972875556,
+          "3D-DIP": 0.032502191562242246,
+          "3D-INR": 0.033202008581701546,
+          "MC-INR": 0.03355646536786045,
+          "GS-single": 0.01622412385825661,
+          "MC-GS": 0.015409505281424379
+        },
+        "best_other": "GS-single",
+        "mcgs_over_best_other": 0.9497896722221049
+      },
+      {
+        "pattern": "Pseudo-radial",
+        "contrast": "T1",
+        "centre_JK": [
+          163,
+          58
+        ],
+        "box_mean_error": {
+          "ZF": 0.03369965229088737,
+          "CG-SENSE": 0.018871555883735246,
+          "CS-SENSE": 0.01850507300600288,
+          "Joint SENSE": 0.01847219785830637,
+          "L1-SPIRiT": 0.019535286969397176,
+          "ZS-SSDU": 0.016768494732110957,
+          "3D-DIP": 0.020347937663904966,
+          "3D-INR": 0.029324625799445198,
+          "MC-INR": 0.021110857943639687,
+          "GS-single": 0.01656846442501543,
+          "MC-GS": 0.015476706069074128
+        },
+        "best_other": "GS-single",
+        "mcgs_over_best_other": 0.9341062437691605
+      },
+      {
+        "pattern": "Pseudo-radial",
+        "contrast": "FLAIR",
+        "centre_JK": [
+          163,
+          58
+        ],
+        "box_mean_error": {
+          "ZF": 0.04440219902136936,
+          "CG-SENSE": 0.03442994859631413,
+          "CS-SENSE": 0.032980202806169756,
+          "Joint SENSE": 0.030489356954862167,
+          "L1-SPIRiT": 0.03337575318981668,
+          "ZS-SSDU": 0.02688022610849576,
+          "3D-DIP": 0.027582109714385586,
+          "3D-INR": 0.043708923837188246,
+          "MC-INR": 0.03553960901824822,
+          "GS-single": 0.02645264881232158,
+          "MC-GS": 0.025234469478731352
+        },
+        "best_other": "GS-single",
+        "mcgs_over_best_other": 0.9539486823329842
+      }
+    ]
+  },
+  "mcgs_first_on_every_row_and_metric": true,
+  "arrows": [
+    {
+      "pattern": "vd-Poisson",
+      "contrast": "T1",
+      "crop_xy": [
+        13,
+        7
+      ],
+      "gap": 0.005046778358519077
+    },
+    {
+      "pattern": "vd-Poisson",
+      "contrast": "FLAIR",
+      "crop_xy": [
+        8,
+        10
+      ],
+      "gap": 0.008425228297710419
+    },
+    {
+      "pattern": "Uniform density",
+      "contrast": "T1",
+      "crop_xy": [
+        14,
+        10
+      ],
+      "gap": 0.018967896699905396
+    },
+    {
+      "pattern": "Uniform density",
+      "contrast": "FLAIR",
+      "crop_xy": [
+        40,
+        11
+      ],
+      "gap": 0.027882277965545654
+    },
+    {
+      "pattern": "Pseudo-radial",
+      "contrast": "T1",
+      "crop_xy": [
+        7,
+        20
+      ],
+      "gap": 0.010047093033790588
+    },
+    {
+      "pattern": "Pseudo-radial",
+      "contrast": "FLAIR",
+      "crop_xy": [
+        14,
+        26
+      ],
+      "gap": 0.020540408790111542
+    }
+  ],
+  "arrow_mode": "edge",
+  "arrow_on": "zoom",
+  "error_display": {
+    "vmax": 0.1,
+    "cmap": "inferno"
+  },
+  "figure": "t1flair_v3_af16_masks_record_format_tra205_box48_article_boxsel_zoomarrow_edge.png",
+  "figure_sha256": "6276f9a9a5e68649f54b2080da3f4709eb3cf07bad9d3af63bc3a0ebd7e670d3",
+  "figure_px": [
+    6523,
+    6479
+  ],
+  "figure_dpi": 200
+}
