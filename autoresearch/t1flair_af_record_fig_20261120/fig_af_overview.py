@@ -31,6 +31,10 @@ from pathlib import Path
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--save_dir", default="")
+ap.add_argument("--nature", action="store_true",
+                help="Nature house style (user, 2026-11-22; implies --article): 183 mm wide, sans-serif 5-7 pt, bold "
+                     "lower-case panel letters, white background, no in-figure title or caption (the legend goes to "
+                     "<stem>_legend.txt), no grid lines, 0.5 pt axes, NPG colours; every number unchanged")
 ap.add_argument("--article", action="store_true",
                 help="edition for the article (user, 2026-11-22): acceleration factor only (no point-count sentence), "
                      "no subject name in the title; every number unchanged")
@@ -62,6 +66,8 @@ KEY = lambda af: {"ZF": "zf", "CG-SENSE": "cgsense", "CS-SENSE": "cssense_o200",
 LABELS = [m for m, _ in METHODS]
 NONGS = [m for m in LABELS if m not in ("GS-single", "MC-GS")]
 log = lambda *a: print(*a, flush=True)
+NAT = args.nature
+args.article = args.article or NAT
 art = Path(os.environ.get("MCGS_ARTIFACT_DIR", "af_overview_out")).resolve()
 art.mkdir(parents=True, exist_ok=True)
 
@@ -147,10 +153,31 @@ C_GS, C_NG = "#eb6834", "#2a78d6"      # categorical slots 2 / 1: vs GS-single, 
 plt.rcParams.update({"font.size": 10, "axes.edgecolor": BASE, "axes.labelcolor": INK2, "xtick.color": INK2,
                      "ytick.color": INK2, "text.color": INK, "figure.facecolor": SURF, "axes.facecolor": SURF,
                      "savefig.facecolor": SURF, "font.family": "DejaVu Sans"})
+Z = dict(cell=8.6, met=11, afh=9, ylab=10, ttl=12.5, vttl=11, vy=9.5, pct=8.2, leg=9.5, best_lw=1.6, iqr=2.2, dot=26,
+         dot_lw=1.2, vlw=0.8, alpha=0.55, pad=26)
+if NAT:
+    SURF, INK, INK2, BASE = "#ffffff", "#000000", "#000000", "#000000"
+    BLUE_RAMP = ["#ffffff", "#dfe5f0", "#b3c0d9", "#8497bd", "#5a72a3", "#3C5488", "#273a63"]
+    CMAP = LinearSegmentedColormap.from_list("npgblue", BLUE_RAMP)
+    C_GS, C_NG = "#E64B35", "#3C5488"                      # NPG palette
+    Z = dict(cell=5.0, met=7, afh=5.5, ylab=6.5, ttl=7, vttl=7, vy=6.5, pct=5, leg=6, best_lw=0.8, iqr=1.0, dot=7,
+             dot_lw=0.5, vlw=0.4, alpha=0.75, pad=15)
+    plt.rcParams.update({"font.size": 6, "axes.edgecolor": BASE, "axes.labelcolor": INK2, "xtick.color": INK2,
+                         "ytick.color": INK2, "text.color": INK, "figure.facecolor": SURF, "axes.facecolor": SURF,
+                         "savefig.facecolor": SURF, "font.family": "sans-serif",
+                         "font.sans-serif": ["Arial", "Helvetica", "Liberation Sans", "Nimbus Sans", "DejaVu Sans"],
+                         "axes.linewidth": 0.5, "xtick.major.width": 0.5, "ytick.major.width": 0.5,
+                         "xtick.major.size": 2, "ytick.major.size": 2, "xtick.labelsize": 6, "ytick.labelsize": 6,
+                         "pdf.fonttype": 42, "ps.fonttype": 42})
 MET = [("psnr", "PSNR (dB)", "{:.2f}"), ("ssim", "SSIM", "{:.3f}"), ("nmse", "NMSE", "{:.4f}")]
-fig = plt.figure(figsize=(17.0, 15.2))
-gs_top = fig.add_gridspec(1, 2, left=0.075, right=0.985, top=0.905, bottom=0.535, wspace=0.16)
-gs_bot = fig.add_gridspec(2, 3, left=0.06, right=0.985, top=0.445, bottom=0.05, hspace=0.42, wspace=0.2)
+if NAT:
+    fig = plt.figure(figsize=(7.2, 7.0))                   # 183 mm, the double-column width
+    gs_top = fig.add_gridspec(1, 2, left=0.085, right=0.998, top=0.94, bottom=0.575, wspace=0.2)
+    gs_bot = fig.add_gridspec(2, 3, left=0.065, right=0.995, top=0.475, bottom=0.05, hspace=0.42, wspace=0.3)
+else:
+    fig = plt.figure(figsize=(17.0, 15.2))
+    gs_top = fig.add_gridspec(1, 2, left=0.075, right=0.985, top=0.905, bottom=0.535, wspace=0.16)
+    gs_bot = fig.add_gridspec(2, 3, left=0.06, right=0.985, top=0.445, bottom=0.05, hspace=0.42, wspace=0.2)
 
 
 def heat(ax, c, tag):
@@ -171,18 +198,18 @@ def heat(ax, c, tag):
                 ax.add_patch(Rectangle((x, i), 0.96, 0.92, fc=col, ec=SURF, lw=0))
                 dark = (lab != "ZF") and (0.08 + 0.92 * v) > 0.55
                 best = REC["mcgs_first_every_column"][f"{c}|{m}|AF{af}"] == lab
-                ax.text(x + 0.48, i + 0.47, fmt.format(vals[i, j]), ha="center", va="center", fontsize=8.6,
+                ax.text(x + 0.48, i + 0.47, fmt.format(vals[i, j]), ha="center", va="center", fontsize=Z["cell"],
                         color="#ffffff" if dark else INK, fontweight="bold" if best else "normal")
                 if best:
-                    ax.add_patch(Rectangle((x + 0.03, i + 0.03), 0.90, 0.86, fill=False, ec=INK, lw=1.6))
+                    ax.add_patch(Rectangle((x + 0.03, i + 0.03), 0.90, 0.86, fill=False, ec=INK, lw=Z["best_lw"]))
         xc = xs[b * 4] + 2 - 0.02
-        ax.text(xc, -1.05, mname, ha="center", va="center", fontsize=11, color=INK, fontweight="bold")
+        ax.text(xc, -1.05, mname, ha="center", va="center", fontsize=Z["met"], color=INK, fontweight="bold")
         for j, af in enumerate(AFS):
-            ax.text(xs[b * 4 + j] + 0.48, -0.35, f"AF{af}", ha="center", va="center", fontsize=9, color=INK2)
+            ax.text(xs[b * 4 + j] + 0.48, -0.35, f"{af}" if NAT else f"AF{af}", ha="center", va="center", fontsize=Z["afh"], color=INK2)
     ax.set_xlim(-0.1, xs[-1] + 1.05)
     ax.set_ylim(len(LABELS) + 0.05, -1.5)
     ax.set_yticks(np.arange(len(LABELS)) + 0.46)
-    ax.set_yticklabels(LABELS, fontsize=10)
+    ax.set_yticklabels(LABELS, fontsize=Z["ylab"])
     for t, lab in zip(ax.get_yticklabels(), LABELS):
         if lab == "MC-GS":
             t.set_fontweight("bold"); t.set_color(INK)
@@ -190,12 +217,21 @@ def heat(ax, c, tag):
     for sp in ax.spines.values():
         sp.set_visible(False)
     ax.tick_params(length=0)
-    ax.set_title(f"{tag}  {c}: head-masked whole-volume metrics", loc="left", fontsize=12.5, color=INK, pad=26)
+    if NAT:
+        ax.set_title(c, loc="left", fontsize=Z["ttl"], color=INK, pad=Z["pad"])
+        ax.text(-0.16, 1.085, tag.strip("()"), transform=ax.transAxes, fontsize=8, fontweight="bold", va="bottom", ha="left")
+        ax.text(xs[0] - 0.15, -0.35, "AF", ha="right", va="center", fontsize=Z["afh"], color=INK2)
+    else:
+        ax.set_title(f"{tag}  {c}: head-masked whole-volume metrics", loc="left", fontsize=12.5, color=INK, pad=26)
 
 
 heat(fig.add_subplot(gs_top[0, 0]), "T1", "(a)")
 heat(fig.add_subplot(gs_top[0, 1]), "FLAIR", "(b)")
-fig.text(0.075, 0.515, "Colour: value on one scale per metric block (darker = better; NMSE scale inverted); ZF below the "
+CAP_AB = ("Colour: value on one scale per metric block (darker = better; NMSE scale inverted); ZF below the "
+          "scale, shown lightest.  Outlined + bold: best of the 11 methods in that column.  "
+          "One vd-Poisson mask per acceleration factor for both contrasts.")
+if not NAT:
+  fig.text(0.075, 0.515, "Colour: value on one scale per metric block (darker = better; NMSE scale inverted); ZF below the "
          "scale, shown lightest.  Outlined + bold: best of the 11 methods in that column.  "
          + ("One vd-Poisson mask per acceleration factor for both contrasts." if args.article else
             "AF = whole phase-encode plane / sampled points (11.71 / 15.19 / 18.56 / 24.00x), one vd-Poisson mask per AF "
@@ -205,8 +241,11 @@ fig.text(0.075, 0.515, "Colour: value on one scale per metric block (darker = be
 def violins(ax, c, m, ylab, title):
     pos_gs = np.arange(len(AFS)) * 1.0 - 0.19
     pos_ng = np.arange(len(AFS)) * 1.0 + 0.19
-    ax.axhline(0, color=BASE, lw=1.1, zorder=1)
-    ax.grid(axis="y", color=GRID, lw=0.6, zorder=0); ax.set_axisbelow(True)
+    if NAT:
+        ax.axhline(0, color="#7f7f7f", lw=0.5, ls=(0, (3, 2)), zorder=1)
+    else:
+        ax.axhline(0, color=BASE, lw=1.1, zorder=1)
+        ax.grid(axis="y", color=GRID, lw=0.6, zorder=0); ax.set_axisbelow(True)
     tops = []
     for k, af in enumerate(AFS):
         strongest = REC["slices"][f"{c}|AF{af}|strongest_non_gs"]
@@ -215,46 +254,68 @@ def violins(ax, c, m, ylab, title):
             lo, hi = np.percentile(dlt, [0.5, 99.5])
             body = ax.violinplot(np.clip(dlt, lo, hi), positions=[pos], widths=0.34, showextrema=False)
             for pc in body["bodies"]:
-                pc.set_facecolor(col); pc.set_edgecolor(col); pc.set_alpha(0.55); pc.set_linewidth(0.8)
+                pc.set_facecolor(col); pc.set_edgecolor(col); pc.set_alpha(Z["alpha"]); pc.set_linewidth(Z["vlw"])
             q1, med, q3 = np.percentile(dlt, [25, 50, 75])
-            ax.plot([pos, pos], [q1, q3], color=INK, lw=2.2, solid_capstyle="round", zorder=3)
-            ax.scatter([pos], [med], s=26, color=SURF, edgecolor=INK, lw=1.2, zorder=4)
+            ax.plot([pos, pos], [q1, q3], color=INK, lw=Z["iqr"], solid_capstyle="round", zorder=3)
+            ax.scatter([pos], [med], s=Z["dot"], color=SURF, edgecolor=INK, lw=Z["dot_lw"], zorder=4)
             tops.append((pos, hi, float(np.mean(dlt > 0))))
     ymin, ymax = ax.get_ylim()
     span = ymax - ymin
     for pos, hi, w in tops:
-        ax.text(pos, ymax + 0.02 * span, f"{100 * w:.0f}%", ha="center", va="bottom", fontsize=8.2, color=INK2)
+        ax.text(pos, ymax + 0.02 * span, f"{100 * w:.0f}%", ha="center", va="bottom", fontsize=Z["pct"], color=INK2)
     ax.set_ylim(min(ymin, -0.04 * span), ymax + 0.12 * span)
     ax.set_xticks(np.arange(len(AFS)))
-    ax.set_xticklabels([f"AF{af}" for af in AFS])
+    ax.set_xticklabels([f"{af}" if NAT else f"AF{af}" for af in AFS])
+    if NAT:
+        ax.set_xlabel("Acceleration factor", fontsize=Z["vy"], labelpad=1.5)
     for sp in ("top", "right"):
         ax.spines[sp].set_visible(False)
-    ax.set_ylabel(ylab, fontsize=9.5)
-    ax.set_title(title, loc="left", fontsize=11, color=INK)
+    ax.set_ylabel(ylab, fontsize=Z["vy"])
+    ax.set_title(title, loc="left", fontsize=Z["vttl"], color=INK)
 
 
 MLAB = {"psnr": ("ΔPSNR (dB)", "PSNR gain"), "ssim": ("ΔSSIM", "SSIM gain"), "nmse": ("NMSE reduction (%)", "NMSE reduction")}
 for i, c in enumerate(CONTRASTS):
     for j, m in enumerate(("psnr", "ssim", "nmse")):
         ylab, ttl = MLAB[m]
-        violins(fig.add_subplot(gs_bot[i, j]), c, m, ylab, f"{'(c)  ' if (i, j) == (0, 0) else ''}{c} · {ttl} of MC-GS per slice")
+        axv = fig.add_subplot(gs_bot[i, j])
+        violins(axv, c, m, ylab, c if NAT else f"{'(c)  ' if (i, j) == (0, 0) else ''}{c} · {ttl} of MC-GS per slice")
+        if NAT and (i, j) == (0, 0):
+            axv.text(-0.2, 1.13, "c", transform=axv.transAxes, fontsize=8, fontweight="bold", va="bottom", ha="left")
 from matplotlib.patches import Patch  # noqa: E402
-fig.legend(handles=[Patch(fc=C_GS, ec=C_GS, alpha=0.55, label="MC-GS vs GS-single"),
-                    Patch(fc=C_NG, ec=C_NG, alpha=0.55, label="MC-GS vs strongest non-GS method "
+fig.legend(handles=[Patch(fc=C_GS, ec=C_GS, alpha=Z["alpha"], label="MC-GS vs GS-single"),
+                    Patch(fc=C_NG, ec=C_NG, alpha=Z["alpha"], label="MC-GS vs strongest non-GS method "
                                                                    "(CS-SENSE on T1, Joint SENSE on FLAIR)")],
-           loc="upper left", bbox_to_anchor=(0.06, 0.478), ncol=2, frameon=False, fontsize=9.5)
-fig.text(0.06, 0.03, f"(c) {NSL} slices per contrast and AF (transverse, coronal and sagittal slices whose head covers "
+           loc="upper left", bbox_to_anchor=(0.12, 0.535) if NAT else (0.06, 0.478), ncol=2, frameon=False, fontsize=Z["leg"])
+CAP_C = (f"{NSL} slices per contrast and acceleration factor (transverse, coronal and sagittal slices whose head covers "
+         ">= 5% of the slice). Above zero = MC-GS better. Bar = interquartile range, dot = median, violin trimmed to "
+         "the 0.5-99.5 percentiles. Number above each violin = share of slices where MC-GS is better; "
+         "Wilcoxon signed-rank p < 1e-60 in every pair.")
+if not NAT:
+  fig.text(0.06, 0.03, f"(c) {NSL} slices per contrast and AF (transverse, coronal and sagittal slices whose head covers "
          ">= 5% of the slice). Above zero = MC-GS better.\nBar = interquartile range, dot = median, violin trimmed to "
          "the 0.5-99.5 percentiles. Number above each violin = share of slices where MC-GS is better; "
          "Wilcoxon signed-rank p < 1e-60 in every pair.",
          fontsize=9.2, color=INK2, ha="left", va="top")
-fig.suptitle("MC-GS across acceleration factors: " + ("" if args.article else "jiangyizhou ") + "T1 + FLAIR, retrospective vd-Poisson undersampling",
+if not NAT:
+  fig.suptitle("MC-GS across acceleration factors: " + ("" if args.article else "jiangyizhou ") + "T1 + FLAIR, retrospective vd-Poisson undersampling",
              x=0.01, ha="left", y=0.985, fontsize=14.5, fontweight="bold", color=INK)
-fig.text(0.01, 0.958, "11 methods, one scorer, one ground truth; single subject, seed 42; GS-single = the registered arm "
+if not NAT:
+  fig.text(0.01, 0.958, "11 methods, one scorer, one ground truth; single subject, seed 42; GS-single = the registered arm "
          "(one scan fed to both channels of the joint model); ZS-SSDU with 5 residual blocks.",
          ha="left", fontsize=10, color=INK2)
 
-stem = "t1flair_af12_16_20_24_overview_psnr_ssim_nmse" + ("_article" if args.article else "")
+stem = "t1flair_af12_16_20_24_overview_psnr_ssim_nmse" + ("_nature" if NAT else "_article" if args.article else "")
+if NAT:
+    args.png_dpi = max(args.png_dpi, 600)
+    (art / f"{stem}_legend.txt").write_text(
+        "MC-GS across acceleration factors: T1 + FLAIR, retrospective vd-Poisson undersampling.\n"
+        "a, b, Head-masked whole-volume PSNR, SSIM and NMSE of the 11 methods at acceleration factors 12, 16, 20 and 24 "
+        "for T1 (a) and FLAIR (b). " + CAP_AB + "\n"
+        "c, Per-slice gain of MC-GS over GS-single and over the strongest non-GS method (CS-SENSE on T1, Joint SENSE on "
+        "FLAIR): PSNR gain, SSIM gain and relative NMSE reduction. " + CAP_C + "\n"
+        "One scorer and one ground truth for all methods; single subject, seed 42; GS-single = the registered arm (one "
+        "scan fed to both channels of the joint model); ZS-SSDU with 5 residual blocks.\n")
 fig.savefig(art / f"{stem}.png", dpi=args.png_dpi)
 fig.savefig(art / f"{stem}.pdf", dpi=args.pdf_dpi)
 plt.close(fig)
@@ -266,7 +327,7 @@ for k, v in REC["slices"].items():
     if isinstance(v, dict):
         log(f"  {k:<44} median {v['median']:+.4f}  win {100 * v['win_share']:5.1f}%  p {v['wilcoxon_p_greater']:.1e}")
 (art / f"record_{stem}.json").write_text(json.dumps(REC, indent=1))
-outs = [f"{stem}.png", f"{stem}.pdf", f"record_{stem}.json"]
+outs = [f"{stem}.png", f"{stem}.pdf", f"record_{stem}.json"] + ([f"{stem}_legend.txt"] if NAT else [])
 for n in outs:
     log(f"  sha256 {sha(art / n)}  {n}")
 if args.save_dir:
