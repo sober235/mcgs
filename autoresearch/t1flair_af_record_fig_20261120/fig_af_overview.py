@@ -171,9 +171,9 @@ if NAT:
                          "pdf.fonttype": 42, "ps.fonttype": 42})
 MET = [("psnr", "PSNR (dB)", "{:.2f}"), ("ssim", "SSIM", "{:.3f}"), ("nmse", "NMSE", "{:.4f}")]
 if NAT:
-    fig = plt.figure(figsize=(7.2, 7.0))                   # 183 mm, the double-column width
-    gs_top = fig.add_gridspec(1, 2, left=0.085, right=0.998, top=0.94, bottom=0.575, wspace=0.2)
-    gs_bot = fig.add_gridspec(2, 3, left=0.065, right=0.995, top=0.475, bottom=0.05, hspace=0.42, wspace=0.3)
+    fig = plt.figure(figsize=(7.2, 6.15))                  # 183 mm, the double-column width; compact (user, 2026-11-22)
+    gs_top = fig.add_gridspec(1, 2, left=0.082, right=0.999, top=0.998, bottom=0.588, wspace=0.185)
+    gs_bot = fig.add_gridspec(2, 3, left=0.062, right=0.997, top=0.528, bottom=0.058, hspace=0.36, wspace=0.26)
 else:
     fig = plt.figure(figsize=(17.0, 15.2))
     gs_top = fig.add_gridspec(1, 2, left=0.075, right=0.985, top=0.905, bottom=0.535, wspace=0.16)
@@ -207,7 +207,7 @@ def heat(ax, c, tag):
         for j, af in enumerate(AFS):
             ax.text(xs[b * 4 + j] + 0.48, -0.35, f"{af}" if NAT else f"AF{af}", ha="center", va="center", fontsize=Z["afh"], color=INK2)
     ax.set_xlim(-0.1, xs[-1] + 1.05)
-    ax.set_ylim(len(LABELS) + 0.05, -1.5)
+    ax.set_ylim(len(LABELS) + 0.02, -1.32 if NAT else -1.5)
     ax.set_yticks(np.arange(len(LABELS)) + 0.46)
     ax.set_yticklabels(LABELS, fontsize=Z["ylab"])
     for t, lab in zip(ax.get_yticklabels(), LABELS):
@@ -218,8 +218,8 @@ def heat(ax, c, tag):
         sp.set_visible(False)
     ax.tick_params(length=0)
     if NAT:
-        ax.set_title(c, loc="left", fontsize=Z["ttl"], color=INK, pad=Z["pad"])
-        ax.text(-0.16, 1.085, tag.strip("()"), transform=ax.transAxes, fontsize=8, fontweight="bold", va="bottom", ha="left")
+        ax.text(xs[0] - 0.15, -1.05, c, ha="right", va="center", fontsize=Z["ttl"], color=INK)
+        ax.text(-0.16, 0.995, tag.strip("()"), transform=ax.transAxes, fontsize=8, fontweight="bold", va="top", ha="left")
         ax.text(xs[0] - 0.15, -0.35, "AF", ha="right", va="center", fontsize=Z["afh"], color=INK2)
     else:
         ax.set_title(f"{tag}  {c}: head-masked whole-volume metrics", loc="left", fontsize=12.5, color=INK, pad=26)
@@ -271,7 +271,7 @@ def violins(ax, c, m, ylab, title):
     for sp in ("top", "right"):
         ax.spines[sp].set_visible(False)
     ax.set_ylabel(ylab, fontsize=Z["vy"])
-    ax.set_title(title, loc="left", fontsize=Z["vttl"], color=INK)
+    ax.set_title(title, loc="left", fontsize=Z["vttl"], color=INK, pad=2 if NAT else 6)
 
 
 MLAB = {"psnr": ("ΔPSNR (dB)", "PSNR gain"), "ssim": ("ΔSSIM", "SSIM gain"), "nmse": ("NMSE reduction (%)", "NMSE reduction")}
@@ -281,12 +281,12 @@ for i, c in enumerate(CONTRASTS):
         axv = fig.add_subplot(gs_bot[i, j])
         violins(axv, c, m, ylab, c if NAT else f"{'(c)  ' if (i, j) == (0, 0) else ''}{c} · {ttl} of MC-GS per slice")
         if NAT and (i, j) == (0, 0):
-            axv.text(-0.2, 1.13, "c", transform=axv.transAxes, fontsize=8, fontweight="bold", va="bottom", ha="left")
+            axv.text(-0.2, 1.04, "c", transform=axv.transAxes, fontsize=8, fontweight="bold", va="bottom", ha="left")
 from matplotlib.patches import Patch  # noqa: E402
 fig.legend(handles=[Patch(fc=C_GS, ec=C_GS, alpha=Z["alpha"], label="MC-GS vs GS-single"),
                     Patch(fc=C_NG, ec=C_NG, alpha=Z["alpha"], label="MC-GS vs strongest non-GS method "
                                                                    "(CS-SENSE on T1, Joint SENSE on FLAIR)")],
-           loc="upper left", bbox_to_anchor=(0.12, 0.535) if NAT else (0.06, 0.478), ncol=2, frameon=False, fontsize=Z["leg"])
+           loc="upper left", bbox_to_anchor=(0.1, 0.592) if NAT else (0.06, 0.478), ncol=2, frameon=False, fontsize=Z["leg"])
 CAP_C = (f"{NSL} slices per contrast and acceleration factor (transverse, coronal and sagittal slices whose head covers "
          ">= 5% of the slice). Above zero = MC-GS better. Bar = interquartile range, dot = median, violin trimmed to "
          "the 0.5-99.5 percentiles. Number above each violin = share of slices where MC-GS is better; "
