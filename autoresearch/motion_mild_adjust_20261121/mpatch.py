@@ -86,7 +86,7 @@ class MMState:
     def __init__(self, cfg, train_of, n_trains, truth=None):
         self.m2 = cfg["m2"]
         self.mode = self.m2["mode"]
-        assert self.mode in ("monitor", "truth"), f"m2 mode {self.mode!r} is not available yet"
+        assert self.mode in M2_MODES, self.mode
         self.train_of = np.asarray(train_of)
         self.n = int(n_trains)
         self.shells = weights.shell_index(self.train_of.shape, int(self.m2["n_shells"]))
@@ -104,17 +104,24 @@ class MMState:
         return self.it >= w0 and (self.it - w0) % ev == 0
 
     def step(self, e2d_fn):
-        """Once per evaluation of the T2 data term. e2d_fn() -> (energy per (ky, kz), sampled points); it is only
-        called when the statistic is due. Returns True when the weights changed."""
+        """Once per evaluation of the T2 data term. e2d_fn() -> (energy per (ky, kz), sampled points) of the
+        UNWEIGHTED residual; it is only called when the statistic is due. Mode "adaptive": the weights are recomputed
+        from the statistic then (all 1 before the warm-up ends) and used from this iteration on; a down-weighted
+        train whose residual becomes normal again returns to 1. Returns True when the weights changed."""
         self.it += 1
         if not self.due():
             return False
         e2d, sampled = e2d_fn()
         self.rho = weights.train_stat(e2d, sampled, self.train_of, self.n, self.shells)
         self.z = weights.robust_z(self.rho, self.state_of_train)
+        changed = False
+        if self.mode == "adaptive":
+            w = weights.weights_from_z(self.z, float(self.m2["z0"]), float(self.m2["z1"]), float(self.m2["cap"]))
+            changed = not np.array_equal(w, self.w)
+            self.w = w
         self.history.append(dict(it=self.it, n_down=int((self.w < 1.0).sum()), w_sum=float(self.w.sum()),
                                  z=[round(float(v), 4) for v in self.z]))
-        return False
+        return changed
 
     def wmap_for(self, mask):
         """Weight map on the mask's device, or None while every weight is 1."""
