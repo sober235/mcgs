@@ -118,3 +118,10 @@
 - **结果：** 两张图 MC-GS 都是 18 项全部第一。箭头和框是对照 GT 挑的，只用于展示。
 - **没有采用的一步：** 曾为「净 20×」新抽了一张 2253 点的掩膜（`autoresearch/t1flair_net20_20261121/`，服务器课题 `T1FLAIR_AF20net_v3_jiangyizhou`），
   用户看过后决定不补跑，没有在它上面做任何重建。
+
+### 文章版概览图（用户 2026-11-22 同意）
+
+- **图：** `figures/af_overview_article.{png,pdf}`（PNG sha256 `7d05d529…`），`fig_af_overview.py --article`。
+- **与记录图 `af_overview` 的差别：** 只有两处文字。标题去掉受试者姓名；热图下方的说明去掉「AF = 平面点数 ÷ 采样点数（11.71 / 15.19 / 18.56 / 24.00×）」一句。
+  所有数字、热图和小提琴图都不变；副标题里的限定（单受试者、种子 42、GS-single 为登记版、ZS-SSDU 5 块）保留。
+- **服务器：** `codex_artifacts/mcgs_t1flair_af_record_fig_20261120/article/`。记录图 `af_overview` 没有改动。

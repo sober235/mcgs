@@ -31,6 +31,9 @@ from pathlib import Path
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--save_dir", default="")
+ap.add_argument("--article", action="store_true",
+                help="edition for the article (user, 2026-11-22): acceleration factor only (no point-count sentence), "
+                     "no subject name in the title; every number unchanged")
 ap.add_argument("--png_dpi", type=int, default=200)
 ap.add_argument("--pdf_dpi", type=int, default=600)
 args = ap.parse_args()
@@ -194,8 +197,9 @@ heat(fig.add_subplot(gs_top[0, 0]), "T1", "(a)")
 heat(fig.add_subplot(gs_top[0, 1]), "FLAIR", "(b)")
 fig.text(0.075, 0.515, "Colour: value on one scale per metric block (darker = better; NMSE scale inverted); ZF below the "
          "scale, shown lightest.  Outlined + bold: best of the 11 methods in that column.  "
-         "AF = whole phase-encode plane / sampled points (11.71 / 15.19 / 18.56 / 24.00x), one vd-Poisson mask per AF "
-         "for both contrasts.", fontsize=9.2, color=INK2, ha="left", va="top", wrap=True)
+         + ("One vd-Poisson mask per acceleration factor for both contrasts." if args.article else
+            "AF = whole phase-encode plane / sampled points (11.71 / 15.19 / 18.56 / 24.00x), one vd-Poisson mask per AF "
+            "for both contrasts."), fontsize=9.2, color=INK2, ha="left", va="top", wrap=True)
 
 
 def violins(ax, c, m, ylab, title):
@@ -244,13 +248,13 @@ fig.text(0.06, 0.03, f"(c) {NSL} slices per contrast and AF (transverse, coronal
          "the 0.5-99.5 percentiles. Number above each violin = share of slices where MC-GS is better; "
          "Wilcoxon signed-rank p < 1e-60 in every pair.",
          fontsize=9.2, color=INK2, ha="left", va="top")
-fig.suptitle("MC-GS across acceleration factors: jiangyizhou T1 + FLAIR, retrospective vd-Poisson undersampling",
+fig.suptitle("MC-GS across acceleration factors: " + ("" if args.article else "jiangyizhou ") + "T1 + FLAIR, retrospective vd-Poisson undersampling",
              x=0.01, ha="left", y=0.985, fontsize=14.5, fontweight="bold", color=INK)
 fig.text(0.01, 0.958, "11 methods, one scorer, one ground truth; single subject, seed 42; GS-single = the registered arm "
          "(one scan fed to both channels of the joint model); ZS-SSDU with 5 residual blocks.",
          ha="left", fontsize=10, color=INK2)
 
-stem = "t1flair_af12_16_20_24_overview_psnr_ssim_nmse"
+stem = "t1flair_af12_16_20_24_overview_psnr_ssim_nmse" + ("_article" if args.article else "")
 fig.savefig(art / f"{stem}.png", dpi=args.png_dpi)
 fig.savefig(art / f"{stem}.pdf", dpi=args.pdf_dpi)
 plt.close(fig)
