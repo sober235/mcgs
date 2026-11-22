@@ -44,6 +44,21 @@ FREE = ('nvidia-smi --query-gpu=index,uuid,memory.used --format=csv,noheader,nou
         'while IFS=, read i u m; do if ! grep -q "$u" /tmp/.maq_a.$$ && [ "$m" -lt 200 ]; then printf "%s " $i; fi; '
         'done < /tmp/.maq_g.$$; rm -f /tmp/.maq_g.$$ /tmp/.maq_a.$$; echo')
 
+sys.path.insert(0, str(HERE.parent))
+import queue_study  # noqa: E402  (study profiles; the default profile is the first version)
+
+STUDY = "v1"
+
+
+def use_study(name):
+    """Point the queue at another study's launcher, server root, result file and code (queue_study.STUDIES)."""
+    global STUDY, E, REL, ROOT, RESULTS
+    p = queue_study.STUDIES[name]
+    STUDY, REL, ROOT = name, p["rel"], p["root"]
+    E = WORKTREE / REL
+    RESULTS = E / "experiments.jsonl"
+
+
 spec = importlib.util.spec_from_file_location("gpu", WORKSPACE / "gpu-tools/gpu.py")
 gpu = importlib.util.module_from_spec(spec)
 sys.path.insert(0, str(WORKSPACE / "gpu-tools"))
@@ -79,13 +94,21 @@ def say(*a):
 
 def code_sha(settings):
     h = hashlib.sha256()
-    for name in (*CODE, *([settings] if settings else [])):
-        h.update(name.encode() + b"\0" + (E / name).read_bytes() + b"\0")
+    code = queue_study.STUDIES[STUDY]["code"]
+    base = E if STUDY == "v1" else WORKTREE                  # v1: names inside its folder; others: repository paths
+    for name in code:
+        if (base / name).exists():                           # a later task's file may not exist yet
+            h.update(name.encode() + b"\0" + (base / name).read_bytes() + b"\0")
+    if settings:
+        h.update(settings.encode() + b"\0" + (E / settings).read_bytes() + b"\0")
     return h.hexdigest()
 
 
-def exp_name(af, cond, arm, seed, tag=""):
-    return f"ma_{af}_{cond}_{arm}" + ("" if seed == 42 else f"_s{seed}") + (f"_{tag}" if tag else "")
+def exp_name(*row_seed_tag):
+    """exp_name(*row, seed[, tag]) -- the row has 3 fields in the first version, 4 in the second."""
+    n = queue_study.STUDIES[STUDY]["fields"]
+    row, rest = row_seed_tag[:n], row_seed_tag[n:]
+    return queue_study.exp_name(STUDY, row, *rest)
 
 
 def ssh(cmd, timeout=90):
@@ -120,7 +143,8 @@ def log_tail(client, job_id, n=25):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--rows", nargs="*", default=[], help="af:cond:arm")
+    ap.add_argument("--study", default="v1", choices=sorted(queue_study.STUDIES))
+    ap.add_argument("--rows", nargs="*", default=[], help="af:cond:arm (v1) or af:order:cond:arm (mild)")
     ap.add_argument("--part", help="a key of common.MATRIX (af12_core, af12_rest, af16, dev)")
     ap.add_argument("--settings")
     ap.add_argument("--seed", type=int, default=42)
@@ -129,13 +153,18 @@ def main():
     ap.add_argument("--poll", type=int, default=75)
     ap.add_argument("--name", help="queue name (state file); default: tag, part or 'main'")
     args = ap.parse_args()
-    rows = [tuple(r.split(":")) for r in args.rows]
+    use_study(args.study)
+    rows = [queue_study.parse_row(args.study, r) for r in args.rows]
     if args.part:
         sys.path.insert(0, str(E))
         sys.dont_write_bytecode = True
-        import common
-        af = "af16" if args.part == "af16" else "af12"
-        rows += [(af, c, a) for c, a in common.MATRIX[args.part]]
+        if args.study == "v1":
+            import common
+            af = "af16" if args.part == "af16" else "af12"
+            rows += [(af, c, a) for c, a in common.MATRIX[args.part]]
+        else:
+            import mcommon
+            rows += [("af12", o, c, a) for o, c, a in mcommon.MATRIX2[args.part]]
     assert rows, "no rows"
     STATE = WORKTREE / f".claude/gpu/queue_state_{args.name or args.tag or args.part or 'main'}.json"
     client = gpu.Client(WORKTREE / ".claude/gpu/config.json")
@@ -145,7 +174,7 @@ def main():
     if RESULTS.exists():
         done = {json.loads(l)["exp"] for l in RESULTS.read_text().splitlines() if l.strip()}
     state = json.loads(STATE.read_text()) if STATE.exists() else {}
-    todo = [(af, c, a) for af, c, a in rows if exp_name(af, c, a, args.seed, args.tag) not in done]
+    todo = [r for r in rows if exp_name(*r, args.seed, args.tag) not in done]
     pending = [r for r in todo if exp_name(*r, args.seed, args.tag) not in state]
     say(f"queue: {len(rows)} rows, {len(rows) - len(todo)} already finished, {len(todo) - len(pending)} running, "
         f"{len(pending)} to launch; code {sha0[:12]}")
@@ -188,20 +217,18 @@ def main():
                 if not pending or len(state) >= args.max_cards:
                     break
                 assert code_sha(args.settings) == sha0, "training code changed while the queue runs"
-                af, cond, arm = pending[0]
-                exp = exp_name(af, cond, arm, args.seed, args.tag)
+                row = pending[0]
+                exp = exp_name(*row, args.seed, args.tag)
                 if not claim(card, exp):
                     continue
                 pending.pop(0)
-                argv = ["@python", f"{REL}/run.py", "--af", af, "--cond", cond, "--arm", arm, "--gpu", str(card),
-                        "--seed", str(args.seed)] + (["--settings", args.settings] if args.settings else []) \
-                    + (["--tag", args.tag] if args.tag else [])
+                argv = queue_study.launch_argv(args.study, row, card, args.seed, args.settings, args.tag)
                 start = now()
                 try:
                     job = client.run(argv, cpu=False, gpu_ids=[card])
                 except Exception as e:
                     say(f"launch of {exp} failed ({type(e).__name__}: {e}); back in the queue")
-                    pending.insert(0, (af, cond, arm))
+                    pending.insert(0, row)
                     claim(card, None)
                     break
                 state[exp] = dict(job_id=job["id"], gpu=card, local_start=start, code_sha256=sha0)

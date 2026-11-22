@@ -52,24 +52,25 @@ def _git(*a):
     return subprocess.run(["git", "-C", str(SRC), *a], check=True, capture_output=True, text=True).stdout
 
 
-def ensure_trainer():
+def ensure_trainer(tr=None, root=None, res=None):
     """Same rule as abl_framework.ensure_trainer: the source worktree must be clean at SRC_HEAD for the code
     directories; copy them once; every git-tracked file of the copy must equal the source."""
+    TR_, ROOT_, RES_ = tr or TR, root or ROOT, res or RES     # another study passes its own private copy
     assert _git("rev-parse", "HEAD").strip() == SRC_HEAD, "source worktree moved"
     assert _git("status", "--porcelain", "--", *CODE_DIRS).strip() == "", "source worktree has local changes"
-    if not TR.exists():
-        ROOT.mkdir(parents=True, exist_ok=True)
-        tmp = ROOT / f"trainer.tmp{os.getpid()}"
+    if not TR_.exists():
+        ROOT_.mkdir(parents=True, exist_ok=True)
+        tmp = ROOT_ / f"trainer.tmp{os.getpid()}"
         for d in CODE_DIRS:
             shutil.copytree(SRC / d, tmp / d, ignore=shutil.ignore_patterns("__pycache__", "results_arc"))
         try:
-            tmp.rename(TR)
+            tmp.rename(TR_)
         except OSError:
             shutil.rmtree(tmp)
     tracked = [f for f in _git("ls-files", "--", *CODE_DIRS).splitlines() if f]
-    bad = [f for f in tracked if not (TR / f).is_file() or sha(TR / f) != sha(SRC / f)]
+    bad = [f for f in tracked if not (TR_ / f).is_file() or sha(TR_ / f) != sha(SRC / f)]
     assert not bad, f"trainer copy differs from the source worktree: {bad[:10]}"
-    RES.mkdir(exist_ok=True)
+    RES_.mkdir(exist_ok=True)
     return len(tracked)
 
 
