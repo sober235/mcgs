@@ -149,3 +149,11 @@
 - **源数据：** `af_overview_nfig_source_ab.csv`（热图全部数值）、`_source_c_summary.csv`（每个小提琴的中位数、四分位、胜出比例、P 值）、`_source_c_slices.csv`（逐层面差值）。
 - **数字：** 与 `af_overview` 完全相同，MC-GS 24 列全部第一。此前各版都没有改动。
 - **服务器：** `codex_artifacts/mcgs_t1flair_af_record_fig_20261120/nature_figure_skill/`。对齐检查脚本的副本在 `nature_qa/`。
+
+### 概览图（nature-figure 技能版）改为每格印数（用户 2026-11-22："Each table is printed."）
+
+- `figures/af_overview_nfig/af_overview_nfig.*` 已替换为每格都印数值的版本（PNG sha256 `44726152…`），这是 `--nfig` 的默认；色块下的色标随之去掉。
+- 只印 GS-single / MC-GS 两行的上一版仍可用 `--nfig --key_rows_only` 重画（文件名后缀 `_nfig_keyrows`），服务器上保留在 `nature_figure_skill/`。
+- 这一点偏离该技能"不在每格印数"的规定，按用户要求执行。其余不变：NMSE 用百分数、MC-GS 整行一个外框、小提琴图上方不印百分数、技能色板。
+- 检查：面板对齐通过；PDF 最小字号 5.5 pt；碰撞检查 0 项失败、45 项提示（全部是数值印在色块内）。数字不变，MC-GS 24 列全部第一。
+- 服务器：`codex_artifacts/mcgs_t1flair_af_record_fig_20261120/nature_figure_skill_allvalues/`。
