@@ -34,6 +34,7 @@ import zipfile
 import zlib
 from pathlib import Path
 
+sys.dont_write_bytecode = True        # nothing but OUT/stats_cache may be written under OUT (clone scripts are imported)
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from ts_common import AFS, OUT, SCANS   # noqa: E402
@@ -54,7 +55,8 @@ METRICS = ("head_psnr", "head_ssim", "head_nmse")
 MNAME = {"head_psnr": "PSNR", "head_ssim": "SSIM", "head_nmse": "NMSE"}
 HIGHER = {"head_psnr": True, "head_ssim": True, "head_nmse": False}
 COMPS = ("GS-single", "strongest")
-CACHE_VERSION = "v1"
+CACHE_VERSION = "v2"
+READ_ERRORS = (OSError, ValueError, KeyError, EOFError, zipfile.BadZipFile, zlib.error)   # a file that is still being written
 RESULTS_REL = "autoresearch/t1flair_af_testset_20261121"
 log = lambda *a: print(*a, flush=True)
 
@@ -63,7 +65,7 @@ log = lambda *a: print(*a, flush=True)
 def rank_of_mcgs(cell, higher_is_better):
     """Competition rank of MC-GS among the 11 methods of a cell (1 = first; ties with the best count as first).
     A cell that lacks any of the 11 methods is incomplete: returns None (no rank is counted)."""
-    if any(m not in cell or cell[m] is None for m in LABELS):
+    if any(m not in cell or cell[m] is None or math.isnan(cell[m]) for m in LABELS):
         return None
     mc = cell["MC-GS"]
     return 1 + sum((cell[m] > mc) if higher_is_better else (cell[m] < mc) for m in LABELS if m != "MC-GS")
@@ -230,8 +232,73 @@ def selftest():
     t = slice_tests(rec, rec2, gt)                               # the less noisy one must win
     assert all(t[m]["win_share"] > 0.9 for m in METRICS) and t["head_psnr"]["n"] == int(sum(k.sum() for k in keep.values())), t
     assert slice_tests(rec, rec, gt)["head_psnr"]["wilcoxon_p"] == 1.0
+    assert rank_of_mcgs(dict(full, **{"3D-INR": float("nan")}), True) is None      # NaN is missing, never ranked behind MC-GS
+    selftest_assemble()
     selftest_docs()
     print("SELFTEST_OK")
+
+
+def selftest_assemble():
+    """completeness per (scan, AF), the MC-GS recompute check on incomplete cells, NaN and unreadable files"""
+    import tempfile
+    scan = "vol1_huangyuwei"
+
+    def build(missing=(), bias=0.0, nan=None, err=None, only_t1=False):
+        av = {(s, af, c, l): "arm not done" for s in SCANS for af in AFS for c in CONTRASTS for l in LABELS}
+        res = []
+        for c in CONTRASTS:
+            for i, l in enumerate(LABELS):
+                if (c, l) in missing or (only_t1 and c == "FLAIR"):
+                    continue
+                lg = dict(head_psnr=24.0 + i, head_ssim=0.8 + 0.01 * i, nmse=0.05 / (1 + i))
+                av[(scan, 12, c, l)] = dict(file="x", member=None, logged=lg)
+                bi = bias if (l == "MC-GS" and c == "T1") else 0.0
+                rc = dict(head_psnr=lg["head_psnr"] + bi, head_ssim=lg["head_ssim"], head_nmse=0.05 / (1 + i),
+                          nmse_whole=lg["nmse"], ssim_whole=0.9, psnr_whole=30.0)
+                if nan == (c, l):
+                    rc["head_ssim"] = float("nan")
+                r = dict(af=12, contrast=c, label=l, logged=lg, scan=scan, cache="none", rc=rc)
+                if err == (c, l):
+                    r = dict(af=12, contrast=c, label=l, logged=lg, scan=scan, error="unreadable (being written?): BadZipFile")
+                res.append(r)
+        return assemble(av, res)
+
+    cells, chk = build()
+    assert n_complete_cells(cells) == 1 and cells[f"{scan}|12|T1"]["complete"] and cells[f"{scan}|12|FLAIR"]["rank"]["head_psnr"] == 1
+    assert chk["mcgs_mismatch"] == [] and chk["unreadable"] == []
+    cells, chk = build(missing={("FLAIR", "ZS-SSDU")})           # FLAIR lacks a method: BOTH contrasts excluded
+    assert n_complete_cells(cells) == 0 and not cells[f"{scan}|12|T1"]["complete"] and not cells[f"{scan}|12|T1"]["rank"]
+    assert "diffs" not in cells[f"{scan}|12|T1"] and cells[f"{scan}|12|T1"]["contrast_complete"]
+    cells, chk = build(only_t1=True)                              # only T1 present
+    assert n_complete_cells(cells) == 0 and not cells[f"{scan}|12|T1"]["complete"]
+    assert group_stats(cells)["T1|AF12|head_psnr|GS-single"]["all6"] is None
+    cells, chk = build(missing={("FLAIR", "ZS-SSDU")}, bias=0.01)  # mismatched MC-GS score in an INCOMPLETE cell must be flagged
+    assert n_complete_cells(cells) == 0 and len(chk["mcgs_mismatch"]) == 1, chk["mcgs_mismatch"]
+    cells, chk = build(nan=("T1", "3D-INR"))
+    assert cells[f"{scan}|12|T1"]["missing"] == {"3D-INR": "non-finite metric"} and n_complete_cells(cells) == 0
+    cells, chk = build(err=("FLAIR", "MC-INR"))
+    assert "MC-INR" in cells[f"{scan}|12|FLAIR"]["missing"] and len(chk["unreadable"]) == 1 and n_complete_cells(cells) == 0
+    # a truncated npz / npy becomes "unreadable", not a crash
+    tmp = Path(tempfile.mkdtemp(prefix="cs_trunc_"))
+    try:
+        np.savez_compressed(tmp / "v.npz", recT1_complex=rng_arr(), recFL_complex=rng_arr())
+        raw = (tmp / "v.npz").read_bytes()
+        (tmp / "t.npz").write_bytes(raw[: len(raw) // 2])
+        np.save(tmp / "a.npy", rng_arr())
+        raw = (tmp / "a.npy").read_bytes()
+        (tmp / "t.npy").write_bytes(raw[: len(raw) // 2])
+        assert guarded(crc_key, tmp / "t.npz", "recT1_complex")[1].startswith("unreadable")
+        assert guarded(lambda: np.load(tmp / "t.npz")["recT1_complex"])[1].startswith("unreadable")
+        assert guarded(lambda: np.load(tmp / "t.npy"))[1].startswith("unreadable")
+        assert guarded(crc_key, tmp / "v.npz", "recT1_complex")[1] is None
+        (tmp / "bad.json").write_text('{"a": ')
+        assert guarded(lambda: json.load(open(tmp / "bad.json")))[1].startswith("unreadable")
+    finally:
+        shutil.rmtree(tmp)
+
+
+def rng_arr():
+    return (np.random.default_rng(3).random((16, 16, 16)) + 1j).astype(np.complex64)
 
 
 def selftest_docs():
@@ -277,10 +344,25 @@ def selftest_docs():
         chk = dict(worst={k: dict(abs=0.0, where="synthetic") for k in ("head_psnr", "head_ssim", "nmse")},
                    per_label={l: dict(head_psnr=0.0, head_ssim=0.0, nmse=0.0) for l in LABELS})
         write_table_md(cells, tmp)
-        write_results_md(cells, chk, g, st, tmp, 48)
+        chk.update(mcgs_mismatch=[], unreadable=[])
+        write_results_md(cells, chk, g, st, tmp, 24)
         draw_figure(cells, tmp)
         for n in ("table.md", "RESULTS.md", "testset_summary.png", "testset_summary.pdf"):
             assert (tmp / n).stat().st_size > 1000, n
+        # time rule: no generation date inside any produced figure file (positive control: matplotlib's default has them)
+        import io
+        import matplotlib.pyplot as _plt
+        _f = _plt.figure(figsize=(1, 1))
+        for _fmt, _pat in (("pdf", b"CreationDate"), ("svg", b"dc:date")):
+            _b = io.BytesIO()
+            _f.savefig(_b, format=_fmt)
+            assert _pat in _b.getvalue(), f"the date check cannot detect {_fmt}"
+        _plt.close(_f)
+        for f in tmp.glob("testset_summary*"):
+            if f.suffix in (".pdf", ".svg", ".png"):
+                b = f.read_bytes()
+                for pat in (b"CreationDate", b"ModDate", b"dc:date", b"<dc:date", b"tIME", b"date:create", b"date:modify"):
+                    assert pat not in b, (f.name, pat)
         assert "不是第一" in (tmp / "RESULTS.md").read_text(encoding="utf-8")
         if os.environ.get("MCGS_ARTIFACT_DIR"):          # layout check only: random numbers, named so
             for ext in ("png", "pdf"):
@@ -308,6 +390,60 @@ def crc_key(path, member=None):
     return f"{crc:08x}-{path.stat().st_size}"
 
 
+def guarded(fn, *a):
+    """(value, None), or (None, reason) when a file is unreadable (e.g. still being written); nothing is cached for it"""
+    try:
+        return fn(*a), None
+    except READ_ERRORS as e:
+        return None, f"unreadable (being written?): {type(e).__name__}"
+
+
+def _availability_row(run_arms, run_gs, scan, af, label, av):
+    if label in ("GS-single", "MC-GS"):
+        for c in CONTRASTS:
+            if label == "MC-GS":
+                row, slot = f"{scan}:{af}:joint", ("recT1_complex" if c == "T1" else "recFL_complex")
+            else:
+                row, slot = f"{scan}:{af}:single{c}", "recT1_complex"
+            p = run_gs.row_paths(OUT, row)
+            vol = p["outs"][3]
+            if not (p["score"].exists() and vol.exists()):
+                av[(scan, af, c, label)] = "missing score or volumes"
+                continue
+            s = json.load(open(p["score"]))
+            if s["plain_name"] == c:
+                blk = s["plain"]
+            else:
+                assert label == "MC-GS" and s["contrast_name"] == c, (row, s["plain_name"], s["contrast_name"])
+                blk = s["contrast"]
+            av[(scan, af, c, label)] = dict(file=vol, member=slot, logged=dict(
+                head_psnr=blk["head_psnr"], head_ssim=blk["head_ssim"], nmse=blk["nmse"]))
+        return
+    arm, reg = ARM_OF[label]
+    row = f"{scan}:{af}:{arm}"
+    if run_arms.row_state(OUT, row) != "done":
+        for c in CONTRASTS:
+            av[(scan, af, c, label)] = f"arm {arm} not done"
+        return
+    if arm == "mcinr":
+        T = run_arms.topic_dir(scan, af, OUT)
+        meta = json.load(open(T / "mcinr/meta.json"))
+        if meta.get("slices") != "all":
+            for c in CONTRASTS:
+                av[(scan, af, c, label)] = f"MC-INR slices = {meta.get('slices')!r}, not all"
+            return
+    _, res = run_arms.arm_plan(OUT, row, "0")
+    for r in res:
+        if r["reg"] != reg:
+            continue
+        if arm == "mcinr" and "SMOKE" in str(json.load(open(r["json"])).get("note", "")):
+            av[(scan, af, r["contrast"], label)] = "MC-INR record is a smoke run"
+            continue
+        lg = run_arms.result_row(r)
+        av[(scan, af, r["contrast"], label)] = dict(file=r["recon"], member=None, logged=dict(
+            head_psnr=lg["head_psnr"], head_ssim=lg["head_ssim"], nmse=lg["nmse"]))
+
+
 def availability():
     """{(scan, af, contrast, label): dict(file, member, logged) | str reason of absence}"""
     import run_arms
@@ -316,55 +452,48 @@ def availability():
     for scan in SCANS:
         for af in AFS:
             for label in LABELS:
-                if label in ("GS-single", "MC-GS"):
+                _, err = guarded(_availability_row, run_arms, run_gs, scan, af, label, av)
+                if err:
                     for c in CONTRASTS:
-                        if label == "MC-GS":
-                            row, slot = f"{scan}:{af}:joint", ("recT1_complex" if c == "T1" else "recFL_complex")
-                        else:
-                            row, slot = f"{scan}:{af}:single{c}", "recT1_complex"
-                        p = run_gs.row_paths(OUT, row)
-                        vol = p["outs"][3]
-                        if not (p["score"].exists() and vol.exists()):
-                            av[(scan, af, c, label)] = "missing score or volumes"
-                            continue
-                        s = json.load(open(p["score"]))
-                        if s["plain_name"] == c:
-                            blk = s["plain"]
-                        else:
-                            assert label == "MC-GS" and s["contrast_name"] == c, (row, s["plain_name"], s["contrast_name"])
-                            blk = s["contrast"]
-                        av[(scan, af, c, label)] = dict(file=vol, member=slot, logged=dict(
-                            head_psnr=blk["head_psnr"], head_ssim=blk["head_ssim"], nmse=blk["nmse"]))
-                    continue
-                arm, reg = ARM_OF[label]
-                row = f"{scan}:{af}:{arm}"
-                if run_arms.row_state(OUT, row) != "done":
-                    for c in CONTRASTS:
-                        av[(scan, af, c, label)] = f"arm {arm} not done"
-                    continue
-                if arm == "mcinr":
-                    T = run_arms.topic_dir(scan, af, OUT)
-                    meta = json.load(open(T / "mcinr/meta.json"))
-                    if meta.get("slices") != "all":
-                        for c in CONTRASTS:
-                            av[(scan, af, c, label)] = f"MC-INR slices = {meta.get('slices')!r}, not all"
-                        continue
-                _, res = run_arms.arm_plan(OUT, row, "0")
-                for r in res:
-                    if r["reg"] != reg:
-                        continue
-                    if arm == "mcinr" and "SMOKE" in str(json.load(open(r["json"])).get("note", "")):
-                        av[(scan, af, r["contrast"], label)] = "MC-INR record is a smoke run"
-                        continue
-                    lg = run_arms.result_row(r)
-                    av[(scan, af, r["contrast"], label)] = dict(file=r["recon"], member=None, logged=dict(
-                        head_psnr=lg["head_psnr"], head_ssim=lg["head_ssim"], nmse=lg["nmse"]))
+                        av[(scan, af, c, label)] = err
     return av
 
 
 # ===================================================================== workers (one process per scan)
+def score_volume(P, x, label, torch):
+    """the ONE scoring step of a volume: Pair.score (head PSNR / SSIM, whole PSNR / SSIM / NMSE), head NMSE, slice metrics"""
+    assert x.shape == P.gtn.shape, (x.shape, P.gtn.shape)
+    row = P.score(torch.from_numpy(x).to(torch.complex64), label)
+    rec = np.abs(x).astype(np.float32)
+    d = float(((rec[P.head] - P.gtn[P.head]) ** 2).sum())
+    nm = d / float((P.gtn[P.head] ** 2).sum())
+    chk = 20 * np.log10(float(P.gtn.max())) - 10 * np.log10(d / int(P.head.sum()))
+    assert abs(chk - row["head_psnr"]) < 1e-3, (chk, row["head_psnr"])   # same head error sum
+    sm, keep = slice_metrics(x, P.gtn, P.head)
+    rc = dict(head_psnr=row["head_psnr"], head_ssim=row["head_ssim"], head_nmse=nm, nmse_whole=row["nmse"],
+              ssim_whole=row["ssim"], psnr_whole=row["psnr"])
+    return rc, sm, keep
+
+
+def scoring_hash(TC, T, c):
+    """key of everything a cached value depends on: the scoring source (clone t1t2_common, the metric modules it imports,
+    the head-mask module, this file's volume scoring and slice metrics) and the ground-truth inputs of the scan"""
+    import hashlib
+    import inspect
+    h = hashlib.sha256()
+    files = [T / "scripts/t1t2_common.py", *sorted((TC.ROOT / "paired_gs/metrics").glob("*.py")),
+             *sorted((TC.ROOT / "diag_artefact").glob("*.py"))]
+    for f in files:
+        h.update(str(f.name).encode() + f.read_bytes())
+    h.update((inspect.getsource(score_volume) + inspect.getsource(slice_metrics)).encode())
+    for f in (T / f"data/ksp_{c}.h5", T / f"data/csm_espirit_{c}.h5"):
+        h.update(crc_key(f).encode())
+    return h.hexdigest()[:16]
+
+
 def eval_scan(scan, tasks, cache_dir):
-    """tasks: list of (af, contrast, label, file, member, logged). Returns list of result dicts. CPU, 4 threads."""
+    """tasks: list of (af, contrast, label, file, member, logged). Returns list of result dicts (with "error" for a file
+    that cannot be read). CPU, 4 threads."""
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     os.environ["OMP_NUM_THREADS"] = "4"
     import torch
@@ -376,37 +505,35 @@ def eval_scan(scan, tasks, cache_dir):
     assert Path(TC.R) == T, TC.R
     from diag_artefact.headonly import head_mask
     dev = torch.device("cpu")
-    pairs, out = {}, []
+    pairs, vers, out = {}, {}, []
     for af, c, label, file, member, logged in tasks:
-        key = crc_key(file, member)
-        cpath = Path(cache_dir) / f"{CACHE_VERSION}_{scan}_af{af}_{c}_{label.replace(' ', '')}_{key}.npz"
-        if cpath.exists():
-            z = np.load(cpath)
-            rc = {k: float(z[k]) for k in ("head_psnr", "head_ssim", "head_nmse", "nmse_whole", "ssim_whole", "psnr_whole")}
-        else:
-            if c not in pairs:
-                pairs[c] = TC.Pair(c, dev)
-                pairs[c].gtn = pairs[c].gt.cpu().numpy()
-                pairs[c].head = head_mask(pairs[c].gtn)
-            P = pairs[c]
-            x = np.load(file) if member is None else np.load(file)[member]
-            assert x.shape == P.gtn.shape, (file, x.shape, P.gtn.shape)
-            row = P.score(torch.from_numpy(x).to(torch.complex64), label)
-            rec = np.abs(x).astype(np.float32)
-            d = float(((rec[P.head] - P.gtn[P.head]) ** 2).sum())
-            nm = d / float((P.gtn[P.head] ** 2).sum())
-            chk = 20 * np.log10(float(P.gtn.max())) - 10 * np.log10(d / int(P.head.sum()))
-            assert abs(chk - row["head_psnr"]) < 1e-3, (file, chk, row["head_psnr"])   # same head error sum
-            sm, keep = slice_metrics(x, P.gtn, P.head)
-            rc = dict(head_psnr=row["head_psnr"], head_ssim=row["head_ssim"], head_nmse=nm, nmse_whole=row["nmse"],
-                      ssim_whole=row["ssim"], psnr_whole=row["psnr"])
-            arrs = {f"{m}{ax}": sm[(ax, m)].astype(np.float32) for ax in (0, 1, 2) for m in METRICS}
-            arrs.update({f"keep{ax}": keep[ax] for ax in (0, 1, 2)})
-            tmp = cpath.with_name(cpath.name + f".tmp{os.getpid()}.npz")
-            np.savez_compressed(tmp, **{k: np.float64(v) for k, v in rc.items()}, **arrs)
-            os.link(tmp, cpath) if not cpath.exists() else None      # never overwrite an existing cache file
-            os.unlink(tmp)
-        out.append(dict(af=af, contrast=c, label=label, cache=str(cpath), rc=rc, logged=logged))
+        base = dict(af=af, contrast=c, label=label, logged=logged)
+        try:
+            if c not in vers:
+                vers[c] = scoring_hash(TC, T, c)
+            key = crc_key(file, member)
+            cpath = Path(cache_dir) / f"{CACHE_VERSION}_{scan}_af{af}_{c}_{label.replace(' ', '')}_{vers[c]}_{key}.npz"
+            if cpath.exists():
+                z = np.load(cpath)
+                rc = {k: float(z[k]) for k in ("head_psnr", "head_ssim", "head_nmse", "nmse_whole", "ssim_whole", "psnr_whole")}
+            else:
+                if c not in pairs:
+                    pairs[c] = TC.Pair(c, dev)
+                    pairs[c].gtn = pairs[c].gt.cpu().numpy()
+                    pairs[c].head = head_mask(pairs[c].gtn)
+                x = np.load(file) if member is None else np.load(file)[member]
+                rc, sm, keep = score_volume(pairs[c], x, label, torch)
+                arrs = {f"{m}{ax}": sm[(ax, m)].astype(np.float32) for ax in (0, 1, 2) for m in METRICS}
+                arrs.update({f"keep{ax}": keep[ax] for ax in (0, 1, 2)})
+                tmp = cpath.with_name(cpath.name + f".tmp{os.getpid()}.npz")
+                np.savez_compressed(tmp, **{k: np.float64(v) for k, v in rc.items()}, **arrs)
+                os.link(tmp, cpath) if not cpath.exists() else None      # never overwrite an existing cache file
+                os.unlink(tmp)
+        except READ_ERRORS as e:                       # a file still being written: missing for now, nothing cached
+            out.append(dict(base, error=f"unreadable (being written?): {type(e).__name__}"))
+            print(f"[{scan}] AF{af} {c} {label} UNREADABLE ({type(e).__name__})", flush=True)
+            continue
+        out.append(dict(base, cache=str(cpath), rc=rc))
         print(f"[{scan}] AF{af} {c} {label} head PSNR {rc['head_psnr']:.3f}", flush=True)
     return out
 
@@ -417,10 +544,12 @@ def _worker(args):
 
 # ===================================================================== assembly, statistics
 def assemble(av, results):
-    cells, check = {}, {}
+    """cells[(scan|af|contrast)]; a (scan, AF) is complete only when all 11 methods exist for BOTH contrasts (ruling);
+    only complete (scan, AF) cells get ranks and differences. A NaN metric counts as missing."""
+    cells = {}
     byk = {(r["af"], r["contrast"], r["label"], r["scan"]): r for r in results}
     worst = {k: dict(abs=0.0, where=None) for k in ("head_psnr", "head_ssim", "nmse")}
-    per_label = {}
+    per_label, mcgs_bad, unreadable = {}, [], []
     for scan in SCANS:
         for af in AFS:
             for c in CONTRASTS:
@@ -429,35 +558,58 @@ def assemble(av, results):
                     a = av[(scan, af, c, label)]
                     if isinstance(a, str):
                         cell["missing"][label] = a
+                        if a.startswith("unreadable"):
+                            unreadable.append(f"{scan} AF{af} {c} {label}")
                         continue
-                    r = byk[(af, c, label, scan)]
+                    r = byk.get((af, c, label, scan))
+                    if r is None or "error" in r:
+                        cell["missing"][label] = r["error"] if r else "no result"
+                        unreadable.append(f"{scan} AF{af} {c} {label}")
+                        continue
                     rc, lg = r["rc"], r["logged"]
+                    if not all(math.isfinite(rc[m]) for m in METRICS):
+                        cell["missing"][label] = "non-finite metric"
+                        continue
                     dif = dict(head_psnr=rc["head_psnr"] - lg["head_psnr"], head_ssim=rc["head_ssim"] - lg["head_ssim"],
                                nmse=rc["nmse_whole"] - lg["nmse"])
                     cell["methods"][label] = dict(rc, logged=lg, diff=dif, cache=r["cache"])
+                    if label == "MC-GS" and not abs(dif["head_psnr"]) <= 0.005:      # every MC-GS volume, complete cell or not
+                        mcgs_bad.append(f"{scan} AF{af} {c}: {dif['head_psnr']:+.4g} dB")
                     for k, v in dif.items():
                         if abs(v) > worst[k]["abs"]:
                             worst[k] = dict(abs=abs(v), where=f"{scan} AF{af} {c} {label}")
                         pl = per_label.setdefault(label, dict(head_psnr=0.0, head_ssim=0.0, nmse=0.0))
                         pl[k] = max(pl[k], abs(v))
-                cell["complete"] = not cell["missing"]
-                if cell["complete"]:
-                    for m in METRICS:
-                        vals = {l: cell["methods"][l][m] for l in LABELS}
-                        cell["rank"][m] = rank_of_mcgs(vals, HIGHER[m])
-                        best = (max if HIGHER[m] else min)(vals, key=vals.get)
-                        cell["first"][m] = cell["rank"][m] == 1
-                        if cell["rank"][m] != 1:
-                            cell.setdefault("not_first", {})[m] = dict(rank=cell["rank"][m], best=best, best_value=vals[best],
-                                                                    mcgs_value=vals["MC-GS"])
-                    cell["strongest_non_gs"] = max(NONGS, key=lambda l: cell["methods"][l]["head_psnr"])
-                    cell["diffs"] = {}
-                    for comp in COMPS:
-                        o = cell["strongest_non_gs"] if comp == "strongest" else "GS-single"
-                        cell["diffs"][comp] = {m: float(improvement(m, cell["methods"]["MC-GS"][m], cell["methods"][o][m]))
-                                               for m in METRICS}
                 cells[f"{scan}|{af}|{c}"] = cell
-    return cells, dict(worst=worst, per_label=per_label)
+    for scan in SCANS:
+        for af in AFS:
+            pair = [cells[f"{scan}|{af}|{c}"] for c in CONTRASTS]
+            ok = all(not x["missing"] for x in pair)
+            for cell in pair:
+                cell["complete"] = ok
+                cell["contrast_complete"] = not cell["missing"]
+                if not ok:
+                    continue
+                for m in METRICS:
+                    vals = {l: cell["methods"][l][m] for l in LABELS}
+                    cell["rank"][m] = rank_of_mcgs(vals, HIGHER[m])
+                    best = (max if HIGHER[m] else min)(vals, key=vals.get)
+                    cell["first"][m] = cell["rank"][m] == 1
+                    if cell["rank"][m] != 1:
+                        cell.setdefault("not_first", {})[m] = dict(rank=cell["rank"][m], best=best, best_value=vals[best],
+                                                                mcgs_value=vals["MC-GS"])
+                cell["strongest_non_gs"] = max(NONGS, key=lambda l: cell["methods"][l]["head_psnr"])
+                cell["diffs"] = {}
+                for comp in COMPS:
+                    o = cell["strongest_non_gs"] if comp == "strongest" else "GS-single"
+                    cell["diffs"][comp] = {m: float(improvement(m, cell["methods"]["MC-GS"][m], cell["methods"][o][m]))
+                                           for m in METRICS}
+    return cells, dict(worst=worst, per_label=per_label, mcgs_mismatch=mcgs_bad, unreadable=unreadable)
+
+
+def n_complete_cells(cells):
+    """number of complete (scan, AF) cells (each has a T1 and a FLAIR entry in `cells`)"""
+    return sum(c["complete"] for c in cells.values()) // len(CONTRASTS)
 
 
 def group_stats(cells):
@@ -517,19 +669,21 @@ def pfmt(p):
 
 def write_table_md(cells, art):
     L = ["# 逐病例结果表（头部掩膜内 PSNR / SSIM / NMSE，全体积）", "",
-         "每个（扫描，加速倍数）一张表，T1 与 FLAIR 并排；粗体 = 该列最佳；`—` = 该方法的结果尚缺（见 table.json 的 missing）；",
-         "不完整的格子标注“不完整”，不计入名次与统计。NMSE 为头部 NMSE（越小越好）。", ""]
+         "每个（扫描，加速倍数）一张表，T1 与 FLAIR 并排；`—` = 该方法的结果尚缺（见 table.json 的 missing）。",
+         "格子 = （扫描，加速倍数）；只有 T1 与 FLAIR 两种对比度的 11 个方法都齐全才算完整。完整格子里粗体 = 该列最佳；",
+         "不完整的格子标注“不完整”，不加粗、不给名次、不计入名次与统计。NMSE 为头部 NMSE（越小越好）。", ""]
     for scan in SCANS:
         for af in AFS:
             cs = {c: cells[f"{scan}|{af}|{c}"] for c in CONTRASTS}
-            tag = "" if all(c["complete"] for c in cs.values()) else "（不完整）"
+            full = all(c["complete"] for c in cs.values())
+            tag = "" if full else "（不完整）"
             L += [f"## {scan}，AF{af}（{SCANS[scan]['group']}组）{tag}", "",
                   "| 方法 | T1 PSNR | T1 SSIM | T1 NMSE | FLAIR PSNR | FLAIR SSIM | FLAIR NMSE |", "|---|---|---|---|---|---|---|"]
             best = {}
-            for c in CONTRASTS:
-                for m in METRICS:
-                    v = {l: cs[c]["methods"][l][m] for l in LABELS if l in cs[c]["methods"]}
-                    if v:
+            if full:
+                for c in CONTRASTS:
+                    for m in METRICS:
+                        v = {l: cs[c]["methods"][l][m] for l in LABELS}
                         best[(c, m)] = (max if HIGHER[m] else min)(v, key=v.get)
             for l in LABELS:
                 row = []
@@ -540,35 +694,35 @@ def write_table_md(cells, art):
                             row.append("—")
                         else:
                             s = fmt(mm[m], m)
-                            row.append(f"**{s}**" if best[(c, m)] == l else s)
+                            row.append(f"**{s}**" if best.get((c, m)) == l else s)
                 L.append(f"| {'**MC-GS**' if l == 'MC-GS' else l} | " + " | ".join(row) + " |")
-            rk = []
-            for c in CONTRASTS:
-                rk.append(c + " " + "/".join(str(cs[c]["rank"][m]) if cs[c]["complete"] else "-" for m in METRICS))
+            rk = [c + " " + "/".join(str(cs[c]["rank"][m]) if full else "-" for m in METRICS) for c in CONTRASTS]
             L += ["", "MC-GS 名次（PSNR/SSIM/NMSE）：" + "；".join(rk), ""]
     (art / "table.md").write_text("\n".join(L), encoding="utf-8")
 
 
 def write_results_md(cells, chk, gst, sst, art, n_complete):
-    nc = len(cells)
-    ncs = sum(all(cells[f"{s}|{af}|{c}"]["complete"] for c in CONTRASTS) for s in SCANS for af in AFS)
-    L = [f"# 测试集 T1 + FLAIR 不同加速倍数：结果（草稿，部分数据）", "",
-         f"> **草稿：只含已完成的结果。** 完整格子（扫描 x 加速倍数 x 对比度，11 个方法齐全）{n_complete} / {nc}；"
-         f"两种对比度都完整的（扫描 x 加速倍数）{ncs} / 24。不完整格子不计入名次与统计。全部跑完后由 "
+    nc = len(SCANS) * len(AFS)
+    L = ["# 测试集 T1 + FLAIR 不同加速倍数：结果（草稿，部分数据）", "",
+         f"> **草稿：只含已完成的结果。** 完整格子（扫描 x 加速倍数；T1 与 FLAIR 两种对比度的 11 个方法都齐全）{n_complete} / {nc}。"
+         f"不完整的格子对两种对比度都不计入名次与统计。全部跑完后由 "
          f"`{RESULTS_REL}/collect_stats.py --pipeline` 重新生成本文件、table.json、stats.json、table.md 与图。", "",
          "口径：头部掩膜内（|GT| > 0.05 P99.9）的 PSNR / SSIM / NMSE；评分代码是各课题共用的 `t1t2_common.Pair.score`，"
          "真值来自该扫描自己的全采样 k 空间，所有数字都由保存的体积重新计算，再与各运行脚本记录的分数对照（见第 6 节）。"
          "NMSE 的差值写成相对降低（%），其余为绝对差；大于 0 表示 MC-GS 更好。", ""]
     # 1 first counts
-    L += ["## 1. MC-GS 在完整格子里是否第一", "", "| 对比度 | AF | 完整格子 | PSNR 第一 | SSIM 第一 | NMSE 第一 |", "|---|---|---|---|---|---|"]
+    L += ["## 1. MC-GS 在完整格子里是否第一", "", "| 对比度 | AF | 完整格子（共 6） | PSNR 第一 | SSIM 第一 | NMSE 第一 |", "|---|---|---|---|---|---|"]
     for c in CONTRASTS:
         for af in AFS:
             ok = [cells[f"{s}|{af}|{c}"] for s in SCANS if cells[f"{s}|{af}|{c}"]["complete"]]
-            L.append(f"| {c} | {af} | {len(ok)} / 6 | " + " | ".join(f"{sum(x['first'][m] for x in ok)} / {len(ok)}" for m in METRICS) + " |")
+            L.append(f"| {c} | {af} | {len(ok)} | " + " | ".join(f"{sum(x['first'][m] for x in ok)} / {len(ok)}" for m in METRICS) + " |")
     tot = [cells[k] for k in cells if cells[k]["complete"]]
-    L += ["", f"合计（完整格子 {len(tot)}）：" + "，".join(f"{MNAME[m]} 第一 {sum(x['first'][m] for x in tot)}" for m in METRICS) + "。", ""]
+    L += ["", f"合计：完整格子 {n_complete} / {nc}，即 {len(tot)} 列（T1 与 FLAIR 各一列）；MC-GS 第一的列数："
+          + "，".join(f"{MNAME[m]} {sum(x['first'][m] for x in tot)} / {len(tot)}" for m in METRICS) + "。"
+          + "分对比度：" + "；".join(f"{c} " + "，".join(f"{MNAME[m]} {sum(x['first'][m] for x in tot if x['contrast'] == c)} / {n_complete}" for m in METRICS)
+                                  for c in CONTRASTS) + "。", ""]
     nf = [(k, m, v) for k, cl in cells.items() if cl["complete"] for m, v in cl.get("not_first", {}).items()]
-    L += ["### MC-GS 不是第一的格子（逐个列出，不省略）", ""]
+    L += ["### MC-GS 不是第一的列（逐个列出，不省略）", ""]
     if nf:
         L += ["| 扫描 | AF | 对比度 | 指标 | MC-GS 名次 | 第一名 | 第一名数值 | MC-GS 数值 |", "|---|---|---|---|---|---|---|---|"]
         for k, m, v in nf:
@@ -578,8 +732,10 @@ def write_results_md(cells, chk, gst, sst, art, n_complete):
         L.append("（目前的完整格子里没有。）")
     L += ["", "## 2. 病例间：MC-GS 相对两个对照的差值", "",
           "对照：GS-single；该格最强的非 GS 方法（按该格头部 PSNR 选，三个指标都与同一个方法比）。"
-          "“符号一致”= 差值大于 0 的单位数 / 单位总数。p 为精确双侧 Wilcoxon 符号秩检验（单位数 4 时 p 最小 0.125，6 时 0.031，见第 5 节）。", ""]
-    names = {"all6": "6 次扫描", "aligned": "对齐组（vol1、vol2、vol4）", "offset": "偏移组（vol5、vol6、vol7）", "persons": "4 个人（重复扫描先平均）"}
+          "“符号一致”= 差值大于 0 的单位数 / 单位总数。p 为精确双侧 Wilcoxon 符号秩检验（零差值舍去，并列用平均秩；"
+          "单位数 4 时 p 最小 0.125，6 时 0.031，见第 5 节）。", ""]
+    names = {"all6": "{n} 次扫描", "aligned": "对齐组（vol1、vol2、vol4）{n} 次", "offset": "偏移组（vol5、vol6、vol7）{n} 次",
+             "persons": "{n} 个人（重复扫描先平均）"}
     for m in METRICS:
         unit = {"head_psnr": "dB", "head_ssim": "", "head_nmse": "%（相对降低）"}[m]
         L += [f"### {MNAME[m]}差值 {unit}", "", "| 对比度 | AF | 对照 | 单位 | 均值 | 标准差 | 最小 | 符号一致 | p |", "|---|---|---|---|---|---|---|---|---|"]
@@ -591,38 +747,44 @@ def write_results_md(cells, chk, gst, sst, art, n_complete):
                         s = ent[g]
                         if not s:
                             continue
-                        L.append(f"| {c} | {af} | {'GS-single' if comp == 'GS-single' else '最强非 GS'} | {names[g]} | "
+                        L.append(f"| {c} | {af} | {'GS-single' if comp == 'GS-single' else '最强非 GS'} | {names[g].format(n=s['n'])} | "
                                  f"{s['mean']:.4g} | {s['sd']:.3g} | {s['min']:.4g} | {s['n_positive']} / {s['n']} | {pfmt(s['wilcoxon_p'])} |")
         L.append("")
     # 3 slice tests
     L += ["## 3. 病例内：逐层面配对检验", "",
           "每个完整格子内，三个平面里头部占层面 >= 5 % 的层面合并（规则同 `t1flair_af_record_fig_20261120/fig_af_overview.py` 所读的 "
-          "slice_trend 记录），逐层面配对 Wilcoxon（双侧）。下表给每个（对比度，AF，对照，指标）下 p < 0.05 且 MC-GS 的中位差为正的扫描数，"
-          "以及各扫描里 MC-GS 更好的层面占比的范围。层面属于同一个体积，彼此不独立，p 值只说明该病例内的一致性，不是人群推断。"
-          "逐病例的全部数值在 stats.json 的 `slices`。", "",
-          "| 对比度 | AF | 对照 | 指标 | p<0.05 且为正 / 扫描数 | 更好层面占比范围 |", "|---|---|---|---|---|---|"]
+          "slice_trend 记录），逐层面配对 Wilcoxon（双侧）。这里的 p 值用正态近似（每个病例约 600 层），零差值被舍去；"
+          "第 2 节的扫描 / 人层面检验才是精确检验。下表对每个（对比度，AF，对照，指标）把扫描分成三类：p < 0.05 且中位差为正（显著更好）、"
+          "p < 0.05 且中位差为负（显著更差）、其余（不显著），并列出后两类的扫描；最后一列是各扫描里 MC-GS 更好的层面占比的范围。"
+          "层面属于同一个体积，彼此不独立，p 值只说明该病例内的一致性，不是人群推断。逐病例的全部数值在 stats.json 的 `slices`。", "",
+          "| 对比度 | AF | 对照 | 指标 | 显著更好 | 显著更差（扫描） | 不显著（扫描） | 更好层面占比范围 |", "|---|---|---|---|---|---|---|---|"]
     for c in CONTRASTS:
         for af in AFS:
             for comp in COMPS:
                 for m in METRICS:
-                    rs = [sst[f"{s}|{af}|{c}|{comp}"][m] for s in SCANS if f"{s}|{af}|{c}|{comp}" in sst]
+                    rs = {s: sst[f"{s}|{af}|{c}|{comp}"][m] for s in SCANS if f"{s}|{af}|{c}|{comp}" in sst}
                     if not rs:
                         continue
-                    sig = sum(r["wilcoxon_p"] < 0.05 and r["median"] > 0 for r in rs)
-                    ws = [r["win_share"] for r in rs]
-                    L.append(f"| {c} | {af} | {'GS-single' if comp == 'GS-single' else '最强非 GS'} | {MNAME[m]} | {sig} / {len(rs)} | "
+                    better = [s for s, r in rs.items() if r["wilcoxon_p"] < 0.05 and r["median"] > 0]
+                    worse = [s for s, r in rs.items() if r["wilcoxon_p"] < 0.05 and r["median"] < 0]
+                    ns = [s for s in rs if s not in better and s not in worse]
+                    ws = [r["win_share"] for r in rs.values()]
+                    L.append(f"| {c} | {af} | {'GS-single' if comp == 'GS-single' else '最强非 GS'} | {MNAME[m]} | {len(better)} / {len(rs)} | "
+                             f"{len(worse)}（{'、'.join(worse) or '无'}） | {len(ns)}（{'、'.join(ns) or '无'}） | "
                              f"{100 * min(ws):.0f}% - {100 * max(ws):.0f}% |")
     # 4 missing
     L += ["", "## 4. 缺失清单", ""]
-    miss = [(k, cl) for k, cl in cells.items() if not cl["complete"]]
     by = {}
-    for k, cl in miss:
+    for cl in cells.values():
         for l, r in cl["missing"].items():
-            by.setdefault((cl["scan"], cl["af"]), set()).add(l)
-    L.append(f"不完整格子 {len(miss)} / {nc}。每个（扫描，AF）缺的方法（两种对比度合并；逐格原因见 table.json 的 `missing`）：")
+            by.setdefault((cl["scan"], cl["af"], cl["contrast"]), []).append(l)
+    inc = sum(1 for s in SCANS for af in AFS if not cells[f"{s}|{af}|T1"]["complete"])
+    L.append(f"不完整格子 {inc} / {nc}。每个（扫描，AF，对比度）缺的方法（原因见 table.json 的 `missing`）：")
     L.append("")
-    for (s, af), ls in sorted(by.items()):
-        L.append(f"- {s} AF{af}：" + "、".join(l for l in LABELS if l in ls))
+    for (s, af, c), ls in sorted(by.items()):
+        L.append(f"- {s} AF{af} {c}：" + "、".join(l for l in LABELS if l in ls))
+    if chk.get("unreadable"):
+        L += ["", "暂时读不出的文件（可能正在写入，已按缺失处理，没有缓存）：" + "；".join(chk["unreadable"])]
     # 5 limits
     L += ["", "## 5. 必须写明的限制", "",
           "- 只有 4 个人。以人为单位的 Wilcoxon 检验即使全胜，精确双侧 p 最小为 0.125；以 6 次扫描为单位最小为 0.031，"
@@ -636,13 +798,14 @@ def write_results_md(cells, chk, gst, sst, art, n_complete):
     # 6 recompute check
     w = chk["worst"]
     L += ["## 6. 重算分数与运行脚本记录的分数", "",
-          "每个体积都用同一段评分代码（AF16 克隆的 `t1t2_common.Pair.score`，CPU）重算，再与运行脚本记录的值比较。最大绝对差：", "",
+          "每个体积（含不完整格子里的）都用同一段评分代码（AF16 克隆的 `t1t2_common.Pair.score`，CPU）重算，再与运行脚本记录的值比较。"
+          "任何一个 MC-GS 体积的头部 PSNR 相差超过 0.005 dB 都会使整次运行失败。最大绝对差：", "",
           "| 量 | 最大绝对差 | 出现在 |", "|---|---|---|"]
     for k, nm in (("head_psnr", "头部 PSNR（dB）"), ("head_ssim", "头部 SSIM"), ("nmse", "整体 NMSE")):
         L.append(f"| {nm} | {w[k]['abs']:.3g} | {w[k]['where']} |")
     L += ["", "各方法的最大 |头部 PSNR 差|（dB）：" + "，".join(f"{l} {chk['per_label'][l]['head_psnr']:.2g}" for l in LABELS if l in chk["per_label"]), ""]
     L += ["## 7. 图", "", f"汇总图：`{RESULTS_REL}/figures/testset_summary.png`（PNG / PDF 只放在 git 忽略的 figures 文件夹，不提交）。"
-          "每个加速倍数一栏，每次扫描一个点，纵轴是头部 PSNR 差（MC-GS 减对照）；零线为界；圆点 = 对齐组，三角 = 偏移组。", ""]
+          "每个加速倍数一栏，每次扫描一个点，纵轴是头部 PSNR 差（MC-GS 减对照）；零线为界；圆点 = 对齐组，三角 = 偏移组；只画完整格子。", ""]
     (art / "RESULTS.md").write_text("\n".join(L), encoding="utf-8")
 
 
@@ -705,9 +868,10 @@ def draw_figure(cells, art):
                                              overlay_svg=str(art / "testset_summary.alignment.svg"),
                                              tolerance_pt=1.5, gutter_tolerance_pt=1.5, strict=True)
     log("panel alignment gate:", rep.get("status", rep.get("verdict", "passed")))
+    # time rule: no generation date inside the files (PDF CreationDate, SVG dc:date; PNG carries no time chunk)
     fig.savefig(art / "testset_summary.png", dpi=600)
-    fig.savefig(art / "testset_summary.pdf")
-    fig.savefig(art / "testset_summary.svg")
+    fig.savefig(art / "testset_summary.pdf", metadata={"CreationDate": None})
+    fig.savefig(art / "testset_summary.svg", metadata={"Date": None})
     src = ["scan,group,af,contrast,vs_GS-single_dB,vs_strongest_non_GS_dB,strongest_non_GS"]
     for k, cl in cells.items():
         if cl["complete"]:
@@ -743,10 +907,10 @@ def server(args):
                     r["scan"] = scan
                 results += scan_res
     cells, chk = assemble(av, results)
-    n_complete = sum(c["complete"] for c in cells.values())
+    n_complete = n_complete_cells(cells)
     gst = group_stats(cells)
     sst = slice_stats(cells)
-    table = dict(n_cells=len(cells), n_complete=n_complete, labels=LABELS, recompute_check=chk, cells={
+    table = dict(n_cells=len(SCANS) * len(AFS), n_complete=n_complete, labels=LABELS, recompute_check=chk, cells={
         k: {kk: vv for kk, vv in c.items() if kk != "methods"} | {"methods": {l: {a: b for a, b in m.items() if a != "cache"}
                                                                                for l, m in c["methods"].items()}}
         for k, c in cells.items()})
@@ -756,11 +920,11 @@ def server(args):
     write_results_md(cells, chk, gst, sst, art, n_complete)
     draw_figure(cells, art)
     w = chk["worst"]["head_psnr"]["abs"]
-    log(f"cells complete {n_complete} / {len(cells)}; largest recomputed-vs-logged head PSNR difference {w:.3g} dB "
+    log(f"cells complete {n_complete} / {len(SCANS) * len(AFS)}; largest recomputed-vs-logged head PSNR difference {w:.3g} dB "
         f"({chk['worst']['head_psnr']['where']}); SSIM {chk['worst']['head_ssim']['abs']:.3g}; NMSE {chk['worst']['nmse']['abs']:.3g}")
-    mcg = [cells[k] for k in cells if cells[k]["complete"] and "MC-GS" in cells[k]["methods"]]
-    bad = [f"{c['scan']} AF{c['af']} {c['contrast']} {w_}" for c in mcg
-           for w_ in [abs(c["methods"]["MC-GS"]["diff"]["head_psnr"])] if w_ > 0.005]
+    if chk["unreadable"]:
+        log(f"unreadable (treated as missing, not cached): {len(chk['unreadable'])}: {chk['unreadable']}")
+    bad = chk["mcgs_mismatch"]          # every recomputed MC-GS volume, complete cell or not
     log(f"MC-GS recompute-vs-logged > 0.005 dB: {bad or 'none'}")
     log("SERVER_DONE" if not bad else "SERVER_MISMATCH")
     sys.exit(0 if not bad else 2)
@@ -782,14 +946,19 @@ def pipeline(resume=None):
         jid = m.group(1)
     log(f"job ...{jobtail(jid)} started")
     import time
+    keep = re.compile(r'^(SERVER_\w+|cells complete .*|MC-GS recompute-vs-logged.*|unreadable .*|\s*"state": "\w+",?|\s*"exit_code": \w+,?)\s*$')
+    clock = re.compile(r"\d{4}-\d{2}-\d{2}|\d{2}:\d{2}:\d{2}|T\d{6}")      # never echo anything that could carry a server time
     while True:
         time.sleep(30)
         out = sh([*gpu, "logs", jid]).stdout
-        mine = [ln for ln in out.splitlines() if re.search(r"SERVER_|exit_code|state|cells complete|Traceback|Error|assert", ln, re.I)]
-        if re.search(r"(completed|failed)", out) and re.search(r"SERVER_|exit_code", out):
+        mine = [ln for ln in out.splitlines() if keep.match(ln) and not clock.search(ln)]
+        ec = re.search(r'"exit_code":\s*(\d+)', out)
+        if re.search(r'"state":\s*"(completed|failed)"', out) and ec:
             break
     for ln in mine:
-        log(re.sub(r"j-[0-9]{8}T[0-9]{6}-([0-9a-f]{8})", r"...\1", ln))
+        log(ln)
+    if int(ec.group(1)) != 0 or "SERVER_DONE" not in out:     # SERVER_MISMATCH (exit 2) or a crash: store nothing
+        raise SystemExit(f"job ...{jobtail(jid)} ended with exit_code {ec.group(1)}; nothing stored in the repo")
     f = sh([*gpu, "fetch", jid])
     hits = sorted((HERE.parents[1].parent / "results").glob(f"{jid}-*/artifacts"))
     assert hits, "fetch gave no artifacts directory"
