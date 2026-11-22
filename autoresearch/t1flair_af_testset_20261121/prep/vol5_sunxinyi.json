@@ -1,0 +1,123 @@
+{
+  "scan": "vol5_sunxinyi",
+  "person": "sunxinyi",
+  "group": "offset",
+  "reuse": null,
+  "ecalib": "ecalib -t 0.001 -c 0.0 -r 24 -m 1",
+  "contrasts": {
+    "T1": {
+      "src": "/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol5_sunxinyi/t1_fsp_train_sunxinyin_cc",
+      "dims": [
+        256,
+        256,
+        176,
+        26
+      ],
+      "support_frac": 1.0,
+      "dc_yz": [
+        128,
+        88
+      ],
+      "dc_x": 125,
+      "csm_shape": [
+        26,
+        256,
+        256,
+        176
+      ],
+      "csm_sos_min": 0.9999997726945108,
+      "csm_sos_max": 1.0000002453822088
+    },
+    "FLAIR": {
+      "src": "/data1/data1_congcong/data/MC_Jia/Train_SpiritDiffusion_CFL/vol5_sunxinyi/flair_train_sunyinyi_cc",
+      "dims": [
+        256,
+        256,
+        176,
+        26
+      ],
+      "support_frac": 0.7577015269886364,
+      "dc_yz": [
+        128,
+        88
+      ],
+      "dc_x": 127,
+      "csm_shape": [
+        26,
+        256,
+        256,
+        176
+      ],
+      "csm_sos_min": 0.9999997683835049,
+      "csm_sos_max": 1.0000002327816744
+    }
+  },
+  "masks": {
+    "AF12": {
+      "mask": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/data/mask_af12_3d.h5",
+      "mask_sha256": "68dfdf86aaff0ad8de530c0b02afbbfe5d57b013d85ad91115f5865eb9f0ba3a",
+      "mask_samples": 3847,
+      "T1": {
+        "effective_samples": 3847,
+        "net_af": 11.711983363659995,
+        "af_vs_own_support": 11.711983363659995
+      },
+      "FLAIR": {
+        "effective_samples": 3504,
+        "net_af": 12.858447488584474,
+        "af_vs_own_support": 9.742865296803654
+      }
+    },
+    "AF16": {
+      "mask": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF16_v3_jiangyizhou/data/mask_af16_3d.h5",
+      "mask_sha256": "9eb4ec713a640eb787c3bba1111cf59ea1525beb5ce7941a4465fda48c7c80c8",
+      "mask_samples": 2966,
+      "T1": {
+        "effective_samples": 2966,
+        "net_af": 15.190829399865137,
+        "af_vs_own_support": 15.190829399865137
+      },
+      "FLAIR": {
+        "effective_samples": 2733,
+        "net_af": 16.485912916209294,
+        "af_vs_own_support": 12.491401390413465
+      }
+    },
+    "AF20": {
+      "mask": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF20_v3_jiangyizhou/data/mask_af20_3d.h5",
+      "mask_sha256": "abee1772ba2accc66b40d97e71fc88d8ad52b15d3cc1c7ad974fb791889633c9",
+      "mask_samples": 2427,
+      "T1": {
+        "effective_samples": 2427,
+        "net_af": 18.564482900700455,
+        "af_vs_own_support": 18.564482900700455
+      },
+      "FLAIR": {
+        "effective_samples": 2257,
+        "net_af": 19.96278245458573,
+        "af_vs_own_support": 15.125830748781569
+      }
+    },
+    "AF24": {
+      "mask": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF24_v3_jiangyizhou/data/mask_af24_3d.h5",
+      "mask_sha256": "0b6b8725a7b70ee992a6265cadb3b281c26b207f992e9ece0c597755fdd772e5",
+      "mask_samples": 1877,
+      "T1": {
+        "effective_samples": 1877,
+        "net_af": 24.004262120404903,
+        "af_vs_own_support": 24.004262120404903
+      },
+      "FLAIR": {
+        "effective_samples": 1766,
+        "net_af": 25.513023782559458,
+        "af_vs_own_support": 19.331257078142695
+      }
+    }
+  },
+  "sha256": {
+    "ksp_T1.h5": "004721bf36c7dda15a1fcbff582889ca53224ff1364f7d2424cdc9e577805009",
+    "ksp_FLAIR.h5": "29f366d38e2ca19f295372c2abe7c62132dfecafb942e8e120a3cea5c46ef008",
+    "csm_espirit_T1.h5": "9aeeb2987dcf15088a9d8a1a3dae42c9cbf6482278653f18430636f52e11b6c0",
+    "csm_espirit_FLAIR.h5": "9472b01f4e731f5c866829adb375dbdc2523063a5402525dd429e1942eec9f1e"
+  }
+}
