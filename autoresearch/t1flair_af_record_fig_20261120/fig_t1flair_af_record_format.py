@@ -47,6 +47,11 @@ ap.add_argument("--save_dir", default="",
                 help="after drawing, also copy PNG / PDF / preview / record JSON and this script into this server folder "
                      "(created if missing; an existing file is never overwritten with different content)")
 ap.add_argument("--tol_db", type=float, default=0.005, help="largest allowed |volume head PSNR - summary.json|")
+ap.add_argument("--single", choices=["registered", "indep"], default="registered",
+                help="GS-single column: 'registered' = the topic's gs_single_<key> arm (the joint trainer fed the same "
+                     "scan in both channels); 'indep' = the genuinely independent single-contrast model "
+                     "(SingleContrastTrainer, autoresearch/t1flair_af_indep_single_20261121; AF16: fw_t1flair_nojoint_* of "
+                     "mcgs_framework_ablation_20261110), checked against its own score json (user, 2026-11-21)")
 args = ap.parse_args()
 
 import h5py  # noqa: E402
@@ -119,7 +124,25 @@ def sources(c):
     for lab, key, (p, note) in cols:
         assert p.exists(), f"{c} {lab}: no volume {p}"
         out[lab] = dict(path=p, key=key, note=note, logged=rows[key]["head_psnr"])
+    if args.single == "indep":       # the independent single-contrast run: plain channel of its own npz, its own score
+        stem_ = ARC_FW / f"fw_t1flair_nojoint_{c}" if args.af == 16 else ARC_IS / f"is_af{args.af}_indep_{c}"
+        p, sj = Path(f"{stem_}_volumes.npz"), json.load(open(f"{stem_}_score.json"))
+        assert p.exists() and sj["plain_name"] == c and sj["contrast"] is None, (c, p)
+        assert "single" in sj["argv"][sj["argv"].index("--trainer") + 1]
+        out["GS-single"] = dict(path=p, key=stem_.name, note="independent (SingleContrastTrainer)",
+                                logged=sj["plain"]["head_psnr"], npz_key="rec")
     return out
+
+
+ARC_IS = Path("/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_indep_single_20261121/trainer/results_arc")
+ARC_FW = Path("/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc")
+
+
+def load_vol(s):
+    if "npz_key" in s:
+        with np.load(s["path"]) as z:
+            return np.abs(np.asarray(z[s["npz_key"]])).astype(np.float32)
+    return np.abs(np.load(s["path"])).astype(np.float32)
 
 
 SRC = {c: sources(c) for c in CONTRASTS}
@@ -143,7 +166,7 @@ for c in CONTRASTS:
     gh = gt[c][head[c]].astype(np.float64)
     for lab in LABELS:
         s = SRC[c][lab]
-        v = np.abs(np.load(s["path"])).astype(np.float32)
+        v = load_vol(s)
         assert v.shape == gt[c].shape, (c, lab, v.shape)
         vol[c][lab] = v
         e = v[head[c]].astype(np.float64) - gh
@@ -236,7 +259,10 @@ CAP = ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the bes
        "GT column: GT box | sampling mask in that plane (k-space)",
        f"AF = {NPL} plane points / {NSAMP} sampled points, one mask for both contrasts; the FLAIR scan acquired "
        f"{round(fl['support_frac'] * NPL)} of the {NPL} lines, so {round(fl['sampled_frac_of_plane'] * NPL)} sampled points carry FLAIR data",
-       f"MC-GS / GS-single = the registered {GSKEY} arms; CS-SENSE (converged TV), Joint SENSE and L1-SPIRiT at the lambda of the topic summary",
+       (f"MC-GS / GS-single = the registered {GSKEY} arms" if args.single == "registered" else
+        f"MC-GS = the registered {GSKEY} arm; GS-single = an independent single-contrast model per contrast (own geometry, "
+        f"no cross-contrast term, the {GSKEY} recipe with that contrast's own wavelet weight, 3.6M Gaussians)")
+       + "; CS-SENSE (converged TV), Joint SENSE and L1-SPIRiT at the lambda of the topic summary",
        f"the {args.box}-voxel box where the three slices meet is outlined on every slice; grey bar: fraction of each row's own window (slice P99.9)"]
 
 
@@ -342,7 +368,8 @@ for k, (r, h, eh) in enumerate(zip(rows, hs, ehs)):
 fig.suptitle(TITLE, fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
 fig.text(0.5, 1 - cap_y / fh, "\n".join(cap_lines), ha="center", va="top", fontsize=11, linespacing=1.32)
 
-stem = f"t1flair_af{args.af}_three_planes_{t_}_{c_}_{s_}_record_format"
+stem = f"t1flair_af{args.af}_three_planes_{t_}_{c_}_{s_}_record_format" + ("_indep_single" if args.single == "indep" else "")
+record["gs_single"] = args.single
 fig.savefig(art / f"{stem}.png", dpi=args.png_dpi)
 if args.pdf:
     fig.savefig(art / f"{stem}.pdf", dpi=args.pdf_dpi)

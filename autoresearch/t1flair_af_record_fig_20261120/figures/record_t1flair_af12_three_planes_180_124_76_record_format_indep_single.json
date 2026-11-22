@@ -1,0 +1,712 @@
+{
+  "topic": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou",
+  "af_nominal": 12,
+  "gs_key": "p14",
+  "format": "fig_lesion_plane_prepost.py --three --err_layout zoom --cbar single (T1 / FLAIR in place of pre / post)",
+  "slices": {
+    "transverse": 180,
+    "coronal": 124,
+    "sagittal": 76
+  },
+  "volumes": {
+    "T1": {
+      "ZF": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/zf_T1_complex.npy",
+        "summary_key": "zf",
+        "note": "",
+        "sha256": "6d499dac5650db6905e89a8d9740d69a51fa481f0abf4420bb16f7248390aafd",
+        "volume_head_psnr": 26.130108336297624,
+        "summary_head_psnr": 26.13010833394101
+      },
+      "CG-SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/cgsense_T1_complex.npy",
+        "summary_key": "cgsense",
+        "note": "",
+        "sha256": "5b7e85b391f823005e29203ebb4f0cf313ce832ac07927ca5f3e0f8ac72219f8",
+        "volume_head_psnr": 33.514427962974814,
+        "summary_head_psnr": 33.514427960487225
+      },
+      "CS-SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/cssense_o200_lam0.0007_T1_complex.npy",
+        "summary_key": "cssense_o200",
+        "note": "lam 0.0007",
+        "sha256": "688e04d1e96010d92b58fca2dc2dc492fb0167d0428f6542bfb0eb3066a68a28",
+        "volume_head_psnr": 36.162134884641276,
+        "summary_head_psnr": 36.162134878524974
+      },
+      "Joint SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/jcssense_o200_lam0.001_T1_complex.npy",
+        "summary_key": "jcssense",
+        "note": "lam 0.001",
+        "sha256": "2aef1694ac14858d818264d43eab94e11ebabdf2334427f6cce919d763e02a45",
+        "volume_head_psnr": 36.06962962798679,
+        "summary_head_psnr": 36.06962962430713
+      },
+      "L1-SPIRiT": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/spirit_ks5_lam0.002_T1_complex.npy",
+        "summary_key": "spirit",
+        "note": "ks 5 lam 0.002",
+        "sha256": "6faa29efac655c9b9c98f340a918b3028c550041afbb58e1d362aaf849cc15ce",
+        "volume_head_psnr": 35.01705520873246,
+        "summary_head_psnr": 35.01705520808648
+      },
+      "ZS-SSDU": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/zsssdu_T1_complex.npy",
+        "summary_key": "zsssdu",
+        "note": "",
+        "sha256": "c8bd3deda36aca1198d39031c786a1c7e4a18b1b360ed3977a8d4c99bb8f2d6f",
+        "volume_head_psnr": 35.72382341536821,
+        "summary_head_psnr": 35.7238234120597
+      },
+      "3D-DIP": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/dip_T1_complex.npy",
+        "summary_key": "dip",
+        "note": "",
+        "sha256": "cc2cff84e815ba579248ad15f88d37bfc9d75ff48d65021f32efe73e368e5d9e",
+        "volume_head_psnr": 31.36337740310997,
+        "summary_head_psnr": 31.36337740052807
+      },
+      "3D-INR": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/inr_T1_complex.npy",
+        "summary_key": "inr",
+        "note": "",
+        "sha256": "8f468be29898e9da2a652d69febda4dc76c1015e35f78ae98d4250462f4b98ba",
+        "volume_head_psnr": 31.63794080163497,
+        "summary_head_psnr": 31.63794079638238
+      },
+      "MC-INR": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/mcinr_T1_complex.npy",
+        "summary_key": "mcinr",
+        "note": "",
+        "sha256": "a058c2207e09ad584da051b5d350ecfde91d802d7e55b758076e73dfc170db6a",
+        "volume_head_psnr": 32.19186314734253,
+        "summary_head_psnr": 32.19186314496967
+      },
+      "GS-single": {
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_indep_single_20261121/trainer/results_arc/is_af12_indep_T1_volumes.npz",
+        "summary_key": "is_af12_indep_T1",
+        "note": "independent (SingleContrastTrainer)",
+        "sha256": "d688106d1cd218271f0149b759af3e7f8badbc685274bf14bae7dbc18e5e0f14",
+        "volume_head_psnr": 36.92667480725437,
+        "summary_head_psnr": 36.92670272707045
+      },
+      "MC-GS": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/gs_joint_p14_T1_mag.npy",
+        "summary_key": "gs_joint_p14",
+        "note": "p14",
+        "sha256": "033b73c756914da54ca3fb5cb2e4242be3661c644bed6a98fa6d836cc79b4fe0",
+        "volume_head_psnr": 37.0146835661247,
+        "summary_head_psnr": 37.01471149213735
+      }
+    },
+    "FLAIR": {
+      "ZF": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/zf_FLAIR_complex.npy",
+        "summary_key": "zf",
+        "note": "",
+        "sha256": "a211cabc4ab7cef042e8527e93de5d8401ceddf1a5e3e4dc0b6ac1a4305c5c8f",
+        "volume_head_psnr": 28.193059092245093,
+        "summary_head_psnr": 28.19305817551716
+      },
+      "CG-SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/cgsense_FLAIR_complex.npy",
+        "summary_key": "cgsense",
+        "note": "",
+        "sha256": "6c700bbab465aecb44444ae9e1d782be1c7ec6e14f508d234be12f7fcb05ecaf",
+        "volume_head_psnr": 33.95747374369539,
+        "summary_head_psnr": 33.9574728264114
+      },
+      "CS-SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/cssense_o200_lam0.0007_FLAIR_complex.npy",
+        "summary_key": "cssense_o200",
+        "note": "lam 0.0007",
+        "sha256": "0b0142bf9c3ab8e2808eb0e58f3d3f8c6152165a3ccd10f25287812178b16619",
+        "volume_head_psnr": 35.581175689625795,
+        "summary_head_psnr": 35.58117477458315
+      },
+      "Joint SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/jcssense_o200_lam0.001_FLAIR_complex.npy",
+        "summary_key": "jcssense",
+        "note": "lam 0.001",
+        "sha256": "47062eb48dc45b18f8c03571278632f35200f9c7b6dfe0c3ee49e6c41264ff84",
+        "volume_head_psnr": 35.62421881190936,
+        "summary_head_psnr": 35.62421789783809
+      },
+      "L1-SPIRiT": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/spirit_ks5_lam0.001_FLAIR_complex.npy",
+        "summary_key": "spirit",
+        "note": "ks 5 lam 0.001",
+        "sha256": "abea8dde42ea7dfee4b5cd326070e9a6d73786d948534d7e9d22565fcb00230b",
+        "volume_head_psnr": 35.10281768768929,
+        "summary_head_psnr": 35.10281677644607
+      },
+      "ZS-SSDU": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/zsssdu_FLAIR_complex.npy",
+        "summary_key": "zsssdu",
+        "note": "",
+        "sha256": "e0bedac7c2185e9e0109e9918149127a429763dc0d5e1e0fed9f12eab388fc55",
+        "volume_head_psnr": 35.03420477396947,
+        "summary_head_psnr": 35.034203859039046
+      },
+      "3D-DIP": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/dip_FLAIR_complex.npy",
+        "summary_key": "dip",
+        "note": "",
+        "sha256": "0859e6a375cf0e066515a213a805bc2479ac0df20ffde412dd556f2600ae6f6a",
+        "volume_head_psnr": 30.810225790576816,
+        "summary_head_psnr": 30.810224875964757
+      },
+      "3D-INR": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/inr_FLAIR_complex.npy",
+        "summary_key": "inr",
+        "note": "",
+        "sha256": "036b2886c8591f753d6cc70ae5c458c177c3cc7c410c7d997891ec6022b4767f",
+        "volume_head_psnr": 31.19021113883224,
+        "summary_head_psnr": 31.190210222206545
+      },
+      "MC-INR": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/mcinr_FLAIR_complex.npy",
+        "summary_key": "mcinr",
+        "note": "",
+        "sha256": "8277065b143f0c768876f4e4c492c59bcd09d650c75fbee8f3df4d7aeb5f0e11",
+        "volume_head_psnr": 33.041967432027455,
+        "summary_head_psnr": 33.04196651628124
+      },
+      "GS-single": {
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_indep_single_20261121/trainer/results_arc/is_af12_indep_FLAIR_volumes.npz",
+        "summary_key": "is_af12_indep_FLAIR",
+        "note": "independent (SingleContrastTrainer)",
+        "sha256": "d5df0883cd7c56bcdda0487804fd07cec6d484777e7c3de9cf305fb002be2146",
+        "volume_head_psnr": 36.318590087250264,
+        "summary_head_psnr": 36.31859631765814
+      },
+      "MC-GS": {
+        "path": "/data0/congcong/code/GS/Results_20260908/T1FLAIR_AF12_v3_jiangyizhou/recon/gs_joint_p14_FLAIR_mag.npy",
+        "summary_key": "gs_joint_p14",
+        "note": "p14",
+        "sha256": "f7373952ff9322fd21fac9fd18c4c2f8fc2712f44e596995cf3bbcdcbb7ae5ab",
+        "volume_head_psnr": 36.35964831745794,
+        "summary_head_psnr": 36.35965539930279
+      }
+    }
+  },
+  "gt_sha256": {
+    "T1": "3defa369c9e0bdcb4e92d38236525036c60b78263be7f9b3b70fd8068c3c6271",
+    "FLAIR": "c636c1b5f3884a9da6708c3b823a573814b468b3fe5e3309f8a7399002d29f2a"
+  },
+  "rows": [
+    {
+      "plane": "Transverse",
+      "index": 180,
+      "contrast": "T1",
+      "numbers": {
+        "ZF": {
+          "psnr": 27.59683178390016,
+          "ssim": 0.7565421462097699,
+          "nmse": 0.06460913384053908
+        },
+        "CG-SENSE": {
+          "psnr": 34.42064190778299,
+          "ssim": 0.9009096526439015,
+          "nmse": 0.013424957097149963
+        },
+        "CS-SENSE": {
+          "psnr": 37.423192710154616,
+          "ssim": 0.9557659025615474,
+          "nmse": 0.006724466374326159
+        },
+        "Joint SENSE": {
+          "psnr": 37.37563207520192,
+          "ssim": 0.9562580913278906,
+          "nmse": 0.006798512333094702
+        },
+        "L1-SPIRiT": {
+          "psnr": 36.51769832626065,
+          "ssim": 0.9471678620094952,
+          "nmse": 0.008283373888109607
+        },
+        "ZS-SSDU": {
+          "psnr": 36.87505992105968,
+          "ssim": 0.9523326396575148,
+          "nmse": 0.007629061311498388
+        },
+        "3D-DIP": {
+          "psnr": 33.41938742605998,
+          "ssim": 0.9064335821949685,
+          "nmse": 0.01690590229257871
+        },
+        "3D-INR": {
+          "psnr": 32.612905154606125,
+          "ssim": 0.8431783008468963,
+          "nmse": 0.020355725316207534
+        },
+        "MC-INR": {
+          "psnr": 33.2858906885947,
+          "ssim": 0.8650323267429552,
+          "nmse": 0.017433638182238934
+        },
+        "GS-single": {
+          "psnr": 38.21215617634498,
+          "ssim": 0.9625680977737715,
+          "nmse": 0.005607399255259464
+        },
+        "MC-GS": {
+          "psnr": 38.28906914359675,
+          "ssim": 0.9630514853167935,
+          "nmse": 0.005508967152710393
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_margin": {
+        "psnr": 0.076912967251765,
+        "ssim": 0.00048338754302201803,
+        "nmse": 9.843210254907066e-05
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "window": 0.8412563183903669
+    },
+    {
+      "plane": "Transverse",
+      "index": 180,
+      "contrast": "FLAIR",
+      "numbers": {
+        "ZF": {
+          "psnr": 27.193576104760226,
+          "ssim": 0.6965676580813128,
+          "nmse": 0.054861533146386234
+        },
+        "CG-SENSE": {
+          "psnr": 33.66353848887858,
+          "ssim": 0.895061423730144,
+          "nmse": 0.012367209042332409
+        },
+        "CS-SENSE": {
+          "psnr": 35.650950204710185,
+          "ssim": 0.9393260347938337,
+          "nmse": 0.00782583217334159
+        },
+        "Joint SENSE": {
+          "psnr": 35.68166491638341,
+          "ssim": 0.9391112398948046,
+          "nmse": 0.007770680609542572
+        },
+        "L1-SPIRiT": {
+          "psnr": 34.96757442094146,
+          "ssim": 0.9188631480741783,
+          "nmse": 0.009159422840889907
+        },
+        "ZS-SSDU": {
+          "psnr": 35.325349480020755,
+          "ssim": 0.938459824867615,
+          "nmse": 0.008435107127697305
+        },
+        "3D-DIP": {
+          "psnr": 30.83077207085026,
+          "ssim": 0.8378096551597997,
+          "nmse": 0.023743697111067448
+        },
+        "3D-INR": {
+          "psnr": 30.888999403754823,
+          "ssim": 0.8053584435277309,
+          "nmse": 0.02342748185709003
+        },
+        "MC-INR": {
+          "psnr": 32.60675015293294,
+          "ssim": 0.8530224673277007,
+          "nmse": 0.015774315952569118
+        },
+        "GS-single": {
+          "psnr": 36.48405505889493,
+          "ssim": 0.9463573888830805,
+          "nmse": 0.006459814466253402
+        },
+        "MC-GS": {
+          "psnr": 36.52525671732538,
+          "ssim": 0.9467041941302031,
+          "nmse": 0.006398819783531364
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_margin": {
+        "psnr": 0.04120165843044532,
+        "ssim": 0.00034680524712260574,
+        "nmse": 6.0994682722037737e-05
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "window": 0.9838761779665942
+    },
+    {
+      "plane": "Coronal",
+      "index": 124,
+      "contrast": "T1",
+      "numbers": {
+        "ZF": {
+          "psnr": 28.459680387530117,
+          "ssim": 0.7355254795154935,
+          "nmse": 0.09766610129381617
+        },
+        "CG-SENSE": {
+          "psnr": 34.01679699477574,
+          "ssim": 0.869080089400556,
+          "nmse": 0.027166406247314666
+        },
+        "CS-SENSE": {
+          "psnr": 36.52036793367772,
+          "ssim": 0.9272824705705209,
+          "nmse": 0.015264236876550652
+        },
+        "Joint SENSE": {
+          "psnr": 36.380937767256164,
+          "ssim": 0.9260999956350601,
+          "nmse": 0.015762246449743198
+        },
+        "L1-SPIRiT": {
+          "psnr": 35.21436402308166,
+          "ssim": 0.9074631944908295,
+          "nmse": 0.020619374568422742
+        },
+        "ZS-SSDU": {
+          "psnr": 36.286694656092735,
+          "ssim": 0.9240761007214973,
+          "nmse": 0.01610802981268305
+        },
+        "3D-DIP": {
+          "psnr": 32.077770535975354,
+          "ssim": 0.8338531943905602,
+          "nmse": 0.042455585712731884
+        },
+        "3D-INR": {
+          "psnr": 31.91164284855001,
+          "ssim": 0.7963378963833833,
+          "nmse": 0.04411107131182478
+        },
+        "MC-INR": {
+          "psnr": 32.340108214929565,
+          "ssim": 0.7930042732141681,
+          "nmse": 0.03996695567408818
+        },
+        "GS-single": {
+          "psnr": 37.34541466234236,
+          "ssim": 0.9367239953845048,
+          "nmse": 0.012623227930671959
+        },
+        "MC-GS": {
+          "psnr": 37.42788216348809,
+          "ssim": 0.9378466881063781,
+          "nmse": 0.012385788907045512
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_margin": {
+        "psnr": 0.08246750114573587,
+        "ssim": 0.001122692721873264,
+        "nmse": 0.00023743902362644703
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "window": 0.8769412267208092
+    },
+    {
+      "plane": "Coronal",
+      "index": 124,
+      "contrast": "FLAIR",
+      "numbers": {
+        "ZF": {
+          "psnr": 30.223396212426053,
+          "ssim": 0.7561488659996677,
+          "nmse": 0.05195115893877125
+        },
+        "CG-SENSE": {
+          "psnr": 35.38154999662693,
+          "ssim": 0.8936938389409546,
+          "nmse": 0.015840900348341166
+        },
+        "CS-SENSE": {
+          "psnr": 36.96699407540527,
+          "ssim": 0.9303387856974681,
+          "nmse": 0.010996018302680472
+        },
+        "Joint SENSE": {
+          "psnr": 37.005331931933014,
+          "ssim": 0.9308681908478609,
+          "nmse": 0.010899376841466177
+        },
+        "L1-SPIRiT": {
+          "psnr": 36.07170555170151,
+          "ssim": 0.9107984047831835,
+          "nmse": 0.013513389863671763
+        },
+        "ZS-SSDU": {
+          "psnr": 36.025568845509696,
+          "ssim": 0.9249172198601874,
+          "nmse": 0.013657712834016969
+        },
+        "3D-DIP": {
+          "psnr": 32.413384974428475,
+          "ssim": 0.8337996548078105,
+          "nmse": 0.03137591242518969
+        },
+        "3D-INR": {
+          "psnr": 32.18327661713894,
+          "ssim": 0.8065675377905698,
+          "nmse": 0.033083176344610596
+        },
+        "MC-INR": {
+          "psnr": 34.000884780122504,
+          "ssim": 0.8501248148664001,
+          "nmse": 0.02176939620199688
+        },
+        "GS-single": {
+          "psnr": 37.465823892848675,
+          "ssim": 0.9353169054041354,
+          "nmse": 0.009802852596815754
+        },
+        "MC-GS": {
+          "psnr": 37.48307455404057,
+          "ssim": 0.9354898555189958,
+          "nmse": 0.009763991803780831
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_margin": {
+        "psnr": 0.01725066119189478,
+        "ssim": 0.00017295011486040401,
+        "nmse": 3.886079303492239e-05
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "window": 0.7796258720755574
+    },
+    {
+      "plane": "Sagittal",
+      "index": 76,
+      "contrast": "T1",
+      "numbers": {
+        "ZF": {
+          "psnr": 27.705208715449203,
+          "ssim": 0.7559679503067227,
+          "nmse": 0.10129961433856435
+        },
+        "CG-SENSE": {
+          "psnr": 34.24019011971265,
+          "ssim": 0.8790807462670245,
+          "nmse": 0.022496225232256754
+        },
+        "CS-SENSE": {
+          "psnr": 37.09849185056216,
+          "ssim": 0.9347156629959417,
+          "nmse": 0.011648754122371525
+        },
+        "Joint SENSE": {
+          "psnr": 37.016150066763146,
+          "ssim": 0.9347375649906393,
+          "nmse": 0.011871720322396138
+        },
+        "L1-SPIRiT": {
+          "psnr": 35.80458040121922,
+          "ssim": 0.9193719106623975,
+          "nmse": 0.015691722648722158
+        },
+        "ZS-SSDU": {
+          "psnr": 36.6904675082679,
+          "ssim": 0.9305467255832613,
+          "nmse": 0.012796226321456659
+        },
+        "3D-DIP": {
+          "psnr": 32.63452289675574,
+          "ssim": 0.8645883380854464,
+          "nmse": 0.032559398548613866
+        },
+        "3D-INR": {
+          "psnr": 32.07543128143442,
+          "ssim": 0.7991586141728724,
+          "nmse": 0.03703271350413111
+        },
+        "MC-INR": {
+          "psnr": 32.57269341207466,
+          "ssim": 0.8064189769151762,
+          "nmse": 0.03302625442675075
+        },
+        "GS-single": {
+          "psnr": 37.936227605772245,
+          "ssim": 0.9420853468317398,
+          "nmse": 0.009605188736312867
+        },
+        "MC-GS": {
+          "psnr": 38.048397607662785,
+          "ssim": 0.943381617551762,
+          "nmse": 0.009360281346292656
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_margin": {
+        "psnr": 0.11217000189054005,
+        "ssim": 0.0012962707200221413,
+        "nmse": 0.0002449073900202114
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "window": 0.6710305620314869
+    },
+    {
+      "plane": "Sagittal",
+      "index": 76,
+      "contrast": "FLAIR",
+      "numbers": {
+        "ZF": {
+          "psnr": 29.91779049731138,
+          "ssim": 0.7793015092952416,
+          "nmse": 0.05468071085384263
+        },
+        "CG-SENSE": {
+          "psnr": 34.66524395104695,
+          "ssim": 0.883667793798357,
+          "nmse": 0.01832689140300882
+        },
+        "CS-SENSE": {
+          "psnr": 36.272421384157745,
+          "ssim": 0.9243252751074191,
+          "nmse": 0.01265817405525467
+        },
+        "Joint SENSE": {
+          "psnr": 36.316317204453135,
+          "ssim": 0.92397394132679,
+          "nmse": 0.012530877404092113
+        },
+        "L1-SPIRiT": {
+          "psnr": 35.81551146702577,
+          "ssim": 0.9083613347698066,
+          "nmse": 0.01406248443717331
+        },
+        "ZS-SSDU": {
+          "psnr": 35.89619126038885,
+          "ssim": 0.9231375972784787,
+          "nmse": 0.013803654339578664
+        },
+        "3D-DIP": {
+          "psnr": 31.958276911217567,
+          "ssim": 0.834367145426316,
+          "nmse": 0.034181058722250995
+        },
+        "3D-INR": {
+          "psnr": 31.550056374903725,
+          "ssim": 0.7894701101793639,
+          "nmse": 0.03754979445409908
+        },
+        "MC-INR": {
+          "psnr": 33.60051799419994,
+          "ssim": 0.8438197821877413,
+          "nmse": 0.02341862552674848
+        },
+        "GS-single": {
+          "psnr": 37.055164748709934,
+          "ssim": 0.9308347258253934,
+          "nmse": 0.010570529112596292
+        },
+        "MC-GS": {
+          "psnr": 37.066383567209044,
+          "ssim": 0.9314813280170728,
+          "nmse": 0.010543258259924929
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_margin": {
+        "psnr": 0.011218818499109773,
+        "ssim": 0.0006466021916794462,
+        "nmse": 2.727085267136345e-05
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "window": 0.6479095668403198
+    }
+  ],
+  "max_abs_diff_vs_summary_head_psnr": 2.7926012649004406e-05,
+  "zoom_box": {
+    "centre": [
+      180,
+      124,
+      76
+    ],
+    "edge_voxels": 48
+  },
+  "gs_single": "indep",
+  "mcgs_first_on_every_row_and_metric": true,
+  "figure": "t1flair_af12_three_planes_180_124_76_record_format_indep_single.png",
+  "figure_pdf": "t1flair_af12_three_planes_180_124_76_record_format_indep_single.pdf",
+  "pdf_image_dpi": 600,
+  "png_dpi": 200
+}
