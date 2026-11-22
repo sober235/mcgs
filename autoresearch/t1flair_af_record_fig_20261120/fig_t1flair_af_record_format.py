@@ -286,7 +286,7 @@ AFR = float(EX["mask2d_AF_rect"])
 TITLE = (f"jiangyizhou T1 + FLAIR, vd-Poisson mask, nominal AF {args.af}, actual {AFR:.2f}x"
          f"   --   Transverse {t_} / Coronal {c_} / Sagittal {s_}")
 if args.role:
-    TITLE = (f"{args.role}: T1 + FLAIR, net acceleration {AFR:.2f}x (nominal AF {args.af}), vd-Poisson mask"
+    TITLE = (f"{args.role}: T1 + FLAIR, acceleration factor {args.af}, vd-Poisson mask"
              f"   --   Transverse {t_} / Coronal {c_} / Sagittal {s_}")
 fl = EX["contrasts"]["FLAIR"]
 CAP = ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the best of each row in bold",
@@ -304,6 +304,8 @@ CAP = ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the bes
         f"one {args.box}-voxel box per plane (the same for T1 and FLAIR), placed where MC-GS's error is furthest below the "
         f"best other method (chosen against GT, for display only)")
        + "; grey bar: fraction of each row's own window (slice P99.9)"]
+if args.role:        # article figures carry the acceleration factor only (user, 2026-11-22): no point-count line
+    CAP = [x for x in CAP if not x.startswith("AF = ")]
 if args.arrow:
     CAP.append(("arrow (same place in every panel of a row):" if args.arrow_on == "zoom" else "arrow on each slice (same place along a row):") + " where the error of the other methods (median of the nine "
                "reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's most"
