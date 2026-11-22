@@ -3,6 +3,15 @@
 
     mfigures.py --feas     the feasibility check: z score of every echo train, AUC along the training, T2 PSNR
     mfigures.py --all      the result figures, from <root>/eval/summary.json and the runs' files
+    mfigures.py --record --conds DTa DTc [--tag DTa:B2=d2 DTc:B123=d3] [--name NAME]
+                           only the image figure, from the runs that exist (an interim look while the matrix runs)
+
+The image figure has the format of the different-mask record figure, article look (user, 2026-11-22: "consistent with
+the styles of different masks"; diffmask_af16_masks_20261111/fig_masks_record_format.py --role --err_cmap inferno
+--arrow): one transverse slice, a row pair per condition and contrast (image row; under it the magnified box of the
+image | the same box of the error map), columns GT, ZF, the models, the full method last; head-masked slice PSNR /
+SSIM / NMSE in every panel; one grey bar and one error bar; red arrows in the magnified image boxes. Here the three
+sampling masks become the motion conditions, and the mask cell marks the lines acquired during the motion.
 
 Colours: blue = echo-train weights (M2), orange = the full arm (M1 + M2 + M3), aqua = registration pose alone (M1),
 grey = the unchanged model; a truth upper bound is the outlined bar of its method's colour. The pairs that sit side by
@@ -16,7 +25,8 @@ from pathlib import Path
 
 import numpy as np
 
-from mcommon import DATA2, ORDER_NAME, RES2, ROOT2, THRESH2
+from mcommon import CONTAM_MM, DATA2, ORDER_NAME, RES2, ROOT2, THRESH2
+from mcommon import c1
 
 import matplotlib  # noqa: E402
 matplotlib.use("Agg")
@@ -162,45 +172,370 @@ def trains_figure(truth, mm, title, out_png, dpi=200):
 
 
 # ------------------------------------------------------------------------------------------- images
-def error_scale(gt, recs, k):
-    """Upper end of the shared error colour scale: the largest 99.5th percentile of |rec - gt| on slice k."""
-    return float(max(np.percentile(np.abs(np.asarray(r[k], dtype=np.float64) - gt[k]), 99.5) for r in recs))
+METRIC_COLOR = "#FFC23D"
+ZC, ZLW = METRIC_COLOR, 2.2
+ARROW_COLOR = "#FF1A1A"
+METRICS = ("psnr", "ssim", "nmse")
+# columns after GT; the full method is the last one. A column takes the first of its arms that a condition has.
+REC_COLS = ("ZF", "GS-single", "MC-GS", "MC-GS + M2", "True motion", "MC-GS + M1-M3")
+REC_TRUTH = ("True motion",)
+REC_ARMS_OF = {"GS-single": ("I-T2",), "MC-GS": ("B0",), "MC-GS + M2": ("B2", "B12"), "True motion": ("Op", "Ow"),
+               "MC-GS + M1-M3": ("B123",)}
+REC_TAG = {"B12": "with M1 (arm B12)", "Ow": "true weights (arm Ow)", "Op": "true states, poses, weights (arm Op)"}
+# row labels (they must fit the 2.6 in panel): Ta one brief movement, Tb two brief movements and a small lasting
+# one, Tc a lasting shift, E2Tb the inter-scan misalignment plus Tb
+COND_NAME = {"C0": "No motion (C0)", "Ta": "Brief motion (Ta)", "Tb": "Two motions (Tb)", "Tc": "Lasting shift (Tc)",
+             "E2Tb": "Inter-scan + Tb", "TbL": "Tb with lesions", "DTa": "Brief motion (DTa)",
+             "DTc": "Lasting shift (DTc)"}
 
 
-def images_figure(gt, recs, k, title, out_png, dpi=200):
-    """Transverse slice k (axis 0): reference and reconstructions in the top row, absolute error with one colour scale
-    below. recs: [(name, volume, head PSNR of the whole volume in dB)]."""
-    vmax = float(np.percentile(gt[k], 99.9))
-    emax = error_scale(gt, [r for _, r, _ in recs], k)
-    ncol = len(recs) + 1
-    h, wd = gt[k].shape
-    fig, axes = plt.subplots(2, ncol, figsize=(2.9 * ncol * wd / max(h, wd) + 0.9, 2.9 * 2 * h / max(h, wd) + 0.9),
-                             gridspec_kw=dict(wspace=0.02, hspace=0.02))
-    fig.patch.set_facecolor("black")
-    for a in axes.ravel():
-        a.set_axis_off()
-        a.set_facecolor("black")
-    axes[0, 0].imshow(gt[k], cmap="gray", vmin=0, vmax=vmax)
-    axes[0, 0].set_title("Reference (fully sampled)", fontsize=9, color="white")
-    im = None
-    for j, (name, rec, psnr) in enumerate(recs, start=1):
-        axes[0, j].imshow(rec[k], cmap="gray", vmin=0, vmax=vmax)
-        axes[0, j].set_title(f"{name}   {psnr:.2f} dB", fontsize=9, color="white")
-        im = axes[1, j].imshow(np.abs(np.asarray(rec[k], dtype=np.float64) - gt[k]), cmap="inferno", vmin=0, vmax=emax)
-    axes[1, 0].text(0.5, 0.5, f"absolute error\n(one scale, 0 to {emax / vmax:.2f}\nof the display maximum)", color="white",
-                    fontsize=8, ha="center", va="center", transform=axes[1, 0].transAxes)
-    fig.suptitle(title, fontsize=10, color="white", x=0.02, ha="left")
-    fig.subplots_adjust(left=0.01, right=0.93, top=0.90, bottom=0.01)
-    cax = fig.add_axes([0.94, 0.03, 0.012, 0.40])
-    cb = fig.colorbar(im, cax=cax)
-    cb.ax.tick_params(colors="white", labelsize=7)
-    return _save(fig, out_png, dpi, face="black")
+def head_region(m):
+    """Region of the error maps: the filled head without thin protrusions and a 2-pixel rim (house rule)."""
+    from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening
+    disk = np.hypot(*np.mgrid[-6:7, -6:7]) <= 6
+    return binary_dilation(binary_fill_holes(binary_opening(binary_fill_holes(m), structure=disk)), iterations=2)
 
 
-def worst_slice(gt, rec, brain):
-    """Index along axis 0 (transverse) of the slice where rec has the largest squared error inside the brain."""
-    e = ((np.asarray(rec, dtype=np.float64) - gt) ** 2) * brain
-    return int(e.sum(axis=(1, 2)).argmax())
+def box_origin(score, box):
+    """(y0, x0) of a box x box window centred on the largest value of the 2-D score, moved back inside the slice."""
+    y, x = np.unravel_index(int(np.argmax(score)), score.shape)
+    return (int(min(max(y - box // 2, 0), score.shape[0] - box)), int(min(max(x - box // 2, 0), score.shape[1] - box)))
+
+
+def record_numbers(row, k, truth_cols=()):
+    """Panel numbers of slice k (axis 0) of one row: head = |GT| > 0.05 P99.9 of the volume, PSNR at max|GT| of the
+    volume, 7x7 SSIM map averaged over the head pixels, head NMSE. best = per metric the best column among those that
+    do not use the true motion."""
+    from figures import plane_metrics                       # first version: the house panel metrics
+    gt = row["gt"]
+    gmax = float(gt.max())
+    head = gt[k] > 0.05 * float(np.quantile(gt, 0.999))
+    num = {lab: plane_metrics(v[k], gt[k], head, gmax) for lab, v in row["cells"].items()}
+    own = [lab for lab in num if lab not in truth_cols]
+    best = {m: (min if m == "nmse" else max)(own, key=lambda lab: num[lab][m]) for m in METRICS} if own else {}
+    return dict(num=num, best=best, gmax=gmax, head=head)
+
+
+def arrow_point(g2, errs, others, mc, box_yx, box):
+    """(x, y, gap) inside the box: where the error of the other columns (median, 7x7 local mean) exceeds the error of
+    column mc most, among the tissue boundaries of the box (steepest fifth of the GT gradient). None when the row has
+    no column mc or none of the others."""
+    from scipy.ndimage import gaussian_filter, uniform_filter
+    others = [o for o in others if o in errs]
+    if mc not in errs or not others:
+        return None
+    y0, x0 = box_yx
+    sm = lambda e: uniform_filter(np.asarray(e, dtype=np.float64), size=7, mode="nearest")
+    sc = (np.median([sm(errs[o]) for o in others], axis=0) - sm(errs[mc]))[y0:y0 + box, x0:x0 + box].copy()
+    m = 7
+    sc[:m] = sc[-m:] = -np.inf
+    sc[:, :m] = sc[:, -m:] = -np.inf
+    gy, gx = np.gradient(gaussian_filter(np.asarray(g2, dtype=np.float64), 1.0))
+    gmag = np.hypot(gx, gy)[y0:y0 + box, x0:x0 + box]
+    sc[gmag < np.percentile(gmag, 80)] = -np.inf
+    if not np.isfinite(sc).any():
+        return None
+    yy, xx = np.unravel_index(int(np.argmax(sc)), sc.shape)
+    return int(xx), int(yy), float(sc[yy, xx])
+
+
+def _wrap(parts, width_in, fs):
+    """Join caption parts with ';   ' and break the text between words so that no line is wider than the figure."""
+    meas = plt.figure(figsize=(1, 1))
+    rend = meas.canvas.get_renderer()
+    wide = lambda text: meas.text(0, 0, text, fontsize=fs).get_window_extent(rend).width > 0.97 * width_in * 100.0
+    lines, cur = [], ""
+    for i, part in enumerate(parts):
+        for j, word in enumerate(part.split()):
+            sep = "" if not cur else (";   " if j == 0 else " ")
+            if cur and wide(cur + sep + word):
+                lines.append(cur + (";" if j == 0 else ""))
+                cur = word
+            else:
+                cur = cur + sep + word
+    plt.close(meas)
+    return lines + [cur]
+
+
+def view_box(heads, margin):
+    """(y0, y1, x0, x1): the bounding box of the 2-D head masks with a margin, inside the slice."""
+    m = np.any(np.asarray(heads, dtype=bool), axis=0)
+    yy, xx = np.nonzero(m)
+    return (int(max(yy.min() - margin, 0)), int(min(yy.max() + 1 + margin, m.shape[0])),
+            int(max(xx.min() - margin, 0)), int(min(xx.max() + 1 + margin, m.shape[1])))
+
+
+def mask_codes(mask, train_of, contaminated):
+    """(ky, kz) plane: 0 not sampled, 1 sampled, 2 sampled by an echo train that ran while the brain was displaced.
+    mask = the sampled lines; train_of = echo train of every line of the support (-1 outside), None for a scan
+    without motion."""
+    codes = (np.asarray(mask) > 0).astype(np.int8)
+    if train_of is not None:
+        cont = np.asarray(contaminated, dtype=bool)
+        t = np.asarray(train_of)
+        codes[(codes > 0) & (t >= 0) & cont[np.clip(t, 0, cont.size - 1)]] = 2
+    return codes
+
+
+def record_figure(rows, cols, k, box_yx, box, title, caption, out_png, dpi=200, truth_cols=(), err_vmax=0.1,
+                  brightness=1.25, title_fs=22.0):
+    """The record-format figure (geometry of the different-mask record figure). rows: dicts with name, contrast, gt
+    (3-D), cells {column: 3-D volume}, optional tags {column: text}, blank {column: text of an empty cell}, kmask
+    (2-D: 0 not sampled, 1 sampled, 2 sampled during the motion). The slice is drawn as stored (anterior up). Writes
+    the PNG and, beside it, a JSON record of every panel number."""
+    import matplotlib.patheffects as pe
+    from matplotlib.cm import ScalarMappable
+    from matplotlib.colors import ListedColormap, Normalize
+    from matplotlib.patches import Rectangle
+    y0b, x0b = box_yx
+    mc = cols[-1]
+    info = []
+    for r in rows:
+        n = record_numbers(r, k, truth_cols)
+        g2 = r["gt"][k].astype(np.float64)
+        n["g2"], n["vmax"], n["emask"] = g2, float(np.quantile(g2, 0.999)) / brightness, head_region(n["head"])
+        n["err"] = {lab: np.abs(v[k].astype(np.float64) - g2) / n["gmax"] * n["emask"] for lab, v in r["cells"].items()}
+        n["arrow"] = arrow_point(g2 / n["gmax"], n["err"], [c for c in cols[:-1] if c != "ZF" and c not in truth_cols],
+                                 mc, box_yx, box)
+        info.append(n)
+    vy0, vy1, vx0, vx1 = view_box([n["emask"] for n in info], 10)
+    vy0, vy1, vx0, vx1 = min(vy0, y0b), max(vy1, y0b + box), min(vx0, x0b), max(vx1, x0b + box)
+    view = lambda img: img[vy0:vy1, vx0:vx1]
+    ncol = len(cols) + 1
+    pw, gap, zgap = 2.6, 0.025, 0.02
+    cbtrim, cbpad, cbw, cbroom = 0.10, 0.06, 0.13, 0.95
+    half = (pw - zgap) / 2
+    H, W = vy1 - vy0, vx1 - vx0
+    h, eh = pw * H / W, half
+    fw = ncol * pw + (ncol - 1) * gap + cbpad + cbw + cbroom
+    cap_lines = _wrap(caption, fw, 11)
+    cap_y = 0.10 + 13 * 1.35 / 72 + 0.06
+    top_in = cap_y + len(cap_lines) * 11 * 1.32 / 72 + 0.10 + (title_fs * 1.2 + 4) / 72
+    fh = top_in + len(rows) * (h + eh) + (2 * len(rows) - 1) * gap + 0.16
+    fig = plt.figure(figsize=(fw, fh))
+
+    def axes_at(x0, y0, w, hh, face=None):
+        a = fig.add_axes([x0 / fw, 1 - (y0 + hh) / fh, w / fw, hh / fh])
+        a.set_xticks([])
+        a.set_yticks([])
+        for sp in a.spines.values():
+            sp.set_visible(False)
+        if face:
+            a.set_facecolor(face)
+        return a
+
+    def label(a, text, bold=False, line=0, fs=12.0, hh=1.0, color="white", bottom=False):
+        t = a.text(0.025, 0.025 if bottom else 0.975 - line * fs * 1.28 / 72 / hh, text, transform=a.transAxes, ha="left",
+                   va="bottom" if bottom else "top", color=color, fontsize=fs, fontweight="bold" if bold else "normal")
+        t.set_path_effects([pe.withStroke(linewidth=2.5, foreground="black")])
+
+    def zframe(a):
+        for sp in a.spines.values():
+            sp.set_visible(True)
+            sp.set_edgecolor(ZC)
+            sp.set_linewidth(ZLW)
+
+    def arrow_at(a, pt):
+        x, y = pt[0], pt[1]
+        v, length = np.array([box / 2 - x, box / 2 - y], dtype=np.float64), 13.0 * box / 48
+        nv = float(np.hypot(*v))
+        v = v / nv * length if nv > 4 else np.array([length, length]) / 1.4
+        a.annotate("", xy=(x, y), xytext=(x + v[0], y + v[1]),
+                   arrowprops=dict(arrowstyle="-|>", color=ARROW_COLOR, lw=1.8, mutation_scale=13, shrinkA=0, shrinkB=1))
+
+    crop = lambda img: img[y0b:y0b + box, x0b:x0b + box]
+    imkw = dict(origin="upper", aspect="auto")
+    mask_cmap = ListedColormap(["black", "white", ARROW_COLOR])
+    y, im_e, first = top_in, None, None
+    for r, n in zip(rows, info):
+        gkw = dict(cmap="gray", vmin=0, vmax=n["vmax"], **imkw)
+        for j in range(ncol):
+            x = j * (pw + gap)
+            a = axes_at(x, y, pw, h, "black")
+            lab = None if j == 0 else cols[j - 1]
+            if r is rows[0]:
+                a.set_title("GT" if j == 0 else lab.upper(), fontsize=title_fs, pad=4)
+            if j and lab not in r["cells"]:
+                axes_at(x, y + h + gap, pw, eh, "black")
+                a.text(0.5, 0.5, (r.get("blank") or {}).get(lab, "not run on this condition"), transform=a.transAxes,
+                       ha="center", va="center", color="#8a8a86", fontsize=11)
+                continue
+            img = n["g2"] if j == 0 else r["cells"][lab][k]
+            a.imshow(view(img), **gkw)
+            a.add_patch(Rectangle((x0b - vx0 - 0.5, y0b - vy0 - 0.5), box, box, fill=False, ec=ZC, lw=ZLW))
+            bl = axes_at(x, y + h + gap, half, eh)
+            bl.imshow(crop(img), **gkw)
+            zframe(bl)
+            if n["arrow"]:
+                arrow_at(bl, n["arrow"])
+            if j == 0:
+                label(a, r["name"], bold=True, fs=13, hh=h)
+                label(a, r["contrast"], bold=True, line=1, fs=13, hh=h)
+                axes_at(x + half + zgap, y + h + gap, half, eh, "black")
+                km = r.get("kmask")
+                if km is not None:                          # the sampling mask at its true aspect, on black
+                    mw = min(half, eh * km.shape[1] / km.shape[0])
+                    mh = mw * km.shape[0] / km.shape[1]
+                    bm = axes_at(x + half + zgap + (half - mw) / 2, y + h + gap + (eh - mh) / 2, mw, mh)
+                    bm.imshow(km, cmap=mask_cmap, vmin=0, vmax=2, interpolation="nearest", **imkw)
+                continue
+            num = n["num"][lab]
+            for i, (txt, met) in enumerate(((f"{num['psnr']:.2f} dB", "psnr"), (f"SSIM {num['ssim']:.4f}", "ssim"),
+                                             (f"NMSE {num['nmse']:.5f}", "nmse"))):
+                label(a, txt, bold=n["best"].get(met) == lab, line=i, fs=10.5, hh=h, color=METRIC_COLOR)
+            if (r.get("tags") or {}).get(lab):
+                label(a, r["tags"][lab], fs=9.5, bottom=True)
+            br = axes_at(x + half + zgap, y + h + gap, half, eh)
+            im_e = br.imshow(crop(n["err"][lab]), cmap="inferno", vmin=0.0, vmax=err_vmax, **imkw)
+            zframe(br)
+        if first is None:
+            first = y
+        y += h + eh + 2 * gap
+    x_cb = (ncol * pw + (ncol - 1) * gap + cbpad) / fw      # one grey bar (each row's own window), one error bar
+    bars = [(ScalarMappable(norm=Normalize(0, 1), cmap="gray"), first, first + h - cbtrim, np.linspace(0, 1, 5),
+             "intensity / row window")]
+    if im_e is not None:
+        bars.append((im_e, first + h + gap + 0.04, first + h + gap + eh, np.arange(0, 5) * err_vmax / 4, "|error| / max GT"))
+    for handle, t0, t1, ticks, text in bars:
+        cb = fig.colorbar(handle, cax=fig.add_axes([x_cb, 1 - t1 / fh, cbw / fw, (t1 - t0) / fh]), ticks=ticks)
+        cb.ax.tick_params(labelsize=9.5)
+        cb.set_label(text, fontsize=10)
+    fig.suptitle(title, fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
+    fig.text(0.5, 1 - cap_y / fh, "\n".join(cap_lines), ha="center", va="top", fontsize=11, linespacing=1.32)
+    out_png = _save(fig, out_png, dpi)
+    out_png.with_suffix(".json").write_text(json.dumps(dict(
+        slice=int(k), box=dict(y0=int(y0b), x0=int(x0b), edge=int(box)), view=[vy0, vy1, vx0, vx1], columns=["GT", *cols], truth_columns=list(truth_cols),
+        error_display=dict(cmap="inferno", vmax=err_vmax), window="slice P99.9 / %g" % brightness,
+        rows=[dict(name=r["name"], contrast=r["contrast"], numbers=n["num"], best=n["best"], tags=r.get("tags") or {},
+                   arrow=None if n["arrow"] is None else dict(crop_xy=list(n["arrow"][:2]), gap=n["arrow"][2]))
+              for r, n in zip(rows, info)]), indent=1))
+    return out_png
+
+
+def record_caption(box, k, others="the models other than ZF, the truth column and the last column"):
+    return ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the best of each row among the columns that "
+            "do not use the true motion in bold",
+            "error |recon - GT| / max(GT), inferno [0, 0.1], inside the head only",
+            "row under each image row: left = the magnified box of the image, right = the same box of the error map; "
+            "GT column: GT box | (ky, kz) sampling mask, red = T2W lines acquired while the brain was displaced by more than "
+            f"{CONTAM_MM} mm",
+            f"the {box}x{box} box, the same in every row, is outlined on every slice (transverse {k}, cropped to the head); grey bar: intensity as "
+            "a fraction of each row's own window (slice P99.9 / 1.25)",
+            f"red arrow in the magnified image box (same place along a row): where the error of {others} (median, 7x7 "
+            "local mean) exceeds the last column's most, among the tissue boundaries of the box (steepest fifth of the "
+            "GT gradient)",
+            "T2W of a model with echo-train weights: only the kept lines are inserted, as in the tables"]
+
+
+def zero_filled_volumes(order, conds, gts):
+    """{(cond, contrast): zero-filled magnitude on the scale of the runs' GT}. The scale is max(GT) / max(fully
+    sampled reconstruction of the reference k-space); the largest difference between the two is printed."""
+    import h5py
+    import reg
+    import simulate
+    with h5py.File(c1.MASKS["af12"], "r") as hf:
+        mask3 = hf["mask"][:].astype(np.float32)
+    w = simulate.FULL["fft_workers"]
+    csm = {c: simulate._read(c1.HYW / f"csm_espirit_{c}.h5", ("map", "csm")) for c in ("T1", "T2")}
+    out, cache = {}, {}
+    for cond in conds:
+        for c in ("T1", "T2"):
+            if (cond, c) not in gts:
+                continue
+            gt = gts[(cond, c)]
+            path = reg.t1_path(order, cond) if c == "T1" else reg.t2_path(order, cond)
+            ref = path
+            if c == "T2":
+                tp = Path(json.loads((_cdir_of(order, cond) / "motion_truth.json").read_text()).get("gt_ksp_path") or path)
+                ref = tp if tp.exists() else path
+            if ref not in cache:
+                full = np.abs(simulate.combine(simulate._read(ref, ("kspace", "ksp")), csm[c], w))
+                cache[ref] = float(full.max()), full
+            fmax, full = cache[ref]
+            s = float(gt.max()) / fmax
+            print(f"[zf] {cond} {c}: scale {s:.6g}; max |scaled full reconstruction - GT| / max GT = "
+                  f"{float(np.abs(full * s - gt).max()) / float(gt.max()):.2e}", flush=True)
+            if (path, c) not in cache:
+                cache[(path, c)] = reg._zero_filled(path, mask3, csm[c], w)
+            out[(cond, c)] = (cache[(path, c)] * s).astype(np.float32)
+    return out
+
+
+def _cdir_of(order, cond):
+    import mevaluate as ev
+    return ev._cdir(order, cond)
+
+
+def sampling_codes(order, cond, contrast):
+    """mask_codes of one condition and contrast, from the AF12 mask, the assumed echo-train order and the truth."""
+    import h5py
+    with h5py.File(c1.MASKS["af12"], "r") as hf:
+        mask = hf["mask"][0] > 0                             # readout (axis 0) fully sampled: one (ky, kz) plane
+    d = _cdir_of(order, cond)
+    if contrast != "T2" or not (d / "schedule.npz").exists():
+        return mask_codes(mask, None, None)
+    with np.load(d / "schedule.npz") as z:
+        train_of = z["train_of"]
+    return mask_codes(mask, train_of, json.loads((d / "motion_truth.json").read_text())["contaminated"])
+
+
+def record_rows(order, conds, tags=None, zf=True):
+    """Rows of the record figure from the runs that exist: per condition a T1W and a T2W row."""
+    import mevaluate as ev
+    from mcommon import exp_name
+    per, gts = {}, {}
+    for cond in conds:
+        for col, arms in REC_ARMS_OF.items():
+            for arm in arms:
+                v = ev._vols2(exp_name("af12", order, cond, arm, tag=(tags or {}).get((cond, arm), "")), arm)
+                if v is None:
+                    continue
+                for c, (rec, gt) in v.items():
+                    ref = gts.setdefault((cond, c), gt)
+                    assert np.allclose(gt, ref, atol=1e-5 * float(ref.max())), f"{cond} {arm} {c}: a different GT"
+                    per.setdefault((cond, c), ({}, {}))
+                    per[(cond, c)][0][col] = rec
+                    if arm in REC_TAG:
+                        per[(cond, c)][1][col] = REC_TAG[arm]
+                break
+    zfv = zero_filled_volumes(order, conds, gts) if zf else {}
+    rows = []
+    for cond in conds:
+        for c in ("T1", "T2"):
+            if (cond, c) not in per:
+                continue
+            cells, tagd = per[(cond, c)]
+            if (cond, c) in zfv:
+                cells = {"ZF": zfv[(cond, c)], **cells}
+            rows.append(dict(name=COND_NAME.get(cond, cond), cond=cond, contrast=f"{c}W", gt=gts[(cond, c)], cells=cells,
+                             tags=tagd, blank={"GS-single": "T2W only"} if c == "T1" else {},
+                             kmask=sampling_codes(order, cond, c)))
+    return rows
+
+
+def record_from_runs(order, conds, out_png, tags=None, box=64, title=None):
+    """Draws the record figure of the given conditions. Slice = the transverse slice where the unchanged model has
+    the largest T2W error in the brain, summed over the conditions; box = centred on the largest 15x15 local mean of
+    that error on the slice."""
+    from scipy.ndimage import uniform_filter
+    rows = record_rows(order, conds, tags)
+    t2 = [r for r in rows if r["contrast"] == "T2W" and "MC-GS" in r["cells"]]
+    if not t2:
+        return None
+    brain = np.load(_cdir_of(order, t2[0]["cond"]) / "brain.npy").astype(bool)
+    k, e = worst_slice([(r["gt"], r["cells"]["MC-GS"]) for r in t2], brain)
+    yx = box_origin(uniform_filter(e, size=15, mode="constant"), box)
+    title = title or (f"Mild motion inside the T2W scan: T1W + T2W, acceleration factor 12, {ORDER_NAME[order]} echo-train "
+                      f"order   --   Transverse {k}")
+    return record_figure(rows, REC_COLS, k, yx, box, title, record_caption(box, k), out_png, truth_cols=REC_TRUTH)
+
+
+def worst_slice(pairs, brain):
+    """(k, e): k = index along axis 0 (transverse) of the slice where the reconstructions of pairs [(gt, rec), ...]
+    have the largest squared error inside the brain, summed over the pairs; e = that error map of slice k."""
+    e = sum(((np.asarray(rec, dtype=np.float64) - gt) ** 2) * brain for gt, rec in pairs)
+    k = int(e.sum(axis=(1, 2)).argmax())
+    return k, e[k]
 
 
 # ------------------------------------------------------------------------------------------- inter-scan
@@ -333,17 +668,9 @@ def all_figures(summary):
                 continue
             done.append(trains_figure(ev._truth(order, cond), mm, f"{ORDER_NAME[order]} order, condition {cond}, arm B123",
                                       OUT / f"fig_trains_{order}_{cond}.png"))
-    for cond in ("Ta", "Tb", "Tc", "E2Tb"):
-        vols = {a: ev._vols2(exp_name("af12", "il", cond, a), a) for a in ("B0", "B123", "Ow")}
-        if any(v is None for v in vols.values()):
-            continue
-        gt = vols["B0"]["T2"][1]
-        brain = np.load(ev._cdir("il", cond) / "brain.npy").astype(bool)
-        k = worst_slice(gt, vols["B0"]["T2"][0], brain)
-        recs = [(a, vols[a]["T2"][0], tab[("il", cond, a)]["T2"]["head_psnr_eval"]) for a in ("B0", "B123", "Ow")]
-        done.append(images_figure(gt, recs, k, f"T2W, interleaved order, condition {cond}: transverse slice {k} "
-                                               f"(largest B0 error in the brain); head PSNR of the volume",
-                                  OUT / f"fig_images_{cond}.png"))
+    p = record_from_runs("il", ("Ta", "Tb", "Tc", "E2Tb"), OUT / "fig_images_record.png")
+    if p is not None:
+        done.append(p)
     return done
 
 
@@ -352,6 +679,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--feas", action="store_true")
     ap.add_argument("--all", action="store_true", help="result figures from <root>/eval/summary.json")
+    ap.add_argument("--record", action="store_true", help="only the image figure (record format), from the runs that exist")
+    ap.add_argument("--order", default="il", choices=sorted(ORDER_NAME))
+    ap.add_argument("--conds", nargs="+", default=["Ta", "Tb", "Tc", "E2Tb"])
+    ap.add_argument("--tag", nargs="*", default=[], metavar="COND:ARM=TAG", help="runs that carry a tag (development rounds)")
+    ap.add_argument("--name", default="fig_images_record", help="file stem of --record")
     args = ap.parse_args()
     import mevaluate
     OUT.mkdir(parents=True, exist_ok=True)
@@ -372,6 +704,15 @@ def main():
             print(f"wrote {p.name} and {p.with_suffix('.pdf').name}", flush=True)
             if art:
                 shutil.copy(p, Path(art) / p.name)
+    elif args.record:
+        tags = {tuple(t.split("=")[0].split(":")): t.split("=")[1] for t in args.tag}
+        p = record_from_runs(args.order, args.conds, OUT / f"{args.name}.png", tags)
+        if p is None:
+            ap.error("no finished MC-GS (B0) run on these conditions")
+        print(f"wrote {p.name} and {p.with_suffix('.json').name}", flush=True)
+        if art:
+            shutil.copy(p, Path(art) / p.name)
+            shutil.copy(p.with_suffix(".json"), Path(art) / p.with_suffix(".json").name)
     else:
         ap.error("nothing to do")
 
