@@ -98,17 +98,22 @@
 - **读法：** 四张图 MC-GS 都是 18 项全部第一。误差图上 MC-GS 明显暗于非 GS 方法；与 GS-single 的差别（框内平均误差低 1–6%）在任何画法下都看不出来。
 - **画法的比较：** `zoom_presentation_test.py` 和 `figures/zoom_presentation_af20.png`。中间试过的几版（jet 0–0.03 局部平均、hot、箭头在放大格内）的记录也在 `figures/`。
 
-## 补充：文章用图（用户 2026-11-21 指定）
+## 补充：文章用图（用户 2026-11-21 / 22 指定）
 
-用户指定文章里放两张图：16 倍作可行性验证，20 倍作加速性能测试；统一用上面的 inferno 展示画法，箭头改为标在组织边界上。
-这里的 16 / 20 是名义 AF，净加速分别为 15.19× 和 18.56×（「20 倍」按名义 AF20 理解，待用户确认）。
+用户指定文章里放两张图：AF 16 作可行性验证，AF 20 作加速性能测试；统一用上面的 inferno 展示画法，箭头标在组织边界上。
 
-| 作用 | 净加速（名义 AF） | 图 |
+**加速因子的写法（用户 2026-11-22）：** 记录里继续用名义值 AF 12 / 16 / 20 / 24，不再补跑别的倍数。文章用图上只写「acceleration factor」，
+不出现「净加速」之类的字样，也不带采样点数那一行图注。
+
+| 作用 | 加速因子 | 图 |
 |---|---|---|
-| 可行性验证 | 15.19×（16） | `figures/article_net15.19x_feasibility.{png,pdf}`（PNG sha256 `cc528116…`） |
-| 加速性能测试 | 18.56×（20） | `figures/article_net18.56x_acceleration.{png,pdf}`（PNG sha256 `40e5401f…`） |
+| 可行性验证 | 16 | `figures/article_af16_feasibility.{png,pdf}`（PNG sha256 `2b2bb499…`） |
+| 加速性能测试 | 20 | `figures/article_af20_acceleration.{png,pdf}`（PNG sha256 `43b26df4…`） |
 
-- **与展示版的差别：** 框、层面、色图、每格数字都不变。只改两处：标题写明作用和净加速；箭头选点限制在框内 GT 梯度最陡的五分之一像素上（`--arrow_mode edge`），所以箭头落在组织边界。
+- **与展示版的差别：** 框、层面、色图、每格数字都不变。标题写作用和加速因子；箭头选点限制在框内 GT 梯度最陡的五分之一像素上（`--arrow_mode edge`），所以落在组织边界。
 - **命令：** 展示版的参数再加 `--arrow_mode edge --role "<作用>"`。
-- **服务器：** `codex_artifacts/mcgs_t1flair_af_zoomsel_20261121/article_nature_edge/{net15.19x_af16_feasibility,net18.56x_af20_acceleration}/`（PNG、600 dpi PDF、预览、记录 JSON、数据 npz、脚本副本）。
-- **结果：** 两张图 MC-GS 都是 18 项全部第一。箭头和框仍是对照 GT 挑的，只用于展示。
+- **服务器：** `codex_artifacts/mcgs_t1flair_af_zoomsel_20261121/article_nature_edge_af/{af16_feasibility,af20_acceleration}/`（PNG、600 dpi PDF、预览、记录 JSON、数据 npz、脚本副本）。
+  同级的 `article_nature_edge/` 和 `article_nature_edge_nominal/` 是标题带净加速字样的旧版，已被取代。
+- **结果：** 两张图 MC-GS 都是 18 项全部第一。箭头和框是对照 GT 挑的，只用于展示。
+- **没有采用的一步：** 曾为「净 20×」新抽了一张 2253 点的掩膜（`autoresearch/t1flair_net20_20261121/`，服务器课题 `T1FLAIR_AF20net_v3_jiangyizhou`），
+  用户看过后决定不补跑，没有在它上面做任何重建。
