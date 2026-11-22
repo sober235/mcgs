@@ -69,16 +69,43 @@ def _hf_fraction(v):
 _G = {}                                    # read-only state shared with forked workers
 
 
-def _moved(pose):
-    """W_T(m') for T = pose o (id + u)."""
-    if _G["u"] is None:
+def _moved(pose, amp=0.0):
+    """W_T(m') for T = pose o (id + u + amp * soft_u). amp: soft-tissue amplitude relative to the reference train
+    (second version); 0 leaves the first version's path untouched."""
+    u = _G["u"]
+    if amp != 0.0 and _G.get("soft_u") is not None:
+        u = amp * _G["soft_u"] if u is None else u + amp * _G["soft_u"]
+    if u is None:
         return _G["m_les"] if _is_identity(pose) else warp.rigid(_G["m_les"], pose)
-    return warp.nonrigid_then_rigid(_G["m_les"], _G["u"], pose)
+    return warp.nonrigid_then_rigid(_G["m_les"], u, pose)
 
 
-def _delta_lines(pose, sel2d):
+def brain_disp_mm(pose, brain, soft=None):
+    """Mean displacement (mm) inside the brain mask of pose o (id + soft) relative to the identity."""
+    r = geom.grid_mm(brain.shape)[brain]
+    q = r if soft is None else r + soft[brain]
+    return float(np.linalg.norm(pose.apply(q) - r, axis=-1).mean())
+
+
+def _states(events, frac, ref_train, brain, contam_mm):
+    """Persistent states of the scan: a "step" opens a new state when it moves the brain by more than contam_mm
+    (mean); pulses are transient and open none. Returns (state_of_train, poses relative to the reference state)."""
+    steps = sorted((e for e in events if e["kind"] == "step"), key=lambda e: e["at"])
+    level = lambda f: schedule._raw_pose([e for e in steps if e["at"] <= f], 1.0)
+    state, levels, cur = np.zeros(len(frac), dtype=np.int64), [geom.Rigid.identity()], 0
+    for e in steps:
+        new = level(e["at"])
+        if brain is not None and brain_disp_mm(new.compose(levels[cur].inverse()), brain) > contam_mm:
+            levels.append(new)
+            cur += 1
+            state[np.asarray(frac) >= e["at"]] = cur
+    inv = levels[int(state[ref_train])].inverse()
+    return state, [p.compose(inv) for p in levels]
+
+
+def _delta_lines(pose, sel2d, amp=0.0):
     """F[S_c (W_T(m') - m)] on the phase-encode points sel2d, all readout samples: (C, N0, n_selected) complex64."""
-    d = _moved(pose) - _G["m"]
+    d = _moved(pose, amp) - _G["m"]
     csm, w = _G["csm"], _G["opts"]["fft_workers"]
     out = np.empty((csm.shape[0], csm.shape[1], int(sel2d.sum())), dtype=np.complex64)
     for c in range(csm.shape[0]):
@@ -94,15 +121,20 @@ def _delta_full(d, csm, workers):
 
 
 def _pose_job(args):
-    key, pose_json, trains = args
+    key, pose_json, trains = args[:3]
+    amp = args[3] if len(args) > 3 else 0.0
     sel = np.isin(_G["train_of"], trains)
-    return key, _delta_lines(geom.Rigid.from_json(pose_json), sel)
+    return key, _delta_lines(geom.Rigid.from_json(pose_json), sel, amp)
 
 
-def build_custom(src, inter=None, u=None, intra_events=None, lesion_sites=None, small=False, meta=None):
+def build_custom(src, inter=None, u=None, intra_events=None, lesion_sites=None, small=False, meta=None,
+                 order="linear", soft_u=None, contam_mm=0.2):
     """Core of the simulator. src: dict of arrays ksp_T1, ksp_T2, csm_T1, csm_T2 in the files' layout (C, N0, N1, N2).
     inter: geom.Rigid or None; u: displacement field (*N, 3) or None; intra_events: list of events or None;
-    lesion_sites: output of lesions.pick_sites or None."""
+    lesion_sites: output of lesions.pick_sites or None.
+    Second version (2026-11-21): order = acquisition order of schedule.build; soft_u = soft-tissue field that
+    accompanies a movement, train n gets (a_n - a_ref) * soft_u with a = schedule.soft_amp; contam_mm = mean brain
+    displacement above which a train counts as contaminated (needs src["brain"])."""
     opts = SMALL if small else FULL
     y2, S2 = src["ksp_T2"], src["csm_T2"]
     shape = y2.shape[1:]
@@ -115,7 +147,7 @@ def build_custom(src, inter=None, u=None, intra_events=None, lesion_sites=None, 
     m_les, lab = m, None
     if lesion_sites:
         m_les, lab = lesions.insert(m, lesion_sites, "T2")
-    _G.update(m=m, m_les=m_les, u=u, csm=S2, opts=opts)
+    _G.update(m=m, m_les=m_les, u=u, csm=S2, opts=opts, soft_u=soft_u)
 
     # ---- reference pose (the inter-scan pose): this is the whole simulation when there is no intra-scan motion
     d_ref = _moved(g) - m
@@ -132,23 +164,29 @@ def build_custom(src, inter=None, u=None, intra_events=None, lesion_sites=None, 
                             "(T1) frame to its position in the T2W image: r' = R (r + u(r)) + t; image = m o T^-1",
                  inter=g.to_json() if inter is not None else None, pivot_offset_mm=list(PIVOT_OFFSET_MM),
                  nonrigid=(meta or {}).get("nonrigid"), intra=intra_events, native_shift_mm=list(NATIVE_SHIFT_MM),
-                 lesion_sites=lesion_sites, shape=list(shape))
+                 lesion_sites=lesion_sites, shape=list(shape), order=order)
 
     if not intra_events:
         out["ksp_T2"] = ref_ksp
     else:
         support = ~zero2.all(axis=0)
-        sch = schedule.build(support, k_seg=opts["k_seg"], etl=opts["etl"])
+        sch = schedule.build(support, k_seg=opts["k_seg"], etl=opts["etl"], order=order)
         rel = schedule.poses(intra_events, sch["train_time_frac"], sch["ref_train"])
-        groups = {}
+        amp = np.zeros(len(rel))
+        if soft_u is not None:
+            amp = schedule.soft_amp(intra_events, sch["train_time_frac"])
+            amp = np.round(amp - amp[sch["ref_train"]], 9)
+        groups, amp_of = {}, {}
         for n, p in enumerate(rel):
-            if _is_identity(p):
+            if _is_identity(p) and amp[n] == 0.0:
                 continue                                   # reference pose: lines already in ref_ksp
-            key = json.dumps(p.to_json(), sort_keys=True)
+            key = json.dumps(p.to_json(), sort_keys=True) + (f"|{amp[n]!r}" if amp[n] != 0.0 else "")
             groups.setdefault(key, []).append(n)
+            amp_of[key] = float(amp[n])
         ksp = ref_ksp.copy()
         _G.update(train_of=sch["train_of"])
-        jobs = [(k, geom.Rigid.from_json(json.loads(k)).compose(g).to_json(), tr) for k, tr in groups.items()]
+        jobs = [(k, geom.Rigid.from_json(json.loads(k.split("|")[0])).compose(g).to_json(), tr, amp_of[k])
+                for k, tr in groups.items()]
         if opts["procs"] > 1 and len(jobs) > 4:
             _G["opts"] = dict(opts, fft_workers=2)             # the pool already uses the cores
             with multiprocessing.get_context("fork").Pool(opts["procs"]) as pool:
@@ -169,7 +207,17 @@ def build_custom(src, inter=None, u=None, intra_events=None, lesion_sites=None, 
         truth.update(train_poses=[p.to_json() for p in rel], segment_mean_poses=[p.to_json() for p in seg_mean],
                      seg_of_train=[int(x) for x in sch["seg_of_train"]], ref_train=sch["ref_train"],
                      ref_seg=sch["ref_seg"], n_trains=sch["n_trains"], etl=opts["etl"], k_seg=opts["k_seg"],
-                     n_distinct_poses=len(groups) + 1)
+                     n_distinct_poses=len(groups) + 1, soft_amp=[float(a) for a in amp])
+        brain = src.get("brain")
+        st, st_poses = _states(intra_events, sch["train_time_frac"], sch["ref_train"], brain, contam_mm)
+        truth.update(state_of_train=[int(x) for x in st], state_poses=[p.to_json() for p in st_poses],
+                     ref_state=int(st[sch["ref_train"]]), contam_mm=contam_mm)
+        if brain is not None:
+            soft = lambda n: None if soft_u is None or amp[n] == 0.0 else amp[n] * soft_u
+            disp = [brain_disp_mm(p, brain, soft(n)) for n, p in enumerate(rel)]
+            resid = [brain_disp_mm(p.compose(st_poses[st[n]].inverse()), brain, soft(n)) for n, p in enumerate(rel)]
+            truth.update(train_brain_disp_mm=disp, contaminated=[bool(d > contam_mm) for d in disp],
+                         train_resid_disp_mm=resid, contaminated_in_state=[bool(d > contam_mm) for d in resid])
         sel_ref = sch["train_of"] == sch["ref_train"]
         qc["reference_train_equals_reference_pose"] = bool(np.array_equal(ksp[:, :, sel_ref], ref_ksp[:, :, sel_ref]))
 
