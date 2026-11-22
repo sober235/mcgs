@@ -51,6 +51,9 @@ ap.add_argument("--arrow", action="store_true",
                      "(median over the ten reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's "
                      "most (user, 2026-11-21)")
 ap.add_argument("--arrow_color", default="#00E5FF")
+ap.add_argument("--save_data", action="store_true",
+                help="also write <stem>_data.npz: every slice the figure draws (each method, GT, head mask, error-display "
+                     "region, sampling mask plane) in volume orientation, with the box / arrow positions (user, 2026-11-21)")
 ap.add_argument("--arrow_on", choices=["zoom", "main"], default="zoom",
                 help="draw the arrow in the zoom panels, or on the slice images above them (user, 2026-11-21)")
 ap.add_argument("--title_fs", type=float, default=22.0)
@@ -479,6 +482,25 @@ record["png_dpi"] = args.png_dpi
 (art / f"record_{stem}.json").write_text(json.dumps(record, indent=2))
 log("MC-GS first on PSNR, SSIM and NMSE in all six rows:", all_first)
 outs = [f"{stem}.png", f"{stem}_preview.jpg", f"record_{stem}.json"] + ([f"{stem}.pdf"] if args.pdf else [])
+if args.save_data:
+    dat = {}
+    for r in rows:
+        k = f"{r['pname'].lower()}{r['idx']}_{r['c']}"
+        dat[f"{k}__GT"] = r["g2"]
+        dat[f"{k}__head_mask"] = head[r["c"]][r["sl"]]
+        dat[f"{k}__error_region"] = r["emask"]
+        for lab in LABELS:
+            dat[f"{k}__{lab.replace(' ', '_')}"] = vol[r["c"]][lab][r["sl"]]
+    for (axis, pname), idx in zip(PLANES, args.slices):
+        dat[f"{pname.lower()}_sampling_mask_plane"] = mask3.take(kcen[axis], axis=axis)
+    dat["meta_json"] = np.array(json.dumps(dict(
+        note="magnitude slices in volume orientation (display: transverse = rot90(x.T), others as stored, origin lower); "
+             "error = |recon - GT| / gt_max inside error_region; metrics inside head_mask with PSNR peak gt_max",
+        af_nominal=args.af, net_acceleration=AFR, slices=record["slices"], gt_max=gmax, zoom_box=record["zoom_box"],
+        zoom_display_px={f"{r['pname']}_{r['c']}": r["zoom"] for r in rows}, arrows=record.get("arrows"),
+        error_display=record["error_display"], error_cmap=args.err_cmap, volumes=record["volumes"])))
+    np.savez_compressed(art / f"{stem}_data.npz", **dat)
+    outs.append(f"{stem}_data.npz")
 for name in outs:
     log(f"  sha256 {sha(art / name)}  {name}")
 if args.save_dir:
