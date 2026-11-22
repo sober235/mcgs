@@ -51,6 +51,8 @@ ap.add_argument("--arrow", action="store_true",
                      "(median over the ten reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's "
                      "most (user, 2026-11-21)")
 ap.add_argument("--arrow_color", default="#00E5FF")
+ap.add_argument("--arrow_on", choices=["zoom", "main"], default="zoom",
+                help="draw the arrow in the zoom panels, or on the slice images above them (user, 2026-11-21)")
 ap.add_argument("--title_fs", type=float, default=22.0)
 ap.add_argument("--png_dpi", type=int, default=200)
 ap.add_argument("--pdf", action="store_true",
@@ -292,7 +294,7 @@ CAP = ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the bes
         f"best other method (chosen against GT, for display only)")
        + "; grey bar: fraction of each row's own window (slice P99.9)"]
 if args.arrow:
-    CAP.append("arrow (same place in every panel of a row): where the error of the other methods (median of the nine "
+    CAP.append(("arrow (same place in every panel of a row):" if args.arrow_on == "zoom" else "arrow on each slice (same place along a row):") + " where the error of the other methods (median of the nine "
                "reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's most; chosen against GT, for display only")
 
 
@@ -351,14 +353,20 @@ IMKW = dict(origin="lower", aspect="auto")
 ARROW_C = args.arrow_color
 
 
-def arrow_at(a, pt, z):
-    """an arrow whose head sits at pt (crop pixel x, y), its tail towards the centre of the box"""
+def arrow_at(a, pt, z, main=False, shape=None):
+    """an arrow whose head sits at pt (crop pixel x, y); zoom panel: tail towards the centre of the box;
+    slice image (main): head at the same anatomical point, tail towards the centre of the image"""
     x, y = pt
-    v = np.array([z["w"] / 2 - x, z["h"] / 2 - y], float)
+    if main:
+        x, y = x + z["x0"], y + z["y0"]
+        v, L = np.array([shape[1] / 2 - x, shape[0] / 2 - y], float), 0.11 * shape[1]
+    else:
+        v, L = np.array([z["w"] / 2 - x, z["h"] / 2 - y], float), 13.0
     n = float(np.hypot(*v))
-    v = v / n * 13 if n > 4 else np.array([9.0, 9.0])
+    v = v / n * L if n > 4 else np.array([L, L]) / 1.4
     a.annotate("", xy=(x, y), xytext=(x + v[0], y + v[1]),
-               arrowprops=dict(arrowstyle="-|>", color=ARROW_C, lw=1.8, mutation_scale=13, shrinkA=0, shrinkB=1))
+               arrowprops=dict(arrowstyle="-|>", color=ARROW_C, lw=2.2 if main else 1.8, mutation_scale=15 if main else 13,
+                               shrinkA=0, shrinkB=1))
 
 
 if args.arrow:
@@ -388,8 +396,10 @@ for k, (r, h, eh) in enumerate(zip(rows, hs, ehs)):
             label(a, r["pname"], bold=True, fs=13)
             label(a, c, bold=True, line=1, fs=13, hh=h)
             bL.imshow(crop(D(r["g2"], axis), z), **gkw)
-            if args.arrow:
+            if args.arrow and args.arrow_on == "zoom":
                 arrow_at(bL, r["arrow"], z)
+            elif args.arrow:
+                arrow_at(a, r["arrow"], z, True, D(r["g2"], axis).shape)
             zframe(bL)
             bR.set_facecolor("black")
             bR.imshow(D(mask3.take(kcen[axis], axis=axis), axis), cmap="gray", vmin=0, vmax=1, interpolation="nearest", **IMKW)
@@ -410,8 +420,10 @@ for k, (r, h, eh) in enumerate(zip(rows, hs, ehs)):
         emap = D(emap, axis)
         bL.imshow(crop(D(v, axis), z), **gkw)
         im = bR.imshow(crop(emap, z), cmap=args.err_cmap, vmin=0.0, vmax=args.err_vmax, **IMKW)
-        if args.arrow:
+        if args.arrow and args.arrow_on == "zoom":
             arrow_at(bL, r["arrow"], z); arrow_at(bR, r["arrow"], z)
+        elif args.arrow:
+            arrow_at(a, r["arrow"], z, True, D(v, axis).shape)
         zframe(bL); zframe(bR)
         if k == 0:
             a.set_title(lab if "SPIRiT" in lab else lab.upper(), fontsize=args.title_fs, pad=4)
@@ -433,7 +445,7 @@ fig.text(0.5, 1 - cap_y / fh, "\n".join(cap_lines), ha="center", va="top", fonts
 stem = f"t1flair_af{args.af}_three_planes_{t_}_{c_}_{s_}_record_format" + ("_indep_single" if args.single == "indep" else "") \
     + ("_zoomsel" if args.box_centres else "") + (f"_err{args.err_vmax:g}" if args.err_vmax != 0.1 else "") \
     + (f"_mean{args.zoom_err_smooth}" if args.zoom_err_smooth else "") \
-    + (f"_{args.err_cmap}" if args.err_cmap != "jet" else "") + ("_arrow" if args.arrow else "")
+    + (f"_{args.err_cmap}" if args.err_cmap != "jet" else "") + ("_arrow" if args.arrow else "") + ("main" if args.arrow and args.arrow_on == "main" else "")
 if args.arrow:
     record["arrows"] = [dict(plane=r["pname"], contrast=r["c"], crop_xy=r["arrow"], gap=r["arrow_gap"]) for r in rows]
 record["error_display"] = dict(vmax=args.err_vmax, zoom_local_mean=args.zoom_err_smooth)
