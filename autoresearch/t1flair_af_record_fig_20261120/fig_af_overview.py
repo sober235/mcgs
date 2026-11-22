@@ -37,6 +37,9 @@ ap.add_argument("--nfig", action="store_true",
                      "glyph floor, values printed only in the two rows the claim rests on (GS-single, MC-GS) with a "
                      "colour scale per block, no number above each violin, render-time panel-alignment gate, "
                      "SVG / PDF / TIFF / PNG export and source-data CSV files; every number unchanged")
+ap.add_argument("--key_rows_only", action="store_true",
+                help="with --nfig: print values only in the GS-single and MC-GS rows and draw a colour scale under each "
+                     "block (the skill's default); without it every cell is printed (user, 2026-11-22) and no scale is drawn")
 ap.add_argument("--nature", action="store_true",
                 help="Nature house style (user, 2026-11-22; implies --article): 183 mm wide, sans-serif 5-7 pt, bold "
                      "lower-case panel letters, white background, no in-figure title or caption (the legend goes to "
@@ -73,6 +76,7 @@ LABELS = [m for m, _ in METHODS]
 NONGS = [m for m in LABELS if m not in ("GS-single", "MC-GS")]
 log = lambda *a: print(*a, flush=True)
 SK = args.nfig
+KEYROWS = SK and args.key_rows_only
 NAT = args.nature or SK
 args.article = args.article or NAT
 art = Path(os.environ.get("MCGS_ARTIFACT_DIR", "af_overview_out")).resolve()
@@ -192,7 +196,7 @@ SHOW = (lambda m, v: 100.0 * v if (SK and m == "nmse") else v)      # skill edit
 MET = [("psnr", "PSNR (dB)", "{:.2f}"), ("ssim", "SSIM", "{:.3f}"),
        ("nmse", "NMSE (%)", "{:.2f}") if SK else ("nmse", "NMSE", "{:.4f}")]
 if NAT:
-    fig = plt.figure(figsize=(7.2, 6.3 if SK else 6.15))                  # 183 mm, the double-column width; compact (user, 2026-11-22)
+    fig = plt.figure(figsize=(7.2, 6.3 if KEYROWS else 6.15))                  # 183 mm, the double-column width; compact (user, 2026-11-22)
     gs_top = fig.add_gridspec(1, 2, left=0.082, right=0.999, top=0.998, bottom=0.588, wspace=0.185)
     gs_bot = fig.add_gridspec(2, 3, left=0.062, right=0.997, top=0.528, bottom=0.058, hspace=0.36, wspace=0.26)
 else:
@@ -219,18 +223,23 @@ def heat(ax, c, tag):
                 ax.add_patch(Rectangle((x, i), 0.96, 0.92, fc=col, ec=SURF, lw=0))
                 dark = (lab != "ZF") and (0.08 + 0.92 * v) > 0.55
                 best = REC["mcgs_first_every_column"][f"{c}|{m}|AF{af}"] == lab
-                if not SK or lab in ("GS-single", "MC-GS"):
+                if not KEYROWS or lab in ("GS-single", "MC-GS"):
                     ax.text(x + 0.48, i + 0.47, fmt.format(SHOW(m, vals[i, j])), ha="center", va="center", fontsize=Z["cell"],
                             color="#ffffff" if dark else INK, fontweight="bold" if best else "normal")
                 if best and not SK:
                     ax.add_patch(Rectangle((x + 0.03, i + 0.03), 0.90, 0.86, fill=False, ec=INK, lw=Z["best_lw"]))
-        if SK:                      # the colour scale of this block: worst method other than ZF -> best method
+        if KEYROWS:                   # the colour scale of this block: worst method other than ZF -> best method
             cax = ax.inset_axes([xs[b * 4], len(LABELS) + 0.3, 3.96, 0.26], transform=ax.transData)
             cax.imshow(np.linspace(0.08, 1.0, 256)[None, :], cmap=CMAP, vmin=0, vmax=1, aspect="auto", extent=(0, 1, 0, 1))
             cax.set_yticks([]); cax.set_xticks([0, 1])
             cax.set_xticklabels([fmt.format(SHOW(m, -lo if m == "nmse" else lo)), fmt.format(SHOW(m, -hi if m == "nmse" else hi))], fontsize=5.5)
             for t_, ha_ in zip(cax.get_xticklabels(), ("left", "right")):
                 t_.set_ha(ha_)
+            cax.tick_params(length=1.5, width=0.5, pad=1)
+            for sp in cax.spines.values():
+                sp.set_linewidth(0.4)
+            CBARS.append(cax)
+        if SK:
             # one outline around the run of columns in which a method is the best (no stroke between its numbers)
             for i, lab in enumerate(LABELS):
                 run = [j for j, af in enumerate(AFS) if REC["mcgs_first_every_column"][f"{c}|{m}|AF{af}"] == lab]
@@ -239,16 +248,12 @@ def heat(ax, c, tag):
                     while j1 + 1 in run:
                         j1 += 1
                     ax.add_patch(Rectangle((xs[b * 4 + j0] + 0.02, i + 0.02), (j1 - j0) + 0.92, 0.88, fill=False, ec=INK, lw=Z["best_lw"]))
-            cax.tick_params(length=1.5, width=0.5, pad=1)
-            for sp in cax.spines.values():
-                sp.set_linewidth(0.4)
-            CBARS.append(cax)
         xc = xs[b * 4] + 2 - 0.02
         ax.text(xc, -1.05, mname, ha="center", va="center", fontsize=Z["met"], color=INK, fontweight="bold")
         for j, af in enumerate(AFS):
             ax.text(xs[b * 4 + j] + 0.48, -0.35, f"{af}" if NAT else f"AF{af}", ha="center", va="center", fontsize=Z["afh"], color=INK2)
     ax.set_xlim(-0.1, xs[-1] + 1.05)
-    ax.set_ylim(len(LABELS) + (1.25 if SK else 0.02), -1.32 if NAT else -1.5)
+    ax.set_ylim(len(LABELS) + (1.25 if KEYROWS else 0.02), -1.32 if NAT else -1.5)
     ax.set_yticks(np.arange(len(LABELS)) + 0.46)
     ax.set_yticklabels(LABELS, fontsize=Z["ylab"])
     for t, lab in zip(ax.get_yticklabels(), LABELS):
@@ -346,13 +351,18 @@ if not NAT:
          "(one scan fed to both channels of the joint model); ZS-SSDU with 5 residual blocks.",
          ha="left", fontsize=10, color=INK2)
 
-stem = "t1flair_af12_16_20_24_overview_psnr_ssim_nmse" + ("_nfig" if SK else "_nature" if NAT else "_article" if args.article else "")
-if SK:
+stem = "t1flair_af12_16_20_24_overview_psnr_ssim_nmse" + ("_nfig_keyrows" if KEYROWS else "_nfig" if SK else "_nature" if NAT else "_article" if args.article else "")
+if SK and not KEYROWS:
+    CAP_AB = ("Colour: value on one scale per metric block (darker = better; NMSE in per cent, its scale inverted); zero "
+              "filling (ZF) is below the scale and shown lightest. Bold with an outline = best of the 11 methods in that "
+              "column. One vd-Poisson mask per acceleration factor for both contrasts.")
+if KEYROWS:
     CAP_AB = ("Colour: value on the scale drawn under each block, from the weakest method other than zero filling (ZF, "
               "off the scale, lightest) to the best method; NMSE in per cent, its scale inverted so that darker is better in every block. "
               "Values are printed for MC-GS and the strongest comparison, GS-single; bold and outlined = best of the 11 "
               "methods in that column. All values are in the source data. One vd-Poisson mask per acceleration factor "
               "for both contrasts.")
+if SK:
     ws = [v["win_share"] for v in REC["slices"].values() if isinstance(v, dict)]
     CAP_C = (f"n = {NSL} slices per contrast and acceleration factor (transverse, coronal and sagittal slices whose head "
              "covers >= 5% of the slice; slices of one volume, not independent subjects). Above the dashed line = MC-GS "
