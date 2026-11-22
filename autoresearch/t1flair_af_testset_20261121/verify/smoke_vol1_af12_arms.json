@@ -42,7 +42,7 @@
           "cmd": [
             "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
             "-u",
-            "/home/congcongliu/.cache/mcgs-vscode/jobs/j-20261122T084222-caf643d8/code/autoresearch/t1flair_af_testset_20261121/run_arms.py",
+            "<job-dir>/code/autoresearch/t1flair_af_testset_20261121/run_arms.py",
             "--score_mcinr",
             "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12",
             "--af",

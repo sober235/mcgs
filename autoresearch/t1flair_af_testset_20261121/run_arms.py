@@ -38,8 +38,15 @@ import sys
 import tempfile
 from pathlib import Path
 
+import re
+
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+# gpu.py runs this file from a per-job source copy whose directory name carries a server clock value; records and
+# log lines name the repo copy by its repo-relative path instead (time rule)
+SRC_ROOT = HERE.parents[1]
+SELF_REL = "autoresearch/t1flair_af_testset_20261121/run_arms.py"
+JOB_CLOCK = re.compile(r"j-[0-9]{8}T[0-9]{6}")
 from ts_common import AFS, FROZEN, JYZ_TOPIC, MASK, OUT, SCANS, claim, sha256   # noqa: E402
 from make_topics import check_topic, make_topic, topic_dir                      # noqa: E402
 
@@ -75,6 +82,13 @@ def parse_row(row):
     assert scan in SCANS or (scan == "jyz" and af == "20"), row
     assert int(af) in AFS and arm in ARMS, row
     return scan, int(af), arm
+
+
+def shown(cmd):
+    """a command as it may be logged or recorded: paths inside the job's source copy become repo-relative"""
+    out = [a.replace(str(SRC_ROOT) + "/", "") for a in cmd]
+    assert not any(JOB_CLOCK.search(a) for a in out), out
+    return out
 
 
 def job(name, cmd, outs, partial=()):
@@ -321,6 +335,22 @@ def selftest():
     cfg = yaml.safe_load(open(MCINR / "mcinr/niessen2025/config_direct_inr.yaml"))["training"]
     assert int(cfg["train_iters"]) == SET["mcinr_steps"] and float(cfg["train_lr"]) == SET["mcinr_lr"], cfg
     check_mcinr_repo()
+    # what goes into records and log lines carries no job directory and no job clock (time rule)
+    raw_clock, recs = False, []
+    for row in FORMAL_ROWS + CONTROL_ROWS:
+        for j in arm_plan(OUT, row, "5")[0]:
+            raw_clock |= any(JOB_CLOCK.search(a) for a in j["cmd"])
+            recs.append(dict(job=j["name"], cmd=shown(j["cmd"]), log=str(OUT / "x.log")))
+            if j["name"] == "mcinr_score":
+                assert shown(j["cmd"])[2] == SELF_REL, shown(j["cmd"])[:3]
+    text = json.dumps(dict(root=str(OUT), gpu="5", runs=recs), default=str)
+    assert not JOB_CLOCK.search(text) and str(SRC_ROOT) not in text
+    try:
+        shown(["j-" + "20990101T000000" + "-0000abcd"])     # a synthetic id, split so a grep finds no clock here
+        raise SystemExit("shown() must refuse a job clock outside the source copy")
+    except AssertionError:
+        pass
+    print(f"record check: raw commands carried a job clock: {raw_clock}; recorded commands: none")
     # claims, states and release on a throw-away root
     tmp = Path(tempfile.mkdtemp(dir=OUT, prefix="selftest_arms_"))
     try:
@@ -355,17 +385,17 @@ def run_job(j, cwd, env, record):
     logf = Path(cwd) / "logs" / f"run_{j['name']}.log"
     if all(have):
         log(f"-- {j['name']}: all outputs present (finished before), skipped")
-        record.append(dict(job=j["name"], cmd=j["cmd"], rc="skipped_complete"))
+        record.append(dict(job=j["name"], cmd=shown(j["cmd"]), rc="skipped_complete"))
         return True
     if any(have) or any(p.exists() for p in j["partial"]) or logf.exists():
         log(f"-- {j['name']}: partial outputs or an old log exist; refusing to overwrite, remove by hand")
-        record.append(dict(job=j["name"], cmd=j["cmd"], rc="refused_partial"))
+        record.append(dict(job=j["name"], cmd=shown(j["cmd"]), rc="refused_partial"))
         return False
-    log(f"   {' '.join(j['cmd'])}")                       # no server clock or durations in logs (time rule)
+    log(f"   {' '.join(shown(j['cmd']))}")                       # no server clock or durations in logs (time rule)
     with open(logf, "w") as lf:
         rc = subprocess.run(j["cmd"], cwd=cwd, env=env, stdout=lf, stderr=subprocess.STDOUT).returncode
     ok = rc == 0 and all(o.exists() for o in j["outs"])
-    record.append(dict(job=j["name"], cmd=j["cmd"], rc=rc, log=str(logf)))
+    record.append(dict(job=j["name"], cmd=shown(j["cmd"]), rc=rc, log=str(logf)))
     if not ok:
         log(f"   {j['name']} FAILED rc={rc}; see {logf} (not echoed: script logs carry durations)")
     return ok
