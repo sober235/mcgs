@@ -3,6 +3,7 @@
 
     mevaluate.py --feas          the feasibility check (design section 10 step 1): DTa under the interleaved order
     mevaluate.py --dev TAG       report of a development round
+    mevaluate.py --all           the formal matrix: criteria S1-S4, written to <root>/eval/summary.json
 
 Scores. The frozen scorer inserts every sampled line (ledger head_psnr). An arm that weights the echo trains
 (M2 adaptive or truth) is scored on the image with only the kept lines inserted (w >= 0.5, reference state):
@@ -17,7 +18,7 @@ from pathlib import Path
 import numpy as np
 
 import weights
-from mcommon import ARMS2, CONDITIONS2, DATA2, LEDGER2, REG2, RES2, THRESH2, c1
+from mcommon import ARMS2, CONDITIONS2, DATA2, FORMAL, LEDGER2, MATRIX2, REG2, RES2, ROOT2, THRESH2, c1, exp_name
 
 log = lambda *a: print(*a, flush=True)
 
@@ -93,7 +94,7 @@ def weight_detection(mm, truth):
     trains that are handled; frac_w1 = share of all trains with w = 1; auc of the last statistic z for the
     contaminated trains."""
     w = np.asarray(mm["m2"]["w"], dtype=np.float64)
-    cont = np.asarray(truth["contaminated"], dtype=bool)
+    cont = np.asarray(truth.get("contaminated", [False] * w.size), dtype=bool)   # no per-train truth: all clean
     handled = w < 0.5
     if mm.get("m3") and mm["m3"].get("n", 1) > 1:
         handled = handled | (np.asarray(mm["m3"]["state_of_train"]) != 0)
@@ -141,8 +142,10 @@ def inter_errors(st, truth_inter, disp, pre, brain):
     st: the adapter's saved state; truth_inter: geom.Rigid of a rigid-only truth, or None when `disp` is given;
     disp: the truth's total displacement field (*shape, 3) in mm when it has a non-rigid part; pre: geom.Rigid, the
     transform found without simulated motion (the registration of C0), so the truth is (simulated motion) o pre
-    -- the differential basis of the first version. Returns the errors of the rigid part alone, of rigid + control
-    grid, and the largest control-grid displacement in the brain."""
+    -- the differential basis of the first version. Returns, against the whole true field, the errors of the rigid
+    part alone (`rigid`) and of rigid + control grid (`full`); `rigid_part` = the estimated rigid part against the
+    truth's rigid part alone (None when truth_inter is not given); and the largest control-grid displacement in the
+    brain."""
     import evaluate as ev1
     import geom
     import warp
@@ -152,10 +155,11 @@ def inter_errors(st, truth_inter, disp, pre, brain):
     y = x0 + warp._interp_field(np.asarray(disp, dtype=np.float64), x0) if disp is not None else truth_inter.apply(x0)
     d_true = y - r
     d_rigid = ev1.rigid_of(st).apply(r) - r
+    part = None if truth_inter is None else ev1.field_errors(d_rigid, truth_inter.apply(x0) - r, brain)
     d_full = ev1.est_field(st, brain.shape)
     u = np.linalg.norm(ev1.est_field(st, brain.shape, part="nonrigid"), axis=-1)[brain]
-    return dict(rigid=ev1.field_errors(d_rigid, d_true, brain), full=ev1.field_errors(d_full, d_true, brain),
-                nonrigid_brain_max_mm=float(u.max()))
+    return dict(rigid_part=part, rigid=ev1.field_errors(d_rigid, d_true, brain),
+                full=ev1.field_errors(d_full, d_true, brain), nonrigid_brain_max_mm=float(u.max()))
 
 
 def inter_report(exp, order, cond):
@@ -163,9 +167,8 @@ def inter_report(exp, order, cond):
     has no simulated inter-scan transform)."""
     import geom
     import reg
-    spec = CONDITIONS2[cond]
     p = RES2 / f"{exp}_motion.json"
-    cdir = c1.DATA / spec["v1_data"] if spec["v1_data"] else DATA2 / order / cond
+    cdir = _cdir(order, cond)
     truth = json.loads((cdir / "motion_truth.json").read_text()) if (cdir / "motion_truth.json").exists() else {}
     if not p.exists() or not truth.get("inter"):
         return None
@@ -181,8 +184,14 @@ def _load_mm(exp):
     return json.loads(p.read_text()) if p.exists() else None
 
 
+def _cdir(order, cond):
+    """Data directory of a condition (the first version's for the conditions taken from it)."""
+    v1 = CONDITIONS2[cond]["v1_data"]
+    return c1.DATA / v1 if v1 else DATA2 / order / cond
+
+
 def _truth(order, cond):
-    return json.loads((DATA2 / order / cond / "motion_truth.json").read_text())
+    return json.loads((_cdir(order, cond) / "motion_truth.json").read_text())
 
 
 def feasibility(tab, mm=None, truth=None):
@@ -223,7 +232,7 @@ def dev_report(tab, tag):
             truth = _truth(r["order"], r["cond"])
             d["weights"] = weight_detection(mm, truth)
             if mm.get("m3"):
-                brain = np.load(DATA2 / r["order"] / r["cond"] / "brain.npy")
+                brain = np.load(_cdir(r["order"], r["cond"]) / "brain.npy")
                 d["states"] = state_errors(mm, truth, brain)
                 d["states_init"] = state_errors(mm, truth, brain, poses="init_poses")
                 d["states_identity"] = state_errors(mm, truth, brain, poses="identity")
@@ -236,10 +245,250 @@ def dev_report(tab, tag):
     return out
 
 
+# ------------------------------------------------------------------------------------------------ criteria
+def _item(value, threshold, sense, **extra):
+    """One checked number. pass is None when the value is missing, never True."""
+    if value is None:
+        ok = None
+    else:
+        ok = bool(value >= threshold if sense == ">=" else value <= threshold if sense == "<=" else value == threshold)
+    return dict(value=value, threshold=threshold, sense=sense, **{"pass": ok}, **extra)
+
+
+def _all(parts):
+    """None while any part is undecided, else whether all hold."""
+    parts = list(parts)
+    return None if (not parts or any(p is None for p in parts)) else all(parts)
+
+
+def _diff(tab, a, b, c):
+    """value(a) - value(b) for contrast c; a, b = (order, cond, arm); None when one is missing."""
+    x, y = val(tab, *a, c=c), val(tab, *b, c=c)
+    return None if x is None or y is None else x - y
+
+
+def _s1(s):
+    """Zero motion (C0, both orders): every arm against the unchanged model of its kind."""
+    tab, T, arms = s["table"], THRESH2, {}
+    for order, cond, arm in MATRIX2["gate"]:
+        single = ARMS2[arm]["trainer"] == "single"
+        base = ("il", "C0", "I-T2" if single else "B0")
+        exp = exp_name("af12", order, cond, arm)
+        st = s["states"].get(exp)
+        n_states = st["n_states"] if st else (None if ARMS2[arm]["m3"] else 1)
+        it = dict(dT1=_item(None if single else _diff(tab, (order, cond, arm), base, "T1"), T["s1_psnr"], ">="),
+                  dT2=_item(_diff(tab, (order, cond, arm), base, "T2"), T["s1_psnr"], ">="),
+                  frac_w1=_item((s["weights"].get(exp) or {}).get("frac_w1"), T["s1_w1_frac"], ">="),
+                  n_states=_item(n_states, 1, "<="))
+        it["pass"] = _all(v["pass"] for k, v in it.items() if not (single and k == "dT1"))
+        arms[f"{order}:{arm}"] = it
+    out = dict(arms=arms)
+    out["pass"] = _all(a["pass"] for a in arms.values())
+    r = (s.get("reg") or {}).get("il", {}).get("C0")
+    if r:                                   # reported only: what the registration finds on the unmoved head
+        import geom
+        out["registration"] = dict(
+            t_minus_native_mm=float(np.linalg.norm(np.asarray(r["t_mm"]) - np.asarray(c1.NATIVE_SHIFT_MM))),
+            rot_deg=float(np.rad2deg(np.linalg.norm(geom.axis_angle(geom.rotmat(np.deg2rad(r["theta_deg"])))))))
+    return out
+
+
+def _s2(s):
+    """Inter-scan (E2): registration error on the differential basis and the normalised change of PSNR.
+    Normalised delta = PSNR(arm, E2) - PSNR(arm, C0); for T2 minus the same difference of the independent model."""
+    tab, T, arms = s["table"], THRESH2, {}
+    d_ind = _diff(tab, ("il", "E2", "I-T2"), ("il", "C0", "I-T2"), "T2")
+    for arm in ("B0", "B1", "B123"):
+        e = s["inter"].get(exp_name("af12", "il", "E2", arm)) or {}
+        tre = lambda k: (e.get(k) or {}).get("tre_mean_mm")
+        d1 = _diff(tab, ("il", "E2", arm), ("il", "C0", arm), "T1")
+        d2 = _diff(tab, ("il", "E2", arm), ("il", "C0", arm), "T2")
+        it = dict(tre_rigid=_item(tre("rigid_part"), T["s2_tre_rigid"], "<="),
+                  tre_full=_item(tre("full"), T["s2_tre_nonrigid"], "<=", rigid_alone=tre("rigid"),
+                                 nonrigid_brain_max_mm=e.get("nonrigid_brain_max_mm")),
+                  delta_T1=_item(d1, T["s2_dT1"], ">="),
+                  delta_T2=_item(None if d2 is None or d_ind is None else d2 - d_ind, T["s2_dT2"], ">=", raw=d2,
+                                 independent=d_ind))
+        if arm == "B0":                     # the unchanged model has no transform: reported, not judged
+            for v in it.values():
+                v["pass"] = None
+            it["pass"] = None
+        else:
+            it["pass"] = _all(v["pass"] for v in it.values())
+        arms[arm] = it
+    return dict(arms=arms, **{"pass": _all(arms[a]["pass"] for a in ("B1", "B123"))})
+
+
+def _s3(s):
+    """Intra-scan, interleaved order: the full arm on Ta, Tb, Tc and E2Tb."""
+    tab, T, conds = s["table"], THRESH2, {}
+    for cond in ("Ta", "Tb", "Tc", "E2Tb"):
+        exp = exp_name("af12", "il", cond, "B123")
+        r = recovered(tab, "il", cond, "B123") or {}
+        w = s["weights"].get(exp) or {}
+        it = dict(recovered=_item(r.get("value"), T["s3_recover"], ">=", loss=r.get("loss"), b0_c0=r.get("b0_c0"),
+                                  b0=r.get("b0"), arm_psnr=r.get("arm_psnr")),
+                  recall=_item(w.get("recall"), T["s3_recall"], ">="),
+                  false_rate=_item(w.get("false_rate"), T["s3_false"], "<="))
+        if cond == "Tc":
+            st = s["states"].get(exp)
+            if st:
+                found = st["n_states"] == st["n_true"]
+                it["n_states"] = _item(st["n_states"], st["n_true"], "==")
+                it["pose_deg"] = _item(st["rot_err_deg_max"], T["s3_pose_deg"], "<=")
+                it["pose_mm"] = _item(st["t_err_mm_max"], T["s3_pose_mm"], "<=", boundary_err_trains=st["boundary_err_trains"])
+                if not found:               # no pose to compare: the shift was not found as one state
+                    it["pose_deg"]["pass"] = it["pose_mm"]["pass"] = False
+            else:
+                it["n_states"], it["pose_deg"], it["pose_mm"] = (_item(None, 2, "=="), _item(None, T["s3_pose_deg"], "<="),
+                                                                  _item(None, T["s3_pose_mm"], "<="))
+        skipped = r.get("loss") is not None and r["loss"] < T["min_loss_db"]
+        if skipped:
+            for v in it.values():
+                v["pass"] = None
+            it["note"] = (f"B0 loses only {r['loss']:.3f} dB against C0: the problem is not significant at this "
+                          f"amplitude; not counted")
+        parts = [v["pass"] for v in it.values() if isinstance(v, dict)]
+        it["pass"], it["skipped"] = (None if skipped else _all(parts)), skipped
+        it["others"] = {a: (recovered(tab, "il", cond, a) or {}).get("value") for a in ("B2", "B12", "Ow", "Op")
+                        if val(tab, "il", cond, a) is not None}
+        conds[cond] = it
+    return dict(conds=conds, **{"pass": _all(c["pass"] for c in conds.values() if not c["skipped"])})
+
+
+def _s4(s):
+    """Lesions (TbL against Tb): contrast recovery of the full arm against the unchanged model, and crosstalk."""
+    b0, b = (s.get("lesions") or {}).get("B0"), (s.get("lesions") or {}).get("B123")
+    if not b0 or not b:
+        return {"pass": None}
+    ref = {x["label"]: x["contrast_recovery"] for x in b0}
+    per = [dict(label=x["label"], contrast=x["contrast"], b123=x["contrast_recovery"], b0=ref.get(x["label"]))
+           for x in b if x["contrast_recovery"] is not None and ref.get(x["label"]) is not None]
+    xt = [abs(x["crosstalk"]) - x["crosstalk_tol"] for x in b if x.get("crosstalk") is not None]
+    out = dict(recovery_vs_B0=_item(min((p["b123"] - p["b0"] for p in per), default=None), -THRESH2["s4_recovery_drop"],
+                                    ">=", per_lesion=per),
+               crosstalk=_item(max(xt, default=None), 0.0, "<="))
+    out["pass"] = _all(v["pass"] for v in out.values())
+    return out
+
+
+def _kz(s):
+    """Linear order: reported only. no_harm = the full arm is not more than kz_harm below the unchanged model."""
+    tab, out = s["table"], {}
+    for cond in ("Ta", "Tc"):
+        v = _diff(tab, ("kz", cond, "B123"), ("kz", cond, "B0"), "T2")
+        out[cond] = dict(value=v, threshold=THRESH2["kz_harm"], sense=">=", no_harm=None if v is None else bool(v >= THRESH2["kz_harm"]),
+                         loss=_diff(tab, ("il", "C0", "B0"), ("kz", cond, "B0"), "T2"),
+                         others={a: _diff(tab, ("kz", cond, a), ("kz", cond, "B0"), "T2") for a in ("Ow", "Op")
+                                 if val(tab, "kz", cond, a) is not None}, **{"pass": None})
+    return out
+
+
+def criteria(summary):
+    """S1-S4 of design section 11 and the linear-order report. summary: dict(table, weights, states, inter, lesions,
+    reg). Every checked number is dict(value, threshold, sense, pass); a missing input gives pass None, never True."""
+    return dict(S1=_s1(summary), S2=_s2(summary), S3=_s3(summary), S4=_s4(summary), kz=_kz(summary))
+
+
+CLOCK_WORDS = ("time", "elapsed", "timestamp", "date")
+
+
+def clock_keys(obj, path=""):
+    """Paths of all keys whose name contains a clock word (the summary must have none)."""
+    out = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            p = f"{path}.{k}" if path else str(k)
+            if any(w in str(k).lower() for w in CLOCK_WORDS):
+                out.append(p)
+            out += clock_keys(v, p)
+    elif isinstance(obj, (list, tuple)):
+        for i, v in enumerate(obj):
+            out += clock_keys(v, f"{path}[{i}]")
+    return out
+
+
+# ------------------------------------------------------------------------------------------------ summary
+def _vols2(exp, arm):
+    """{"T1": (rec, gt), "T2": (rec, gt)} of one run. T2 of an arm with echo-train weights is its evaluated image
+    (only the kept lines inserted), as in head_psnr_eval."""
+    p = RES2 / f"{exp}_volumes.npz"
+    if not p.exists():
+        return None
+    with np.load(p) as v:
+        out = {"T2": (v["rec"], v["gt"])} if ARMS2[arm]["trainer"] == "single" else \
+            {"T1": (v["recT1"], v["gtT1"]), "T2": (v["recFL"], v["gtFL"])}
+    canon = RES2 / f"{exp}_canon.npz"
+    if weighted(arm) and canon.exists():
+        with np.load(canon) as z:
+            if "rec_w_dc" in z.files:
+                out["T2"] = (np.abs(z["rec_w_dc"]).astype(np.float32), out["T2"][1])
+    return out
+
+
+def lesion_report(order="il", cond="TbL", ref_cond="Tb", arms=("B0", "B123", "I-T2")):
+    """Lesion numbers (first version's evaluate.lesion_rows) of the runs on `cond`, with the same arm's run on
+    `ref_cond` as the run without lesions. {} when the condition was not built."""
+    import evaluate as ev1
+    cdir = _cdir(order, cond)
+    if not (cdir / "lesion_mask_T2.npy").exists():
+        return {}
+    truth = json.loads((cdir / "motion_truth.json").read_text())
+    masks = dict(T1=np.load(cdir / "lesion_mask_canon.npy"), T2=np.load(cdir / "lesion_mask_T2.npy"))
+    out = {}
+    for arm in arms:
+        v = _vols2(exp_name("af12", order, cond, arm), arm)
+        if v is not None:
+            out[arm] = ev1.lesion_rows(v, _vols2(exp_name("af12", order, ref_cond, arm), arm) or {}, truth, masks)
+    return out
+
+
+def build_summary():
+    """Everything the result tables need, from the formal runs (untagged, seed 42; the development conditions are
+    not in it). No clock key anywhere (asserted)."""
+    formal = [exp_name("af12", *row) for row in FORMAL]
+    tab = [r for r in table(load_ledger()) if r["exp"] in set(formal)]
+    weights_, states, inter = {}, {}, {}
+    for r in tab:
+        mm = _load_mm(r["exp"])
+        if mm is None:
+            continue
+        truth = _truth(r["order"], r["cond"])
+        weights_[r["exp"]] = weight_detection(mm, truth)
+        if mm.get("m3"):
+            brain = np.load(_cdir(r["order"], r["cond"]) / "brain.npy")
+            states[r["exp"]] = dict(state_errors(mm, truth, brain), boundaries=mm["m3"].get("boundaries"),
+                                    init=state_errors(mm, truth, brain, poses="init_poses"),
+                                    identity=state_errors(mm, truth, brain, poses="identity"),
+                                    final_poses=mm["m3"].get("final_poses"))
+        e = inter_report(r["exp"], r["order"], r["cond"])
+        if e is not None:
+            inter[r["exp"]] = e
+    reg = {}
+    for p in sorted(REG2.glob("af12_*.json")):
+        _, order, cond = p.stem.split("_", 2)
+        d = json.loads(p.read_text())
+        reg.setdefault(order, {})[cond] = {k: d[k] for k in ("theta_deg", "t_mm", "cost", "check") if k in d}
+    rec = {}
+    for r in tab:
+        if r["cond"] != "C0":
+            base = "I-T2" if ARMS2[r["arm"]]["trainer"] == "single" else "B0"
+            rec.setdefault(f"{r['order']}:{r['cond']}", {})[r["arm"]] = recovered(tab, r["order"], r["cond"], r["arm"],
+                                                                                 base=base)
+    s = dict(af="af12", n_formal=len(formal), n_runs=len(tab), missing=[e for e in formal if e not in {r["exp"] for r in tab}],
+             thresholds=dict(THRESH2), table=tab, weights=weights_, states=states, inter=inter, reg=reg, recovered=rec,
+             lesions=lesion_report())
+    s["criteria"] = criteria(s)
+    bad = clock_keys(s)
+    assert not bad, f"clock keys in the summary: {bad}"
+    return s
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--feas", action="store_true")
     ap.add_argument("--dev", metavar="TAG", help="development round, e.g. d1; '' = the untagged rows")
+    ap.add_argument("--all", action="store_true", help="formal matrix -> <root>/eval/summary.json")
     args = ap.parse_args()
     tab = table(load_ledger())
     if args.feas:
@@ -256,6 +505,17 @@ def main():
         log(f"FEASIBILITY decision: {f['decision']}")
     elif args.dev is not None:
         log(json.dumps(dev_report(tab, args.dev), indent=1))
+    elif args.all:
+        s = build_summary()
+        out = ROOT2 / "eval" / "summary.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(s, indent=1) + "\n")
+        c = s["criteria"]
+        log(f"summary: {s['n_runs']} of {s['n_formal']} formal runs; missing {s['missing']}")
+        for k in ("S1", "S2", "S3", "S4"):
+            log(f"{k}: pass = {c[k]['pass']}")
+        log("kz: " + json.dumps({k: (v["value"], v["no_harm"]) for k, v in c["kz"].items()}))
+        log(f"wrote {out}")
     else:
         ap.error("nothing to do")
 

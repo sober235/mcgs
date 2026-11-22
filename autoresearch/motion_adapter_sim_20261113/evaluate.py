@@ -342,6 +342,13 @@ def lesion_metrics(af, arm, cond="E3", ref_cond="E2", data=None):
     DATA = data or globals()["DATA"]
     truth = json.loads((DATA / cond / "motion_truth.json").read_text())
     masks = dict(T1=np.load(DATA / cond / "lesion_mask_canon.npy"), T2=np.load(DATA / cond / "lesion_mask_T2.npy"))
+    return lesion_rows(v, v0, truth, masks)
+
+
+def lesion_rows(v, v0, truth, masks):
+    """The numbers of lesion_metrics from volumes in memory. v, v0: {"T1": (rec, gt), "T2": (rec, gt)} of the run with
+    lesions and of the run without (v0 may lack a contrast or be empty); truth: the condition's motion_truth
+    (lesion_sites); masks: {"T1": labels in the canonical frame, "T2": labels in the T2 frame}."""
     out = []
     for k, site in enumerate(truth["lesion_sites"], start=1):
         own = site["contrast"]

@@ -172,6 +172,7 @@ def test_inter_errors():
               segments=[], ref_segment=0)
     e = ev.inter_errors(st, g, None, pre, brain)
     assert e["rigid"]["tre_mean_mm"] < 1e-9 and e["full"]["tre_mean_mm"] < 1e-9 and e["nonrigid_brain_max_mm"] == 0.0
+    assert e["rigid_part"]["tre_mean_mm"] < 1e-9
     st0 = dict(st, theta_deg=[0.0, 0.0, 0.0], t_mm=pre.t.tolist())        # the pose of the unmoved head
     e0 = ev.inter_errors(st0, g, None, pre, brain)
     r = geom.grid_mm(shape)[brain]
@@ -182,7 +183,11 @@ def test_inter_errors():
     disp[..., 0] = 0.6 * (geom.grid_mm(shape)[..., 1] / 16.0)             # shear-like, 0.6 mm at the edge
     total = (g.apply(geom.grid_mm(shape) + disp) - geom.grid_mm(shape))   # displacement field of (g o (1 + u))
     e1 = ev.inter_errors(st, None, total, pre, brain)
-    assert 0.05 < e1["rigid"]["tre_mean_mm"] < 0.6
+    assert 0.05 < e1["rigid"]["tre_mean_mm"] < 0.6 and e1["rigid_part"] is None
+    # with the truth's rigid part given too: the estimated rigid part is judged against it alone
+    e1r = ev.inter_errors(st, g, total, pre, brain)
+    assert e1r["rigid_part"]["tre_mean_mm"] < 1e-9 and abs(e1r["rigid"]["tre_mean_mm"] - e1["rigid"]["tre_mean_mm"]) < 1e-12
+    assert ev.inter_errors(st0, g, total, pre, brain)["rigid_part"]["tre_mean_mm"] > 0.5
     ctrl = np.zeros((5, 5, 5, 3))
     ctrl[..., 0] = 0.6 * np.linspace(-1, 1, 5)[None, :, None]             # the same shear on the control grid
     e2 = ev.inter_errors(dict(st, ctrl_mm=ctrl.tolist()), None, total, pre, brain)
@@ -200,3 +205,34 @@ def test_state_errors_of_the_initial_poses_and_of_no_correction():
     e0 = ev.state_errors(dict(m3=m3), _tc_truth(), brain, poses="identity")   # what no state pose at all would leave
     assert abs(e0["rot_err_deg_max"] - 1.0) < 1e-6 and abs(e0["t_err_mm_max"] - 0.5) < 1e-9
     assert e0["tre_mean_mm_max"] > e["tre_mean_mm_max"] > 0.0
+
+
+def test_lesion_rows_from_volumes():
+    """The lesion numbers of the first version, computed from volumes held in memory (so that the second version can
+    use them with its own file names): recovery in the own contrast, crosstalk in the other one against a run
+    without lesions."""
+    import evaluate as ev1
+    from helpers import ball_mask
+    shape = (40, 40, 32)
+    rng = np.random.default_rng(0)
+    m = ball_mask(shape, 3.0, offset=(0.0, 0.0, 0.0))
+    gt2 = np.ones(shape) + 0.5 * m                       # a T2 lesion, gain +0.5
+    rec2 = np.ones(shape) + 0.4 * m                      # recovered to 80 %
+    gt1 = np.ones(shape)
+    rec1 = gt1 + 0.02 * m + 0.001 * rng.standard_normal(shape)        # 2 % of it leaks into T1
+    rec1_ref = gt1 + 0.001 * rng.standard_normal(shape)
+    truth = dict(lesion_sites=[dict(contrast="T2", diameter_mm=6.0, gain=0.5)])
+    masks = dict(T1=m.astype(np.int16), T2=m.astype(np.int16))
+    rows = ev1.lesion_rows(dict(T1=(rec1, gt1), T2=(rec2, gt2)), dict(T1=(rec1_ref, gt1), T2=(gt2, gt2)), truth, masks)
+    assert len(rows) == 1 and rows[0]["label"] == 1 and rows[0]["contrast"] == "T2"
+    assert abs(rows[0]["contrast_recovery"] - 0.8) < 1e-9
+    assert abs(rows[0]["crosstalk"] - 0.02) < 2e-3 and rows[0]["crosstalk"] > rows[0]["crosstalk_tol"] > 0.0
+    solo = ev1.lesion_rows(dict(T2=(rec2, gt2)), {}, truth, masks)     # a single-contrast run: no other contrast
+    assert abs(solo[0]["contrast_recovery"] - 0.8) < 1e-9 and solo[0]["crosstalk"] is None
+
+
+def test_detection_without_intra_scan_truth_counts_every_train_as_clean():
+    """Conditions taken from the first version (E2, D2) have no per-train truth: every train is clean."""
+    mm = dict(m2=dict(mode="adaptive", w=[1.0] * 108 + [0.2, 0.3], z=None, history=[]), m3=None)
+    d = ev.weight_detection(mm, dict(inter=dict(R=[], t=[])))
+    assert d["recall"] is None and abs(d["false_rate"] - 2 / 110) < 1e-12 and d["n_contaminated"] == 0
