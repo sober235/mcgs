@@ -97,3 +97,18 @@
   画出的全部层面数据（`_data.npz`）和出图脚本副本。
 - **读法：** 四张图 MC-GS 都是 18 项全部第一。误差图上 MC-GS 明显暗于非 GS 方法；与 GS-single 的差别（框内平均误差低 1–6%）在任何画法下都看不出来。
 - **画法的比较：** `zoom_presentation_test.py` 和 `figures/zoom_presentation_af20.png`。中间试过的几版（jet 0–0.03 局部平均、hot、箭头在放大格内）的记录也在 `figures/`。
+
+## 补充：文章用图（用户 2026-11-21 指定）
+
+用户指定文章里放两张图：16 倍作可行性验证，20 倍作加速性能测试；统一用上面的 inferno 展示画法，箭头改为标在组织边界上。
+这里的 16 / 20 是名义 AF，净加速分别为 15.19× 和 18.56×（「20 倍」按名义 AF20 理解，待用户确认）。
+
+| 作用 | 净加速（名义 AF） | 图 |
+|---|---|---|
+| 可行性验证 | 15.19×（16） | `figures/article_net15.19x_feasibility.{png,pdf}`（PNG sha256 `cc528116…`） |
+| 加速性能测试 | 18.56×（20） | `figures/article_net18.56x_acceleration.{png,pdf}`（PNG sha256 `40e5401f…`） |
+
+- **与展示版的差别：** 框、层面、色图、每格数字都不变。只改两处：标题写明作用和净加速；箭头选点限制在框内 GT 梯度最陡的五分之一像素上（`--arrow_mode edge`），所以箭头落在组织边界。
+- **命令：** 展示版的参数再加 `--arrow_mode edge --role "<作用>"`。
+- **服务器：** `codex_artifacts/mcgs_t1flair_af_zoomsel_20261121/article_nature_edge/{net15.19x_af16_feasibility,net18.56x_af20_acceleration}/`（PNG、600 dpi PDF、预览、记录 JSON、数据 npz、脚本副本）。
+- **结果：** 两张图 MC-GS 都是 18 项全部第一。箭头和框仍是对照 GT 挑的，只用于展示。

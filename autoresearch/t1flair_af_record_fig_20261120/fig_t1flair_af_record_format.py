@@ -51,6 +51,11 @@ ap.add_argument("--arrow", action="store_true",
                      "(median over the ten reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's "
                      "most (user, 2026-11-21)")
 ap.add_argument("--arrow_color", default="#00E5FF")
+ap.add_argument("--arrow_mode", choices=["gap", "edge"], default="gap",
+                help="gap: the point of the largest error gap anywhere in the box; edge: the same, restricted to tissue "
+                     "boundaries (the fifth of the box with the steepest GT gradient), so the arrow marks a boundary "
+                     "(user, 2026-11-21)")
+ap.add_argument("--role", default="", help="what the figure stands for in the article, put at the head of the title")
 ap.add_argument("--save_data", action="store_true",
                 help="also write <stem>_data.npz: every slice the figure draws (each method, GT, head mask, error-display "
                      "region, sampling mask plane) in volume orientation, with the box / arrow positions (user, 2026-11-21)")
@@ -82,7 +87,7 @@ import numpy as np  # noqa: E402
 from matplotlib.cm import ScalarMappable  # noqa: E402
 from matplotlib.colors import Normalize  # noqa: E402
 from matplotlib.patches import Rectangle  # noqa: E402
-from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening, uniform_filter  # noqa: E402
+from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening, gaussian_filter, uniform_filter  # noqa: E402
 from skimage.metrics import structural_similarity  # noqa: E402
 
 os.nice(10)
@@ -280,6 +285,9 @@ t_, c_, s_ = args.slices
 AFR = float(EX["mask2d_AF_rect"])
 TITLE = (f"jiangyizhou T1 + FLAIR, vd-Poisson mask, nominal AF {args.af}, actual {AFR:.2f}x"
          f"   --   Transverse {t_} / Coronal {c_} / Sagittal {s_}")
+if args.role:
+    TITLE = (f"{args.role}: T1 + FLAIR, net acceleration {AFR:.2f}x (nominal AF {args.af}), vd-Poisson mask"
+             f"   --   Transverse {t_} / Coronal {c_} / Sagittal {s_}")
 fl = EX["contrasts"]["FLAIR"]
 CAP = ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the best of each row in bold",
        f"error |recon - GT| / max(GT), {args.err_cmap} [0, {args.err_vmax:g}], inside the head only"
@@ -298,7 +306,9 @@ CAP = ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the bes
        + "; grey bar: fraction of each row's own window (slice P99.9)"]
 if args.arrow:
     CAP.append(("arrow (same place in every panel of a row):" if args.arrow_on == "zoom" else "arrow on each slice (same place along a row):") + " where the error of the other methods (median of the nine "
-               "reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's most; chosen against GT, for display only")
+               "reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's most"
+               + (", among the tissue boundaries of the box (steepest fifth of the GT gradient)" if args.arrow_mode == "edge" else "")
+               + "; chosen against GT, for display only")
 
 
 def wrap(parts, width_in, fs):
@@ -381,6 +391,11 @@ if args.arrow:
         sc = D(sc, axis)[z["y0"]:z["y0"] + z["h"], z["x0"]:z["x0"] + z["w"]].copy()
         m = 7
         sc[:m] = sc[-m:] = -np.inf; sc[:, :m] = sc[:, -m:] = -np.inf
+        if args.arrow_mode == "edge":
+            gy, gx = np.gradient(gaussian_filter(r["g2"] / gmax[c], 1.0))
+            gm = D(np.hypot(gx, gy), axis)[z["y0"]:z["y0"] + z["h"], z["x0"]:z["x0"] + z["w"]]
+            sc[gm < np.percentile(gm, 80)] = -np.inf
+            r["arrow_edge_grad"] = float(gm[np.unravel_index(np.argmax(sc), sc.shape)])
         yy, xx = np.unravel_index(np.argmax(sc), sc.shape)
         r["arrow"] = (int(xx), int(yy))
         r["arrow_gap"] = float(sc[yy, xx])
@@ -448,9 +463,11 @@ fig.text(0.5, 1 - cap_y / fh, "\n".join(cap_lines), ha="center", va="top", fonts
 stem = f"t1flair_af{args.af}_three_planes_{t_}_{c_}_{s_}_record_format" + ("_indep_single" if args.single == "indep" else "") \
     + ("_zoomsel" if args.box_centres else "") + (f"_err{args.err_vmax:g}" if args.err_vmax != 0.1 else "") \
     + (f"_mean{args.zoom_err_smooth}" if args.zoom_err_smooth else "") \
-    + (f"_{args.err_cmap}" if args.err_cmap != "jet" else "") + ("_arrow" if args.arrow else "") + ("main" if args.arrow and args.arrow_on == "main" else "")
+    + (f"_{args.err_cmap}" if args.err_cmap != "jet" else "") + ("_arrow" if args.arrow else "") + ("main" if args.arrow and args.arrow_on == "main" else "") \
+    + ("_edge" if args.arrow and args.arrow_mode == "edge" else "")
 if args.arrow:
     record["arrows"] = [dict(plane=r["pname"], contrast=r["c"], crop_xy=r["arrow"], gap=r["arrow_gap"]) for r in rows]
+    record["arrow_mode"] = args.arrow_mode
 record["error_display"] = dict(vmax=args.err_vmax, zoom_local_mean=args.zoom_err_smooth)
 record["gs_single"] = args.single
 fig.savefig(art / f"{stem}.png", dpi=args.png_dpi)
