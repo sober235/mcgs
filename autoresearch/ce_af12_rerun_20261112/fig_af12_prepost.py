@@ -47,6 +47,9 @@ assert "mask_af16" not in text and "nominal AF 16" not in text and "ce_af16_lesi
 sys.argv = [str(SRC), *argv]
 before = set(out.glob("*")) if out.exists() else set()
 exec(compile(text, str(SRC), "exec"), {"__name__": "__main__", "__file__": str(SRC)})
+if "--save_data" in argv:      # keep the code that drew the figure beside its data
+    (out / "fig_lesion_plane_prepost_as_run_af12.py").write_text(text)
+    shutil.copy2(__file__, out / Path(__file__).name)
 art = Path(os.environ.get("MCGS_ARTIFACT_DIR", ""))
 if art.is_dir():
     for p in sorted(set(out.glob("*")) - before):

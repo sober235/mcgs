@@ -68,6 +68,10 @@ ap.add_argument("--arrow_on", choices=["main", "main+err"], default="main",
                 help="main+err = the arrow is also drawn in the magnified error map of the row below (zoom layout), so it "
                      "marks the place on the error map where MC-GS is better (user, 2026-11-22)")
 ap.add_argument("--arrow_color", default="red")
+ap.add_argument("--role", default="", help="what the figure stands for in the article, put at the head of the title")
+ap.add_argument("--save_data", action="store_true",
+                help="also write <stem>_data.npz: every drawn slice (GT, all reconstructions, head mask, error region, "
+                     "lesion core, sampling-mask plane) in volume orientation, with the box and arrow positions")
 ap.add_argument("--err_layout", default="full", choices=["full", "zoom"],
                 help="row under each image row: full = whole error map (house style); zoom = left half the magnified box "
                      "of the image, right half the magnified box of the error map (GT column: GT box | sampling mask)")
@@ -514,6 +518,29 @@ def render(rows, title, stem):
             im_.set_rasterized(True)
         fig.savefig(args.out / f"{stem}.pdf", dpi=args.pdf_dpi)
     plt.close(fig)
+    if args.save_data:
+        dat = {}
+        for r in rows:
+            k = f"{ANAT[r['axis']].lower()}{r['idx']}_{r['scan']}"
+            dat[f"{k}__GT"] = r["g2"]
+            dat[f"{k}__head_mask"] = head[r["scan"]][r["sl"]]
+            dat[f"{k}__error_region"] = r["emask"]
+            dat[f"{k}__lesion_core"] = core[r["sl"]]
+            for lab in LABELS:
+                dat[f"{k}__{lab.replace(' ', '_')}"] = vol[r["scan"]][lab][r["sl"]]
+            dat[f"{ANAT[r['axis']].lower()}_sampling_mask_plane"] = mask3.take(kcen[r["axis"]], axis=r["axis"])
+        dat["meta_json"] = np.array(json.dumps(dict(
+            note="magnitude slices in volume orientation (display: transverse = rot90(x.T, tra_rot), others as stored, origin "
+                 "lower); error = |recon - GT| / gt_max inside error_region; metrics inside head_mask with PSNR peak gt_max; "
+                 "zoom / arrow positions are in display pixels (arrow relative to the zoom box)",
+            title=title, gt_max=gmax, tra_rot=args.tra_rot, error_display=dict(cmap=args.err_cmap, vmax=args.err_vmax),
+            zoom_display_px={f"{ANAT[r['axis']]}_{r['idx']}_{r['scan']}": r["zoom"] for r in rows},
+            arrows=({f"{ANAT[r['axis']]}_{r['idx']}_{r['scan']}": r["arrow"] for r in rows} if args.arrow else None),
+            arrow_mode=args.arrow_mode if args.arrow else None,
+            numbers={f"{ANAT[r['axis']]}_{r['idx']}_{r['scan']}": r["num"] for r in rows},
+            volumes=record["volumes"]), ensure_ascii=False))
+        np.savez_compressed(args.out / f"{stem}_data.npz", **dat)
+        log(f"  wrote {args.out / stem}_data.npz  sha256 {sha(args.out / (stem + '_data.npz'))}")
     from PIL import Image
     Image.MAX_IMAGE_PIXELS = None
     with Image.open(args.out / f"{stem}.png") as I:
@@ -530,11 +557,12 @@ def render(rows, title, stem):
                                   planes=planes, error_display=dict(cmap=args.err_cmap, vmax=args.err_vmax),
                                   arrows=([dict(row=f"{r['scan']} {ANAT[r['axis']]} {r['idx']}", box_xy=r["arrow"],
                                                 gap=r["arrow_gap"], error_higher_than_mcgs_in=r["arrow_worse"]) for r in rows] if args.arrow else None),
-                                  arrow_mode=args.arrow_mode if args.arrow else None))
+                                  arrow_mode=args.arrow_mode if args.arrow else None, role=args.role or None,
+                                  pdf_image_dpi=args.pdf_dpi if args.pdf else None, png_dpi=args.png_dpi))
     log(f"  wrote {args.out / stem}.png")
 
 
-HEAD = f"UIH pre/post, CS-SENSE truth   {AF_LABEL}"
+HEAD = (f"{args.role}: " if args.role else "") + f"UIH pre/post, CS-SENSE truth   {AF_LABEL}"
 if args.three:
     rows = [r for axis, idx in enumerate(args.three) for r in plane_rows(axis, idx)]   # pre/post of each plane in turn
     set_windows(rows)
