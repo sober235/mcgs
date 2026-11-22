@@ -163,7 +163,7 @@ truth unchanged), redrawn in the article look:
 | planes | transverse 201 / coronal 131 / sagittal 48, all through the lesion; 48x48 box centred on the lesion core, magnified in the row below |
 | methods | ZF, CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT, ZS-SSDU, 3D-DIP, 3D-INR, MC-INR, GS-single, MC-GS (September recipe, untuned) |
 | error map | abs(recon - GT) / max(GT), raw per-pixel values, inferno, range [0, 0.08], inside the head only |
-| arrow | red, on every slice image only (none in the error maps), same place along a row: the point where the error of the other methods (median of the nine reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds that of MC-GS the most, searched only on the boundary of the lesion core in that plane (ROI dilated 2 px minus eroded 2 px) and at least 10 px from the edge of the head |
+| arrow | red, only in the magnified box of the weighted image (left half of the row under each slice; none on the slice, none in the error map), same place along a row: the point where the error of the other methods (median of the nine reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds that of MC-GS the most, searched only on the boundary of the lesion core in that plane (ROI dilated 2 px minus eroded 2 px) and at least 10 px from the edge of the head |
 
 "Nature" style was read as the look of the T1 + FLAIR article figures (`../t1flair_af_record_fig_20261120/RECORD.md`,
 server folder `article_nature_edge`): inferno error map and red arrows on tissue boundaries. The project has no other
@@ -185,7 +185,8 @@ of the skull. And the arrows should point to the areas on the error map that are
 version searched all tissue boundaries of the box, and in the coronal rows the arrow landed next to the skull. Now the
 point is taken on the lesion-core boundary only, away from the head edge, the script stops if no candidate has a lower
 MC-GS error. A draft also repeated the arrow in the magnified error map; the user removed that ("Do not add arrows to
-the error map"), so the error maps carry no arrow. Local error (7x7 mean) at the six points:
+the error map"), so the error maps carry no arrow. Last change (user: "Only mark the arrows on the zoom-in weighted figure"): the
+arrow is drawn only in the magnified image box, no longer on the whole slice. The points are the same. Local error (7x7 mean) at the six points:
 
 | row | point in the box (x, y) | others' median minus MC-GS | reconstructions with a higher error than MC-GS (of 9, ZF not counted) |
 |---|---|---|---|
@@ -201,29 +202,29 @@ the optimal ones for both plain scan and enhanced scan. Then, the corresponding 
 organized into PDF vector graphics to serve as the clinical verification scenarios in the paper. The original data and
 PDFs are saved on the GPU server." The title of the figure starts with "Clinical verification:".
 
-**Files.** Server folder `codex_artifacts/mcgs_ce_af12_prepost_optimal_20261122/v3_clinical_verification/`:
+**Files.** Server folder `codex_artifacts/mcgs_ce_af12_prepost_optimal_20261122/v4_clinical_verification_zoom_arrow/`:
 
 | file | content | sha256 |
 |---|---|---|
-| `ce_af12_prepost_clinical_verification_600dpi.pdf` | the figure as a one-page PDF, 7.7 MB: text, boxes, arrows and colour bars are vector objects (TrueType text), every image panel is embedded at 600 dpi | `222b871f...ce8b18eb` |
-| `ce_af12_prepost_clinical_verification.png` | the same figure, 200 dpi | `7c8cb5f0...72e3c437` |
+| `ce_af12_prepost_clinical_verification_600dpi.pdf` | the figure as a one-page PDF, 7.7 MB: text, boxes, arrows and colour bars are vector objects (TrueType text), every image panel is embedded at 600 dpi | `1c2424c6...15145df3` |
+| `ce_af12_prepost_clinical_verification.png` | the same figure, 200 dpi | `84ef89c1...5246e06a` |
 | `ce_af12_prepost_clinical_verification_data.npz` | the drawn data, 10.9 MB: for each of the six rows the GT slice, the eleven reconstructed slices, head mask, error region and lesion core in volume orientation; the sampling-mask plane of each orientation; `meta_json` with box and arrow positions, panel numbers, display settings and the path + sha256 of every source volume | `90aafc16...c6b4261a` |
-| `record_Sept_recipe_untuned_BART_Poisson_disc_AF12_three.json` | record: hashes of the 22 drawn volumes and of the truth, margins, arrow points | `a60ce196...67d55181` |
+| `record_Sept_recipe_untuned_BART_Poisson_disc_AF12_three.json` | record: hashes of the 22 drawn volumes and of the truth, margins, arrow points | `d58f8b33...3f505a5d` |
 | `fig_lesion_plane_prepost_as_run_af12.py`, `fig_af12_prepost.py` | the code as it ran | |
-| `ce_af12_lesion_three_planes_..._arrowlesion*` | the same PDF / PNG / npz / preview under the script's long name | |
+| `ce_af12_lesion_three_planes_..._arrowlesion_onzoom*` | the same PDF / PNG / npz / preview under the script's long name | |
 
 - The full volumes stay where they were: the nine September-recipe arms and the truth in `CE_retro_cssense_af12/recon/`,
   3D-DIP / 3D-INR with output support in `codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/` (paths in the record JSON).
 - Mac: `figures/results_optimal/ce_af12_prepost_optimal_600dpi.pdf` and `ce_af12_prepost_optimal.png` (the same two
   files, same hashes; git-ignored: a large file in the tree makes the gpu.py snapshot exceed its 100 MiB limit);
   `figures/ce_af12_prepost_optimal_preview.jpg` and `figures/ce_af12_prepost_optimal_record.json` are committed.
-- Job (CPU): j-20261122T092140-3ebf8da4. Superseded drafts on the server: the files directly in
+- Job (CPU): j-20261122T094229-e11fb3d5. Superseded drafts on the server: the files directly in
   `mcgs_ce_af12_prepost_optimal_20261122/` (arrows on all tissue boundaries), `v2_lesion_arrow/` (arrow also in the
-  error map), and `CE_retro_cssense_af12/figures/prepost_three_201_131_48*_nature*` (first drawings, both figures).
+  error map), `v3_clinical_verification/` (arrow on the whole slice; its data npz is byte-identical to the final one), and `CE_retro_cssense_af12/figures/prepost_three_201_131_48*_nature*` (first drawings, both figures).
 
 **Command.** `fig_af12_prepost.py` (the wrapper of the record script) with
 `--three 201 131 48 --err_layout zoom --cbar single --err_vmax 0.08 --err_cmap inferno --arrow --arrow_mode lesion
---arrow_color red --role "Clinical verification" --save_data --pdf --pdf_dpi 600` and the two `--arm` overrides of the support version. The options
+--arrow_on zoom --arrow_color red --role "Clinical verification" --save_data --pdf --pdf_dpi 600` and the two `--arm` overrides of the support version. The options
 `--err_cmap`, `--arrow`, `--arrow_mode`, `--arrow_on`, `--arrow_skull_px`, `--arrow_color`, `--role`, `--save_data` were added to
 `../ce_af16_lesion_figs_20261107/fig_lesion_plane_prepost.py` on 2026-11-22; their defaults leave every earlier
 figure unchanged (jet, no arrow).

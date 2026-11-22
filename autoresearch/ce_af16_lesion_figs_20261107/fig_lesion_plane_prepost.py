@@ -64,8 +64,9 @@ ap.add_argument("--arrow_mode", choices=["gap", "edge", "lesion"], default="gap"
                      "(ROI dilated 2 px minus eroded 2 px), at least --arrow_skull_px from the edge of the head, so it "
                      "never marks the skull (user, 2026-11-22)")
 ap.add_argument("--arrow_skull_px", type=int, default=10, help="lesion mode: smallest distance of the arrow point from the head edge")
-ap.add_argument("--arrow_on", choices=["main", "main+err"], default="main",
-                help="main+err = the arrow is also drawn in the magnified error map of the row below (zoom layout), so it "
+ap.add_argument("--arrow_on", choices=["main", "main+err", "zoom"], default="main",
+                help="zoom = the arrow is drawn only in the magnified box of the image (left half of the zoom row), not on "
+                     "the slice and not in the error map (user, 2026-11-22); main+err = the arrow is also drawn in the magnified error map of the row below (zoom layout), so it "
                      "marks the place on the error map where MC-GS is better (user, 2026-11-22)")
 ap.add_argument("--arrow_color", default="red")
 ap.add_argument("--role", default="", help="what the figure stands for in the article, put at the head of the title")
@@ -343,7 +344,8 @@ def render(rows, title, stem):
     if args.err_layout == "zoom":
         stem += "_zoomerr"
     stem += (f"_{args.err_cmap}" if args.err_cmap != "jet" else "") + (f"_err{args.err_vmax:g}" if args.err_vmax != 0.1 else "") \
-        + (f"_arrow{args.arrow_mode}" if args.arrow else "") + ("_onerr" if args.arrow and args.arrow_on == "main+err" else "")
+        + (f"_arrow{args.arrow_mode}" if args.arrow else "") + ("_onerr" if args.arrow and args.arrow_on == "main+err" else "") \
+        + ("_onzoom" if args.arrow and args.arrow_on == "zoom" else "")
     ncol = len(LABELS) + 1
     pw, gap = 2.6, 0.025
     CBTRIM, top_in, cbpad, cbw, cbroom = 0.10, 1.35, 0.06, 0.13, (0.95 if args.cbar == "single" else 0.60)
@@ -396,7 +398,7 @@ def render(rows, title, stem):
 
     def arrow_at(a, r, shape):
         """arrow head at the chosen point of the box, tail towards the centre of the slice image"""
-        if not args.arrow:
+        if not args.arrow or (args.arrow_on == "zoom" and ZOOMROW):
             return
         x_, y_ = r["arrow"][0] + r["zoom"]["x0"], r["arrow"][1] + r["zoom"]["y0"]
         v, L = np.array([shape[1] / 2 - x_, shape[0] / 2 - y_], float), 0.11 * shape[1]
@@ -405,9 +407,9 @@ def render(rows, title, stem):
         a.annotate("", xy=(x_, y_), xytext=(x_ + v[0], y_ + v[1]),
                    arrowprops=dict(arrowstyle="-|>", color=args.arrow_color, lw=2.2, mutation_scale=15, shrinkA=0, shrinkB=1))
 
-    def arrow_zoom(a, r):
+    def arrow_zoom(a, r, where="main+err"):
         """the same point in a magnified panel: head at the point, tail towards the centre of the box"""
-        if not (args.arrow and args.arrow_on == "main+err" and ZOOMROW):
+        if not (args.arrow and args.arrow_on == where and ZOOMROW):
             return
         x_, y_, w_ = r["arrow"][0], r["arrow"][1], r["zoom"]["w"]
         v = np.array([w_ / 2 - x_, w_ / 2 - y_], float)
@@ -438,6 +440,7 @@ def render(rows, title, stem):
                 if ZOOMROW:
                     bL.imshow(crop(D(r["g2"], axis), z), cmap="gray", vmin=0, vmax=r["vmax"], origin="lower", aspect="auto")
                     zframe(bL)
+                    arrow_zoom(bL, r, "zoom")
                     bR.set_facecolor("black")
                     bR.imshow(kplane, cmap="gray", vmin=0, vmax=1, origin="lower", aspect="equal", interpolation="nearest")
                 else:
@@ -460,6 +463,7 @@ def render(rows, title, stem):
                 im = bR.imshow(crop(emap, z), cmap=args.err_cmap, vmin=0.0, vmax=args.err_vmax, origin="lower", aspect="auto")
                 zframe(bL); zframe(bR)
                 arrow_zoom(bR, r)
+                arrow_zoom(bL, r, "zoom")
             else:
                 im = b.imshow(emap, cmap=args.err_cmap, vmin=0.0, vmax=args.err_vmax, origin="lower", aspect="auto")
                 put_inset(b, emap, r, x, y + h + gap, h, cmap=args.err_cmap, vmin=0.0, vmax=args.err_vmax)
@@ -504,7 +508,8 @@ def render(rows, title, stem):
             + ("slice and magnified in the row below" if ZOOMROW
                else "slice and magnified into the " + " / ".join(corners) + " corner"))
     if args.arrow:
-        cap2 += ("\narrow on each slice (same place along a row): where the error of the other methods (median of the nine "
+        cap2 += ("\n" + ("arrow in each magnified image box" if args.arrow_on == "zoom" and ZOOMROW else "arrow on each slice")
+                 + " (same place along a row): where the error of the other methods (median of the nine "
                  "reconstructions other than ZF and MC-GS, 7x7 mean) exceeds that of MC-GS the most inside the box"
                  + (", among its tissue boundaries (steepest fifth of the GT gradient)" if args.arrow_mode == "edge" else "")
                  + (", on the boundary of the lesion core" if args.arrow_mode == "lesion" else "")
@@ -557,7 +562,8 @@ def render(rows, title, stem):
                                   planes=planes, error_display=dict(cmap=args.err_cmap, vmax=args.err_vmax),
                                   arrows=([dict(row=f"{r['scan']} {ANAT[r['axis']]} {r['idx']}", box_xy=r["arrow"],
                                                 gap=r["arrow_gap"], error_higher_than_mcgs_in=r["arrow_worse"]) for r in rows] if args.arrow else None),
-                                  arrow_mode=args.arrow_mode if args.arrow else None, role=args.role or None,
+                                  arrow_mode=args.arrow_mode if args.arrow else None, arrow_on=args.arrow_on if args.arrow else None,
+                                  role=args.role or None,
                                   pdf_image_dpi=args.pdf_dpi if args.pdf else None, png_dpi=args.png_dpi))
     log(f"  wrote {args.out / stem}.png")
 

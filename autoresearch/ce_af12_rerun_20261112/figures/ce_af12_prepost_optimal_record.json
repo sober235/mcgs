@@ -106,7 +106,7 @@
   },
   "figures": [
     {
-      "png": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_prepost_optimal_20261122/v3_clinical_verification/ce_af12_lesion_three_planes_201_131_48_prepost_Sept_recipe_untuned_BART_Poisson_disc_AF12_zoomerr_inferno_err0.08_arrowlesion.png",
+      "png": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_prepost_optimal_20261122/v4_clinical_verification_zoom_arrow/ce_af12_lesion_three_planes_201_131_48_prepost_Sept_recipe_untuned_BART_Poisson_disc_AF12_zoomerr_inferno_err0.08_arrowlesion_onzoom.png",
       "rows": [
         "pre Transverse 201",
         "post Transverse 201",
@@ -295,6 +295,7 @@
         }
       ],
       "arrow_mode": "lesion",
+      "arrow_on": "zoom",
       "role": "Clinical verification",
       "pdf_image_dpi": 600,
       "png_dpi": 200
