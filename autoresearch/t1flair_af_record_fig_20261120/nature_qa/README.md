@@ -1,0 +1,1 @@
+audit_panel_alignment.py is copied unchanged from the nature-figure skill of github.com/Yuan1z0825/nature-skills (commit 8a77136, see that repository for its licence); it is the render-time panel-alignment gate that fig_af_overview.py --nfig calls on the server.

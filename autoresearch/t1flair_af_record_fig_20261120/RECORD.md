@@ -133,3 +133,19 @@
   图内不放标题和说明（都移到图例文字里）；配色用 NPG 色板（红 `#E64B35`、蓝 `#3C5488`），热图为白到蓝的单色渐变；只写 acceleration factor。
 - **数字：** 与 `af_overview` 完全相同，MC-GS 24 列全部第一。记录图 `af_overview` 和 `af_overview_article` 没有改动。
 - **服务器：** `codex_artifacts/mcgs_t1flair_af_record_fig_20261120/nature_compact/`（同级的 `nature/` 是排版较松的第一版）。
+
+### 用 nature-figure 技能重画的概览图（用户 2026-11-22）
+
+- **图：** `figures/af_overview_nfig/af_overview_nfig.{png,pdf,svg,tiff}`（PNG sha256 `fa2ee4d4…`），`fig_af_overview.py --nfig`；图例文字 `af_overview_nfig_legend.txt`。
+- **图的论点（技能要求先写）：** 在 AF 12–24 的每一档、两个对比度上，MC-GS 的误差是 11 种方法里最低的（面板 a、b），而且这一优势在逐层面的配对差值上成立（面板 c）。类型为定量网格图。
+- **相对 `af_overview_nature` 的改动：**
+  - 热图只在 GS-single 和 MC-GS 两行印数值（论点所依赖的两行），其余行只留颜色，每块下面加色标；全部数值在源数据 CSV 里。
+  - NMSE 改用百分数显示（原值 × 100），避免四位小数挤在一格里。
+  - MC-GS 最优的四格用一个外框围住，不再每格一个框。
+  - 小提琴图上方的 48 个百分数去掉，改在图例文字里写范围（85–100%），逐项数值在源数据里。
+  - 配色换成该技能的色板（蓝 `#0F4D92`、红 `#B64342`），最小字号 5.5 pt。
+- **技能要求的检查：** 源码预检 19 项通过、2 项提示、0 项失败；渲染时面板对齐检查通过（容差 1.5 pt）；PDF 最小字号 5.5 pt（下限 5 pt）；碰撞检查 0 项失败、8 项提示。
+  8 项提示都是「数值文字跨过相邻色块的边」，即数值印在色块里，属有意为之。预检的 2 项提示：脚本里的 `log(` 是打印函数不是对数；「没有误差条」指热图，热图是单次运行的整卷指标，没有可画的离散度。
+- **源数据：** `af_overview_nfig_source_ab.csv`（热图全部数值）、`_source_c_summary.csv`（每个小提琴的中位数、四分位、胜出比例、P 值）、`_source_c_slices.csv`（逐层面差值）。
+- **数字：** 与 `af_overview` 完全相同，MC-GS 24 列全部第一。此前各版都没有改动。
+- **服务器：** `codex_artifacts/mcgs_t1flair_af_record_fig_20261120/nature_figure_skill/`。对齐检查脚本的副本在 `nature_qa/`。
