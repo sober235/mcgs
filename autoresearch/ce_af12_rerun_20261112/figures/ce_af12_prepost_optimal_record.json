@@ -106,7 +106,7 @@
   },
   "figures": [
     {
-      "png": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_prepost_optimal_20261122/ce_af12_lesion_three_planes_201_131_48_prepost_Sept_recipe_untuned_BART_Poisson_disc_AF12_zoomerr_inferno_err0.08_arrowedge.png",
+      "png": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_prepost_optimal_20261122/v2_lesion_arrow/ce_af12_lesion_three_planes_201_131_48_prepost_Sept_recipe_untuned_BART_Poisson_disc_AF12_zoomerr_inferno_err0.08_arrowlesion_onerr.png",
       "rows": [
         "pre Transverse 201",
         "post Transverse 201",
@@ -185,53 +185,116 @@
         {
           "row": "pre Transverse 201",
           "box_xy": [
-            38,
-            23
+            34,
+            14
           ],
-          "gap": 0.003205438144505024
+          "gap": 0.0033091651275753975,
+          "error_higher_than_mcgs_in": [
+            "3D-DIP",
+            "3D-INR",
+            "CG-SENSE",
+            "CS-SENSE",
+            "GS-single",
+            "Joint SENSE",
+            "L1-SPIRiT",
+            "MC-INR",
+            "ZS-SSDU"
+          ]
         },
         {
           "row": "post Transverse 201",
           "box_xy": [
-            39,
-            21
+            30,
+            40
           ],
-          "gap": 0.0031392648816108704
+          "gap": 0.0029437586199492216,
+          "error_higher_than_mcgs_in": [
+            "3D-DIP",
+            "3D-INR",
+            "CG-SENSE",
+            "CS-SENSE",
+            "GS-single",
+            "Joint SENSE",
+            "L1-SPIRiT",
+            "MC-INR",
+            "ZS-SSDU"
+          ]
         },
         {
           "row": "pre Coronal 131",
           "box_xy": [
-            7,
-            35
+            36,
+            22
           ],
-          "gap": 0.004601969383656979
+          "gap": 0.0029648132622241974,
+          "error_higher_than_mcgs_in": [
+            "3D-DIP",
+            "3D-INR",
+            "CG-SENSE",
+            "CS-SENSE",
+            "GS-single",
+            "Joint SENSE",
+            "L1-SPIRiT",
+            "MC-INR",
+            "ZS-SSDU"
+          ]
         },
         {
           "row": "post Coronal 131",
           "box_xy": [
-            12,
-            35
+            13,
+            21
           ],
-          "gap": 0.0033842031843960285
+          "gap": 0.002667676657438278,
+          "error_higher_than_mcgs_in": [
+            "3D-DIP",
+            "3D-INR",
+            "CG-SENSE",
+            "CS-SENSE",
+            "GS-single",
+            "Joint SENSE",
+            "L1-SPIRiT",
+            "MC-INR",
+            "ZS-SSDU"
+          ]
         },
         {
           "row": "pre Sagittal 48",
           "box_xy": [
-            27,
-            10
+            29,
+            35
           ],
-          "gap": 0.0032234429381787777
+          "gap": 0.002221288625150919,
+          "error_higher_than_mcgs_in": [
+            "3D-DIP",
+            "3D-INR",
+            "CG-SENSE",
+            "CS-SENSE",
+            "Joint SENSE",
+            "L1-SPIRiT",
+            "MC-INR",
+            "ZS-SSDU"
+          ]
         },
         {
           "row": "post Sagittal 48",
           "box_xy": [
-            31,
-            40
+            35,
+            29
           ],
-          "gap": 0.002381999045610428
+          "gap": 0.002149522304534912,
+          "error_higher_than_mcgs_in": [
+            "CG-SENSE",
+            "CS-SENSE",
+            "GS-single",
+            "Joint SENSE",
+            "L1-SPIRiT",
+            "MC-INR",
+            "ZS-SSDU"
+          ]
         }
       ],
-      "arrow_mode": "edge"
+      "arrow_mode": "lesion"
     }
   ]
 }

@@ -58,9 +58,15 @@ ap.add_argument("--arrow", action="store_true",
                      "slice image, at the same place along the row = the point of the outlined box where the error of the "
                      "other methods (median of the nine reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds "
                      "that of MC-GS the most. Chosen with the GT, for display only")
-ap.add_argument("--arrow_mode", choices=["gap", "edge"], default="gap",
+ap.add_argument("--arrow_mode", choices=["gap", "edge", "lesion"], default="gap",
                 help="edge = the arrow point is searched only among the tissue boundaries of the box (the fifth of the box "
-                     "with the steepest GT gradient)")
+                     "with the steepest GT gradient); lesion = only on the boundary of the lesion core in that plane "
+                     "(ROI dilated 2 px minus eroded 2 px), at least --arrow_skull_px from the edge of the head, so it "
+                     "never marks the skull (user, 2026-11-22)")
+ap.add_argument("--arrow_skull_px", type=int, default=10, help="lesion mode: smallest distance of the arrow point from the head edge")
+ap.add_argument("--arrow_on", choices=["main", "main+err"], default="main",
+                help="main+err = the arrow is also drawn in the magnified error map of the row below (zoom layout), so it "
+                     "marks the place on the error map where MC-GS is better (user, 2026-11-22)")
 ap.add_argument("--arrow_color", default="red")
 ap.add_argument("--err_layout", default="full", choices=["full", "zoom"],
                 help="row under each image row: full = whole error map (house style); zoom = left half the magnified box "
@@ -91,7 +97,8 @@ from matplotlib.cm import ScalarMappable  # noqa: E402
 from matplotlib.colors import Normalize  # noqa: E402
 from matplotlib.patches import Rectangle  # noqa: E402
 from matplotlib.ticker import MaxNLocator  # noqa: E402
-from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening, gaussian_filter, uniform_filter  # noqa: E402
+from scipy.ndimage import (binary_dilation, binary_erosion, binary_fill_holes, binary_opening, distance_transform_edt,  # noqa: E402
+                           gaussian_filter, uniform_filter)  # noqa: E402
 from skimage.metrics import structural_similarity  # noqa: E402
 
 TOPIC = args.topic or Path("/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp")   # evaluate.py TOPIC
@@ -289,14 +296,26 @@ def plane_rows(axis, idx):
             sm = {lab: uniform_filter(np.abs(vol[s][lab][sl] - g2) / gmax[s] * r["emask"], size=7, mode="nearest")
                   for lab in LABELS if lab != "ZF"}
             sc = D(np.median([sm[lab] for lab in sm if lab != MC], axis=0) - sm[MC], axis)[zs].copy()
-            sc[:7] = sc[-7:] = -np.inf; sc[:, :7] = sc[:, -7:] = -np.inf
+            mg = 4 if args.arrow_mode == "lesion" else 7
+            sc[:mg] = sc[-mg:] = -np.inf; sc[:, :mg] = sc[:, -mg:] = -np.inf
+            if args.arrow_mode == "lesion":
+                band = binary_dilation(c2, iterations=2) & ~binary_erosion(c2, iterations=2)
+                inner = distance_transform_edt(r["emask"]) >= args.arrow_skull_px
+                ok = D(band & inner, axis)[zs]
+                assert ok[mg:-mg, mg:-mg].any(), f"{ANAT[axis]} {idx}: no lesion-boundary pixel inside the box away from the head edge"
+                sc[~ok] = -np.inf
             if args.arrow_mode == "edge":
                 gy, gx = np.gradient(gaussian_filter(g2 / gmax[s], 1.0))
                 gm_ = D(np.hypot(gx, gy), axis)[zs]
                 sc[gm_ < np.percentile(gm_, 80)] = -np.inf
             yy, xx = np.unravel_index(np.argmax(sc), sc.shape)
             r["arrow"], r["arrow_gap"] = (int(xx), int(yy)), float(sc[yy, xx])
-            log(f"  arrow {ANAT[axis]} {idx} {s}: box pixel ({xx}, {yy}), error gap {r['arrow_gap']:.4f}")
+            at = {lab: float(D(sm[lab], axis)[zs][yy, xx]) for lab in sm}
+            r["arrow_worse"] = sorted(lab for lab in at if lab != MC and at[lab] > at[MC])
+            assert r["arrow_gap"] > 0, f"{ANAT[axis]} {idx} {s}: no candidate point where MC-GS has the lower error"
+            log(f"  arrow {ANAT[axis]} {idx} {s}: box pixel ({xx}, {yy}), error gap {r['arrow_gap']:.4f}, local error "
+                f"MC-GS {at[MC]:.4f}, higher in {len(r['arrow_worse'])} of {len(at) - 1} other reconstructions "
+                f"(not higher: {sorted(set(at) - set(r['arrow_worse']) - {MC})})")
     log(f"{ANAT[axis]} {idx}: all {len(LABELS) * 2 * 3} panel numbers match the evaluator; "
         f"zoom box centre ({ci}, {cj}), inset {corner}; strict {P['strict_success']}"
         + (f", S6 {P['score_six']:+.4f}" if P["score_six"] is not None else ""))
@@ -320,7 +339,7 @@ def render(rows, title, stem):
     if args.err_layout == "zoom":
         stem += "_zoomerr"
     stem += (f"_{args.err_cmap}" if args.err_cmap != "jet" else "") + (f"_err{args.err_vmax:g}" if args.err_vmax != 0.1 else "") \
-        + (f"_arrow{args.arrow_mode}" if args.arrow else "")
+        + (f"_arrow{args.arrow_mode}" if args.arrow else "") + ("_onerr" if args.arrow and args.arrow_on == "main+err" else "")
     ncol = len(LABELS) + 1
     pw, gap = 2.6, 0.025
     CBTRIM, top_in, cbpad, cbw, cbroom = 0.10, 1.35, 0.06, 0.13, (0.95 if args.cbar == "single" else 0.60)
@@ -382,6 +401,17 @@ def render(rows, title, stem):
         a.annotate("", xy=(x_, y_), xytext=(x_ + v[0], y_ + v[1]),
                    arrowprops=dict(arrowstyle="-|>", color=args.arrow_color, lw=2.2, mutation_scale=15, shrinkA=0, shrinkB=1))
 
+    def arrow_zoom(a, r):
+        """the same point in a magnified panel: head at the point, tail towards the centre of the box"""
+        if not (args.arrow and args.arrow_on == "main+err" and ZOOMROW):
+            return
+        x_, y_, w_ = r["arrow"][0], r["arrow"][1], r["zoom"]["w"]
+        v = np.array([w_ / 2 - x_, w_ / 2 - y_], float)
+        n = float(np.hypot(*v))
+        v = v / n * 13.0 if n > 4 else np.array([13.0, 13.0]) / 1.4
+        a.annotate("", xy=(x_, y_), xytext=(x_ + v[0], y_ + v[1]),
+                   arrowprops=dict(arrowstyle="-|>", color=args.arrow_color, lw=1.8, mutation_scale=13, shrinkA=0, shrinkB=1))
+
     y, im = top_in, None
     for k, (r, h, eh) in enumerate(zip(rows, hs, ehs)):
         s, axis = r["scan"], r["axis"]
@@ -425,6 +455,7 @@ def render(rows, title, stem):
                 bL.imshow(crop(D(v, axis), z), cmap="gray", vmin=0, vmax=r["vmax"], origin="lower", aspect="auto")
                 im = bR.imshow(crop(emap, z), cmap=args.err_cmap, vmin=0.0, vmax=args.err_vmax, origin="lower", aspect="auto")
                 zframe(bL); zframe(bR)
+                arrow_zoom(bR, r)
             else:
                 im = b.imshow(emap, cmap=args.err_cmap, vmin=0.0, vmax=args.err_vmax, origin="lower", aspect="auto")
                 put_inset(b, emap, r, x, y + h + gap, h, cmap=args.err_cmap, vmin=0.0, vmax=args.err_vmax)
@@ -472,6 +503,8 @@ def render(rows, title, stem):
         cap2 += ("\narrow on each slice (same place along a row): where the error of the other methods (median of the nine "
                  "reconstructions other than ZF and MC-GS, 7x7 mean) exceeds that of MC-GS the most inside the box"
                  + (", among its tissue boundaries (steepest fifth of the GT gradient)" if args.arrow_mode == "edge" else "")
+                 + (", on the boundary of the lesion core" if args.arrow_mode == "lesion" else "")
+                 + ("; also drawn in the magnified error map" if args.arrow_on == "main+err" and ZOOMROW else "")
                  + " -- chosen with the GT, for display only")
     fig.text(0.5, 1 - 0.40 / fh, ";   ".join(cap[:2]) + "\n" + ";   ".join(cap[2:]) + "\n" + cap2,
              ha="center", va="top", fontsize=11)
@@ -496,7 +529,7 @@ def render(rows, title, stem):
     record["figures"].append(dict(png=str(args.out / f"{stem}.png"), rows=[f"{r['scan']} {ANAT[r['axis']]} {r['idx']}" for r in rows],
                                   planes=planes, error_display=dict(cmap=args.err_cmap, vmax=args.err_vmax),
                                   arrows=([dict(row=f"{r['scan']} {ANAT[r['axis']]} {r['idx']}", box_xy=r["arrow"],
-                                                gap=r["arrow_gap"]) for r in rows] if args.arrow else None),
+                                                gap=r["arrow_gap"], error_higher_than_mcgs_in=r["arrow_worse"]) for r in rows] if args.arrow else None),
                                   arrow_mode=args.arrow_mode if args.arrow else None))
     log(f"  wrote {args.out / stem}.png")
 
