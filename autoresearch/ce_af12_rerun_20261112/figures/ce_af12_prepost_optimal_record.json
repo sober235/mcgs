@@ -1,0 +1,237 @@
+{
+  "topic": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12",
+  "label": "Sept recipe, untuned (BART Poisson-disc AF12)",
+  "arm_overrides": [
+    "3D-DIP=/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/dip_sup_b96_tv0.03_{s}_complex.npy",
+    "3D-INR=/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/inr_i10_n512_sup6_tv0.03_{s}_complex.npy"
+  ],
+  "numbers": "computed by this script (topic mode), not by a frozen evaluator",
+  "volumes": {
+    "pre": {
+      "ZF": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/zf_pre_complex.npy",
+        "sha256": "7fe65a5e981418d1ccdbd838150a55028e3e1ba5cb52aa139d7cbe489bd37ab5"
+      },
+      "CG-SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/cgsense_pre_complex.npy",
+        "sha256": "06f0b8f731a18120b7b4b924e8c02fd1c46e4bc3a147ab46d924745aed792527"
+      },
+      "CS-SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/cssense_o200_lam0.001_pre_complex.npy",
+        "sha256": "3d65b10e9e2d50b3eb9bb35498a7748136fc8df634207d2d8d9bc2274b21ed98"
+      },
+      "Joint SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/jcssense_o200_lam0.001_pre_complex.npy",
+        "sha256": "22a5abaad086579e8906519867db9d5d314660d667b1cd65dc1f2c3a6eec3df8"
+      },
+      "L1-SPIRiT": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/spirit_ks5_lam0.001_pre_complex.npy",
+        "sha256": "cf25b624abdbc55627dcc64a8c4583588814fde9ad3a97edc5e5fc7031ef4615"
+      },
+      "ZS-SSDU": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/zsssdu_pre_complex.npy",
+        "sha256": "670c87125afbeaf548b7d8d1d40fb489fa1add315410903f6c988674a0eabef3"
+      },
+      "3D-DIP": {
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/dip_sup_b96_tv0.03_pre_complex.npy",
+        "sha256": "d7582548bf0a8938b4a9ef288fe53cf6672328c5ec0a221675f8dcaa1f9d0f54"
+      },
+      "3D-INR": {
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/inr_i10_n512_sup6_tv0.03_pre_complex.npy",
+        "sha256": "38957cc935084e63caca7a66eb0ca05b39b267bb7c623a8eb54415bc3523e713"
+      },
+      "MC-INR": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/mcinr_pre_complex.npy",
+        "sha256": "c15ecf377e5359cb4744f68fbf8123ae8712cb36e26665388c452793d0e717df"
+      },
+      "GS-single": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/gs_single_pre_mag.npy",
+        "sha256": "24948c6406300ec0078dde753cfa7d100d3ab4323eb8d5f6527a557019daf9c9"
+      },
+      "MC-GS": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/gs_joint_pre_mag.npy",
+        "sha256": "54dcdc1306cb776669bdd516644c821d63931853406f785e2288cc4e15bf3cb4"
+      }
+    },
+    "post": {
+      "ZF": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/zf_post_complex.npy",
+        "sha256": "708c9b37ff61f3f6cdc9721f2e5087474d5f0a715140c8550665e64c4ee33741"
+      },
+      "CG-SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/cgsense_post_complex.npy",
+        "sha256": "888ddec1ec03589b84c4f2984e5bd244f0948b61c39b9b1eebcca945e7b1b187"
+      },
+      "CS-SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/cssense_o200_lam0.0007_post_complex.npy",
+        "sha256": "168b1769a637f129b205855b1d98ed9ae3745e91cf9a9b26e72b9c8578f4b979"
+      },
+      "Joint SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/jcssense_o200_lam0.001_post_complex.npy",
+        "sha256": "6490a5d29735acce1edea4aeee9b5beed3b252e7177f0fce012547174edc14b3"
+      },
+      "L1-SPIRiT": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/spirit_ks5_lam0.001_post_complex.npy",
+        "sha256": "0c4b94f59253b7660bfcc99c09b707eaa02881753b79b81e44a2770f72011da7"
+      },
+      "ZS-SSDU": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/zsssdu_post_complex.npy",
+        "sha256": "6dd8caf874b1edcb3abf02472e98b14266d204980d806e35900ea59b92c7e08c"
+      },
+      "3D-DIP": {
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/dip_sup_b96_tv0.03_post_complex.npy",
+        "sha256": "a499bf68216633ab452c4c8a9a325e6800b1399929802c7f36fa55efb3aee515"
+      },
+      "3D-INR": {
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/inr_i10_n512_sup6_tv0.03_post_complex.npy",
+        "sha256": "baa957d8b337cac2422e4550c9283ac374e59e47a74d2de48135fea04d637a8c"
+      },
+      "MC-INR": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/mcinr_post_complex.npy",
+        "sha256": "09ee47bfff03defc399d7eed0b93eabf2e7a2b83fa6c2cb1acad3a975683bbad"
+      },
+      "GS-single": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/gs_single_post_mag.npy",
+        "sha256": "1f0de7c2500c761231b53f570fbf3f735627e717df79cb2862957d1f3409a68b"
+      },
+      "MC-GS": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/gs_joint_post_mag.npy",
+        "sha256": "d931ff700ee49a1cd2fbb69a03ea33bdda25ad73bac8dc9bedace09da7cf3459"
+      }
+    }
+  },
+  "gt_sha256": {
+    "pre": "4c0758648be4a3b93fc6a93ebda98609c6921df66e4361c817652e62b7ad0cfc",
+    "post": "072ae9581192860c29d3bffa981bf5d485da8db8385cc9b7718018a5170a3cdf"
+  },
+  "figures": [
+    {
+      "png": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_prepost_optimal_20261122/ce_af12_lesion_three_planes_201_131_48_prepost_Sept_recipe_untuned_BART_Poisson_disc_AF12_zoomerr_inferno_err0.08_arrowedge.png",
+      "rows": [
+        "pre Transverse 201",
+        "post Transverse 201",
+        "pre Coronal 131",
+        "post Coronal 131",
+        "pre Sagittal 48",
+        "post Sagittal 48"
+      ],
+      "planes": [
+        {
+          "axis": 0,
+          "index": 201,
+          "core": 446,
+          "strict_success": true,
+          "score_six": null,
+          "zoom_centre": [
+            124,
+            49
+          ],
+          "inset_corner": "tr",
+          "margins": {
+            "pre:psnr": 0.252274003306141,
+            "pre:ssim": 0.00149522987665196,
+            "pre:nmse": 0.00041819301064669346,
+            "post:psnr": 0.3635187199857768,
+            "post:ssim": 0.003083858257672767,
+            "post:nmse": 0.0005253792771017386
+          }
+        },
+        {
+          "axis": 1,
+          "index": 131,
+          "core": 279,
+          "strict_success": true,
+          "score_six": null,
+          "zoom_centre": [
+            203,
+            47
+          ],
+          "inset_corner": "br",
+          "margins": {
+            "pre:psnr": 0.18782801057876952,
+            "pre:ssim": 0.0030972142788653345,
+            "pre:nmse": 0.0005300740208303463,
+            "post:psnr": 0.2815136683080084,
+            "post:ssim": 0.0029663323543652753,
+            "post:nmse": 0.000634197945793771
+          }
+        },
+        {
+          "axis": 2,
+          "index": 48,
+          "core": 384,
+          "strict_success": true,
+          "score_six": null,
+          "zoom_centre": [
+            203,
+            127
+          ],
+          "inset_corner": "bl",
+          "margins": {
+            "pre:psnr": 0.19475080904180686,
+            "pre:ssim": 0.0032473764858425014,
+            "pre:nmse": 0.00036485832083618837,
+            "post:psnr": 0.2919870759874499,
+            "post:ssim": 0.003067534493907287,
+            "post:nmse": 0.0005785789962275238
+          }
+        }
+      ],
+      "error_display": {
+        "cmap": "inferno",
+        "vmax": 0.08
+      },
+      "arrows": [
+        {
+          "row": "pre Transverse 201",
+          "box_xy": [
+            38,
+            23
+          ],
+          "gap": 0.003205438144505024
+        },
+        {
+          "row": "post Transverse 201",
+          "box_xy": [
+            39,
+            21
+          ],
+          "gap": 0.0031392648816108704
+        },
+        {
+          "row": "pre Coronal 131",
+          "box_xy": [
+            7,
+            35
+          ],
+          "gap": 0.004601969383656979
+        },
+        {
+          "row": "post Coronal 131",
+          "box_xy": [
+            12,
+            35
+          ],
+          "gap": 0.0033842031843960285
+        },
+        {
+          "row": "pre Sagittal 48",
+          "box_xy": [
+            27,
+            10
+          ],
+          "gap": 0.0032234429381787777
+        },
+        {
+          "row": "post Sagittal 48",
+          "box_xy": [
+            31,
+            40
+          ],
+          "gap": 0.002381999045610428
+        }
+      ],
+      "arrow_mode": "edge"
+    }
+  ]
+}

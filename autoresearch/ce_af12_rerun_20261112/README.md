@@ -147,6 +147,62 @@ the PSNR margins are those of the figure above: transverse 201 +0.25 / +0.36 dB,
 sagittal 48 +0.19 / +0.29 dB (pre / post). 3D-DIP no longer shows signal outside the head. This figure now matches
 the AF16 figure of record in which versions of 3D-DIP / 3D-INR it shows.
 
+## Optimal result for the plain-scan and enhanced reconstruction (user, 2026-11-22)
+
+User, 2026-11-22: change the error colour bar to [0, 0.08] and use the "nature" style; then, of the two figures drawn
+that way, "consider the second image as the optimal result for both plain scan and enhanced reconstruction", save it
+as a 600 dpi PDF, keep the PDF on the GPU server too, and push a summary to a GitHub branch named for it
+(`optimal-for-plain-scan-and-enhancement-phases`).
+
+**The figure.** The support-version figure above (3D-DIP / 3D-INR with output support, the other nine arms and the
+truth unchanged), redrawn in the article look:
+
+| item | value |
+|---|---|
+| data | UIH plain-scan (pre-contrast) + enhanced (post-contrast) pair, CS-SENSE truth, BART Poisson-disc mask, nominal AF 12, actual 12.00x (40832 plane points / 3403 sampled) |
+| planes | transverse 201 / coronal 131 / sagittal 48, all through the lesion; 48x48 box centred on the lesion core, magnified in the row below |
+| methods | ZF, CG-SENSE, CS-SENSE, Joint SENSE, L1-SPIRiT, ZS-SSDU, 3D-DIP, 3D-INR, MC-INR, GS-single, MC-GS (September recipe, untuned) |
+| error map | abs(recon - GT) / max(GT), raw per-pixel values, inferno, range [0, 0.08], inside the head only |
+| arrow | red, on every slice image, same place along a row: the point of the box where the error of the other methods (median of the nine reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds that of MC-GS the most, searched among the tissue boundaries of the box (steepest fifth of the GT gradient) |
+
+"Nature" style was read as the look of the T1 + FLAIR article figures (`../t1flair_af_record_fig_20261120/RECORD.md`,
+server folder `article_nature_edge`): inferno error map and red arrows on tissue boundaries. The project has no other
+style of that name. The lesion box was kept (it is not re-selected as in the T1 + FLAIR figures).
+
+**Result.** The panel numbers are those of the support-version figure; only the drawing changed. MC-GS is strictly
+first on PSNR, SSIM and NMSE in all six panels (18 of 18) against all ten arms. Runner-up: GS-single in every panel.
+
+| plane | MC-GS pre / post PSNR (dB) | GS-single pre / post PSNR (dB) | margin pre / post (dB) | SSIM margin pre / post |
+|---|---|---|---|---|
+| transverse 201 | 36.84 / 39.95 | 36.59 / 39.59 | +0.252 / +0.364 | +0.0015 / +0.0031 |
+| coronal 131 | 36.95 / 38.81 | 36.76 / 38.52 | +0.188 / +0.282 | +0.0031 / +0.0030 |
+| sagittal 48 | 36.41 / 38.93 | 36.21 / 38.64 | +0.195 / +0.292 | +0.0033 / +0.0031 |
+
+Whole head (table above): MC-GS 35.913 / 38.256 dB, +0.170 / +0.275 dB over GS-single.
+
+**Files.**
+
+- Server: `codex_artifacts/mcgs_ce_af12_prepost_optimal_20261122/` -- `ce_af12_prepost_optimal_600dpi.pdf`
+  (7.7 MB, sha256 `35107543...27048acb`, one page, images embedded at 600 dpi, TrueType text),
+  `ce_af12_prepost_optimal.png` (200 dpi, sha256 `e830425a...c5bcb127`), the same two files under the script's long
+  name, the preview JPEG and the record JSON (hashes of all 22 drawn volumes and of the truth, arrow points, margins).
+- Mac: `figures/results_optimal/ce_af12_prepost_optimal_600dpi.pdf` and `.png` (git-ignored: a large file in the tree
+  makes the gpu.py snapshot exceed its 100 MiB limit); `figures/ce_af12_prepost_optimal_preview.jpg` and
+  `figures/ce_af12_prepost_optimal_record.json` are committed.
+- Jobs (CPU): j-20261122T085229-b53c0ce7 (PNG + PDF of record). Earlier drafts of the same drawing, with the caption
+  clipped or overlapping the method names, are in `CE_retro_cssense_af12/figures/prepost_three_201_131_48*_nature*`
+  (`_v3` is the corrected one; the first figure, without output support, is `prepost_three_201_131_48_nature_v3`).
+
+**Command.** `fig_af12_prepost.py` (the wrapper of the record script) with
+`--three 201 131 48 --err_layout zoom --cbar single --err_vmax 0.08 --err_cmap inferno --arrow --arrow_mode edge
+--arrow_color red --pdf --pdf_dpi 600` and the two `--arm` overrides of the support version. The options
+`--err_cmap`, `--arrow`, `--arrow_mode`, `--arrow_color` were added to
+`../ce_af16_lesion_figs_20261107/fig_lesion_plane_prepost.py` on 2026-11-22; their defaults leave every earlier
+figure unchanged (jet, no arrow).
+
+**To state with it.** The arrow is placed with the GT and is for display only. The margins over GS-single are 0.19 to
+0.36 dB on one subject, one mask draw and one seed; the limits below apply.
+
 ## Limits to state with any AF12 number
 
 - Same subject, same truth (a CS-SENSE reconstruction, re-simulated with the same coil maps), same noise draw.

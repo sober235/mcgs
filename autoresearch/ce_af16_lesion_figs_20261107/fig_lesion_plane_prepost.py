@@ -52,6 +52,16 @@ ap.add_argument("--inset", type=int, default=48)
 ap.add_argument("--inset_corner", default="auto", choices=["auto", "bl", "br", "tr"],
                 help="corner of the magnified box (auto = the free corner farthest from the outlined box; tl holds the numbers)")
 ap.add_argument("--err_vmax", type=float, default=0.1)
+ap.add_argument("--err_cmap", default="jet", help="colour map of the error maps (jet = the record format; inferno = the article look)")
+ap.add_argument("--arrow", action="store_true",
+                help="article look (as fig_t1flair_af_record_format.py --arrow --arrow_on main): one arrow per row on every "
+                     "slice image, at the same place along the row = the point of the outlined box where the error of the "
+                     "other methods (median of the nine reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds "
+                     "that of MC-GS the most. Chosen with the GT, for display only")
+ap.add_argument("--arrow_mode", choices=["gap", "edge"], default="gap",
+                help="edge = the arrow point is searched only among the tissue boundaries of the box (the fifth of the box "
+                     "with the steepest GT gradient)")
+ap.add_argument("--arrow_color", default="red")
 ap.add_argument("--err_layout", default="full", choices=["full", "zoom"],
                 help="row under each image row: full = whole error map (house style); zoom = left half the magnified box "
                      "of the image, right half the magnified box of the error map (GT column: GT box | sampling mask)")
@@ -81,7 +91,7 @@ from matplotlib.cm import ScalarMappable  # noqa: E402
 from matplotlib.colors import Normalize  # noqa: E402
 from matplotlib.patches import Rectangle  # noqa: E402
 from matplotlib.ticker import MaxNLocator  # noqa: E402
-from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening, uniform_filter  # noqa: E402
+from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening, gaussian_filter, uniform_filter  # noqa: E402
 from skimage.metrics import structural_similarity  # noqa: E402
 
 TOPIC = args.topic or Path("/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16_vdpois_cmp")   # evaluate.py TOPIC
@@ -273,6 +283,20 @@ def plane_rows(axis, idx):
         out.append(dict(axis=axis, idx=idx, scan=s, sl=sl, g2=g2, emask=head_region(m2), num=num, best=best,
                         zoom=zoom, corner=corner, vmax=float(np.quantile(g2, 0.999)), med=float(np.median(g2[m2])),
                         P=P, zoom_centre=[ci, cj]))
+        if args.arrow:                     # same rule as fig_t1flair_af_record_format.py
+            r = out[-1]
+            zs = (slice(zoom["y0"], zoom["y0"] + zoom["w"]), slice(zoom["x0"], zoom["x0"] + zoom["w"]))
+            sm = {lab: uniform_filter(np.abs(vol[s][lab][sl] - g2) / gmax[s] * r["emask"], size=7, mode="nearest")
+                  for lab in LABELS if lab != "ZF"}
+            sc = D(np.median([sm[lab] for lab in sm if lab != MC], axis=0) - sm[MC], axis)[zs].copy()
+            sc[:7] = sc[-7:] = -np.inf; sc[:, :7] = sc[:, -7:] = -np.inf
+            if args.arrow_mode == "edge":
+                gy, gx = np.gradient(gaussian_filter(g2 / gmax[s], 1.0))
+                gm_ = D(np.hypot(gx, gy), axis)[zs]
+                sc[gm_ < np.percentile(gm_, 80)] = -np.inf
+            yy, xx = np.unravel_index(np.argmax(sc), sc.shape)
+            r["arrow"], r["arrow_gap"] = (int(xx), int(yy)), float(sc[yy, xx])
+            log(f"  arrow {ANAT[axis]} {idx} {s}: box pixel ({xx}, {yy}), error gap {r['arrow_gap']:.4f}")
     log(f"{ANAT[axis]} {idx}: all {len(LABELS) * 2 * 3} panel numbers match the evaluator; "
         f"zoom box centre ({ci}, {cj}), inset {corner}; strict {P['strict_success']}"
         + (f", S6 {P['score_six']:+.4f}" if P["score_six"] is not None else ""))
@@ -295,9 +319,12 @@ def render(rows, title, stem):
     """rows top to bottom, each an image row followed by its error row; house geometry"""
     if args.err_layout == "zoom":
         stem += "_zoomerr"
+    stem += (f"_{args.err_cmap}" if args.err_cmap != "jet" else "") + (f"_err{args.err_vmax:g}" if args.err_vmax != 0.1 else "") \
+        + (f"_arrow{args.arrow_mode}" if args.arrow else "")
     ncol = len(LABELS) + 1
     pw, gap = 2.6, 0.025
     CBTRIM, top_in, cbpad, cbw, cbroom = 0.10, 1.35, 0.06, 0.13, (0.95 if args.cbar == "single" else 0.60)
+    top_in += 0.22 if args.arrow else 0.0      # room for the arrow line of the caption
     hs = []
     for r in rows:
         H0, W0 = D(r["g2"], r["axis"]).shape
@@ -344,6 +371,17 @@ def render(rows, title, stem):
             sp.set_visible(True); sp.set_edgecolor(ZC); sp.set_linewidth(ZLW + 0.6)
         a.imshow(img[z["y0"]:z["y0"] + z["w"], z["x0"]:z["x0"] + z["w"]], origin="lower", aspect="auto", **imkw)
 
+    def arrow_at(a, r, shape):
+        """arrow head at the chosen point of the box, tail towards the centre of the slice image"""
+        if not args.arrow:
+            return
+        x_, y_ = r["arrow"][0] + r["zoom"]["x0"], r["arrow"][1] + r["zoom"]["y0"]
+        v, L = np.array([shape[1] / 2 - x_, shape[0] / 2 - y_], float), 0.11 * shape[1]
+        n = float(np.hypot(*v))
+        v = v / n * L if n > 4 else np.array([L, L]) / 1.4
+        a.annotate("", xy=(x_, y_), xytext=(x_ + v[0], y_ + v[1]),
+                   arrowprops=dict(arrowstyle="-|>", color=args.arrow_color, lw=2.2, mutation_scale=15, shrinkA=0, shrinkB=1))
+
     y, im = top_in, None
     for k, (r, h, eh) in enumerate(zip(rows, hs, ehs)):
         s, axis = r["scan"], r["axis"]
@@ -359,6 +397,7 @@ def render(rows, title, stem):
             if j == 0:
                 gim = a.imshow(D(r["g2"], axis), cmap="gray", vmin=0, vmax=r["vmax"], origin="lower", aspect="auto")
                 put_inset(a, D(r["g2"], axis), r, x, y, h, cmap="gray", vmin=0, vmax=r["vmax"])
+                arrow_at(a, r, D(r["g2"], axis).shape)
                 label(a, ANAT[axis], bold=True, fs=13)          # plane name only, as the house figures; indices in the title
                 label(a, SCAN_NAME[s], bold=True, line=1, fs=13, hh=h)
                 kplane = D(mask3.take(kcen[axis], axis=axis), axis)
@@ -376,6 +415,7 @@ def render(rows, title, stem):
             v = vol[s][lab][r["sl"]]
             a.imshow(D(v, axis), cmap="gray", vmin=0, vmax=r["vmax"], origin="lower", aspect="auto")
             put_inset(a, D(v, axis), r, x, y, h, cmap="gray", vmin=0, vmax=r["vmax"])
+            arrow_at(a, r, D(v, axis).shape)
             n = r["num"][lab]
             for i, (txt, met) in enumerate(((f"{n['psnr']:.2f} dB", "psnr"), (f"SSIM {n['ssim']:.4f}", "ssim"),
                                              (f"NMSE {n['nmse']:.5f}", "nmse"))):
@@ -383,11 +423,11 @@ def render(rows, title, stem):
             emap = D(np.abs(v - r["g2"]) / gmax[s] * r["emask"], axis)
             if ZOOMROW:
                 bL.imshow(crop(D(v, axis), z), cmap="gray", vmin=0, vmax=r["vmax"], origin="lower", aspect="auto")
-                im = bR.imshow(crop(emap, z), cmap="jet", vmin=0.0, vmax=args.err_vmax, origin="lower", aspect="auto")
+                im = bR.imshow(crop(emap, z), cmap=args.err_cmap, vmin=0.0, vmax=args.err_vmax, origin="lower", aspect="auto")
                 zframe(bL); zframe(bR)
             else:
-                im = b.imshow(emap, cmap="jet", vmin=0.0, vmax=args.err_vmax, origin="lower", aspect="auto")
-                put_inset(b, emap, r, x, y + h + gap, h, cmap="jet", vmin=0.0, vmax=args.err_vmax)
+                im = b.imshow(emap, cmap=args.err_cmap, vmin=0.0, vmax=args.err_vmax, origin="lower", aspect="auto")
+                put_inset(b, emap, r, x, y + h + gap, h, cmap=args.err_cmap, vmin=0.0, vmax=args.err_vmax)
             if k == 0:
                 a.set_title(lab if "SPIRiT" in lab else lab.upper(), fontsize=args.title_fs, pad=4)
         x_cb = (ncol * pw + (ncol - 1) * gap + cbpad) / fw
@@ -418,7 +458,7 @@ def render(rows, title, stem):
     src = "the frozen evaluator's lesion-plane numbers" if sd is not None else "computed from the topic's registered volumes"
     cap = [f"head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel = {src}, "
            "the best of each row in bold",
-           f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}]   (inside the head only)",
+           f"error |recon - GT| / max(GT), {args.err_cmap} [0, {args.err_vmax:g}]   (inside the head only)",
            ("row under each image row: left = the magnified lesion box of the image, right = the same box of the error map; "
             "GT column: GT box | sampling mask in that plane (k-space)") if ZOOMROW
            else "left of each error row: the sampling mask in that plane (k-space)",
@@ -428,6 +468,11 @@ def render(rows, title, stem):
     cap2 = (f"in every panel, the {args.inset}x{args.inset} box centred on the lesion core of that plane is outlined on the "
             + ("slice and magnified in the row below" if ZOOMROW
                else "slice and magnified into the " + " / ".join(corners) + " corner"))
+    if args.arrow:
+        cap2 += ("\narrow on each slice (same place along a row): where the error of the other methods (median of the nine "
+                 "reconstructions other than ZF and MC-GS, 7x7 mean) exceeds that of MC-GS the most inside the box"
+                 + (", among its tissue boundaries (steepest fifth of the GT gradient)" if args.arrow_mode == "edge" else "")
+                 + " -- chosen with the GT, for display only")
     fig.text(0.5, 1 - 0.40 / fh, ";   ".join(cap[:2]) + "\n" + ";   ".join(cap[2:]) + "\n" + cap2,
              ha="center", va="top", fontsize=11)
     fig.savefig(args.out / f"{stem}.png", dpi=args.png_dpi)
@@ -449,7 +494,10 @@ def render(rows, title, stem):
                                score_six=P["score_six"], zoom_centre=r["zoom_centre"], inset_corner=r["corner"],
                                margins={c: P["comparisons"][c]["margin"] for c in P["comparisons"]}))
     record["figures"].append(dict(png=str(args.out / f"{stem}.png"), rows=[f"{r['scan']} {ANAT[r['axis']]} {r['idx']}" for r in rows],
-                                  planes=planes))
+                                  planes=planes, error_display=dict(cmap=args.err_cmap, vmax=args.err_vmax),
+                                  arrows=([dict(row=f"{r['scan']} {ANAT[r['axis']]} {r['idx']}", box_xy=r["arrow"],
+                                                gap=r["arrow_gap"]) for r in rows] if args.arrow else None),
+                                  arrow_mode=args.arrow_mode if args.arrow else None))
     log(f"  wrote {args.out / stem}.png")
 
 
