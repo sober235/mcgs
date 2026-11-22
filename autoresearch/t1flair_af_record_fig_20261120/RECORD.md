@@ -128,8 +128,8 @@
 
 ### Nature 版式的概览图（用户 2026-11-22：此后所有图都用 Nature 版式）
 
-- **图：** `figures/af_overview_nature.{png,pdf}`（PNG 600 dpi，sha256 `95a15a7b…`），图例文字在 `figures/af_overview_nature_legend.txt`；`fig_af_overview.py --nature`。
+- **图：** `figures/af_overview_nature.{png,pdf}`（PNG 600 dpi，sha256 `671023ab…`；2026-11-22 按用户要求改为紧凑排版，183 × 156 mm，面板之间不留空白），图例文字在 `figures/af_overview_nature_legend.txt`；`fig_af_overview.py --nature`。
 - **版式：** 宽 183 mm（双栏）；无衬线字体 5–7 pt；面板字母为小写粗体 a、b、c；白底，无网格线，坐标轴线 0.5 pt；
   图内不放标题和说明（都移到图例文字里）；配色用 NPG 色板（红 `#E64B35`、蓝 `#3C5488`），热图为白到蓝的单色渐变；只写 acceleration factor。
 - **数字：** 与 `af_overview` 完全相同，MC-GS 24 列全部第一。记录图 `af_overview` 和 `af_overview_article` 没有改动。
-- **服务器：** `codex_artifacts/mcgs_t1flair_af_record_fig_20261120/nature/`。
+- **服务器：** `codex_artifacts/mcgs_t1flair_af_record_fig_20261120/nature_compact/`（同级的 `nature/` 是排版较松的第一版）。
