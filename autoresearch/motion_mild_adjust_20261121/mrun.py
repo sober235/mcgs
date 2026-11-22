@@ -29,6 +29,7 @@ HERE = Path(__file__).resolve().parent
 log = run1.log
 SMOKE_M2 = dict(warmup=10, every=10)
 SMOKE_ALIGN = dict(start=5, end=20)
+SMOKE_M3 = dict(at=20)
 
 
 def is_single(arm):
@@ -89,7 +90,6 @@ def run_name(af, order, cond, arm, seed, smoke=False, tag=""):
 
 def motion_config(af, order, cond, arm, seed, settings, smoke=False, tag=""):
     a = ARMS2[arm]
-    assert not a["m3"], f"{arm}: M3 is not implemented yet"
     cdir = cond_dir(order, cond)
     m2 = dict(settings["m2"], mode=a["m2"], **(SMOKE_M2 if smoke else {}))
     m1 = None
@@ -97,10 +97,11 @@ def motion_config(af, order, cond, arm, seed, settings, smoke=False, tag=""):
         al = settings["m1"]["align"]
         m1 = dict(reg_path=str(reg_path(af, order, cond)),
                   align=None if al is None else dict(al, **(SMOKE_ALIGN if smoke else {})))
+    m3 = dict(settings["m3"], mode=a["m3"], **(SMOKE_M3 if smoke else {})) if a["m3"] else None
     return dict(exp=run_name(af, order, cond, arm, seed, smoke, tag), arm=arm, cond=cond, order=order, af=af,
                 seed=int(seed), channel="plain" if is_single(arm) else "contrast", out_dir=str(RES2),
                 schedule_path=str(cdir / "schedule.npz"), truth_path=str(cdir / "motion_truth.json"),
-                brain_path=str(cdir / "brain.npy"), m1=m1, m2=m2, m3=None, reg=settings["reg"],
+                brain_path=str(cdir / "brain.npy"), m1=m1, m2=m2, m3=m3, reg=settings["reg"],
                 native_shift_mm=list(c1.NATIVE_SHIFT_MM))
 
 

@@ -67,8 +67,6 @@ def test_motion_config():
     m = mrun.motion_config("af12", "il", "C0", "I-T2", 42, SETTINGS, smoke=True)
     assert m["channel"] == "plain" and m["m2"]["mode"] == "monitor"
     assert m["m2"]["warmup"] == 10 and m["m2"]["every"] == 10 and m["exp"] == "smoke_mm_af12_il_C0_I-T2"
-    with pytest.raises(AssertionError):
-        mrun.motion_config("af12", "il", "C0", "B123", 42, SETTINGS)      # M3 arrives with Task 9
 
 
 def test_motion_config_m1():
@@ -127,3 +125,17 @@ def test_queue_mild_study():
         assert need in names, need
     with pytest.raises(AssertionError):
         queue_study.parse_row("mild", "af12:Ta:B2")
+
+
+def test_motion_config_m3():
+    from mcommon import REG2
+    m = mrun.motion_config("af12", "il", "DTc", "B123", 42, SETTINGS)
+    assert m["m3"] == dict(SETTINGS["m3"], mode="detect") and m["m2"]["mode"] == "adaptive"
+    assert m["m1"]["reg_path"] == str(REG2 / "af12_il_DTc.json")
+    __import__("mpatch").validate(m)
+    m = mrun.motion_config("af12", "il", "DTc", "Op", 42, SETTINGS)
+    assert m["m3"]["mode"] == "truth" and m["m2"]["mode"] == "truth"
+    __import__("mpatch").validate(m)
+    m = mrun.motion_config("af12", "il", "DTc", "B123", 42, SETTINGS, smoke=True)
+    assert m["m3"]["at"] == 20 and m["m2"]["warmup"] == 10 and m["m1"]["align"]["end"] == 20
+    assert mrun.motion_config("af12", "il", "DTc", "B12", 42, SETTINGS)["m3"] is None

@@ -4,8 +4,12 @@
     reg.py --af af12 --order il --conds C0 D2 [--check-truth]
 
 Inputs are what the training gets: the undersampled k-space of both contrasts under the training's mask and the
-topic's coil maps. The brain mask comes from the zero-filled T1W image. The registration is the first version's
-probe (probe_reginit.register: normalised gradient fields, three resolutions, Powell search over 6 parameters).
+topic's coil maps. The brain mask comes from the zero-filled T1W image. The registration follows the first version's
+probe (normalised gradient fields, three resolutions, Powell search over 6 parameters) with one change, the cost:
+the probe's mean of the squared normalised dot product is not largest at the identity for two identical images
+(it also grows when more strong edges of the moving image are pulled into the mask), which shows as a pose error
+of a few tenths of a degree that cancels only in differences between two registrations. Here the sum is divided
+by the two fields' own norms (register() below), so identical images give exactly no motion.
 Writes REG2/<af>_<order>_<cond>.json = {theta_deg, t_mm, cost, brain_in_voxels}. --check-truth prints, afterwards,
 the error against the simulated truth; nothing of the truth is written to that file. Prints no clock value.
 """
@@ -51,6 +55,67 @@ def load_pose(path):
                       np.asarray(d["t_mm"], dtype=np.float64))
 
 
+def ngfn_cost(ga, ea, vol_b, r, x, mask, eb, cen):
+    """-sum (n_a . n_b)^2 / sqrt(sum |n_a|^4  sum |n_b|^4) over the mask, n = g / sqrt(|g|^2 + e^2), with the
+    moving image resampled at T(r). By the Cauchy-Schwarz inequality the value is >= -1, reached only when the two
+    normalised gradient fields are parallel with one common ratio of lengths: for identical images, at the identity."""
+    from scipy import ndimage as ndi
+    idx = np.moveaxis(rigid(x).apply(r) + cen, -1, 0)
+    b = ndi.map_coordinates(vol_b, idx, order=1, mode="nearest")
+    gb = np.gradient(b)
+    na, nb = sum(g ** 2 for g in ga), sum(g ** 2 for g in gb)
+    dot2 = sum(u * w for u, w in zip(ga, gb)) ** 2 / ((na + ea ** 2) * (nb + eb ** 2))
+    pa, pb = (na / (na + ea ** 2))[mask], (nb / (nb + eb ** 2))[mask]
+    return -float(dot2[mask].sum() / np.sqrt((pa ** 2).sum() * (pb ** 2).sum()))
+
+
+def rigid(x):
+    """x = (theta_deg[3], t_mm[3]) -> geom.Rigid mapping a point of the fixed image to its position in the moving one."""
+    return geom.Rigid(geom.rotmat(np.deg2rad(np.asarray(x[:3], dtype=np.float64))), np.asarray(x[3:], dtype=np.float64))
+
+
+def register(a, b, mask, factors=(4, 2, 1), x0=None, say=None):
+    """a: fixed, b: moving, magnitudes on one grid; mask: where the cost is read. Resolution levels, smoothing, edge
+    parameters and the Powell settings are the first version's probe's (probe_reginit.register); the cost is
+    ngfn_cost. Returns (x = (theta_deg[3], t_mm[3]), cost of the finest level)."""
+    from scipy import ndimage as ndi
+    from scipy.optimize import minimize
+    a, b = np.asarray(a, dtype=np.float64), np.asarray(b, dtype=np.float64)
+    x = np.zeros(6) if x0 is None else np.asarray(x0, dtype=np.float64)
+    r_full = geom.grid_mm(a.shape)
+    cen = (np.asarray(a.shape, dtype=np.float64) - 1.0) / 2.0
+    lo, hi = np.argwhere(mask).min(0), np.argwhere(mask).max(0) + 1
+    for f in factors:
+        sig = 0.5 * f + 0.5
+        a_s, b_s = ndi.gaussian_filter(a, sig), ndi.gaussian_filter(b, sig)
+        sl = tuple(slice(max(int(l) - 4, 0), int(h) + 4, f) for l, h in zip(lo, hi))
+        a_l, m_l, r_l = a_s[sl], mask[sl], r_full[sl]
+        ga = np.gradient(a_l)
+        ea = 0.1 * float(np.median(np.sqrt(sum(g ** 2 for g in ga)[m_l])))
+        eb = 0.1 * float(np.median(np.sqrt(sum(g ** 2 for g in np.gradient(b_s[sl]))[m_l])))
+        res = minimize(lambda p: ngfn_cost(ga, ea, b_s, r_l, p, m_l, eb, cen), x, method="Powell",
+                       options=dict(xtol=0.01 / f * 2, ftol=1e-7, maxfev=1500))
+        x = res.x
+        if say:
+            say(f"  level {f}: cost {res.fun:.6f} evals {res.nfev} theta_deg {np.round(x[:3], 3).tolist()} "
+                f"t_mm {np.round(x[3:], 3).tolist()}")
+    return x, float(res.fun)
+
+
+def register_states(mags, brain, say=None):
+    """Initial poses of the states of M3. mags[k]: magnitude of the zero-filled T2W image made from the lines of
+    state k only (state 0 = the reference state); brain: where the metric is read. Each other state is registered
+    to the reference state with the same method as the inter-scan pose. Returns [identity, pose_1, ...]:
+    pose_k maps a point of the reference state to its position in state k."""
+    poses = [geom.Rigid.identity()]
+    for k in range(1, len(mags)):
+        x, _ = register(mags[0], mags[k], brain)
+        poses.append(rigid(x))
+        if say:
+            say(f"state {k}: theta_deg {np.round(x[:3], 3).tolist()} t_mm {np.round(x[3:], 3).tolist()}")
+    return poses
+
+
 def _zero_filled(path, mask3, csm, workers):
     import simulate
     k = simulate._read(path, ("kspace", "ksp"))
@@ -79,7 +144,6 @@ def main():
 
     import evaluate
     import lesions
-    import probe_reginit
     import simulate
     with h5py.File(c1.MASKS[args.af], "r") as h:
         mask3 = h["mask"][:].astype(np.float32)
@@ -98,7 +162,7 @@ def main():
         t1, brain = t1_cache[p1]
         t2 = _zero_filled(t2_path(args.order, cond), mask3, csm["T2"], w)
         log(f"[{cond}] order {args.order}: brain mask from the zero-filled T1W image, {int(brain.sum())} voxels")
-        x, cost = probe_reginit.register(t1, t2, brain, return_cost=True)
+        x, cost = register(t1, t2, brain, say=log)
         rec = record(x, cost, brain.sum())
         out = out_path(args.af, args.order, cond)
         out.write_text(json.dumps(rec, indent=1))

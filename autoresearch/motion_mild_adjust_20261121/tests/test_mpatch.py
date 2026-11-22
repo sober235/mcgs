@@ -185,3 +185,16 @@ def test_validate_m1():
             mpatch.validate(_cfg("monitor") | dict(m1=bad))
     with pytest.raises(AssertionError):                                    # M1 is for the joint model's T2W channel
         mpatch.validate(_cfg("monitor") | dict(m1=ok, channel="plain"))
+
+
+def test_validate_m3():
+    m1 = dict(reg_path="r.json", align=None)
+    m3 = dict(mode="detect", at=1000, min_frac=0.1, cp_t=8.0, max_states=3, init="reg", lrs=dict(seg_theta=5e-4, seg_t=1e-2))
+    mpatch.validate(_cfg("adaptive") | dict(m1=m1, m3=m3))
+    mpatch.validate(_cfg("truth") | dict(m1=m1, m3=dict(m3, mode="truth")))
+    for bad in (dict(m1=None, m3=m3), dict(m1=m1, m3=dict(m3, mode="guess")), dict(m1=m1, m3=dict(m3, init="random")),
+                dict(m1=m1, m3={k: v for k, v in m3.items() if k != "lrs"}), dict(m1=m1, m3=dict(m3, max_states=1))):
+        with pytest.raises(AssertionError):
+            mpatch.validate(_cfg("adaptive") | bad)
+    with pytest.raises(AssertionError):                                    # truth states need truth weights
+        mpatch.validate(_cfg("adaptive") | dict(m1=m1, m3=dict(m3, mode="truth")))

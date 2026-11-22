@@ -120,3 +120,83 @@ def test_feasibility_decision():
     small = _feas(True, 0.6, loss=0.05)
     assert small["decision"] == "stop: motion too small to measure" and small["recover"] is None
     json.dumps(f)
+
+
+def _tc_truth():
+    import geom
+    state = [0] * 66 + [1] * 44
+    moved = geom.Rigid(geom.rotmat(np.deg2rad([0.0, 0.0, 1.0])), np.array([0.5, 0.0, 0.0]))
+    return dict(state_of_train=state, ref_state=0, state_poses=[geom.Rigid.identity().to_json(), moved.to_json()],
+                contaminated=[bool(s) for s in state])
+
+
+def _m3(first, theta=(0.0, 0.0, 1.1), t=(0.7, 0.0, 0.0)):
+    zero = dict(theta_deg=[0.0, 0.0, 0.0], t_mm=[0.0, 0.0, 0.0])
+    return dict(mode="detect", n=2, boundaries=[first], state_of_train=[0] * first + [1] * (110 - first),
+                final_poses=[zero, dict(theta_deg=list(theta), t_mm=list(t))])
+
+
+def test_state_errors():
+    from helpers import ball_mask
+    brain = ball_mask((32, 32, 24), 8)
+    e = ev.state_errors(dict(m3=_m3(68)), _tc_truth(), brain)
+    assert e["n_states"] == 2 and e["n_true"] == 2 and e["boundary_err_trains"] == 2
+    assert abs(e["rot_err_deg_max"] - 0.1) < 1e-6 and abs(e["t_err_mm_max"] - 0.2) < 1e-9
+    none = ev.state_errors(dict(m3=dict(mode="detect", n=1, boundaries=[], state_of_train=[0] * 110, final_poses=None)),
+                           _tc_truth(), brain)
+    assert none["n_states"] == 1 and none["n_true"] == 2 and none["boundary_err_trains"] is None
+    assert none["rot_err_deg_max"] is None and none["t_err_mm_max"] is None
+    assert ev.state_errors(dict(m3=None), _tc_truth(), brain) is None
+
+
+def test_detection_counts_state_members_as_handled():
+    truth = _tc_truth()
+    ones = dict(m2=dict(mode="adaptive", w=[1.0] * 110, z=None, history=[]))
+    d = ev.weight_detection(dict(ones, m3=_m3(66)), truth)             # 40 % of the trains in state 1, all weights 1
+    assert d["recall"] == 1.0 and d["false_rate"] == 0.0 and d["frac_w1"] == 1.0
+    d = ev.weight_detection(dict(ones, m3=_m3(64)), truth)             # the boundary two trains early
+    assert d["recall"] == 1.0 and abs(d["false_rate"] - 2 / 66) < 1e-12
+    assert ev.weight_detection(dict(ones, m3=None), truth)["recall"] == 0.0
+    assert ev.weight_detection(ones, truth)["recall"] == 0.0           # files written before M3 have no m3 key
+
+
+def test_inter_errors():
+    import geom
+    from helpers import ball_mask
+    shape = (32, 32, 24)
+    brain = ball_mask(shape, 8, offset=(0.0, 0.0, 0.0))
+    pre = geom.Rigid(np.eye(3), np.array([0.5, 0.1, -0.14]))             # what the registration finds without motion
+    g = geom.rigid_from_pivot((0.4, -0.3, 1.0), (0.8, -0.5, 0.3), pivot_offset_mm=(0.0, 0.0, 0.0))
+    exact = g.compose(pre)
+    st = dict(theta_deg=np.rad2deg(geom.axis_angle(exact.R)).tolist(), t_mm=exact.t.tolist(), ctrl_mm=None,
+              segments=[], ref_segment=0)
+    e = ev.inter_errors(st, g, None, pre, brain)
+    assert e["rigid"]["tre_mean_mm"] < 1e-9 and e["full"]["tre_mean_mm"] < 1e-9 and e["nonrigid_brain_max_mm"] == 0.0
+    st0 = dict(st, theta_deg=[0.0, 0.0, 0.0], t_mm=pre.t.tolist())        # the pose of the unmoved head
+    e0 = ev.inter_errors(st0, g, None, pre, brain)
+    r = geom.grid_mm(shape)[brain]
+    want = float(np.linalg.norm(g.apply(pre.apply(r)) - pre.apply(r), axis=-1).mean())
+    assert abs(e0["rigid"]["tre_mean_mm"] - want) < 1e-9 and want > 0.5
+    # a smooth non-rigid truth on top: the rigid part alone leaves it, a matching control grid removes most of it
+    disp = np.zeros(shape + (3,))
+    disp[..., 0] = 0.6 * (geom.grid_mm(shape)[..., 1] / 16.0)             # shear-like, 0.6 mm at the edge
+    total = (g.apply(geom.grid_mm(shape) + disp) - geom.grid_mm(shape))   # displacement field of (g o (1 + u))
+    e1 = ev.inter_errors(st, None, total, pre, brain)
+    assert 0.05 < e1["rigid"]["tre_mean_mm"] < 0.6
+    ctrl = np.zeros((5, 5, 5, 3))
+    ctrl[..., 0] = 0.6 * np.linspace(-1, 1, 5)[None, :, None]             # the same shear on the control grid
+    e2 = ev.inter_errors(dict(st, ctrl_mm=ctrl.tolist()), None, total, pre, brain)
+    assert e2["full"]["tre_mean_mm"] < 0.5 * e1["rigid"]["tre_mean_mm"]
+    assert abs(e2["rigid"]["tre_mean_mm"] - e1["rigid"]["tre_mean_mm"]) < 1e-9 and e2["nonrigid_brain_max_mm"] > 0.1
+
+
+def test_state_errors_of_the_initial_poses_and_of_no_correction():
+    from helpers import ball_mask
+    brain = ball_mask((32, 32, 24), 8)
+    m3 = dict(_m3(66), init_poses=[dict(theta_deg=[0.0, 0.0, 0.0], t_mm=[0.0, 0.0, 0.0]),
+                                   dict(theta_deg=[0.0, 0.0, 1.0], t_mm=[0.5, 0.3, 0.0])])
+    e = ev.state_errors(dict(m3=m3), _tc_truth(), brain, poses="init_poses")
+    assert abs(e["t_err_mm_max"] - 0.3) < 1e-9 and e["rot_err_deg_max"] < 1e-6
+    e0 = ev.state_errors(dict(m3=m3), _tc_truth(), brain, poses="identity")   # what no state pose at all would leave
+    assert abs(e0["rot_err_deg_max"] - 1.0) < 1e-6 and abs(e0["t_err_mm_max"] - 0.5) < 1e-9
+    assert e0["tre_mean_mm_max"] > e["tre_mean_mm_max"] > 0.0

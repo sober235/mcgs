@@ -1,0 +1,36 @@
+{
+ "m1": {
+  "align": {
+   "start": 300,
+   "end": 1500,
+   "lr": 0.005,
+   "weight": 1.0
+  }
+ },
+ "m2": {
+  "z0": 4.0,
+  "z1": 8.0,
+  "cap": 0.25,
+  "warmup": 600,
+  "every": 100,
+  "n_shells": 24
+ },
+ "m3": {
+  "at": 1000,
+  "min_frac": 0.1,
+  "cp_t": 1.0,
+  "max_states": 3,
+  "init": "reg",
+  "lrs": {
+   "seg_theta": 0.0005,
+   "seg_t": 0.01
+  }
+ },
+ "reg": {
+  "ctrl_l2": 0.001,
+  "ctrl_smooth": 0.01,
+  "seg_l2": 0.0,
+  "seg_smooth": 0.0
+ },
+ "_note": "Smoke only: a change-point threshold low enough that a 30-iteration model opens states, so the detection path (state images, registration, state poses) runs in the real trainer. Never used for a result."
+}

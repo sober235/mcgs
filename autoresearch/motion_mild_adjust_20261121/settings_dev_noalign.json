@@ -1,0 +1,30 @@
+{
+ "m1": {
+  "align": null
+ },
+ "m2": {
+  "z0": 4.0,
+  "z1": 8.0,
+  "cap": 0.25,
+  "warmup": 600,
+  "every": 100,
+  "n_shells": 24
+ },
+ "m3": {
+  "at": 1000,
+  "min_frac": 0.1,
+  "cp_t": 8.0,
+  "max_states": 3,
+  "init": "reg",
+  "lrs": {
+   "seg_theta": 0.0005,
+   "seg_t": 0.01
+  }
+ },
+ "reg": {
+  "ctrl_l2": 0.001,
+  "ctrl_smooth": 0.01,
+  "seg_l2": 0.0,
+  "seg_smooth": 0.0
+ }
+}
