@@ -1,0 +1,119 @@
+{
+  "root": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121",
+  "gpu": "5",
+  "smoke": false,
+  "runs": [
+    {
+      "row": "jyz:20:classical",
+      "topic": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20",
+      "jobs": [
+        {
+          "job": "classical_T1",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20/scripts/recon_classical.py",
+            "--contrast",
+            "T1",
+            "--gpu",
+            "5"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20/logs/run_classical_T1.log"
+        },
+        {
+          "job": "classical_FLAIR",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20/scripts/recon_classical.py",
+            "--contrast",
+            "FLAIR",
+            "--gpu",
+            "5"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20/logs/run_classical_FLAIR.log"
+        }
+      ],
+      "results": [
+        {
+          "contrast": "T1",
+          "method": "zf",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20/logs/classical_T1.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20/recon/zf_T1_complex.npy",
+          "head_psnr": 25.639328019482058,
+          "head_ssim": 0.6636327505111694,
+          "nmse": 0.1381559520959854,
+          "registered": {
+            "head_psnr": 25.639328019482058,
+            "head_ssim": 0.6636327505111694,
+            "nmse": 0.1381559520959854
+          },
+          "diff": {
+            "head_psnr": 0.0,
+            "head_ssim": 0.0,
+            "nmse": 0.0
+          }
+        },
+        {
+          "contrast": "T1",
+          "method": "cgsense",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20/logs/classical_T1.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20/recon/cgsense_T1_complex.npy",
+          "head_psnr": 31.4250363057479,
+          "head_ssim": 0.8664895296096802,
+          "nmse": 0.05150391906499863,
+          "registered": {
+            "head_psnr": 31.4250363057479,
+            "head_ssim": 0.8664895296096802,
+            "nmse": 0.05150391906499863
+          },
+          "diff": {
+            "head_psnr": 0.0,
+            "head_ssim": 0.0,
+            "nmse": 0.0
+          }
+        },
+        {
+          "contrast": "FLAIR",
+          "method": "zf",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20/logs/classical_FLAIR.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20/recon/zf_FLAIR_complex.npy",
+          "head_psnr": 27.63619669529404,
+          "head_ssim": 0.6969788670539856,
+          "nmse": 0.08218439668416977,
+          "registered": {
+            "head_psnr": 27.63619669529404,
+            "head_ssim": 0.6969788670539856,
+            "nmse": 0.08218439668416977
+          },
+          "diff": {
+            "head_psnr": 0.0,
+            "head_ssim": 0.0,
+            "nmse": 0.0
+          }
+        },
+        {
+          "contrast": "FLAIR",
+          "method": "cgsense",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20/logs/classical_FLAIR.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/topics/jyz_af20/recon/cgsense_FLAIR_complex.npy",
+          "head_psnr": 32.089342309695986,
+          "head_ssim": 0.8717263340950012,
+          "nmse": 0.03825600817799568,
+          "registered": {
+            "head_psnr": 32.089342309695986,
+            "head_ssim": 0.8717263340950012,
+            "nmse": 0.03825600817799568
+          },
+          "diff": {
+            "head_psnr": 0.0,
+            "head_ssim": 0.0,
+            "nmse": 0.0
+          }
+        }
+      ]
+    }
+  ]
+}
