@@ -50,6 +50,7 @@ ap.add_argument("--arrow", action="store_true",
                 help="one arrow per row, at the same place in every zoom panel: where the error of the other methods "
                      "(median over the ten reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's "
                      "most (user, 2026-11-21)")
+ap.add_argument("--arrow_color", default="#00E5FF")
 ap.add_argument("--title_fs", type=float, default=22.0)
 ap.add_argument("--png_dpi", type=int, default=200)
 ap.add_argument("--pdf", action="store_true",
@@ -347,7 +348,7 @@ def outline(a, z):
 # no rasterized=True: the PDF backend then embeds each image at --pdf_dpi over its own panel only, instead of a
 # full-figure raster buffer per panel (the 600-dpi house renders of these topics needed ~100 GB of RAM that way)
 IMKW = dict(origin="lower", aspect="auto")
-ARROW_C = "#00E5FF"
+ARROW_C = args.arrow_color
 
 
 def arrow_at(a, pt, z):
