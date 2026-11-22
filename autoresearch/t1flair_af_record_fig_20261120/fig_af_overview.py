@@ -27,10 +27,16 @@ import hashlib
 import json
 import os
 import shutil
+import sys
 from pathlib import Path
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--save_dir", default="")
+ap.add_argument("--nfig", action="store_true",
+                help="edition drawn with the nature-figure skill (user, 2026-11-22; implies --nature): its palette, 5 pt "
+                     "glyph floor, values printed only in the two rows the claim rests on (GS-single, MC-GS) with a "
+                     "colour scale per block, no number above each violin, render-time panel-alignment gate, "
+                     "SVG / PDF / TIFF / PNG export and source-data CSV files; every number unchanged")
 ap.add_argument("--nature", action="store_true",
                 help="Nature house style (user, 2026-11-22; implies --article): 183 mm wide, sans-serif 5-7 pt, bold "
                      "lower-case panel letters, white background, no in-figure title or caption (the legend goes to "
@@ -66,7 +72,8 @@ KEY = lambda af: {"ZF": "zf", "CG-SENSE": "cgsense", "CS-SENSE": "cssense_o200",
 LABELS = [m for m, _ in METHODS]
 NONGS = [m for m in LABELS if m not in ("GS-single", "MC-GS")]
 log = lambda *a: print(*a, flush=True)
-NAT = args.nature
+SK = args.nfig
+NAT = args.nature or SK
 args.article = args.article or NAT
 art = Path(os.environ.get("MCGS_ARTIFACT_DIR", "af_overview_out")).resolve()
 art.mkdir(parents=True, exist_ok=True)
@@ -169,9 +176,23 @@ if NAT:
                          "axes.linewidth": 0.5, "xtick.major.width": 0.5, "ytick.major.width": 0.5,
                          "xtick.major.size": 2, "ytick.major.size": 2, "xtick.labelsize": 6, "ytick.labelsize": 6,
                          "pdf.fonttype": 42, "ps.fonttype": 42})
-MET = [("psnr", "PSNR (dB)", "{:.2f}"), ("ssim", "SSIM", "{:.3f}"), ("nmse", "NMSE", "{:.4f}")]
+if SK:
+    BLUE_RAMP = ["#EEF2F8", "#C9D8EC", "#9DB9DD", "#6F97CB", "#3775BA", "#0F4D92", "#0A3466"]
+    CMAP = LinearSegmentedColormap.from_list("skillblue", BLUE_RAMP)
+    C_GS, C_NG = "#B64342", "#0F4D92"                      # the skill's red_strong / blue_main
+    INK = INK2 = BASE = "#272727"
+    Z.update(cell=5.5, met=7, afh=6, ylab=6.5, ttl=7, vttl=7, vy=6.5, pct=5, leg=6, alpha=0.8)
+    plt.rcParams.update({"font.size": 6.5, "svg.fonttype": "none", "axes.linewidth": 0.6, "xtick.major.width": 0.6,
+                         "ytick.major.width": 0.6, "axes.edgecolor": BASE, "axes.labelcolor": INK, "xtick.color": INK,
+                         "ytick.color": INK, "text.color": INK, "xtick.labelsize": 6, "ytick.labelsize": 6})
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "nature_qa"))
+    from audit_panel_alignment import require_matplotlib_panel_alignment  # noqa: E402
+CBARS = []
+SHOW = (lambda m, v: 100.0 * v if (SK and m == "nmse") else v)      # skill edition prints NMSE in per cent
+MET = [("psnr", "PSNR (dB)", "{:.2f}"), ("ssim", "SSIM", "{:.3f}"),
+       ("nmse", "NMSE (%)", "{:.2f}") if SK else ("nmse", "NMSE", "{:.4f}")]
 if NAT:
-    fig = plt.figure(figsize=(7.2, 6.15))                  # 183 mm, the double-column width; compact (user, 2026-11-22)
+    fig = plt.figure(figsize=(7.2, 6.3 if SK else 6.15))                  # 183 mm, the double-column width; compact (user, 2026-11-22)
     gs_top = fig.add_gridspec(1, 2, left=0.082, right=0.999, top=0.998, bottom=0.588, wspace=0.185)
     gs_bot = fig.add_gridspec(2, 3, left=0.062, right=0.997, top=0.528, bottom=0.058, hspace=0.36, wspace=0.26)
 else:
@@ -198,16 +219,36 @@ def heat(ax, c, tag):
                 ax.add_patch(Rectangle((x, i), 0.96, 0.92, fc=col, ec=SURF, lw=0))
                 dark = (lab != "ZF") and (0.08 + 0.92 * v) > 0.55
                 best = REC["mcgs_first_every_column"][f"{c}|{m}|AF{af}"] == lab
-                ax.text(x + 0.48, i + 0.47, fmt.format(vals[i, j]), ha="center", va="center", fontsize=Z["cell"],
-                        color="#ffffff" if dark else INK, fontweight="bold" if best else "normal")
-                if best:
+                if not SK or lab in ("GS-single", "MC-GS"):
+                    ax.text(x + 0.48, i + 0.47, fmt.format(SHOW(m, vals[i, j])), ha="center", va="center", fontsize=Z["cell"],
+                            color="#ffffff" if dark else INK, fontweight="bold" if best else "normal")
+                if best and not SK:
                     ax.add_patch(Rectangle((x + 0.03, i + 0.03), 0.90, 0.86, fill=False, ec=INK, lw=Z["best_lw"]))
+        if SK:                      # the colour scale of this block: worst method other than ZF -> best method
+            cax = ax.inset_axes([xs[b * 4], len(LABELS) + 0.3, 3.96, 0.26], transform=ax.transData)
+            cax.imshow(np.linspace(0.08, 1.0, 256)[None, :], cmap=CMAP, vmin=0, vmax=1, aspect="auto", extent=(0, 1, 0, 1))
+            cax.set_yticks([]); cax.set_xticks([0, 1])
+            cax.set_xticklabels([fmt.format(SHOW(m, -lo if m == "nmse" else lo)), fmt.format(SHOW(m, -hi if m == "nmse" else hi))], fontsize=5.5)
+            for t_, ha_ in zip(cax.get_xticklabels(), ("left", "right")):
+                t_.set_ha(ha_)
+            # one outline around the run of columns in which a method is the best (no stroke between its numbers)
+            for i, lab in enumerate(LABELS):
+                run = [j for j, af in enumerate(AFS) if REC["mcgs_first_every_column"][f"{c}|{m}|AF{af}"] == lab]
+                for j0 in [j for j in run if j - 1 not in run]:
+                    j1 = j0
+                    while j1 + 1 in run:
+                        j1 += 1
+                    ax.add_patch(Rectangle((xs[b * 4 + j0] + 0.02, i + 0.02), (j1 - j0) + 0.92, 0.88, fill=False, ec=INK, lw=Z["best_lw"]))
+            cax.tick_params(length=1.5, width=0.5, pad=1)
+            for sp in cax.spines.values():
+                sp.set_linewidth(0.4)
+            CBARS.append(cax)
         xc = xs[b * 4] + 2 - 0.02
         ax.text(xc, -1.05, mname, ha="center", va="center", fontsize=Z["met"], color=INK, fontweight="bold")
         for j, af in enumerate(AFS):
             ax.text(xs[b * 4 + j] + 0.48, -0.35, f"{af}" if NAT else f"AF{af}", ha="center", va="center", fontsize=Z["afh"], color=INK2)
     ax.set_xlim(-0.1, xs[-1] + 1.05)
-    ax.set_ylim(len(LABELS) + 0.02, -1.32 if NAT else -1.5)
+    ax.set_ylim(len(LABELS) + (1.25 if SK else 0.02), -1.32 if NAT else -1.5)
     ax.set_yticks(np.arange(len(LABELS)) + 0.46)
     ax.set_yticklabels(LABELS, fontsize=Z["ylab"])
     for t, lab in zip(ax.get_yticklabels(), LABELS):
@@ -261,9 +302,9 @@ def violins(ax, c, m, ylab, title):
             tops.append((pos, hi, float(np.mean(dlt > 0))))
     ymin, ymax = ax.get_ylim()
     span = ymax - ymin
-    for pos, hi, w in tops:
+    for pos, hi, w in ([] if SK else tops):
         ax.text(pos, ymax + 0.02 * span, f"{100 * w:.0f}%", ha="center", va="bottom", fontsize=Z["pct"], color=INK2)
-    ax.set_ylim(min(ymin, -0.04 * span), ymax + 0.12 * span)
+    ax.set_ylim(min(ymin, -0.04 * span), ymax + (0.02 if SK else 0.12) * span)
     ax.set_xticks(np.arange(len(AFS)))
     ax.set_xticklabels([f"{af}" if NAT else f"AF{af}" for af in AFS])
     if NAT:
@@ -305,7 +346,19 @@ if not NAT:
          "(one scan fed to both channels of the joint model); ZS-SSDU with 5 residual blocks.",
          ha="left", fontsize=10, color=INK2)
 
-stem = "t1flair_af12_16_20_24_overview_psnr_ssim_nmse" + ("_nature" if NAT else "_article" if args.article else "")
+stem = "t1flair_af12_16_20_24_overview_psnr_ssim_nmse" + ("_nfig" if SK else "_nature" if NAT else "_article" if args.article else "")
+if SK:
+    CAP_AB = ("Colour: value on the scale drawn under each block, from the weakest method other than zero filling (ZF, "
+              "off the scale, lightest) to the best method; NMSE in per cent, its scale inverted so that darker is better in every block. "
+              "Values are printed for MC-GS and the strongest comparison, GS-single; bold and outlined = best of the 11 "
+              "methods in that column. All values are in the source data. One vd-Poisson mask per acceleration factor "
+              "for both contrasts.")
+    ws = [v["win_share"] for v in REC["slices"].values() if isinstance(v, dict)]
+    CAP_C = (f"n = {NSL} slices per contrast and acceleration factor (transverse, coronal and sagittal slices whose head "
+             "covers >= 5% of the slice; slices of one volume, not independent subjects). Above the dashed line = MC-GS "
+             "better. Dot, median; bar, interquartile range; violin trimmed to the 0.5-99.5 percentiles. MC-GS is better "
+             f"in {100 * min(ws):.0f}-{100 * max(ws):.0f}% of the slices, depending on the pair (source data); one-sided "
+             "Wilcoxon signed-rank test, P < 1e-60 in every pair, not corrected for multiple comparisons.")
 if NAT:
     args.png_dpi = max(args.png_dpi, 600)
     (art / f"{stem}_legend.txt").write_text(
@@ -316,6 +369,42 @@ if NAT:
         "FLAIR): PSNR gain, SSIM gain and relative NMSE reduction. " + CAP_C + "\n"
         "One scorer and one ground truth for all methods; single subject, seed 42; GS-single = the registered arm (one "
         "scan fed to both channels of the joint model); ZS-SSDU with 5 residual blocks.\n")
+EXTRA = []
+if SK:
+    fig.canvas.draw()
+    rep_al = require_matplotlib_panel_alignment(fig, json_out=str(art / f"{stem}.alignment.json"),
+                                                overlay_svg=str(art / f"{stem}.alignment.svg"), tolerance_pt=1.5,
+                                                gutter_tolerance_pt=1.5, strict=True, exclude_axes=CBARS)
+    log("panel alignment gate:", rep_al.get("status", rep_al.get("verdict", "passed")))
+    fig.savefig(art / f"{stem}.svg")
+    fig.savefig(art / f"{stem}.tiff", dpi=600, pil_kwargs={"compression": "tiff_lzw"})
+    with open(art / f"{stem}_source_ab.csv", "w") as f:
+        f.write("panel,contrast,metric,acceleration_factor,method,value\n")
+        for c in CONTRASTS:
+            for m, _, _ in MET:
+                for af in AFS:
+                    for lab in LABELS:
+                        f.write(f"{'a' if c == 'T1' else 'b'},{c},{m},{af},{lab},{V[(c, af, lab)][m]!r}\n")
+    with open(art / f"{stem}_source_c_summary.csv", "w") as f:
+        f.write("contrast,acceleration_factor,metric,comparator,n_slices,median,q1,q3,share_mcgs_better,wilcoxon_p_one_sided\n")
+        for c in CONTRASTS:
+            for af in AFS:
+                for comp in ("GS-single", REC["slices"][f"{c}|AF{af}|strongest_non_gs"]):
+                    for m in ("psnr", "ssim", "nmse"):
+                        d_ = improve(m, S[(c, af, "MC-GS", m)], S[(c, af, comp, m)])
+                        q1, md, q3 = np.percentile(d_, [25, 50, 75])
+                        r_ = REC["slices"][f"{c}|AF{af}|{m}|vs {comp}"]
+                        f.write(f"{c},{af},{m},{comp},{len(d_)},{md!r},{q1!r},{q3!r},{r_['win_share']!r},{r_['wilcoxon_p_greater']!r}\n")
+    with open(art / f"{stem}_source_c_slices.csv", "w") as f:
+        f.write("contrast,acceleration_factor,metric,comparator,slice_index,mcgs_improvement\n")
+        for c in CONTRASTS:
+            for af in AFS:
+                for comp in ("GS-single", REC["slices"][f"{c}|AF{af}|strongest_non_gs"]):
+                    for m in ("psnr", "ssim", "nmse"):
+                        for i_, v_ in enumerate(improve(m, S[(c, af, "MC-GS", m)], S[(c, af, comp, m)])):
+                            f.write(f"{c},{af},{m},{comp},{i_},{v_!r}\n")
+    EXTRA = [f"{stem}.svg", f"{stem}.tiff", f"{stem}.alignment.json", f"{stem}_source_ab.csv",
+             f"{stem}_source_c_summary.csv", f"{stem}_source_c_slices.csv"]
 fig.savefig(art / f"{stem}.png", dpi=args.png_dpi)
 fig.savefig(art / f"{stem}.pdf", dpi=args.pdf_dpi)
 plt.close(fig)
@@ -327,7 +416,7 @@ for k, v in REC["slices"].items():
     if isinstance(v, dict):
         log(f"  {k:<44} median {v['median']:+.4f}  win {100 * v['win_share']:5.1f}%  p {v['wilcoxon_p_greater']:.1e}")
 (art / f"record_{stem}.json").write_text(json.dumps(REC, indent=1))
-outs = [f"{stem}.png", f"{stem}.pdf", f"record_{stem}.json"] + ([f"{stem}_legend.txt"] if NAT else [])
+outs = [f"{stem}.png", f"{stem}.pdf", f"record_{stem}.json"] + ([f"{stem}_legend.txt"] if NAT else []) + EXTRA
 for n in outs:
     log(f"  sha256 {sha(art / n)}  {n}")
 if args.save_dir:
