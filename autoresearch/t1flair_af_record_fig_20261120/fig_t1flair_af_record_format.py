@@ -42,6 +42,9 @@ ap.add_argument("--box_centres", type=int, nargs=6, default=None, metavar="V",
                      "in-plane volume axes, for transverse (axes 1 2), coronal (axes 0 2), sagittal (axes 0 1); "
                      "e.g. the positions find_zoom_box.py reports (user, 2026-11-21)")
 ap.add_argument("--err_vmax", type=float, default=0.1)
+ap.add_argument("--zoom_err_smooth", type=int, default=0,
+                help="edge of a local-mean window applied to the error map of the zoom rows (0 = none; 5 with "
+                     "--err_vmax 0.03 is the most legible setting of zoom_presentation_test.py, user 2026-11-21)")
 ap.add_argument("--title_fs", type=float, default=22.0)
 ap.add_argument("--png_dpi", type=int, default=200)
 ap.add_argument("--pdf", action="store_true",
@@ -268,7 +271,8 @@ TITLE = (f"jiangyizhou T1 + FLAIR, vd-Poisson mask, nominal AF {args.af}, actual
          f"   --   Transverse {t_} / Coronal {c_} / Sagittal {s_}")
 fl = EX["contrasts"]["FLAIR"]
 CAP = ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the best of each row in bold",
-       f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}], inside the head only",
+       f"error |recon - GT| / max(GT), jet [0, {args.err_vmax:g}], inside the head only"
+       + (f", shown as its {args.zoom_err_smooth}x{args.zoom_err_smooth} local mean" if args.zoom_err_smooth else ""),
        "row under each image row: left = the magnified box of the image, right = the same box of the error map; "
        "GT column: GT box | sampling mask in that plane (k-space)",
        f"AF = {NPL} plane points / {NSAMP} sampled points, one mask for both contrasts; the FLAIR scan acquired "
@@ -364,7 +368,10 @@ for k, (r, h, eh) in enumerate(zip(rows, hs, ehs)):
         for i, (txt, met) in enumerate(((f"{n['psnr']:.2f} dB", "psnr"), (f"SSIM {n['ssim']:.4f}", "ssim"),
                                          (f"NMSE {n['nmse']:.5f}", "nmse"))):
             label(a, txt, bold=lab == r["best"][met], line=i, fs=10.5, hh=h, color=METRIC_COLOR)
-        emap = D(np.abs(v - r["g2"]) / gmax[c] * r["emask"], axis)
+        emap = np.abs(v - r["g2"]) / gmax[c] * r["emask"]
+        if args.zoom_err_smooth:
+            emap = uniform_filter(emap, size=args.zoom_err_smooth, mode="nearest")
+        emap = D(emap, axis)
         bL.imshow(crop(D(v, axis), z), **gkw)
         im = bR.imshow(crop(emap, z), cmap="jet", vmin=0.0, vmax=args.err_vmax, **IMKW)
         zframe(bL); zframe(bR)
@@ -375,7 +382,7 @@ for k, (r, h, eh) in enumerate(zip(rows, hs, ehs)):
         e0 = y + h + gap + 0.04
         gsm = ScalarMappable(norm=Normalize(0, 1), cmap="gray")
         for handle, t0, t1, tk, lab_ in ((gsm, y, y + h - CBTRIM, np.linspace(0, 1, 5), "intensity / row window"),
-                                         (im, e0, y + h + gap + eh, np.arange(0, 5) * args.err_vmax / 4, "|error| / max GT")):
+                                         (im, e0, y + h + gap + eh, np.arange(0, 5) * args.err_vmax / 4, "|error| / max GT" + (f"\n({args.zoom_err_smooth}x{args.zoom_err_smooth} mean)" if args.zoom_err_smooth else ""))):
             cax = fig.add_axes([x_cb, 1 - t1 / fh, cbw / fw, (t1 - t0) / fh])
             cb = fig.colorbar(handle, cax=cax, ticks=tk)
             cb.ax.tick_params(labelsize=9.5)
@@ -386,7 +393,9 @@ fig.suptitle(TITLE, fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
 fig.text(0.5, 1 - cap_y / fh, "\n".join(cap_lines), ha="center", va="top", fontsize=11, linespacing=1.32)
 
 stem = f"t1flair_af{args.af}_three_planes_{t_}_{c_}_{s_}_record_format" + ("_indep_single" if args.single == "indep" else "") \
-    + ("_zoomsel" if args.box_centres else "") + (f"_err{args.err_vmax:g}" if args.err_vmax != 0.1 else "")
+    + ("_zoomsel" if args.box_centres else "") + (f"_err{args.err_vmax:g}" if args.err_vmax != 0.1 else "") \
+    + (f"_mean{args.zoom_err_smooth}" if args.zoom_err_smooth else "")
+record["error_display"] = dict(vmax=args.err_vmax, zoom_local_mean=args.zoom_err_smooth)
 record["gs_single"] = args.single
 fig.savefig(art / f"{stem}.png", dpi=args.png_dpi)
 if args.pdf:
