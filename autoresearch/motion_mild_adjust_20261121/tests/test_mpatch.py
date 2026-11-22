@@ -173,3 +173,15 @@ def test_validate_rejects_missing_schedule():
         mpatch.validate(bad)
     with pytest.raises(AssertionError):
         mpatch.validate(_cfg("truth") | dict(truth_path=None))
+
+
+def test_validate_m1():
+    ok = dict(reg_path="r.json", align=dict(start=300, end=1500, lr=5e-3, weight=1.0))
+    mpatch.validate(_cfg("monitor") | dict(m1=ok))
+    mpatch.validate(_cfg("monitor") | dict(m1=dict(reg_path="r.json", align=None)))
+    for bad in (dict(align=None), dict(reg_path=None, align=None), dict(reg_path="r.json", align=dict(start=5, end=5, lr=1e-3, weight=1.0)),
+                dict(reg_path="r.json", align=dict(start=0, end=5, lr=1e-3))):
+        with pytest.raises(AssertionError):
+            mpatch.validate(_cfg("monitor") | dict(m1=bad))
+    with pytest.raises(AssertionError):                                    # M1 is for the joint model's T2W channel
+        mpatch.validate(_cfg("monitor") | dict(m1=ok, channel="plain"))

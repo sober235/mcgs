@@ -20,13 +20,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-from mcommon import ARMS2, CFG2, CONDITIONS2, DATA2, FORMAL, LEDGER2, MATRIX2, ORDERS, RES2, ROOT2, TR2, c1, exp_name
+from mcommon import (ARMS2, CFG2, CONDITIONS2, DATA2, FORMAL, LEDGER2, MATRIX2, ORDERS, REG2, RES2, ROOT2, TR2, c1,
+                     exp_name)
 
 import run as run1  # noqa: E402  (first version's launcher: trainer-copy check, duration filter, ledger row)
 
 HERE = Path(__file__).resolve().parent
 log = run1.log
 SMOKE_M2 = dict(warmup=10, every=10)
+SMOKE_ALIGN = dict(start=5, end=20)
 
 
 def is_single(arm):
@@ -87,14 +89,23 @@ def run_name(af, order, cond, arm, seed, smoke=False, tag=""):
 
 def motion_config(af, order, cond, arm, seed, settings, smoke=False, tag=""):
     a = ARMS2[arm]
-    assert not a["m1"] and not a["m3"], f"{arm}: M1 / M3 are not implemented yet"
+    assert not a["m3"], f"{arm}: M3 is not implemented yet"
     cdir = cond_dir(order, cond)
     m2 = dict(settings["m2"], mode=a["m2"], **(SMOKE_M2 if smoke else {}))
+    m1 = None
+    if a["m1"]:
+        al = settings["m1"]["align"]
+        m1 = dict(reg_path=str(reg_path(af, order, cond)),
+                  align=None if al is None else dict(al, **(SMOKE_ALIGN if smoke else {})))
     return dict(exp=run_name(af, order, cond, arm, seed, smoke, tag), arm=arm, cond=cond, order=order, af=af,
                 seed=int(seed), channel="plain" if is_single(arm) else "contrast", out_dir=str(RES2),
                 schedule_path=str(cdir / "schedule.npz"), truth_path=str(cdir / "motion_truth.json"),
-                brain_path=str(cdir / "brain.npy"), m1=None, m2=m2, m3=None, reg=settings["reg"],
+                brain_path=str(cdir / "brain.npy"), m1=m1, m2=m2, m3=None, reg=settings["reg"],
                 native_shift_mm=list(c1.NATIVE_SHIFT_MM))
+
+
+def reg_path(af, order, cond):
+    return REG2 / f"{af}_{order}_{cond}.json"
 
 
 def motion_path(exp):
@@ -138,7 +149,7 @@ def ledger_row(score, meta):
     return row
 
 
-def needed_files(af, order, cond):
+def needed_files(af, order, cond, arm=None):
     spec, cdir = CONDITIONS2[cond], cond_dir(order, cond)
     need = [c1.MASKS[af], c1.HYW / "ksp_T1.h5", c1.HYW / "ksp_T2.h5", cdir / "schedule.npz",
             cdir / "motion_truth.json", cdir / "brain.npy", cdir / "manifest.json"]
@@ -148,6 +159,8 @@ def needed_files(af, order, cond):
         need.append(c1.DATA / spec["v1_data"] / "ksp_T2.h5")
     if spec["lesions"]:
         need.append(cdir / "ksp_T1.h5")
+    if arm is not None and ARMS2[arm]["m1"]:
+        need.append(reg_path(af, order, cond))                 # written by reg.py before the training
     return need
 
 
@@ -155,7 +168,7 @@ LOSS = re.compile(r"\[iter\s+\d+/\d+\] loss=\S+")
 
 
 def run_one(af, order, cond, arm, gpu, seed, smoke, settings, tag="", plain=False):
-    missing = [str(p) for p in needed_files(af, order, cond) if not Path(p).exists()]
+    missing = [str(p) for p in needed_files(af, order, cond, arm) if not Path(p).exists()]
     assert not missing, f"missing data files: {missing}"
     digest = run1._source_digest()                           # cwd is still the job's code directory here
     exp, cmd = command(af, order, cond, arm, gpu, seed, smoke, tag, plain=plain)
@@ -215,7 +228,7 @@ def dry_all():
     for part, rows in (*MATRIX2.items(), ("formal", FORMAL)):
         for order, cond, arm in rows:
             exp, _ = command("af12", order, cond, arm, "0", 42, False)
-            missing = [str(p) for p in needed_files("af12", order, cond) if not Path(p).exists()]
+            missing = [str(p) for p in needed_files("af12", order, cond, arm) if not Path(p).exists()]
             done = (RES2 / f"{exp}_score.json").exists()
             bad += bool(missing)
             log(f"{'ok ' if not missing else 'MISSING'} {part:7s} {exp:30s} {'scored' if done else 'not run'} {missing or ''}")

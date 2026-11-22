@@ -204,13 +204,16 @@ def segment_extent(est_segments, ref_seg):
             float(max(np.linalg.norm(s["t_mm"]) for s in rest)))
 
 
-def _brain(cond):
-    p = DATA / cond / "brain.npy"
-    return np.load(p if p.exists() else DATA / "C0/brain.npy").astype(bool)
+def _brain(cond, data=None):
+    """data: another study's data folder (default: this study's)."""
+    data = data or DATA
+    p = data / cond / "brain.npy"
+    return np.load(p if p.exists() else data / "C0/brain.npy").astype(bool)
 
 
-def _state(exp):
-    p = RES / f"{exp}_motion.json"
+def _state(exp, res=None):
+    """res: another study's result folder (default: this study's)."""
+    p = (res or RES) / f"{exp}_motion.json"
     if not p.exists():
         return None
     return json.loads(p.read_text())["final"]
@@ -224,12 +227,15 @@ def trajectory_rows(rec):
             for t in rec.get("trajectory", [])]
 
 
-def motion_errors(exp, cond, c0_exp=None):
-    """Errors of the estimated transform of one run against the simulated truth (None if the run has no adapter)."""
-    st = _state(exp)
+def motion_errors(exp, cond, c0_exp=None, res=None, data=None):
+    """Errors of the estimated transform of one run against the simulated truth (None if the run has no adapter).
+    res: result folder of the runs (default: this study's); data: data folder holding <cond>/ (default: this
+    study's). cond is always a condition of this study's table."""
+    DATA = data or globals()["DATA"]
+    st = _state(exp, res)
     if st is None:
         return None
-    spec, brain, r = CONDITIONS[cond], _brain(cond), geom.grid_mm(N)
+    spec, brain, r = CONDITIONS[cond], _brain(cond, DATA), geom.grid_mm(N)
     truth = json.loads((DATA / cond / "motion_truth.json").read_text()) if cond != "C0" else {}
     g = geom.Rigid.from_json(truth["inter"]) if truth.get("inter") else geom.Rigid.identity()
     disp = np.load(DATA / cond / "disp_T2.npy").astype(np.float64) if spec["nonrigid"] else None
@@ -245,7 +251,7 @@ def motion_errors(exp, cond, c0_exp=None):
                rot_err_deg=_angle_deg(rigid_of(st).R @ (ref.R @ g.R).T),
                est_theta_deg=st.get("theta_deg"), est_t_mm=st.get("t_mm"))
     pres = [("absolute", r + np.asarray(NATIVE_SHIFT_MM, dtype=np.float64))]
-    c0 = _state(c0_exp) if c0_exp else None
+    c0 = _state(c0_exp, res) if c0_exp else None
     if c0 is not None:
         pres.append(("differential", r + est_field(c0, N)))
         out["differential_against"] = c0_exp
@@ -314,8 +320,8 @@ def centroid_shift_mm(rec, gt, mask):
     return float(np.linalg.norm(cen(rec) - cen(gt)))
 
 
-def _vols(exp, arm):
-    p = RES / f"{exp}_volumes.npz"
+def _vols(exp, arm, res=None):
+    p = (res or RES) / f"{exp}_volumes.npz"
     if not p.exists():
         return None
     with np.load(p) as v:
@@ -325,7 +331,7 @@ def _vols(exp, arm):
         return {"T1": (v["recT1"], v["gtT1"]), "T2": (v["recFL"], v["gtFL"])}
 
 
-def lesion_metrics(af, arm, cond="E3", ref_cond="E2"):
+def lesion_metrics(af, arm, cond="E3", ref_cond="E2", data=None):
     """Per lesion: contrast recovery and centroid shift in its own contrast; crosstalk = mean (rec - ref) of the OTHER
     contrast inside the lesion mask, relative to the surrounding signal, minus the same number of the run without
     lesions (ref_cond); tolerance = 3 standard errors of that difference from the shells' voxel scatter."""
@@ -333,6 +339,7 @@ def lesion_metrics(af, arm, cond="E3", ref_cond="E2"):
     if v is None:
         return None
     v0 = _vols(exp_name(af, ref_cond, arm), arm) or {}
+    DATA = data or globals()["DATA"]
     truth = json.loads((DATA / cond / "motion_truth.json").read_text())
     masks = dict(T1=np.load(DATA / cond / "lesion_mask_canon.npy"), T2=np.load(DATA / cond / "lesion_mask_T2.npy"))
     out = []

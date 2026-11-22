@@ -23,6 +23,7 @@ REQUIRED = ("exp", "arm", "cond", "order", "af", "seed", "channel", "out_dir", "
             "brain_path", "m1", "m2", "m3", "reg", "native_shift_mm")
 M2_MODES = ("monitor", "adaptive", "truth")
 M2_KEYS = ("mode", "z0", "z1", "cap", "warmup", "every", "n_shells")
+ALIGN_KEYS = ("start", "end", "lr", "weight")
 _ACTIVE = {}
 
 
@@ -36,6 +37,15 @@ def validate(cfg):
     assert cfg["schedule_path"], "the per-echo-train statistic needs the schedule"
     assert m2["mode"] != "truth" or cfg["truth_path"], "truth weights need the motion truth"
     assert int(m2["every"]) >= 1 and int(m2["warmup"]) >= 1 and float(m2["z1"]) > float(m2["z0"])
+    m1 = cfg["m1"]
+    if m1 is not None:
+        assert cfg["channel"] == "contrast", "M1 moves the T2W channel of the joint model"
+        assert m1.get("reg_path"), "M1 needs the registration file"
+        a = m1.get("align", "missing")
+        assert a != "missing", "m1 needs the key align (settings or None)"
+        if a is not None:
+            assert not [k for k in ALIGN_KEYS if k not in a], f"m1.align needs {ALIGN_KEYS}"
+            assert 0 <= int(a["start"]) < int(a["end"]) and float(a["lr"]) > 0
     return cfg
 
 
@@ -164,7 +174,67 @@ def install(cfg):
     J, S = JT.JointTrainer, ST.SingleContrastTrainer
     ch = cfg["channel"]
     tag = "c" if ch == "contrast" else "p"
-    orig = dict(setup=J._setup_optimizer, kloss=J._kspace_loss, load=JT._load_dataset, jtrain=J.train, strain=S.train)
+    orig = dict(setup=J._setup_optimizer, kloss=J._kspace_loss, load=JT._load_dataset, jtrain=J.train, strain=S.train,
+                model=J._setup_model, render=J._render, ept=JT.edge_preserving_tv)
+    m1 = cfg["m1"]
+    inter = None
+    if m1 is not None:
+        import align
+        import reg
+        from adapter import MotionAdapter, render_transformed
+        inter = reg.load_pose(m1["reg_path"])           # canonical (T1W) point -> its position in the T2W image
+
+    def render_with(self, density_channel, ad, detach=False):
+        """The Gaussians rendered after the adapter's transform (first version: patch.install.render_with);
+        detach=True cuts the Gaussian parameters off, so only the adapter can get a gradient."""
+        m = self.model
+        f = (lambda t: t.detach()) if detach else (lambda t: t)
+        vol = render_transformed(self.voxelizer, f(m.positions), f(m.get_scale_values()), f(m.rotations),
+                                 f(m.get_density(density_channel)), ad, None)
+        if density_channel == "contrast" and m.has_private:
+            vol = vol + render_transformed(self.voxelizer, f(m.private_positions), f(m.get_private_scale_values()),
+                                           f(m.private_rotations), f(m.get_private_density()), ad, None)
+        return vol
+
+    def setup_model(self):
+        """M1: the trainer initialises the T2W density by reading the zero-filled T2W image at the Gaussians'
+        canonical positions. With a pose between the two scans it has to read where those Gaussians land in the
+        T2W image, so the image is resampled into the canonical frame for the duration of this call."""
+        keep = self.zf_c
+        self.zf_c = align.canonical_zf(keep, inter)
+        try:
+            orig["model"](self)
+        finally:
+            self.zf_c = keep
+        print("[mm] M1: T2W density initialised from the zero-filled image resampled into the canonical frame",
+              flush=True)
+
+    def render(self, channel):
+        ad = getattr(self, "motion", None)
+        al = getattr(self, "_mm_align", None)
+        if al is not None and getattr(self, "_mm_align_due", False) and torch.is_grad_enabled():
+            # start of an iteration: the previous iteration's graph is released, nothing of this one is built yet
+            self._mm_align_due = False
+            al.step(self._mm.it, lambda: render_with(self, "plain", ad, detach=True), self._mm_ref, self._mm_support)
+        v = orig["render"](self, channel) if (ad is None or channel != ch) else render_with(self, channel, ad)
+        if hasattr(self, "_mm_last"):
+            self._mm_last[channel] = v
+        return v
+
+    def ept(vol, kappa, w_floor, eps=0.0, vector=False, guide=None, guide_kappa=1.0, guide_alpha=0.0):
+        """Cross-contrast guide of the edge TV put into the frame of the volume it guides (copied from the first
+        version's patch.install.ept)."""
+        tr = _ACTIVE.get("tr")
+        ad = getattr(tr, "motion", None)
+        if ad is not None and guide is not None and guide_alpha > 0 and not ad.is_identity():
+            which = v1patch.guide_frame(vol, guide, tr._mm_last)
+            with torch.no_grad():
+                if which == "plain_in_contrast_frame":
+                    guide = render_with(tr, "plain", ad)
+                elif which == "contrast_in_canonical_frame":
+                    guide = orig["render"](tr, "contrast")
+        return orig["ept"](vol, kappa, w_floor, eps, vector, guide=guide, guide_kappa=guide_kappa,
+                           guide_alpha=guide_alpha)
 
     def load(data_cfg):
         return v1patch.load_with_reference_gt(orig["load"], data_cfg)
@@ -176,6 +246,22 @@ def install(cfg):
         mask = getattr(self, f"mask_fit_{tag}")
         assert tuple(mask.shape[-2:]) == st.train_of.shape, (tuple(mask.shape), st.train_of.shape)
         self._mm = st
+        self.motion, self._mm_last, self._mm_align, self._mm_align_due, self._mm_ref = None, {}, None, False, None
+        if m1 is not None:
+            ad = MotionAdapter(self.volume_shape, True, m1["align"] is not None, 0, 0)
+            ad.set_inter(inter)
+            for p in ad.parameters():
+                p.requires_grad_(False)                       # the rigid part stays at the registration's pose
+            self.motion = ad.to(self.device)
+            print(f"[mm] M1: pose from registration theta_deg {[round(v, 3) for v in ad.state()['theta_deg']]} "
+                  f"t_mm {[round(v, 3) for v in ad.state()['t_mm']]}; alignment step "
+                  f"{m1['align'] if m1['align'] else 'off'}", flush=True)
+            if m1["align"] is not None:
+                from gaussian.init_cloud import head_support, union_magnitude
+                from losses.nonlocal_red import HEAD_FRAC
+                self._mm_align = align.Aligner(self.motion, reg=cfg["reg"], **{k: m1["align"][k] for k in ALIGN_KEYS})
+                with torch.no_grad():                         # head support of the measured zero-filled images
+                    self._mm_support = head_support(union_magnitude(self.zf_p, self.zf_c), HEAD_FRAC)
         _ACTIVE["tr"] = self
         print(f"[mm] arm={cfg['arm']} cond={cfg['cond']} order={cfg['order']} channel={ch} m2={st.mode} "
               f"trains={st.n} down-weighted at start={int((st.w < 1.0).sum())}", flush=True)
@@ -184,12 +270,23 @@ def install(cfg):
     @torch.no_grad()
     def save(self):
         out, st = Path(cfg["out_dir"]), self._mm
+        ad, al = getattr(self, "motion", None), getattr(self, "_mm_align", None)
         rec = dict(exp=cfg["exp"], arm=cfg["arm"], cond=cfg["cond"], order=cfg["order"], channel=ch, n_trains=st.n,
-                   iterations=st.it, m2=st.record(), m3=None, reg=None)
+                   iterations=st.it, m2=st.record(), m3=None, reg=None, align=None)
+        if ad is not None:
+            fin = ad.state()
+            rec["reg"] = dict(theta_deg=fin["theta_deg"], t_mm=fin["t_mm"], reg_path=m1["reg_path"])
+            if al is not None:
+                rec["align"] = dict(settings=m1["align"], n_steps=al.n_steps, last_loss=al.last)
+            # the adapter's final state in the first version's file format (read by its evaluate.motion_errors)
+            (out / f"{cfg['exp']}_motion.json").write_text(json.dumps(dict(
+                exp=cfg["exp"], arm=cfg["arm"], channel=ch, iterations=st.it, final=fin, trajectory=[]), indent=1))
         (out / f"{cfg['exp']}_mm.json").write_text(json.dumps(rec))
         c64 = lambda t: t.detach().cpu().numpy().astype("complex64")
         x = self._render(ch)
         arrays = dict(rec_raw=c64(x))
+        if ad is not None:
+            arrays["canon_complex"] = c64(orig["render"](self, ch))       # canonical (T1W) frame
         if st.mode != "monitor":                              # the scorer's hard data consistency, kept lines only
             csm, mf = getattr(self, f"csm_{tag}"), getattr(self, f"mask_fit_{tag}")
             mf = (mf if mf.ndim == 3 else mf[0]).float()
@@ -212,7 +309,18 @@ def install(cfg):
     JT._load_dataset = ST._load_dataset = load
     J.train, S.train = wrap_train(orig["jtrain"]), wrap_train(orig["strain"])
     J._setup_optimizer = setup
-    J._kspace_loss = make_kloss(orig["kloss"], tag, fft3c)
+    kl = make_kloss(orig["kloss"], tag, fft3c)
+    if m1 is None:
+        J._kspace_loss = kl
+        return orig
+
+    def kloss(self, vol, csm, ksp_meas, mask, freq_weight, norm=None):
+        if ksp_meas is getattr(self, f"kspace_fit_{tag}", None) and vol is self._mm_last.get(ch):
+            self._mm_ref, self._mm_align_due = vol.detach(), True          # reference of the next alignment step
+        return kl(self, vol, csm, ksp_meas, mask, freq_weight, norm)
+
+    J._setup_model, J._render, J._kspace_loss = setup_model, render, kloss
+    JT.edge_preserving_tv = ept
     return orig
 
 

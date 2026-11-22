@@ -239,3 +239,27 @@ def test_adam_eps_of_the_adapter_groups_decides_whether_a_tiny_gradient_moves_th
         opt.step()
         moved[eps] = float(ad.t_mm.detach().abs().max())
     assert moved[None] < 2e-2 * 2e-3 and moved[1e-15] == pytest.approx(2e-2, rel=1e-3)
+
+
+def test_set_inter_matches_set_truth():
+    g = geom.rigid_from_pivot((0.5, -0.3, 1.2), (0.8, -0.5, 0.3), pivot_offset_mm=(8, 3, 0))
+    a, b = MotionAdapter(SHAPE, True, False, 0, 0), MotionAdapter(SHAPE, True, False, 0, 0)
+    a.set_truth(inter=g)
+    b.set_inter(g)
+    assert a.state()["theta_deg"] == b.state()["theta_deg"] and a.state()["t_mm"] == b.state()["t_mm"]
+    assert all(p.requires_grad for p in b.parameters())            # the setter leaves requires_grad alone
+    r = geom.grid_mm(SHAPE)
+    np.testing.assert_allclose(dense_displacement(b, SHAPE), g.apply(r) - r, atol=1e-4)
+
+
+def test_set_segment_pose_matches_set_truth():
+    seg = [geom.Rigid.identity(), geom.Rigid(geom.rotmat(np.deg2rad([0, 0, 1.0])), np.array([0.3, 0, 0])),
+           geom.Rigid(geom.rotmat(np.deg2rad([0.4, 0, 0])), np.array([0.0, -0.2, 0.1]))]
+    a, b = MotionAdapter(SHAPE, True, False, 3, 0), MotionAdapter(SHAPE, True, False, 3, 0)
+    a.set_truth(segments=seg)
+    for k, p in enumerate(seg):
+        b.set_segment_pose(k, p)
+    assert a.state()["segments"] == b.state()["segments"]
+    assert all(p.requires_grad for p in b.parameters())
+    with pytest.raises(AssertionError):
+        b.set_segment_pose(3, seg[1])

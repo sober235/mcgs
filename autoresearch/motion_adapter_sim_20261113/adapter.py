@@ -118,6 +118,23 @@ class MotionAdapter(nn.Module):
                                        t_mm=self.seg_t_mm[k].detach().cpu().tolist()))
         return st
 
+    # ---- setting poses (requires_grad is left as it is)
+    @torch.no_grad()
+    def set_inter(self, inter):
+        """Inter-scan rigid pose: canonical point r -> inter(r) (mm, FOV-centre origin)."""
+        import geom
+        assert self.has_rigid, "an inter-scan pose needs an adapter with the rigid part"
+        self.theta.copy_(torch.tensor(geom.axis_angle(inter.R), dtype=torch.float32))
+        self.t_mm.copy_(torch.tensor(np.asarray(inter.t, dtype=np.float64), dtype=torch.float32))
+
+    @torch.no_grad()
+    def set_segment_pose(self, seg, pose):
+        """Pose of one segment, applied after the inter-scan transform."""
+        import geom
+        assert 0 <= int(seg) < self.n_segments, f"segment {seg} of {self.n_segments}"
+        self.seg_theta[int(seg)].copy_(torch.tensor(geom.axis_angle(pose.R), dtype=torch.float32))
+        self.seg_t_mm[int(seg)].copy_(torch.tensor(np.asarray(pose.t, dtype=np.float64), dtype=torch.float32))
+
     # ---- oracle
     @torch.no_grad()
     def set_truth(self, inter=None, dense_u=None, segments=None, native_shift_mm=(0.0, 0.0, 0.0), brain=None):
@@ -133,9 +150,8 @@ class MotionAdapter(nn.Module):
         if segments is not None and self.n_segments > 0:
             ref = segments[self.ref_segment]
             g = ref.compose(g)
-            rel = [p.compose(ref.inverse()) for p in segments]
-            self.seg_theta.copy_(torch.tensor(np.stack([geom.axis_angle(p.R) for p in rel]), dtype=torch.float32))
-            self.seg_t_mm.copy_(torch.tensor(np.stack([p.t for p in rel]), dtype=torch.float32))
+            for k, p in enumerate(segments):
+                self.set_segment_pose(k, p.compose(ref.inverse()))
         mean_c = s.copy()
         want_u = None
         if dense_u is not None:
@@ -146,8 +162,7 @@ class MotionAdapter(nn.Module):
             mean_c = c.reshape(-1, 3).mean(0)
             self.ctrl.copy_(torch.atanh(torch.tensor(np.clip(c / self.u_max_mm, -0.999, 0.999), dtype=torch.float32)))
         if self.has_rigid:
-            self.theta.copy_(torch.tensor(geom.axis_angle(g.R), dtype=torch.float32))
-            self.t_mm.copy_(torch.tensor(g.t + g.R @ mean_c, dtype=torch.float32))
+            self.set_inter(geom.Rigid(g.R, g.t + g.R @ mean_c))
         else:
             assert inter is None and not np.any(s), "a rigid truth needs an adapter with the rigid part"
         self.to(dev)

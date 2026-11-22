@@ -45,8 +45,9 @@ def ngf_cost(ga, na, vol_b, r, x, mask, eps_b):
     return -float(np.mean((dot ** 2 / (na * nb))[mask]))
 
 
-def register(a, b, mask, factors=(4, 2, 1), x0=None):
-    """a: fixed (T1), b: moving (T2), magnitudes on the full grid; mask: where the metric is read."""
+def register(a, b, mask, factors=(4, 2, 1), x0=None, return_cost=False):
+    """a: fixed (T1), b: moving (T2), magnitudes on the full grid; mask: where the metric is read.
+    return_cost=True: (x, cost of the finest level)."""
     x = np.zeros(6) if x0 is None else np.asarray(x0, dtype=np.float64)
     r_full = geom.grid_mm(N)
     lo, hi = np.argwhere(mask).min(0), np.argwhere(mask).max(0) + 1
@@ -65,7 +66,7 @@ def register(a, b, mask, factors=(4, 2, 1), x0=None):
         x = res.x
         log(f"  level {f}: cost {res.fun:.6f} evals {res.nfev} theta_deg {np.round(x[:3], 3).tolist()} "
             f"t_mm {np.round(x[3:], 3).tolist()}")
-    return x
+    return (x, float(res.fun)) if return_cost else x
 
 
 def main():

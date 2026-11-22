@@ -68,7 +68,21 @@ def test_motion_config():
     assert m["channel"] == "plain" and m["m2"]["mode"] == "monitor"
     assert m["m2"]["warmup"] == 10 and m["m2"]["every"] == 10 and m["exp"] == "smoke_mm_af12_il_C0_I-T2"
     with pytest.raises(AssertionError):
-        mrun.motion_config("af12", "il", "C0", "B1", 42, SETTINGS)        # M1 arrives with Task 8
+        mrun.motion_config("af12", "il", "C0", "B123", 42, SETTINGS)      # M3 arrives with Task 9
+
+
+def test_motion_config_m1():
+    from mcommon import REG2
+    m = mrun.motion_config("af12", "il", "D2", "B1", 42, SETTINGS)
+    assert m["m1"] == dict(reg_path=str(REG2 / "af12_il_D2.json"), align=SETTINGS["m1"]["align"])
+    assert m["m2"]["mode"] == "monitor" and m["channel"] == "contrast"
+    __import__("mpatch").validate(m)
+    off = dict(SETTINGS, m1=dict(align=None))                              # the alignment term switched off
+    assert mrun.motion_config("af12", "il", "D2", "B1", 42, off)["m1"]["align"] is None
+    assert mrun.motion_config("af12", "il", "DTa", "B12", 42, SETTINGS)["m2"]["mode"] == "adaptive"
+    # the registration file is one of the files an M1 arm needs; arms without M1 do not ask for it
+    assert REG2 / "af12_il_D2.json" in mrun.needed_files("af12", "il", "D2", "B1")
+    assert REG2 / "af12_il_D2.json" not in mrun.needed_files("af12", "il", "D2", "B0")
 
 
 def test_settings_file_has_the_plan_values():

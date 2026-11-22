@@ -165,3 +165,23 @@ def test_reference_segment_counts_as_identity_whatever_its_stored_parameters():
     assert evaluate.segment_extent(est, ref_seg=1) == (0.0, 0.0)
     deg, mm = evaluate.segment_extent(est, ref_seg=0)
     assert deg == pytest.approx(0.3) and mm == pytest.approx(0.5)
+
+
+def test_state_and_brain_read_from_a_given_folder(tmp_path):
+    """Another study keeps its results and data elsewhere: res= / data= replace the first version's folders."""
+    import json
+    res, data = tmp_path / "res", tmp_path / "data"
+    (data / "C0").mkdir(parents=True)
+    (data / "X1").mkdir()
+    res.mkdir()
+    (res / "run1_motion.json").write_text(json.dumps(dict(final=dict(theta_deg=[0, 0, 1.0], t_mm=[0.5, 0, 0]))))
+    assert evaluate._state("run1", res=res)["t_mm"] == [0.5, 0, 0]
+    assert evaluate._state("missing", res=res) is None
+    b0, b1 = np.zeros((4, 4, 3), np.uint8), np.ones((4, 4, 3), np.uint8)
+    np.save(data / "C0/brain.npy", b0)
+    np.save(data / "X1/brain.npy", b1)
+    assert evaluate._brain("X1", data=data).all() and evaluate._brain("X1", data=data).dtype == bool
+    assert not evaluate._brain("X2", data=data).any()              # falls back to that folder's C0
+    import inspect
+    for fn in (evaluate.motion_errors, evaluate._vols, evaluate.lesion_metrics):
+        assert {"res", "data"} & set(inspect.signature(fn).parameters), fn.__name__
