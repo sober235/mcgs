@@ -37,6 +37,10 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--af", type=int, required=True, choices=[12, 16, 20, 24])
 ap.add_argument("--slices", type=int, nargs=3, default=[180, 124, 76], metavar=("TRA", "COR", "SAG"))
 ap.add_argument("--box", type=int, default=48, help="edge of the zoom cube in voxels, centred where the slices meet")
+ap.add_argument("--box_centres", type=int, nargs=6, default=None, metavar="V",
+                help="one zoom box per plane instead of the cube where the slices meet: the box centre on the two "
+                     "in-plane volume axes, for transverse (axes 1 2), coronal (axes 0 2), sagittal (axes 0 1); "
+                     "e.g. the positions find_zoom_box.py reports (user, 2026-11-21)")
 ap.add_argument("--err_vmax", type=float, default=0.1)
 ap.add_argument("--title_fs", type=float, default=22.0)
 ap.add_argument("--png_dpi", type=int, default=200)
@@ -213,12 +217,22 @@ for idx, n in zip(args.slices, SHAPE):
 BOX = np.zeros(SHAPE, bool)
 BOX[tuple(slice(i - hw, i + hw) for i in args.slices)] = True
 record["zoom_box"] = dict(centre=list(args.slices), edge_voxels=args.box)
+if args.box_centres:
+    record["zoom_box"] = dict(edge_voxels=args.box, per_plane_centres=dict(
+        transverse=args.box_centres[0:2], coronal=args.box_centres[2:4], sagittal=args.box_centres[4:6]),
+        note="chosen with find_zoom_box.py against GT, for display only")
 
 # ---------------- rows ----------------
 rows = []
 for (axis, pname), idx in zip(PLANES, args.slices):
     sl = [slice(None)] * 3; sl[axis] = idx; sl = tuple(sl)
-    rr, cc = np.nonzero(D(BOX[sl], axis))
+    box2 = BOX[sl]
+    if args.box_centres:
+        ca, cb = args.box_centres[2 * axis:2 * axis + 2]
+        box2 = np.zeros_like(box2)
+        assert hw <= ca <= box2.shape[0] - hw and hw <= cb <= box2.shape[1] - hw, (pname, ca, cb, box2.shape)
+        box2[ca - hw:ca + hw, cb - hw:cb + hw] = True
+    rr, cc = np.nonzero(D(box2, axis))
     zoom = dict(x0=int(cc.min()), y0=int(rr.min()), w=int(cc.max() - cc.min() + 1), h=int(rr.max() - rr.min() + 1))
     for c in CONTRASTS:
         g2, m2 = gt[c][sl], head[c][sl]
@@ -263,7 +277,10 @@ CAP = ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the bes
         f"MC-GS = the registered {GSKEY} arm; GS-single = an independent single-contrast model per contrast (own geometry, "
         f"no cross-contrast term, the {GSKEY} recipe with that contrast's own wavelet weight, 3.6M Gaussians)")
        + "; CS-SENSE (converged TV), Joint SENSE and L1-SPIRiT at the lambda of the topic summary",
-       f"the {args.box}-voxel box where the three slices meet is outlined on every slice; grey bar: fraction of each row's own window (slice P99.9)"]
+       (f"the {args.box}-voxel box where the three slices meet is outlined on every slice" if not args.box_centres else
+        f"one {args.box}-voxel box per plane (the same for T1 and FLAIR), placed where MC-GS's error is furthest below the "
+        f"best other method (chosen against GT, for display only)")
+       + "; grey bar: fraction of each row's own window (slice P99.9)"]
 
 
 def wrap(parts, width_in, fs):
@@ -368,7 +385,8 @@ for k, (r, h, eh) in enumerate(zip(rows, hs, ehs)):
 fig.suptitle(TITLE, fontsize=13, fontweight="bold", y=1 - 0.10 / fh, va="top")
 fig.text(0.5, 1 - cap_y / fh, "\n".join(cap_lines), ha="center", va="top", fontsize=11, linespacing=1.32)
 
-stem = f"t1flair_af{args.af}_three_planes_{t_}_{c_}_{s_}_record_format" + ("_indep_single" if args.single == "indep" else "")
+stem = f"t1flair_af{args.af}_three_planes_{t_}_{c_}_{s_}_record_format" + ("_indep_single" if args.single == "indep" else "") \
+    + ("_zoomsel" if args.box_centres else "") + (f"_err{args.err_vmax:g}" if args.err_vmax != 0.1 else "")
 record["gs_single"] = args.single
 fig.savefig(art / f"{stem}.png", dpi=args.png_dpi)
 if args.pdf:
