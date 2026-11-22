@@ -9,13 +9,17 @@ import geom
 from common import ETL, K_SEG
 
 
-def build(support, k_seg=K_SEG, etl=ETL):
-    """support: (ky, kz) boolean array of acquired phase-encode points."""
+def build(support, k_seg=K_SEG, etl=ETL, order="linear"):
+    """support: (ky, kz) boolean array of acquired phase-encode points. order "linear": consecutive raster points
+    form a train (the first version's assumption); "interleaved": raster point i belongs to train i % n_trains, so
+    every train is spread over the whole support (second version, 2026-11-21)."""
+    if order not in ("linear", "interleaved"):
+        raise ValueError(f"unknown acquisition order {order!r}")
     support = np.asarray(support, dtype=bool)
     n_pts = int(support.sum())
     n_trains = -(-n_pts // etl)
-    order = np.cumsum(support.T.reshape(-1)) - 1                 # kz outer, ky inner
-    train_flat = np.where(support.T.reshape(-1), order // etl, -1)
+    idx = np.cumsum(support.T.reshape(-1)) - 1                   # kz outer, ky inner
+    train_flat = np.where(support.T.reshape(-1), idx // etl if order == "linear" else idx % n_trains, -1)
     train_of = train_flat.reshape(support.T.shape).T.astype(np.int32)
     seg_of = np.where(train_of >= 0, train_of * k_seg // n_trains, -1).astype(np.int32)
     centre = (support.shape[0] // 2, support.shape[1] // 2)
@@ -26,15 +30,27 @@ def build(support, k_seg=K_SEG, etl=ETL):
                 seg_of_train=(np.arange(n_trains) * k_seg // n_trains).astype(np.int32))
 
 
+def _event_weight(e, f):
+    """Share of the event's motion that is present at time fraction f. "pulse": a brief movement that returns."""
+    if e["kind"] == "drift":
+        return f
+    if e["kind"] == "step":
+        return 1.0 if f >= e["at"] else 0.0
+    if e["kind"] == "pulse":
+        return 1.0 if e["at"] <= f < e["at"] + e["dur"] else 0.0
+    raise ValueError(f"unknown intra-scan event {e['kind']!r}")
+
+
+def soft_amp(events, train_time_frac):
+    """Amplitude of the soft-tissue field of every echo train: sum over the events of weight x e.get("soft", 0)."""
+    return np.array([sum(_event_weight(e, float(f)) * float(e.get("soft", 0.0)) for e in events)
+                     for f in train_time_frac], dtype=np.float64)
+
+
 def _raw_pose(events, f):
     theta, t = np.zeros(3), np.zeros(3)
     for e in events:
-        if e["kind"] == "drift":
-            w = f
-        elif e["kind"] == "step":
-            w = 1.0 if f >= e["at"] else 0.0
-        else:
-            raise ValueError(f"unknown intra-scan event {e['kind']!r}")
+        w = _event_weight(e, f)
         theta += w * np.asarray(e["theta_deg"], dtype=np.float64)
         t += w * np.asarray(e["t_mm"], dtype=np.float64)
     return geom.rigid_from_pivot(theta, t)
