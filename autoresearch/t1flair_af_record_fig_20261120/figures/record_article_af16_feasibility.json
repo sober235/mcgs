@@ -771,13 +771,13 @@
   ],
   "arrow_mode": "edge",
   "error_display": {
-    "vmax": 0.05,
+    "vmax": 0.1,
     "zoom_local_mean": 0
   },
   "gs_single": "registered",
   "mcgs_first_on_every_row_and_metric": true,
-  "figure": "t1flair_af16_three_planes_180_124_76_record_format_zoomsel_err0.05_inferno_arrowmain_edge.png",
-  "figure_pdf": "t1flair_af16_three_planes_180_124_76_record_format_zoomsel_err0.05_inferno_arrowmain_edge.pdf",
+  "figure": "t1flair_af16_three_planes_180_124_76_record_format_zoomsel_inferno_arrowmain_edge.png",
+  "figure_pdf": "t1flair_af16_three_planes_180_124_76_record_format_zoomsel_inferno_arrowmain_edge.pdf",
   "pdf_image_dpi": 600,
   "png_dpi": 200
 }
