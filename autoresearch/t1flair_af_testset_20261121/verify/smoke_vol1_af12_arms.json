@@ -1,0 +1,465 @@
+{
+  "root": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke",
+  "gpu": "5",
+  "smoke": true,
+  "runs": [
+    {
+      "row": "vol1_huangyuwei:12:mcinr",
+      "topic": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12",
+      "jobs": [
+        {
+          "job": "mcinr_volume",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GR_pt1.10/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/mcinr_niessen2025/scripts/run_volume.py",
+            "--af",
+            "12",
+            "--gpu",
+            "5",
+            "--mask_T1",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/data/mask_af12_3d.h5",
+            "--mask_FLAIR",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/data/mask_af12_3d.h5",
+            "--ksp_T1",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/data/ksp_T1.h5",
+            "--ksp_FLAIR",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/data/ksp_FLAIR.h5",
+            "--csm_T1",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/data/csm_espirit_T1.h5",
+            "--csm_FLAIR",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/data/csm_espirit_FLAIR.h5",
+            "--out",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/mcinr",
+            "--slices",
+            "128:130"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_mcinr_volume.log"
+        },
+        {
+          "job": "mcinr_score",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/home/congcongliu/.cache/mcgs-vscode/jobs/j-20261122T084222-caf643d8/code/autoresearch/t1flair_af_testset_20261121/run_arms.py",
+            "--score_mcinr",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12",
+            "--af",
+            "12",
+            "--gpu",
+            "5"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_mcinr_score.log"
+        }
+      ],
+      "results": [
+        {
+          "contrast": "T1",
+          "method": "mcinr",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/mcinr_T1.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/mcinr_T1_complex.npy",
+          "head_psnr": 15.304874730206462,
+          "head_ssim": 0.012337042018771172,
+          "nmse": 0.9891265630722046
+        },
+        {
+          "contrast": "FLAIR",
+          "method": "mcinr",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/mcinr_FLAIR.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/mcinr_FLAIR_complex.npy",
+          "head_psnr": 15.105198886304978,
+          "head_ssim": 0.01935337670147419,
+          "nmse": 0.9835153818130493
+        }
+      ]
+    },
+    {
+      "row": "vol1_huangyuwei:12:cssense",
+      "topic": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12",
+      "jobs": [
+        {
+          "job": "classical_T1_o200_lam0.0007",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/scripts/recon_classical.py",
+            "--contrast",
+            "T1",
+            "--gpu",
+            "5",
+            "--methods",
+            "cssense",
+            "--admm_outer",
+            "2",
+            "--lam",
+            "0.0007",
+            "--suffix",
+            "_o200_lam0.0007"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_classical_T1_o200_lam0.0007.log"
+        },
+        {
+          "job": "classical_FLAIR_o200_lam0.0007",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/scripts/recon_classical.py",
+            "--contrast",
+            "FLAIR",
+            "--gpu",
+            "5",
+            "--methods",
+            "cssense",
+            "--admm_outer",
+            "2",
+            "--lam",
+            "0.0007",
+            "--suffix",
+            "_o200_lam0.0007"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_classical_FLAIR_o200_lam0.0007.log"
+        }
+      ],
+      "results": [
+        {
+          "contrast": "T1",
+          "method": "cssense_o200_lam0.0007",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/classical_T1_o200_lam0.0007.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/cssense_o200_lam0.0007_T1_complex.npy",
+          "head_psnr": 28.886446136747196,
+          "head_ssim": 0.8683001399040222,
+          "nmse": 0.04789872094988823
+        },
+        {
+          "contrast": "FLAIR",
+          "method": "cssense_o200_lam0.0007",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/classical_FLAIR_o200_lam0.0007.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/cssense_o200_lam0.0007_FLAIR_complex.npy",
+          "head_psnr": 29.894708291476313,
+          "head_ssim": 0.8447803854942322,
+          "nmse": 0.03599749132990837
+        }
+      ]
+    },
+    {
+      "row": "vol1_huangyuwei:12:jcssense",
+      "topic": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12",
+      "jobs": [
+        {
+          "job": "jcssense_o200_lam0.001",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/scripts/recon_joint_cssense.py",
+            "--topic",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12",
+            "--contrasts",
+            "T1,FLAIR",
+            "--gpu",
+            "5",
+            "--admm_outer",
+            "2",
+            "--lam",
+            "0.001",
+            "--suffix",
+            "_o200_lam0.001"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_jcssense_o200_lam0.001.log"
+        }
+      ],
+      "results": [
+        {
+          "contrast": "T1",
+          "method": "jcssense_o200_lam0.001",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/jcssense_o200_lam0.001.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/jcssense_o200_lam0.001_T1_complex.npy",
+          "head_psnr": 28.856975837626443,
+          "head_ssim": 0.867969274520874,
+          "nmse": 0.0480768047273159
+        },
+        {
+          "contrast": "FLAIR",
+          "method": "jcssense_o200_lam0.001",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/jcssense_o200_lam0.001.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/jcssense_o200_lam0.001_FLAIR_complex.npy",
+          "head_psnr": 29.889791038566152,
+          "head_ssim": 0.8447506427764893,
+          "nmse": 0.03601706400513649
+        }
+      ]
+    },
+    {
+      "row": "vol1_huangyuwei:12:spirit",
+      "topic": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12",
+      "jobs": [
+        {
+          "job": "spirit_T1_ks5_lam0.002",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/scripts/recon_spirit.py",
+            "--contrast",
+            "T1",
+            "--gpu",
+            "5",
+            "--ksize",
+            "5",
+            "--lam",
+            "0.002",
+            "--iters",
+            "2",
+            "--chunk",
+            "24",
+            "--suffix",
+            "_ks5_lam0.002"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_spirit_T1_ks5_lam0.002.log"
+        },
+        {
+          "job": "spirit_FLAIR_ks5_lam0.001",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/scripts/recon_spirit.py",
+            "--contrast",
+            "FLAIR",
+            "--gpu",
+            "5",
+            "--ksize",
+            "5",
+            "--lam",
+            "0.001",
+            "--iters",
+            "2",
+            "--chunk",
+            "24",
+            "--suffix",
+            "_ks5_lam0.001"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_spirit_FLAIR_ks5_lam0.001.log"
+        }
+      ],
+      "results": [
+        {
+          "contrast": "T1",
+          "method": "spirit_ks5_lam0.002",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/spirit_T1_ks5_lam0.002.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/spirit_ks5_lam0.002_T1_complex.npy",
+          "head_psnr": 24.782692745465642,
+          "head_ssim": 0.7348218560218811,
+          "nmse": 0.11657879501581192
+        },
+        {
+          "contrast": "FLAIR",
+          "method": "spirit_ks5_lam0.001",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/spirit_FLAIR_ks5_lam0.001.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/spirit_ks5_lam0.001_FLAIR_complex.npy",
+          "head_psnr": 27.562148655677433,
+          "head_ssim": 0.7352709174156189,
+          "nmse": 0.06189888343214989
+        }
+      ]
+    },
+    {
+      "row": "vol1_huangyuwei:12:zsssdu",
+      "topic": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12",
+      "jobs": [
+        {
+          "job": "zsssdu_T1",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/scripts/recon_zsssdu.py",
+            "--contrast",
+            "T1",
+            "--gpu",
+            "5",
+            "--epochs",
+            "1"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_zsssdu_T1.log"
+        },
+        {
+          "job": "zsssdu_FLAIR",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/scripts/recon_zsssdu.py",
+            "--contrast",
+            "FLAIR",
+            "--gpu",
+            "5",
+            "--epochs",
+            "1"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_zsssdu_FLAIR.log"
+        }
+      ],
+      "results": [
+        {
+          "contrast": "T1",
+          "method": "zsssdu",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/zsssdu_T1.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/zsssdu_T1_complex.npy",
+          "head_psnr": 32.15923057815486,
+          "head_ssim": 0.9114319086074829,
+          "nmse": 0.028399839997291565
+        },
+        {
+          "contrast": "FLAIR",
+          "method": "zsssdu",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/zsssdu_FLAIR.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/zsssdu_FLAIR_complex.npy",
+          "head_psnr": 31.489571717648815,
+          "head_ssim": 0.8894171714782715,
+          "nmse": 0.02788010984659195
+        }
+      ]
+    },
+    {
+      "row": "vol1_huangyuwei:12:dip",
+      "topic": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12",
+      "jobs": [
+        {
+          "job": "dip_T1",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/scripts/recon_dip_inr.py",
+            "--method",
+            "dip",
+            "--contrast",
+            "T1",
+            "--gpu",
+            "5",
+            "--iters",
+            "20",
+            "--lr",
+            "3e-3",
+            "--eval_every",
+            "10"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_dip_T1.log"
+        },
+        {
+          "job": "dip_FLAIR",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/scripts/recon_dip_inr.py",
+            "--method",
+            "dip",
+            "--contrast",
+            "FLAIR",
+            "--gpu",
+            "5",
+            "--iters",
+            "20",
+            "--lr",
+            "3e-3",
+            "--eval_every",
+            "10"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_dip_FLAIR.log"
+        }
+      ],
+      "results": [
+        {
+          "contrast": "T1",
+          "method": "dip",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/dip_T1.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/dip_T1_complex.npy",
+          "head_psnr": 18.965200375164656,
+          "head_ssim": 0.2847394049167633,
+          "nmse": 0.43371960520744324
+        },
+        {
+          "contrast": "FLAIR",
+          "method": "dip",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/dip_FLAIR.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/dip_FLAIR_complex.npy",
+          "head_psnr": 21.48277674948733,
+          "head_ssim": 0.30100470781326294,
+          "nmse": 0.2531071603298187
+        }
+      ]
+    },
+    {
+      "row": "vol1_huangyuwei:12:inr",
+      "topic": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12",
+      "jobs": [
+        {
+          "job": "inr_T1",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/scripts/recon_dip_inr.py",
+            "--method",
+            "inr",
+            "--contrast",
+            "T1",
+            "--gpu",
+            "5",
+            "--iters",
+            "20",
+            "--eval_every",
+            "10"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_inr_T1.log"
+        },
+        {
+          "job": "inr_FLAIR",
+          "cmd": [
+            "/home/congcongliu/anaconda3/envs/GSTMI/bin/python",
+            "-u",
+            "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/scripts/recon_dip_inr.py",
+            "--method",
+            "inr",
+            "--contrast",
+            "FLAIR",
+            "--gpu",
+            "5",
+            "--iters",
+            "20",
+            "--eval_every",
+            "10"
+          ],
+          "rc": 0,
+          "log": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/run_inr_FLAIR.log"
+        }
+      ],
+      "results": [
+        {
+          "contrast": "T1",
+          "method": "inr",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/inr_T1.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/inr_T1_complex.npy",
+          "head_psnr": 20.36693640186447,
+          "head_ssim": 0.3870670795440674,
+          "nmse": 0.37829628586769104
+        },
+        {
+          "contrast": "FLAIR",
+          "method": "inr",
+          "json": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/logs/inr_FLAIR.json",
+          "recon": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121/smoke/topics/vol1_huangyuwei_af12/recon/inr_FLAIR_complex.npy",
+          "head_psnr": 21.101712120135254,
+          "head_ssim": 0.3778153657913208,
+          "nmse": 0.3691790997982025
+        }
+      ]
+    }
+  ]
+}
