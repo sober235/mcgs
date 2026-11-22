@@ -1,0 +1,2160 @@
+{
+ "n_cells": 48,
+ "n_complete": 0,
+ "labels": [
+  "ZF",
+  "CG-SENSE",
+  "CS-SENSE",
+  "Joint SENSE",
+  "L1-SPIRiT",
+  "ZS-SSDU",
+  "3D-DIP",
+  "3D-INR",
+  "MC-INR",
+  "GS-single",
+  "MC-GS"
+ ],
+ "recompute_check": {
+  "worst": {
+   "head_psnr": {
+    "abs": 0.00011039086052733182,
+    "where": "vol2_jiangdian AF12 T1 GS-single"
+   },
+   "head_ssim": {
+    "abs": 5.364418029785156e-07,
+    "where": "vol1_huangyuwei AF24 FLAIR Joint SENSE"
+   },
+   "nmse": {
+    "abs": 2.4400651454925537e-07,
+    "where": "vol2_jiangdian AF16 T1 GS-single"
+   }
+  },
+  "per_label": {
+   "ZF": {
+    "head_psnr": 3.143487045775828e-06,
+    "head_ssim": 2.384185791015625e-07,
+    "nmse": 4.470348358154297e-08
+   },
+   "CG-SENSE": {
+    "head_psnr": 3.358435783695768e-06,
+    "head_ssim": 4.76837158203125e-07,
+    "nmse": 1.4901161193847656e-08
+   },
+   "CS-SENSE": {
+    "head_psnr": 3.1948421295169283e-06,
+    "head_ssim": 4.76837158203125e-07,
+    "nmse": 5.587935447692871e-09
+   },
+   "Joint SENSE": {
+    "head_psnr": 3.2013301307642905e-06,
+    "head_ssim": 5.364418029785156e-07,
+    "nmse": 5.587935447692871e-09
+   },
+   "L1-SPIRiT": {
+    "head_psnr": 2.8114793551026196e-06,
+    "head_ssim": 1.7881393432617188e-07,
+    "nmse": 3.725290298461914e-09
+   },
+   "GS-single": {
+    "head_psnr": 0.00011039086052733182,
+    "head_ssim": 5.364418029785156e-07,
+    "nmse": 2.4400651454925537e-07
+   },
+   "MC-GS": {
+    "head_psnr": 0.00010977722466520845,
+    "head_ssim": 5.364418029785156e-07,
+    "nmse": 2.3562461137771606e-07
+   }
+  }
+ },
+ "cells": {
+  "vol1_huangyuwei|12|T1": {
+   "scan": "vol1_huangyuwei",
+   "af": 12,
+   "contrast": "T1",
+   "missing": {
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {
+    "ZF": {
+     "head_psnr": 23.70273330569825,
+     "head_ssim": 0.6699374914169312,
+     "head_nmse": 0.14297006532387097,
+     "nmse_whole": 0.14929518103599548,
+     "ssim_whole": 0.830853928282351,
+     "psnr_whole": 29.066843732132543,
+     "logged": {
+      "head_psnr": 23.70273414519652,
+      "head_ssim": 0.6699374914169312,
+      "nmse": 0.1492951512336731
+     },
+     "diff": {
+      "head_psnr": -8.394982700110631e-07,
+      "head_ssim": 0.0,
+      "nmse": 2.9802322387695312e-08
+     }
+    },
+    "CG-SENSE": {
+     "head_psnr": 31.94078371980254,
+     "head_ssim": 0.898094654083252,
+     "head_nmse": 0.021450629104058688,
+     "nmse_whole": 0.042590368539094925,
+     "ssim_whole": 0.7268549676719807,
+     "psnr_whole": 34.514194845256775,
+     "logged": {
+      "head_psnr": 31.940785021583494,
+      "head_ssim": 0.898094654083252,
+      "nmse": 0.042590364813804626
+     },
+     "diff": {
+      "head_psnr": -1.3017809550319726e-06,
+      "head_ssim": 0.0,
+      "nmse": 3.725290298461914e-09
+     }
+    },
+    "CS-SENSE": {
+     "head_psnr": 35.18238707938106,
+     "head_ssim": 0.9466946125030518,
+     "head_nmse": 0.010169034028193243,
+     "nmse_whole": 0.012713541276752949,
+     "ssim_whole": 0.9525332147709259,
+     "psnr_whole": 39.76463831135447,
+     "logged": {
+      "head_psnr": 35.182388195904686,
+      "head_ssim": 0.9466946125030518,
+      "nmse": 0.0127135394141078
+     },
+     "diff": {
+      "head_psnr": -1.1165236273313894e-06,
+      "head_ssim": 0.0,
+      "nmse": 1.862645149230957e-09
+     }
+    },
+    "Joint SENSE": {
+     "head_psnr": 34.85115899123399,
+     "head_ssim": 0.9438798427581787,
+     "head_nmse": 0.010974947765198494,
+     "nmse_whole": 0.013432622887194157,
+     "ssim_whole": 0.9583205684412345,
+     "psnr_whole": 39.525694395274165,
+     "logged": {
+      "head_psnr": 34.851160168762185,
+      "head_ssim": 0.9438798427581787,
+      "nmse": 0.013432621955871582
+     },
+     "diff": {
+      "head_psnr": -1.1775281976156293e-06,
+      "head_ssim": 0.0,
+      "nmse": 9.313225746154785e-10
+     }
+    },
+    "L1-SPIRiT": {
+     "head_psnr": 33.73808593252811,
+     "head_ssim": 0.9284864068031311,
+     "head_nmse": 0.014181091220862337,
+     "nmse_whole": 0.01712632179260254,
+     "ssim_whole": 0.9354906970941389,
+     "psnr_whole": 38.470664362523124,
+     "logged": {
+      "head_psnr": 33.73808686821118,
+      "head_ssim": 0.9284864068031311,
+      "nmse": 0.01712631806731224
+     },
+     "diff": {
+      "head_psnr": -9.356830688034279e-07,
+      "head_ssim": 0.0,
+      "nmse": 3.725290298461914e-09
+     }
+    },
+    "GS-single": {
+     "head_psnr": 36.05275053376368,
+     "head_ssim": 0.9510039687156677,
+     "head_nmse": 0.00832230252278206,
+     "nmse_whole": 0.01124649029225111,
+     "ssim_whole": 0.9168924531282371,
+     "psnr_whole": 40.29713472860523,
+     "logged": {
+      "head_psnr": 36.052770361353815,
+      "head_ssim": 0.9510040283203125,
+      "nmse": 0.01124644372612238
+     },
+     "diff": {
+      "head_psnr": -1.9827590136856088e-05,
+      "head_ssim": -5.960464477539063e-08,
+      "nmse": 4.6566128730773926e-08
+     }
+    },
+    "MC-GS": {
+     "head_psnr": 36.20042284002083,
+     "head_ssim": 0.9531242251396179,
+     "head_nmse": 0.008044075114041701,
+     "nmse_whole": 0.010968252085149288,
+     "ssim_whole": 0.909016247801151,
+     "psnr_whole": 40.405932474105526,
+     "logged": {
+      "head_psnr": 36.2004427314743,
+      "head_ssim": 0.9531242847442627,
+      "nmse": 0.0109682222828269
+     },
+     "diff": {
+      "head_psnr": -1.989145346925625e-05,
+      "head_ssim": -5.960464477539063e-08,
+      "nmse": 2.9802322387695312e-08
+     }
+    }
+   }
+  },
+  "vol1_huangyuwei|12|FLAIR": {
+   "scan": "vol1_huangyuwei",
+   "af": 12,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {
+    "ZF": {
+     "head_psnr": 26.737801270004464,
+     "head_ssim": 0.6882317066192627,
+     "head_nmse": 0.06751043465863628,
+     "nmse_whole": 0.07497040182352066,
+     "ssim_whole": 0.8503046910939318,
+     "psnr_whole": 31.677393580273836,
+     "logged": {
+      "head_psnr": 26.73779812651742,
+      "head_ssim": 0.6882316470146179,
+      "nmse": 0.07497040927410126
+     },
+     "diff": {
+      "head_psnr": 3.143487045775828e-06,
+      "head_ssim": 5.960464477539063e-08,
+      "nmse": -7.450580596923828e-09
+     }
+    },
+    "CG-SENSE": {
+     "head_psnr": 32.19164849815113,
+     "head_ssim": 0.8834210634231567,
+     "head_nmse": 0.01923030928322947,
+     "nmse_whole": 0.03810979798436165,
+     "ssim_whole": 0.7328444207714317,
+     "psnr_whole": 34.615920488209134,
+     "logged": {
+      "head_psnr": 32.19164513971535,
+      "head_ssim": 0.8834205865859985,
+      "nmse": 0.03810979425907135
+     },
+     "diff": {
+      "head_psnr": 3.358435783695768e-06,
+      "head_ssim": 4.76837158203125e-07,
+      "nmse": 3.725290298461914e-09
+     }
+    },
+    "CS-SENSE": {
+     "head_psnr": 33.87331128702068,
+     "head_ssim": 0.9195244312286377,
+     "head_nmse": 0.013056293184829528,
+     "nmse_whole": 0.016192585229873657,
+     "ssim_whole": 0.9414071165347201,
+     "psnr_whole": 38.333123301314586,
+     "logged": {
+      "head_psnr": 33.87330809217855,
+      "head_ssim": 0.9195247292518616,
+      "nmse": 0.016192588955163956
+     },
+     "diff": {
+      "head_psnr": 3.1948421295169283e-06,
+      "head_ssim": -2.980232238769531e-07,
+      "nmse": -3.725290298461914e-09
+     }
+    },
+    "Joint SENSE": {
+     "head_psnr": 33.929292370070215,
+     "head_ssim": 0.9195618033409119,
+     "head_nmse": 0.01288907740275787,
+     "nmse_whole": 0.015425898134708405,
+     "ssim_whole": 0.9447427953230726,
+     "psnr_whole": 38.543787122532635,
+     "logged": {
+      "head_psnr": 33.929289168740084,
+      "head_ssim": 0.9195618629455566,
+      "nmse": 0.015425898134708405
+     },
+     "diff": {
+      "head_psnr": 3.2013301307642905e-06,
+      "head_ssim": -5.960464477539063e-08,
+      "nmse": 0.0
+     }
+    },
+    "L1-SPIRiT": {
+     "head_psnr": 33.4228052289491,
+     "head_ssim": 0.9034338593482971,
+     "head_nmse": 0.014483398451217561,
+     "nmse_whole": 0.018181942403316498,
+     "ssim_whole": 0.9211638491682531,
+     "psnr_whole": 37.82988814476736,
+     "logged": {
+      "head_psnr": 33.422802688861616,
+      "head_ssim": 0.9034340381622314,
+      "nmse": 0.01818194054067135
+     },
+     "diff": {
+      "head_psnr": 2.5400874861247758e-06,
+      "head_ssim": -1.7881393432617188e-07,
+      "nmse": 1.862645149230957e-09
+     }
+    },
+    "GS-single": {
+     "head_psnr": 34.74336521540148,
+     "head_ssim": 0.9253414869308472,
+     "head_nmse": 0.010685994089783617,
+     "nmse_whole": 0.013924364000558853,
+     "ssim_whole": 0.8841148796389249,
+     "psnr_whole": 38.98853591179324,
+     "logged": {
+      "head_psnr": 34.74337898531009,
+      "head_ssim": 0.9253416061401367,
+      "nmse": 0.013924340717494488
+     },
+     "diff": {
+      "head_psnr": -1.376990860535443e-05,
+      "head_ssim": -1.1920928955078125e-07,
+      "nmse": 2.3283064365386963e-08
+     }
+    },
+    "MC-GS": {
+     "head_psnr": 34.773295225510786,
+     "head_ssim": 0.9259921312332153,
+     "head_nmse": 0.010612598217528992,
+     "nmse_whole": 0.013710003346204758,
+     "ssim_whole": 0.896577562919266,
+     "psnr_whole": 39.05591220415326,
+     "logged": {
+      "head_psnr": 34.77330626801004,
+      "head_ssim": 0.9259922504425049,
+      "nmse": 0.013709981925785542
+     },
+     "diff": {
+      "head_psnr": -1.1042499252766902e-05,
+      "head_ssim": -1.1920928955078125e-07,
+      "nmse": 2.1420419216156006e-08
+     }
+    }
+   }
+  },
+  "vol1_huangyuwei|16|T1": {
+   "scan": "vol1_huangyuwei",
+   "af": 16,
+   "contrast": "T1",
+   "missing": {
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {
+    "ZF": {
+     "head_psnr": 23.41823435816745,
+     "head_ssim": 0.6470058560371399,
+     "head_nmse": 0.15264935976158878,
+     "nmse_whole": 0.15924280881881714,
+     "ssim_whole": 0.8231924420515165,
+     "psnr_whole": 28.78670637580354,
+     "logged": {
+      "head_psnr": 23.418235172862865,
+      "head_ssim": 0.6470059156417847,
+      "nmse": 0.15924276411533356
+     },
+     "diff": {
+      "head_psnr": -8.146954151300179e-07,
+      "head_ssim": -5.960464477539063e-08,
+      "nmse": 4.470348358154297e-08
+     }
+    },
+    "CG-SENSE": {
+     "head_psnr": 30.549458195375177,
+     "head_ssim": 0.8793882727622986,
+     "head_nmse": 0.029551020228487542,
+     "nmse_whole": 0.04934607818722725,
+     "ssim_whole": 0.7350264783603011,
+     "psnr_whole": 33.87477892302285,
+     "logged": {
+      "head_psnr": 30.549459425880322,
+      "head_ssim": 0.8793882727622986,
+      "nmse": 0.04934607073664665
+     },
+     "diff": {
+      "head_psnr": -1.2305051448890936e-06,
+      "head_ssim": 0.0,
+      "nmse": 7.450580596923828e-09
+     }
+    },
+    "CS-SENSE": {
+     "head_psnr": 33.77006104494077,
+     "head_ssim": 0.9322876334190369,
+     "head_nmse": 0.014077078066440986,
+     "nmse_whole": 0.016785211861133575,
+     "ssim_whole": 0.9391242213847307,
+     "psnr_whole": 38.55803786327094,
+     "logged": {
+      "head_psnr": 33.770062136651475,
+      "head_ssim": 0.9322876334190369,
+      "nmse": 0.016785208135843277
+     },
+     "diff": {
+      "head_psnr": -1.0917107076124921e-06,
+      "head_ssim": 0.0,
+      "nmse": 3.725290298461914e-09
+     }
+    },
+    "Joint SENSE": {
+     "head_psnr": 33.43878241537877,
+     "head_ssim": 0.9291951656341553,
+     "head_nmse": 0.015192880428383775,
+     "nmse_whole": 0.01774349808692932,
+     "ssim_whole": 0.9480834556967711,
+     "psnr_whole": 38.31691023350141,
+     "logged": {
+      "head_psnr": 33.43878356107858,
+      "head_ssim": 0.9291951656341553,
+      "nmse": 0.017743494361639023
+     },
+     "diff": {
+      "head_psnr": -1.1456998123549056e-06,
+      "head_ssim": 0.0,
+      "nmse": 3.725290298461914e-09
+     }
+    },
+    "L1-SPIRiT": {
+     "head_psnr": 32.70468662744946,
+     "head_ssim": 0.9104037880897522,
+     "head_nmse": 0.017990763378568454,
+     "nmse_whole": 0.02165987715125084,
+     "ssim_whole": 0.9222491232066198,
+     "psnr_whole": 37.45075349563299,
+     "logged": {
+      "head_psnr": 32.70468734715443,
+      "head_ssim": 0.910403847694397,
+      "nmse": 0.02165987528860569
+     },
+     "diff": {
+      "head_psnr": -7.19704971174906e-07,
+      "head_ssim": -5.960464477539063e-08,
+      "nmse": 1.862645149230957e-09
+     }
+    },
+    "GS-single": {
+     "head_psnr": 34.70036814707544,
+     "head_ssim": 0.9389786124229431,
+     "head_nmse": 0.011362698197607338,
+     "nmse_whole": 0.014416606165468693,
+     "ssim_whole": 0.907804398967206,
+     "psnr_whole": 39.21867306762767,
+     "logged": {
+      "head_psnr": 34.700387814434585,
+      "head_ssim": 0.9389787316322327,
+      "nmse": 0.01441655308008194
+     },
+     "diff": {
+      "head_psnr": -1.9667359147490515e-05,
+      "head_ssim": -1.1920928955078125e-07,
+      "nmse": 5.3085386753082275e-08
+     }
+    },
+    "MC-GS": {
+     "head_psnr": 34.865719734582655,
+     "head_ssim": 0.9418110251426697,
+     "head_nmse": 0.010938219257857004,
+     "nmse_whole": 0.013993648812174797,
+     "ssim_whole": 0.8997324620089624,
+     "psnr_whole": 39.34799138043279,
+     "logged": {
+      "head_psnr": 34.865739448367115,
+      "head_ssim": 0.9418110847473145,
+      "nmse": 0.013993592001497746
+     },
+     "diff": {
+      "head_psnr": -1.9713784460861916e-05,
+      "head_ssim": -5.960464477539063e-08,
+      "nmse": 5.681067705154419e-08
+     }
+    }
+   }
+  },
+  "vol1_huangyuwei|16|FLAIR": {
+   "scan": "vol1_huangyuwei",
+   "af": 16,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {
+    "ZF": {
+     "head_psnr": 26.432188407139808,
+     "head_ssim": 0.6653382182121277,
+     "head_nmse": 0.07243232207879773,
+     "nmse_whole": 0.08046114444732666,
+     "ssim_whole": 0.8390618254771034,
+     "psnr_whole": 31.370427287282958,
+     "logged": {
+      "head_psnr": 26.43218533228422,
+      "head_ssim": 0.6653380990028381,
+      "nmse": 0.08046113699674606
+     },
+     "diff": {
+      "head_psnr": 3.07485558792564e-06,
+      "head_ssim": 1.1920928955078125e-07,
+      "nmse": 7.450580596923828e-09
+     }
+    },
+    "CG-SENSE": {
+     "head_psnr": 31.047278576623413,
+     "head_ssim": 0.86167311668396,
+     "head_nmse": 0.025027841673861812,
+     "nmse_whole": 0.04153910651803017,
+     "ssim_whole": 0.7487352377569763,
+     "psnr_whole": 34.24171552584811,
+     "logged": {
+      "head_psnr": 31.047275258306733,
+      "head_ssim": 0.8616728186607361,
+      "nmse": 0.04153909906744957
+     },
+     "diff": {
+      "head_psnr": 3.318316679212785e-06,
+      "head_ssim": 2.980232238769531e-07,
+      "nmse": 7.450580596923828e-09
+     }
+    },
+    "CS-SENSE": {
+     "head_psnr": 32.54952381196134,
+     "head_ssim": 0.8978548049926758,
+     "head_nmse": 0.017709189240742548,
+     "nmse_whole": 0.02168963849544525,
+     "ssim_whole": 0.9252344545341293,
+     "psnr_whole": 37.06376655978804,
+     "logged": {
+      "head_psnr": 32.54952109066559,
+      "head_ssim": 0.8978546261787415,
+      "nmse": 0.021689636632800102
+     },
+     "diff": {
+      "head_psnr": 2.721295750518493e-06,
+      "head_ssim": 1.7881393432617188e-07,
+      "nmse": 1.862645149230957e-09
+     }
+    },
+    "Joint SENSE": {
+     "head_psnr": 32.66504384169703,
+     "head_ssim": 0.8987535834312439,
+     "head_nmse": 0.017244349058333924,
+     "nmse_whole": 0.02030348964035511,
+     "ssim_whole": 0.9359440857296695,
+     "psnr_whole": 37.35058421143778,
+     "logged": {
+      "head_psnr": 32.665041225247414,
+      "head_ssim": 0.898753821849823,
+      "nmse": 0.02030349150300026
+     },
+     "diff": {
+      "head_psnr": 2.6164496134128967e-06,
+      "head_ssim": -2.384185791015625e-07,
+      "nmse": -1.862645149230957e-09
+     }
+    },
+    "L1-SPIRiT": {
+     "head_psnr": 32.11003852611471,
+     "head_ssim": 0.8803801536560059,
+     "head_nmse": 0.019595088706741655,
+     "nmse_whole": 0.023420000448822975,
+     "ssim_whole": 0.9103107087355503,
+     "psnr_whole": 36.730418088151936,
+     "logged": {
+      "head_psnr": 32.11003571463535,
+      "head_ssim": 0.8803800344467163,
+      "nmse": 0.023419998586177826
+     },
+     "diff": {
+      "head_psnr": 2.8114793551026196e-06,
+      "head_ssim": 1.1920928955078125e-07,
+      "nmse": 1.862645149230957e-09
+     }
+    },
+    "GS-single": {
+     "head_psnr": 33.2711857253448,
+     "head_ssim": 0.9058879017829895,
+     "head_nmse": 0.014997975688039612,
+     "nmse_whole": 0.018373318016529083,
+     "ssim_whole": 0.8704643197471092,
+     "psnr_whole": 37.784412052336464,
+     "logged": {
+      "head_psnr": 33.271202666454634,
+      "head_ssim": 0.9058881402015686,
+      "nmse": 0.01837325654923916
+     },
+     "diff": {
+      "head_psnr": -1.6941109834078816e-05,
+      "head_ssim": -2.384185791015625e-07,
+      "nmse": 6.146728992462158e-08
+     }
+    },
+    "MC-GS": {
+     "head_psnr": 33.3166941939351,
+     "head_ssim": 0.9073238968849182,
+     "head_nmse": 0.014841633444495453,
+     "nmse_whole": 0.018039077520370483,
+     "ssim_whole": 0.8844102578411681,
+     "psnr_whole": 37.86414534055962,
+     "logged": {
+      "head_psnr": 33.31670991455458,
+      "head_ssim": 0.9073241353034973,
+      "nmse": 0.0180390365421772
+     },
+     "diff": {
+      "head_psnr": -1.572061947996417e-05,
+      "head_ssim": -2.384185791015625e-07,
+      "nmse": 4.0978193283081055e-08
+     }
+    }
+   }
+  },
+  "vol1_huangyuwei|20|T1": {
+   "scan": "vol1_huangyuwei",
+   "af": 20,
+   "contrast": "T1",
+   "missing": {
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {
+    "ZF": {
+     "head_psnr": 23.211633187694595,
+     "head_ssim": 0.628243625164032,
+     "head_nmse": 0.16008661375751607,
+     "nmse_whole": 0.16708047688007355,
+     "ssim_whole": 0.8150679130665034,
+     "psnr_whole": 28.578047101694303,
+     "logged": {
+      "head_psnr": 23.211633983504907,
+      "head_ssim": 0.628243625164032,
+      "nmse": 0.16708044707775116
+     },
+     "diff": {
+      "head_psnr": -7.958103118710369e-07,
+      "head_ssim": 0.0,
+      "nmse": 2.9802322387695312e-08
+     }
+    },
+    "CG-SENSE": {
+     "head_psnr": 29.45345555648756,
+     "head_ssim": 0.8594791889190674,
+     "head_nmse": 0.03803406711821581,
+     "nmse_whole": 0.057315047830343246,
+     "ssim_whole": 0.738214905423595,
+     "psnr_whole": 33.22462029575285,
+     "logged": {
+      "head_psnr": 29.453456722801572,
+      "head_ssim": 0.8594791889190674,
+      "nmse": 0.05731503292918205
+     },
+     "diff": {
+      "head_psnr": -1.1663140107032177e-06,
+      "head_ssim": 0.0,
+      "nmse": 1.4901161193847656e-08
+     }
+    },
+    "CS-SENSE": {
+     "head_psnr": 32.66854693408221,
+     "head_ssim": 0.9179830551147461,
+     "head_nmse": 0.01814109392838179,
+     "nmse_whole": 0.021023675799369812,
+     "ssim_whole": 0.9279173053212534,
+     "psnr_whole": 37.58021901146282,
+     "logged": {
+      "head_psnr": 32.66854799978947,
+      "head_ssim": 0.9179830551147461,
+      "nmse": 0.021023670211434364
+     },
+     "diff": {
+      "head_psnr": -1.065707259328974e-06,
+      "head_ssim": 0.0,
+      "nmse": 5.587935447692871e-09
+     }
+    },
+    "Joint SENSE": {
+     "head_psnr": 32.34452647397209,
+     "head_ssim": 0.9146047830581665,
+     "head_nmse": 0.019546362445280192,
+     "nmse_whole": 0.02225443907082081,
+     "ssim_whole": 0.9372471806521712,
+     "psnr_whole": 37.33313738148611,
+     "logged": {
+      "head_psnr": 32.344527589511316,
+      "head_ssim": 0.9146047830581665,
+      "nmse": 0.02225443720817566
+     },
+     "diff": {
+      "head_psnr": -1.1155392272144127e-06,
+      "head_ssim": 0.0,
+      "nmse": 1.862645149230957e-09
+     }
+    },
+    "GS-single": {
+     "head_psnr": 33.746913108214926,
+     "head_ssim": 0.9272875785827637,
+     "head_nmse": 0.014152308131131778,
+     "nmse_whole": 0.01740739308297634,
+     "ssim_whole": 0.9018578725153702,
+     "psnr_whole": 38.39997074669915,
+     "logged": {
+      "head_psnr": 33.74693136284756,
+      "head_ssim": 0.9272876977920532,
+      "nmse": 0.01740732416510582
+     },
+     "diff": {
+      "head_psnr": -1.8254632635716916e-05,
+      "head_ssim": -1.1920928955078125e-07,
+      "nmse": 6.891787052154541e-08
+     }
+    },
+    "MC-GS": {
+     "head_psnr": 33.93864924304068,
+     "head_ssim": 0.931035041809082,
+     "head_nmse": 0.013541084045293366,
+     "nmse_whole": 0.016756348311901093,
+     "ssim_whole": 0.8944189695051787,
+     "psnr_whole": 38.5655067974682,
+     "logged": {
+      "head_psnr": 33.93866745024907,
+      "head_ssim": 0.9310351014137268,
+      "nmse": 0.01675630360841751
+     },
+     "diff": {
+      "head_psnr": -1.8207208391629592e-05,
+      "head_ssim": -5.960464477539063e-08,
+      "nmse": 4.470348358154297e-08
+     }
+    }
+   }
+  },
+  "vol1_huangyuwei|20|FLAIR": {
+   "scan": "vol1_huangyuwei",
+   "af": 20,
+   "contrast": "FLAIR",
+   "missing": {
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {
+    "ZF": {
+     "head_psnr": 26.208260551080194,
+     "head_ssim": 0.6480880975723267,
+     "head_nmse": 0.07626497672500719,
+     "nmse_whole": 0.08475813269615173,
+     "ssim_whole": 0.8312550592754129,
+     "psnr_whole": 31.144477779318386,
+     "logged": {
+      "head_psnr": 26.208257512949416,
+      "head_ssim": 0.6480878591537476,
+      "nmse": 0.08475812524557114
+     },
+     "diff": {
+      "head_psnr": 3.0381307780658062e-06,
+      "head_ssim": 2.384185791015625e-07,
+      "nmse": 7.450580596923828e-09
+     }
+    },
+    "CG-SENSE": {
+     "head_psnr": 30.32651149228472,
+     "head_ssim": 0.8446193337440491,
+     "head_nmse": 0.02954609538513323,
+     "nmse_whole": 0.04421243444085121,
+     "ssim_whole": 0.7633893998924954,
+     "psnr_whole": 33.970842221056486,
+     "logged": {
+      "head_psnr": 30.32650823949166,
+      "head_ssim": 0.8446191549301147,
+      "nmse": 0.044212426990270615
+     },
+     "diff": {
+      "head_psnr": 3.2527930606818245e-06,
+      "head_ssim": 1.7881393432617188e-07,
+      "nmse": 7.450580596923828e-09
+     }
+    },
+    "CS-SENSE": {
+     "head_psnr": 31.7330758697986,
+     "head_ssim": 0.8820046782493591,
+     "head_nmse": 0.02137192459162263,
+     "nmse_whole": 0.02507912926375866,
+     "ssim_whole": 0.924243342998151,
+     "psnr_whole": 36.433165461216085,
+     "logged": {
+      "head_psnr": 31.733072773869935,
+      "head_ssim": 0.8820044994354248,
+      "nmse": 0.02507912926375866
+     },
+     "diff": {
+      "head_psnr": 3.095928665430847e-06,
+      "head_ssim": 1.7881393432617188e-07,
+      "nmse": 0.0
+     }
+    },
+    "Joint SENSE": {
+     "head_psnr": 31.845837405834008,
+     "head_ssim": 0.8825596570968628,
+     "head_nmse": 0.020824159575776678,
+     "nmse_whole": 0.02380085177719593,
+     "ssim_whole": 0.9304515367195627,
+     "psnr_whole": 36.660360953137825,
+     "logged": {
+      "head_psnr": 31.845834473902237,
+      "head_ssim": 0.8825599551200867,
+      "nmse": 0.02380085363984108
+     },
+     "diff": {
+      "head_psnr": 2.9319317711440362e-06,
+      "head_ssim": -2.980232238769531e-07,
+      "nmse": -1.862645149230957e-09
+     }
+    },
+    "GS-single": {
+     "head_psnr": 32.545585870712046,
+     "head_ssim": 0.8915026783943176,
+     "head_nmse": 0.017725254427263464,
+     "nmse_whole": 0.021360881626605988,
+     "ssim_whole": 0.8603591016147253,
+     "psnr_whole": 37.13010194578364,
+     "logged": {
+      "head_psnr": 32.545599790099175,
+      "head_ssim": 0.8915027976036072,
+      "nmse": 0.021360812708735466
+     },
+     "diff": {
+      "head_psnr": -1.391938712913543e-05,
+      "head_ssim": -1.1920928955078125e-07,
+      "nmse": 6.891787052154541e-08
+     }
+    },
+    "MC-GS": {
+     "head_psnr": 32.59497916525491,
+     "head_ssim": 0.893380343914032,
+     "head_nmse": 0.017524808816075505,
+     "nmse_whole": 0.02095365896821022,
+     "ssim_whole": 0.8766991101150368,
+     "psnr_whole": 37.21369362340699,
+     "logged": {
+      "head_psnr": 32.59499218827769,
+      "head_ssim": 0.8933805823326111,
+      "nmse": 0.020953595638275146
+     },
+     "diff": {
+      "head_psnr": -1.3023022781055715e-05,
+      "head_ssim": -2.384185791015625e-07,
+      "nmse": 6.332993507385254e-08
+     }
+    }
+   }
+  },
+  "vol1_huangyuwei|24|T1": {
+   "scan": "vol1_huangyuwei",
+   "af": 24,
+   "contrast": "T1",
+   "missing": {
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {
+    "ZF": {
+     "head_psnr": 22.915561453421347,
+     "head_ssim": 0.6023626327514648,
+     "head_nmse": 0.17138078352669475,
+     "nmse_whole": 0.1785649210214615,
+     "ssim_whole": 0.8100999358479558,
+     "psnr_whole": 28.28934079943959,
+     "logged": {
+      "head_psnr": 22.915562224638595,
+      "head_ssim": 0.6023626327514648,
+      "nmse": 0.1785649061203003
+     },
+     "diff": {
+      "head_psnr": -7.712172482854385e-07,
+      "head_ssim": 0.0,
+      "nmse": 1.4901161193847656e-08
+     }
+    },
+    "CG-SENSE": {
+     "head_psnr": 28.22953492467884,
+     "head_ssim": 0.8320062160491943,
+     "head_nmse": 0.05041560292183165,
+     "nmse_whole": 0.0689089223742485,
+     "ssim_whole": 0.7428725917070654,
+     "psnr_whole": 32.424551890746514,
+     "logged": {
+      "head_psnr": 28.229536005648733,
+      "head_ssim": 0.8320062160491943,
+      "nmse": 0.06890890747308731
+     },
+     "diff": {
+      "head_psnr": -1.0809698913760712e-06,
+      "head_ssim": 0.0,
+      "nmse": 1.4901161193847656e-08
+     }
+    },
+    "CS-SENSE": {
+     "head_psnr": 31.274043914669384,
+     "head_ssim": 0.8945714831352234,
+     "head_nmse": 0.02501001741315789,
+     "nmse_whole": 0.02821504883468151,
+     "ssim_whole": 0.915243688046747,
+     "psnr_whole": 36.302492761840426,
+     "logged": {
+      "head_psnr": 31.27404491294293,
+      "head_ssim": 0.8945714831352234,
+      "nmse": 0.028215043246746063
+     },
+     "diff": {
+      "head_psnr": -9.982735456048886e-07,
+      "head_ssim": 0.0,
+      "nmse": 5.587935447692871e-09
+     }
+    },
+    "Joint SENSE": {
+     "head_psnr": 30.987234927817184,
+     "head_ssim": 0.891240656375885,
+     "head_nmse": 0.026717449057636056,
+     "nmse_whole": 0.029722319915890694,
+     "ssim_whole": 0.9230790630451844,
+     "psnr_whole": 36.07647356883314,
+     "logged": {
+      "head_psnr": 30.987235975823715,
+      "head_ssim": 0.891240656375885,
+      "nmse": 0.029722314327955246
+     },
+     "diff": {
+      "head_psnr": -1.0480065313345222e-06,
+      "head_ssim": 0.0,
+      "nmse": 5.587935447692871e-09
+     }
+    },
+    "GS-single": {
+     "head_psnr": 32.595765867868266,
+     "head_ssim": 0.9106585383415222,
+     "head_nmse": 0.018447686487118493,
+     "nmse_whole": 0.02206033654510975,
+     "ssim_whole": 0.8897888936597625,
+     "psnr_whole": 37.371183391127204,
+     "logged": {
+      "head_psnr": 32.59578270229064,
+      "head_ssim": 0.9106586575508118,
+      "nmse": 0.02206028439104557
+     },
+     "diff": {
+      "head_psnr": -1.683442237521149e-05,
+      "head_ssim": -1.1920928955078125e-07,
+      "nmse": 5.21540641784668e-08
+     }
+    },
+    "MC-GS": {
+     "head_psnr": 32.794791870177406,
+     "head_ssim": 0.9153687953948975,
+     "head_nmse": 0.017621348455066976,
+     "nmse_whole": 0.021143361926078796,
+     "ssim_whole": 0.8835312777742114,
+     "psnr_whole": 37.55556145750172,
+     "logged": {
+      "head_psnr": 32.79480876235093,
+      "head_ssim": 0.9153688549995422,
+      "nmse": 0.021143311634659767
+     },
+     "diff": {
+      "head_psnr": -1.6892173526628085e-05,
+      "head_ssim": -5.960464477539063e-08,
+      "nmse": 5.029141902923584e-08
+     }
+    }
+   }
+  },
+  "vol1_huangyuwei|24|FLAIR": {
+   "scan": "vol1_huangyuwei",
+   "af": 24,
+   "contrast": "FLAIR",
+   "missing": {
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {
+    "ZF": {
+     "head_psnr": 25.883887266466918,
+     "head_ssim": 0.6224622130393982,
+     "head_nmse": 0.0821792873502951,
+     "nmse_whole": 0.09141451120376587,
+     "ssim_whole": 0.8187885680874335,
+     "psnr_whole": 30.816136616206542,
+     "logged": {
+      "head_psnr": 25.88388419750087,
+      "head_ssim": 0.6224624514579773,
+      "nmse": 0.09141450375318527
+     },
+     "diff": {
+      "head_psnr": 3.068966048402899e-06,
+      "head_ssim": -2.384185791015625e-07,
+      "nmse": 7.450580596923828e-09
+     }
+    },
+    "CG-SENSE": {
+     "head_psnr": 29.540298694040676,
+     "head_ssim": 0.820259690284729,
+     "head_nmse": 0.0354096279598178,
+     "nmse_whole": 0.048112813383340836,
+     "ssim_whole": 0.7812479851644677,
+     "psnr_whole": 33.60368309301632,
+     "logged": {
+      "head_psnr": 29.54029593189857,
+      "head_ssim": 0.8202596306800842,
+      "nmse": 0.048112813383340836
+     },
+     "diff": {
+      "head_psnr": 2.7621421061496676e-06,
+      "head_ssim": 5.960464477539063e-08,
+      "nmse": 0.0
+     }
+    },
+    "CS-SENSE": {
+     "head_psnr": 30.822621535487382,
+     "head_ssim": 0.8588417172431946,
+     "head_nmse": 0.026356579466781528,
+     "nmse_whole": 0.030022624880075455,
+     "ssim_whole": 0.9167310043209775,
+     "psnr_whole": 35.65179950644759,
+     "logged": {
+      "head_psnr": 30.82261904019917,
+      "head_ssim": 0.8588412404060364,
+      "nmse": 0.030022621154785156
+     },
+     "diff": {
+      "head_psnr": 2.4952882107243113e-06,
+      "head_ssim": 4.76837158203125e-07,
+      "nmse": 3.725290298461914e-09
+     }
+    },
+    "Joint SENSE": {
+     "head_psnr": 30.908103836795807,
+     "head_ssim": 0.8585354685783386,
+     "head_nmse": 0.02584288323067586,
+     "nmse_whole": 0.02897852286696434,
+     "ssim_whole": 0.9182941513818784,
+     "psnr_whole": 35.80552798755623,
+     "logged": {
+      "head_psnr": 30.908101348374828,
+      "head_ssim": 0.8585349321365356,
+      "nmse": 0.02897852286696434
+     },
+     "diff": {
+      "head_psnr": 2.488420978608019e-06,
+      "head_ssim": 5.364418029785156e-07,
+      "nmse": 0.0
+     }
+    },
+    "GS-single": {
+     "head_psnr": 31.559079212300173,
+     "head_ssim": 0.8700500130653381,
+     "head_nmse": 0.022245549106434306,
+     "nmse_whole": 0.026284679770469666,
+     "ssim_whole": 0.8469804737070307,
+     "psnr_whole": 36.229259378948896,
+     "logged": {
+      "head_psnr": 31.55909096051013,
+      "head_ssim": 0.8700505495071411,
+      "nmse": 0.02628461644053459
+     },
+     "diff": {
+      "head_psnr": -1.174820995686332e-05,
+      "head_ssim": -5.364418029785156e-07,
+      "nmse": 6.332993507385254e-08
+     }
+    },
+    "MC-GS": {
+     "head_psnr": 31.62475488769488,
+     "head_ssim": 0.8725817203521729,
+     "head_nmse": 0.021911681628896357,
+     "nmse_whole": 0.025775987654924393,
+     "ssim_whole": 0.8625502094677794,
+     "psnr_whole": 36.314138815310116,
+     "logged": {
+      "head_psnr": 31.62476605766078,
+      "head_ssim": 0.872581958770752,
+      "nmse": 0.02577594295144081
+     },
+     "diff": {
+      "head_psnr": -1.1169965898005785e-05,
+      "head_ssim": -2.384185791015625e-07,
+      "nmse": 4.470348358154297e-08
+     }
+    }
+   }
+  },
+  "vol2_jiangdian|12|T1": {
+   "scan": "vol2_jiangdian",
+   "af": 12,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {
+    "GS-single": {
+     "head_psnr": 36.851194311101565,
+     "head_ssim": 0.9555889964103699,
+     "head_nmse": 0.008145914247702278,
+     "nmse_whole": 0.010665894486010075,
+     "ssim_whole": 0.9372957277817324,
+     "psnr_whole": 40.67881388011023,
+     "logged": {
+      "head_psnr": 36.85130470196209,
+      "head_ssim": 0.9555895328521729,
+      "nmse": 0.010665730573236942
+     },
+     "diff": {
+      "head_psnr": -0.00011039086052733182,
+      "head_ssim": -5.364418029785156e-07,
+      "nmse": 1.6391277313232422e-07
+     }
+    },
+    "MC-GS": {
+     "head_psnr": 37.010395562429764,
+     "head_ssim": 0.9578132629394531,
+     "head_nmse": 0.007852716725723335,
+     "nmse_whole": 0.010339721105992794,
+     "ssim_whole": 0.930513061527753,
+     "psnr_whole": 40.81369629329348,
+     "logged": {
+      "head_psnr": 37.01050533965443,
+      "head_ssim": 0.9578136205673218,
+      "nmse": 0.010339552536606789
+     },
+     "diff": {
+      "head_psnr": -0.00010977722466520845,
+      "head_ssim": -3.5762786865234375e-07,
+      "nmse": 1.685693860054016e-07
+     }
+    }
+   }
+  },
+  "vol2_jiangdian|12|FLAIR": {
+   "scan": "vol2_jiangdian",
+   "af": 12,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {
+    "GS-single": {
+     "head_psnr": 36.043559123280176,
+     "head_ssim": 0.9332310557365417,
+     "head_nmse": 0.010976394037833213,
+     "nmse_whole": 0.014234442263841629,
+     "ssim_whole": 0.8960082310980164,
+     "psnr_whole": 39.72469753854885,
+     "logged": {
+      "head_psnr": 36.043565579370714,
+      "head_ssim": 0.9332311153411865,
+      "nmse": 0.014234425500035286
+     },
+     "diff": {
+      "head_psnr": -6.456090538620174e-06,
+      "head_ssim": -5.960464477539063e-08,
+      "nmse": 1.6763806343078613e-08
+     }
+    },
+    "MC-GS": {
+     "head_psnr": 36.05968121006692,
+     "head_ssim": 0.9332361221313477,
+     "head_nmse": 0.010935722230247455,
+     "nmse_whole": 0.014024296775460243,
+     "ssim_whole": 0.9107177957882319,
+     "psnr_whole": 39.78929330348633,
+     "logged": {
+      "head_psnr": 36.05968675374348,
+      "head_ssim": 0.9332361221313477,
+      "nmse": 0.014024279080331326
+     },
+     "diff": {
+      "head_psnr": -5.543676557806521e-06,
+      "head_ssim": 0.0,
+      "nmse": 1.7695128917694092e-08
+     }
+    }
+   }
+  },
+  "vol2_jiangdian|16|T1": {
+   "scan": "vol2_jiangdian",
+   "af": 16,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {
+    "GS-single": {
+     "head_psnr": 35.496845025522305,
+     "head_ssim": 0.9445335268974304,
+     "head_nmse": 0.01112692011373142,
+     "nmse_whole": 0.013760720379650593,
+     "ssim_whole": 0.9296692181243732,
+     "psnr_whole": 39.57237901821026,
+     "logged": {
+      "head_psnr": 35.49695282191239,
+      "head_ssim": 0.9445340037345886,
+      "nmse": 0.013760476373136044
+     },
+     "diff": {
+      "head_psnr": -0.0001077963900826262,
+      "head_ssim": -4.76837158203125e-07,
+      "nmse": 2.4400651454925537e-07
+     }
+    },
+    "MC-GS": {
+     "head_psnr": 35.664444072183656,
+     "head_ssim": 0.947428822517395,
+     "head_nmse": 0.010705705992454758,
+     "nmse_whole": 0.01330883800983429,
+     "ssim_whole": 0.9228895522198309,
+     "psnr_whole": 39.71738483090607,
+     "logged": {
+      "head_psnr": 35.66455121061492,
+      "head_ssim": 0.947429358959198,
+      "nmse": 0.013308602385222912
+     },
+     "diff": {
+      "head_psnr": -0.000107138431260978,
+      "head_ssim": -5.364418029785156e-07,
+      "nmse": 2.3562461137771606e-07
+     }
+    }
+   }
+  },
+  "vol2_jiangdian|16|FLAIR": {
+   "scan": "vol2_jiangdian",
+   "af": 16,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {
+    "GS-single": {
+     "head_psnr": 34.636392788776206,
+     "head_ssim": 0.9157447814941406,
+     "head_nmse": 0.015176674963643605,
+     "nmse_whole": 0.018579088151454926,
+     "ssim_whole": 0.8834754835840083,
+     "psnr_whole": 38.56785828491146,
+     "logged": {
+      "head_psnr": 34.63640037129954,
+      "head_ssim": 0.9157450199127197,
+      "nmse": 0.01857905462384224
+     },
+     "diff": {
+      "head_psnr": -7.5825233309956275e-06,
+      "head_ssim": -2.384185791015625e-07,
+      "nmse": 3.3527612686157227e-08
+     }
+    },
+    "MC-GS": {
+     "head_psnr": 34.66488375166169,
+     "head_ssim": 0.9163920879364014,
+     "head_nmse": 0.015077433207168311,
+     "nmse_whole": 0.018257101997733116,
+     "ssim_whole": 0.9003772055977294,
+     "psnr_whole": 38.64378313929765,
+     "logged": {
+      "head_psnr": 34.66489097708657,
+      "head_ssim": 0.9163921475410461,
+      "nmse": 0.018257077783346176
+     },
+     "diff": {
+      "head_psnr": -7.225424880630271e-06,
+      "head_ssim": -5.960464477539063e-08,
+      "nmse": 2.421438694000244e-08
+     }
+    }
+   }
+  },
+  "vol2_jiangdian|20|T1": {
+   "scan": "vol2_jiangdian",
+   "af": 20,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol2_jiangdian|20|FLAIR": {
+   "scan": "vol2_jiangdian",
+   "af": 20,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol2_jiangdian|24|T1": {
+   "scan": "vol2_jiangdian",
+   "af": 24,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol2_jiangdian|24|FLAIR": {
+   "scan": "vol2_jiangdian",
+   "af": 24,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol4_tangbing|12|T1": {
+   "scan": "vol4_tangbing",
+   "af": 12,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol4_tangbing|12|FLAIR": {
+   "scan": "vol4_tangbing",
+   "af": 12,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol4_tangbing|16|T1": {
+   "scan": "vol4_tangbing",
+   "af": 16,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol4_tangbing|16|FLAIR": {
+   "scan": "vol4_tangbing",
+   "af": 16,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol4_tangbing|20|T1": {
+   "scan": "vol4_tangbing",
+   "af": 20,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol4_tangbing|20|FLAIR": {
+   "scan": "vol4_tangbing",
+   "af": 20,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol4_tangbing|24|T1": {
+   "scan": "vol4_tangbing",
+   "af": 24,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol4_tangbing|24|FLAIR": {
+   "scan": "vol4_tangbing",
+   "af": 24,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol5_sunxinyi|12|T1": {
+   "scan": "vol5_sunxinyi",
+   "af": 12,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol5_sunxinyi|12|FLAIR": {
+   "scan": "vol5_sunxinyi",
+   "af": 12,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol5_sunxinyi|16|T1": {
+   "scan": "vol5_sunxinyi",
+   "af": 16,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol5_sunxinyi|16|FLAIR": {
+   "scan": "vol5_sunxinyi",
+   "af": 16,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol5_sunxinyi|20|T1": {
+   "scan": "vol5_sunxinyi",
+   "af": 20,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol5_sunxinyi|20|FLAIR": {
+   "scan": "vol5_sunxinyi",
+   "af": 20,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol5_sunxinyi|24|T1": {
+   "scan": "vol5_sunxinyi",
+   "af": 24,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol5_sunxinyi|24|FLAIR": {
+   "scan": "vol5_sunxinyi",
+   "af": 24,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol6_jiangdian_790|12|T1": {
+   "scan": "vol6_jiangdian_790",
+   "af": 12,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol6_jiangdian_790|12|FLAIR": {
+   "scan": "vol6_jiangdian_790",
+   "af": 12,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol6_jiangdian_790|16|T1": {
+   "scan": "vol6_jiangdian_790",
+   "af": 16,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol6_jiangdian_790|16|FLAIR": {
+   "scan": "vol6_jiangdian_790",
+   "af": 16,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol6_jiangdian_790|20|T1": {
+   "scan": "vol6_jiangdian_790",
+   "af": 20,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol6_jiangdian_790|20|FLAIR": {
+   "scan": "vol6_jiangdian_790",
+   "af": 20,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol6_jiangdian_790|24|T1": {
+   "scan": "vol6_jiangdian_790",
+   "af": 24,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol6_jiangdian_790|24|FLAIR": {
+   "scan": "vol6_jiangdian_790",
+   "af": 24,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol7_tangbin_790|12|T1": {
+   "scan": "vol7_tangbin_790",
+   "af": 12,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol7_tangbin_790|12|FLAIR": {
+   "scan": "vol7_tangbin_790",
+   "af": 12,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol7_tangbin_790|16|T1": {
+   "scan": "vol7_tangbin_790",
+   "af": 16,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol7_tangbin_790|16|FLAIR": {
+   "scan": "vol7_tangbin_790",
+   "af": 16,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol7_tangbin_790|20|T1": {
+   "scan": "vol7_tangbin_790",
+   "af": 20,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol7_tangbin_790|20|FLAIR": {
+   "scan": "vol7_tangbin_790",
+   "af": 20,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol7_tangbin_790|24|T1": {
+   "scan": "vol7_tangbin_790",
+   "af": 24,
+   "contrast": "T1",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  },
+  "vol7_tangbin_790|24|FLAIR": {
+   "scan": "vol7_tangbin_790",
+   "af": 24,
+   "contrast": "FLAIR",
+   "missing": {
+    "ZF": "arm classical not done",
+    "CG-SENSE": "arm classical not done",
+    "CS-SENSE": "arm cssense not done",
+    "Joint SENSE": "arm jcssense not done",
+    "L1-SPIRiT": "arm spirit not done",
+    "ZS-SSDU": "arm zsssdu not done",
+    "3D-DIP": "arm dip not done",
+    "3D-INR": "arm inr not done",
+    "MC-INR": "arm mcinr not done",
+    "GS-single": "missing score or volumes",
+    "MC-GS": "missing score or volumes"
+   },
+   "rank": {},
+   "first": {},
+   "complete": false,
+   "methods": {}
+  }
+ }
+}
