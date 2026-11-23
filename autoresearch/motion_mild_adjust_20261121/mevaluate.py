@@ -21,6 +21,8 @@ import numpy as np
 import weights
 from mcommon import ARMS2, CONDITIONS2, DATA2, FORMAL, LEDGER2, MATRIX2, REG2, RES2, ROOT2, THRESH2, c1, exp_name
 
+UNMOVED_MM = 0.05          # a clean echo train "did not move" at or below this true mean brain displacement (report only)
+
 log = lambda *a: print(*a, flush=True)
 
 
@@ -124,16 +126,25 @@ def weight_detection(mm, truth):
     """A train counts as handled when its weight is below 0.5 or (M3) it was put into a state other than the
     reference state. recall = share of the contaminated trains that are handled; false_rate = share of the clean
     trains that are handled; frac_w1 = share of all trains with w = 1; auc of the last statistic z for the
-    contaminated trains."""
+    contaminated trains.
+    Reported only, never judged (added after the formal rows were seen, 2026-11-23): false_rate_unmoved = the same
+    share over the clean trains that did not move at all (true mean brain displacement <= UNMOVED_MM), so that a
+    state opened for a real lasting shift below CONTAM_MM (Tb's step at 0.74) is not counted as a false detection;
+    n_clean_moved / n_clean_moved_handled = the clean trains that did move, and how many of them were handled.
+    Without a per-train displacement in the truth every clean train counts as unmoved."""
     w = np.asarray(mm["m2"]["w"], dtype=np.float64)
     cont = np.asarray(truth.get("contaminated", [False] * w.size), dtype=bool)   # no per-train truth: all clean
+    disp = np.asarray(truth.get("train_brain_disp_mm", [0.0] * w.size), dtype=np.float64)
     handled = w < 0.5
     if mm.get("m3") and mm["m3"].get("n", 1) > 1:
         handled = handled | (np.asarray(mm["m3"]["state_of_train"]) != 0)
     z = mm["m2"].get("z")
     a = weights.auc(np.asarray(z, dtype=np.float64), cont) if z is not None else float("nan")
+    unmoved, moved = ~cont & (disp <= UNMOVED_MM), ~cont & (disp > UNMOVED_MM)
     return dict(recall=float(handled[cont].mean()) if cont.any() else None,
                 false_rate=float(handled[~cont].mean()) if (~cont).any() else None,
+                false_rate_unmoved=float(handled[unmoved].mean()) if unmoved.any() else None,
+                n_clean_moved=int(moved.sum()), n_clean_moved_handled=int(handled[moved].sum()),
                 frac_w1=float((w == 1.0).mean()), auc=None if np.isnan(a) else a,
                 n_contaminated=int(cont.sum()), n_down=int((w < 1.0).sum()))
 

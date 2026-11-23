@@ -160,6 +160,32 @@ def test_detection_counts_state_members_as_handled():
     assert ev.weight_detection(ones, truth)["recall"] == 0.0           # files written before M3 have no m3 key
 
 
+def test_false_rate_unmoved_leaves_out_clean_trains_with_a_true_lasting_shift():
+    # Tb-like truth: 8 contaminated trains, a lasting 0.144 mm step from train 81 on (below CONTAM_MM, so "clean"),
+    # one true state. M3 puts trains 81-109 into a second state, M2 down-weights exactly the 8 contaminated trains.
+    cont = np.zeros(110, dtype=bool)
+    cont[[28, 29, 30, 31, 77, 78, 79, 80]] = True
+    disp = np.zeros(110)
+    disp[cont] = 1.888
+    disp[81:] = 0.144
+    truth = dict(contaminated=cont.tolist(), train_brain_disp_mm=disp.tolist(), state_of_train=[0] * 110)
+    w = np.where(cont, 0.0, 1.0)
+    d = ev.weight_detection(dict(_mm(w), m3=_m3(81)), truth)
+    assert d["recall"] == 1.0
+    assert abs(d["false_rate"] - 29 / 102) < 1e-12                    # the pre-registered item is unchanged
+    assert d["false_rate_unmoved"] == 0.0 and d["n_clean_moved"] == 29 and d["n_clean_moved_handled"] == 29
+    early = ev.weight_detection(dict(_mm(w), m3=_m3(79)), truth)       # trains 79, 80 are contaminated anyway
+    assert early["false_rate_unmoved"] == 0.0
+    wrong = ev.weight_detection(dict(_mm(w), m3=_m3(60)), truth)       # boundary 21 trains too early
+    assert abs(wrong["false_rate_unmoved"] - 17 / 73) < 1e-12         # trains 60-76 = 17 of the 73 unmoved clean ones
+
+
+def test_false_rate_unmoved_without_per_train_displacement_equals_false_rate():
+    d = ev.weight_detection(dict(_mm(np.ones(110)), m3=_m3(64)), _tc_truth())
+    assert abs(d["false_rate"] - 2 / 66) < 1e-12 and d["false_rate_unmoved"] == d["false_rate"]
+    assert d["n_clean_moved"] == 0
+
+
 def test_inter_errors():
     import geom
     from helpers import ball_mask

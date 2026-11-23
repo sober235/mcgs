@@ -119,8 +119,8 @@ def inter_table(S):
 
 def intra_table(S):
     c, w, st = S["criteria"]["S3"]["conds"], S["weights"], S["states"]
-    out = ["| 条件 | B0 相对 C0 的 T2 损失 dB | B2 收回 | B12 收回 | B123 收回 | Ow 收回 | Op 收回 | B123 检出率 | B123 误降率 | B123 状态数 / 真值 |",
-           "|---|---|---|---|---|---|---|---|---|---|"]
+    out = ["| 条件 | B0 相对 C0 的 T2 损失 dB | B2 收回 | B12 收回 | B123 收回 | Ow 收回 | Op 收回 | B123 检出率 | B123 误降率 | B123 误降率（只算未移动的干净链，仅报告） | B123 状态数 / 真值 |",
+           "|---|---|---|---|---|---|---|---|---|---|---|"]
     for cond, a in c.items():
         o = a["others"]
         name = next((r["exp"] for r in S["table"] if (r["order"], r["cond"], r["arm"]) == ("il", cond, "B123")), None)
@@ -129,7 +129,7 @@ def intra_table(S):
         states = "—" if not s else f"{s['n_states']} / {s['n_true']}"
         out.append(f"| {cond} | {f(a['recovered'].get('loss'))} | {f(o.get('B2'))} | {f(o.get('B12'))} | "
                    f"{f(a['recovered']['value'])} | {f(o.get('Ow'))} | {f(o.get('Op'))} | {f(ww.get('recall'))} | "
-                   f"{f(ww.get('false_rate'))} | {states} |")
+                   f"{f(ww.get('false_rate'))} | {f(ww.get('false_rate_unmoved'))} | {states} |")
     return "\n".join(out)
 
 
