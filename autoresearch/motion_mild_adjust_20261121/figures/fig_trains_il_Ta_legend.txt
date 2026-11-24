@@ -1,0 +1,5 @@
+Echo trains of interleaved order, condition Ta, arm B123 (T2W, acceleration factor 12, seed 42), in acquisition order.
+a, true mean displacement of the brain during each echo train. b, the per-train statistic z of M2 at its last
+computation (symmetric logarithmic axis, linear between -5 and 5), clean trains blue, trains acquired while the brain
+was displaced by more than 0.2 mm red; dotted lines, thresholds z0 (weights start to fall)
+and z1 (weight 0). c, final echo-train weight.

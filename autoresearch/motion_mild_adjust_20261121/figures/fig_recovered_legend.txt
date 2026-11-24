@@ -1,0 +1,7 @@
+Mild motion inside the T2W scan (T1W + T2W, acceleration factor 12, seed 42): share of the T2
+head PSNR loss that each arm recovers. Loss = PSNR of unchanged MC-GS without motion (C0) minus PSNR of unchanged MC-GS
+(B0) with motion; share = (arm - B0) / loss, so 0 = unchanged MC-GS and 1 = the level without motion. Filled bars:
+methods (B2 = echo-train weights M2, blue; B123 = M1 + M2 + M3, red); outlined bars: truth upper bounds of the same
+colour (Ow = true weights, Op = true states, poses and weights). a, interleaved echo-train order (main analysis); the
+dashed line is criterion S3 for B123 (at least 0.5). b, linear (kz) order, control, reported only.
+T2 PSNR is the evaluation PSNR (for arms with echo-train weights only the kept lines are inserted).

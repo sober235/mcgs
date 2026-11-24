@@ -1,0 +1,8 @@
+Inter-scan misregistration (condition E2, interleaved order, acceleration factor 12, seed 42).
+a, mean error in the brain of the inter-scan transform used by the arms with M1 (B1 = registration pose, green;
+B123 = M1 + M2 + M3, red), on the differential basis (the data's own native T1W-T2W offset removed): rigid part
+against the true rigid part (criterion S2 at most 0.2 mm), rigid part plus control grid against the
+whole true field (at most 0.3 mm; the alignment step is off in the frozen settings, so the grid
+is zero), and the rigid part alone against the whole true field. b, normalised change of head PSNR: PSNR on E2 minus
+PSNR without motion (C0); for T2W the same difference of the independent T2 model is subtracted. Grey, unchanged
+MC-GS (B0). Dashed lines, criterion S2 (T1W not below -0.05 dB, T2W not below -0.1 dB).
