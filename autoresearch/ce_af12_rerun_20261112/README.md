@@ -147,7 +147,63 @@ the PSNR margins are those of the figure above: transverse 201 +0.25 / +0.36 dB,
 sagittal 48 +0.19 / +0.29 dB (pre / post). 3D-DIP no longer shows signal outside the head. This figure now matches
 the AF16 figure of record in which versions of 3D-DIP / 3D-INR it shows.
 
-## Optimal result for the plain-scan and enhanced reconstruction (user, 2026-11-22)
+## Optimal result for the plain-scan and enhanced reconstruction (user, 2026-11-22; replaced 2026-11-24)
+
+**Current optimal = the same figure with the tuned MC-GS (user, 2026-11-24: "Replace with new").** The clinical-verification
+figure below was redrawn with every option unchanged except the MC-GS column. MC-GS is now the final configuration of
+the AF12 autoresearch loop (`../ce_af12_tune_20261122/program.md`: recipe P3 + `--lambda_edge 0`, edge-TV guide alpha 0.75,
+phase-TV guide alpha 0.5, rotation_lr 0.008, scale_lr 0.004; seed 42). Its volumes come from the run `ta12_x1combo3_vol` (that
+config again with `--save_volumes`; trainer scorer 36.031 / 38.473 dB vs 35.805 / 38.145 dB for the registered September
+run). The ten other arms, the truth, mask, planes, boxes, error range and arrow rule are the same as in the 2026-11-22 figure.
+
+| plane | MC-GS pre / post PSNR (dB) | GS-single pre / post PSNR (dB) | margin pre / post (dB) | SSIM margin pre / post |
+|---|---|---|---|---|
+| transverse 201 | 36.98 / 40.22 | 36.59 / 39.59 | +0.393 / +0.632 | +0.0042 / +0.0056 |
+| coronal 131 | 37.23 / 39.08 | 36.76 / 38.52 | +0.461 / +0.559 | +0.0087 / +0.0060 |
+| sagittal 48 | 36.58 / 39.25 | 36.21 / 38.64 | +0.365 / +0.615 | +0.0058 / +0.0063 |
+
+MC-GS is strictly first on PSNR, SSIM and NMSE in all six panels (18 of 18); runner-up GS-single in every panel. The
+margins over GS-single grew from 0.19-0.36 dB (untuned) to 0.36-0.63 dB. The arrow rule picks new points because the MC-GS
+error changed. Four of the six points moved: transverse pre and post and coronal pre by 9 to 29 px, and sagittal pre
+by 1 px. The coronal post and sagittal post points did not move.
+
+| row | point in the box (x, y) | others' median minus MC-GS | reconstructions with a higher error than MC-GS (of 9) |
+|---|---|---|---|
+| transverse 201 pre | (24, 7) | 0.0036 | 8 (3D-DIP is not higher) |
+| transverse 201 post | (32, 11) | 0.0025 | 9 |
+| coronal 131 pre | (28, 26) | 0.0028 | 7 (CS-SENSE and Joint SENSE are not higher) |
+| coronal 131 post | (13, 21) | 0.0027 | 9 |
+| sagittal 48 pre | (29, 36) | 0.0028 | 9 |
+| sagittal 48 post | (35, 29) | 0.0028 | 8 (3D-DIP is not higher) |
+
+**Files.** Server folder `codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v1_tuned/` (long names
+`ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.08_arrowlesion_onzoom*`):
+
+| file | content | sha256 |
+|---|---|---|
+| `*.pdf` | the figure, one page, 7.7 MB, image panels at 600 dpi, text and marks as vectors | `3b08b2bc...89b78b2b` |
+| `*.png` | the same figure, 200 dpi | `a854068d...632439cd` |
+| `*_data.npz` | the drawn data (as for the 2026-11-22 figure), 10.9 MB | `7014cec6...51d4f892` |
+| `record_tuned_MC_GS_AF12_autoresearch_seed_42_three.json` | record: hashes of the drawn volumes and the truth, MC-GS source (`--mc_npz`), margins, arrow points | `b134e5cf...9fc1e6c6` |
+
+- MC-GS volumes: `codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz`
+  (keys recT1 = pre, recFL = post; magnitude drawn). The other arms are as in the 2026-11-22 record.
+- Mac: `figures/results_optimal/ce_af12_prepost_optimal.png` and `ce_af12_prepost_optimal_600dpi.pdf` are now the tuned
+  figure, with the same hashes as on the server. The 2026-11-22 files are in `figures/results_optimal/superseded_20261122_untuned/`, which is
+  git-ignored. The committed `figures/ce_af12_prepost_optimal_preview.jpg` and `figures/ce_af12_prepost_optimal_record.json` are
+  the tuned versions; the 2026-11-22 versions are in the history of this branch (a32c056).
+- Jobs: volumes run j-20261124T011133-8fbcb2a0 (GPU 1), figure j-20261124T022553-2d7d45d8 (CPU). Side-by-side view of the
+  MC-GS column old vs new: `../ce_af12_tune_20261122/compare_old_new.py`.
+- Command: as below for the 2026-11-22 figure, plus `--mc_npz <volumes above>` and
+  `--label "tuned MC-GS (AF12 autoresearch, seed 42)"`. `--mc_npz` was added to `fig_lesion_plane_prepost.py` on 2026-11-23;
+  without it the topic's registered MC-GS volumes are drawn as before.
+
+**To state with it.** The MC-GS hyperparameters were selected by the head PSNR of this same scan against its truth.
+The comparators keep their earlier settings; of these, the lambda of the three swept arms was also chosen on the truth.
+Part of the larger margin is therefore tuning on the evaluation case. A seed-7 rerun of the final config gave 36.022 / 38.465 dB on the
+trainer scorer, within 0.01 dB of seed 42, but no other subject was tested. The limits below apply.
+
+### Previous optimal (2026-11-22, MC-GS = September recipe, untuned), kept for the record
 
 User, 2026-11-22: change the error colour bar to [0, 0.08] and use the "nature" style; then, of the two figures drawn
 that way, "consider the second image as the optimal result for both plain scan and enhanced reconstruction", save it
@@ -237,6 +293,7 @@ display only; at the two sagittal points one or two other reconstructions are lo
 
 - Same subject, same truth (a CS-SENSE reconstruction, re-simulated with the same coil maps), same noise draw.
 - One mask draw, one seed.
-- The lambda of the three swept arms is chosen on the truth; MC-GS is not tuned (as in September).
+- The lambda of the three swept arms is chosen on the truth; MC-GS is not tuned (as in September), except in the
+  current optimal figure (2026-11-24), whose MC-GS hyperparameters were tuned on this case against the truth.
 - GS-single here is the September arm (one scan fed to both channels of the joint trainer), not the independent
   single-contrast model of the framework ablation.

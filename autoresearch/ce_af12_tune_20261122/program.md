@@ -143,3 +143,9 @@ reconstruction quality of MCGS.」上文是 AF12 平扫 / 增强的最优结果�
   `figures/ce_af12_prepost_tuned_record.json`。MC-GS 仍六个面板全胜（PSNR/SSIM/NMSE）。领先第二名（GS-single）的 PSNR 幅度，旧 → 新：
   横断 0.252 → 0.393 / 0.364 → 0.632，冠状 0.188 → 0.461 / 0.282 → 0.559，矢状 0.195 → 0.365 / 0.292 → 0.615 dB（平扫 / 增强）。
   箭头位置按同一规则重新选出，6 个中 4 个移动（冠状增强、矢状增强不变，矢状平扫只差 1 像素）。是否替换已登记最优图，待用户决定。
+- 2026-11-24 用户选择 “Replace with new”（先已告知：MC-GS 超参数是按同一扫描对真值的头部 PSNR 选出的，对比方法保持原设置）。
+  调参版图替换已登记的最优临床验证图：分支上的 `figures/ce_af12_prepost_optimal_{preview.jpg,record.json}` 改为调参版，
+  旧版留在历史（a32c056）。README 的最优结果一节新增“当前最优”说明（表、箭头、文件、注意事项），旧版作为 “Previous optimal” 保留。
+  本地 `figures/results_optimal/` 的 PNG/PDF 换成调参版，旧文件移到 `results_optimal/superseded_20261122_untuned/`。
+  对比图脚本 `compare_old_new.py`（GS-single | 旧 MC-GS | 新 MC-GS，仅显示）。`optimal-for-plain-scan-and-enhancement-phases`
+  快进到本分支的提交，并推送。

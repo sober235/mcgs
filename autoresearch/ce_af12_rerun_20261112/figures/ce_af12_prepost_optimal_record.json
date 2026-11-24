@@ -1,10 +1,18 @@
 {
   "topic": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12",
-  "label": "Sept recipe, untuned (BART Poisson-disc AF12)",
+  "label": "tuned MC-GS (AF12 autoresearch, seed 42)",
   "arm_overrides": [
     "3D-DIP=/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/dip_sup_b96_tv0.03_{s}_complex.npy",
     "3D-INR=/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/inr_i10_n512_sup6_tv0.03_{s}_complex.npy"
   ],
+  "mc_npz": {
+    "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz",
+    "keys": {
+      "pre": "recT1",
+      "post": "recFL"
+    },
+    "magnitude": true
+  },
   "numbers": "computed by this script (topic mode), not by a frozen evaluator",
   "volumes": {
     "pre": {
@@ -49,8 +57,8 @@
         "sha256": "24948c6406300ec0078dde753cfa7d100d3ab4323eb8d5f6527a557019daf9c9"
       },
       "MC-GS": {
-        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/gs_joint_pre_mag.npy",
-        "sha256": "54dcdc1306cb776669bdd516644c821d63931853406f785e2288cc4e15bf3cb4"
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz",
+        "sha256": "5537c15771aa07e6ea6b8c1dac134f0f206beff88061783f2441f37c872922bb"
       }
     },
     "post": {
@@ -95,8 +103,8 @@
         "sha256": "1f0de7c2500c761231b53f570fbf3f735627e717df79cb2862957d1f3409a68b"
       },
       "MC-GS": {
-        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/gs_joint_post_mag.npy",
-        "sha256": "d931ff700ee49a1cd2fbb69a03ea33bdda25ad73bac8dc9bedace09da7cf3459"
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz",
+        "sha256": "5537c15771aa07e6ea6b8c1dac134f0f206beff88061783f2441f37c872922bb"
       }
     }
   },
@@ -106,7 +114,7 @@
   },
   "figures": [
     {
-      "png": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_prepost_optimal_20261122/v4_clinical_verification_zoom_arrow/ce_af12_lesion_three_planes_201_131_48_prepost_Sept_recipe_untuned_BART_Poisson_disc_AF12_zoomerr_inferno_err0.08_arrowlesion_onzoom.png",
+      "png": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v1_tuned/ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.08_arrowlesion_onzoom.png",
       "rows": [
         "pre Transverse 201",
         "post Transverse 201",
@@ -128,12 +136,12 @@
           ],
           "inset_corner": "tr",
           "margins": {
-            "pre:psnr": 0.252274003306141,
-            "pre:ssim": 0.00149522987665196,
-            "pre:nmse": 0.00041819301064669346,
-            "post:psnr": 0.3635187199857768,
-            "post:ssim": 0.003083858257672767,
-            "post:nmse": 0.0005253792771017386
+            "pre:psnr": 0.3933933566494545,
+            "pre:ssim": 0.004170847488463636,
+            "pre:nmse": 0.0006417453556517407,
+            "post:psnr": 0.6320506711833573,
+            "post:ssim": 0.005623783034247265,
+            "post:nmse": 0.0008861921284085529
           }
         },
         {
@@ -148,12 +156,12 @@
           ],
           "inset_corner": "br",
           "margins": {
-            "pre:psnr": 0.18782801057876952,
-            "pre:ssim": 0.0030972142788653345,
-            "pre:nmse": 0.0005300740208303463,
-            "post:psnr": 0.2815136683080084,
-            "post:ssim": 0.0029663323543652753,
-            "post:nmse": 0.000634197945793771
+            "pre:psnr": 0.4607359041338839,
+            "pre:ssim": 0.008720045061916815,
+            "pre:nmse": 0.0012605283540364186,
+            "post:psnr": 0.5584870540953943,
+            "post:ssim": 0.0059816353881609885,
+            "post:nmse": 0.001219306705058109
           }
         },
         {
@@ -168,12 +176,12 @@
           ],
           "inset_corner": "bl",
           "margins": {
-            "pre:psnr": 0.19475080904180686,
-            "pre:ssim": 0.0032473764858425014,
-            "pre:nmse": 0.00036485832083618837,
-            "post:psnr": 0.2919870759874499,
-            "post:ssim": 0.003067534493907287,
-            "post:nmse": 0.0005785789962275238
+            "pre:psnr": 0.36456877263817944,
+            "pre:ssim": 0.005832770048626479,
+            "pre:nmse": 0.0006699226675733983,
+            "post:psnr": 0.6149023842481469,
+            "post:ssim": 0.00625336930603182,
+            "post:nmse": 0.0011747361965885363
           }
         }
       ],
@@ -185,12 +193,11 @@
         {
           "row": "pre Transverse 201",
           "box_xy": [
-            34,
-            14
+            24,
+            7
           ],
-          "gap": 0.0033091651275753975,
+          "gap": 0.0036318339407444,
           "error_higher_than_mcgs_in": [
-            "3D-DIP",
             "3D-INR",
             "CG-SENSE",
             "CS-SENSE",
@@ -204,10 +211,10 @@
         {
           "row": "post Transverse 201",
           "box_xy": [
-            30,
-            40
+            32,
+            11
           ],
-          "gap": 0.0029437586199492216,
+          "gap": 0.0025353217497467995,
           "error_higher_than_mcgs_in": [
             "3D-DIP",
             "3D-INR",
@@ -223,17 +230,15 @@
         {
           "row": "pre Coronal 131",
           "box_xy": [
-            36,
-            22
+            28,
+            26
           ],
-          "gap": 0.0029648132622241974,
+          "gap": 0.0027961726300418377,
           "error_higher_than_mcgs_in": [
             "3D-DIP",
             "3D-INR",
             "CG-SENSE",
-            "CS-SENSE",
             "GS-single",
-            "Joint SENSE",
             "L1-SPIRiT",
             "MC-INR",
             "ZS-SSDU"
@@ -245,7 +250,7 @@
             13,
             21
           ],
-          "gap": 0.002667676657438278,
+          "gap": 0.0027048075571656227,
           "error_higher_than_mcgs_in": [
             "3D-DIP",
             "3D-INR",
@@ -262,14 +267,15 @@
           "row": "pre Sagittal 48",
           "box_xy": [
             29,
-            35
+            36
           ],
-          "gap": 0.002221288625150919,
+          "gap": 0.002793409861624241,
           "error_higher_than_mcgs_in": [
             "3D-DIP",
             "3D-INR",
             "CG-SENSE",
             "CS-SENSE",
+            "GS-single",
             "Joint SENSE",
             "L1-SPIRiT",
             "MC-INR",
@@ -282,8 +288,9 @@
             35,
             29
           ],
-          "gap": 0.002149522304534912,
+          "gap": 0.00275999354198575,
           "error_higher_than_mcgs_in": [
+            "3D-INR",
             "CG-SENSE",
             "CS-SENSE",
             "GS-single",
