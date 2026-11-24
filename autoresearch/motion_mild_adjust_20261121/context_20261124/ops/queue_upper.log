@@ -1,0 +1,44 @@
+07:53 queue: 13 rows, 0 already finished, 0 running, 13 to launch; code 5716162550db
+08:22 LAUNCH mm_af12_il_Ta_B0 gpu 2 job 77ccf5ad
+09:13 DONE mm_af12_il_Ta_B0 gpu 2 plain head_psnr=35.8225735817434 contrast head_psnr=34.40781612455528
+09:15 LAUNCH mm_af12_il_Ta_Ow gpu 2 job 2f98fb7b
+10:06 DONE mm_af12_il_Ta_Ow gpu 2 plain head_psnr=35.83384440029338 contrast head_psnr=35.86402361144455
+10:08 LAUNCH mm_af12_il_Tb_B0 gpu 2 job 803d714d
+10:59 DONE mm_af12_il_Tb_B0 gpu 2 plain head_psnr=35.82402968413548 contrast head_psnr=34.45473801223993
+11:01 LAUNCH mm_af12_il_Tb_Ow gpu 2 job 9314c10c
+11:52 DONE mm_af12_il_Tb_Ow gpu 2 plain head_psnr=35.833800275784256 contrast head_psnr=35.6235536820612
+11:54 LAUNCH mm_af12_il_Tc_B0 gpu 2 job 2af359ea
+12:46 DONE mm_af12_il_Tc_B0 gpu 2 plain head_psnr=35.78338601232254 contrast head_psnr=27.714385321845118
+12:48 LAUNCH mm_af12_il_Tc_Ow gpu 2 job 15ab2853
+13:39 DONE mm_af12_il_Tc_Ow gpu 2 plain head_psnr=35.8397698814701 contrast head_psnr=32.23998915456994
+13:41 LAUNCH mm_af12_il_Tc_Op gpu 2 job 8186906b
+15:08 DONE mm_af12_il_Tc_Op gpu 2 plain head_psnr=35.8035819440237 contrast head_psnr=33.62237164333219
+15:10 LAUNCH mm_af12_il_E2Tb_B0 gpu 2 job f05f3653
+16:01 DONE mm_af12_il_E2Tb_B0 gpu 2 plain head_psnr=35.77686232136615 contrast head_psnr=35.03081914358502
+16:03 LAUNCH mm_af12_il_E2Tb_Ow gpu 2 job c7aa25a6
+16:55 DONE mm_af12_il_E2Tb_Ow gpu 2 plain head_psnr=35.78474208345792 contrast head_psnr=36.250547228946225
+16:57 LAUNCH mm_af12_kz_Ta_B0 gpu 2 job 9402d098
+17:05 state check of mm_af12_kz_Ta_B0 failed (RuntimeError)
+17:05 gpu check failed (CalledProcessError)
+17:07 state check of mm_af12_kz_Ta_B0 failed (RuntimeError)
+17:07 gpu check failed (CalledProcessError)
+17:48 DONE mm_af12_kz_Ta_B0 gpu 2 plain head_psnr=35.81907198541415 contrast head_psnr=32.24549158182427
+18:26 LAUNCH mm_af12_kz_Tc_B0 gpu 3 job 08af6996
+19:18 DONE mm_af12_kz_Tc_B0 gpu 3 plain head_psnr=35.815848683649904 contrast head_psnr=29.5328007256194
+20:06 LAUNCH mm_af12_kz_Tc_Ow gpu 7 job beb1900c
+20:14 state check of mm_af12_kz_Tc_Ow failed (RuntimeError)
+20:14 gpu check failed (CalledProcessError)
+20:16 state check of mm_af12_kz_Tc_Ow failed (RuntimeError)
+20:16 gpu check failed (CalledProcessError)
+20:57 DONE mm_af12_kz_Tc_Ow gpu 7 plain head_psnr=35.84819546083036 contrast head_psnr=30.541039580305203
+20:59 LAUNCH mm_af12_kz_Tc_Op gpu 7 job b5c4bf29
+21:46 state check of mm_af12_kz_Tc_Op failed (RuntimeError)
+21:48 state check of mm_af12_kz_Tc_Op failed (RuntimeError)
+21:50 state check of mm_af12_kz_Tc_Op failed (RuntimeError)
+21:51 state check of mm_af12_kz_Tc_Op failed (RuntimeError)
+21:53 state check of mm_af12_kz_Tc_Op failed (RuntimeError)
+21:54 state check of mm_af12_kz_Tc_Op failed (RuntimeError)
+21:56 state check of mm_af12_kz_Tc_Op failed (RuntimeError)
+21:58 state check of mm_af12_kz_Tc_Op failed (RuntimeError)
+22:28 DONE mm_af12_kz_Tc_Op gpu 7 plain head_psnr=35.818349152922906 contrast head_psnr=34.67859871061363
+22:28 queue finished; failed: none
