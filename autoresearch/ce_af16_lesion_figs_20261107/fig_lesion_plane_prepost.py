@@ -41,6 +41,9 @@ ap.add_argument("--topic", type=Path, default=None, help="CE retro topic without
 ap.add_argument("--arm", action="append", default=[], metavar="LABEL=PATH",
                 help="topic mode only: replace one arm's volume, PATH may contain {s} for the scan (pre/post), e.g. "
                      "'3D-DIP=/x/recon/dip_sup_b96_tv0.03_{s}_complex.npy'; repeatable; recorded in the JSON")
+ap.add_argument("--mc_npz", type=Path, default=None,
+                help="topic mode only: MC-GS = magnitude of a trainer volumes file (keys recT1 = pre, recFL = post), "
+                     "e.g. a tuned run saved with --save_volumes; default = the topic's registered gs_joint volumes")
 ap.add_argument("--label", required=True, help="what the MC-GS column is, for the title, e.g. 'C77 seed 42 (m625)'")
 ap.add_argument("--out", type=Path, required=True)
 ap.add_argument("--planes", nargs="*", default=None, metavar="AXIS:INDEX",
@@ -175,6 +178,8 @@ else:                      # topic mode: the topic's registered arms (its script
             lab, _, pth = spec.partition("=")
             assert lab in paths[s] and lab != MC, f"--arm {spec}: unknown or not replaceable arm {lab!r}"
             paths[s][lab] = Path(pth.format(s=s))
+        if args.mc_npz:
+            paths[s][MC] = args.mc_npz
         missing = [str(p) for p in paths[s].values() if not p.exists()]
         assert not missing, f"missing volumes: {missing}"
     log(f"topic mode: {TOPIC}; panel numbers computed from the volumes")
@@ -185,7 +190,12 @@ for s in SCANS:
     gmax[s] = float(gt[s].max())
     head[s] = gt[s] > .05 * float(np.quantile(gt[s], .999))
     for lab, p in paths[s].items():
-        vol[s][lab] = np.abs(np.load(p))
+        if lab == MC and args.mc_npz:
+            with np.load(p, allow_pickle=False) as z:
+                vol[s][lab] = np.abs(z[{"pre": "recT1", "post": "recFL"}[s]])
+            assert vol[s][lab].shape == gt[s].shape, f"--mc_npz {s}: shape {vol[s][lab].shape} != GT {gt[s].shape}"
+        else:
+            vol[s][lab] = np.abs(np.load(p))
 with np.load(ROI, allow_pickle=False) as z:
     names = [str(n) for n in z["names"]]
     core = z[f"roi{names.index('病灶核心')}"] > 0
@@ -238,6 +248,8 @@ if sd is not None:
               "volumes": {s: {lab: str(p) for lab, p in paths[s].items()} for s in SCANS}, "figures": []}
 else:
     record = {"topic": str(TOPIC), "label": args.label, "arm_overrides": args.arm,
+              "mc_npz": (dict(path=str(args.mc_npz), keys={"pre": "recT1", "post": "recFL"}, magnitude=True)
+                         if args.mc_npz else None),
               "numbers": "computed by this script (topic mode), not by a frozen evaluator",
               "volumes": {s: {lab: {"path": str(p), "sha256": sha(p)} for lab, p in paths[s].items()} for s in SCANS},
               "gt_sha256": {s: sha(TOPIC / f"recon/gt_{s}_complex.npy") for s in SCANS}, "figures": []}

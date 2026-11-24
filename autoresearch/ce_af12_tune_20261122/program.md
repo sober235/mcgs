@@ -127,3 +127,19 @@ reconstruction quality of MCGS.」上文是 AF12 平扫 / 增强的最优结果�
 --set gaussian.rotation_lr=0.008 --set gaussian.scale_lr=0.004`。种子 42：36.031 / 38.473 dB（对照 35.805 / 38.145）；
 种子 7：36.022 / 38.465 dB。全头 SSIM、NMSE、HFEN 在两种对比度上都变好。共 8 次训练（预算 12），另有 1 次在共用卡上主动停掉。
 尚未做：用最终配置保存重建体积（`--volumes`）并重画临床验证图；那需要再一次训练和用户的决定（是否替换已登记的最优图）。
+- 2026-11-23 04:35 PST 用户："push and commit. executing choice 2" → 循环目录提交并推送到 `exp/ce-af12-tune-20261122`（4afda52，基于
+  `optimal-for-plain-scan-and-enhancement-phases` 的 a32c056）；开始第 2 项：用最终配置保存重建体积并重画临床验证图。
+- 出图脚本 `fig_lesion_plane_prepost.py` 加 `--mc_npz`（MC-GS 取训练器体积文件的 recT1 / recFL 幅值，默认不变）。
+  CPU 试画（j-20261123T124449-09ccba2c，用已登记的 `ce_retro_af12_joint_volumes.npz`）六个箭头位置与已登记最优图完全相同 → 路径可用。
+  体积训练 `x1combo3_vol`（`--volumes`，种子 42）等 mcgs-c9 在 2 号卡的独占时段（约 05:35 PST 后）。
+- 2026-11-23 05:59 PST mcgs-c9 让出 2 号卡，但本会话当时没有启动（时段空置到约 17:00 PST，2 号卡已还给运动研究）。
+  17:05 PST 用户把项目上限改为 4 张卡（mcgs-c9 转达，已写入 CLAUDE.md）。17:10 PST 在 1 号卡（两次检查均空，mcgs-c9 同意）
+  启动 `x1combo3_vol`（最终配置，种子 42，`--volumes`），独占约 46 GB。
+- 2026-11-23 18:24 PST `x1combo3_vol` 完成（本机计时约 74 分钟）：36.031 / 38.473 dB，m 37.2521，与 x1_combo3 相差不超过 0.0002 dB
+  （非逐位相同）。体积 `ta12_x1combo3_vol_volumes.npz` 只在服务器。1 号卡已空。
+- 临床验证图重画（CPU 作业 j-20261124T022553-2d7d45d8，`--mc_npz` = 上述体积，其余选项与已登记最优图相同：201/131/48、
+  inferno [0, 0.08]、箭头只在放大框、600 dpi）。服务器 `codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v1_tuned`
+  （PDF + PNG + data npz）；本地 PNG/PDF 在 `ce_af12_rerun_20261112/figures/results_tuned/`（git 忽略），记录
+  `figures/ce_af12_prepost_tuned_record.json`。MC-GS 仍六个面板全胜（PSNR/SSIM/NMSE）。领先第二名（GS-single）的 PSNR 幅度，旧 → 新：
+  横断 0.252 → 0.393 / 0.364 → 0.632，冠状 0.188 → 0.461 / 0.282 → 0.559，矢状 0.195 → 0.365 / 0.292 → 0.615 dB（平扫 / 增强）。
+  箭头位置按同一规则重新选出，6 个中 4 个移动（冠状增强、矢状增强不变，矢状平扫只差 1 像素）。是否替换已登记最优图，待用户决定。
