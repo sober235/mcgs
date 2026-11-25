@@ -109,12 +109,13 @@ def val(tab, order, cond, arm, c="T2", key="head_psnr_eval", tag="", seed=42):
     return None
 
 
-def recovered(tab, order, cond, arm, tag="", base="B0"):
-    """Share of the T2 loss that an arm takes back: loss = base(C0) - base(cond); value = (arm - base(cond)) / loss.
-    base = B0 (the unchanged joint model) or I-T2 for a single-contrast arm. The baselines are looked up with the
-    arm's tag first, then untagged. value is None when the loss is below min_loss_db. None if a run is missing."""
+def recovered(tab, order, cond, arm, tag="", base="B0", ref="C0"):
+    """Share of the T2 loss that an arm takes back: loss = base(ref) - base(cond); value = (arm - base(cond)) / loss.
+    base = B0 (the unchanged joint model) or I-T2 for a single-contrast arm; ref = the condition without motion
+    (C0, as registered; E2 for the report-only reading of E2Tb). The baselines are looked up with the arm's tag
+    first, then untagged. value is None when the loss is below min_loss_db. None if a run is missing."""
     pick = lambda o, c: next((v for v in (val(tab, o, c, base, tag=tag), val(tab, o, c, base)) if v is not None), None)
-    b0_c0, b0, a = pick("il", "C0"), pick(order, cond), val(tab, order, cond, arm, tag=tag)
+    b0_c0, b0, a = pick("il", ref), pick(order, cond), val(tab, order, cond, arm, tag=tag)
     if b0_c0 is None or b0 is None or a is None:
         return None
     loss = b0_c0 - b0
@@ -205,17 +206,22 @@ def inter_errors(st, truth_inter, disp, pre, brain):
                 full=ev1.field_errors(d_full, d_true, brain), nonrigid_brain_max_mm=float(u.max()))
 
 
-def inter_report(exp, order, cond):
+def inter_report(exp, order, cond, static=False):
     """inter_errors of one finished run, read from the files (None when the run has no adapter or the condition
-    has no simulated inter-scan transform)."""
+    has no simulated inter-scan transform). static=True: only conditions WITHOUT a simulated inter-scan transform,
+    whose truth is then the C0 registration itself (report only: how far the pose M1 found on motion-corrupted
+    T2W data is from the pose without motion)."""
     import geom
     import reg
     p = RES2 / f"{exp}_motion.json"
     cdir = _cdir(order, cond)
     truth = json.loads((cdir / "motion_truth.json").read_text()) if (cdir / "motion_truth.json").exists() else {}
-    if not p.exists() or not truth.get("inter"):
+    if not p.exists() or bool(truth.get("inter")) == bool(static):
         return None
-    disp = np.load(cdir / "disp_T2.npy").astype(np.float64) if (cdir / "disp_T2.npy").exists() else None
+    if static:
+        truth = dict(truth, inter=geom.Rigid.identity().to_json())
+    has_disp = not static and (cdir / "disp_T2.npy").exists()       # a static truth has no inter-scan field
+    disp = np.load(cdir / "disp_T2.npy").astype(np.float64) if has_disp else None
     brain = np.load(cdir / "brain.npy").astype(bool)
     af = next(t for t in exp.split("_") if t.startswith("af"))          # also for names with a prefix (smoke_)
     pre = reg.load_pose(REG2 / f"{af}_{order}_C0.json")
@@ -412,6 +418,9 @@ def _s4(s):
                                     ">=", per_lesion=per),
                crosstalk=_item(max(xt, default=None), 0.0, "<="))
     out["pass"] = _all(v["pass"] for v in out.values())
+    alt = {k: _s4(dict(lesions=v)).get("recovery_vs_B0") for k, v in (s.get("lesions_alt") or {}).items() if v}
+    if alt:      # report only: the same T2 image rule for B0 and B123 (all measured lines, or no data consistency)
+        out["report_only"] = {k: dict(value=v["value"], per_lesion=v.get("per_lesion")) for k, v in alt.items() if v}
     return out
 
 
@@ -452,9 +461,12 @@ def clock_keys(obj, path=""):
 
 
 # ------------------------------------------------------------------------------------------------ summary
-def _vols2(exp, arm):
-    """{"T1": (rec, gt), "T2": (rec, gt)} of one run. T2 of an arm with echo-train weights is its evaluated image
-    (only the kept lines inserted), as in head_psnr_eval."""
+def _vols2(exp, arm, t2="eval"):
+    """{"T1": (rec, gt), "T2": (rec, gt)} of one run. t2 = "eval": T2 of an arm with echo-train weights is its
+    evaluated image (only the kept lines inserted), as in head_psnr_eval -- the image of S4; "all": every arm's T2 is
+    the trainer's own image (all measured lines inserted); "raw": every arm's T2 is the raw render without data
+    consistency. "all" and "raw" are report only: they apply the same rule to every arm. None if a file is
+    missing."""
     p = RES2 / f"{exp}_volumes.npz"
     if not p.exists():
         return None
@@ -462,16 +474,23 @@ def _vols2(exp, arm):
         out = {"T2": (v["rec"], v["gt"])} if ARMS2[arm]["trainer"] == "single" else \
             {"T1": (v["recT1"], v["gtT1"]), "T2": (v["recFL"], v["gtFL"])}
     canon = RES2 / f"{exp}_canon.npz"
-    if weighted(arm) and canon.exists():
+    if t2 == "raw":
+        if not canon.exists():
+            return None
+        with np.load(canon) as z:
+            if "rec_raw" not in z.files:
+                return None
+            out["T2"] = (np.abs(z["rec_raw"]).astype(np.float32), out["T2"][1])
+    elif t2 == "eval" and weighted(arm) and canon.exists():
         with np.load(canon) as z:
             if "rec_w_dc" in z.files:
                 out["T2"] = (np.abs(z["rec_w_dc"]).astype(np.float32), out["T2"][1])
     return out
 
 
-def lesion_report(order="il", cond="TbL", ref_cond="Tb", arms=("B0", "B123", "I-T2")):
+def lesion_report(order="il", cond="TbL", ref_cond="Tb", arms=("B0", "B123", "I-T2"), t2="eval"):
     """Lesion numbers (first version's evaluate.lesion_rows) of the runs on `cond`, with the same arm's run on
-    `ref_cond` as the run without lesions. {} when the condition was not built."""
+    `ref_cond` as the run without lesions; t2 = which T2 image (see _vols2). {} when the condition was not built."""
     import evaluate as ev1
     cdir = _cdir(order, cond)
     if not (cdir / "lesion_mask_T2.npy").exists():
@@ -480,9 +499,9 @@ def lesion_report(order="il", cond="TbL", ref_cond="Tb", arms=("B0", "B123", "I-
     masks = dict(T1=np.load(cdir / "lesion_mask_canon.npy"), T2=np.load(cdir / "lesion_mask_T2.npy"))
     out = {}
     for arm in arms:
-        v = _vols2(exp_name("af12", order, cond, arm), arm)
+        v = _vols2(exp_name("af12", order, cond, arm), arm, t2)
         if v is not None:
-            out[arm] = ev1.lesion_rows(v, _vols2(exp_name("af12", order, ref_cond, arm), arm) or {}, truth, masks)
+            out[arm] = ev1.lesion_rows(v, _vols2(exp_name("af12", order, ref_cond, arm), arm, t2) or {}, truth, masks)
     return out
 
 
@@ -491,7 +510,7 @@ def build_summary():
     not in it). No clock key anywhere (asserted)."""
     formal = [exp_name("af12", *row) for row in FORMAL]
     tab = [r for r in table(load_ledger()) if r["exp"] in set(formal)]
-    weights_, states, inter = {}, {}, {}
+    weights_, states, inter, inter_static = {}, {}, {}, {}
     for r in tab:
         mm = _load_mm(r["exp"])
         if mm is None:
@@ -507,6 +526,9 @@ def build_summary():
         e = inter_report(r["exp"], r["order"], r["cond"])
         if e is not None:
             inter[r["exp"]] = e
+        e = inter_report(r["exp"], r["order"], r["cond"], static=True)
+        if e is not None:
+            inter_static[r["exp"]] = e
     reg = {}
     for p in sorted(REG2.glob("af12_*.json")):
         _, order, cond = p.stem.split("_", 2)
@@ -520,7 +542,10 @@ def build_summary():
                                                                                  base=base)
     s = dict(af="af12", n_formal=len(formal), n_runs=len(tab), missing=[e for e in formal if e not in {r["exp"] for r in tab}],
              thresholds=dict(THRESH2), table=tab, weights=weights_, states=states, inter=inter, reg=reg, recovered=rec,
-             lesions=lesion_report())
+             lesions=lesion_report(), inter_static=inter_static,
+             lesions_alt={k: lesion_report(t2=k) for k in ("all", "raw")},
+             recovered_ref_E2={a: recovered(tab, "il", "E2Tb", a, ref="E2")
+                               for a in sorted({r["arm"] for r in tab if (r["order"], r["cond"]) == ("il", "E2Tb")})})
     s["criteria"] = criteria(s)
     bad = clock_keys(s)
     assert not bad, f"clock keys in the summary: {bad}"

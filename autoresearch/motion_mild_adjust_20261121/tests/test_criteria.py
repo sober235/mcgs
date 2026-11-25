@@ -1,4 +1,5 @@
 """Criteria S1-S4 of the second version on synthetic summaries (no files, no trainer)."""
+import json
 import copy
 
 import mcommon
@@ -205,3 +206,15 @@ def test_summary_has_no_clock_keys():
     assert ev.clock_keys(s) == []
     bad = dict(a=[dict(elapsed_s=1.0)], run=dict(timestamp_utc="x", fine=1), train_time=2, updated=3)
     assert sorted(ev.clock_keys(bad)) == ["a[0].elapsed_s", "run.timestamp_utc", "train_time", "updated"]
+
+
+def test_s4_report_only_reading_does_not_change_the_verdict():
+    """S4 judges the evaluated images; the same-rule readings (all lines, raw render) are reported beside it only."""
+    s = good()
+    alt = json.loads(json.dumps(s["lesions"]))
+    alt["B123"][0]["contrast_recovery"] = 0.50                            # far below B0 in the other reading
+    s["lesions_alt"] = dict(all=alt, raw={})
+    c = ev.criteria(s)["S4"]
+    assert c["pass"] is True and set(c["report_only"]) == {"all"}
+    assert abs(c["report_only"]["all"]["value"] + 0.20) < 1e-9
+    assert "report_only" not in ev.criteria(good())["S4"]

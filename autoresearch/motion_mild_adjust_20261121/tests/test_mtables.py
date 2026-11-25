@@ -48,3 +48,16 @@ def test_tables_mark_failed_and_skipped_items():
     text = _mtables().render(s)
     assert "**不通过**" in text
     assert "不计入" in text                                   # the skipped condition says why
+
+
+def test_report_only_tables():
+    s = _summary()
+    b123 = next(r["exp"] for r in s["table"] if (r["order"], r["cond"], r["arm"]) == ("il", "Tc", "B123"))
+    s["inter_static"] = {b123: dict(rigid=dict(tre_mean_mm=0.512, tre_max_mm=0.7))}
+    s["lesions_alt"] = dict(all=s["lesions"], raw={})
+    s["criteria"] = ev.criteria(s)
+    s["recovered_ref_E2"] = dict(B0=None, B123=dict(value=0.713))
+    text = _mtables().render(s)
+    assert "| 交错 | Tc | B123 | 0.512 | 0.700 |" in text
+    assert "两组都插回全部采样线（只报告）" in text and "两组都用原始渲染" not in text
+    assert "None" not in text and "nan" not in text.lower()

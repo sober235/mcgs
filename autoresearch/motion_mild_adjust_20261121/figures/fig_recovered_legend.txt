@@ -5,3 +5,4 @@ methods (B2 = echo-train weights M2, blue; B123 = M1 + M2 + M3, red); outlined b
 colour (Ow = true weights, Op = true states, poses and weights). a, interleaved echo-train order (main analysis); the
 dashed line is criterion S3 for B123 (at least 0.5). b, linear (kz) order, control, reported only.
 T2 PSNR is the evaluation PSNR (for arms with echo-train weights only the kept lines are inserted).
+E2Tb: the simulated inter-scan resampling of E2 itself raises the T2 PSNR above C0, so shares above 1 are possible; with unchanged MC-GS on E2 as the level they are B12 0.69, B123 0.71, Ow 0.67.

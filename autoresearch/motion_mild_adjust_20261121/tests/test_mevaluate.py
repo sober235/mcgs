@@ -282,3 +282,50 @@ def test_scores_are_computed_once_per_result_file(tmp_path):
     assert d["head_psnr"] == 33.0 and calls == ["rec_raw", "rec_w_dc", "rec_raw"]
     assert ev.cached_scores(cache, "rec_w_dc", 1200, compute)["head_psnr"] == 34.0   # the old array went with it
     assert ev.clock_keys(__import__("json").loads(cache.read_text())) == []
+
+
+def test_recovered_against_another_no_motion_reference():
+    tab = ev.table([_row("il", "C0", "B0", 36.0), _row("il", "E2", "B0", 37.0), _row("il", "E2Tb", "B0", 35.0),
+                    _row("il", "E2Tb", "B1", 36.5)], scores=_scores())
+    assert abs(ev.recovered(tab, "il", "E2Tb", "B1")["value"] - 1.5) < 1e-9          # against C0: above 1
+    r = ev.recovered(tab, "il", "E2Tb", "B1", ref="E2")
+    assert abs(r["value"] - 0.75) < 1e-9 and abs(r["loss"] - 2.0) < 1e-9
+
+
+def test_t2_image_readings_of_the_lesion_report(tmp_path, monkeypatch):
+    monkeypatch.setattr(ev, "RES2", tmp_path)
+    one, two, three = (np.full((4, 4, 4), v, dtype=np.float32) for v in (1.0, 2.0, 3.0))
+    np.savez(tmp_path / "x_volumes.npz", recT1=one, gtT1=one, recFL=one, gtFL=one)
+    np.savez(tmp_path / "x_canon.npz", rec_raw=(-3.0 * one).astype(np.complex64), rec_w_dc=two.astype(np.complex64))
+    t2 = lambda arm, how: ev._vols2("x", arm, how)["T2"][0].mean()
+    assert t2("B123", "eval") == 2.0 and t2("B0", "eval") == 1.0           # kept lines only for a weighted arm
+    assert t2("B123", "all") == 1.0 and t2("B123", "raw") == 3.0 and t2("B0", "raw") == 3.0
+    np.savez(tmp_path / "x_canon.npz", rec_w_dc=two.astype(np.complex64))
+    assert ev._vols2("x", "B0", "raw") is None and ev._vols2("x", "B0", "all") is not None
+
+
+def test_inter_report_static_measures_against_the_registration_without_motion(tmp_path, monkeypatch):
+    import geom
+    from helpers import ball_mask
+    shape = (32, 32, 24)
+    res, data, regd = (tmp_path / d for d in ("res", "data", "reg"))
+    for d in (res, data, regd):
+        d.mkdir()
+    monkeypatch.setattr(ev, "RES2", res)
+    monkeypatch.setattr(ev, "REG2", regd)
+    monkeypatch.setattr(ev, "_cdir", lambda order, cond: data)
+    np.save(data / "brain.npy", ball_mask(shape, 8, offset=(0.0, 0.0, 0.0)))
+    np.save(data / "disp_T2.npy", np.full(shape + (3,), 9.0))             # must be ignored by the static reading
+    (data / "motion_truth.json").write_text(json.dumps(dict(inter=None)))
+    (regd / "af12_il_C0.json").write_text(json.dumps(dict(theta_deg=[0.0, 0.0, 0.0], t_mm=[0.5, 0.4, -0.1])))
+    st = dict(theta_deg=[0.0, 0.0, 0.0], t_mm=[0.5, 0.4, -0.1], ctrl_mm=None, segments=[], ref_segment=0)
+    (res / "mm_af12_il_Tc_B123_motion.json").write_text(json.dumps(dict(final=st)))
+    assert ev.inter_report("mm_af12_il_Tc_B123", "il", "Tc") is None            # no simulated inter-scan motion
+    e = ev.inter_report("mm_af12_il_Tc_B123", "il", "Tc", static=True)
+    assert e["rigid"]["tre_mean_mm"] < 1e-9 and e["full"]["tre_mean_mm"] < 1e-9
+    st["t_mm"] = [0.8, 0.8, -0.1]                                                  # 0.5 mm off the C0 pose
+    (res / "mm_af12_il_Tc_B123_motion.json").write_text(json.dumps(dict(final=st)))
+    e = ev.inter_report("mm_af12_il_Tc_B123", "il", "Tc", static=True)
+    assert abs(e["rigid"]["tre_mean_mm"] - 0.5) < 1e-9
+    (data / "motion_truth.json").write_text(json.dumps(dict(inter=geom.Rigid.identity().to_json())))
+    assert ev.inter_report("mm_af12_il_Tc_B123", "il", "Tc", static=True) is None  # E2-type conditions: S2 reads them

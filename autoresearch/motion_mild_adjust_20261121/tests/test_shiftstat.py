@@ -129,3 +129,10 @@ def test_state_shifts_are_medians_against_the_reference_state():
     s = shiftstat.state_shifts(d, state, 2)
     assert s.shape == (2, 3) and not s[0].any()
     assert np.abs(s[1] - np.array([0.0, -0.33, -0.48])).max() < 0.02
+
+
+def test_changepoints_vec_none_on_heavy_tailed_stationary_noise():
+    """Review Focus 3 on the detector of the frozen settings (per-train shift, three components)."""
+    for seed in range(200):
+        d = 0.03 * np.random.default_rng(seed).standard_t(3, size=(110, 3))
+        assert shiftstat.changepoints_vec(d, 0.10, 8.0, 3) == [], seed

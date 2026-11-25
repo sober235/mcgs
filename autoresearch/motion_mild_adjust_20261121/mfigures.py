@@ -148,7 +148,7 @@ def recovered_figure(summary, out_png, dpi=600):
         axes[1].tick_params(axis="y", left=False)
         axes[1].spines["left"].set_visible(False)
         axes[0].axhline(THRESH2["s3_recover"], color=INK, lw=0.5, ls=(0, (3, 2)))
-        axes[0].set_ylabel("Share of the T2 loss recovered\n(0 = unchanged MC-GS, 1 = no-motion level)")
+        axes[0].set_ylabel("Share of the T2 loss recovered\n(0 = unchanged MC-GS, 1 = level of C0)")
         handles = [plt.Rectangle((0, 0), 1, 1, facecolor=col if filled else "white", edgecolor=col, linewidth=0.75)
                    for _, col, filled in REC_ARMS]
         handles.append(plt.Line2D([0], [0], color=INK, lw=0.5, ls=(0, (3, 2))))
@@ -164,8 +164,19 @@ head PSNR loss that each arm recovers. Loss = PSNR of unchanged MC-GS without mo
 methods (B2 = echo-train weights M2, blue; B123 = M1 + M2 + M3, red); outlined bars: truth upper bounds of the same
 colour (Ow = true weights, Op = true states, poses and weights). a, interleaved echo-train order (main analysis); the
 dashed line is criterion S3 for B123 (at least {THRESH2['s3_recover']}). b, linear (kz) order, control, reported only.
-T2 PSNR is the evaluation PSNR (for arms with echo-train weights only the kept lines are inserted).""")
+T2 PSNR is the evaluation PSNR (for arms with echo-train weights only the kept lines are inserted).{_e2_note(summary)}""")
         return _save(fig, out_png, dpi)
+
+
+def _e2_note(summary):
+    """Legend sentence on E2Tb, whose level without intra-scan motion is E2, not C0 (report only)."""
+    e2 = {a: r["value"] for a, r in (summary.get("recovered_ref_E2") or {}).items()
+          if a != "B0" and r and r.get("value") is not None}
+    if not e2:
+        return ""
+    return ("\nE2Tb: the simulated inter-scan resampling of E2 itself raises the T2 PSNR above C0, so shares above 1"
+            " are possible; with unchanged MC-GS on E2 as the level they are "
+            + ", ".join(f"{a} {v:.2f}" for a, v in e2.items()) + ".")
 
 
 # ------------------------------------------------------------------------------------------- echo trains
@@ -227,7 +238,7 @@ def trains_figure(truth, mm, title, out_png, dpi=600):
         a.set_xlim(-1, disp.size)
         fig.align_ylabels(axes)
         fig.subplots_adjust(left=0.085, right=0.955, top=0.95, bottom=0.10)
-        _header(fig, axes[0], "a", title[:1].upper() + title[1:], dx_mm=13.5)
+        _header(fig, axes[0], "a", dx_mm=13.5)                              # the condition is named in the legend
         _header(fig, axes[1], "b", dx_mm=13.5, dy_mm=4.2)
         _header(fig, axes[2], "c", dx_mm=13.5)
         notes = []

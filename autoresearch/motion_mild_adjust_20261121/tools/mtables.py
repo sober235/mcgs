@@ -130,6 +130,24 @@ def intra_table(S):
         out.append(f"| {cond} | {f(a['recovered'].get('loss'))} | {f(o.get('B2'))} | {f(o.get('B12'))} | "
                    f"{f(a['recovered']['value'])} | {f(o.get('Ow'))} | {f(o.get('Op'))} | {f(ww.get('recall'))} | "
                    f"{f(ww.get('false_rate'))} | {f(ww.get('false_rate_unmoved'))} | {states} |")
+    e2 = {a: r for a, r in (S.get("recovered_ref_E2") or {}).items() if r and r.get("value") is not None and a != "B0"}
+    if e2:
+        out.append("")
+        out.append("E2Tb 以 E2 上的 B0 为无运动水平时的收回比例（只报告；E2 的仿真插值本身让 T2 高于 C0）："
+                   + "，".join(f"{a} {f(r['value'])}" for a, r in e2.items()) + "。")
+    return "\n".join(out)
+
+
+def static_inter_table(S):
+    """Report only: the M1 pose on conditions without inter-scan motion, against the registration of C0."""
+    key = lambda r: (r["order"] != "il", CONDS.index(r["cond"]) if r["cond"] in CONDS else 99, ARMS.index(r["arm"]))
+    rows = [(r["order"], r["cond"], r["arm"], (S.get("inter_static") or {}).get(r["exp"])) for r in sorted(S["table"], key=key)]
+    rows = [x for x in rows if x[3]]
+    if not rows:
+        return "—"
+    out = ["| 顺序 | 条件 | 组 | 最终刚体位姿与 C0 配准之差：脑内平均 mm | 最大 mm |", "|---|---|---|---|---|"]
+    for order, cond, arm, e in rows:
+        out.append(f"| {ORDER[order]} | {cond} | {arm} | {f(e['rigid']['tre_mean_mm'])} | {f(e['rigid']['tre_max_mm'])} |")
     return "\n".join(out)
 
 
@@ -149,13 +167,29 @@ def lesion_table(S):
                 continue
             out.append(f"| {arm} | L{L['label']} | {L['contrast']} | {L['diameter_mm']:.0f} | {f(L.get('contrast_recovery'))} | "
                        f"{f(L.get('centroid_shift_mm'))} | {f(L.get('crosstalk'))} | {f(L.get('crosstalk_tol'))} |")
+    s4 = S["criteria"]["S4"]
+    alt = s4.get("report_only") or {}
+    if alt and s4.get("recovery_vs_B0"):
+        reads = [("评估图（S4 的口径：B123 只插回保留的采样线，B0 插回全部）", s4["recovery_vs_B0"])] + \
+                [(dict(all="两组都插回全部采样线（只报告）", raw="两组都用原始渲染、不做数据一致性（只报告）")[k], v)
+                 for k, v in alt.items()]
+        labels = [p["label"] for p in reads[0][1].get("per_lesion") or []]
+        out += ["", "T2 图像口径不同时的对比度恢复（B0 / B123）：", "",
+                "| 口径 | " + " | ".join(f"L{k}" for k in labels) + " | 最差的 B123 − B0 |",
+                "|---|" + "---|" * len(labels) + "---|"]
+        for name, it in reads:
+            per = {p["label"]: p for p in it.get("per_lesion") or []}
+            cells = [f"{f(per[k]['b0'])} / {f(per[k]['b123'])}" if k in per else "—" for k in labels]
+            out.append(f"| {name} | " + " | ".join(cells) + f" | {f(it.get('value'))} |")
     return "\n".join(out)
 
 
 def render(S):
     parts = [f"<!-- {S.get('n_runs')} of {S.get('n_formal')} formal runs; missing: {S.get('missing') or 'none'} -->"]
     for title, fn in (("判据", criteria_table), ("图像指标", image_table), ("零运动检查（C0）", zero_table),
-                      ("扫描间（E2）", inter_table), ("扫描内运动，交错顺序：收回的损失", intra_table),
+                      ("扫描间（E2）", inter_table),
+                      ("无扫描间运动的条件上 M1 的位姿（只报告）", static_inter_table),
+                      ("扫描内运动，交错顺序：收回的损失", intra_table),
                       ("线性顺序（只报告）", kz_table), ("病灶（TbL）", lesion_table)):
         parts.append(f"#### {title}\n\n{fn(S)}")
     return "\n\n".join(parts) + "\n"
