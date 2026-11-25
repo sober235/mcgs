@@ -591,7 +591,8 @@ def record_rows(order, conds, tags=None, zf=True):
             if (cond, c) in zfv:
                 cells = {"ZF": zfv[(cond, c)], **cells}
             rows.append(dict(name=COND_NAME.get(cond, cond), cond=cond, contrast=f"{c}W", gt=gts[(cond, c)], cells=cells,
-                             tags=tagd, blank={"GS-single": "T2W only"} if c == "T1" else {},
+                             tags=tagd, blank={**({"GS-single": "T2W only"} if c == "T1" else {}),
+                                               **({"True motion": "no motion: same as MC-GS"} if cond == "C0" else {})},
                              kmask=sampling_codes(order, cond, c)))
     return rows
 
@@ -608,7 +609,7 @@ def record_from_runs(order, conds, out_png, tags=None, box=64, title=None):
     brain = np.load(_cdir_of(order, t2[0]["cond"]) / "brain.npy").astype(bool)
     k, e = worst_slice([(r["gt"], r["cells"]["MC-GS"]) for r in t2], brain)
     yx = box_origin(uniform_filter(e, size=15, mode="constant"), box)
-    title = title or (f"Mild motion inside the T2W scan: T1W + T2W, acceleration factor 12, {ORDER_NAME[order]} echo-train "
+    title = title.format(k=k) if title else (f"Mild motion inside the T2W scan: T1W + T2W, acceleration factor 12, {ORDER_NAME[order]} echo-train "
                       f"order   --   Transverse {k}")
     return record_figure(rows, REC_COLS, k, yx, box, title, record_caption(box, k), out_png, truth_cols=REC_TRUTH)
 
@@ -783,6 +784,7 @@ def main():
     ap.add_argument("--conds", nargs="+", default=["Ta", "Tb", "Tc", "E2Tb"])
     ap.add_argument("--tag", nargs="*", default=[], metavar="COND:ARM=TAG", help="runs that carry a tag (development rounds)")
     ap.add_argument("--name", default="fig_images_record", help="file stem of --record")
+    ap.add_argument("--title", default=None, help="title of --record, {k} = the transverse slice (default: the motion-condition title)")
     args = ap.parse_args()
     import mevaluate
     OUT.mkdir(parents=True, exist_ok=True)
@@ -805,7 +807,7 @@ def main():
                 shutil.copy(p, Path(art) / p.name)
     elif args.record:
         tags = {tuple(t.split("=")[0].split(":")): t.split("=")[1] for t in args.tag}
-        p = record_from_runs(args.order, args.conds, OUT / f"{args.name}.png", tags)
+        p = record_from_runs(args.order, args.conds, OUT / f"{args.name}.png", tags, title=args.title)
         if p is None:
             ap.error("no finished MC-GS (B0) run on these conditions")
         print(f"wrote {p.name} and {p.with_suffix('.json').name}", flush=True)
