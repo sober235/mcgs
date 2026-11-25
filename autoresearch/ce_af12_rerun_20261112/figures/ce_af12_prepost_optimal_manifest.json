@@ -187,5 +187,157 @@
       "sha256": "231e85635fc2754ccd3694eb78daf70e17361a069d4530f10687df3d419ac401",
       "bytes": 11427
     }
+  },
+  "provenance": {
+    "note": "data, code and parameters of the optimal result (user, 2026-11-24)",
+    "dir": "provenance",
+    "files": {
+      "data/mcgs_optimal_volumes.npz": {
+        "bytes": 432774948,
+        "sha256": "5537c15771aa07e6ea6b8c1dac134f0f206beff88061783f2441f37c872922bb",
+        "source": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz",
+        "content": "tuned MC-GS output: recT1 = plain scan, recFL = enhanced (float32 magnitude, drawn in the figure), recT1_complex / recFL_complex, truth gt*, zero-filled zf* (complex64); 256 x 232 x 176"
+      },
+      "data/mcgs_checkpoint_latest.pth": {
+        "bytes": 604808049,
+        "sha256": "71d2c31c2fe485948f817e2d3c9d3b47ddd66fdb82c48b52a5e99217df7449af",
+        "source": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol/ta12_x1combo3_vol/checkpoints/latest.pth",
+        "content": "trained Gaussians (both scans) at the end of training; the volumes are rendered from this state"
+      },
+      "data/mcgs_checkpoint_best.pth": {
+        "bytes": 604807983,
+        "sha256": "771696339faac4c64aa3abbbc479c0e12df37d13c6b607940d7a45abb356bc38",
+        "source": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol/ta12_x1combo3_vol/checkpoints/best.pth",
+        "content": "the trainer's best.pth of the same run"
+      },
+      "data/topic_sim_files.json": {
+        "bytes": 2479,
+        "sha256": "09589c73da3ceaea0efdae17130914942150b2b7998db9d6545f533f559b515e",
+        "source": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/sim",
+        "content": "inputs of the AF12 topic, 9 files hashed (truth, coil maps, noisy k-space, mask)"
+      },
+      "code/trainer_source.tar.gz": {
+        "bytes": 224647,
+        "sha256": "49c711cd2f4e03424eb27b11742f7a655ef979cb24a7d742f28e6713b0dfcbb6",
+        "source": null,
+        "content": "source of the trainer that trained MC-GS (/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer; copy of source 54f8a2a) (62 files)"
+      },
+      "code/trainer_source_files.json": {
+        "bytes": 10459,
+        "sha256": "6823222c97894f7e68dfc9a4d70e4fc837c4db7ba8bf728a164c55d96cd1feb9",
+        "source": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer",
+        "content": "file list of trainer_source.tar.gz with sha256"
+      },
+      "code/tune12.py": {
+        "bytes": 10191,
+        "sha256": "4f5fa0d1f6c24bf1598c924421a2e431bb3b2865c62c64808085aa600fdd3ddf",
+        "source": "/home/congcongliu/.cache/mcgs-vscode/jobs/j-20261124T011133-8fbcb2a0/code/autoresearch/ce_af12_tune_20261122/tune12.py",
+        "content": "runner of the volumes run, job j-20261124T011133-8fbcb2a0 source snapshot"
+      },
+      "code/fig_af12_prepost.py": {
+        "bytes": 3248,
+        "sha256": "87fd8b58dcd615344f99fabdbdb69759af130882aab6c5d730366b3f67d55181",
+        "source": "/home/congcongliu/.cache/mcgs-vscode/jobs/j-20261125T022030-76f94229/code/autoresearch/ce_af12_rerun_20261112/fig_af12_prepost.py",
+        "content": "as run in figure job j-20261125T022030-76f94229"
+      },
+      "code/fig_lesion_plane_prepost.py": {
+        "bytes": 41900,
+        "sha256": "7099885cb118cc511105de65cea821f7962aa4dbc326940372694cd3b764dd00",
+        "source": "/home/congcongliu/.cache/mcgs-vscode/jobs/j-20261125T022030-76f94229/code/autoresearch/ce_af16_lesion_figs_20261107/fig_lesion_plane_prepost.py",
+        "content": "as run in figure job j-20261125T022030-76f94229"
+      },
+      "code/run_af12.py": {
+        "bytes": 37412,
+        "sha256": "ba49d4fcff51a02777617540e4a8702e2208c21ce21e51c6ca2a9f3b915381c1",
+        "source": "/home/congcongliu/.cache/mcgs-vscode/jobs/j-20261125T022030-76f94229/code/autoresearch/ce_af12_rerun_20261112/run_af12.py",
+        "content": "as run in figure job j-20261125T022030-76f94229"
+      },
+      "code/af12_cmp_support.py": {
+        "bytes": 10930,
+        "sha256": "df9783b4d8ecdef0d87c1caeac834d14a1116cf672990e0ff0819a1e80ef6027",
+        "source": "/home/congcongliu/.cache/mcgs-vscode/jobs/j-20261125T022030-76f94229/code/autoresearch/ce_af12_rerun_20261112/af12_cmp_support.py",
+        "content": "as run in figure job j-20261125T022030-76f94229"
+      },
+      "code/finalize_optimal_fig.py": {
+        "bytes": 5921,
+        "sha256": "5d6b3549f09f90ac2c90d47701c676a9af71916f6225adb65bdb6d5f9b35c367",
+        "source": "/home/congcongliu/.cache/mcgs-vscode/jobs/j-20261125T024048-863d3d40/code/autoresearch/ce_af12_tune_20261122/finalize_optimal_fig.py",
+        "content": "as run in job j-20261125T024048-863d3d40"
+      },
+      "code/comparator_scripts.tar.gz": {
+        "bytes": 57375,
+        "sha256": "9d4d24a438768fe426339993fccee093a26b2863aa89750c0984f62de1caac0f",
+        "source": null,
+        "content": "scripts + configs of the AF12 topic and scripts of the 3D-DIP / 3D-INR support topic (30 files)"
+      },
+      "params/mcgs_resolved_config.yaml": {
+        "bytes": 2428,
+        "sha256": "4f82f7c60600cbf9dd35317ad8fe8b9e0654f21b9402b23f2d1abe5af373374e",
+        "source": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol/ta12_x1combo3_vol/config.yaml",
+        "content": "the trainer config as resolved for this run"
+      },
+      "params/mcgs_run_info.json": {
+        "bytes": 368,
+        "sha256": "4b4584a2a89b4226e05d0c196eeaaa561c68089886d432324cfd084fc7ff057d",
+        "source": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol/ta12_x1combo3_vol/run_info.json",
+        "content": "run info (seed, determinism, config snapshot) (removed: timestamp_utc)",
+        "cleaned": true,
+        "source_sha256": "1ec7405030368b7d2ddbd8f0c6ab7844b4b1c66292c5ee54a4a40e8b01e69a42"
+      },
+      "params/mcgs_train_score.json": {
+        "bytes": 3586,
+        "sha256": "f02a3602995b1b43d90438cdc46c49a1ed1cdcbf76b957b1a154b2a63e9b5a86",
+        "source": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_score.json",
+        "content": "trainer score file of the volumes run (removed: elapsed_s)",
+        "cleaned": true,
+        "source_sha256": "b45e26746cab1bd56c5869319e6fb040294e6f6cc1e746db72d35e2da5321327"
+      },
+      "params/tune_experiments.jsonl": {
+        "bytes": 9256,
+        "sha256": "bfa49c32f518141509a0d077946b72947cfe37bdf8054e4f0dd1b712f2a08228",
+        "source": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_tune_20261122/experiments.jsonl",
+        "content": "ledger of the tuning loop"
+      },
+      "params/gs_single_post_score.json": {
+        "bytes": 3268,
+        "sha256": "e1efd3411140ae63fe563c9395cd18d177d2a598c0b92b432bd25dec5b46c0fe",
+        "source": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16/trainer/_trainer_e778bf2/results_arc/ce_retro_af12_single_post_score.json",
+        "content": "GS-single score file (September recipe) (removed: elapsed_s)",
+        "cleaned": true,
+        "source_sha256": "dde9b81371388364fe41a29876de424dbb3437346e1b2c8dbb2b5fd7f85be05b"
+      },
+      "params/gs_single_pre_score.json": {
+        "bytes": 3254,
+        "sha256": "40b068095fb8467bc769253b5ef73795a19a62b980dcff61bd73c860a92b800d",
+        "source": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af16/trainer/_trainer_e778bf2/results_arc/ce_retro_af12_single_pre_score.json",
+        "content": "GS-single score file (September recipe) (removed: elapsed_s)",
+        "cleaned": true,
+        "source_sha256": "49ad63ca16f0116550dc52fe6dbc6c8cc84124847432e7a7ff07330904f3322d"
+      },
+      "params/topic_summary.json": {
+        "bytes": 12103,
+        "sha256": "2e3070992e9f307bdff237fe86a4d862c6c1ba1333a89bb3377db26a79a742b1",
+        "source": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/logs/summary.json",
+        "content": "whole-head scores of the 11 methods"
+      },
+      "params/topic_setup.json": {
+        "bytes": 4821,
+        "sha256": "580a3d450f45f946f2ee5a8872ce67c3275d0d207c41c4b73d791c09d8b9be02",
+        "source": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/logs/setup.json",
+        "content": "topic setup (script port, hashes)"
+      },
+      "params/params.json": {
+        "bytes": 17404,
+        "sha256": "12e06ae8bef4f82428c405c231ae5df3f6d7239703579664d862b01735b18022",
+        "source": null,
+        "content": "all settings in one file"
+      },
+      "README.md": {
+        "bytes": 3329,
+        "sha256": "0d9f5386c2fc5250b593a7c6b7033bf214bb197c4cb92f93775e098d7d0dcaad",
+        "source": null,
+        "content": "this overview"
+      }
+    }
   }
 }

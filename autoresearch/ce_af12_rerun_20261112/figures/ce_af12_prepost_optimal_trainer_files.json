@@ -1,0 +1,316 @@
+{
+  "trainer": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer",
+  "files": [
+    {
+      "file": "arc/cycle.py",
+      "bytes": 24696,
+      "sha256": "defed5d618ce5dfa1b6a3b460b517cc3e64fe3ef233ad9aa7c368bee789b466c"
+    },
+    {
+      "file": "arc/cycle_arc.py",
+      "bytes": 13682,
+      "sha256": "8e9ecc45fadda822272b37506cd0e24425221f0c45741358a9fced82baa65d17"
+    },
+    {
+      "file": "arc/export_winner.py",
+      "bytes": 2397,
+      "sha256": "eb6d03e392540c605b012ae479fc480ed551f622cece13059bb23eb8e359d186"
+    },
+    {
+      "file": "arc/program.md",
+      "bytes": 6165,
+      "sha256": "d5b560b33b44f46f805254e0b21bccc1d59881445c4099948a3ae84b0791bfdb"
+    },
+    {
+      "file": "arc/score_winner_espirit_final.py",
+      "bytes": 2659,
+      "sha256": "3e7be592eb4f0490a0bec94761ce96d87c993d89fd933108667f43b92e694dd0"
+    },
+    {
+      "file": "arc/score_winner_v2.py",
+      "bytes": 2662,
+      "sha256": "4d233e425916b08fa738102d8b08d40a3e1b3427b330703453cf8ae6e2bee247"
+    },
+    {
+      "file": "diag_artefact/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "diag_artefact/controls.py",
+      "bytes": 9188,
+      "sha256": "e137ce6f21a2815c287d04113b0e08c1693ae8a3da924b23df73c3d255bcdf66"
+    },
+    {
+      "file": "diag_artefact/headonly.py",
+      "bytes": 3614,
+      "sha256": "a005c5de667a9f671eb33531cb68648c55cea064d3594c83e1c0d748483f0f9e"
+    },
+    {
+      "file": "diag_artefact/jsonio.py",
+      "bytes": 2313,
+      "sha256": "efb39de7f7bd20383ed974829fa3993c2c3d082337f61c806286d6848275dea7"
+    },
+    {
+      "file": "diag_artefact/metrics.py",
+      "bytes": 17356,
+      "sha256": "bdede1284eeedd35bccfee7da8a838fdfb215ea2a42cac203830f0726ed8e9c4"
+    },
+    {
+      "file": "diag_artefact/provenance.py",
+      "bytes": 11176,
+      "sha256": "34718c39ea9b3bd31be6e895a68224c62853e04ddb67b8d036c70bdd89fa11c6"
+    },
+    {
+      "file": "diag_artefact/report.py",
+      "bytes": 76951,
+      "sha256": "2610407023f78e5b8c86bf55f1fbe815f8c49cf82fa43e218818c092a40deca9"
+    },
+    {
+      "file": "diag_artefact/volumes.py",
+      "bytes": 4751,
+      "sha256": "28bc67f4bcb76729f8e7611fe641607d0f9c4e7222438f8de5b56dba929d5878"
+    },
+    {
+      "file": "paired_gs/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "paired_gs/data/__init__.py",
+      "bytes": 320,
+      "sha256": "4954a1d4db61951b7fb87ee7e8871835dfae5732eca3286cd1fa3e8173551033"
+    },
+    {
+      "file": "paired_gs/data/dataset.py",
+      "bytes": 38813,
+      "sha256": "28ae44153e8085bc36636aa210024ab49d882d056ec08602e683051fba2fc909"
+    },
+    {
+      "file": "paired_gs/data/known_zero.py",
+      "bytes": 18562,
+      "sha256": "8be740439ccd6765a7ecccc83e167dcb3b2d71888eecd2a498a578d091a2d9a6"
+    },
+    {
+      "file": "paired_gs/data/mask_generator.py",
+      "bytes": 15545,
+      "sha256": "50797db0232c6a56443044faee6a3127de22ff0faadca31233e6c18e9f05cc7b"
+    },
+    {
+      "file": "paired_gs/data/mask_three_way_split.py",
+      "bytes": 13671,
+      "sha256": "a790539f5f349276666db51ca4bc52c44e19a8c9aaf17284dc30c6d41cb5a092"
+    },
+    {
+      "file": "paired_gs/data/private_paths.py",
+      "bytes": 2996,
+      "sha256": "3f96acabf725faca78b7323bb16cae26f3aac8f8c076e90d9068b3b8a87f7803"
+    },
+    {
+      "file": "paired_gs/data/transforms.py",
+      "bytes": 3605,
+      "sha256": "0037b2ee2c085af69ab18637bfaf87d3146f86b0b7e6fdf96a73b7bcd40d7015"
+    },
+    {
+      "file": "paired_gs/gaussian/__init__.py",
+      "bytes": 412,
+      "sha256": "dcf951376a40e6f6830041cd27b5189af8d491b214e54c02d1da34e5bc9f8bfe"
+    },
+    {
+      "file": "paired_gs/gaussian/bayesian_joint_model.py",
+      "bytes": 24160,
+      "sha256": "b2d8d1275eb28f395f9102d373f3f33904ede4c205b276c4087f20527d6439c2"
+    },
+    {
+      "file": "paired_gs/gaussian/cuda_ext/tile_voxelize_cuda.cpp",
+      "bytes": 1704,
+      "sha256": "e412af61cc4f5c75b9988d4f433a73e2e1c2b5910feff48b7beaea8737012d49"
+    },
+    {
+      "file": "paired_gs/gaussian/cuda_ext/tile_voxelize_cuda_kernel.cu",
+      "bytes": 20461,
+      "sha256": "515673bd9bf0af1d23b91679f5d9e177d9b034c9172f75ec0ce937258686da14"
+    },
+    {
+      "file": "paired_gs/gaussian/gaussian_model.py",
+      "bytes": 27758,
+      "sha256": "9303c79e70dfced8631d10261fd4c06b1f87958a5ddaa4a80d3b93e722ce8622"
+    },
+    {
+      "file": "paired_gs/gaussian/init_cloud.py",
+      "bytes": 7494,
+      "sha256": "333103553dbeebdef417b00a09f947a58f3ad8f13db65f421fb88847fb6d3290"
+    },
+    {
+      "file": "paired_gs/gaussian/joint_gaussian_model.py",
+      "bytes": 11181,
+      "sha256": "31eea44eb636113e29b1f99192f297e38ac0c7b937e8dc3b5daff11c349fd966"
+    },
+    {
+      "file": "paired_gs/gaussian/kspace_renderer.py",
+      "bytes": 6671,
+      "sha256": "78de05e4bf6d60e71211d839baf7c5988b759f5e75d06648c65de54c0f2ece40"
+    },
+    {
+      "file": "paired_gs/gaussian/tile_voxelizer.py",
+      "bytes": 45047,
+      "sha256": "2769454cde8276b11ded79f6729ba62e3ed67b7a2af585de15807d3f7957dc0a"
+    },
+    {
+      "file": "paired_gs/gaussian/voxelizer.py",
+      "bytes": 6525,
+      "sha256": "8d63e1c93b7482d9d236c8756d050c5b83ba01f79b3bf14421445579f66b1c93"
+    },
+    {
+      "file": "paired_gs/losses/__init__.py",
+      "bytes": 999,
+      "sha256": "8ff1e8e2db6dbea65b9a2bc87d724c16952fc8a78ac190eb84b560ab653d1476"
+    },
+    {
+      "file": "paired_gs/losses/cf_damp.py",
+      "bytes": 4441,
+      "sha256": "783c89a0ae1a7ddc4507e5d681e9e4bea3dbd4bdad0c292a18c5fdbd5429b517"
+    },
+    {
+      "file": "paired_gs/losses/cf_safe.py",
+      "bytes": 5611,
+      "sha256": "eac4a27e702c789f1af28c5cd00a2d686cdffeaf36303b56b80b293f1ebe8766"
+    },
+    {
+      "file": "paired_gs/losses/complex_gaussian_kl.py",
+      "bytes": 3757,
+      "sha256": "852a1f5ee6caccc2ea2310444c1fac39c9b3ac693a44640ed236548807622134"
+    },
+    {
+      "file": "paired_gs/losses/edge_tv.py",
+      "bytes": 7432,
+      "sha256": "2d2444574e25ea43c9b06e279950d89e7565668263b268ad70b41ded0cb86333"
+    },
+    {
+      "file": "paired_gs/losses/elbo.py",
+      "bytes": 17745,
+      "sha256": "69ab91ad29f6476cb6daf99e40f0d38f8475f2bd713ccf7a9744e12f19ab3144"
+    },
+    {
+      "file": "paired_gs/losses/kspace_loss.py",
+      "bytes": 3307,
+      "sha256": "23bdcf9980656592e052b63d9a04f4fffd39477ab644c4815b43c65d04136f90"
+    },
+    {
+      "file": "paired_gs/losses/kspace_priors.py",
+      "bytes": 8642,
+      "sha256": "acc21e111bbf03012327c8a5341691871cd39521b88146dfcae957fe6bd2fc7b"
+    },
+    {
+      "file": "paired_gs/losses/losses.py",
+      "bytes": 9724,
+      "sha256": "afb06a60ada378760051898cbf43fa1ec89d0260b1943429b714a06bb0baee1e"
+    },
+    {
+      "file": "paired_gs/losses/multiscale_loss.py",
+      "bytes": 2529,
+      "sha256": "e4d242df6dec1e31f5634eb9d7fba31103ba615775e49d0ea1e0d2c6e727afee"
+    },
+    {
+      "file": "paired_gs/losses/nonlocal_red.py",
+      "bytes": 7648,
+      "sha256": "9aeba9a837829f49bd71bc52eb67adb5874105112f383afbcb046a9a2e898a5f"
+    },
+    {
+      "file": "paired_gs/losses/pair_prior.py",
+      "bytes": 7370,
+      "sha256": "23141c3b727b10594b3d6ea7540934ee0e1c7e71248b3b775b712a59c8865d85"
+    },
+    {
+      "file": "paired_gs/losses/phase_tv.py",
+      "bytes": 2722,
+      "sha256": "7b5970c446c9c398881145308cfd1f0b9f6e13760bf998098f379dccb29141e4"
+    },
+    {
+      "file": "paired_gs/losses/wavelet_l1.py",
+      "bytes": 3880,
+      "sha256": "e1e5ae44aa964ecc0e7d9b5a87f8366dd2ede3f0911ba3ae5a81aea0614d2ebb"
+    },
+    {
+      "file": "paired_gs/metrics/__init__.py",
+      "bytes": 1541,
+      "sha256": "10d0ebce80eff94a28f11d25c437e1d171a8ce74c8e8c85423d3b7d6aac3f5e5"
+    },
+    {
+      "file": "paired_gs/metrics/edge_preservation.py",
+      "bytes": 3561,
+      "sha256": "a0c0e49f57d94ed6e9fd0a402bcfd90c4c229a6a90d331fe7d2fa335ba3e5907"
+    },
+    {
+      "file": "paired_gs/metrics/lesion_metrics.py",
+      "bytes": 24352,
+      "sha256": "977887c2f3679d05d87c29d50055fdc677b14418df49c2bc0a812c4032c7472c"
+    },
+    {
+      "file": "paired_gs/metrics/metrics.py",
+      "bytes": 20114,
+      "sha256": "4429767da7ff94391fe9f95874f39a85c5ff07ebec6fc31b43dd2f370e26bd0a"
+    },
+    {
+      "file": "paired_gs/metrics/test_lesion_metrics.py",
+      "bytes": 9434,
+      "sha256": "47e27ae0d5b819c6d02bec21015913f8591ec5799d57cd8e629605c3164b104e"
+    },
+    {
+      "file": "paired_gs/seed.py",
+      "bytes": 1513,
+      "sha256": "bf954f77573914889723b1376458f6b8e507f766a710b79fad599310cb9d2697"
+    },
+    {
+      "file": "paired_gs/trainers/__init__.py",
+      "bytes": 97,
+      "sha256": "7c2ef6a32274ccc78e6d5a8d11c0aee6f83889dec539caece66cbfd7bee23641"
+    },
+    {
+      "file": "paired_gs/trainers/bayesian_joint_trainer.py",
+      "bytes": 46670,
+      "sha256": "a2351c82b838db75ff2b424906ed5af8080d6b34ed8768bc21c4b3c8e1eee09c"
+    },
+    {
+      "file": "paired_gs/trainers/bayesian_refine_trainer.py",
+      "bytes": 37332,
+      "sha256": "c094278f3e984dc994764cec581550a08c5cb093522f79b19f7f6bb9556a9210"
+    },
+    {
+      "file": "paired_gs/trainers/bayesian_single_trainer.py",
+      "bytes": 28132,
+      "sha256": "485fa47c814671c4e41961fa915a1adf93943c38c96386174a275d6318a0fa46"
+    },
+    {
+      "file": "paired_gs/trainers/bayesian_warm_start.py",
+      "bytes": 5087,
+      "sha256": "0dcea05ff213a646ba312db87aa2cc2a64d9c81984d650990d422eb800d87047"
+    },
+    {
+      "file": "paired_gs/trainers/joint_trainer.py",
+      "bytes": 73263,
+      "sha256": "6bd2abdde2215bfe1667b4208aea93f5013b7a5a1bc7e5dce3bdf02843a3c76f"
+    },
+    {
+      "file": "paired_gs/trainers/single_contrast_trainer.py",
+      "bytes": 14222,
+      "sha256": "c492fe3e6c71c58e33debef6967fe4bcc0e8c058e34539f99f5f156dbbd77662"
+    },
+    {
+      "file": "paired_gs/trainers/trainer.py",
+      "bytes": 54131,
+      "sha256": "d8d31e4d1a0aaf15495b2146c9431531e3e7b0fd1585666a84d5946fab3726b1"
+    },
+    {
+      "file": "paired_gs/trainers/voxel_grid_trainer.py",
+      "bytes": 20848,
+      "sha256": "0f6cffb681a2719fde98a73e8b9addc1d36d197fa67e9519f6a734d74d1beee2"
+    },
+    {
+      "file": "paired_gs/trainers/voxelizer_config.py",
+      "bytes": 1928,
+      "sha256": "d203288bdd0d44ac26ffeef126db27364eb3e11241187c2132f610fdd90780bf"
+    }
+  ],
+  "cleaned": []
+}

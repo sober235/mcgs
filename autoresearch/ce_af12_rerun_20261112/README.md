@@ -212,6 +212,21 @@ by 1 px. The coronal post and sagittal post points did not move.
   file in the folder, the PDF check and the 22 source volumes (paths + sha256). A copy is committed as
   `figures/ce_af12_prepost_optimal_manifest.json`. Script: `../ce_af12_tune_20261122/finalize_optimal_fig.py`
   (CPU job j-20261125T024048-863d3d40). The full 3-D volumes are not copied; they stay at the paths in the manifest.
+- Data, code and parameters of the optimal result (user, 2026-11-24: "record the corresponding data, codes, and
+  parameters here as the optimal values for both plain scan and enhanced scan"): the same server folder has
+  `provenance/` (23 files, 1.64 GB), written by `../ce_af12_tune_20261122/record_optimal_provenance.py`
+  (CPU jobs j-20261125T034813-0b1cbc0a and j-20261125T064052-a85a8f0d; the second only replaced `params.json`, whose
+  first version miscounted the tuning runs).
+  `data/`: `mcgs_optimal_volumes.npz` (`5537c157...872922bb`; recT1 = plain scan, recFL = enhanced,
+  magnitude and complex, with the truth and zero-filled volumes), the trained Gaussians `mcgs_checkpoint_latest.pth`
+  (`71d2c31c...df7449af`) and `mcgs_checkpoint_best.pth`, and `topic_sim_files.json` (sha256 of the
+  nine topic inputs: truth, coil maps, noisy k-space, mask).
+  `code/`: `trainer_source.tar.gz` (62 source files of the trainer), `tune12.py`, the figure scripts and
+  `run_af12.py` / `af12_cmp_support.py` as they ran (job source snapshots), `comparator_scripts.tar.gz` (30 files).
+  `params/`: `params.json` (MC-GS argv = P3 + the five overrides, seed 42; comparator settings; figure command;
+  scores), the resolved trainer config, run info, score files and the tuning ledger. No file carries a clock value or
+  a measured duration; cleaned files record the sha256 of the untouched source. Committed copies:
+  `figures/ce_af12_prepost_optimal_params.json`, `..._provenance.md`, `..._trainer_files.json`, `..._manifest.json`.
 - MC-GS volumes: `codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz`
   (keys recT1 = pre, recFL = post; magnitude drawn). The other arms are as in the 2026-11-22 record.
 - Mac: `figures/results_optimal/ce_af12_prepost_optimal.png` and `ce_af12_prepost_optimal_600dpi.pdf` are now the tuned

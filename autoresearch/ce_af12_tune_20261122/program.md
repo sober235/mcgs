@@ -163,3 +163,5 @@ reconstruction quality of MCGS.」上文是 AF12 平扫 / 增强的最优结果�
   `_data.npz`。PDF 检查（pdffonts / pdfimages -list）结果：1 页，2 种 TrueType 字体全部嵌入（文字为矢量），218 个图像面板全部 600 ppi。
   另写了 `MANIFEST.json`，含全部文件的 sha256、PDF 检查结果、22 个源体数据的路径与哈希。
   脚本 `finalize_optimal_fig.py`，作业 j-20261125T024048-863d3d40；清单副本 `figures/ce_af12_prepost_optimal_manifest.json`。
+
+- 2026-11-24（用户："record the corresponding data, codes, and parameters here as the optimal values"）：最优结果的数据、代码、参数已存到服务器 `v3_err008_textclear/provenance/`（23 个文件，1.64 GB；脚本 `record_optimal_provenance.py`）；`params.json` 等小文件的副本提交在 `../ce_af12_rerun_20261112/figures/`。

@@ -1,0 +1,468 @@
+{
+  "request": "user 2026-11-24: record the corresponding data, codes and parameters as the optimal values for both plain scan and enhanced scan",
+  "figure_dir": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v3_err008_textclear",
+  "figure_pdf": "ce_af12_prepost_clinical_verification_600dpi.pdf",
+  "data": {
+    "scans": "UIH 3D T1 GRE, one subject: plain scan (pre-contrast, series 16887049370010) and enhanced (post-contrast, 16887049370060); 42 coils; 256 x 232 x 176, 1 mm isotropic, sagittal",
+    "truth": "CS-SENSE reconstruction of the acquired data (prospective AF 5.33) used as ground truth; k-space re-simulated from it with the 42-coil maps and fitted noise (one draw, the same for every method)",
+    "mask": "BART poisson, seed 0, ACS 24 x 24, no shutter; density 3.000, 13 points trimmed; 3403 of 232 x 176 = 40832 points (nominal AF 12, actual 11.999); one mask for both scans",
+    "topic": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12",
+    "topic_inputs": "data/topic_sim_files.json",
+    "gt_sha256": {
+      "pre": "4c0758648be4a3b93fc6a93ebda98609c6921df66e4361c817652e62b7ad0cfc",
+      "post": "072ae9581192860c29d3bffa981bf5d485da8db8385cc9b7718018a5170a3cdf"
+    },
+    "optimal_volumes": "data/mcgs_optimal_volumes.npz (recT1 = plain scan, recFL = enhanced)",
+    "drawn_volumes": {
+      "pre": {
+        "ZF": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/zf_pre_complex.npy",
+          "sha256": "7fe65a5e981418d1ccdbd838150a55028e3e1ba5cb52aa139d7cbe489bd37ab5"
+        },
+        "CG-SENSE": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/cgsense_pre_complex.npy",
+          "sha256": "06f0b8f731a18120b7b4b924e8c02fd1c46e4bc3a147ab46d924745aed792527"
+        },
+        "CS-SENSE": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/cssense_o200_lam0.001_pre_complex.npy",
+          "sha256": "3d65b10e9e2d50b3eb9bb35498a7748136fc8df634207d2d8d9bc2274b21ed98"
+        },
+        "Joint SENSE": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/jcssense_o200_lam0.001_pre_complex.npy",
+          "sha256": "22a5abaad086579e8906519867db9d5d314660d667b1cd65dc1f2c3a6eec3df8"
+        },
+        "L1-SPIRiT": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/spirit_ks5_lam0.001_pre_complex.npy",
+          "sha256": "cf25b624abdbc55627dcc64a8c4583588814fde9ad3a97edc5e5fc7031ef4615"
+        },
+        "ZS-SSDU": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/zsssdu_pre_complex.npy",
+          "sha256": "670c87125afbeaf548b7d8d1d40fb489fa1add315410903f6c988674a0eabef3"
+        },
+        "3D-DIP": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/dip_sup_b96_tv0.03_pre_complex.npy",
+          "sha256": "d7582548bf0a8938b4a9ef288fe53cf6672328c5ec0a221675f8dcaa1f9d0f54"
+        },
+        "3D-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/inr_i10_n512_sup6_tv0.03_pre_complex.npy",
+          "sha256": "38957cc935084e63caca7a66eb0ca05b39b267bb7c623a8eb54415bc3523e713"
+        },
+        "MC-INR": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/mcinr_pre_complex.npy",
+          "sha256": "c15ecf377e5359cb4744f68fbf8123ae8712cb36e26665388c452793d0e717df"
+        },
+        "GS-single": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/gs_single_pre_mag.npy",
+          "sha256": "24948c6406300ec0078dde753cfa7d100d3ab4323eb8d5f6527a557019daf9c9"
+        },
+        "MC-GS": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz",
+          "sha256": "5537c15771aa07e6ea6b8c1dac134f0f206beff88061783f2441f37c872922bb"
+        }
+      },
+      "post": {
+        "ZF": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/zf_post_complex.npy",
+          "sha256": "708c9b37ff61f3f6cdc9721f2e5087474d5f0a715140c8550665e64c4ee33741"
+        },
+        "CG-SENSE": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/cgsense_post_complex.npy",
+          "sha256": "888ddec1ec03589b84c4f2984e5bd244f0948b61c39b9b1eebcca945e7b1b187"
+        },
+        "CS-SENSE": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/cssense_o200_lam0.0007_post_complex.npy",
+          "sha256": "168b1769a637f129b205855b1d98ed9ae3745e91cf9a9b26e72b9c8578f4b979"
+        },
+        "Joint SENSE": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/jcssense_o200_lam0.001_post_complex.npy",
+          "sha256": "6490a5d29735acce1edea4aeee9b5beed3b252e7177f0fce012547174edc14b3"
+        },
+        "L1-SPIRiT": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/spirit_ks5_lam0.001_post_complex.npy",
+          "sha256": "0c4b94f59253b7660bfcc99c09b707eaa02881753b79b81e44a2770f72011da7"
+        },
+        "ZS-SSDU": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/zsssdu_post_complex.npy",
+          "sha256": "6dd8caf874b1edcb3abf02472e98b14266d204980d806e35900ea59b92c7e08c"
+        },
+        "3D-DIP": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/dip_sup_b96_tv0.03_post_complex.npy",
+          "sha256": "a499bf68216633ab452c4c8a9a325e6800b1399929802c7f36fa55efb3aee515"
+        },
+        "3D-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/inr_i10_n512_sup6_tv0.03_post_complex.npy",
+          "sha256": "baa957d8b337cac2422e4550c9283ac374e59e47a74d2de48135fea04d637a8c"
+        },
+        "MC-INR": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/mcinr_post_complex.npy",
+          "sha256": "09ee47bfff03defc399d7eed0b93eabf2e7a2b83fa6c2cb1acad3a975683bbad"
+        },
+        "GS-single": {
+          "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/gs_single_post_mag.npy",
+          "sha256": "1f0de7c2500c761231b53f570fbf3f735627e717df79cb2862957d1f3409a68b"
+        },
+        "MC-GS": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz",
+          "sha256": "5537c15771aa07e6ea6b8c1dac134f0f206beff88061783f2441f37c872922bb"
+        }
+      }
+    }
+  },
+  "mcgs": {
+    "model": "MC-GS (joint multi-contrast Gaussian splatting), 3.6 M initial Gaussians, 4000 iterations, seed 42",
+    "trainer": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer",
+    "trainer_source": "code/trainer_source.tar.gz (copy of source 54f8a2a)",
+    "entry": "arc/cycle.py",
+    "config": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/configs/ce_retro_af12.yaml",
+    "resolved_config": "params/mcgs_resolved_config.yaml",
+    "recipe_P3_registered": [
+      "--iters",
+      "4000",
+      "--lambda_geo",
+      "0.10",
+      "--warmup",
+      "500",
+      "--max_radius",
+      "20",
+      "--kspace_high",
+      "2.2",
+      "--edge_tv",
+      "--edge_tv_kappa_q",
+      "0.85",
+      "--edge_tv_wfloor",
+      "0.10",
+      "--tv_eps",
+      "0.04",
+      "--set",
+      "gaussian.init_mode=head",
+      "--set",
+      "gaussian.init_scale_mode=3nn",
+      "--set",
+      "loss.edge_tv_kappa_source=zf",
+      "--set",
+      "gaussian.initial_num_points=3600000",
+      "--set",
+      "loss.wav_name=db4",
+      "--set",
+      "loss.wav_levels=1",
+      "--set",
+      "loss.lambda_wav_plain=0.12",
+      "--set",
+      "loss.lambda_wav=0.10",
+      "--lambda_edge",
+      "0.001",
+      "--lambda_ptv",
+      "0.03"
+    ],
+    "autoresearch_overrides": [
+      "--lambda_edge",
+      "0",
+      "--set",
+      "loss.edge_tv_guide_alpha=0.75",
+      "--set",
+      "loss.ptv_guide_alpha=0.5",
+      "--set",
+      "gaussian.rotation_lr=0.008",
+      "--set",
+      "gaussian.scale_lr=0.004"
+    ],
+    "argv": [
+      "--exp",
+      "ta12_x1combo3_vol",
+      "--gpu",
+      "1",
+      "--iters",
+      "4000",
+      "--lambda_geo",
+      "0.10",
+      "--warmup",
+      "500",
+      "--max_radius",
+      "20",
+      "--kspace_high",
+      "2.2",
+      "--edge_tv",
+      "--edge_tv_kappa_q",
+      "0.85",
+      "--edge_tv_wfloor",
+      "0.10",
+      "--tv_eps",
+      "0.04",
+      "--set",
+      "gaussian.init_mode=head",
+      "--set",
+      "gaussian.init_scale_mode=3nn",
+      "--set",
+      "loss.edge_tv_kappa_source=zf",
+      "--set",
+      "gaussian.initial_num_points=3600000",
+      "--set",
+      "loss.wav_name=db4",
+      "--set",
+      "loss.wav_levels=1",
+      "--set",
+      "loss.lambda_wav_plain=0.12",
+      "--set",
+      "loss.lambda_wav=0.10",
+      "--lambda_edge",
+      "0.001",
+      "--lambda_ptv",
+      "0.03",
+      "--save_volumes",
+      "--lambda_edge",
+      "0",
+      "--set",
+      "loss.edge_tv_guide_alpha=0.75",
+      "--set",
+      "loss.ptv_guide_alpha=0.5",
+      "--set",
+      "gaussian.rotation_lr=0.008",
+      "--set",
+      "gaussian.scale_lr=0.004",
+      "--base_cfg",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/configs/ce_retro_af12.yaml"
+    ],
+    "final_values": {
+      "lambda_edge": 0.0,
+      "loss.edge_tv_guide_alpha": 0.75,
+      "loss.ptv_guide_alpha": 0.5,
+      "gaussian.rotation_lr": 0.008,
+      "gaussian.scale_lr": 0.004,
+      "lambda_ptv": 0.03,
+      "lambda_geo": 0.1,
+      "loss.lambda_wav_plain": 0.12,
+      "loss.lambda_wav": 0.1,
+      "gaussian.initial_num_points": 3600000,
+      "iters": 4000,
+      "warmup": 500,
+      "seed": 42
+    },
+    "runner_argv": [
+      "autoresearch/ce_af12_tune_20261122/tune12.py",
+      "--name",
+      "x1combo3_vol",
+      "--volumes",
+      "--ov=--lambda_edge 0 --set loss.edge_tv_guide_alpha=0.75 --set loss.ptv_guide_alpha=0.5 --set gaussian.rotation_lr=0.008 --set gaussian.scale_lr=0.004",
+      "--hyp=final config x1_combo3 again with saved volumes for the clinical-verification figure"
+    ],
+    "runner_job": "j-20261124T011133-8fbcb2a0",
+    "trainer_scores": {
+      "plain_scan": {
+        "head_psnr": 36.03103384904974,
+        "head_ssim": 0.9414499402046204,
+        "nmse": 0.00841178372502327,
+        "head_hfen": 0.1458279241809172
+      },
+      "enhanced": {
+        "head_psnr": 38.47314395487457,
+        "head_ssim": 0.9587584137916565,
+        "nmse": 0.007794986478984356,
+        "head_hfen": 0.13464348059104503
+      }
+    },
+    "tuning": "9 runs on this scan (ledger params/tune_experiments.jsonl): control, 6 tuning trainings, seed-7 check of the final config (36.022 / 38.465 dB) and this volumes run; the hyperparameters were selected by head PSNR against the truth of this same scan"
+  },
+  "comparators": {
+    "settings": {
+      "ZF": "zero-filled, coil-combined",
+      "CG-SENSE": "topic recon_classical.py",
+      "CS-SENSE": "ADMM, 200 outer iterations, lambda 1e-3 (plain scan) / 7e-4 (enhanced), grid choice on the truth",
+      "Joint SENSE": "ADMM, 200 outer iterations, lambda 1e-3, grid choice on the truth",
+      "L1-SPIRiT": "kernel 5, lambda 1e-3, grid choice on the truth",
+      "ZS-SSDU": "topic recon_zsssdu.py, September setting",
+      "3D-DIP": "output support 6, base 96, TV 0.03, 12000 iterations, checkpoint by held-out k-space",
+      "3D-INR": "output support 6, n_max 512, TV 0.03, 1500 iterations, checkpoint by held-out k-space",
+      "MC-INR": "topic run_mcinr.py, September setting",
+      "GS-single": "September registered recipe P3, one scan in both channels of the joint trainer (trainer e778bf2)"
+    },
+    "gs_single_argv": {
+      "post": [
+        "--exp",
+        "ce_retro_af12_single_post",
+        "--gpu",
+        "7",
+        "--iters",
+        "4000",
+        "--lambda_geo",
+        "0.10",
+        "--warmup",
+        "500",
+        "--max_radius",
+        "20",
+        "--kspace_high",
+        "2.2",
+        "--edge_tv",
+        "--edge_tv_kappa_q",
+        "0.85",
+        "--edge_tv_wfloor",
+        "0.10",
+        "--tv_eps",
+        "0.04",
+        "--set",
+        "gaussian.init_mode=head",
+        "--set",
+        "gaussian.init_scale_mode=3nn",
+        "--set",
+        "loss.edge_tv_kappa_source=zf",
+        "--set",
+        "gaussian.initial_num_points=3600000",
+        "--set",
+        "loss.wav_name=db4",
+        "--set",
+        "loss.wav_levels=1",
+        "--set",
+        "loss.lambda_wav_plain=0.12",
+        "--set",
+        "loss.lambda_wav=0.10",
+        "--lambda_edge",
+        "0.001",
+        "--lambda_ptv",
+        "0.03",
+        "--base_cfg",
+        "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/configs/ce_retro_af12_single_post.yaml",
+        "--save_volumes"
+      ],
+      "pre": [
+        "--exp",
+        "ce_retro_af12_single_pre",
+        "--gpu",
+        "7",
+        "--iters",
+        "4000",
+        "--lambda_geo",
+        "0.10",
+        "--warmup",
+        "500",
+        "--max_radius",
+        "20",
+        "--kspace_high",
+        "2.2",
+        "--edge_tv",
+        "--edge_tv_kappa_q",
+        "0.85",
+        "--edge_tv_wfloor",
+        "0.10",
+        "--tv_eps",
+        "0.04",
+        "--set",
+        "gaussian.init_mode=head",
+        "--set",
+        "gaussian.init_scale_mode=3nn",
+        "--set",
+        "loss.edge_tv_kappa_source=zf",
+        "--set",
+        "gaussian.initial_num_points=3600000",
+        "--set",
+        "loss.wav_name=db4",
+        "--set",
+        "loss.wav_levels=1",
+        "--set",
+        "loss.lambda_wav_plain=0.12",
+        "--set",
+        "loss.lambda_wav=0.10",
+        "--lambda_edge",
+        "0.001",
+        "--lambda_ptv",
+        "0.03",
+        "--base_cfg",
+        "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/configs/ce_retro_af12_single_pre.yaml",
+        "--save_volumes"
+      ]
+    },
+    "command_lines": "code/run_af12.py (queue of the AF12 rerun) and code/af12_cmp_support.py (3D-DIP / 3D-INR)",
+    "scripts": "code/comparator_scripts.tar.gz",
+    "whole_head_scores": "params/topic_summary.json"
+  },
+  "figure": {
+    "argv": [
+      "autoresearch/ce_af12_rerun_20261112/fig_af12_prepost.py",
+      "--topic",
+      "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12",
+      "--label",
+      "tuned MC-GS (AF12 autoresearch, seed 42)",
+      "--out",
+      "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v3_err008_textclear",
+      "--three",
+      "201",
+      "131",
+      "48",
+      "--err_layout",
+      "zoom",
+      "--cbar",
+      "single",
+      "--err_vmax",
+      "0.08",
+      "--err_cmap",
+      "inferno",
+      "--arrow",
+      "--arrow_mode",
+      "lesion",
+      "--arrow_on",
+      "zoom",
+      "--arrow_color",
+      "red",
+      "--role",
+      "Clinical verification",
+      "--text_corner",
+      "auto",
+      "--save_data",
+      "--pdf",
+      "--pdf_dpi",
+      "600",
+      "--mc_npz",
+      "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz",
+      "--arm",
+      "3D-DIP=/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/dip_sup_b96_tv0.03_{s}_complex.npy",
+      "--arm",
+      "3D-INR=/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/inr_i10_n512_sup6_tv0.03_{s}_complex.npy"
+    ],
+    "job": "j-20261125T022030-76f94229",
+    "finalise_job": "j-20261125T024048-863d3d40",
+    "record": "record_tuned_MC_GS_AF12_autoresearch_seed_42_three.json",
+    "planes": {
+      "transverse": 201,
+      "coronal": 131,
+      "sagittal": 48
+    },
+    "error_display": {
+      "cmap": "inferno",
+      "vmax": 0.08
+    },
+    "text_corner": {
+      "pre Transverse 201": "tl",
+      "post Transverse 201": "tl",
+      "pre Coronal 131": "tr",
+      "post Coronal 131": "tr",
+      "pre Sagittal 48": "bl",
+      "post Sagittal 48": "bl"
+    },
+    "pdf_image_dpi": 600,
+    "panel_numbers": "computed by this script (topic mode), not by a frozen evaluator",
+    "margins_mcgs_over_best_other": {
+      "201": {
+        "pre:psnr": 0.3933933566494545,
+        "pre:ssim": 0.004170847488463636,
+        "pre:nmse": 0.0006417453556517407,
+        "post:psnr": 0.6320506711833573,
+        "post:ssim": 0.005623783034247265,
+        "post:nmse": 0.0008861921284085529
+      },
+      "131": {
+        "pre:psnr": 0.4607359041338839,
+        "pre:ssim": 0.008720045061916815,
+        "pre:nmse": 0.0012605283540364186,
+        "post:psnr": 0.5584870540953943,
+        "post:ssim": 0.0059816353881609885,
+        "post:nmse": 0.001219306705058109
+      },
+      "48": {
+        "pre:psnr": 0.36456877263817944,
+        "pre:ssim": 0.005832770048626479,
+        "pre:nmse": 0.0006699226675733983,
+        "post:psnr": 0.6149023842481469,
+        "post:ssim": 0.00625336930603182,
+        "post:nmse": 0.0011747361965885363
+      }
+    }
+  }
+}
