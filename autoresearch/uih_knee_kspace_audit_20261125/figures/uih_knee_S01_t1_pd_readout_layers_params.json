@@ -1,0 +1,83 @@
+{
+ "subject": "S01",
+ "contrasts": [
+  "t1",
+  "pd"
+ ],
+ "readout_axis_h5": 2,
+ "kx_offsets": [
+  -64,
+  -16,
+  0,
+  16,
+  64
+ ],
+ "x_fractions": [
+  0.15,
+  0.325,
+  0.5,
+  0.675,
+  0.85
+ ],
+ "x_positions": [
+  27,
+  58,
+  88,
+  118,
+  149
+ ],
+ "object_extent_readout": [
+  1,
+  175
+ ],
+ "section_index_n3_image": 96,
+ "kspace_log_vmin": -5.0,
+ "per_contrast": {
+  "t1": {
+   "source_sha256": "53ed8f658904523ec184ce57910c3e8322d68c7aa8b29e70481c3095ca433b69",
+   "shape_h5": [
+    210,
+    12,
+    176,
+    176
+   ],
+   "kspace_centre": [
+    105,
+    88,
+    88
+   ],
+   "amax": 1.0655162334442139,
+   "noise_median": 0.0001996878709178418,
+   "image_p995": 0.004560568702872843,
+   "measured_share_pe_plane": 0.8149621212121212,
+   "readout_empty_shares_by_axis": [
+    0.13068181818181818,
+    0.18503787878787878,
+    0.13942099567099567
+   ]
+  },
+  "pd": {
+   "source_sha256": "f845aa9f039a404ec570cff722a6f7889ffc63b5b31a340bb3f0107d6b95392e",
+   "shape_h5": [
+    210,
+    12,
+    176,
+    176
+   ],
+   "kspace_centre": [
+    105,
+    88,
+    88
+   ],
+   "amax": 1.0697978734970093,
+   "noise_median": 0.00018950056983157992,
+   "image_p995": 0.00474937346065417,
+   "measured_share_pe_plane": 0.812012987012987,
+   "readout_empty_shares_by_axis": [
+    0.13113378099173553,
+    0.18798701298701298,
+    0.13898809523809524
+   ]
+  }
+ }
+}
