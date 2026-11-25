@@ -1,0 +1,191 @@
+{
+  "request": "user 2026-11-24: \"Save the corresponding original data and the vector at 600 dpi in PDF format to the GPU server\"",
+  "figure": "optimal clinical-verification figure, CE AF12 plain scan (pre) + enhanced (post), planes 201 / 131 / 48, MC-GS = tuned (AF12 autoresearch, seed 42), error inferno [0, 0.08], text clear of the zoom box",
+  "dir": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v3_err008_textclear",
+  "short_name_copies": {
+    "ce_af12_prepost_clinical_verification_600dpi.pdf": {
+      "source": "ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.08_arrowlesion_onzoom_txtauto.pdf",
+      "sha256": "daf02c389ac24812187ad4d4ce37d2cc98d28c709b84c89989d396551c93ee4f",
+      "bytes": 7666581
+    },
+    "ce_af12_prepost_clinical_verification.png": {
+      "source": "ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.08_arrowlesion_onzoom_txtauto.png",
+      "sha256": "830b9b3130f9380e4540f547c760134c4a26c69da642449eb0f1d061f44c995a",
+      "bytes": 16400138
+    },
+    "ce_af12_prepost_clinical_verification_data.npz": {
+      "source": "ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.08_arrowlesion_onzoom_txtauto_data.npz",
+      "sha256": "7014cec615a8fc2221fff0bb94582baeab8a5193de7e9778070978aa51d4f892",
+      "bytes": 10854227
+    }
+  },
+  "pdf_check": {
+    "pages": 1,
+    "fonts": 2,
+    "all_fonts_embedded": true,
+    "images": 218,
+    "min_image_ppi": 600,
+    "all_images_at_least": 600,
+    "passed": true
+  },
+  "pdf_fonts": [
+    "EVICAO+DejaVuSans-Bold               CID TrueType      Identity-H       yes yes yes    233  0",
+    "BMQQDV+DejaVuSans                    CID TrueType      Identity-H       yes yes yes    240  0"
+  ],
+  "data_npz": {
+    "keys": 94,
+    "contents": "for each of the six rows: GT slice, the eleven reconstructed slices, head mask, error region and lesion core (volume orientation); the sampling-mask plane of each orientation; meta_json (boxes, arrows, panel numbers, display settings, source volumes)",
+    "error_display": {
+      "cmap": "inferno",
+      "vmax": 0.08
+    }
+  },
+  "source_volumes": {
+    "pre": {
+      "ZF": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/zf_pre_complex.npy",
+        "sha256": "7fe65a5e981418d1ccdbd838150a55028e3e1ba5cb52aa139d7cbe489bd37ab5"
+      },
+      "CG-SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/cgsense_pre_complex.npy",
+        "sha256": "06f0b8f731a18120b7b4b924e8c02fd1c46e4bc3a147ab46d924745aed792527"
+      },
+      "CS-SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/cssense_o200_lam0.001_pre_complex.npy",
+        "sha256": "3d65b10e9e2d50b3eb9bb35498a7748136fc8df634207d2d8d9bc2274b21ed98"
+      },
+      "Joint SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/jcssense_o200_lam0.001_pre_complex.npy",
+        "sha256": "22a5abaad086579e8906519867db9d5d314660d667b1cd65dc1f2c3a6eec3df8"
+      },
+      "L1-SPIRiT": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/spirit_ks5_lam0.001_pre_complex.npy",
+        "sha256": "cf25b624abdbc55627dcc64a8c4583588814fde9ad3a97edc5e5fc7031ef4615"
+      },
+      "ZS-SSDU": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/zsssdu_pre_complex.npy",
+        "sha256": "670c87125afbeaf548b7d8d1d40fb489fa1add315410903f6c988674a0eabef3"
+      },
+      "3D-DIP": {
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/dip_sup_b96_tv0.03_pre_complex.npy",
+        "sha256": "d7582548bf0a8938b4a9ef288fe53cf6672328c5ec0a221675f8dcaa1f9d0f54"
+      },
+      "3D-INR": {
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/inr_i10_n512_sup6_tv0.03_pre_complex.npy",
+        "sha256": "38957cc935084e63caca7a66eb0ca05b39b267bb7c623a8eb54415bc3523e713"
+      },
+      "MC-INR": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/mcinr_pre_complex.npy",
+        "sha256": "c15ecf377e5359cb4744f68fbf8123ae8712cb36e26665388c452793d0e717df"
+      },
+      "GS-single": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/gs_single_pre_mag.npy",
+        "sha256": "24948c6406300ec0078dde753cfa7d100d3ab4323eb8d5f6527a557019daf9c9"
+      },
+      "MC-GS": {
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz",
+        "sha256": "5537c15771aa07e6ea6b8c1dac134f0f206beff88061783f2441f37c872922bb"
+      }
+    },
+    "post": {
+      "ZF": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/zf_post_complex.npy",
+        "sha256": "708c9b37ff61f3f6cdc9721f2e5087474d5f0a715140c8550665e64c4ee33741"
+      },
+      "CG-SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/cgsense_post_complex.npy",
+        "sha256": "888ddec1ec03589b84c4f2984e5bd244f0948b61c39b9b1eebcca945e7b1b187"
+      },
+      "CS-SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/cssense_o200_lam0.0007_post_complex.npy",
+        "sha256": "168b1769a637f129b205855b1d98ed9ae3745e91cf9a9b26e72b9c8578f4b979"
+      },
+      "Joint SENSE": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/jcssense_o200_lam0.001_post_complex.npy",
+        "sha256": "6490a5d29735acce1edea4aeee9b5beed3b252e7177f0fce012547174edc14b3"
+      },
+      "L1-SPIRiT": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/spirit_ks5_lam0.001_post_complex.npy",
+        "sha256": "0c4b94f59253b7660bfcc99c09b707eaa02881753b79b81e44a2770f72011da7"
+      },
+      "ZS-SSDU": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/zsssdu_post_complex.npy",
+        "sha256": "6dd8caf874b1edcb3abf02472e98b14266d204980d806e35900ea59b92c7e08c"
+      },
+      "3D-DIP": {
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/dip_sup_b96_tv0.03_post_complex.npy",
+        "sha256": "a499bf68216633ab452c4c8a9a325e6800b1399929802c7f36fa55efb3aee515"
+      },
+      "3D-INR": {
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_cmp_20261113/recon/inr_i10_n512_sup6_tv0.03_post_complex.npy",
+        "sha256": "baa957d8b337cac2422e4550c9283ac374e59e47a74d2de48135fea04d637a8c"
+      },
+      "MC-INR": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/mcinr_post_complex.npy",
+        "sha256": "09ee47bfff03defc399d7eed0b93eabf2e7a2b83fa6c2cb1acad3a975683bbad"
+      },
+      "GS-single": {
+        "path": "/data0/congcong/code/GS/Results_20260908/CE_retro_cssense_af12/recon/gs_single_post_mag.npy",
+        "sha256": "1f0de7c2500c761231b53f570fbf3f735627e717df79cb2862957d1f3409a68b"
+      },
+      "MC-GS": {
+        "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz",
+        "sha256": "5537c15771aa07e6ea6b8c1dac134f0f206beff88061783f2441f37c872922bb"
+      }
+    }
+  },
+  "gt_sha256": {
+    "pre": "4c0758648be4a3b93fc6a93ebda98609c6921df66e4361c817652e62b7ad0cfc",
+    "post": "072ae9581192860c29d3bffa981bf5d485da8db8385cc9b7718018a5170a3cdf"
+  },
+  "mc_npz": {
+    "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz",
+    "keys": {
+      "pre": "recT1",
+      "post": "recFL"
+    },
+    "magnitude": true
+  },
+  "files": {
+    "ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.08_arrowlesion_onzoom_txtauto.pdf": {
+      "sha256": "daf02c389ac24812187ad4d4ce37d2cc98d28c709b84c89989d396551c93ee4f",
+      "bytes": 7666581
+    },
+    "ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.08_arrowlesion_onzoom_txtauto.png": {
+      "sha256": "830b9b3130f9380e4540f547c760134c4a26c69da642449eb0f1d061f44c995a",
+      "bytes": 16400138
+    },
+    "ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.08_arrowlesion_onzoom_txtauto_data.npz": {
+      "sha256": "7014cec615a8fc2221fff0bb94582baeab8a5193de7e9778070978aa51d4f892",
+      "bytes": 10854227
+    },
+    "ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.08_arrowlesion_onzoom_txtauto_preview.jpg": {
+      "sha256": "5d8cba835bf81c55e61451630a8709b82cb4bb7a2fd900a6016b9c24ee691369",
+      "bytes": 1305637
+    },
+    "ce_af12_prepost_clinical_verification.png": {
+      "sha256": "830b9b3130f9380e4540f547c760134c4a26c69da642449eb0f1d061f44c995a",
+      "bytes": 16400138
+    },
+    "ce_af12_prepost_clinical_verification_600dpi.pdf": {
+      "sha256": "daf02c389ac24812187ad4d4ce37d2cc98d28c709b84c89989d396551c93ee4f",
+      "bytes": 7666581
+    },
+    "ce_af12_prepost_clinical_verification_data.npz": {
+      "sha256": "7014cec615a8fc2221fff0bb94582baeab8a5193de7e9778070978aa51d4f892",
+      "bytes": 10854227
+    },
+    "fig_af12_prepost.py": {
+      "sha256": "87fd8b58dcd615344f99fabdbdb69759af130882aab6c5d730366b3f67d55181",
+      "bytes": 3248
+    },
+    "fig_lesion_plane_prepost_as_run_af12.py": {
+      "sha256": "5777bf1831274ec2abfc039892d31d6f23275252fd066d92947777545c4ce688",
+      "bytes": 41900
+    },
+    "record_tuned_MC_GS_AF12_autoresearch_seed_42_three.json": {
+      "sha256": "231e85635fc2754ccd3694eb78daf70e17361a069d4530f10687df3d419ac401",
+      "bytes": 11427
+    }
+  }
+}

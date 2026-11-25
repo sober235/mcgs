@@ -202,6 +202,16 @@ by 1 px. The coronal post and sagittal post points did not move.
 | `*_data.npz` | the drawn data (as for the 2026-11-22 figure), 10.9 MB | `7014cec6...51d4f892` |
 | `record_tuned_MC_GS_AF12_autoresearch_seed_42_three.json` | record: hashes of the drawn volumes and the truth, MC-GS source (`--mc_npz`), margins, arrow points, text corner of each row | `231e8563...419ac401` |
 
+- Saved for the paper (user, 2026-11-24: "Save the corresponding original data and the vector at 600 dpi in PDF format to
+  the GPU server"): the same folder also holds the files under the short names used for the 2026-11-22 figure, as
+  byte-identical copies. `ce_af12_prepost_clinical_verification_600dpi.pdf` is the vector PDF: one page, text in two
+  embedded TrueType fonts (DejaVu Sans, regular and bold), boxes / arrows / colour bars as vector paths, and all 218
+  embedded image panels at 600 ppi (checked with `pdffonts` and `pdfimages -list`).
+  `ce_af12_prepost_clinical_verification_data.npz` holds the drawn data (94 arrays).
+  `ce_af12_prepost_clinical_verification.png` is the 200 dpi PNG. `MANIFEST.json` lists the sha256 of every
+  file in the folder, the PDF check and the 22 source volumes (paths + sha256). A copy is committed as
+  `figures/ce_af12_prepost_optimal_manifest.json`. Script: `../ce_af12_tune_20261122/finalize_optimal_fig.py`
+  (CPU job j-20261125T024048-863d3d40). The full 3-D volumes are not copied; they stay at the paths in the manifest.
 - MC-GS volumes: `codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz`
   (keys recT1 = pre, recFL = post; magnitude drawn). The other arms are as in the 2026-11-22 record.
 - Mac: `figures/results_optimal/ce_af12_prepost_optimal.png` and `ce_af12_prepost_optimal_600dpi.pdf` are now the tuned

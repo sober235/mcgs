@@ -158,3 +158,8 @@ reconstruction quality of MCGS.」上文是 AF12 平扫 / 增强的最优结果�
 - 2026-11-24 用户："Set the range of the colorbar to [0, 0.8]"。问是 0.8 还是 0.08，用户选 [0, 0.08]。以 `--err_vmax 0.08 --text_corner auto`
   重画（CPU j-20261125T022030-76f94229），刻度 0 / 0.02 / … / 0.08，文字位置相同（横断左上、冠状右上、矢状左下）。数字、箭头、源体数据不变，
   与服务器 `v3_err008_textclear/` 的 sha256 一致。本地 `results_optimal/` 换成此版，[0, 0.09] 版移到 `superseded_20261124_err009/`。
+- 2026-11-24 用户："Save the corresponding original data and the vector at 600 dpi in PDF format to the GPU server"。
+  服务器 `v3_err008_textclear/` 里，加了沿用 11-22 短名的逐字节副本：`ce_af12_prepost_clinical_verification_600dpi.pdf`、`.png`、
+  `_data.npz`。PDF 检查（pdffonts / pdfimages -list）结果：1 页，2 种 TrueType 字体全部嵌入（文字为矢量），218 个图像面板全部 600 ppi。
+  另写了 `MANIFEST.json`，含全部文件的 sha256、PDF 检查结果、22 个源体数据的路径与哈希。
+  脚本 `finalize_optimal_fig.py`，作业 j-20261125T024048-863d3d40；清单副本 `figures/ce_af12_prepost_optimal_manifest.json`。
