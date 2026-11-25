@@ -55,6 +55,9 @@ ap.add_argument("--inset", type=int, default=48)
 ap.add_argument("--inset_corner", default="auto", choices=["auto", "bl", "br", "tr"],
                 help="corner of the magnified box (auto = the free corner farthest from the outlined box; tl holds the numbers)")
 ap.add_argument("--err_vmax", type=float, default=0.1)
+ap.add_argument("--text_corner", default="tl", choices=["tl", "auto"],
+                help="corner of the panel text (row labels, PSNR / SSIM / NMSE): tl = top-left as before; auto = per row the "
+                     "first of top-left, top-right, bottom-left, bottom-right whose rendered text clears the outlined box")
 ap.add_argument("--err_cmap", default="jet", help="colour map of the error maps (jet = the record format; inferno = the article look)")
 ap.add_argument("--arrow", action="store_true",
                 help="article look (as fig_t1flair_af_record_format.py --arrow --arrow_on main): one arrow per row on every "
@@ -339,6 +342,16 @@ def plane_rows(axis, idx):
     return out
 
 
+def err_ticks(vmax):
+    """colour-bar ticks of the error map: four equal steps as before when the step is a multiple of 0.005
+    (0.1 -> 0.025, 0.08 -> 0.02), otherwise the first of 3 / 5 / 6 steps that is (0.09 -> 0.03)"""
+    for n in (4, 3, 5, 6):
+        st = vmax / n
+        if abs(st / 0.005 - round(st / 0.005)) < 1e-6:
+            return np.arange(n + 1) * st
+    return np.arange(0, 5) * vmax / 4
+
+
 def set_windows(rows):
     """house grey windows: each row its slice P99.9; a sagittal row gets the in-head median / P99.9 ratio of the
     other planes of the same scan (bright lateral scalp fat would darken it); then / --brightness (display only)"""
@@ -357,7 +370,7 @@ def render(rows, title, stem):
         stem += "_zoomerr"
     stem += (f"_{args.err_cmap}" if args.err_cmap != "jet" else "") + (f"_err{args.err_vmax:g}" if args.err_vmax != 0.1 else "") \
         + (f"_arrow{args.arrow_mode}" if args.arrow else "") + ("_onerr" if args.arrow and args.arrow_on == "main+err" else "") \
-        + ("_onzoom" if args.arrow and args.arrow_on == "zoom" else "")
+        + ("_onzoom" if args.arrow and args.arrow_on == "zoom" else "") + ("_txtauto" if args.text_corner == "auto" else "")
     ncol = len(LABELS) + 1
     pw, gap = 2.6, 0.025
     CBTRIM, top_in, cbpad, cbw, cbroom = 0.10, 1.35, 0.06, 0.13, (0.95 if args.cbar == "single" else 0.60)
@@ -388,11 +401,45 @@ def render(rows, title, stem):
             sp.set_visible(False)
         return a
 
-    def label(a, text, bold=False, line=0, fs=12, hh=None, color="white"):
-        dy = line * fs * 1.28 / 72 / hh if line else 0.0
-        t = a.text(0.025, 0.975 - dy, text, transform=a.transAxes, ha="left", va="top", color=color, fontsize=fs,
+    def label(a, text, bold=False, line=0, fs=12, hh=None, color="white", corner="tl", nlines=1):
+        """one text line in a panel corner; line 0 is the top line of the block in every corner"""
+        k_ = line if corner[0] == "t" else nlines - 1 - line
+        dy = k_ * fs * 1.28 / 72 / hh if k_ else 0.0
+        t = a.text(0.025 if corner[1] == "l" else 0.975, 0.975 - dy if corner[0] == "t" else 0.025 + dy, text,
+                   transform=a.transAxes, ha="left" if corner[1] == "l" else "right",
+                   va="top" if corner[0] == "t" else "bottom", color=color, fontsize=fs,
                    fontweight="bold" if bold else "normal")
         t.set_path_effects([pe.withStroke(linewidth=2.5, foreground="black")])
+        return t
+
+    def text_corner(a, r, h):
+        """--text_corner auto: the first corner (tl, tr, bl, br) where the rendered row label of the GT panel and the
+        widest PSNR / SSIM / NMSE block of the row (drawn bold) clear the outlined box by 3 pt; if none does, the corner
+        with the least overlap. All panels of a row have the size of this one, so the corner holds along the row."""
+        if args.text_corner == "tl":
+            return "tl"
+        rend = fig.canvas.get_renderer()
+        z = r["zoom"]
+        bb = a.transData.transform(np.array([[z["x0"] - 0.5, z["y0"] - 0.5],
+                                             [z["x0"] + z["w"] - 0.5, z["y0"] + z["w"] - 0.5]]))
+        pad = 3 * fig.dpi / 72
+        bx0, by0 = bb.min(0) - pad
+        bx1, by1 = bb.max(0) + pad
+        nums = [(f"{n['psnr']:.2f} dB", f"SSIM {n['ssim']:.4f}", f"NMSE {n['nmse']:.5f}") for n in r["num"].values()]
+        blocks = [((ANAT[r["axis"]], SCAN_NAME[r["scan"]]), 13), (max(nums, key=lambda t: max(map(len, t))), 10.5)]
+        cost = {}
+        for c in ("tl", "tr", "bl", "br"):
+            ov = 0.0
+            for lines, fs in blocks:
+                for i, txt in enumerate(lines):
+                    t = label(a, txt, bold=True, line=i, fs=fs, hh=h, corner=c, nlines=len(lines))
+                    e = t.get_window_extent(renderer=rend)
+                    t.remove()
+                    ov += max(0.0, min(e.x1, bx1) - max(e.x0, bx0)) * max(0.0, min(e.y1, by1) - max(e.y0, by0))
+            if ov == 0.0:
+                return c
+            cost[c] = ov
+        return min(cost, key=cost.get)
 
     def put_inset(parent, img, r, x0_in, y0_in, hh, **imkw):
         z, corner = r["zoom"], r["corner"]
@@ -446,8 +493,9 @@ def render(rows, title, stem):
                 gim = a.imshow(D(r["g2"], axis), cmap="gray", vmin=0, vmax=r["vmax"], origin="lower", aspect="auto")
                 put_inset(a, D(r["g2"], axis), r, x, y, h, cmap="gray", vmin=0, vmax=r["vmax"])
                 arrow_at(a, r, D(r["g2"], axis).shape)
-                label(a, ANAT[axis], bold=True, fs=13)          # plane name only, as the house figures; indices in the title
-                label(a, SCAN_NAME[s], bold=True, line=1, fs=13, hh=h)
+                tc = r["text_corner"] = text_corner(a, r, h)
+                label(a, ANAT[axis], bold=True, fs=13, hh=h, corner=tc, nlines=2)   # plane name only; indices in the title
+                label(a, SCAN_NAME[s], bold=True, line=1, fs=13, hh=h, corner=tc, nlines=2)
                 kplane = D(mask3.take(kcen[axis], axis=axis), axis)
                 if ZOOMROW:
                     bL.imshow(crop(D(r["g2"], axis), z), cmap="gray", vmin=0, vmax=r["vmax"], origin="lower", aspect="auto")
@@ -468,7 +516,7 @@ def render(rows, title, stem):
             n = r["num"][lab]
             for i, (txt, met) in enumerate(((f"{n['psnr']:.2f} dB", "psnr"), (f"SSIM {n['ssim']:.4f}", "ssim"),
                                              (f"NMSE {n['nmse']:.5f}", "nmse"))):
-                label(a, txt, bold=lab == r["best"][met], line=i, fs=10.5, hh=h, color=METRIC_COLOR)
+                label(a, txt, bold=lab == r["best"][met], line=i, fs=10.5, hh=h, color=METRIC_COLOR, corner=tc, nlines=3)
             emap = D(np.abs(v - r["g2"]) / gmax[s] * r["emask"], axis)
             if ZOOMROW:
                 bL.imshow(crop(D(v, axis), z), cmap="gray", vmin=0, vmax=r["vmax"], origin="lower", aspect="auto")
@@ -487,14 +535,14 @@ def render(rows, title, stem):
             if k == 0:     # one grey bar in units of each row's own window, one error bar (same scale in every row)
                 gsm = ScalarMappable(norm=Normalize(0, 1), cmap="gray")
                 for handle, t0, t1, tk, lab_ in ((gsm, y, y + h - CBTRIM, np.linspace(0, 1, 5), "intensity / row window"),
-                                                 (im, e0, y + h + gap + eh, np.arange(0, 5) * args.err_vmax / 4, "|error| / max GT")):
+                                                 (im, e0, y + h + gap + eh, err_ticks(args.err_vmax), "|error| / max GT")):
                     cax = fig.add_axes([x_cb, 1 - t1 / fh, cbw / fw, (t1 - t0) / fh])
                     cb = fig.colorbar(handle, cax=cax, ticks=tk)
                     cb.ax.tick_params(labelsize=9.5)
                     cb.set_label(lab_, fontsize=10)
         else:
             for handle, t0, t1, tk in ((gim, y, y + h - CBTRIM, MaxNLocator(5)),
-                                       (im, e0, y + h + gap + eh, np.arange(0, 5) * args.err_vmax / 4)):
+                                       (im, e0, y + h + gap + eh, err_ticks(args.err_vmax))):
                 cax = fig.add_axes([x_cb, 1 - t1 / fh, cbw / fw, (t1 - t0) / fh])
                 fig.colorbar(handle, cax=cax, ticks=tk).ax.tick_params(labelsize=9.5)
         y += h + eh + 2 * gap
@@ -508,7 +556,8 @@ def render(rows, title, stem):
             corners.append(t)
     src = "the frozen evaluator's lesion-plane numbers" if sd is not None else "computed from the topic's registered volumes"
     cap = [f"head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel = {src}, "
-           "the best of each row in bold",
+           "the best of each row in bold" + ("; text placed in a panel corner clear of the outlined box"
+                                             if args.text_corner == "auto" else ""),
            f"error |recon - GT| / max(GT), {args.err_cmap} [0, {args.err_vmax:g}]   (inside the head only)",
            ("row under each image row: left = the magnified lesion box of the image, right = the same box of the error map; "
             "GT column: GT box | sampling mask in that plane (k-space)") if ZOOMROW
@@ -576,6 +625,8 @@ def render(rows, title, stem):
                                                 gap=r["arrow_gap"], error_higher_than_mcgs_in=r["arrow_worse"]) for r in rows] if args.arrow else None),
                                   arrow_mode=args.arrow_mode if args.arrow else None, arrow_on=args.arrow_on if args.arrow else None,
                                   role=args.role or None,
+                                  text_corner=({f"{r['scan']} {ANAT[r['axis']]} {r['idx']}": r["text_corner"] for r in rows}
+                                               if args.text_corner == "auto" else "tl"),
                                   pdf_image_dpi=args.pdf_dpi if args.pdf else None, png_dpi=args.png_dpi))
     log(f"  wrote {args.out / stem}.png")
 

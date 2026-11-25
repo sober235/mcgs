@@ -149,3 +149,9 @@ reconstruction quality of MCGS.」上文是 AF12 平扫 / 增强的最优结果�
   本地 `figures/results_optimal/` 的 PNG/PDF 换成调参版，旧文件移到 `results_optimal/superseded_20261122_untuned/`。
   对比图脚本 `compare_old_new.py`（GS-single | 旧 MC-GS | 新 MC-GS，仅显示）。`optimal-for-plain-scan-and-enhancement-phases`
   快进到本分支的提交，并推送。
+- 2026-11-24 用户："Adjust the colorbar range to [0, 0.09]. Then, ensure that the text on the figure does not overlap the zoom-in box."
+  出图脚本新增 `--text_corner auto`：每行按实际渲染的文字范围，选第一个离框 3 pt 以上的角（左上、右上、左下、右下）。
+  另加色条刻度规则，步长为 0.005 的倍数时保持四等分，所以 0.1 / 0.08 的旧图不变，0.09 为 0 / 0.03 / 0.06 / 0.09。
+  重画（CPU j-20261125T015708-a0616399）结果：横断行左上（不变），冠状行右上，矢状行左下；全分辨率检查，没有文字压框。
+  数字、领先量、箭头点、源体数据与 [0, 0.08] 版逐项相同。服务器 `mcgs_ce_af12_prepost_tuned_20261123/v2_err009_textclear/`，
+  与本地 sha256 一致。本地 `results_optimal/` 换成此版，[0, 0.08] 版移到 `results_optimal/superseded_20261124_err008/`。
