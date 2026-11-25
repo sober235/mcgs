@@ -114,7 +114,7 @@
   },
   "figures": [
     {
-      "png": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v2_err009_textclear/ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.09_arrowlesion_onzoom_txtauto.png",
+      "png": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v3_err008_textclear/ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.08_arrowlesion_onzoom_txtauto.png",
       "rows": [
         "pre Transverse 201",
         "post Transverse 201",
@@ -187,7 +187,7 @@
       ],
       "error_display": {
         "cmap": "inferno",
-        "vmax": 0.09
+        "vmax": 0.08
       },
       "arrows": [
         {

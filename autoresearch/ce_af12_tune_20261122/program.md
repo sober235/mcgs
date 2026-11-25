@@ -155,3 +155,6 @@ reconstruction quality of MCGS.」上文是 AF12 平扫 / 增强的最优结果�
   重画（CPU j-20261125T015708-a0616399）结果：横断行左上（不变），冠状行右上，矢状行左下；全分辨率检查，没有文字压框。
   数字、领先量、箭头点、源体数据与 [0, 0.08] 版逐项相同。服务器 `mcgs_ce_af12_prepost_tuned_20261123/v2_err009_textclear/`，
   与本地 sha256 一致。本地 `results_optimal/` 换成此版，[0, 0.08] 版移到 `results_optimal/superseded_20261124_err008/`。
+- 2026-11-24 用户："Set the range of the colorbar to [0, 0.8]"。问是 0.8 还是 0.08，用户选 [0, 0.08]。以 `--err_vmax 0.08 --text_corner auto`
+  重画（CPU j-20261125T022030-76f94229），刻度 0 / 0.02 / … / 0.08，文字位置相同（横断左上、冠状右上、矢状左下）。数字、箭头、源体数据不变，
+  与服务器 `v3_err008_textclear/` 的 sha256 一致。本地 `results_optimal/` 换成此版，[0, 0.09] 版移到 `superseded_20261124_err009/`。

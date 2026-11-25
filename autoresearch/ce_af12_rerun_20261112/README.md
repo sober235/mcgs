@@ -162,9 +162,15 @@ For each row, the row label in the GT column and the PSNR / SSIM / NMSE block in
 (top-left, top-right, bottom-left, bottom-right) whose rendered text clears the outlined box by 3 pt. The result is
 top-left for the transverse rows (unchanged), top-right for the coronal rows (the box is top-left) and bottom-left for
 the sagittal rows (the GT label touched the box). The panel numbers, margins, arrow points and source volumes are
-identical to the [0, 0.08] drawing (checked against its record). That drawing is in
-`codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v1_tuned/` and locally in
+identical to the [0, 0.08] drawing (checked against its record). That drawing, which has the text overlapping the box, is
+in `codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v1_tuned/` and locally in
 `figures/results_optimal/superseded_20261124_err008/`.
+
+**Range back to [0, 0.08] (user, 2026-11-24):** "Set the range of the colorbar to [0, 0.8]". Asked whether this meant 0.8
+or 0.08, the user chose [0, 0.08]. Redrawn with `--err_vmax 0.08` (ticks 0 / 0.02 / 0.04 / 0.06 / 0.08), keeping
+`--text_corner auto` with the same corners. Numbers, margins, arrow points and source volumes are unchanged. The
+[0, 0.09] drawing is in `v2_err009_textclear/` on the server and in `figures/results_optimal/superseded_20261124_err009/`
+locally. **This [0, 0.08] drawing with text clear of the box is the current optimal figure.**
 
 | plane | MC-GS pre / post PSNR (dB) | GS-single pre / post PSNR (dB) | margin pre / post (dB) | SSIM margin pre / post |
 |---|---|---|---|---|
@@ -186,15 +192,15 @@ by 1 px. The coronal post and sagittal post points did not move.
 | sagittal 48 pre | (29, 36) | 0.0028 | 9 |
 | sagittal 48 post | (35, 29) | 0.0028 | 8 (3D-DIP is not higher) |
 
-**Files.** Server folder `codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v2_err009_textclear/` (long names
-`ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.09_arrowlesion_onzoom_txtauto*`):
+**Files.** Server folder `codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v3_err008_textclear/` (long names
+`ce_af12_lesion_three_planes_201_131_48_prepost_tuned_MC_GS_AF12_autoresearch_seed_42_zoomerr_inferno_err0.08_arrowlesion_onzoom_txtauto*`):
 
 | file | content | sha256 |
 |---|---|---|
-| `*.pdf` | the figure, one page, 7.7 MB, image panels at 600 dpi, text and marks as vectors | `ab8bc791...6f728a93` |
-| `*.png` | the same figure, 200 dpi | `0c3bf1da...9b0a7825` |
-| `*_data.npz` | the drawn data (as for the 2026-11-22 figure), 10.9 MB | `ef45d7d0...514fc271` |
-| `record_tuned_MC_GS_AF12_autoresearch_seed_42_three.json` | record: hashes of the drawn volumes and the truth, MC-GS source (`--mc_npz`), margins, arrow points, text corner of each row | `340da179...0a918394` |
+| `*.pdf` | the figure, one page, 7.7 MB, image panels at 600 dpi, text and marks as vectors | `daf02c38...1c93ee4f` |
+| `*.png` | the same figure, 200 dpi | `830b9b31...f44c995a` |
+| `*_data.npz` | the drawn data (as for the 2026-11-22 figure), 10.9 MB | `7014cec6...51d4f892` |
+| `record_tuned_MC_GS_AF12_autoresearch_seed_42_three.json` | record: hashes of the drawn volumes and the truth, MC-GS source (`--mc_npz`), margins, arrow points, text corner of each row | `231e8563...419ac401` |
 
 - MC-GS volumes: `codex_artifacts/mcgs_framework_ablation_20261110/trainer/results_arc/ta12_x1combo3_vol_volumes.npz`
   (keys recT1 = pre, recFL = post; magnitude drawn). The other arms are as in the 2026-11-22 record.
@@ -203,10 +209,11 @@ by 1 px. The coronal post and sagittal post points did not move.
   git-ignored. The committed `figures/ce_af12_prepost_optimal_preview.jpg` and `figures/ce_af12_prepost_optimal_record.json` are
   the tuned versions; the 2026-11-22 versions are in the history of this branch (a32c056).
 - Jobs: volumes run j-20261124T011133-8fbcb2a0 (GPU 1), figure j-20261124T022553-2d7d45d8 (CPU, [0, 0.08]),
-  redraw j-20261125T015708-a0616399 (CPU, [0, 0.09], text corner auto). Side-by-side view of the
+  redraws j-20261125T015708-a0616399 (CPU, [0, 0.09], text corner auto) and j-20261125T022030-76f94229 (CPU, [0, 0.08],
+  text corner auto; current). Side-by-side view of the
   MC-GS column old vs new: `../ce_af12_tune_20261122/compare_old_new.py`.
 - Command: as below for the 2026-11-22 figure, plus `--mc_npz <volumes above>`,
-  `--label "tuned MC-GS (AF12 autoresearch, seed 42)"`, `--err_vmax 0.09` and `--text_corner auto`. `--mc_npz` was added to `fig_lesion_plane_prepost.py` on 2026-11-23;
+  `--label "tuned MC-GS (AF12 autoresearch, seed 42)"` and `--text_corner auto` (error range [0, 0.08] as below). `--mc_npz` was added to `fig_lesion_plane_prepost.py` on 2026-11-23;
   without it the topic's registered MC-GS volumes are drawn as before. `--text_corner` (default tl, as before) and the
   colour-bar tick rule (four equal steps when the step is a multiple of 0.005, so [0, 0.1] and [0, 0.08] are unchanged)
   were added on 2026-11-24.
