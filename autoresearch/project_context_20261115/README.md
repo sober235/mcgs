@@ -95,7 +95,8 @@ V32 配方，加上：
 
 | 实验 | 记录图 | 指定日期 |
 |---|---|---|
-| 平扫 / 增强 | 9 月 CE AF16，层面 201 / 131 / 48 的三平面图 | 2026-11-11 |
+| 平扫 / 增强（已被取代） | 9 月 CE AF16，层面 201 / 131 / 48 的三平面图 | 2026-11-11 |
+| 平扫 / 增强（现行） | CE AF12 临床验证图，MC-GS 为调参后的配置（见第 8 节） | 2026-11-22，2026-11-24 换成调参版 |
 | 高斯容量消融 | `hp_capacity_slice181`（横断 181） | 2026-11-11 |
 | 不同掩膜 | 横断 205 的记录格式图 | 2026-11-13 |
 
@@ -134,3 +135,28 @@ V32 配方，加上：
 # 调参过程图
 /usr/bin/python3 ../gpu-tools/gpu.py run --cpu -- @python autoresearch/ablation_coupling_tune_20261111/fig_process.py
 ```
+
+## 8. 补记（2026-11-24）：平扫 / 增强的最优结果
+
+本节是 2026-11-15 之后补写的；前面各节仍是 2026-11-15 的状态。
+
+- **指定（2026-11-22）。** 用户把 CE AF12 的三平面图（横断 201 / 冠状 131 / 矢状 48）定为平扫 / 增强重建的最优结果，并作为论文的临床验证场景。数据是 UIH 平扫 + 增强，真值为 CS-SENSE，掩膜为 BART Poisson-disc，名义 AF12。该图取代 2026-11-11 指定的 9 月 CE AF16 图。
+  - 画法：inferno 误差图，范围 [0, 0.08]。
+  - 箭头：红色，只画在放大的加权像框里，指向病灶边界。
+  - 输出：600 dpi PDF。
+- **调参（2026-11-22 至 11-23）。** 用 autoresearch 在同一数据上调 MC-GS：8 次调参训练，另有 1 次是保存体积的重跑。
+  - 最终配置：登记配方 P3，加上 `--lambda_edge 0`、edge-TV 引导 α 0.75、phase-TV 引导 α 0.5、`rotation_lr 0.008`、`scale_lr 0.004`。
+  - 训练器记分：36.031 / 38.473 dB，比登记的 9 月运行高 +0.226 / +0.328 dB。
+  - 种子 7 复核：36.022 / 38.465 dB。
+  - 记录在分支 `exp/ce-af12-tune-20261122` 的 `autoresearch/ce_af12_tune_20261122/program.md`。
+- **换图（2026-11-24，用户决定）。** 最优图改为用调参后的 MC-GS 重画的版本。其余 10 种方法、真值、层面、误差范围和箭头规则都不变。
+  - MC-GS 在 6 个面板的 PSNR / SSIM / NMSE 上 18 项全第一。
+  - 领先第二名 GS-single 0.36–0.63 dB（未调参时为 0.19–0.36 dB）。
+- **引用时的限定。**
+  - MC-GS 的超参数是按同一扫描对真值的头部 PSNR 选的。对比方法沿用原设置，其中三个扫参方法的 λ 也是按真值选的。
+  - 只有一个受试者、一次掩膜抽样。
+  - 箭头位置是对照真值挑的，只用于展示。
+- **位置。**
+  - GitHub 分支 `optimal-for-plain-scan-and-enhancement-phases`（8cfc41f，已推送）：`autoresearch/ce_af12_rerun_20261112/README.md` 的最优结果一节，旧版说明也保留在该节。
+  - 服务器：`…/codex_artifacts/mcgs_ce_af12_prepost_tuned_20261123/v1_tuned/`，含 600 dpi PDF、PNG 和所画数据 npz。旧版在 `…/mcgs_ce_af12_prepost_optimal_20261122/v4_clinical_verification_zoom_arrow/`。
+  - 本地：`autoresearch/ce_af12_rerun_20261112/figures/results_optimal/`，不进 git。
