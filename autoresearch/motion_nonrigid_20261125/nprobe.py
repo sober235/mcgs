@@ -21,7 +21,7 @@ from pathlib import Path
 
 import numpy as np
 
-from ncommon import DATA3, PROBE3, c1, c2
+from ncommon import DATA3, PROBE3, V2_RES, c1
 
 import probe_states as ps  # noqa: E402  (second version)
 import shiftstat  # noqa: E402
@@ -117,7 +117,7 @@ def main():
     args = ap.parse_args()
     import h5py
     cdir = DATA3 / args.order / args.cond
-    with np.load(c2.RES2 / f"{args.model}_canon.npz") as z:
+    with np.load(V2_RES / f"{args.model}_canon.npz") as z:
         vol = z["rec_raw"].astype(np.complex64)
     with h5py.File(c1.MASKS["af12"], "r") as h:
         mask3 = h["mask"][:].astype(np.float32)
