@@ -1,0 +1,284 @@
+{
+  "cases": {
+    "9000103445": {
+      "pre": {
+        "series": "t1_3D_gre_fsp_sag_iso_ACS_16884476230000",
+        "injection": 0,
+        "arrays": {
+          "rawdata_T1_turmor_9000103445": {
+            "label": "pre/rawdata_T1_turmor_9000103445",
+            "shape": [
+              256,
+              232,
+              190,
+              42
+            ],
+            "peak_coil0": [
+              126,
+              116,
+              95
+            ],
+            "grid_centre": [
+              128,
+              116,
+              95
+            ],
+            "readout_uniform": true,
+            "sampled_points": 8234,
+            "af": 5.353,
+            "acs_side": 24,
+            "max_abs": 2090.759521484375
+          },
+          "Echo_1": {
+            "label": "pre/Echo_1",
+            "shape": [
+              256,
+              232,
+              190,
+              42
+            ],
+            "peak_coil0": [
+              126,
+              116,
+              95
+            ],
+            "grid_centre": [
+              128,
+              116,
+              95
+            ],
+            "readout_uniform": true,
+            "sampled_points": 8234,
+            "af": 5.353,
+            "acs_side": 24,
+            "max_abs": 1478.39013671875
+          }
+        },
+        "use": "rawdata_T1_turmor_9000103445",
+        "echo1_equals_rawdata_coil0": false
+      },
+      "post": {
+        "series": "t1_3D_gre_fsp_sag_iso_ACS_16884476230050",
+        "injection": 1,
+        "arrays": {
+          "rawdata_CE_turmor_9000103445": {
+            "label": "post/rawdata_CE_turmor_9000103445",
+            "shape": [
+              256,
+              232,
+              190,
+              42
+            ],
+            "peak_coil0": [
+              126,
+              116,
+              95
+            ],
+            "grid_centre": [
+              128,
+              116,
+              95
+            ],
+            "readout_uniform": true,
+            "sampled_points": 8234,
+            "af": 5.353,
+            "acs_side": 24,
+            "max_abs": 2676.218017578125
+          },
+          "T1_CE": {
+            "label": "post/T1_CE",
+            "shape": [
+              256,
+              232,
+              190,
+              18
+            ],
+            "peak_coil0": [
+              125,
+              116,
+              96
+            ],
+            "grid_centre": [
+              128,
+              116,
+              95
+            ],
+            "readout_uniform": true,
+            "sampled_points": 8234,
+            "af": 5.353,
+            "acs_side": 24,
+            "max_abs": 6855.13671875
+          }
+        },
+        "use": "rawdata_CE_turmor_9000103445"
+      },
+      "same_mask_pre_post": true
+    },
+    "9002944080": {
+      "pre": {
+        "series": "t1_3D_gre_fsp_sag_iso_ACS_16886244540000",
+        "injection": 0,
+        "arrays": {
+          "rawdata": {
+            "label": "pre/rawdata",
+            "shape": [
+              256,
+              232,
+              176,
+              50
+            ],
+            "peak_coil0": [
+              126,
+              116,
+              88
+            ],
+            "grid_centre": [
+              128,
+              116,
+              88
+            ],
+            "readout_uniform": true,
+            "sampled_points": 7663,
+            "af": 5.328,
+            "acs_side": 24,
+            "max_abs": 1167.034912109375
+          }
+        },
+        "use": "rawdata"
+      },
+      "post": {
+        "series": "t1_3D_gre_fsp_sag_iso_ACS_16886244540050",
+        "injection": 1,
+        "arrays": {
+          "rawdata": {
+            "label": "post/rawdata",
+            "shape": [
+              256,
+              232,
+              176,
+              50
+            ],
+            "peak_coil0": [
+              126,
+              116,
+              88
+            ],
+            "grid_centre": [
+              128,
+              116,
+              88
+            ],
+            "readout_uniform": true,
+            "sampled_points": 7663,
+            "af": 5.328,
+            "acs_side": 24,
+            "max_abs": 1412.390380859375
+          }
+        },
+        "use": "rawdata"
+      },
+      "same_mask_pre_post": true
+    },
+    "9003136585": {
+      "pre": {
+        "series": "t1_3D_gre_fsp_sag_iso_ACS_16886147050000",
+        "injection": 0,
+        "arrays": {
+          "T1": {
+            "label": "pre/T1",
+            "shape": [
+              256,
+              232,
+              176,
+              18
+            ],
+            "peak_coil0": [
+              125,
+              115,
+              88
+            ],
+            "grid_centre": [
+              128,
+              116,
+              88
+            ],
+            "readout_uniform": true,
+            "sampled_points": 7663,
+            "af": 5.328,
+            "acs_side": 24,
+            "max_abs": 4674.52099609375
+          }
+        },
+        "use": "T1"
+      },
+      "post": {
+        "series": "t1_3D_gre_fsp_sag_iso_ACS_16886147050050",
+        "injection": 1,
+        "arrays": {
+          "T1_CE": {
+            "label": "post/T1_CE",
+            "shape": [
+              256,
+              232,
+              176,
+              18
+            ],
+            "peak_coil0": [
+              125,
+              115,
+              88
+            ],
+            "grid_centre": [
+              128,
+              116,
+              88
+            ],
+            "readout_uniform": true,
+            "sampled_points": 7663,
+            "af": 5.328,
+            "acs_side": 24,
+            "max_abs": 5967.4189453125
+          }
+        },
+        "use": "T1_CE"
+      },
+      "same_mask_pre_post": true
+    }
+  },
+  "record": {
+    "pre": {
+      "ksp_shape": [
+        42,
+        256,
+        232,
+        176
+      ],
+      "mask_points": 7663,
+      "af": 5.328,
+      "acs_side": 24,
+      "csm_shape": [
+        42,
+        256,
+        232,
+        176
+      ]
+    },
+    "post": {
+      "ksp_shape": [
+        42,
+        256,
+        232,
+        176
+      ],
+      "mask_points": 7663,
+      "af": 5.328,
+      "acs_side": 24,
+      "csm_shape": [
+        42,
+        256,
+        232,
+        176
+      ]
+    }
+  }
+}
