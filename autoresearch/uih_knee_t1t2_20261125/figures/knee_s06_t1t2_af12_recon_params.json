@@ -1,0 +1,20 @@
+{
+ "subject": "S06",
+ "error_max": 0.1,
+ "contrasts": {
+  "T1": {
+   "scale_p999": 0.9999999336600307,
+   "reference_max_rel_diff_joint_vs_single": 0.0,
+   "mask_frac": 0.586511733880155
+  },
+  "T2": {
+   "scale_p999": 0.9999992607831999,
+   "reference_max_rel_diff_joint_vs_single": 0.0,
+   "mask_frac": 0.4698449089896458
+  }
+ },
+ "layers": {
+  "sagittal_x": 80,
+  "coronal_z": 94
+ }
+}

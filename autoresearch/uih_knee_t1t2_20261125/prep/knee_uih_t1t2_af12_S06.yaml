@@ -1,0 +1,83 @@
+# knee_uih_t1t2_af12.yaml -- UIH 3D knee, subject S06, T1 + T2, retrospective AF12.
+# Written by mcgs autoresearch/uih_knee_t1t2_20261125/prep_knee.py from the tangbing T1+T2 config
+# (/data0/congcong/code/GS/Results_20260908/T1T2_AF12_v4_tangbing/configs/t1t2_af12_tangbing.yaml); only the data block and the names differ. known_zero on both contrasts with explicit
+# support maps (T1: elliptical corners; T2: corners + partial-Fourier band).
+data:
+  plain:
+    name: T1
+    acceleration_factor: 12
+    data_path: /data0/congcong/code/GS/Results_20260908/KNEE_UIH_T1T2_AF12_S06/data/ksp_T1.h5
+    csm_path: /data0/congcong/code/GS/Results_20260908/KNEE_UIH_T1T2_AF12_S06/data/csm_espirit_T1.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/KNEE_UIH_T1T2_AF12_S06/data/mask_af12_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes:
+    - 1
+    - 2
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false
+    known_zero: true
+    known_zero_support: /data0/congcong/code/GS/Results_20260908/KNEE_UIH_T1T2_AF12_S06/data/support_T1.npy
+  contrast:
+    name: T2
+    acceleration_factor: 12
+    data_path: /data0/congcong/code/GS/Results_20260908/KNEE_UIH_T1T2_AF12_S06/data/ksp_T2.h5
+    csm_path: /data0/congcong/code/GS/Results_20260908/KNEE_UIH_T1T2_AF12_S06/data/csm_espirit_T2.h5
+    mask_path: /data0/congcong/code/GS/Results_20260908/KNEE_UIH_T1T2_AF12_S06/data/mask_af12_3d.h5
+    mask_type: external
+    normalization_percentile: 99.9
+    normalize_kspace: true
+    phase_axes:
+    - 1
+    - 2
+    readout_axis: 0
+    presampled: false
+    skip_readout_check: false
+    known_zero: true
+    known_zero_support: /data0/congcong/code/GS/Results_20260908/KNEE_UIH_T1T2_AF12_S06/data/support_T2.npy
+gaussian:
+  density_lr: 0.015
+  init_scale: 0.008
+  initial_num_points: 600000
+  position_lr: 0.0003
+  rotation_lr: 0.0003
+  scale_lr: 0.002
+hardware:
+  device: cuda:0
+loss:
+  loss_type: l2
+  tv_weight: 0.1
+  tv_eps: 0.04
+  kspace_freq_adaptive: true
+  kspace_center_fraction: 0.05
+  kspace_center_weight: 0.3
+  kspace_mid_weight: 1.0
+  kspace_high_weight: 2.2
+  lambda_diff: 0.01
+  lambda_enh: 0
+  edge_tv: true
+  edge_tv_kappa_q: 0.85
+  edge_tv_wfloor: 0.1
+mode:
+  experimental_reproduction: false
+  paper_faithful: false
+  self_supervised_deploy: false
+output:
+  exp_name: knee_uih_t1t2_af12_s06_joint
+  output_dir: results_arc/knee_uih_t1t2_af12_s06_joint
+training:
+  max_iterations: 4000
+  shared_warmup_iters: 500
+  eval_every: 1000
+  log_every: 50
+  save_every: 1000
+  seed: 42
+  max_grad_norm: 1.0
+  lr_scheduler:
+    type: exponential
+    gamma: 0.9995
+voxelizer:
+  max_radius: 20
+  tile_size: 8

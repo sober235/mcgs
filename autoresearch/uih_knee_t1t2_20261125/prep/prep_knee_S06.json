@@ -1,0 +1,128 @@
+{
+  "subject": "S06",
+  "af": 12,
+  "layout": "(C, X=readout n2, Y=n0, Z=n3)",
+  "contrasts": {
+    "T1": {
+      "source_sha256": "da01ce008ec88d86b25b0e911ba08e1b29cf179ba4433ec3559ae63ff8c8d294",
+      "dims": [
+        171,
+        210,
+        176,
+        12
+      ],
+      "rule": "outer-readout energy >= 0.01 * median, connected to DC, holes filled",
+      "readout_centre": 85,
+      "dc_yz": [
+        105,
+        88
+      ],
+      "lines_above_threshold": 30129,
+      "support_lines": 30129,
+      "dropped_unconnected_lines": 0,
+      "filled_hole_lines": 0,
+      "zeroed_energy_frac": 1.2876495639471004e-05,
+      "support_frac": 0.8151785714285714,
+      "log10_outer_energy_rel_median_percentiles_unacquired_50_99_max": [
+        -2.78993927105473,
+        -2.033744153144813,
+        -2.0000899546758992
+      ],
+      "log10_outer_energy_rel_median_min_acquired": -1.9998759155312715,
+      "sampled_inside_support": 2801,
+      "sampled_outside_support": 279,
+      "AF_whole_plane": 12.0,
+      "AF_vs_own_support": 10.756515530167798,
+      "csm_sos_within_5pct_of_1": 1.0
+    },
+    "T2": {
+      "source_sha256": "4c25052aa899a8f9f9aaf62d76164c77978b994302eda0a416a808ad80a2f91a",
+      "dims": [
+        171,
+        210,
+        176,
+        12
+      ],
+      "rule": "outer-readout energy >= 0.01 * median, connected to DC, holes filled",
+      "readout_centre": 85,
+      "dc_yz": [
+        105,
+        88
+      ],
+      "lines_above_threshold": 27998,
+      "support_lines": 27742,
+      "dropped_unconnected_lines": 256,
+      "filled_hole_lines": 0,
+      "zeroed_energy_frac": 8.288894895927581e-05,
+      "support_frac": 0.7505952380952381,
+      "log10_outer_energy_rel_median_percentiles_unacquired_50_99_max": [
+        -2.5916908872142974,
+        -1.6974397076679903,
+        -0.8713568916434884
+      ],
+      "log10_outer_energy_rel_median_min_acquired": -1.9997050665431835,
+      "roll_check_max_rel_err": 0.0,
+      "sampled_inside_support": 2655,
+      "sampled_outside_support": 425,
+      "AF_whole_plane": 12.0,
+      "AF_vs_own_support": 10.448964218455744,
+      "csm_sos_within_5pct_of_1": 1.0
+    }
+  },
+  "offset_before_T1_T2": {
+    "ax0": {
+      "nmi": -0.0,
+      "ngf": 0.05
+    },
+    "ax1": {
+      "nmi": 0.15,
+      "ngf": 0.2
+    },
+    "ax2": {
+      "nmi": 0.15,
+      "ngf": 0.25
+    }
+  },
+  "roll_applied_to_T2_xyz": [
+    0,
+    0,
+    0
+  ],
+  "offset_after_T1_T2": {
+    "ax0": {
+      "nmi": -0.0,
+      "ngf": 0.05
+    },
+    "ax1": {
+      "nmi": 0.15,
+      "ngf": 0.2
+    },
+    "ax2": {
+      "nmi": 0.15,
+      "ngf": 0.25
+    }
+  },
+  "mask": {
+    "seed": 0,
+    "acc": 2.946,
+    "count_raw": 3080,
+    "trimmed": 0,
+    "af": 12.0,
+    "n_bart_calls": 28,
+    "plane": [
+      210,
+      176
+    ],
+    "target": 3080,
+    "acs": 24,
+    "generator_sha256": "a9d9511f2e8910ecf8765d4914c28e35adfc7c1bb505c10757611341c81986b8"
+  },
+  "sha256_ksp_T1.h5": "306ff2e82b8b00a83b4e3dfea13554e3a77384012efd32c658185afa57b952b8",
+  "sha256_csm_espirit_T1.h5": "2e716780a30bf523cde475903776cb066ad3fa617bdf8c5a72bb259832d38e99",
+  "sha256_support_T1.npy": "1b7ea28105433089d3458e8ac6a05e33f2655e2ddf5de6a156b705c2bd764736",
+  "sha256_ksp_T2.h5": "d37d291dfa3c8328533edda8d10976df4f7cc73ff2bd7efa88c3240e45b59d5d",
+  "sha256_csm_espirit_T2.h5": "0d928a91f2e0646f6a59aab7194a42d7e98ebb4f24b72826da4ee213cf2cafe6",
+  "sha256_support_T2.npy": "0bc3c8e2a5e831745c06cf222e5648abbc8c6a0b6d57e159ce68dcd9c0839c5e",
+  "sha256_mask_af12_3d.h5": "7688073d72b960ba1ee788c1042c5aaaaf744b5cd39f944ac17e3e8696127faa",
+  "config": "/data0/congcong/code/GS/Results_20260908/KNEE_UIH_T1T2_AF12_S06/configs/knee_uih_t1t2_af12.yaml"
+}
