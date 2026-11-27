@@ -1,6 +1,6 @@
 # 运动研究第三版：T2W 扫描内的非刚体运动 — 进度记录
 
-记录时间：2026-11-26 23:35 PST（本机时钟）。状态：**开发轮进行中，尚无正式结果。**
+记录时间：2026-11-27 06:20 PST（本机时钟）。状态：**开发轮进行中，尚无正式结果；服务器即将关机，续做说明见第 9 节。**
 方案全文：`docs/superpowers/plans/2026-11-25-motion-nonrigid.md`。本文件只整理到目前为止的工作，不是结果报告。
 
 ## 1. 问题
@@ -175,3 +175,23 @@ T1W 只是欠采样、没有运动；T2W 采集过程中发生了非刚体运动
 一名受试者、一个加速倍数、一个种子、模拟运动；不是真实运动数据上的验证。
 一条回波链内部的运动、回波链之间逐条变化的连续运动（呼吸样）本轮不做。
 脑内 1.5 mm 的形变大于生理上常见的脑组织形变，是有意加大的压力测试。
+
+## 9. 保存点与续做说明（2026-11-27 06:20 PST，服务器关机前）
+
+已保存的内容：
+- 代码、设置、本文件：本分支，推送到 GitHub 分支 `motion`。
+- 评估结果的副本：`eval/neval_d1.json`、`neval_on.json`、`neval_d2.json`、`neval_dna_n4.json`
+  （与服务器文件 sha256 一致）。
+- 训练输出（体数据、分数、运动记录，共约 17 GB）只在服务器磁盘上：
+  `/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_motion_nonrigid_20261125`。
+
+关机时在运行的作业：DNa / B0（作业 657244be，卡 5，2026-11-27 05:43 PST 启动；06:13 PST 读到第 2500 / 4000 次迭代）。
+训练中途没有可续接的检查点；关机前没有写出 `trainer/results_arc/mm_af12_il_DNa_B0_score.json` 就要整次重跑。
+
+开机后的步骤：
+1. 看 `mm_af12_il_DNa_B0_score.json` 是否存在。不存在就重跑（约 1.5 小时，一张空卡，两次空卡检查并清点项目卡数）：
+   `rrun.py --gpu N --detach -- @python autoresearch/motion_nonrigid_20261125/nrun.py --af af12 --order il --cond DNa --arm B0 --gpu N --settings ../motion_nonrigid_20261125/settings_dev2.json`
+2. 评估：`rrun.py --cpu -- @python autoresearch/motion_nonrigid_20261125/neval.py --runs DNa:B0 DNa:N4:d2 --name neval_dna`
+3. DNa 上收回比例 ≥ 0.5：把 d2 冻结为正式设置 → 零运动关卡（C0 / N4，1 次）→ 正式矩阵（16 次）。
+   不到 0.5：用剩下的开发训练（重跑不另计，已完成 5 次，上限 8 次）调整 M2 的设置。
+
