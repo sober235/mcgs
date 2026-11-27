@@ -1,0 +1,4 @@
+# full-resolution figures stay local and on the server (snapshot limits); previews are in ../slices_preview/
+*.png
+*.pdf
+*.npz

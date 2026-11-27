@@ -215,4 +215,4 @@
 
 ## 7. 图
 
-汇总图：`autoresearch/diffmask_testset_20261122/figures/testset_summary.png`（PNG / PDF 只放在 git 忽略的 figures 文件夹，不提交）。每种掩膜一栏，每次扫描一个点，纵轴是头部 PSNR 差（MC-GS 减对照）；零线为界；圆点 = 对齐组，三角 = 偏移组；只画完整格子。
+汇总图：`autoresearch/diffmask_testset_20261122/figures/testset_summary.png`（PNG / PDF / SVG 与数据源 CSV 都在 figures 文件夹，随结果一起提交）。每种掩膜一栏，每次扫描一个点，纵轴是头部 PSNR 差（MC-GS 减对照）；零线为界；圆点 = 对齐组，三角 = 偏移组；只画完整格子。

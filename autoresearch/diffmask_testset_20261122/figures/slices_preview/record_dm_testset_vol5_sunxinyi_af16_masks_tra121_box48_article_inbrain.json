@@ -1,0 +1,1215 @@
+{
+  "format": "fig_masks_record_format.py article format, test scan: sampling patterns as rows",
+  "scan": "vol5_sunxinyi",
+  "group": "offset",
+  "person": "sunxinyi",
+  "slice": 121,
+  "zoom_box": {
+    "edge_voxels": 48,
+    "per_pattern_centres_JK": {
+      "Uniform density": [
+        129,
+        114
+      ],
+      "Pseudo-radial": [
+        126,
+        113
+      ]
+    },
+    "note": "chosen with the find_zoom_box.py criterion against GT, for display only"
+  },
+  "topics": {
+    "Uniform density": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform",
+    "Pseudo-radial": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial"
+  },
+  "scoring_clone": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform",
+  "volumes": {
+    "Uniform density": {
+      "T1": {
+        "ZF": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/zf_T1_complex.npy",
+          "member": null,
+          "crc_key": "381f95f8-92274816",
+          "volume_head_psnr": 21.638852767699106,
+          "logged_head_psnr": 21.638854111751193
+        },
+        "CG-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/cgsense_T1_complex.npy",
+          "member": null,
+          "crc_key": "89936f1a-92274816",
+          "volume_head_psnr": 25.64129497640257,
+          "logged_head_psnr": 25.641296610010407
+        },
+        "CS-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/cssense_o200_lam0.0014_T1_complex.npy",
+          "member": null,
+          "crc_key": "058fe4ea-92274816",
+          "volume_head_psnr": 27.81963808866658,
+          "logged_head_psnr": 27.819639867670162
+        },
+        "Joint SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/jcssense_o200_lam0.002_T1_complex.npy",
+          "member": null,
+          "crc_key": "4916ccf7-92274816",
+          "volume_head_psnr": 27.617974579236392,
+          "logged_head_psnr": 27.61797636439473
+        },
+        "L1-SPIRiT": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/spirit_ks5_lam0.001_T1_complex.npy",
+          "member": null,
+          "crc_key": "d1daa274-92274816",
+          "volume_head_psnr": 31.122565730665777,
+          "logged_head_psnr": 31.12256734259224
+        },
+        "ZS-SSDU": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/zsssdu_T1_complex.npy",
+          "member": null,
+          "crc_key": "f3b5a0f8-92274816",
+          "volume_head_psnr": 31.135444399114853,
+          "logged_head_psnr": 31.13544462837988
+        },
+        "3D-DIP": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/dip_T1_complex.npy",
+          "member": null,
+          "crc_key": "6efd325e-92274816",
+          "volume_head_psnr": 28.394606768507188,
+          "logged_head_psnr": 28.394608049225496
+        },
+        "3D-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/inr_T1_complex.npy",
+          "member": null,
+          "crc_key": "4c77fc91-92274816",
+          "volume_head_psnr": 26.954739071394577,
+          "logged_head_psnr": 26.954740211551048
+        },
+        "MC-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/mcinr_T1_complex.npy",
+          "member": null,
+          "crc_key": "c1d6039b-92274816",
+          "volume_head_psnr": 25.79551128342609,
+          "logged_head_psnr": 25.795512628280548
+        },
+        "GS-single": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol5_sunxinyi_uniform_singleT1_volumes.npz",
+          "member": "recT1_complex",
+          "crc_key": "5b62aa8e-92274816",
+          "volume_head_psnr": 32.65407623781368,
+          "logged_head_psnr": 32.65412755219252
+        },
+        "MC-GS": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol5_sunxinyi_uniform_joint_volumes.npz",
+          "member": "recT1_complex",
+          "crc_key": "d962ebec-92274816",
+          "volume_head_psnr": 33.27374610447753,
+          "logged_head_psnr": 33.27379761539819
+        }
+      },
+      "FLAIR": {
+        "ZF": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/zf_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "2e41dd52-92274816",
+          "volume_head_psnr": 26.372297275026437,
+          "logged_head_psnr": 26.372296787891827
+        },
+        "CG-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/cgsense_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "b6ea7d14-92274816",
+          "volume_head_psnr": 30.15101577963939,
+          "logged_head_psnr": 30.15101543825595
+        },
+        "CS-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/cssense_o200_lam0.0014_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "6c1a6c25-92274816",
+          "volume_head_psnr": 31.370457523449783,
+          "logged_head_psnr": 31.370457228094967
+        },
+        "Joint SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/jcssense_o200_lam0.002_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "da2df344-92274816",
+          "volume_head_psnr": 31.32291805611018,
+          "logged_head_psnr": 31.322917769457426
+        },
+        "L1-SPIRiT": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/spirit_ks5_lam0.001_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "29f0adc9-92274816",
+          "volume_head_psnr": 32.70946831238762,
+          "logged_head_psnr": 32.70946779563329
+        },
+        "ZS-SSDU": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/zsssdu_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "33fdc3c7-92274816",
+          "volume_head_psnr": 33.52316350185242,
+          "logged_head_psnr": 33.523162615524036
+        },
+        "3D-DIP": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/dip_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "c563235e-92274816",
+          "volume_head_psnr": 30.07604586112897,
+          "logged_head_psnr": 30.076045332885148
+        },
+        "3D-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/inr_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "752451ef-92274816",
+          "volume_head_psnr": 28.7185883259417,
+          "logged_head_psnr": 28.718587838173494
+        },
+        "MC-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_uniform/recon/mcinr_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "b712d30f-92274816",
+          "volume_head_psnr": 29.427230226909163,
+          "logged_head_psnr": 29.427229687656588
+        },
+        "GS-single": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol5_sunxinyi_uniform_singleFLAIR_volumes.npz",
+          "member": "recT1_complex",
+          "crc_key": "be6d57ae-92274816",
+          "volume_head_psnr": 33.89792630686719,
+          "logged_head_psnr": 33.89792492604855
+        },
+        "MC-GS": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol5_sunxinyi_uniform_joint_volumes.npz",
+          "member": "recFL_complex",
+          "crc_key": "eab746c6-92274816",
+          "volume_head_psnr": 33.96330589207591,
+          "logged_head_psnr": 33.96330465030185
+        }
+      }
+    },
+    "Pseudo-radial": {
+      "T1": {
+        "ZF": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/zf_T1_complex.npy",
+          "member": null,
+          "crc_key": "ecf1eade-92274816",
+          "volume_head_psnr": 22.677194081996912,
+          "logged_head_psnr": 22.67719550730517
+        },
+        "CG-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/cgsense_T1_complex.npy",
+          "member": null,
+          "crc_key": "76e0257d-92274816",
+          "volume_head_psnr": 26.497596407131137,
+          "logged_head_psnr": 26.497598022018465
+        },
+        "CS-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/cssense_o200_lam0.0014_T1_complex.npy",
+          "member": null,
+          "crc_key": "e16ec6be-92274816",
+          "volume_head_psnr": 26.109359409195118,
+          "logged_head_psnr": 26.109360664430845
+        },
+        "Joint SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/jcssense_o200_lam0.0014_T1_complex.npy",
+          "member": null,
+          "crc_key": "39916b85-92274816",
+          "volume_head_psnr": 26.329558504854898,
+          "logged_head_psnr": 26.32955980489809
+        },
+        "L1-SPIRiT": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/spirit_ks5_lam0.0005_T1_complex.npy",
+          "member": null,
+          "crc_key": "d6af387f-92274816",
+          "volume_head_psnr": 27.91286989731443,
+          "logged_head_psnr": 27.912871156375353
+        },
+        "ZS-SSDU": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/zsssdu_T1_complex.npy",
+          "member": null,
+          "crc_key": "12957ef6-92274816",
+          "volume_head_psnr": 28.80532864928164,
+          "logged_head_psnr": 28.805330116679933
+        },
+        "3D-DIP": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/dip_T1_complex.npy",
+          "member": null,
+          "crc_key": "6c88cfe5-92274816",
+          "volume_head_psnr": 28.72444976721014,
+          "logged_head_psnr": 28.72445096542701
+        },
+        "3D-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/inr_T1_complex.npy",
+          "member": null,
+          "crc_key": "208a1cd8-92274816",
+          "volume_head_psnr": 25.876477170376013,
+          "logged_head_psnr": 25.876478228575607
+        },
+        "MC-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/mcinr_T1_complex.npy",
+          "member": null,
+          "crc_key": "d468f2b1-92274816",
+          "volume_head_psnr": 26.888604392677415,
+          "logged_head_psnr": 26.888605803883877
+        },
+        "GS-single": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol5_sunxinyi_radial_singleT1_volumes.npz",
+          "member": "recT1_complex",
+          "crc_key": "feabc3cb-92274816",
+          "volume_head_psnr": 28.52064640809921,
+          "logged_head_psnr": 28.52067796822207
+        },
+        "MC-GS": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol5_sunxinyi_radial_joint_volumes.npz",
+          "member": "recT1_complex",
+          "crc_key": "72594eab-92274816",
+          "volume_head_psnr": 28.76544003739437,
+          "logged_head_psnr": 28.765472457708512
+        }
+      },
+      "FLAIR": {
+        "ZF": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/zf_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "68a5aad6-92274816",
+          "volume_head_psnr": 27.411433222631164,
+          "logged_head_psnr": 27.411432776629823
+        },
+        "CG-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/cgsense_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "dabc3a22-92274816",
+          "volume_head_psnr": 30.014179884149573,
+          "logged_head_psnr": 30.014179469628786
+        },
+        "CS-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/cssense_o200_lam0.001_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "838b3774-92274816",
+          "volume_head_psnr": 30.621752744273145,
+          "logged_head_psnr": 30.62175228364947
+        },
+        "Joint SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/jcssense_o200_lam0.0014_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "05b9cb4d-92274816",
+          "volume_head_psnr": 30.372898615464916,
+          "logged_head_psnr": 30.37289814905937
+        },
+        "L1-SPIRiT": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/spirit_ks5_lam0.0005_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "cb9bb686-92274816",
+          "volume_head_psnr": 30.098336208753995,
+          "logged_head_psnr": 30.098335611372036
+        },
+        "ZS-SSDU": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/zsssdu_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "0d262654-92274816",
+          "volume_head_psnr": 31.149472835645017,
+          "logged_head_psnr": 31.149472319476086
+        },
+        "3D-DIP": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/dip_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "ebc90431-92274816",
+          "volume_head_psnr": 29.996138444873694,
+          "logged_head_psnr": 29.996137879828975
+        },
+        "3D-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/inr_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "93570737-92274816",
+          "volume_head_psnr": 28.025093655825234,
+          "logged_head_psnr": 28.025092988938447
+        },
+        "MC-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol5_sunxinyi_radial/recon/mcinr_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "4d9430f8-92274816",
+          "volume_head_psnr": 29.717889346159247,
+          "logged_head_psnr": 29.71788882521559
+        },
+        "GS-single": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol5_sunxinyi_radial_singleFLAIR_volumes.npz",
+          "member": "recT1_complex",
+          "crc_key": "f9dafd60-92274816",
+          "volume_head_psnr": 31.365001010097078,
+          "logged_head_psnr": 31.36500279626116
+        },
+        "MC-GS": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol5_sunxinyi_radial_joint_volumes.npz",
+          "member": "recFL_complex",
+          "crc_key": "d1b1fc43-92274816",
+          "volume_head_psnr": 31.464183046546353,
+          "logged_head_psnr": 31.46418496277428
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "pattern": "Uniform density",
+      "contrast": "T1",
+      "af": 15.201079622132253,
+      "numbers": {
+        "ZF": {
+          "psnr": 20.638979233927934,
+          "ssim": 0.49325801417500326,
+          "nmse": 0.2531901675761531
+        },
+        "CG-SENSE": {
+          "psnr": 24.7328044584205,
+          "ssim": 0.6843284312958253,
+          "nmse": 0.09864255525281256
+        },
+        "CS-SENSE": {
+          "psnr": 27.563768341407602,
+          "ssim": 0.7641534500259789,
+          "nmse": 0.05140056886320301
+        },
+        "Joint SENSE": {
+          "psnr": 27.39100228070464,
+          "ssim": 0.7650584719193663,
+          "nmse": 0.053486543311309774
+        },
+        "L1-SPIRiT": {
+          "psnr": 30.97888407970415,
+          "ssim": 0.8301955129641417,
+          "nmse": 0.02341296153567811
+        },
+        "ZS-SSDU": {
+          "psnr": 30.41381488069893,
+          "ssim": 0.8350460615485192,
+          "nmse": 0.026666331367453246
+        },
+        "3D-DIP": {
+          "psnr": 27.655119696879236,
+          "ssim": 0.7263270770827462,
+          "nmse": 0.050330679059745344
+        },
+        "3D-INR": {
+          "psnr": 25.707202287514633,
+          "ssim": 0.6067140817096668,
+          "nmse": 0.07881784036125473
+        },
+        "MC-INR": {
+          "psnr": 25.208797488186356,
+          "ssim": 0.6287852528741205,
+          "nmse": 0.08840259442249021
+        },
+        "GS-single": {
+          "psnr": 32.02362676711147,
+          "ssim": 0.8605477980683935,
+          "nmse": 0.018406960607917598
+        },
+        "MC-GS": {
+          "psnr": 32.76180877213178,
+          "ssim": 0.8823167435126235,
+          "nmse": 0.015529729186496961
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_lead": {
+        "psnr": 0.7381820050203061,
+        "ssim": 0.021768945444229915,
+        "nmse": 0.002877231421420637
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "box_psnr": {
+        "ZF": 30.763964371586884,
+        "CG-SENSE": 30.194282633673744,
+        "CS-SENSE": 31.920164604966843,
+        "Joint SENSE": 31.940443147307292,
+        "L1-SPIRiT": 32.81105579542257,
+        "ZS-SSDU": 33.45840698479294,
+        "3D-DIP": 31.976153707248685,
+        "3D-INR": 26.274735156090024,
+        "MC-INR": 28.227978486822767,
+        "GS-single": 34.10280893613186,
+        "MC-GS": 35.11290733116831
+      },
+      "box_lead": 1.0100983950364508,
+      "box_best_other": "GS-single",
+      "box_head_frac": 0.9891493055555556,
+      "window": 1.1168836402893065
+    },
+    {
+      "pattern": "Uniform density",
+      "contrast": "FLAIR",
+      "af": 15.201079622132253,
+      "numbers": {
+        "ZF": {
+          "psnr": 24.7431611543566,
+          "ssim": 0.49945073883961594,
+          "nmse": 0.10174980198915945
+        },
+        "CG-SENSE": {
+          "psnr": 28.838385833838107,
+          "ssim": 0.7577398690758533,
+          "nmse": 0.03962881671034808
+        },
+        "CS-SENSE": {
+          "psnr": 29.77448501627146,
+          "ssim": 0.7957683369108609,
+          "nmse": 0.03194487451923156
+        },
+        "Joint SENSE": {
+          "psnr": 29.734034716026713,
+          "ssim": 0.792286654183265,
+          "nmse": 0.032243799843895346
+        },
+        "L1-SPIRiT": {
+          "psnr": 31.267488765870286,
+          "ssim": 0.828730457433809,
+          "nmse": 0.022651700542736006
+        },
+        "ZS-SSDU": {
+          "psnr": 32.284505760302274,
+          "ssim": 0.8825889531863869,
+          "nmse": 0.017922521586683476
+        },
+        "3D-DIP": {
+          "psnr": 29.1202223805095,
+          "ssim": 0.7379599435706478,
+          "nmse": 0.03713876434666751
+        },
+        "3D-INR": {
+          "psnr": 27.65329509891559,
+          "ssim": 0.6765953516820653,
+          "nmse": 0.052061919735720726
+        },
+        "MC-INR": {
+          "psnr": 28.83197715499044,
+          "ssim": 0.7325754470512317,
+          "nmse": 0.03968733825431671
+        },
+        "GS-single": {
+          "psnr": 32.52258293259228,
+          "ssim": 0.8659008657313526,
+          "nmse": 0.016966466147506642
+        },
+        "MC-GS": {
+          "psnr": 32.619758584155974,
+          "ssim": 0.8712391619249031,
+          "nmse": 0.016591048380587576
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "ZS-SSDU",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 2,
+        "nmse": 1
+      },
+      "mcgs_lead": {
+        "psnr": 0.09717565156369545,
+        "ssim": -0.011349791261483722,
+        "nmse": 0.00037541776691906587
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "ZS-SSDU",
+        "nmse": "GS-single"
+      },
+      "box_psnr": {
+        "ZF": 29.298064529302767,
+        "CG-SENSE": 30.807658293196848,
+        "CS-SENSE": 31.85288602648391,
+        "Joint SENSE": 31.53852809781842,
+        "L1-SPIRiT": 31.397766724259785,
+        "ZS-SSDU": 33.293949435913376,
+        "3D-DIP": 31.38396471920182,
+        "3D-INR": 29.778237291592024,
+        "MC-INR": 29.755413914491292,
+        "GS-single": 33.392320444518475,
+        "MC-GS": 33.56433381265059
+      },
+      "box_lead": 0.172013368132113,
+      "box_best_other": "GS-single",
+      "box_head_frac": 0.9596354166666666,
+      "window": 1.084907913804054
+    },
+    {
+      "pattern": "Pseudo-radial",
+      "contrast": "T1",
+      "af": 15.201079622132253,
+      "numbers": {
+        "ZF": {
+          "psnr": 21.504114678888115,
+          "ssim": 0.5793147478698449,
+          "nmse": 0.20745948321282515
+        },
+        "CG-SENSE": {
+          "psnr": 24.878815247738302,
+          "ssim": 0.7599162158346938,
+          "nmse": 0.09538129944636209
+        },
+        "CS-SENSE": {
+          "psnr": 23.138740425043288,
+          "ssim": 0.7674600078407258,
+          "nmse": 0.14238712369619713
+        },
+        "Joint SENSE": {
+          "psnr": 23.674988638623443,
+          "ssim": 0.769973904125202,
+          "nmse": 0.12584787762722932
+        },
+        "L1-SPIRiT": {
+          "psnr": 26.53623100430849,
+          "ssim": 0.7863474682560087,
+          "nmse": 0.06512108969939116
+        },
+        "ZS-SSDU": {
+          "psnr": 27.25136439947922,
+          "ssim": 0.8185121560281088,
+          "nmse": 0.05523423198590821
+        },
+        "3D-DIP": {
+          "psnr": 27.559266801394276,
+          "ssim": 0.7729495577491472,
+          "nmse": 0.05145387409368127
+        },
+        "3D-INR": {
+          "psnr": 24.426181415657787,
+          "ssim": 0.5847662604335019,
+          "nmse": 0.10585871504397096
+        },
+        "MC-INR": {
+          "psnr": 25.44690982061174,
+          "ssim": 0.7456542705073111,
+          "nmse": 0.08368618642805851
+        },
+        "GS-single": {
+          "psnr": 27.00799695501581,
+          "ssim": 0.8141011727877004,
+          "nmse": 0.0584177820543402
+        },
+        "MC-GS": {
+          "psnr": 27.214868490451657,
+          "ssim": 0.8265999811631152,
+          "nmse": 0.05570034826088436
+        }
+      },
+      "best": {
+        "psnr": "3D-DIP",
+        "ssim": "MC-GS",
+        "nmse": "3D-DIP"
+      },
+      "mcgs_rank": {
+        "psnr": 3,
+        "ssim": 1,
+        "nmse": 3
+      },
+      "mcgs_lead": {
+        "psnr": -0.3443983109426192,
+        "ssim": 0.008087825135006388,
+        "nmse": -0.004246474167203092
+      },
+      "best_other": {
+        "psnr": "3D-DIP",
+        "ssim": "ZS-SSDU",
+        "nmse": "3D-DIP"
+      },
+      "box_psnr": {
+        "ZF": 31.58417168046023,
+        "CG-SENSE": 34.052843445148035,
+        "CS-SENSE": 34.70150903478764,
+        "Joint SENSE": 34.83698964916765,
+        "L1-SPIRiT": 33.67019496419988,
+        "ZS-SSDU": 34.87074796641797,
+        "3D-DIP": 33.86975717565783,
+        "3D-INR": 26.6886247550958,
+        "MC-INR": 33.317248531649135,
+        "GS-single": 35.00388707596685,
+        "MC-GS": 35.62131127986558
+      },
+      "box_lead": 0.6174242038987288,
+      "box_best_other": "GS-single",
+      "box_head_frac": 0.9852430555555556,
+      "window": 1.1168836402893065
+    },
+    {
+      "pattern": "Pseudo-radial",
+      "contrast": "FLAIR",
+      "af": 15.201079622132253,
+      "numbers": {
+        "ZF": {
+          "psnr": 25.959799334681982,
+          "ssim": 0.5859269514827681,
+          "nmse": 0.07688998119776544
+        },
+        "CG-SENSE": {
+          "psnr": 28.890737134835213,
+          "ssim": 0.7592686748060183,
+          "nmse": 0.03915398541290401
+        },
+        "CS-SENSE": {
+          "psnr": 29.363974284104604,
+          "ssim": 0.7821679438346953,
+          "nmse": 0.03511173254854313
+        },
+        "Joint SENSE": {
+          "psnr": 28.905015135556056,
+          "ssim": 0.7718809901932092,
+          "nmse": 0.03902547291694921
+        },
+        "L1-SPIRiT": {
+          "psnr": 29.008730645297355,
+          "ssim": 0.7596536296670494,
+          "nmse": 0.03810453126768432
+        },
+        "ZS-SSDU": {
+          "psnr": 30.030354656882892,
+          "ssim": 0.8082975414138028,
+          "nmse": 0.030117174306304815
+        },
+        "3D-DIP": {
+          "psnr": 29.033571701113875,
+          "ssim": 0.7464396048318919,
+          "nmse": 0.03788720065604706
+        },
+        "3D-INR": {
+          "psnr": 27.45720762567147,
+          "ssim": 0.6664243337607371,
+          "nmse": 0.05446643190801016
+        },
+        "MC-INR": {
+          "psnr": 28.651580215477253,
+          "ssim": 0.7490623793436622,
+          "nmse": 0.04137058543365922
+        },
+        "GS-single": {
+          "psnr": 30.20748482485492,
+          "ssim": 0.8098369263091083,
+          "nmse": 0.028913535895964633
+        },
+        "MC-GS": {
+          "psnr": 30.357597010849922,
+          "ssim": 0.816327765631236,
+          "nmse": 0.027931225244416175
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_lead": {
+        "psnr": 0.15011218599500253,
+        "ssim": 0.006490839322127684,
+        "nmse": 0.0009823106515484577
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "box_psnr": {
+        "ZF": 29.8325488235806,
+        "CG-SENSE": 31.71527480812437,
+        "CS-SENSE": 32.94735127974853,
+        "Joint SENSE": 32.602103140931604,
+        "L1-SPIRiT": 30.80502359850424,
+        "ZS-SSDU": 33.14926388123044,
+        "3D-DIP": 31.944795888233255,
+        "3D-INR": 29.469494645738997,
+        "MC-INR": 31.523377858457224,
+        "GS-single": 33.73118755502274,
+        "MC-GS": 34.00345902786089
+      },
+      "box_lead": 0.272271472838149,
+      "box_best_other": "GS-single",
+      "box_head_frac": 0.9522569444444444,
+      "window": 1.084907913804054
+    }
+  ],
+  "max_abs_diff_vs_logged_head_psnr": 5.151092065602825e-05,
+  "box_select": {
+    "criterion": "find_zoom_box.py (t1flair_af_record_fig_20261120): MC-GS box-mean error furthest below the best other column, T1 + FLAIR",
+    "head_frac": 0.95,
+    "box_inner_voxels": 28,
+    "rows": [
+      {
+        "pattern": "Uniform density",
+        "contrast": "T1",
+        "centre_JK": [
+          129,
+          114
+        ],
+        "box_mean_error": {
+          "ZF": 0.02083437307163349,
+          "CG-SENSE": 0.023985850207259764,
+          "CS-SENSE": 0.019549540911973102,
+          "Joint SENSE": 0.019368772620932912,
+          "L1-SPIRiT": 0.01773180385539946,
+          "ZS-SSDU": 0.016733210260362466,
+          "3D-DIP": 0.018877486689242284,
+          "3D-INR": 0.03800034159329601,
+          "MC-INR": 0.030571489465435215,
+          "GS-single": 0.015251817955763379,
+          "MC-GS": 0.013470108742554622
+        },
+        "best_other": "GS-single",
+        "mcgs_over_best_other": 0.8831805350433335
+      },
+      {
+        "pattern": "Uniform density",
+        "contrast": "FLAIR",
+        "centre_JK": [
+          129,
+          114
+        ],
+        "box_mean_error": {
+          "ZF": 0.02542228810214849,
+          "CG-SENSE": 0.021663675273048938,
+          "CS-SENSE": 0.01915417342473758,
+          "Joint SENSE": 0.01984482760693947,
+          "L1-SPIRiT": 0.020028391962441196,
+          "ZS-SSDU": 0.016182062440945652,
+          "3D-DIP": 0.01932880866008595,
+          "3D-INR": 0.024504427142128495,
+          "MC-INR": 0.0246610138937297,
+          "GS-single": 0.01595882794239126,
+          "MC-GS": 0.015533571395807418
+        },
+        "best_other": "GS-single",
+        "mcgs_over_best_other": 0.9733528960824097
+      },
+      {
+        "pattern": "Pseudo-radial",
+        "contrast": "T1",
+        "centre_JK": [
+          126,
+          113
+        ],
+        "box_mean_error": {
+          "ZF": 0.017849685167818864,
+          "CG-SENSE": 0.014804862696176674,
+          "CS-SENSE": 0.013370794489202963,
+          "Joint SENSE": 0.01315252779955955,
+          "L1-SPIRiT": 0.015335241663418738,
+          "ZS-SSDU": 0.013325066253282022,
+          "3D-DIP": 0.01482373562891652,
+          "3D-INR": 0.03639289905829885,
+          "MC-INR": 0.016435083655950592,
+          "GS-single": 0.013166110294471692,
+          "MC-GS": 0.012055470240794895
+        },
+        "best_other": "Joint SENSE",
+        "mcgs_over_best_other": 0.9165896034980141
+      },
+      {
+        "pattern": "Pseudo-radial",
+        "contrast": "FLAIR",
+        "centre_JK": [
+          126,
+          113
+        ],
+        "box_mean_error": {
+          "ZF": 0.023208843720338098,
+          "CG-SENSE": 0.018949997615938127,
+          "CS-SENSE": 0.016047497002021304,
+          "Joint SENSE": 0.016719163994785045,
+          "L1-SPIRiT": 0.021250972020128416,
+          "ZS-SSDU": 0.015939082605717612,
+          "3D-DIP": 0.017975819001450555,
+          "3D-INR": 0.025293233470512943,
+          "MC-INR": 0.019645928978700777,
+          "GS-single": 0.014752249398309323,
+          "MC-GS": 0.014283590682515638
+        },
+        "best_other": "GS-single",
+        "mcgs_over_best_other": 0.9682313725086972
+      }
+    ]
+  },
+  "mcgs_first_on_every_row_and_metric": false,
+  "arrows": [
+    {
+      "pattern": "Uniform density",
+      "contrast": "T1",
+      "crop_xy": [
+        31,
+        26
+      ],
+      "gap": 0.03355074301362038,
+      "per_panel": {
+        "ZF": {
+          "crop_xy": [
+            14,
+            25
+          ],
+          "local_mean_error": 0.036437660455703735
+        },
+        "CG-SENSE": {
+          "crop_xy": [
+            31,
+            26
+          ],
+          "local_mean_error": 0.04941292852163315
+        },
+        "CS-SENSE": {
+          "crop_xy": [
+            33,
+            24
+          ],
+          "local_mean_error": 0.0352056510746479
+        },
+        "Joint SENSE": {
+          "crop_xy": [
+            34,
+            24
+          ],
+          "local_mean_error": 0.03559938073158264
+        },
+        "L1-SPIRiT": {
+          "crop_xy": [
+            14,
+            22
+          ],
+          "local_mean_error": 0.03433370590209961
+        },
+        "ZS-SSDU": {
+          "crop_xy": [
+            31,
+            27
+          ],
+          "local_mean_error": 0.03097856044769287
+        },
+        "3D-DIP": {
+          "crop_xy": [
+            30,
+            29
+          ],
+          "local_mean_error": 0.03916475549340248
+        },
+        "3D-INR": {
+          "crop_xy": [
+            8,
+            12
+          ],
+          "local_mean_error": 0.05200681462883949
+        },
+        "MC-INR": {
+          "crop_xy": [
+            31,
+            26
+          ],
+          "local_mean_error": 0.06023181229829788
+        },
+        "GS-single": {
+          "crop_xy": [
+            13,
+            22
+          ],
+          "local_mean_error": 0.031429264694452286
+        },
+        "MC-GS": {
+          "crop_xy": [
+            14,
+            22
+          ],
+          "local_mean_error": 0.027156483381986618
+        }
+      }
+    },
+    {
+      "pattern": "Uniform density",
+      "contrast": "FLAIR",
+      "crop_xy": [
+        23,
+        10
+      ],
+      "gap": 0.034167468547821045,
+      "per_panel": {
+        "ZF": {
+          "crop_xy": [
+            15,
+            12
+          ],
+          "local_mean_error": 0.054790299385786057
+        },
+        "CG-SENSE": {
+          "crop_xy": [
+            15,
+            13
+          ],
+          "local_mean_error": 0.03950512409210205
+        },
+        "CS-SENSE": {
+          "crop_xy": [
+            30,
+            10
+          ],
+          "local_mean_error": 0.0366675890982151
+        },
+        "Joint SENSE": {
+          "crop_xy": [
+            20,
+            9
+          ],
+          "local_mean_error": 0.040640197694301605
+        },
+        "L1-SPIRiT": {
+          "crop_xy": [
+            32,
+            28
+          ],
+          "local_mean_error": 0.03661896660923958
+        },
+        "ZS-SSDU": {
+          "crop_xy": [
+            17,
+            11
+          ],
+          "local_mean_error": 0.029443396255373955
+        },
+        "3D-DIP": {
+          "crop_xy": [
+            24,
+            9
+          ],
+          "local_mean_error": 0.04063580557703972
+        },
+        "3D-INR": {
+          "crop_xy": [
+            33,
+            29
+          ],
+          "local_mean_error": 0.04908515885472298
+        },
+        "MC-INR": {
+          "crop_xy": [
+            30,
+            9
+          ],
+          "local_mean_error": 0.051654696464538574
+        },
+        "GS-single": {
+          "crop_xy": [
+            32,
+            28
+          ],
+          "local_mean_error": 0.03000672720372677
+        },
+        "MC-GS": {
+          "crop_xy": [
+            15,
+            11
+          ],
+          "local_mean_error": 0.02979309670627117
+        }
+      }
+    },
+    {
+      "pattern": "Pseudo-radial",
+      "contrast": "T1",
+      "crop_xy": [
+        30,
+        29
+      ],
+      "gap": 0.025399763137102127,
+      "per_panel": {
+        "ZF": {
+          "crop_xy": [
+            11,
+            39
+          ],
+          "local_mean_error": 0.03715838864445686
+        },
+        "CG-SENSE": {
+          "crop_xy": [
+            30,
+            29
+          ],
+          "local_mean_error": 0.026527879759669304
+        },
+        "CS-SENSE": {
+          "crop_xy": [
+            30,
+            29
+          ],
+          "local_mean_error": 0.026263834908604622
+        },
+        "Joint SENSE": {
+          "crop_xy": [
+            30,
+            29
+          ],
+          "local_mean_error": 0.024261033162474632
+        },
+        "L1-SPIRiT": {
+          "crop_xy": [
+            19,
+            8
+          ],
+          "local_mean_error": 0.023084420710802078
+        },
+        "ZS-SSDU": {
+          "crop_xy": [
+            32,
+            27
+          ],
+          "local_mean_error": 0.025356989353895187
+        },
+        "3D-DIP": {
+          "crop_xy": [
+            32,
+            24
+          ],
+          "local_mean_error": 0.029214125126600266
+        },
+        "3D-INR": {
+          "crop_xy": [
+            34,
+            35
+          ],
+          "local_mean_error": 0.05524434521794319
+        },
+        "MC-INR": {
+          "crop_xy": [
+            19,
+            39
+          ],
+          "local_mean_error": 0.027837209403514862
+        },
+        "GS-single": {
+          "crop_xy": [
+            32,
+            27
+          ],
+          "local_mean_error": 0.024422481656074524
+        },
+        "MC-GS": {
+          "crop_xy": [
+            32,
+            27
+          ],
+          "local_mean_error": 0.022278888151049614
+        }
+      }
+    },
+    {
+      "pattern": "Pseudo-radial",
+      "contrast": "FLAIR",
+      "crop_xy": [
+        32,
+        27
+      ],
+      "gap": 0.030372606590390205,
+      "per_panel": {
+        "ZF": {
+          "crop_xy": [
+            32,
+            27
+          ],
+          "local_mean_error": 0.04956423491239548
+        },
+        "CG-SENSE": {
+          "crop_xy": [
+            32,
+            27
+          ],
+          "local_mean_error": 0.03661983832716942
+        },
+        "CS-SENSE": {
+          "crop_xy": [
+            16,
+            15
+          ],
+          "local_mean_error": 0.030627429485321045
+        },
+        "Joint SENSE": {
+          "crop_xy": [
+            16,
+            16
+          ],
+          "local_mean_error": 0.033170077949762344
+        },
+        "L1-SPIRiT": {
+          "crop_xy": [
+            29,
+            29
+          ],
+          "local_mean_error": 0.03830733522772789
+        },
+        "ZS-SSDU": {
+          "crop_xy": [
+            16,
+            16
+          ],
+          "local_mean_error": 0.029629068449139595
+        },
+        "3D-DIP": {
+          "crop_xy": [
+            23,
+            9
+          ],
+          "local_mean_error": 0.03909296542406082
+        },
+        "3D-INR": {
+          "crop_xy": [
+            33,
+            27
+          ],
+          "local_mean_error": 0.038985565304756165
+        },
+        "MC-INR": {
+          "crop_xy": [
+            29,
+            29
+          ],
+          "local_mean_error": 0.03292934224009514
+        },
+        "GS-single": {
+          "crop_xy": [
+            12,
+            25
+          ],
+          "local_mean_error": 0.024526285007596016
+        },
+        "MC-GS": {
+          "crop_xy": [
+            8,
+            23
+          ],
+          "local_mean_error": 0.024320313706994057
+        }
+      }
+    }
+  ],
+  "arrow_mode": "own",
+  "arrow_on": "zoom",
+  "arrow_inner_voxels": 28,
+  "error_display": {
+    "vmax": 0.1,
+    "cmap": "inferno"
+  },
+  "figure": "dm_testset_vol5_sunxinyi_af16_masks_tra121_box48_article_inbrain.png",
+  "figure_sha256": "816fc5d462fa4252b68b710e66268ffbd375a9a5d5d1fe90994ebce0a44309ea",
+  "figure_px": [
+    6523,
+    4430
+  ],
+  "figure_dpi": 200
+}

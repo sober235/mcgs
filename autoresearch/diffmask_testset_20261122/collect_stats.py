@@ -812,7 +812,7 @@ def write_results_md(cells, chk, gst, sst, art, n_complete):
     for k, nm in (("head_psnr", "头部 PSNR（dB）"), ("head_ssim", "头部 SSIM"), ("nmse", "整体 NMSE")):
         L.append(f"| {nm} | {w[k]['abs']:.3g} | {w[k]['where']} |")
     L += ["", "各方法的最大 |头部 PSNR 差|（dB）：" + "，".join(f"{l} {chk['per_label'][l]['head_psnr']:.2g}" for l in LABELS if l in chk["per_label"]), ""]
-    L += ["## 7. 图", "", f"汇总图：`{RESULTS_REL}/figures/testset_summary.png`（PNG / PDF 只放在 git 忽略的 figures 文件夹，不提交）。"
+    L += ["## 7. 图", "", f"汇总图：`{RESULTS_REL}/figures/testset_summary.png`（PNG / PDF / SVG 与数据源 CSV 都在 figures 文件夹，随结果一起提交）。"
           "每种掩膜一栏，每次扫描一个点，纵轴是头部 PSNR 差（MC-GS 减对照）；零线为界；圆点 = 对齐组，三角 = 偏移组；只画完整格子。", ""]
     (art / "RESULTS.md").write_text("\n".join(L), encoding="utf-8")
 

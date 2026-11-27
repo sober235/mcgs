@@ -1,0 +1,279 @@
+{
+ "sources": {
+  "own": "16dca012bad06ee09be25dba70e1a4ff285b9539559407897cf4e6909289d6d8",
+  "af_study": "7638cbfeade39dc05519846846509c1809d4d5adc4b624ba6689f0017457a4f9"
+ },
+ "summary": {
+  "vdpoisson:T1": {
+   "scans_complete": [
+    "vol1_huangyuwei",
+    "vol5_sunxinyi",
+    "vol6_jiangdian_790",
+    "vol7_tangbin_790"
+   ],
+   "n_complete": 4,
+   "n_scans": 6,
+   "missing": {
+    "vol2_jiangdian": {
+     "3D-INR": "arm inr not done",
+     "MC-INR": "arm mcinr not done"
+    },
+    "vol4_tangbing": {
+     "ZS-SSDU": "arm zsssdu not done",
+     "3D-DIP": "arm dip not done",
+     "3D-INR": "arm inr not done"
+    }
+   },
+   "head_psnr": {
+    "first": 3,
+    "not_first": {
+     "vol7_tangbin_790": 2
+    }
+   },
+   "head_ssim": {
+    "first": 4,
+    "not_first": {}
+   },
+   "head_nmse": {
+    "first": 3,
+    "not_first": {
+     "vol7_tangbin_790": 2
+    }
+   },
+   "psnr_vs_GS-single": {
+    "mean": 0.11284873319723765,
+    "min": -0.04370008001134096,
+    "max": 0.16803309113706177,
+    "positive": 3
+   },
+   "psnr_vs_strongest": {
+    "mean": 0.9095957510143382,
+    "min": 0.6573613247204833,
+    "max": 1.095658689641887,
+    "positive": 4
+   }
+  },
+  "vdpoisson:FLAIR": {
+   "scans_complete": [
+    "vol1_huangyuwei",
+    "vol5_sunxinyi",
+    "vol6_jiangdian_790",
+    "vol7_tangbin_790"
+   ],
+   "n_complete": 4,
+   "n_scans": 6,
+   "missing": {
+    "vol2_jiangdian": {
+     "3D-INR": "arm inr not done",
+     "MC-INR": "arm mcinr not done"
+    },
+    "vol4_tangbing": {
+     "ZS-SSDU": "arm zsssdu not done",
+     "3D-DIP": "arm dip not done",
+     "3D-INR": "arm inr not done"
+    }
+   },
+   "head_psnr": {
+    "first": 3,
+    "not_first": {
+     "vol7_tangbin_790": 2
+    }
+   },
+   "head_ssim": {
+    "first": 4,
+    "not_first": {}
+   },
+   "head_nmse": {
+    "first": 3,
+    "not_first": {
+     "vol7_tangbin_790": 2
+    }
+   },
+   "psnr_vs_GS-single": {
+    "mean": 0.024449024110484885,
+    "min": -0.019492995457902396,
+    "max": 0.04550846859029889,
+    "positive": 3
+   },
+   "psnr_vs_strongest": {
+    "mean": 0.519232963397835,
+    "min": 0.336670695422967,
+    "max": 0.6636056745304728,
+    "positive": 4
+   }
+  },
+  "uniform:T1": {
+   "scans_complete": [
+    "vol1_huangyuwei",
+    "vol2_jiangdian",
+    "vol4_tangbing",
+    "vol5_sunxinyi",
+    "vol6_jiangdian_790",
+    "vol7_tangbin_790"
+   ],
+   "n_complete": 6,
+   "n_scans": 6,
+   "missing": {},
+   "head_psnr": {
+    "first": 6,
+    "not_first": {}
+   },
+   "head_ssim": {
+    "first": 6,
+    "not_first": {}
+   },
+   "head_nmse": {
+    "first": 6,
+    "not_first": {}
+   },
+   "psnr_vs_GS-single": {
+    "mean": 0.5697485376313812,
+    "min": 0.23188058812094425,
+    "max": 0.7304705266765623,
+    "positive": 6
+   },
+   "psnr_vs_strongest": {
+    "mean": 2.154183309834494,
+    "min": 1.7790019793907774,
+    "max": 2.3760842570400342,
+    "positive": 6
+   }
+  },
+  "uniform:FLAIR": {
+   "scans_complete": [
+    "vol1_huangyuwei",
+    "vol2_jiangdian",
+    "vol4_tangbing",
+    "vol5_sunxinyi",
+    "vol6_jiangdian_790",
+    "vol7_tangbin_790"
+   ],
+   "n_complete": 6,
+   "n_scans": 6,
+   "missing": {},
+   "head_psnr": {
+    "first": 5,
+    "not_first": {
+     "vol7_tangbin_790": 2
+    }
+   },
+   "head_ssim": {
+    "first": 1,
+    "not_first": {
+     "vol2_jiangdian": 2,
+     "vol4_tangbing": 2,
+     "vol5_sunxinyi": 2,
+     "vol6_jiangdian_790": 2,
+     "vol7_tangbin_790": 2
+    }
+   },
+   "head_nmse": {
+    "first": 5,
+    "not_first": {
+     "vol7_tangbin_790": 2
+    }
+   },
+   "psnr_vs_GS-single": {
+    "mean": 0.08361924204508912,
+    "min": 0.019949361204428584,
+    "max": 0.11907697940623052,
+    "positive": 6
+   },
+   "psnr_vs_strongest": {
+    "mean": 0.5207746221580715,
+    "min": -0.10561688547115367,
+    "max": 1.0417890722472052,
+    "positive": 5
+   }
+  },
+  "radial:T1": {
+   "scans_complete": [
+    "vol1_huangyuwei",
+    "vol2_jiangdian",
+    "vol4_tangbing",
+    "vol5_sunxinyi",
+    "vol6_jiangdian_790",
+    "vol7_tangbin_790"
+   ],
+   "n_complete": 6,
+   "n_scans": 6,
+   "missing": {},
+   "head_psnr": {
+    "first": 2,
+    "not_first": {
+     "vol1_huangyuwei": 2,
+     "vol5_sunxinyi": 2,
+     "vol6_jiangdian_790": 2,
+     "vol7_tangbin_790": 2
+    }
+   },
+   "head_ssim": {
+    "first": 5,
+    "not_first": {
+     "vol1_huangyuwei": 2
+    }
+   },
+   "head_nmse": {
+    "first": 2,
+    "not_first": {
+     "vol1_huangyuwei": 2,
+     "vol5_sunxinyi": 2,
+     "vol6_jiangdian_790": 2,
+     "vol7_tangbin_790": 2
+    }
+   },
+   "psnr_vs_GS-single": {
+    "mean": 0.2294619240895314,
+    "min": 0.15019526915074977,
+    "max": 0.30850355592351164,
+    "positive": 6
+   },
+   "psnr_vs_strongest": {
+    "mean": -0.08467263680022974,
+    "min": -0.5053279171342382,
+    "max": 0.2490150743536006,
+    "positive": 2
+   }
+  },
+  "radial:FLAIR": {
+   "scans_complete": [
+    "vol1_huangyuwei",
+    "vol2_jiangdian",
+    "vol4_tangbing",
+    "vol5_sunxinyi",
+    "vol6_jiangdian_790",
+    "vol7_tangbin_790"
+   ],
+   "n_complete": 6,
+   "n_scans": 6,
+   "missing": {},
+   "head_psnr": {
+    "first": 6,
+    "not_first": {}
+   },
+   "head_ssim": {
+    "first": 4,
+    "not_first": {
+     "vol6_jiangdian_790": 2,
+     "vol7_tangbin_790": 2
+    }
+   },
+   "head_nmse": {
+    "first": 6,
+    "not_first": {}
+   },
+   "psnr_vs_GS-single": {
+    "mean": 0.09546941936932936,
+    "min": 0.037782901442977135,
+    "max": 0.12200568049255622,
+    "positive": 6
+   },
+   "psnr_vs_strongest": {
+    "mean": 0.20957898240310038,
+    "min": 0.0877216958707443,
+    "max": 0.4042350066332112,
+    "positive": 6
+   }
+  }
+ }
+}

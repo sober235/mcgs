@@ -1,0 +1,1215 @@
+{
+  "format": "fig_masks_record_format.py article format, test scan: sampling patterns as rows",
+  "scan": "vol2_jiangdian",
+  "group": "aligned",
+  "person": "jiangdian",
+  "slice": 150,
+  "zoom_box": {
+    "edge_voxels": 48,
+    "per_pattern_centres_JK": {
+      "Uniform density": [
+        134,
+        114
+      ],
+      "Pseudo-radial": [
+        91,
+        76
+      ]
+    },
+    "note": "chosen with the find_zoom_box.py criterion against GT, for display only"
+  },
+  "topics": {
+    "Uniform density": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform",
+    "Pseudo-radial": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial"
+  },
+  "scoring_clone": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform",
+  "volumes": {
+    "Uniform density": {
+      "T1": {
+        "ZF": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/zf_T1_complex.npy",
+          "member": null,
+          "crc_key": "9f28b048-92274816",
+          "volume_head_psnr": 22.627386850474487,
+          "logged_head_psnr": 22.627386529696807
+        },
+        "CG-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/cgsense_T1_complex.npy",
+          "member": null,
+          "crc_key": "cc69d461-92274816",
+          "volume_head_psnr": 26.9626242993936,
+          "logged_head_psnr": 26.96262353234693
+        },
+        "CS-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/cssense_o200_lam0.0014_T1_complex.npy",
+          "member": null,
+          "crc_key": "99aa56e5-92274816",
+          "volume_head_psnr": 29.596677463291087,
+          "logged_head_psnr": 29.596676458078747
+        },
+        "Joint SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/jcssense_o200_lam0.002_T1_complex.npy",
+          "member": null,
+          "crc_key": "fd4a0cdc-92274816",
+          "volume_head_psnr": 29.287458452031764,
+          "logged_head_psnr": 29.287457459948072
+        },
+        "L1-SPIRiT": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/spirit_ks5_lam0.001_T1_complex.npy",
+          "member": null,
+          "crc_key": "29804fab-92274816",
+          "volume_head_psnr": 32.31094728927607,
+          "logged_head_psnr": 32.310946350905624
+        },
+        "ZS-SSDU": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/zsssdu_T1_complex.npy",
+          "member": null,
+          "crc_key": "64bcf9de-92274816",
+          "volume_head_psnr": 31.13933614945947,
+          "logged_head_psnr": 31.13933742335329
+        },
+        "3D-DIP": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/dip_T1_complex.npy",
+          "member": null,
+          "crc_key": "9da09347-92274816",
+          "volume_head_psnr": 29.63454959948095,
+          "logged_head_psnr": 29.63454934089117
+        },
+        "3D-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/inr_T1_complex.npy",
+          "member": null,
+          "crc_key": "bd6fed88-92274816",
+          "volume_head_psnr": 29.051242593317312,
+          "logged_head_psnr": 29.051242386151173
+        },
+        "MC-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/mcinr_T1_complex.npy",
+          "member": null,
+          "crc_key": "7ba94ece-92274816",
+          "volume_head_psnr": 26.79343989845111,
+          "logged_head_psnr": 26.793439469408142
+        },
+        "GS-single": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol2_jiangdian_uniform_singleT1_volumes.npz",
+          "member": "recT1_complex",
+          "crc_key": "8ee31ff7-92274816",
+          "volume_head_psnr": 33.956561014756446,
+          "logged_head_psnr": 33.95670931081176
+        },
+        "MC-GS": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol2_jiangdian_uniform_joint_volumes.npz",
+          "member": "recT1_complex",
+          "crc_key": "18a0a588-92274816",
+          "volume_head_psnr": 34.68703154202467,
+          "logged_head_psnr": 34.687184964651316
+        }
+      },
+      "FLAIR": {
+        "ZF": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/zf_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "074905f8-92274816",
+          "volume_head_psnr": 26.04294264262326,
+          "logged_head_psnr": 26.042939078590067
+        },
+        "CG-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/cgsense_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "00bff082-92274816",
+          "volume_head_psnr": 30.393109911006,
+          "logged_head_psnr": 30.39310984857616
+        },
+        "CS-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/cssense_o200_lam0.0014_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "72646b90-92274816",
+          "volume_head_psnr": 31.738894165450333,
+          "logged_head_psnr": 31.738891960449962
+        },
+        "Joint SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/jcssense_o200_lam0.002_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "3c1fa047-92274816",
+          "volume_head_psnr": 31.766976369313262,
+          "logged_head_psnr": 31.766974293597634
+        },
+        "L1-SPIRiT": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/spirit_ks5_lam0.001_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "7c8c01ce-92274816",
+          "volume_head_psnr": 33.563605456142064,
+          "logged_head_psnr": 33.56360909965592
+        },
+        "ZS-SSDU": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/zsssdu_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "ca14acbf-92274816",
+          "volume_head_psnr": 34.21301632043036,
+          "logged_head_psnr": 34.213020723992386
+        },
+        "3D-DIP": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/dip_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "8a679223-92274816",
+          "volume_head_psnr": 29.55945517425475,
+          "logged_head_psnr": 29.55945962898631
+        },
+        "3D-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/inr_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "70f3513c-92274816",
+          "volume_head_psnr": 29.362642015012334,
+          "logged_head_psnr": 29.362645125799403
+        },
+        "MC-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_uniform/recon/mcinr_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "58c86868-92274816",
+          "volume_head_psnr": 29.46508496891449,
+          "logged_head_psnr": 29.465086361770602
+        },
+        "GS-single": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol2_jiangdian_uniform_singleFLAIR_volumes.npz",
+          "member": "recT1_complex",
+          "crc_key": "8aa7d6e4-92274816",
+          "volume_head_psnr": 34.77499768638772,
+          "logged_head_psnr": 34.775001346217
+        },
+        "MC-GS": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol2_jiangdian_uniform_joint_volumes.npz",
+          "member": "recFL_complex",
+          "crc_key": "2a0aa511-92274816",
+          "volume_head_psnr": 34.88160606428188,
+          "logged_head_psnr": 34.88160940674552
+        }
+      }
+    },
+    "Pseudo-radial": {
+      "T1": {
+        "ZF": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/zf_T1_complex.npy",
+          "member": null,
+          "crc_key": "8ac810ce-92274816",
+          "volume_head_psnr": 23.678921692937102,
+          "logged_head_psnr": 23.678921272571436
+        },
+        "CG-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/cgsense_T1_complex.npy",
+          "member": null,
+          "crc_key": "1b7a2772-92274816",
+          "volume_head_psnr": 27.737955374112687,
+          "logged_head_psnr": 27.737954725572166
+        },
+        "CS-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/cssense_o200_lam0.0014_T1_complex.npy",
+          "member": null,
+          "crc_key": "ac1f52f5-92274816",
+          "volume_head_psnr": 28.742648049982844,
+          "logged_head_psnr": 28.7426475439769
+        },
+        "Joint SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/jcssense_o200_lam0.0014_T1_complex.npy",
+          "member": null,
+          "crc_key": "a287577b-92274816",
+          "volume_head_psnr": 28.55467693904828,
+          "logged_head_psnr": 28.554676471809266
+        },
+        "L1-SPIRiT": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/spirit_ks5_lam0.0005_T1_complex.npy",
+          "member": null,
+          "crc_key": "474ec69e-92274816",
+          "volume_head_psnr": 29.10704118749176,
+          "logged_head_psnr": 29.10704084622477
+        },
+        "ZS-SSDU": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/zsssdu_T1_complex.npy",
+          "member": null,
+          "crc_key": "ef5c65f1-92274816",
+          "volume_head_psnr": 29.88781020751403,
+          "logged_head_psnr": 29.88780970855919
+        },
+        "3D-DIP": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/dip_T1_complex.npy",
+          "member": null,
+          "crc_key": "0e290f67-92274816",
+          "volume_head_psnr": 29.631564651514577,
+          "logged_head_psnr": 29.63156444464984
+        },
+        "3D-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/inr_T1_complex.npy",
+          "member": null,
+          "crc_key": "e6a81f0a-92274816",
+          "volume_head_psnr": 26.942062981632716,
+          "logged_head_psnr": 26.942062962789684
+        },
+        "MC-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/mcinr_T1_complex.npy",
+          "member": null,
+          "crc_key": "04234c7e-92274816",
+          "volume_head_psnr": 27.87857161955753,
+          "logged_head_psnr": 27.878571214426884
+        },
+        "GS-single": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol2_jiangdian_radial_singleT1_volumes.npz",
+          "member": "recT1_complex",
+          "crc_key": "c30d3ee9-92274816",
+          "volume_head_psnr": 29.657115129846318,
+          "logged_head_psnr": 29.657200008128935
+        },
+        "MC-GS": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol2_jiangdian_radial_joint_volumes.npz",
+          "member": "recT1_complex",
+          "crc_key": "e8053b14-92274816",
+          "volume_head_psnr": 29.93619468006131,
+          "logged_head_psnr": 29.9362826926881
+        }
+      },
+      "FLAIR": {
+        "ZF": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/zf_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "b10776e2-92274816",
+          "volume_head_psnr": 27.11048372707061,
+          "logged_head_psnr": 27.11048096939094
+        },
+        "CG-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/cgsense_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "75877fad-92274816",
+          "volume_head_psnr": 30.039801433328584,
+          "logged_head_psnr": 30.039804455492288
+        },
+        "CS-SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/cssense_o200_lam0.001_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "b4b071e0-92274816",
+          "volume_head_psnr": 30.42913025351394,
+          "logged_head_psnr": 30.429133545712226
+        },
+        "Joint SENSE": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/jcssense_o200_lam0.0014_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "bca285ee-92274816",
+          "volume_head_psnr": 30.366388349466057,
+          "logged_head_psnr": 30.366391576601515
+        },
+        "L1-SPIRiT": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/spirit_ks5_lam0.0005_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "4f6289bf-92274816",
+          "volume_head_psnr": 30.29943483874046,
+          "logged_head_psnr": 30.299439128559996
+        },
+        "ZS-SSDU": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/zsssdu_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "3cfe825e-92274816",
+          "volume_head_psnr": 31.494391527132244,
+          "logged_head_psnr": 31.49439543768456
+        },
+        "3D-DIP": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/dip_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "d6502a99-92274816",
+          "volume_head_psnr": 29.964823365490986,
+          "logged_head_psnr": 29.964827690637343
+        },
+        "3D-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/inr_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "8b189ea4-92274816",
+          "volume_head_psnr": 28.004990548752822,
+          "logged_head_psnr": 28.00499504393244
+        },
+        "MC-INR": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/topics/vol2_jiangdian_radial/recon/mcinr_FLAIR_complex.npy",
+          "member": null,
+          "crc_key": "909628e9-92274816",
+          "volume_head_psnr": 29.671467253056697,
+          "logged_head_psnr": 29.671470871309992
+        },
+        "GS-single": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol2_jiangdian_radial_singleFLAIR_volumes.npz",
+          "member": "recT1_complex",
+          "crc_key": "77e5775c-92274816",
+          "volume_head_psnr": 31.485988761964848,
+          "logged_head_psnr": 31.485996580215584
+        },
+        "MC-GS": {
+          "path": "/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_diffmask_testset_20261122/trainer/results_arc/dm_vol2_jiangdian_radial_joint_volumes.npz",
+          "member": "recFL_complex",
+          "crc_key": "9f140b4d-92274816",
+          "volume_head_psnr": 31.60540738395717,
+          "logged_head_psnr": 31.60541538857255
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "pattern": "Uniform density",
+      "contrast": "T1",
+      "af": 15.201079622132253,
+      "numbers": {
+        "ZF": {
+          "psnr": 23.108416832981387,
+          "ssim": 0.587783164819797,
+          "nmse": 0.1984938999793795
+        },
+        "CG-SENSE": {
+          "psnr": 27.70829065995249,
+          "ssim": 0.7570341829249128,
+          "nmse": 0.06882714927864776
+        },
+        "CS-SENSE": {
+          "psnr": 31.38803260327585,
+          "ssim": 0.8454779430432348,
+          "nmse": 0.029497525669939125
+        },
+        "Joint SENSE": {
+          "psnr": 30.830829114848953,
+          "ssim": 0.8460596354802776,
+          "nmse": 0.033535588856383976
+        },
+        "L1-SPIRiT": {
+          "psnr": 33.77986322101389,
+          "ssim": 0.8764788879472577,
+          "nmse": 0.017006013753303663
+        },
+        "ZS-SSDU": {
+          "psnr": 31.756097020005615,
+          "ssim": 0.8734546267870777,
+          "nmse": 0.027100614971687767
+        },
+        "3D-DIP": {
+          "psnr": 31.281452387873763,
+          "ssim": 0.810713483568809,
+          "nmse": 0.030230380203911736
+        },
+        "3D-INR": {
+          "psnr": 30.544479529672074,
+          "ssim": 0.7561927332588904,
+          "nmse": 0.03582126306566833
+        },
+        "MC-INR": {
+          "psnr": 27.60870096559622,
+          "ssim": 0.682407314774391,
+          "nmse": 0.07042368584728755
+        },
+        "GS-single": {
+          "psnr": 35.12547016947381,
+          "ssim": 0.8990496740411266,
+          "nmse": 0.012475036676589071
+        },
+        "MC-GS": {
+          "psnr": 35.90714623509366,
+          "ssim": 0.9171764739003074,
+          "nmse": 0.010420156089544375
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "MC-GS",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 1,
+        "nmse": 1
+      },
+      "mcgs_lead": {
+        "psnr": 0.7816760656198554,
+        "ssim": 0.018126799859180864,
+        "nmse": 0.002054880587044696
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "GS-single",
+        "nmse": "GS-single"
+      },
+      "box_psnr": {
+        "ZF": 34.30033037493008,
+        "CG-SENSE": 32.861192458737506,
+        "CS-SENSE": 35.56744098662934,
+        "Joint SENSE": 35.71005296208135,
+        "L1-SPIRiT": 35.89622987596763,
+        "ZS-SSDU": 35.93909680805517,
+        "3D-DIP": 35.3936628416553,
+        "3D-INR": 31.64700635025423,
+        "MC-INR": 31.114230367164016,
+        "GS-single": 36.70655185255477,
+        "MC-GS": 37.740216709069614
+      },
+      "box_lead": 1.0336648565148465,
+      "box_best_other": "GS-single",
+      "box_head_frac": 0.9978298611111112,
+      "window": 0.8569456407427785
+    },
+    {
+      "pattern": "Uniform density",
+      "contrast": "FLAIR",
+      "af": 15.201079622132253,
+      "numbers": {
+        "ZF": {
+          "psnr": 25.262356216997524,
+          "ssim": 0.5301382332773323,
+          "nmse": 0.08979378921377333
+        },
+        "CG-SENSE": {
+          "psnr": 29.65066642413094,
+          "ssim": 0.7832405505169577,
+          "nmse": 0.032690026907547624
+        },
+        "CS-SENSE": {
+          "psnr": 30.759662914674166,
+          "ssim": 0.8290259811059575,
+          "nmse": 0.025323027638748562
+        },
+        "Joint SENSE": {
+          "psnr": 30.860285637326527,
+          "ssim": 0.8262957706350458,
+          "nmse": 0.02474305706409296
+        },
+        "L1-SPIRiT": {
+          "psnr": 32.99639782820074,
+          "ssim": 0.8648706887552768,
+          "nmse": 0.015130111817629684
+        },
+        "ZS-SSDU": {
+          "psnr": 34.17090548265917,
+          "ssim": 0.9061756168891495,
+          "nmse": 0.011544931812523963
+        },
+        "3D-DIP": {
+          "psnr": 29.894554529091444,
+          "ssim": 0.7423829795261468,
+          "nmse": 0.030904837726089412
+        },
+        "3D-INR": {
+          "psnr": 28.972759710199874,
+          "ssim": 0.716990124459018,
+          "nmse": 0.03821254379251127
+        },
+        "MC-INR": {
+          "psnr": 28.499101614937913,
+          "ssim": 0.7111695223191746,
+          "nmse": 0.04261590925188255
+        },
+        "GS-single": {
+          "psnr": 34.341680823991595,
+          "ssim": 0.8967190199033818,
+          "nmse": 0.011099766377606585
+        },
+        "MC-GS": {
+          "psnr": 34.5615219202714,
+          "ssim": 0.9040674197601509,
+          "nmse": 0.010551877201890256
+        }
+      },
+      "best": {
+        "psnr": "MC-GS",
+        "ssim": "ZS-SSDU",
+        "nmse": "MC-GS"
+      },
+      "mcgs_rank": {
+        "psnr": 1,
+        "ssim": 2,
+        "nmse": 1
+      },
+      "mcgs_lead": {
+        "psnr": 0.21984109627980786,
+        "ssim": -0.002108197128998568,
+        "nmse": 0.0005478891757163297
+      },
+      "best_other": {
+        "psnr": "GS-single",
+        "ssim": "ZS-SSDU",
+        "nmse": "GS-single"
+      },
+      "box_psnr": {
+        "ZF": 31.767435945966568,
+        "CG-SENSE": 32.241267653853676,
+        "CS-SENSE": 33.46125084956641,
+        "Joint SENSE": 33.314498929172956,
+        "L1-SPIRiT": 33.57626910826782,
+        "ZS-SSDU": 34.91499504772007,
+        "3D-DIP": 32.67303057990374,
+        "3D-INR": 30.08329557063046,
+        "MC-INR": 30.78382260810551,
+        "GS-single": 34.9507515279159,
+        "MC-GS": 35.33573821034571
+      },
+      "box_lead": 0.3849866824298118,
+      "box_best_other": "GS-single",
+      "box_head_frac": 0.9887152777777778,
+      "window": 1.0414698815345753
+    },
+    {
+      "pattern": "Pseudo-radial",
+      "contrast": "T1",
+      "af": 15.201079622132253,
+      "numbers": {
+        "ZF": {
+          "psnr": 24.033864439922926,
+          "ssim": 0.6707833568470355,
+          "nmse": 0.16039927615350272
+        },
+        "CG-SENSE": {
+          "psnr": 27.399849403017676,
+          "ssim": 0.826549785325754,
+          "nmse": 0.07389310358827003
+        },
+        "CS-SENSE": {
+          "psnr": 28.141816102045382,
+          "ssim": 0.8433446786127816,
+          "nmse": 0.062288408971961
+        },
+        "Joint SENSE": {
+          "psnr": 28.005052973664988,
+          "ssim": 0.8490368344230129,
+          "nmse": 0.06428113711476459
+        },
+        "L1-SPIRiT": {
+          "psnr": 28.73163800003744,
+          "ssim": 0.8364992142506077,
+          "nmse": 0.05437822759332531
+        },
+        "ZS-SSDU": {
+          "psnr": 29.707134415378164,
+          "ssim": 0.8728506692140025,
+          "nmse": 0.04343855866891936
+        },
+        "3D-DIP": {
+          "psnr": 30.361154293102125,
+          "ssim": 0.8389519242689387,
+          "nmse": 0.037365725477773726
+        },
+        "3D-INR": {
+          "psnr": 26.950339363590718,
+          "ssim": 0.6988891124359639,
+          "nmse": 0.08195112347179276
+        },
+        "MC-INR": {
+          "psnr": 27.544409822176778,
+          "ssim": 0.803941539707858,
+          "nmse": 0.07147396347059488
+        },
+        "GS-single": {
+          "psnr": 28.91909635447441,
+          "ssim": 0.8498591516193394,
+          "nmse": 0.05208098778659908
+        },
+        "MC-GS": {
+          "psnr": 29.18279537870339,
+          "ssim": 0.8642557877545459,
+          "nmse": 0.04901277704863943
+        }
+      },
+      "best": {
+        "psnr": "3D-DIP",
+        "ssim": "ZS-SSDU",
+        "nmse": "3D-DIP"
+      },
+      "mcgs_rank": {
+        "psnr": 3,
+        "ssim": 2,
+        "nmse": 3
+      },
+      "mcgs_lead": {
+        "psnr": -1.1783589143987356,
+        "ssim": -0.008594881459456527,
+        "nmse": -0.011647051570865707
+      },
+      "best_other": {
+        "psnr": "3D-DIP",
+        "ssim": "ZS-SSDU",
+        "nmse": "3D-DIP"
+      },
+      "box_psnr": {
+        "ZF": 36.02061733615552,
+        "CG-SENSE": 38.01074893887235,
+        "CS-SENSE": 38.519870080536826,
+        "Joint SENSE": 38.613698120292014,
+        "L1-SPIRiT": 37.095586630060964,
+        "ZS-SSDU": 38.76321430619615,
+        "3D-DIP": 36.64081335971539,
+        "3D-INR": 31.539367477430897,
+        "MC-INR": 36.56872718883543,
+        "GS-single": 38.39899853315585,
+        "MC-GS": 38.941109390197106
+      },
+      "box_lead": 0.17789508400095855,
+      "box_best_other": "ZS-SSDU",
+      "box_head_frac": 0.9947916666666666,
+      "window": 0.8569456407427785
+    },
+    {
+      "pattern": "Pseudo-radial",
+      "contrast": "FLAIR",
+      "af": 15.201079622132253,
+      "numbers": {
+        "ZF": {
+          "psnr": 26.46739575970252,
+          "ssim": 0.6132195429336883,
+          "nmse": 0.06803655959052603
+        },
+        "CG-SENSE": {
+          "psnr": 29.711258248061995,
+          "ssim": 0.7806655180014531,
+          "nmse": 0.032237109592915925
+        },
+        "CS-SENSE": {
+          "psnr": 29.914287426013658,
+          "ssim": 0.808015075497385,
+          "nmse": 0.030764734952738487
+        },
+        "Joint SENSE": {
+          "psnr": 30.046236566673436,
+          "ssim": 0.8060187563340374,
+          "nmse": 0.029844084694223498
+        },
+        "L1-SPIRiT": {
+          "psnr": 30.018202324326268,
+          "ssim": 0.7860120318811089,
+          "nmse": 0.030037355048166788
+        },
+        "ZS-SSDU": {
+          "psnr": 31.878387477762672,
+          "ssim": 0.8540151360517149,
+          "nmse": 0.01957235898268508
+        },
+        "3D-DIP": {
+          "psnr": 30.22514481346075,
+          "ssim": 0.772567338306503,
+          "nmse": 0.02863963238516275
+        },
+        "3D-INR": {
+          "psnr": 27.64619236045354,
+          "ssim": 0.6399759527957432,
+          "nmse": 0.051863603024467256
+        },
+        "MC-INR": {
+          "psnr": 29.178783595292224,
+          "ssim": 0.7503360539508602,
+          "nmse": 0.0364421138797145
+        },
+        "GS-single": {
+          "psnr": 31.59589171980079,
+          "ssim": 0.8445753470883244,
+          "nmse": 0.020887802308945585
+        },
+        "MC-GS": {
+          "psnr": 31.79397488387579,
+          "ssim": 0.8545856897898978,
+          "nmse": 0.019956502557075297
+        }
+      },
+      "best": {
+        "psnr": "ZS-SSDU",
+        "ssim": "MC-GS",
+        "nmse": "ZS-SSDU"
+      },
+      "mcgs_rank": {
+        "psnr": 2,
+        "ssim": 1,
+        "nmse": 2
+      },
+      "mcgs_lead": {
+        "psnr": -0.08441259388688138,
+        "ssim": 0.0005705537381829329,
+        "nmse": -0.00038414357439021593
+      },
+      "best_other": {
+        "psnr": "ZS-SSDU",
+        "ssim": "ZS-SSDU",
+        "nmse": "ZS-SSDU"
+      },
+      "box_psnr": {
+        "ZF": 31.193827445782233,
+        "CG-SENSE": 32.605660468663174,
+        "CS-SENSE": 33.65598031463092,
+        "Joint SENSE": 33.49202221694117,
+        "L1-SPIRiT": 32.161086292771195,
+        "ZS-SSDU": 34.611524753213345,
+        "3D-DIP": 32.76761353278766,
+        "3D-INR": 28.46377589780078,
+        "MC-INR": 32.15026781663427,
+        "GS-single": 34.508397119462,
+        "MC-GS": 35.01536587685545
+      },
+      "box_lead": 0.4038411236421027,
+      "box_best_other": "ZS-SSDU",
+      "box_head_frac": 0.9830729166666666,
+      "window": 1.0414698815345753
+    }
+  ],
+  "max_abs_diff_vs_logged_head_psnr": 0.00015342262664574946,
+  "box_select": {
+    "criterion": "find_zoom_box.py (t1flair_af_record_fig_20261120): MC-GS box-mean error furthest below the best other column, T1 + FLAIR",
+    "head_frac": 0.95,
+    "box_inner_voxels": 28,
+    "rows": [
+      {
+        "pattern": "Uniform density",
+        "contrast": "T1",
+        "centre_JK": [
+          134,
+          114
+        ],
+        "box_mean_error": {
+          "ZF": 0.014732524258158339,
+          "CG-SENSE": 0.017935640226531453,
+          "CS-SENSE": 0.012860139062966467,
+          "Joint SENSE": 0.012670456324714656,
+          "L1-SPIRiT": 0.012561260921679036,
+          "ZS-SSDU": 0.012522973706734641,
+          "3D-DIP": 0.012980683590492917,
+          "3D-INR": 0.020724553521092693,
+          "MC-INR": 0.02195308955035524,
+          "GS-single": 0.01145776761542662,
+          "MC-GS": 0.010180857424343135
+        },
+        "best_other": "GS-single",
+        "mcgs_over_best_other": 0.8885550629108356
+      },
+      {
+        "pattern": "Uniform density",
+        "contrast": "FLAIR",
+        "centre_JK": [
+          134,
+          114
+        ],
+        "box_mean_error": {
+          "ZF": 0.019693007106905597,
+          "CG-SENSE": 0.01912954164078866,
+          "CS-SENSE": 0.01636817616361405,
+          "Joint SENSE": 0.016613070212059888,
+          "L1-SPIRiT": 0.016174820092014635,
+          "ZS-SSDU": 0.013915368487956145,
+          "3D-DIP": 0.017414447530283275,
+          "3D-INR": 0.024501273950006095,
+          "MC-INR": 0.02279121250284979,
+          "GS-single": 0.013940757894476677,
+          "MC-GS": 0.013257803383988305
+        },
+        "best_other": "ZS-SSDU",
+        "mcgs_over_best_other": 0.9527454048710986
+      },
+      {
+        "pattern": "Pseudo-radial",
+        "contrast": "T1",
+        "centre_JK": [
+          91,
+          76
+        ],
+        "box_mean_error": {
+          "ZF": 0.01196057945135041,
+          "CG-SENSE": 0.009498283607857932,
+          "CS-SENSE": 0.008641109661531235,
+          "Joint SENSE": 0.008556987910624618,
+          "L1-SPIRiT": 0.01044471726993851,
+          "ZS-SSDU": 0.008556499397418864,
+          "3D-DIP": 0.011233557804769699,
+          "3D-INR": 0.020649396028421214,
+          "MC-INR": 0.011353072502108588,
+          "GS-single": 0.008942410437107287,
+          "MC-GS": 0.008250775465731228
+        },
+        "best_other": "ZS-SSDU",
+        "mcgs_over_best_other": 0.9642699756655321
+      },
+      {
+        "pattern": "Pseudo-radial",
+        "contrast": "FLAIR",
+        "centre_JK": [
+          91,
+          76
+        ],
+        "box_mean_error": {
+          "ZF": 0.019088719145659055,
+          "CG-SENSE": 0.017208215006561955,
+          "CS-SENSE": 0.01474288473056084,
+          "Joint SENSE": 0.015020634049683413,
+          "L1-SPIRiT": 0.0178435191187553,
+          "ZS-SSDU": 0.013321293809505226,
+          "3D-DIP": 0.016433763149675765,
+          "3D-INR": 0.02937662508429344,
+          "MC-INR": 0.017875715460644894,
+          "GS-single": 0.013153592223787926,
+          "MC-GS": 0.012390517171151421
+        },
+        "best_other": "GS-single",
+        "mcgs_over_best_other": 0.9419873263779226
+      }
+    ]
+  },
+  "mcgs_first_on_every_row_and_metric": false,
+  "arrows": [
+    {
+      "pattern": "Uniform density",
+      "contrast": "T1",
+      "crop_xy": [
+        8,
+        16
+      ],
+      "gap": 0.021204333752393723,
+      "per_panel": {
+        "ZF": {
+          "crop_xy": [
+            17,
+            25
+          ],
+          "local_mean_error": 0.028755560517311096
+        },
+        "CG-SENSE": {
+          "crop_xy": [
+            36,
+            20
+          ],
+          "local_mean_error": 0.030978819355368614
+        },
+        "CS-SENSE": {
+          "crop_xy": [
+            8,
+            16
+          ],
+          "local_mean_error": 0.024287322536110878
+        },
+        "Joint SENSE": {
+          "crop_xy": [
+            8,
+            16
+          ],
+          "local_mean_error": 0.023115897551178932
+        },
+        "L1-SPIRiT": {
+          "crop_xy": [
+            8,
+            16
+          ],
+          "local_mean_error": 0.020277202129364014
+        },
+        "ZS-SSDU": {
+          "crop_xy": [
+            8,
+            18
+          ],
+          "local_mean_error": 0.022462964057922363
+        },
+        "3D-DIP": {
+          "crop_xy": [
+            19,
+            25
+          ],
+          "local_mean_error": 0.022375715896487236
+        },
+        "3D-INR": {
+          "crop_xy": [
+            32,
+            29
+          ],
+          "local_mean_error": 0.030821342021226883
+        },
+        "MC-INR": {
+          "crop_xy": [
+            9,
+            14
+          ],
+          "local_mean_error": 0.03336241468787193
+        },
+        "GS-single": {
+          "crop_xy": [
+            8,
+            16
+          ],
+          "local_mean_error": 0.020867429673671722
+        },
+        "MC-GS": {
+          "crop_xy": [
+            8,
+            16
+          ],
+          "local_mean_error": 0.01908983290195465
+        }
+      }
+    },
+    {
+      "pattern": "Uniform density",
+      "contrast": "FLAIR",
+      "crop_xy": [
+        18,
+        24
+      ],
+      "gap": 0.027887828648090363,
+      "per_panel": {
+        "ZF": {
+          "crop_xy": [
+            15,
+            21
+          ],
+          "local_mean_error": 0.04926501587033272
+        },
+        "CG-SENSE": {
+          "crop_xy": [
+            18,
+            24
+          ],
+          "local_mean_error": 0.029554013162851334
+        },
+        "CS-SENSE": {
+          "crop_xy": [
+            17,
+            24
+          ],
+          "local_mean_error": 0.032161861658096313
+        },
+        "Joint SENSE": {
+          "crop_xy": [
+            17,
+            24
+          ],
+          "local_mean_error": 0.03364332392811775
+        },
+        "L1-SPIRiT": {
+          "crop_xy": [
+            18,
+            24
+          ],
+          "local_mean_error": 0.02622164599597454
+        },
+        "ZS-SSDU": {
+          "crop_xy": [
+            12,
+            11
+          ],
+          "local_mean_error": 0.02010597102344036
+        },
+        "3D-DIP": {
+          "crop_xy": [
+            18,
+            24
+          ],
+          "local_mean_error": 0.0306802187114954
+        },
+        "3D-INR": {
+          "crop_xy": [
+            20,
+            26
+          ],
+          "local_mean_error": 0.033752165734767914
+        },
+        "MC-INR": {
+          "crop_xy": [
+            9,
+            10
+          ],
+          "local_mean_error": 0.03590637445449829
+        },
+        "GS-single": {
+          "crop_xy": [
+            18,
+            24
+          ],
+          "local_mean_error": 0.02588898316025734
+        },
+        "MC-GS": {
+          "crop_xy": [
+            18,
+            24
+          ],
+          "local_mean_error": 0.025105280801653862
+        }
+      }
+    },
+    {
+      "pattern": "Pseudo-radial",
+      "contrast": "T1",
+      "crop_xy": [
+        38,
+        23
+      ],
+      "gap": 0.017881115898489952,
+      "per_panel": {
+        "ZF": {
+          "crop_xy": [
+            8,
+            32
+          ],
+          "local_mean_error": 0.02097019925713539
+        },
+        "CG-SENSE": {
+          "crop_xy": [
+            39,
+            23
+          ],
+          "local_mean_error": 0.018981732428073883
+        },
+        "CS-SENSE": {
+          "crop_xy": [
+            39,
+            22
+          ],
+          "local_mean_error": 0.016667447984218597
+        },
+        "Joint SENSE": {
+          "crop_xy": [
+            38,
+            24
+          ],
+          "local_mean_error": 0.01602780632674694
+        },
+        "L1-SPIRiT": {
+          "crop_xy": [
+            37,
+            23
+          ],
+          "local_mean_error": 0.01985374465584755
+        },
+        "ZS-SSDU": {
+          "crop_xy": [
+            39,
+            22
+          ],
+          "local_mean_error": 0.017579250037670135
+        },
+        "3D-DIP": {
+          "crop_xy": [
+            37,
+            22
+          ],
+          "local_mean_error": 0.022150536999106407
+        },
+        "3D-INR": {
+          "crop_xy": [
+            20,
+            28
+          ],
+          "local_mean_error": 0.03324089199304581
+        },
+        "MC-INR": {
+          "crop_xy": [
+            25,
+            21
+          ],
+          "local_mean_error": 0.023069309070706367
+        },
+        "GS-single": {
+          "crop_xy": [
+            38,
+            22
+          ],
+          "local_mean_error": 0.017016392201185226
+        },
+        "MC-GS": {
+          "crop_xy": [
+            38,
+            22
+          ],
+          "local_mean_error": 0.016401033848524094
+        }
+      }
+    },
+    {
+      "pattern": "Pseudo-radial",
+      "contrast": "FLAIR",
+      "crop_xy": [
+        8,
+        39
+      ],
+      "gap": 0.027081839740276337,
+      "per_panel": {
+        "ZF": {
+          "crop_xy": [
+            8,
+            23
+          ],
+          "local_mean_error": 0.04735080897808075
+        },
+        "CG-SENSE": {
+          "crop_xy": [
+            10,
+            26
+          ],
+          "local_mean_error": 0.031496986746788025
+        },
+        "CS-SENSE": {
+          "crop_xy": [
+            8,
+            39
+          ],
+          "local_mean_error": 0.026630165055394173
+        },
+        "Joint SENSE": {
+          "crop_xy": [
+            8,
+            39
+          ],
+          "local_mean_error": 0.02753351628780365
+        },
+        "L1-SPIRiT": {
+          "crop_xy": [
+            38,
+            15
+          ],
+          "local_mean_error": 0.028200820088386536
+        },
+        "ZS-SSDU": {
+          "crop_xy": [
+            12,
+            37
+          ],
+          "local_mean_error": 0.023772018030285835
+        },
+        "3D-DIP": {
+          "crop_xy": [
+            10,
+            25
+          ],
+          "local_mean_error": 0.03403705358505249
+        },
+        "3D-INR": {
+          "crop_xy": [
+            17,
+            8
+          ],
+          "local_mean_error": 0.04104144126176834
+        },
+        "MC-INR": {
+          "crop_xy": [
+            8,
+            23
+          ],
+          "local_mean_error": 0.032815419137477875
+        },
+        "GS-single": {
+          "crop_xy": [
+            38,
+            18
+          ],
+          "local_mean_error": 0.02350945584475994
+        },
+        "MC-GS": {
+          "crop_xy": [
+            38,
+            18
+          ],
+          "local_mean_error": 0.0232491847127676
+        }
+      }
+    }
+  ],
+  "arrow_mode": "own",
+  "arrow_on": "zoom",
+  "arrow_inner_voxels": 28,
+  "error_display": {
+    "vmax": 0.1,
+    "cmap": "inferno"
+  },
+  "figure": "dm_testset_vol2_jiangdian_af16_masks_tra150_box48_article_inbrain.png",
+  "figure_sha256": "2caf0f6ad148a437d01d5f2e10550bf6ef91c9df04f73a512c6476606b734e11",
+  "figure_px": [
+    6523,
+    4430
+  ],
+  "figure_dpi": 200
+}
