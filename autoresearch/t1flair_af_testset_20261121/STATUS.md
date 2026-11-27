@@ -172,7 +172,7 @@
 3. 看 `--status` 里所有 `stale` 的行（预期只有 `vol2_jiangdian:24:dip`；若关机前作业已进入下一行，就是那一行）。对每个 stale 行，在它的 topic 目录里列出 `logs/run_<arm>_*.log`、`logs/<arm>_*.json`、`recons/<arm>_*_complex.npy`（MC-INR 还有 `mcinr/`）。
 4. 对 stale 行：没有完成的子任务（缺 json 或 npy 的那个对比度）把它的日志和部分输出删掉；看起来已完成的子任务，先用 numpy 读一遍 npy、检查 json 可解析，读不了就一起删。只删本实验、本行的文件。
 5. `run_arms.py --release <row>`（CPU 作业），再跑一次 `--status`，确认 0 个 stale。
-6. 数卡：所有 mcgs 会话合计不超过 3 张；ListAgents，问 multi-part（2026-11-26 04:20 起在等卡）等会话的情况；研究之间不设优先，本实验只拿一张卡。
+6. 数卡：所有 mcgs 会话合计不超过 3 张；ListAgents 看其他会话占了哪些卡；研究之间不设优先，本实验只拿一张卡。multi-part 2026-11-27 答复：关机时它不占卡，开机后它也要一张卡（膝关节第 2 轮，约 3 小时）；它会自己查卡并通知取了哪张，上限内还有名额时本实验不必先问它。若只剩一个名额，按等待先后让给 multi-part。
 7. 选卡：`nvidia-smi --query-compute-apps` 查两次、间隔约 75 秒，0 个进程才算空卡。
 8. 启动：`gpu.py run --gpu ID -- @python autoresearch/t1flair_af_testset_20261121/run_arms.py --rows` 加上剩余 9 行（`vol2_jiangdian:24:dip`、`vol2_jiangdian:{12,16,20,24}:inr`、`vol2_jiangdian:{12,16,20,24}:mcinr`）。脚本从 `CUDA_VISIBLE_DEVICES` 取卡号，`--gpu` 给物理卡号即可。在 `RUNLOG.md` 记一行。
 9. 统计：若 20 / 24 的统计没在关机前做完，开机后先跑一次 `collect_stats.py --pipeline`（不占 GPU）；检查输出里的 `unreadable` 列表为空。
