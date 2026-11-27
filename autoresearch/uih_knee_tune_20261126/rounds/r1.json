@@ -1,0 +1,8 @@
+{"keeper": [],
+ "candidates": {
+  "wavhalf": ["--set", "loss.lambda_wav=0.04", "--set", "loss.lambda_wav_plain=0.03"],
+  "geohalf": ["--lambda_geo", "0.035"],
+  "n3p6m": ["--set", "gaussian.initial_num_points=3600000"],
+  "it6000": ["--iters", "6000"],
+  "edge0": ["--lambda_edge", "0"]
+ }}

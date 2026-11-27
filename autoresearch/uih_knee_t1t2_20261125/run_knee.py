@@ -53,13 +53,17 @@ ap.add_argument("--rows", nargs="+", default=list(ROWS), choices=ROWS)
 ap.add_argument("--seed", type=int, default=42)
 ap.add_argument("--smoke", action="store_true", help="30 iterations, no volumes, into OUT/smoke")
 ap.add_argument("--table", action="store_true")
+ap.add_argument("--tag", default="", help="tuning candidate name, becomes part of the experiment name")
+ap.add_argument("--no_volumes", action="store_true")
+ap.add_argument("--extra", nargs=argparse.REMAINDER, default=[], help="trainer arguments appended after the recipe (must be last)")
 args = ap.parse_args()
 SID = "s%02d" % args.subject
 TOPIC = RESD / f"KNEE_UIH_T1T2_AF{AF}_S{args.subject:02d}"
 CFG0 = TOPIC / f"configs/knee_uih_t1t2_af{AF}.yaml"
 root = OUT / "smoke" if args.smoke else OUT
 TR, RES, CFG = root / "trainer", root / "trainer/results_arc", root / "configs"
-TAG = f"knee_{SID}" + ("" if args.seed == 42 else f"_seed{args.seed}")
+TAG = f"knee_{SID}" + ("" if args.seed == 42 else f"_seed{args.seed}") + (f"_{args.tag}" if args.tag else "")
+assert not args.extra or args.tag, "--extra needs --tag (the untagged names are the unchanged recipe)"
 
 
 def sha(p):
@@ -117,15 +121,15 @@ def row_cmd(row, gpu):
     if args.smoke:
         recipe[recipe.index("--iters") + 1] = "30"
         recipe[recipe.index("--warmup") + 1] = "10"
-    vol = [] if args.smoke else ["--save_volumes"]
+    vol = [] if args.smoke or args.no_volumes else ["--save_volumes"]
     seed = ["--set", f"training.seed={args.seed}"]
     exp = f"{TAG}_{row}"
     cyc = [sys.executable, "-u", "arc/cycle.py", "--exp", exp, "--gpu", gpu]
     if row == "full":
-        return exp, [*cyc, *recipe, *JOINT, "--base_cfg", str(CFG0), *vol, *seed]
+        return exp, [*cyc, *recipe, *JOINT, "--base_cfg", str(CFG0), *vol, *seed, *args.extra]
     tag = row.split("_")[1]
     return exp, [*cyc, *recipe, "--base_cfg", str(single_cfg(tag)), *vol, "--trainer", "single", *CROSS_OFF,
-                 "--set", f"loss.lambda_wav={WAV[tag]}", "--set", f"loss.lambda_wav_plain={WAV[tag]}", *seed]
+                 "--set", f"loss.lambda_wav={WAV[tag]}", "--set", f"loss.lambda_wav_plain={WAV[tag]}", *seed, *args.extra]
 
 
 def load(p):

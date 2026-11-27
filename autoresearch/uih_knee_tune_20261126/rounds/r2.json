@@ -1,0 +1,8 @@
+{"keeper": ["--lambda_geo", "0.035"],
+ "candidates": {
+  "geo0175": ["--lambda_geo", "0.0175"],
+  "geo025": ["--lambda_geo", "0.025"],
+  "tveps02": ["--tv_eps", "0.02"],
+  "wfloor20": ["--edge_tv_wfloor", "0.20"],
+  "kh30": ["--kspace_high", "3.0"]
+ }}
