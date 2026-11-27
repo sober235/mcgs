@@ -1,6 +1,6 @@
 # Plain-scan / enhanced test set — progress
 
-State of 2026-11-26 19:50 PST (clock of the local Mac; no server time is recorded anywhere).
+State of 2026-11-27 06:20 PST (clock of the local Mac; no server time is recorded anywhere).
 Session `plain-enhan`. Plan and pipeline: [README.md](README.md).
 
 ## 1. Task
@@ -23,8 +23,8 @@ Choices made by the user:
 | 0. probe of the data (CPU) | done |
 | 1. k-space, prospective mask, coil maps (CPU) | done for all three subjects |
 | 2. truth = CS-SENSE of all acquired lines, lambda on held-out lines (GPU) | done for all three subjects |
-| 3. AF12 mask + simulated k-space per subject | running: job `j-20261127T034454-326e0b09` on card 3 (`chain.py`, the three subjects one after another) |
-| 4. eleven methods | same job, after each subject's step 3 (`run_subject.py --all`) |
+| 3. AF12 mask + simulated k-space per subject | 9003136585 done (mask identical to the record's AF12 mask, truth residual reproduced); other two not started |
+| 4. eleven methods | 9003136585: 9 of 11 done, 3D-DIP / 3D-INR (support versions) interrupted by the server power-off; other two not started |
 | 5. scoring, tables, figures | not started |
 
 ## 3. Subjects
@@ -122,13 +122,63 @@ Truths viewed by eye (`view_truth.py`, three central planes of plain scan, enhan
    MC-GS with the registered recipe is kept beside it.
 3. Head-masked PSNR / SSIM / NMSE / HFEN against the truth; table and figure per subject.
 
-## 8. GPU use
+## 8. Results so far: 9003136585 at AF12 (interim)
+
+Head-masked scores against the subject's truth, PSNR (dB) / SSIM / NMSE. Classical methods: best lambda of the frozen
+grid by head PSNR, as in the AF12 study (all optima lie inside the grids). One seed (42) for the Gaussian models.
+
+| method | plain scan | enhanced |
+|---|---|---|
+| ZF | 23.922 / 0.6673 | 25.811 / 0.6532 |
+| CG-SENSE | 30.685 / 0.8389 | 32.948 / 0.8726 |
+| CS-SENSE | 33.150 / 0.9149 (lambda 0.001) | 35.356 / 0.9267 (lambda 0.0007) |
+| Joint SENSE | 33.094 / 0.9136 (lambda 0.0014) | 35.189 / 0.9238 (lambda 0.001) |
+| L1-SPIRiT (kernel 5) | 32.839 / 0.9040 (lambda 0.002) | 35.243 / 0.9176 (lambda 0.001) |
+| ZS-SSDU | 33.370 / 0.9248 / 0.01063 | 34.446 / 0.9276 / 0.01576 |
+| MC-INR | 29.037 / 0.7591 / 0.02882 | 31.634 / 0.8048 / 0.03010 |
+| GS-single | 34.528 / 0.9303 / 0.00814 | 36.677 / 0.9415 / 0.00942 |
+| MC-GS, registered recipe | 34.701 / 0.9331 / 0.00782 | 36.864 / 0.9438 / 0.00903 |
+| **MC-GS, tuned final config** | **34.824 / 0.9356 / 0.00760** | **37.038 / 0.9459 / 0.00867** |
+| 3D-DIP, 3D-INR (support versions) | not finished | not finished |
+
+- MC-GS (tuned) is first on PSNR, SSIM and NMSE in both scans among the nine finished methods; over GS-single
+  +0.30 dB (plain scan) and +0.36 dB (enhanced); over the registered recipe +0.12 / +0.17 dB.
+- MC-INR is below CG-SENSE on this subject; not yet compared with its level on the record subject.
+- Not final: 3D-DIP and 3D-INR are missing, `run_subject.py --table` has not been run, no figure yet.
+
+## 9. Stop for the server power-off (2026-11-27) and how to resume
+
+The user powers the GPU server off. Job `j-20261127T034454-326e0b09` (card 3, `chain.py`, started 2026-11-26 19:44 PST,
+local clock) was inside `--support pre` of 9003136585 (3D-DIP, about iteration 9200 of 12000) when this was written;
+the power-off ends it there.
+
+On disk on the server (`codex_artifacts/mcgs_ce_prepost_testset_20261124/subjects/`):
+
+| subject | work, truth | AF12 topic | worker (51 jobs) | tuned MC-GS | support DIP / INR |
+|---|---|---|---|---|---|
+| 9003136585 | done | done | done, all exit 0 | done (`gs_joint_tuned`) | pre: 3D-DIP interrupted; rest not started |
+| 9002944080 | done | not started | - | - | - |
+| 9000103445 | done | not started | - | - | - |
+
+Resume after power-on:
+
+1. Check that the server paths and the GSTMI Python are back; count the project's cards (cap 3), two empty checks.
+2. Look at `subjects/9003136585/cmp_support/` for partial files of the interrupted 3D-DIP run before relaunching
+   (`run_subject.py --support` skips a scan only when both `logs/record_dip_<scan>.json` and
+   `logs/record_inr_<scan>.json` exist; how the ported `af12_cmp_support.py` treats a partial run has not been tested).
+3. Relaunch the same command:
+   `gpu.py run --gpu ID -- @python autoresearch/ce_prepost_testset_20261124/chain.py --subjects 9003136585,9002944080,9000103445 --csm_crop 0.8`.
+   An existing topic is only verified; the tuned run is skipped when its score and volumes exist. Whether the worker
+   skips its 51 finished jobs on a rerun was not tested on these topics: watch the first lines of the log.
+4. Then tables and figures per subject; check on 9002944080 whether the wrapped region lies inside the head mask.
+
+## 10. GPU use
 
 Rule of 2026-11-25 20:06 PST (user, workspace `CLAUDE.md`): all mcgs sessions together hold at most 3 amax cards, and
 a card that already carries a task gets no further job. The sessions queued by waiting time; this study holds one
 card and runs its jobs there one after another (truth: card 4; steps 3 and 4: card 3).
 
-## 9. Files of this folder
+## 11. Files of this folder
 
 | file | purpose |
 |---|---|
