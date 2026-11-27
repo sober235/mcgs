@@ -1,6 +1,6 @@
 # Plain-scan / enhanced test set — progress
 
-State of 2026-11-26 03:14 PST (clock of the local Mac; no server time is recorded anywhere).
+State of 2026-11-26 19:50 PST (clock of the local Mac; no server time is recorded anywhere).
 Session `plain-enhan`. Plan and pipeline: [README.md](README.md).
 
 ## 1. Task
@@ -22,9 +22,9 @@ Choices made by the user:
 |---|---|
 | 0. probe of the data (CPU) | done |
 | 1. k-space, prospective mask, coil maps (CPU) | done for all three subjects |
-| 2. truth = CS-SENSE of all acquired lines, lambda on held-out lines (GPU) | 9003136585 done; 9002944080 running on card 4; 9000103445 waiting |
-| 3. AF12 mask + simulated k-space per subject | script written (`subject_topic.py`), not run yet |
-| 4. eleven methods | not started |
+| 2. truth = CS-SENSE of all acquired lines, lambda on held-out lines (GPU) | done for all three subjects |
+| 3. AF12 mask + simulated k-space per subject | running: job `j-20261127T034454-326e0b09` on card 3 (`chain.py`, the three subjects one after another) |
+| 4. eleven methods | same job, after each subject's step 3 (`run_subject.py --all`) |
 | 5. scoring, tables, figures | not started |
 
 ## 3. Subjects
@@ -89,27 +89,44 @@ Result for 9003136585 (job `j-20261126T092259-9993259a`, card 4):
 | enhanced | 0.23222 | 0.22849 | **0.22566** | 0.22585 | 0.23316 | 0.001 | 0.11670 |
 
 (columns 2.5e-4 ... 4e-3: residual on the held-out lines). Both minima lie inside the range, so no extension was
-needed. Maps kept after the crop: 61.0 % (plain scan) and 58.3 % (enhanced) of the volume. The truth volumes have not
-been looked at by eye yet (`view_truth.py` is written for this).
+needed. Maps kept after the crop: 61.0 % (plain scan) and 58.3 % (enhanced) of the volume.
 
-9002944080 (50 coils): job `j-20261126T100150-3456372d`, running on card 4 since about 02:01 PST 2026-11-26.
+All three subjects (card 4, one job each):
+
+| subject | job | lambda plain scan / enhanced | k-space residual after the refit, plain scan / enhanced | note |
+|---|---|---|---|---|
+| 9003136585 | `j-20261126T092259-9993259a` | 0.002 / 0.001 | 0.12767 / 0.11670 | minima inside the range |
+| 9002944080 | `j-20261126T100150-3456372d` | 0.004 / 0.004 | 0.20783 / 0.20562 | minimum on the upper end, range extended to 0.008, 0.004 stays the minimum |
+| 9000103445 | `j-20261126T113155-ab2a2ad5` | 0.002 / 0.002 | 0.17402 / 0.13998 | minima inside the range |
+
+Truths viewed by eye (`view_truth.py`, three central planes of plain scan, enhanced and difference):
+
+- 9003136585: clean; an enhancing lesion behind the cerebellum.
+- 9000103445: clean, fine cortical and cerebellar detail; sinus and meningeal enhancement; no obvious enhancing lesion
+  in the central planes; a small wrapped region at the top left of the sagittal plane.
+- 9002944080: normal anatomy and clear enhancement, but visibly smoother than the other two (larger lambda, higher
+  residual: noisier acquisition). A bright wrapped region outside the head in the upper-left corner of the sagittal
+  plane, in both scans. Caveat for the scores: a smooth truth favours smooth methods on this subject; whether the
+  wrapped region falls inside the head mask is checked when the scores are made.
 
 ## 7. Next steps
 
-1. Truth of 9002944080 (running) and 9000103445; view the three truths.
-2. `subject_topic.py` per subject: AF12 Poisson-disc mask by the September generator (seed 0, ACS 24 x 24; on the
+1. `subject_topic.py` per subject: AF12 Poisson-disc mask by the September generator (seed 0, ACS 24 x 24; on the
    232 x 176 plane it must reproduce the record's AF12 mask bit for bit, 3403 points; 232 x 190 gets 3673 points),
    simulated k-space by the September simulator (noise level from the residual on the prospective mask, seeds
    100 / 200, gate: scale 1 and the truth run's residual reproduced), byte copies of the AF12 topic's method
    scripts, trainer configs with only paths and names replaced.
-3. Eleven methods with the frozen settings of the AF12 topic; MC-GS = tuned final config, seed 42.
-4. Head-masked PSNR / SSIM / NMSE / HFEN against the truth; table and figure per subject.
+2. Eleven methods with the frozen settings of the AF12 topic (`run_subject.py`: the AF12 study's own `run_af12.py` and
+   `af12_cmp_support.py` with only the topic path, grid, names and output folder replaced; 3D-DIP / 3D-INR = the
+   output-support versions of the optimal figure); MC-GS = tuned final config, seed 42, stored as `gs_joint_tuned`;
+   MC-GS with the registered recipe is kept beside it.
+3. Head-masked PSNR / SSIM / NMSE / HFEN against the truth; table and figure per subject.
 
 ## 8. GPU use
 
 Rule of 2026-11-25 20:06 PST (user, workspace `CLAUDE.md`): all mcgs sessions together hold at most 3 amax cards, and
 a card that already carries a task gets no further job. The sessions queued by waiting time; this study holds one
-card (card 4) and runs its jobs there one after another.
+card and runs its jobs there one after another (truth: card 4; steps 3 and 4: card 3).
 
 ## 9. Files of this folder
 
@@ -120,5 +137,7 @@ card (card 4) and runs its jobs there one after another.
 | `probe_cases.py`, `probe/` | read-only probe of the data; its json and zero-filled images |
 | `prep_cases.py` | k-space, mask, coil maps; the record and echo checks |
 | `truth_cssense.py` | truth reconstruction with held-out lambda |
-| `subject_topic.py` | AF12 mask, simulation, scripts and configs per subject (not run yet) |
+| `subject_topic.py` | AF12 mask, simulation, scripts and configs per subject |
+| `run_subject.py` | the eleven methods on one subject's topic |
+| `chain.py` | one job: `subject_topic.py` then `run_subject.py --all` for each subject |
 | `view_truth.py` | three-plane picture of a subject's truth |
