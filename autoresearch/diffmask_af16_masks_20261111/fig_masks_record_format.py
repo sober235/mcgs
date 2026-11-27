@@ -66,9 +66,21 @@ ap.add_argument("--arrow", action="store_true",
                 help="one arrow per row, at the same place in every panel of the row: where the error of the other methods "
                      "(median over the nine reconstructions other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's most")
 ap.add_argument("--arrow_color", default="#FF1A1A")
-ap.add_argument("--arrow_mode", choices=["gap", "edge"], default="edge",
+ap.add_argument("--arrow_mode", choices=["gap", "edge", "max", "own"], default="edge",
                 help="gap: the largest error gap anywhere in the box; edge: the same, restricted to tissue boundaries "
-                     "(the fifth of the box with the steepest GT gradient)")
+                     "(the fifth of the box with the steepest GT gradient); own (user, 2026-11-26: 'make the arrow in "
+                     "zoom in view to point the area with the largest error'): in every panel the arrow points at the "
+                     "largest error of THAT panel's own error box (7x7 local mean), GT panel: the largest median error "
+                     "of the ten reconstructions; max: one place per row, the largest median error of the nine "
+                     "reconstructions other than ZF and MC-GS")
+ap.add_argument("--arrow_inner", type=int, default=0,
+                help="keep the arrow off the edge of the brain (user, 2026-11-26: 'but not point the edge of the brain'): "
+                     "only points at least this many voxels inside the outline of the filled head mask of the slice "
+                     "are candidates; the scalp and skull are about 13 voxels thick at transverse 205, so 20 keeps the "
+                     "arrow about 7 voxels inside the brain surface (the head mask does not separate brain from scalp)")
+ap.add_argument("--arrow_margin", type=int, default=3,
+                help="modes max / own: candidates lie at least this many pixels inside the zoom box (3 = the whole 7x7 "
+                     "window inside the box; larger keeps the arrow head off the frame)")
 ap.add_argument("--arrow_on", choices=["zoom", "main"], default="zoom",
                 help="zoom: only in the magnified weighted-image box (not in the error map, not on the slice; user rule "
                      "2026-11-22); main: on the slice images")
@@ -97,7 +109,7 @@ import numpy as np  # noqa: E402
 from matplotlib.cm import ScalarMappable  # noqa: E402
 from matplotlib.colors import Normalize  # noqa: E402
 from matplotlib.patches import Rectangle  # noqa: E402
-from scipy.ndimage import binary_dilation, binary_fill_holes, binary_opening, gaussian_filter, uniform_filter  # noqa: E402
+from scipy.ndimage import binary_erosion, binary_dilation, binary_fill_holes, binary_opening, gaussian_filter, uniform_filter  # noqa: E402
 from skimage.metrics import structural_similarity  # noqa: E402
 
 os.nice(10)
@@ -393,10 +405,15 @@ CAP = ["head-masked slice PSNR / SSIM (7x7 window) / NMSE in each panel, the bes
 if args.role:        # article figures carry the acceleration factor only (user, 2026-11-22): no point-count line
     CAP = [x for x in CAP if not x.startswith("AF in the GT panel")]
 if args.arrow:
-    CAP.append(("red arrow in the magnified image box" if args.arrow_on == "zoom" else "arrow on each slice")
-               + " (same place along a row): where the error of the other methods (median of the nine reconstructions "
-               "other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's most"
+    _where = "red arrow in the magnified image box" if args.arrow_on == "zoom" else "arrow on each slice"
+    CAP.append((_where + ": the largest error of that panel's own error box (7x7 local mean); GT panel: the largest "
+                "median error of the ten reconstructions" if args.arrow_mode == "own" else
+                _where + " (same place along a row): the largest error of the other methods (median of the nine "
+                "reconstructions other than ZF and MC-GS, 7x7 local mean)" if args.arrow_mode == "max" else
+                _where + " (same place along a row): where the error of the other methods (median of the nine reconstructions "
+                "other than ZF and MC-GS, 7x7 local mean) exceeds MC-GS's most")
                + (", among the tissue boundaries of the box (steepest fifth of the GT gradient)" if args.arrow_mode == "edge" else "")
+               + (f", at least {args.arrow_inner} voxels inside the head outline" if args.arrow_inner > 0 else "")
                + ("; chosen against GT, for display only" if args.box_select else ""))
 
 
@@ -473,11 +490,39 @@ def arrow_at(a, pt, main=False, shape=None, z=None):
 
 if args.arrow:
     for r in rows:
-        sm = {lab: uniform_filter(np.abs(SL[(r["name"], r["c"])][lab][args.tra] - r["g2"]) / GMAX[r["c"]] * r["emask"],
-                                  size=7, mode="nearest") for lab in LABELS if lab != "ZF"}
+        sm_all = {lab: uniform_filter(np.abs(SL[(r["name"], r["c"])][lab][args.tra] - r["g2"]) / GMAX[r["c"]] * r["emask"],
+                                      size=7, mode="nearest") for lab in LABELS}
+        sm = {lab: v_ for lab, v_ in sm_all.items() if lab != "ZF"}
+
+        inner = np.ones(r["g2"].shape, bool)
+        if args.arrow_inner > 0:
+            inner = binary_erosion(binary_fill_holes(r["m2"] > 0), iterations=args.arrow_inner)
+        inner = crop(D(inner), ZOOMS[r["name"]]).astype(bool)
+        assert inner[args.arrow_margin:-args.arrow_margin, args.arrow_margin:-args.arrow_margin].any(), f"--arrow_inner {args.arrow_inner}: no candidate point left in the box of {r['name']}"
+
+        def box_peak(x, m):
+            """(x, y) and value of the largest entry of the zoom box of x, m pixels from its edge excluded"""
+            s_ = crop(D(x), ZOOMS[r["name"]]).copy()
+            s_[:m] = s_[-m:] = -np.inf; s_[:, :m] = s_[:, -m:] = -np.inf
+            s_[~inner] = -np.inf
+            y_, x_ = np.unravel_index(np.argmax(s_), s_.shape)
+            return (int(x_), int(y_)), float(s_[y_, x_])
+
+        if args.arrow_mode in ("max", "own"):
+            if args.arrow_mode == "own":
+                r["arrow_own"] = {lab: box_peak(sm_all[lab], args.arrow_margin) for lab in LABELS}
+                r["arrow"], r["arrow_gap"] = box_peak(np.median(list(sm.values()), axis=0), args.arrow_margin)
+                for lab in LABELS:
+                    log(f"  arrow {r['name']:<16} {r['c']:<5} {lab:<12} crop (x, y) = {r['arrow_own'][lab][0]}, "
+                        f"local-mean error {r['arrow_own'][lab][1]:.4f}")
+            else:
+                r["arrow"], r["arrow_gap"] = box_peak(np.median([sm[lab] for lab in sm if lab != MC], axis=0), args.arrow_margin)
+            log(f"  arrow {r['name']:<16} {r['c']:<5} crop (x, y) = {r['arrow']}, median error {r['arrow_gap']:.4f}")
+            continue
         sc = crop(D(np.median([sm[lab] for lab in sm if lab != MC], axis=0) - sm[MC]), ZOOMS[r["name"]]).copy()
         m = 7
         sc[:m] = sc[-m:] = -np.inf; sc[:, :m] = sc[:, -m:] = -np.inf
+        sc[~inner] = -np.inf
         if args.arrow_mode == "edge":
             gy, gx = np.gradient(gaussian_filter(r["g2"] / GMAX[r["c"]], 1.0))
             gmag = crop(D(np.hypot(gx, gy)), ZOOMS[r["name"]])
@@ -485,8 +530,11 @@ if args.arrow:
         yy, xx = np.unravel_index(np.argmax(sc), sc.shape)
         r["arrow"], r["arrow_gap"] = (int(xx), int(yy)), float(sc[yy, xx])
         log(f"  arrow {r['name']:<16} {r['c']:<5} crop (x, y) = {r['arrow']}, error gap {r['arrow_gap']:.4f}")
-    record["arrows"] = [dict(pattern=r["name"], contrast=r["c"], crop_xy=r["arrow"], gap=r["arrow_gap"]) for r in rows]
+    record["arrows"] = [dict(pattern=r["name"], contrast=r["c"], crop_xy=r["arrow"], gap=r["arrow_gap"],
+                             **({"per_panel": {lab: dict(crop_xy=p_, local_mean_error=e_) for lab, (p_, e_) in r["arrow_own"].items()}}
+                                if "arrow_own" in r else {})) for r in rows]
     record["arrow_mode"], record["arrow_on"] = args.arrow_mode, args.arrow_on
+    record["arrow_inner_voxels"] = args.arrow_inner
 record["error_display"] = dict(vmax=args.err_vmax, cmap=args.err_cmap)
 y, im = top_in, None
 for k, r in enumerate(rows):
@@ -530,7 +578,8 @@ for k, r in enumerate(rows):
         im = bR.imshow(crop(emap, Z), cmap=args.err_cmap, vmin=0.0, vmax=args.err_vmax, **IMKW)
         zframe(bL); zframe(bR)
         if args.arrow:
-            arrow_at(bL, r["arrow"], z=Z) if args.arrow_on == "zoom" else arrow_at(a, r["arrow"], True, D(v).shape, Z)
+            pt = r["arrow_own"][lab][0] if "arrow_own" in r else r["arrow"]
+            arrow_at(bL, pt, z=Z) if args.arrow_on == "zoom" else arrow_at(a, pt, True, D(v).shape, Z)
         if k == 0:
             a.set_title(lab if "SPIRiT" in lab else lab.upper(), fontsize=args.title_fs, pad=4)
     if k == 0:           # one grey bar in units of each row's own window, one error bar (same scale in every row)

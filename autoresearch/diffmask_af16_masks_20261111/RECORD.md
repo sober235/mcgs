@@ -138,3 +138,40 @@ gpu.py run --cpu -- @python autoresearch/diffmask_af16_masks_20261111/save_recon
 
 The cautions of "Read it with" above apply unchanged (slice selected on these data, one subject, one draw per mask,
 one seed); boxes and arrows are chosen against GT, for display only.
+
+## Optimal result replaced: arrows at each panel's largest error, inside the brain (user, 2026-11-26, local clock PST)
+
+The user looked at the optimal figure above and asked: "make the arrow in zoom in view to point the area with the
+largest error", then "but not point the edge of the brain", and approved the redrawn figure as the replacement of the
+optimal result of the different-mask stage ("approve", 2026-11-26 17:55 PST).
+
+- Figure: `uniform_recon/figures/t1flair_v3_af16_masks_record_format_tra205_box48_article_boxsel_zoomarrow_maxerr_inbrain.png`
+  (200 dpi, PNG sha256 `f85b42b61fda…`; preview in `uniform_recon/preview/`, record JSON in `uniform_recon/`).
+- What changed: only the arrows. Before, one place per row (where the median error of the nine other reconstructions
+  exceeds MC-GS's most), so an arrow did not sit on the bright area of the error box beside it. Now `--arrow_mode own`:
+  in every panel the arrow points at the largest error of that panel's own error box (7x7 local mean). The GT panel
+  has no error box; its arrow is at the largest median error of the ten reconstructions.
+- Not at the edge of the brain: `--arrow_inner 28` keeps candidates at least 28 voxels inside the outline of the
+  filled head mask of the slice (scalp + skull are about 13 voxels thick there, read off the figure, not measured);
+  `--arrow_margin 8` keeps them 8 pixels inside the box frame.
+- Unchanged: slice 205, the three boxes ((147, 69) / (167, 75) / (163, 58)), every panel number, MC-GS first on 18 of
+  18 conditions. The arrows now differ from column to column; the one in the MC-GS column marks MC-GS's own largest
+  error. Arrows are chosen against GT, for display only.
+- The script's earlier modes are unchanged in behaviour (`gap`, `edge`; `--arrow_inner 0` is the default).
+
+GPU server, same folder as above, new subfolder `optimal_boxsel_zoomarrow_maxerr_inbrain/` (the earlier
+`optimal_boxsel_zoomarrow/` stays, superseded; `recon_data/` is unchanged and serves both):
+
+| file | content | sha256 (first 12) |
+|---|---|---|
+| `..._zoomarrow_maxerr_inbrain_600dpi.pdf` | THE FIGURE: vector text and line work, image panels embedded at 600 dpi | 23bd6dc33c53 |
+| `..._zoomarrow_maxerr_inbrain_600dpi.png` | 600-dpi raster, 19569 x 19438 px | 41ee26a609d3 |
+| `..._zoomarrow_maxerr_inbrain_600dpi_data.npz` | every slice the figure draws | 5f637e524d69 |
+| record JSON, `MANIFEST.json`, preview, script | per-panel arrow points and numbers; all six manifest entries re-hashed, no mismatch | |
+
+```sh
+gpu.py run --cpu -- @python autoresearch/diffmask_af16_masks_20261111/fig_masks_record_format.py --tra 205 --box 48 \
+    --box_select --what "" --err_cmap inferno --arrow --arrow_mode own --arrow_inner 28 --arrow_margin 8 --arrow_on zoom \
+    --brightness 1 --role "Sampling-mask generalization" --save_data --tag _article_boxsel_zoomarrow_maxerr_inbrain \
+    --png_dpi 600 --pdf --pdf_dpi 600 --out_dir <new folder>
+```
