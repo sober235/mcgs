@@ -1,7 +1,7 @@
 # 测试集 T1 + FLAIR 不同加速倍数：阶段总结（2026-11-26）
 
 时间均为本机时钟（PST），不含服务器上的任何时间。作业只写编号后 8 位。
-本文件是会话 diff-af 到 2026-11-26 17:51 为止的工作整理；数字来自同目录的 `table.json` / `RESULTS.md`（统计作业 b9ed62b3，16 / 24），运行细节见 `RUNLOG.md`。
+本文件是会话 diff-af 到 2026-11-27 06:07 为止的工作整理（服务器关机前的保存点，恢复步骤见第 7 节）；数字来自同目录的 `table.json` / `RESULTS.md`（统计作业 b9ed62b3，16 / 24），运行细节见 `RUNLOG.md`。
 
 ## 1. 任务
 
@@ -13,16 +13,16 @@
 - **约束：** 设置冻结，不在测试扫描上调参；结果如实报告，MC-GS 不是第一的列逐个列出。
 - **指标：** 头部掩膜内的 PSNR、SSIM、NMSE，全部由保存的重建体积用同一份评分代码重新计算。
 
-## 2. 进度（2026-11-26 17:51）
+## 2. 进度（2026-11-27 06:07，服务器关机前）
 
 | 部分 | 状态 |
 |---|---|
 | GS 行（MC-GS 与 GS-single，72 行） | 全部完成，无失败 |
-| 对比方法行（192 行） | 至少完成 172 行，无失败行 |
-| 完整格子（11 个方法都齐） | 16 / 24：vol1、vol5、vol6、vol7 |
-| 未完成的扫描 | vol4（剩 ZS-SSDU、3D-DIP、3D-INR AF16/20/24，共 11 行，正在跑）、vol2（剩 3D-DIP AF24、3D-INR、MC-INR，共 9 行） |
+| 对比方法行（192 行） | 183 行完成，1 行在跑（vol2 AF24 3D-DIP，关机时会中断），8 行未开始；无失败行（状态作业 893f1551） |
+| 完整格子（11 个方法都齐） | 运行上 20 / 24：vol1、vol4、vol5、vol6、vol7；已统计入表的是 16 / 24（vol4 的统计见第 7 节） |
+| 未完成的扫描 | 只剩 vol2 的 9 行：3D-DIP AF24（正在跑）、3D-INR AF12/16/20/24、MC-INR AF12/16/20/24 |
 
-- 现在只有 0 号卡的一个作业（3ba586e8）在跑剩余的行；17:51 核对时在 vol4 AF12 的 3D-DIP。vol5 的最后 9 行用了约 10.5 小时，按此粗估剩余 20 行还要一天左右，不可靠。
+- 只有 0 号卡的一个作业（3ba586e8）在跑；vol4 在本机 2026-11-27 05:40 到 06:04 之间跑完，06:04 核对时作业在 vol2 AF24 3D-DIP 的 T1。服务器关机会终止这个作业，开机后按第 7 节恢复。剩余 9 行粗估单卡十来个小时，不可靠。
 - MC-INR 在新扫描上没有出现之前担心的归一化检查中止（vol1、vol4、vol5、vol6、vol7 都正常）。
 
 ## 3. 结果（16 / 24 个完整格子）
@@ -125,13 +125,15 @@
 | 2026-11-26 01:23 | 4 号卡由 plain-enhan 使用；项目占 0 号（本实验）、4 号、5 号共 3 张 |
 | 2026-11-26 04:20 | multi-part（膝关节实验）开始等一张卡；本实验答复：只保留 0 号卡，不再开第二张，0 号卡空出时通知它 |
 | 2026-11-26 14:00 | vol5 完整；统计作业 b9ed62b3：16 / 24（16:38 核对时已取回） |
+| 2026-11-27 06:04 | vol4 的对比方法行全部完成（状态作业 893f1551：183 完成、1 在跑、8 未开始）；作业进入 vol2 |
+| 2026-11-27 06:07 | 用户要关闭 GPU 服务器，开机后继续；本会话写下恢复步骤（第 7 节）并提交推送 |
 
 - 被停止的两个作业没跑完的行都在 0 号卡作业的行列表里，通过认领机制由它接着跑，没有在已有作业的卡上叠第二个作业。
 - 2026-11-25 17:59 的一次统计启动没有拿到作业编号，没有产生作业；18:54 重新启动后正常。
 
 ## 5. 剩余工作
 
-1. 0 号卡的作业跑完 vol4、vol2 的剩余行；每完整一个扫描就重跑 `collect_stats.py --pipeline` 并更新表和图。
+1. 开机后按第 7 节恢复，跑完 vol2 的 9 行；每完整一个扫描就重跑 `collect_stats.py --pipeline` 并更新表和图。
 2. 24 / 24 完整后做最终统计和最终图，通知 diff-mask 会话（它要从最终表里取 AF16 的格子），并通知 multi-part 会话 0 号卡已空出。
 3. 最终的整体代码检查，包括之前记下的小问题：`guarded()` 把 KeyError 归为"不可读"、缺少退出码时轮询不会结束、`slice_stats` 里没有保护的 `np.load`、退出码判断和缓存键没有自检、最强的非 GS 方法只按 PSNR 选。
 
@@ -147,3 +149,32 @@
 | `run_gs.py` / `run_arms.py` | GS 行和对比方法行的运行脚本 |
 | `interim_gs_pair.py` | MC-GS 减 GS-single 的中间图脚本 |
 | `figures/` | 图（不入库） |
+
+## 7. 关机前的保存点与开机后的恢复步骤（2026-11-27 06:07 写）
+
+### 7.1 关机时的状态
+
+- 服务器上的结果（体积、日志、claim 目录）都在磁盘上：`/data0/congcong/code/GS/3DGS/outputs/codex_artifacts/mcgs_t1flair_af_testset_20261121`，关机不会丢。
+- 对比方法 192 行：183 行完成；`vol2_jiangdian:24:dip` 在跑（关机时中断）；8 行未开始（`vol2_jiangdian:{12,16,20,24}:{inr,mcinr}`）。
+- 中断的行留下的东西：claim 目录 `claims/arm_vol2_jiangdian_af24_dip`，以及 `topics/vol2_jiangdian_af24/logs/` 下的 `run_dip_T1.log`（06:04 时只有这一个；若关机前 T1 已完成并开始 FLAIR，还会有 `dip_T1.json`、`recons/dip_T1_complex.npy` 和 `run_dip_FLAIR.log`）。
+- 仓库里的表（`table.json` 等）是 16 / 24；vol4 已跑完但还没进表。若关机前统计作业跑完，会另有一次提交写明 20 / 24。
+
+### 7.2 为什么不能直接重新启动
+
+- 中断的行有 claim，`run_arms.py` 会把它当作"已认领"跳过。
+- `--release` 只删 claim；`run_job` 看到旧日志或部分输出就拒绝运行（"remove by hand"），所以要先手动清理。
+- 断电可能留下截断的 `.npy`，让某个子任务看起来"已完成"。最后一个被碰过的行要当作可疑。
+
+### 7.3 开机后的步骤（按顺序）
+
+1. 确认 SSH 2222 和 `gpu.py status` 正常。
+2. CPU 作业：`run_arms.py --selftest`，`collect_stats.py --selftest`，`run_arms.py --status`。
+3. 看 `--status` 里所有 `stale` 的行（预期只有 `vol2_jiangdian:24:dip`；若关机前作业已进入下一行，就是那一行）。对每个 stale 行，在它的 topic 目录里列出 `logs/run_<arm>_*.log`、`logs/<arm>_*.json`、`recons/<arm>_*_complex.npy`（MC-INR 还有 `mcinr/`）。
+4. 对 stale 行：没有完成的子任务（缺 json 或 npy 的那个对比度）把它的日志和部分输出删掉；看起来已完成的子任务，先用 numpy 读一遍 npy、检查 json 可解析，读不了就一起删。只删本实验、本行的文件。
+5. `run_arms.py --release <row>`（CPU 作业），再跑一次 `--status`，确认 0 个 stale。
+6. 数卡：所有 mcgs 会话合计不超过 3 张；ListAgents，问 multi-part（2026-11-26 04:20 起在等卡）等会话的情况；研究之间不设优先，本实验只拿一张卡。
+7. 选卡：`nvidia-smi --query-compute-apps` 查两次、间隔约 75 秒，0 个进程才算空卡。
+8. 启动：`gpu.py run --gpu ID -- @python autoresearch/t1flair_af_testset_20261121/run_arms.py --rows` 加上剩余 9 行（`vol2_jiangdian:24:dip`、`vol2_jiangdian:{12,16,20,24}:inr`、`vol2_jiangdian:{12,16,20,24}:mcinr`）。脚本从 `CUDA_VISIBLE_DEVICES` 取卡号，`--gpu` 给物理卡号即可。在 `RUNLOG.md` 记一行。
+9. 统计：若 20 / 24 的统计没在关机前做完，开机后先跑一次 `collect_stats.py --pipeline`（不占 GPU）；检查输出里的 `unreadable` 列表为空。
+10. vol2 跑完后再跑 `--pipeline` 得到 24 / 24，然后做第 5 节的第 2、3 步；通知 diff-mask（AF16 的表到那时才是最终的）。
+
