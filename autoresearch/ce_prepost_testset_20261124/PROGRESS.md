@@ -1,6 +1,6 @@
 # Plain-scan / enhanced test set — progress
 
-State of 2026-11-27 06:20 PST (clock of the local Mac; no server time is recorded anywhere).
+State of 2026-11-27 11:35 PST (clock of the local Mac; no server time is recorded anywhere).
 Session `plain-enhan`. Plan and pipeline: [README.md](README.md).
 
 ## 1. Task
@@ -23,8 +23,8 @@ Choices made by the user:
 | 0. probe of the data (CPU) | done |
 | 1. k-space, prospective mask, coil maps (CPU) | done for all three subjects |
 | 2. truth = CS-SENSE of all acquired lines, lambda on held-out lines (GPU) | done for all three subjects |
-| 3. AF12 mask + simulated k-space per subject | 9003136585 done (mask identical to the record's AF12 mask, truth residual reproduced); other two not started |
-| 4. eleven methods | 9003136585: 9 of 11 done, 3D-DIP / 3D-INR (support versions) interrupted by the server power-off; other two not started |
+| 3. AF12 mask + simulated k-space per subject | 9003136585 and 9002944080 done (mask identical to the record's AF12 mask, truth residual reproduced); 9000103445 not started |
+| 4. eleven methods | 9003136585: all 11 done, every stage exit 0; 9002944080: running (same job, card 3); 9000103445 waiting |
 | 5. scoring, tables, figures | not started |
 
 ## 3. Subjects
@@ -122,7 +122,7 @@ Truths viewed by eye (`view_truth.py`, three central planes of plain scan, enhan
    MC-GS with the registered recipe is kept beside it.
 3. Head-masked PSNR / SSIM / NMSE / HFEN against the truth; table and figure per subject.
 
-## 8. Results so far: 9003136585 at AF12 (interim)
+## 8. Results: 9003136585 at AF12 (all eleven methods)
 
 Head-masked scores against the subject's truth, PSNR (dB) / SSIM / NMSE. Classical methods: best lambda of the frozen
 grid by head PSNR, as in the AF12 study (all optima lie inside the grids). One seed (42) for the Gaussian models.
@@ -139,14 +139,20 @@ grid by head PSNR, as in the AF12 study (all optima lie inside the grids). One s
 | GS-single | 34.528 / 0.9303 / 0.00814 | 36.677 / 0.9415 / 0.00942 |
 | MC-GS, registered recipe | 34.701 / 0.9331 / 0.00782 | 36.864 / 0.9438 / 0.00903 |
 | **MC-GS, tuned final config** | **34.824 / 0.9356 / 0.00760** | **37.038 / 0.9459 / 0.00867** |
-| 3D-DIP, 3D-INR (support versions) | not finished | not finished |
+| 3D-DIP (support version) | 30.815 / 0.8880 / 0.01914 | 32.475 / 0.8734 / 0.02480 |
+| 3D-INR (support version) | 33.520 / 0.9180 / 0.01027 | 35.556 / 0.9267 / 0.01220 |
 
-- MC-GS (tuned) is first on PSNR, SSIM and NMSE in both scans among the nine finished methods; over GS-single
+- MC-GS (tuned) is first on PSNR, SSIM and NMSE in both scans among all eleven methods; over GS-single
   +0.30 dB (plain scan) and +0.36 dB (enhanced); over the registered recipe +0.12 / +0.17 dB.
 - MC-INR is below CG-SENSE on this subject; not yet compared with its level on the record subject.
-- Not final: 3D-DIP and 3D-INR are missing, `run_subject.py --table` has not been run, no figure yet.
+- `run_subject.py --table` (registered MC-GS, without the tuned row and the support versions) also puts MC-GS first
+  on head PSNR, SSIM, NMSE and HFEN in both scans. One combined table and the figure are still to be made.
 
-## 9. Stop for the server power-off (2026-11-27) and how to resume
+## 9. Server power-off announced on 2026-11-27, and how to resume
+
+Update 2026-11-27 11:35 PST: the server was still on; the job finished 9003136585 completely, built the topic of
+9002944080 and started its 51-job worker. The text below was written at 06:20 PST; its resume steps hold with
+"9003136585 complete" (its support results exist, so that stage is skipped).
 
 The user powers the GPU server off. Job `j-20261127T034454-326e0b09` (card 3, `chain.py`, started 2026-11-26 19:44 PST,
 local clock) was inside `--support pre` of 9003136585 (3D-DIP, about iteration 9200 of 12000) when this was written;
