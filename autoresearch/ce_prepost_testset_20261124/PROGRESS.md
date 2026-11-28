@@ -1,6 +1,6 @@
 # Plain-scan / enhanced test set — progress
 
-State of 2026-11-27 19:10 PST — TASK SUSPENDED (user), server unreachable (clock of the local Mac; no server time is recorded anywhere).
+State of 2026-11-28 06:05 PST — resumed after the power loss (clock of the local Mac; no server time is recorded anywhere).
 Session `plain-enhan`. Plan and pipeline: [README.md](README.md).
 
 ## 1. Task
@@ -24,8 +24,8 @@ Choices made by the user:
 | 1. k-space, prospective mask, coil maps (CPU) | done for all three subjects |
 | 2. truth = CS-SENSE of all acquired lines, lambda on held-out lines (GPU) | done for all three subjects |
 | 3. AF12 mask + simulated k-space per subject | 9003136585 and 9002944080 done (mask identical to the record's AF12 mask, truth residual reproduced); 9000103445 not started |
-| 4. eleven methods | 9003136585: all 11 done, every stage exit 0; 9002944080: cut by the loss of power inside the 51-job worker; 9000103445 not started |
-| 5. scoring, tables, figures | not started |
+| 4. eleven methods | 9003136585: all 11 done, every stage exit 0; 9002944080: running again (job `j-20261128T134216-fb611315`, card 3), 25 of 51 worker jobs were kept; 9000103445 not started |
+| 5. tables | 9003136585: `tables/table_9003136585.md` (`subject_table.py`); figures not started |
 
 ## 3. Subjects
 
@@ -145,8 +145,8 @@ grid by head PSNR, as in the AF12 study (all optima lie inside the grids). One s
 - MC-GS (tuned) is first on PSNR, SSIM and NMSE in both scans among all eleven methods; over GS-single
   +0.30 dB (plain scan) and +0.36 dB (enhanced); over the registered recipe +0.12 / +0.17 dB.
 - MC-INR is below CG-SENSE on this subject; not yet compared with its level on the record subject.
-- `run_subject.py --table` (registered MC-GS, without the tuned row and the support versions) also puts MC-GS first
-  on head PSNR, SSIM, NMSE and HFEN in both scans. One combined table and the figure are still to be made.
+- Full table with NMSE and HFEN: [tables/table_9003136585.md](tables/table_9003136585.md). MC-GS (tuned) is first on
+  all four head metrics in both scans (HFEN: second is 3D-INR with support). The figure is still to be made.
 
 ## 9. Server power-off announced on 2026-11-27, and how to resume
 
@@ -203,6 +203,20 @@ After power-on, before the relaunch of step 3 above: check the files of the job 
 went (a half-written result of a classical run, or a trainer folder without a score), and that the three finished
 blocks are intact (`subjects/9003136585` complete; truths of all three subjects; topic of 9002944080).
 
+### Resumption, 2026-11-28 05:42 PST
+
+The user said to continue; the server was back. Checks before the relaunch:
+
+| check | result |
+|---|---|
+| saved files open and are complete (all of `subjects/`: 197 npy, 5 npz, 10 h5, 239 json; npz of 9002944080 CRC-tested; its trainer outputs) | no damaged file |
+| output of the job that was running when the power went (Joint SENSE lambda 0.002 of 9002944080) | only a short log and its claim; no result file, no partial volume |
+| cards | no compute process on any card in two checks; the project held none |
+
+Relaunch with the same command: job `j-20261128T134216-fb611315`, card 3. As seen in its log, a rerun is safe:
+9003136585 was skipped completely (51 worker jobs, tuned MC-GS, both support stages), the topic of 9002944080 was
+only verified, its 25 finished jobs were skipped, and the interrupted job was reclaimed and started again.
+
 ## 10. GPU use
 
 Rule of 2026-11-25 20:06 PST (user, workspace `CLAUDE.md`): all mcgs sessions together hold at most 3 amax cards, and
@@ -221,4 +235,5 @@ card and runs its jobs there one after another (truth: card 4; steps 3 and 4: ca
 | `subject_topic.py` | AF12 mask, simulation, scripts and configs per subject |
 | `run_subject.py` | the eleven methods on one subject's topic |
 | `chain.py` | one job: `subject_topic.py` then `run_subject.py --all` for each subject |
+| `subject_table.py`, `tables/` | (CPU) eleven-method table per subject from the finished result files; its output |
 | `view_truth.py` | three-plane picture of a subject's truth |
