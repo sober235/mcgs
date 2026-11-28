@@ -1,8 +1,8 @@
-# 测试集 T1 + FLAIR 不同加速倍数：结果（草稿，部分数据）
+# 测试集 T1 + FLAIR 不同加速倍数：结果
 
-> **草稿：只含已完成的结果。** 完整格子（扫描 x 加速倍数；T1 与 FLAIR 两种对比度的 11 个方法都齐全）24 / 24。不完整的格子对两种对比度都不计入名次与统计。全部跑完后由 `autoresearch/t1flair_af_testset_20261121/collect_stats.py --pipeline` 重新生成本文件、table.json、stats.json、table.md 与图。
+> **全部完成。** 完整格子（扫描 x 加速倍数；T1 与 FLAIR 两种对比度的 11 个方法都齐全）24 / 24。本文件、table.json、stats.json、table.md 与图由 `autoresearch/t1flair_af_testset_20261121/collect_stats.py --pipeline` 生成。
 
-口径：头部掩膜内（|GT| > 0.05 P99.9）的 PSNR / SSIM / NMSE；评分代码是各课题共用的 `t1t2_common.Pair.score`，真值来自该扫描自己的全采样 k 空间，所有数字都由保存的体积重新计算，再与各运行脚本记录的分数对照（见第 6 节）。NMSE 的差值写成相对降低（%），其余为绝对差；大于 0 表示 MC-GS 更好。
+口径：头部掩膜内（|GT| > 0.05 P99.9）的 PSNR / SSIM / NMSE；评分代码是各课题共用的 `t1t2_common.Pair.score`，真值来自该扫描自己的全采样 k 空间，所有数字都由保存的体积重新计算，再与各运行脚本记录的分数对照（见第 6 节）。NMSE 的差值写成相对降低（%），其余为绝对差；大于 0 表示 MC-GS 更好。“最强非 GS”指同一格子（扫描、加速倍数、对比度）里头部 PSNR 最高的非 GS 方法；它的 SSIM、NMSE 差值也对这同一个方法计算。
 
 ## 1. MC-GS 在完整格子里是否第一
 
