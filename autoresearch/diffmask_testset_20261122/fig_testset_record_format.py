@@ -28,6 +28,8 @@ from pathlib import Path
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--scan_name", required=True, help="test scan, a key of ts_common.SCANS")
+ap.add_argument("--scan_label", default=None, help="name written in the title and the file names instead of --scan_name "
+                "(edition without subject names, e.g. vol1)")
 ap.add_argument("--tra", type=int, default=-1, help="transverse slice (axis 0); -1 = the slice with the largest head area of the T1 GT")
 ap.add_argument("--box", type=int, default=64, help="edge of the zoom box in voxels")
 ap.add_argument("--center", type=int, nargs=2, default=[128, 88], metavar=("J", "K"), help="box centre, volume axes 1 and 2")
@@ -374,7 +376,8 @@ if args.scan:
     full = [s["slice"] for s in scan if s["firsts"] == 18]
     log("slices with MC-GS first on all 18 conditions:", full or "none")
 
-stem = f"dm_testset_{args.scan_name}_af16_masks_tra{args.tra}_box{args.box}{args.tag}"
+LABEL_SCAN = args.scan_label or args.scan_name
+stem = f"dm_testset_{LABEL_SCAN}_af16_masks_tra{args.tra}_box{args.box}{args.tag}"
 if args.no_fig:
     (art / f"record_{stem}.json").write_text(json.dumps(record, indent=2))
     log("DONE (numbers only)")
@@ -390,7 +393,7 @@ h = pw * H / W
 eh = half * ZOOM["h"] / ZOOM["w"]
 fw = ncol * pw + (ncol - 1) * gap + cbpad + cbw + cbroom
 
-TITLE = (f"{args.role or 'Different sampling masks'}: {args.scan_name} ({TSC.SCANS[args.scan_name]['group']} scan), T1 + FLAIR, "
+TITLE = (f"{args.role or 'Different sampling masks'}: {LABEL_SCAN} ({TSC.SCANS[args.scan_name]['group']} scan), T1 + FLAIR, "
          f"acceleration factor 16   --   uniform density / pseudo-radial   --   Transverse {args.tra}"
          + (f" ({args.what})" if args.what else ""))
 win = "slice P99.9" + (f" / {args.brightness:g}" if args.brightness != 1 else "")

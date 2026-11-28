@@ -1,105 +1,89 @@
 {
  "sources": {
   "own": "16dca012bad06ee09be25dba70e1a4ff285b9539559407897cf4e6909289d6d8",
-  "af_study": "7638cbfeade39dc05519846846509c1809d4d5adc4b624ba6689f0017457a4f9"
+  "af_study": "b8ee71189eb637a001c7f7a7230909a5fd37b6db41c748acd39f5e4641b1bcd5"
  },
  "summary": {
   "vdpoisson:T1": {
    "scans_complete": [
     "vol1_huangyuwei",
+    "vol2_jiangdian",
+    "vol4_tangbing",
     "vol5_sunxinyi",
     "vol6_jiangdian_790",
     "vol7_tangbin_790"
    ],
-   "n_complete": 4,
+   "n_complete": 6,
    "n_scans": 6,
-   "missing": {
-    "vol2_jiangdian": {
-     "3D-INR": "arm inr not done",
-     "MC-INR": "arm mcinr not done"
-    },
-    "vol4_tangbing": {
-     "ZS-SSDU": "arm zsssdu not done",
-     "3D-DIP": "arm dip not done",
-     "3D-INR": "arm inr not done"
-    }
-   },
+   "missing": {},
    "head_psnr": {
-    "first": 3,
+    "first": 5,
     "not_first": {
      "vol7_tangbin_790": 2
     }
    },
    "head_ssim": {
-    "first": 4,
+    "first": 6,
     "not_first": {}
    },
    "head_nmse": {
-    "first": 3,
+    "first": 5,
     "not_first": {
      "vol7_tangbin_790": 2
     }
    },
    "psnr_vs_GS-single": {
-    "mean": 0.11284873319723765,
+    "mean": 0.12265115929792121,
     "min": -0.04370008001134096,
     "max": 0.16803309113706177,
-    "positive": 3
+    "positive": 5
    },
    "psnr_vs_strongest": {
-    "mean": 0.9095957510143382,
+    "mean": 0.909850915494984,
     "min": 0.6573613247204833,
     "max": 1.095658689641887,
-    "positive": 4
+    "positive": 6
    }
   },
   "vdpoisson:FLAIR": {
    "scans_complete": [
     "vol1_huangyuwei",
+    "vol2_jiangdian",
+    "vol4_tangbing",
     "vol5_sunxinyi",
     "vol6_jiangdian_790",
     "vol7_tangbin_790"
    ],
-   "n_complete": 4,
+   "n_complete": 6,
    "n_scans": 6,
-   "missing": {
-    "vol2_jiangdian": {
-     "3D-INR": "arm inr not done",
-     "MC-INR": "arm mcinr not done"
-    },
-    "vol4_tangbing": {
-     "ZS-SSDU": "arm zsssdu not done",
-     "3D-DIP": "arm dip not done",
-     "3D-INR": "arm inr not done"
-    }
-   },
+   "missing": {},
    "head_psnr": {
-    "first": 3,
+    "first": 5,
     "not_first": {
      "vol7_tangbin_790": 2
     }
    },
    "head_ssim": {
-    "first": 4,
+    "first": 6,
     "not_first": {}
    },
    "head_nmse": {
-    "first": 3,
+    "first": 5,
     "not_first": {
      "vol7_tangbin_790": 2
     }
    },
    "psnr_vs_GS-single": {
-    "mean": 0.024449024110484885,
+    "mean": 0.029573007552579373,
     "min": -0.019492995457902396,
-    "max": 0.04550846859029889,
-    "positive": 3
+    "max": 0.0511509859880519,
+    "positive": 5
    },
    "psnr_vs_strongest": {
-    "mean": 0.519232963397835,
+    "mean": 0.525497416710102,
     "min": 0.336670695422967,
     "max": 0.6636056745304728,
-    "positive": 4
+    "positive": 6
    }
   },
   "uniform:T1": {

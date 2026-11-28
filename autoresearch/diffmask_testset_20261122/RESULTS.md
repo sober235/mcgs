@@ -199,7 +199,7 @@
 - 偏移组（vol5、vol6、vol7）按采集到的样子跑，没有做偏移校正；对齐组与偏移组分开列出。
 - 所有设置取自调参病例（jiangyizhou）各掩膜课题的登记值，没有在测试扫描上调参；真值只用于评分。
 - “伪径向”按 9 月的伪径向掩膜理解，尚未得到用户确认。
-- 第三种掩膜（变密度泊松 AF16）在加速倍数测试集研究里，本文件不含，待该研究定稿后合并。
+- 第三种掩膜（变密度泊松 AF16）来自加速倍数测试集研究，本文件第 1–7 节不含；三种掩膜的合并结果见第 8 节和 `table_3patterns.md`。
 
 ## 6. 重算分数与运行脚本记录的分数
 
@@ -216,3 +216,64 @@
 ## 7. 图
 
 汇总图：`autoresearch/diffmask_testset_20261122/figures/testset_summary.png`（PNG / PDF / SVG 与数据源 CSV 都在 figures 文件夹，随结果一起提交）。每种掩膜一栏，每次扫描一个点，纵轴是头部 PSNR 差（MC-GS 减对照）；零线为界；圆点 = 对齐组，三角 = 偏移组；只画完整格子。
+
+## 8. 三种采样掩膜合并（变密度泊松 / 均匀密度 / 伪径向，AF16）
+
+本节由 `merge_patterns.py` 生成的 `table_3patterns.md` 整理而来（2026-11-28 06:22 PST）。变密度泊松的格子取自加速倍数测试集研究的最终统计表（`../t1flair_af_testset_20261121/table.json`，24 / 24 个格子，GitHub 分支 diff-af 提交 118cdc0），没有重新训练。
+
+**量尺核对：** 两项研究的统计脚本评分代码逐行相同。另用 `gauge_check.py` 把变密度泊松 AF16 的 132 个重建体积（6 次扫描 × 2 对比度 × 11 个方法）用本研究的评分（各扫描的均匀密度克隆）重算，与该研究表中的头部 PSNR / SSIM / NMSE 逐项比较，最大差值均为 0.000000（记录在 `gauge_check.json`）。因此三种掩膜的数字在同一把量尺上。
+
+**合计：** 36 个 PSNR 列（3 种掩膜 × 2 对比度 × 6 次扫描）中 MC-GS 第一 29 个，36 个 SSIM 列中第一 28 个，36 个 NMSE 列中第一 29 个；不是第一的列全部排第 2。
+
+### MC-GS 排第一的扫描数
+
+| 采样方式 | 对比度 | 完整扫描 | PSNR | SSIM | NMSE |
+|---|---|---|---|---|---|
+| 变密度泊松 | T1 | 6 / 6 | 5 / 6 | 6 / 6 | 5 / 6 |
+| 变密度泊松 | FLAIR | 6 / 6 | 5 / 6 | 6 / 6 | 5 / 6 |
+| 均匀密度 | T1 | 6 / 6 | 6 / 6 | 6 / 6 | 6 / 6 |
+| 均匀密度 | FLAIR | 6 / 6 | 5 / 6 | 1 / 6 | 5 / 6 |
+| 伪径向 | T1 | 6 / 6 | 2 / 6 | 5 / 6 | 2 / 6 |
+| 伪径向 | FLAIR | 6 / 6 | 6 / 6 | 4 / 6 | 6 / 6 |
+
+### 头部 PSNR 差值（MC-GS 减对方，dB）
+
+| 采样方式 | 对比度 | 对 GS-single：均值（最小；正数个数） | 对最强的非 GS 方法：均值（最小；正数个数） |
+|---|---|---|---|
+| 变密度泊松 | T1 | +0.123（-0.044；5 / 6） | +0.910（+0.657；6 / 6） |
+| 变密度泊松 | FLAIR | +0.030（-0.019；5 / 6） | +0.525（+0.337；6 / 6） |
+| 均匀密度 | T1 | +0.570（+0.232；6 / 6） | +2.154（+1.779；6 / 6） |
+| 均匀密度 | FLAIR | +0.084（+0.020；6 / 6） | +0.521（-0.106；5 / 6） |
+| 伪径向 | T1 | +0.229（+0.150；6 / 6） | -0.085（-0.505；2 / 6） |
+| 伪径向 | FLAIR | +0.095（+0.038；6 / 6） | +0.210（+0.088；6 / 6） |
+
+### MC-GS 不是第一的列
+
+- 变密度泊松 T1 PSNR：vol7_tangbin_790 第 2
+- 变密度泊松 T1 NMSE：vol7_tangbin_790 第 2
+- 变密度泊松 FLAIR PSNR：vol7_tangbin_790 第 2
+- 变密度泊松 FLAIR NMSE：vol7_tangbin_790 第 2
+- 均匀密度 FLAIR PSNR：vol7_tangbin_790 第 2
+- 均匀密度 FLAIR SSIM：vol2_jiangdian 第 2
+- 均匀密度 FLAIR SSIM：vol4_tangbing 第 2
+- 均匀密度 FLAIR SSIM：vol5_sunxinyi 第 2
+- 均匀密度 FLAIR SSIM：vol6_jiangdian_790 第 2
+- 均匀密度 FLAIR SSIM：vol7_tangbin_790 第 2
+- 均匀密度 FLAIR NMSE：vol7_tangbin_790 第 2
+- 伪径向 T1 PSNR：vol1_huangyuwei 第 2
+- 伪径向 T1 PSNR：vol5_sunxinyi 第 2
+- 伪径向 T1 PSNR：vol6_jiangdian_790 第 2
+- 伪径向 T1 PSNR：vol7_tangbin_790 第 2
+- 伪径向 T1 SSIM：vol1_huangyuwei 第 2
+- 伪径向 T1 NMSE：vol1_huangyuwei 第 2
+- 伪径向 T1 NMSE：vol5_sunxinyi 第 2
+- 伪径向 T1 NMSE：vol6_jiangdian_790 第 2
+- 伪径向 T1 NMSE：vol7_tangbin_790 第 2
+- 伪径向 FLAIR SSIM：vol6_jiangdian_790 第 2
+- 伪径向 FLAIR SSIM：vol7_tangbin_790 第 2
+
+### 本节的限制
+
+- 变密度泊松下 vol7 的 PSNR 和 NMSE 输给 GS-single（T1 差 0.044 dB，FLAIR 差 0.019 dB），其余 5 次扫描 MC-GS 第一。
+- 三种掩膜里最弱的是伪径向 T1：对最强的非 GS 方法平均落后 0.085 dB，6 次扫描中只赢 2 次。
+- 每个格子只有一个随机种子；设置取自调参病例，没有在测试扫描上调参。
