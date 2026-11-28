@@ -1,0 +1,20 @@
+{
+ "no_motion": {
+  "T1": 35.834,
+  "T2": 36.306
+ },
+ "runs": [
+  {
+   "exp": "mm_af12_il_C0_N4",
+   "done": true,
+   "T1": 35.821863462418584,
+   "T2_all": 36.321276030531855,
+   "n_down": 0,
+   "T2": 36.32127602474012,
+   "n_states": 1,
+   "boundaries": [],
+   "detected_at": 1000,
+   "true_boundaries": []
+  }
+ ]
+}
