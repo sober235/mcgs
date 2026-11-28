@@ -1,6 +1,6 @@
 # Plain-scan / enhanced test set — progress
 
-State of 2026-11-27 11:35 PST (clock of the local Mac; no server time is recorded anywhere).
+State of 2026-11-27 19:10 PST — TASK SUSPENDED (user), server unreachable (clock of the local Mac; no server time is recorded anywhere).
 Session `plain-enhan`. Plan and pipeline: [README.md](README.md).
 
 ## 1. Task
@@ -24,7 +24,7 @@ Choices made by the user:
 | 1. k-space, prospective mask, coil maps (CPU) | done for all three subjects |
 | 2. truth = CS-SENSE of all acquired lines, lambda on held-out lines (GPU) | done for all three subjects |
 | 3. AF12 mask + simulated k-space per subject | 9003136585 and 9002944080 done (mask identical to the record's AF12 mask, truth residual reproduced); 9000103445 not started |
-| 4. eleven methods | 9003136585: all 11 done, every stage exit 0; 9002944080: running (same job, card 3); 9000103445 waiting |
+| 4. eleven methods | 9003136585: all 11 done, every stage exit 0; 9002944080: cut by the loss of power inside the 51-job worker; 9000103445 not started |
 | 5. scoring, tables, figures | not started |
 
 ## 3. Subjects
@@ -177,6 +177,31 @@ Resume after power-on:
    An existing topic is only verified; the tuned run is skipped when its score and volumes exist. Whether the worker
    skips its 51 finished jobs on a rerun was not tested on these topics: watch the first lines of the log.
 4. Then tables and figures per subject; check on 9002944080 whether the wrapped region lies inside the head mask.
+
+### Suspension, 2026-11-27 19:10 PST
+
+The user suspended the task at about 19:05 PST: the server seems to have lost power. Two SSH checks (port 2222) at
+19:07 and 19:09 PST timed out. Nothing is launched until the user says so.
+
+Last state seen from here, 17:01 PST (local clock), job `j-20261127T034454-326e0b09`, subject 9002944080:
+8 of the worker's 51 jobs had ended with exit 0 (ZF and CG-SENSE of both scans, MC-GS with the registered recipe,
+GS-single of both scans, ZS-SSDU of both scans, CS-SENSE plain scan lambda 2.5e-4); the CS-SENSE grid was running.
+What ended between 17:01 PST and the loss of power is not known and has to be read from the topic's `logs/` after
+power-on.
+
+Interim head PSNR / SSIM of 9002944080 read at 17:01 PST (not a table of record):
+
+| method | plain scan | enhanced |
+|---|---|---|
+| ZF | - | 26.026 / 0.6955 |
+| CG-SENSE | - | 32.199 / 0.8411 |
+| ZS-SSDU | 35.235 / 0.9316 | 35.333 / 0.9323 |
+| GS-single | 36.588 / 0.9407 | 36.222 / 0.9384 |
+| MC-GS, registered recipe | - | 36.398 / 0.9412 |
+
+After power-on, before the relaunch of step 3 above: check the files of the job that was running when the power
+went (a half-written result of a classical run, or a trainer folder without a score), and that the three finished
+blocks are intact (`subjects/9003136585` complete; truths of all three subjects; topic of 9002944080).
 
 ## 10. GPU use
 
